@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS Study (id varchar(36) PRIMARY KEY not null, name VARCHAR(255), description VARCHAR(255), organization VARCHAR(255),info VARCHAR(255));
+CREATE TABLE IF NOT EXISTS Donor (id varchar(16) PRIMARY KEY, study_id integer references Study, submitter_donor_id VARCHAR(255), donor_gender VARCHAR(255),info VARCHAR(255));
+CREATE TABLE IF NOT EXISTS Specimen(id varchar(16) PRIMARY KEY, donor_id integer references Donor, submitter_specimen_id VARCHAR(255),class VARCHAR(255),type VARCHAR(255),info VARCHAR(255));
+CREATE TABLE IF NOT EXISTS Sample(id varchar(16) PRIMARY KEY, specimen_id integer references Specimen, submitter_sample_id VARCHAR(255), type VARCHAR(255),info VARCHAR(255));
+CREATE TABLE IF NOT EXISTS File(id varchar(36) PRIMARY KEY, sample_id integer references Sample, name VARCHAR(255),size integer, md5sum VARCHAR(255),type VARCHAR(255),metadata_doc VARCHAR(255),info VARCHAR(255));
+CREATE TABLE IF NOT EXISTS VariantCallAnalysis (id varchar(16) PRIMARY KEY, study_id integer references Study, state VARCHAR(255),variant_calling_tool VARCHAR(255), info VARCHAR(255));
+CREATE TABLE IF NOT EXISTS VariantCallFileSet(id varchar(16) PRIMARY KEY, analysis_id integer references VariantCallAnalysis, file_id integer references File);
+CREATE TABLE IF NOT EXISTS SequencingReadAnalysis(id varchar(16) PRIMARY KEY, study_id integer references Study, state VARCHAR(255), library_strategy VARCHAR(255),paired_end VARCHAR(255),insert_size VARCHAR(255), aligned VARCHAR(255),alignment_tool VARCHAR(255),reference VARCHAR(255),info VARCHAR(255));
+CREATE TABLE IF NOT EXISTS SequencingReadFileSet(id varchar(16) PRIMARY KEY, analysis_id integer references SequencingReadAnalysis, file_id integer references File);
+CREATE TABLE IF NOT EXISTS MAFAnalysis(id varchar(16) PRIMARY KEY, study_id integer references Study, info VARCHAR(255));
+CREATE TABLE IF NOT EXISTS MAFFileSet(id varchar(16) PRIMARY KEY, analysis_id integer references MAFAnalysis, file_id integer references File);
