@@ -15,19 +15,38 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server;
+package org.icgc.dcc.sodalite.server.controller;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import lombok.RequiredArgsConstructor;
+import org.icgc.dcc.sodalite.server.model.Study;
+import org.icgc.dcc.sodalite.server.service.StudyService;
+import org.icgc.dcc.sodalite.server.service.ValidationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Application entry point.
- */
-@SpringBootApplication
-public class ServerMain {
+@RestController
+@RequestMapping(path="/study")
+@RequiredArgsConstructor
+public class StudyController {
 
-  public static void main(String... args) {
-    SpringApplication.run(ServerMain.class, args);
+  /**
+   * Dependencies
+   */
+  @Autowired
+  private final StudyService studyService;
+  @Autowired
+  private final ValidationService validationService;
+
+  @GetMapping
+  public Study getStudy() {
+    return studyService.getStudy();
+  }
+
+  @GetMapping(path="/validationTest")
+  public void testValidation() {
+    validationService.validate();
   }
 
 }

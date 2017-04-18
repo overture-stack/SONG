@@ -15,19 +15,17 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server;
+package org.icgc.dcc.sodalite.server.model;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import lombok.Builder;
+import lombok.Data;
 
-/**
- * Application entry point.
- */
-@SpringBootApplication
-public class ServerMain {
+@Builder
+@Data
+public class Study {
 
-  public static void main(String... args) {
-    SpringApplication.run(ServerMain.class, args);
-  }
+  String id;
+  String name;
+  String description;
 
 }

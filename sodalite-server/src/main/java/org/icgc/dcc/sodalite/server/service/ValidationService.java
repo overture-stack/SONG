@@ -15,19 +15,19 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server;
+package org.icgc.dcc.sodalite.server.service;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
-/**
- * Application entry point.
- */
-@SpringBootApplication
-public class ServerMain {
+@Slf4j
+@Service
+public class ValidationService {
 
-  public static void main(String... args) {
-    SpringApplication.run(ServerMain.class, args);
+  @Async
+  public void validate() {
+    log.info("Async validation...");
   }
 
 }

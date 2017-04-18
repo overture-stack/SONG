@@ -15,19 +15,20 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server;
+package org.icgc.dcc.sodalite.server.service;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.icgc.dcc.sodalite.server.model.Study;
+import org.springframework.stereotype.Service;
 
-/**
- * Application entry point.
- */
-@SpringBootApplication
-public class ServerMain {
+@Service
+public class StudyService {
 
-  public static void main(String... args) {
-    SpringApplication.run(ServerMain.class, args);
+  public Study getStudy() {
+    return Study.builder()
+        .id("1")
+        .name("TEST")
+        .description("Test Study Please Ignore.")
+        .build();
   }
 
 }

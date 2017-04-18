@@ -15,19 +15,21 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server;
+package org.icgc.dcc.sodalite.server.config;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-/**
- * Application entry point.
- */
-@SpringBootApplication
-public class ServerMain {
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-  public static void main(String... args) {
-    SpringApplication.run(ServerMain.class, args);
+@Configuration
+public class WebConfig extends WebMvcConfigurerAdapter {
+
+  @Override
+  public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+    configurer.defaultContentType(APPLICATION_JSON);
   }
+
 
 }
