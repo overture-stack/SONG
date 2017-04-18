@@ -19,11 +19,12 @@ package org.icgc.dcc.sodalite.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 
 /**
  * Application entry point.
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 public class ServerMain {
 
   public static void main(String... args) {

@@ -15,47 +15,24 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.controller;
+package org.icgc.dcc.sodalite.server.repository;
 
-import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.sodalite.server.model.Study;
-import org.icgc.dcc.sodalite.server.service.StudyService;
-import org.icgc.dcc.sodalite.server.service.ValidationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.icgc.dcc.sodalite.server.repository.mapper.StudyMapper;
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
 import java.util.List;
 
-import static org.springframework.http.MediaType.*;
+@RegisterMapper(StudyMapper.class)
+public interface StudyRepository {
 
-@RestController
-@RequestMapping(path="/study")
-@RequiredArgsConstructor
-public class StudyController {
+  @SqlUpdate("INSERT INTO study (id, name, description) VALUES (:id, :name, :description)")
+  int save(@Bind("id") String id, @Bind("name") String name, @Bind("description") String description);
 
-  /**
-   * Dependencies
-   */
-  @Autowired
-  private final StudyService studyService;
-  @Autowired
-  private final ValidationService validationService;
-
-  @GetMapping
-  public List<Study> getStudy(@RequestParam("name") String name) {
-    return studyService.getStudyByName(name);
-  }
-
-  @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
-  @ResponseBody
-  public int saveStudy(@RequestBody Study study) {
-    return studyService.saveStudy(study.getName(), study.getDescription());
-  }
-
-  @GetMapping(path="/validationTest")
-  public void testValidation() {
-    validationService.validate();
-  }
+  @SqlQuery("SELECT id, name, description FROM study WHERE name = :name")
+  List<Study> get(@Bind("name") String name);
 
 }

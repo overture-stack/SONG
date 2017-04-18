@@ -17,18 +17,35 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.val;
 import org.icgc.dcc.sodalite.server.model.Study;
+import org.icgc.dcc.sodalite.server.repository.StudyRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@RequiredArgsConstructor
 public class StudyService {
 
-  public Study getStudy() {
-    return Study.builder()
-        .id("1")
-        .name("TEST")
-        .description("Test Study Please Ignore.")
-        .build();
+  /**
+   * Dependencies
+   */
+  @Autowired
+  IdService idService;
+  @Autowired
+  StudyRepository studyRepository;
+
+  @SneakyThrows
+  public List<Study> getStudyByName(String name) {
+    return studyRepository.get(name);
+  }
+
+  public int saveStudy(String name, String description) {
+    return studyRepository.save(idService.newId(), name, description);
   }
 
 }

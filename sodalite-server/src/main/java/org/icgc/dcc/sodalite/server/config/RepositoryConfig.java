@@ -15,47 +15,30 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.controller;
+package org.icgc.dcc.sodalite.server.config;
 
-import lombok.RequiredArgsConstructor;
-import org.icgc.dcc.sodalite.server.model.Study;
-import org.icgc.dcc.sodalite.server.service.StudyService;
-import org.icgc.dcc.sodalite.server.service.ValidationService;
+import org.icgc.dcc.sodalite.server.repository.StudyRepository;
+import org.skife.jdbi.v2.DBI;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
-import java.util.List;
+import javax.sql.DataSource;
 
-import static org.springframework.http.MediaType.*;
+@Lazy
+@Configuration
+public class RepositoryConfig {
 
-@RestController
-@RequestMapping(path="/study")
-@RequiredArgsConstructor
-public class StudyController {
-
-  /**
-   * Dependencies
-   */
   @Autowired
-  private final StudyService studyService;
-  @Autowired
-  private final ValidationService validationService;
+  private DataSource dataSource;
 
-  @GetMapping
-  public List<Study> getStudy(@RequestParam("name") String name) {
-    return studyService.getStudyByName(name);
+  @Bean
+  public DBI dbi() {
+    return new DBI(dataSource);
   }
 
-  @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
-  @ResponseBody
-  public int saveStudy(@RequestBody Study study) {
-    return studyService.saveStudy(study.getName(), study.getDescription());
-  }
-
-  @GetMapping(path="/validationTest")
-  public void testValidation() {
-    validationService.validate();
-  }
+  @Bean
+  public StudyRepository studyRepository(DBI dbi) { return dbi.open(StudyRepository.class); }
 
 }

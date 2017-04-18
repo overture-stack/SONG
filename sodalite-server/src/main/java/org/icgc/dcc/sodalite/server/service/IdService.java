@@ -15,36 +15,19 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.model;
+package org.icgc.dcc.sodalite.server.service;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Value;
-import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import org.springframework.stereotype.Service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.UUID;
 
-@Builder
-@Value
-public class Study {
+import static java.util.UUID.randomUUID;
 
-  String id;
-  String name;
-  String description;
+@Service
+public class IdService {
 
-  @JsonCreator
-  public Study(@JsonProperty("id") String id,
-               @JsonProperty("name") String name,
-               @JsonProperty("description") String description) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
+  public String newId() {
+    return randomUUID().toString();
   }
 
 }
-

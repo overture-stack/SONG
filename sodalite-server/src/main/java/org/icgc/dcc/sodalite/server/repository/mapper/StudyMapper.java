@@ -15,47 +15,24 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.controller;
+package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.sodalite.server.model.Study;
-import org.icgc.dcc.sodalite.server.service.StudyService;
-import org.icgc.dcc.sodalite.server.service.ValidationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import static org.springframework.http.MediaType.*;
+public class StudyMapper implements ResultSetMapper<Study> {
 
-@RestController
-@RequestMapping(path="/study")
-@RequiredArgsConstructor
-public class StudyController {
-
-  /**
-   * Dependencies
-   */
-  @Autowired
-  private final StudyService studyService;
-  @Autowired
-  private final ValidationService validationService;
-
-  @GetMapping
-  public List<Study> getStudy(@RequestParam("name") String name) {
-    return studyService.getStudyByName(name);
-  }
-
-  @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
-  @ResponseBody
-  public int saveStudy(@RequestBody Study study) {
-    return studyService.saveStudy(study.getName(), study.getDescription());
-  }
-
-  @GetMapping(path="/validationTest")
-  public void testValidation() {
-    validationService.validate();
+  public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException
+  { // I prefer braces on next line when declaring exception throws in method signature - Dušan
+    return Study.builder()
+        .id(r.getString("id"))
+        .name(r.getString("name"))
+        .description(r.getString("description"))
+        .build();
   }
 
 }
