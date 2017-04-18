@@ -15,21 +15,10 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.security;
+package org.icgc.dcc.sodalite.server.service;
 
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import static org.junit.Assert.*;
 
-public class CachingRemoteTokenServices extends RemoteTokenServices {
-
-  @Override
-  @Cacheable("tokens")
-  public OAuth2Authentication loadAuthentication(String accessToken)
-      throws AuthenticationException, InvalidTokenException {
-    return super.loadAuthentication(accessToken);
-  }
+public class IdServiceTest {
 
 }
