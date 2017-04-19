@@ -21,7 +21,7 @@ CREATE TYPE specimen_type as ENUM('Normal-solid tissue',
     'Cell line - derived from tumour', 'Primary tumour - lymph node',
     'Metastatic tumour - other', 'Cell line - derived from xenograft tumour');
 CREATE TYPE sample_type as ENUM('DNA','FFPE DNA','Amplified DNA','RNA','Total RNA','FFPE RNA');
-create TYPE file_type as ENUM('FASTA','FAI','FASTQ','BAM','BAI','VCF','TBI');
+create TYPE file_type as ENUM('FASTA','FAI','FASTQ','BAM','BAI','VCF','TBI','IDX');
 CREATE TYPE analysis_state as ENUM('Created','Uploaded','Published','Suppressed');
 CREATE TYPE library_strategy as ENUM('WGS','WXS','RNA-Seq','ChIP-Seq','miRNA-Seq','Bisulfite-Seq','Validation','Amplicon','Other');
 

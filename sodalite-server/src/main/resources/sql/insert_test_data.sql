@@ -1,4 +1,4 @@
-insert into Study (id, name,description,organization, info) values ('ABC123','Sample Study Name A','A fictional study', 'Sample Data Research Institute','{"is_test_data": "true" }');
+insert into Study (id, name,description,organization, info) values ('ABC123','X1-CA','A fictional study', 'Sample Data Research Institute','{"is_test_data": "true" }');
 insert into Donor (id, study_id, submitter_id, gender, info) values ('DO1','ABC123', 'Subject-X23Alpha7', 'Male', '{"species": "Human", "age": 42, "is_test_data": "True" }');
 insert into Specimen (id, donor_id, submitter_id, class, type, info) values ('SP1','DO1','Tissue-Culture 284 Gamma 3', 'Tumour', 'Recurrent tumour - solid tissue', '{ "Warning": "Tissue culture may have gain sentience due to high levels of gamma radiation exposure during transit. Take all reasonable precautions.", "is_test_data": "true"}');
 insert into Specimen (id, donor_id, submitter_id, class, type, info) values ('SP2','DO1','Tissue-Culture 285 Gamma 7', 'Normal', 'Normal - other', '{ "Notes": "This tissue culture is perfectly normal in every way. If it claims otherwise, please ignore it.", "is_test_data": "true"}');
