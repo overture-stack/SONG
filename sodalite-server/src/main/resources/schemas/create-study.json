@@ -11,6 +11,10 @@
 					"id": "/properties/createStudy/properties/apiVersion",
 					"type": "string"
 				},
+			  "submissionId": {
+					"id": "/properties/createStudy/properties/submissionId",
+					"type": "string"
+				},
 				"study": {
 					"id": "/properties/createStudy/properties/study",
 					"type": "object",

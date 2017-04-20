@@ -11,6 +11,10 @@
 					"id": "/properties/modifyEntity/properties/apiVersion",
 					"type": "string"
 				},
+			  "submissionId": {
+					"id": "/properties/modifyEntity/properties/submissionId",
+					"type": "string"
+				},
 				"donors": {
 					"id": "/properties/modifyEntity/properties/donors",
 					"type": "array",

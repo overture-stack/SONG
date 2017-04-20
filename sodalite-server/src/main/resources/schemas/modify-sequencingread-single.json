@@ -11,6 +11,10 @@
 					"id": "/properties/modifySequencingRead/properties/apiVersion",
 					"type": "string"
 				},
+			  "submissionId": {
+					"id": "/properties/modifySequencingRead/properties/submissionId",
+					"type": "string"
+				},
 				"sequencingRead": {
 					"id": "/properties/modifySequencingRead/properties/sequencingRead",
 					"type": "object",

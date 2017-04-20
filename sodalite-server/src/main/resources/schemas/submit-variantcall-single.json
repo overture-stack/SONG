@@ -20,15 +20,15 @@
 					"type": "object",
 					"properties": {
 						"variantCallingTool": {
-							"id": "/properties/modify/properties/sequencingRead/properties/variantCallingTool",
+							"id": "/properties/submit/properties/sequencingRead/properties/variantCallingTool",
 							"type": "string"
 						},
 						"tumourSampleSubmitterId": {
-							"id": "/properties/modify/properties/sequencingRead/properties/tumourSampleSubmitterId",
+							"id": "/properties/submit/properties/sequencingRead/properties/tumourSampleSubmitterId",
 							"type": "string"
 						},
 						"matchedNormalSampleSubmitterId": {
-							"id": "/properties/modify/properties/sequencingRead/properties/matchedNormalSampleSubmitterId",
+							"id": "/properties/submit/properties/sequencingRead/properties/matchedNormalSampleSubmitterId",
 							"type": "string"
 						}
 					},

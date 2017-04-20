@@ -11,6 +11,10 @@
 					"id": "/properties/modifyVariantCall/properties/apiVersion",
 					"type": "string"
 				},
+			  "submissionId": {
+					"id": "/properties/modifyVariantCall/properties/submissionId",
+					"type": "string"
+				},
 				"variantCall": {
 					"id": "/properties/modifyVariantCall/properties/variantCall",
 					"type": "object",

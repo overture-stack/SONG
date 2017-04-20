@@ -11,6 +11,10 @@
 					"id": "/properties/createEntity/properties/apiVersion",
 					"type": "string"
 				},
+			  "submissionId": {
+					"id": "/properties/createEntity/properties/submissionId",
+					"type": "string"
+				},
 				"donors": {
 					"id": "/properties/createEntity/properties/donors",
 					"type": "array",
