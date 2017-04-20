@@ -1,0 +1,112 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://sodalite.icgc.org/messages",
+	"type": "object",
+	"properties": {
+		"modifyVariantCall": {
+			"id": "/properties/modifyVariantCall",
+			"type": "object",
+			"properties": {
+			  "apiVersion": {
+					"id": "/properties/modifyVariantCall/properties/apiVersion",
+					"type": "string"
+				},
+				"variantCall": {
+					"id": "/properties/modifyVariantCall/properties/variantCall",
+					"type": "object",
+					"properties": {
+						"analysisId": {
+							"id": "/properties/modifyVariantCall/properties/variantCall/properties/analysisId",
+							"type": "string"
+						},
+						"variantCallingTool": {
+							"id": "/properties/modifyVariantCall/properties/variantCall/properties/variantCallingTool",
+							"type": "string"
+						},
+						"tumourSampleSubmitterId": {
+							"id": "/properties/modify/properties/sequencingRead/properties/tumourSampleSubmitterId",
+							"type": "string"
+						},
+						"tumourSampleId": {
+							"id": "/properties/modify/properties/sequencingRead/properties/tumourSampleId",
+							"type": "string"
+						},
+						"matchedNormalSampleSubmitterId": {
+							"id": "/properties/modify/properties/sequencingRead/properties/matchedNormalSampleSubmitterId",
+							"type": "string"
+						},
+						"matchedNormalSampleId": {
+							"id": "/properties/modify/properties/sequencingRead/properties/matchedTumourSampleSubmitterId",
+							"type": "string"
+						}					
+					},
+					"required":["aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "referenceGenomeFiles"],
+					"dependencies": {
+        		"tumourSampleSubmitterId": "tumourSampleId"
+        	}
+				},
+				"study": {
+					"id": "/properties/modifyVariantCall/properties/study",
+					"type": "object",
+					"properties": {
+						"studyId": {
+							"id": "/properties/modifyVariantCall/properties/study/properties/studyId",
+							"type": "string"
+						},
+						"donor": {
+							"id": "/properties/modifyVariantCall/properties/study/properties/donor",
+							"type": "object",
+							"properties": {
+								"donorId": {
+									"id": "/properties/modifyVariantCall/properties/study/properties/donor/properties/donorId",
+									"type": "string"
+								},
+								"specimen": {
+									"id": "/properties/modifyVariantCall/properties/study/properties/donor/properties/specimen",
+									"type": "object",
+									"properties": {
+										"specimenId": {
+											"id": "/properties/modifyVariantCall/properties/study/properties/donor/properties/specimen/properties/specimenId",
+											"type": "string"
+										},
+										"sample": {
+											"id": "/properties/modifyVariantCall/properties/study/properties/donor/properties/specimen/properties/sample",
+											"type": "object",
+											"properties": {
+												"sampleId": {
+													"id": "/properties/modifyVariantCall/properties/study/properties/donor/properties/specimen/properties/sample/properties/sampleId",
+													"type": "string"
+												},
+												"files": {
+													"id": "/properties/modifyVariantCall/properties/study/properties/donor/properties/specimen/properties/sample/properties/files",
+													"type": "array",
+													"items": {
+														"id": "/properties/modifyVariantCall/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items",
+														"type": "object",
+														"properties": {
+															"objectId": {
+																"id": "/properties/modifyVariantCall/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/objectId",
+																"type": "string"
+															}
+														},
+														"required":["objectId"]
+													}
+												}
+											},
+											"required":["sampleId"]
+										}
+									},
+									"required":["specimenId"]
+								}
+							},
+							"required":["donorId"]
+						}
+					},
+					"required":["studyId", "donor"]
+				}
+			},
+			"required":["apiVersion", "variantCall"]
+		}
+	},
+	"required":["modifyVariantCall"]
+}

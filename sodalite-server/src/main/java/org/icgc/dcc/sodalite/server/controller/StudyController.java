@@ -30,7 +30,7 @@ import java.util.List;
 import static org.springframework.http.MediaType.*;
 
 @RestController
-@RequestMapping(path="/study")
+@RequestMapping(path="/studies")
 @RequiredArgsConstructor
 public class StudyController {
 
