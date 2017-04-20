@@ -120,7 +120,7 @@
 					}
 				}
 			},
-			"required": ["apiVersion"]
+			"required": ["apiVersion", "submissionId"]
 		}
 	},
 	"required": ["modifyEntity"]

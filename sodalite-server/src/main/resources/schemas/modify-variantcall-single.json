@@ -109,7 +109,7 @@
 					"required":["studyId", "donor"]
 				}
 			},
-			"required":["apiVersion", "variantCall"]
+			"required":["apiVersion", "submissionId", "variantCall"]
 		}
 	},
 	"required":["modifyVariantCall"]

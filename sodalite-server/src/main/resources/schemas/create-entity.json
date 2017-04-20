@@ -107,7 +107,8 @@
 						"required":["sampleSubmitterId", "sampleType"]
 					}
 				}
-			}
+			},
+			"required": ["apiVersion", "submissionId"]
 		}
 	},
 	"required":["createEntity"]

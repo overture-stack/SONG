@@ -38,7 +38,9 @@
 					},
 					"required": ["studyId", "name", "organization", "description"]
 				}
-			}
+			},
+			"required": ["apiVersion", "submissionId"]
 		}
-	}
+	},
+	"required": ["createStudy"]
 }
