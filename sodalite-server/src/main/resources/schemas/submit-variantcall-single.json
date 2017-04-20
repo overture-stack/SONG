@@ -143,7 +143,7 @@
 															"fileType": {
 																"id": "/properties/submit/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileType",
 																"type": "string",
-																"enum": ["FASTA", "FAI", "FASTQ", "BAM", "BAI", "VCF", "TBI", "IDX" ]
+																"enum": ["FASTA", "FAI", "FASTQ", "BAM", "BAI", "VCF", "TBI", "IDX", "XML" ]
 															},
 															"fileMd5": {
 																"id": "/properties/submit/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileMd5",
