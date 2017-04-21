@@ -1,0 +1,8 @@
+language: java
+2	jdk:
+3	  - oraclejdk8
+4
+5	script: "mvn cobertura:cobertura"
+6
+7	after_success:
+8	  - bash <(curl -s https://codecov.io/bash)
