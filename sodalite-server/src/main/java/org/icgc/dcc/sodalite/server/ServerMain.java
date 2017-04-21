@@ -24,7 +24,7 @@ import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
 /**
  * Application entry point.
  */
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+@SpringBootApplication
 public class ServerMain {
 
   public static void main(String... args) {
