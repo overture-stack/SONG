@@ -29,10 +29,12 @@ import java.util.List;
 @RegisterMapper(StudyMapper.class)
 public interface StudyRepository {
 
-  @SqlUpdate("INSERT INTO study (id, name, description) VALUES (:id, :name, :description)")
-  int save(@Bind("id") String id, @Bind("name") String name, @Bind("description") String description);
+  @SqlUpdate("INSERT INTO study (id, name, description, organization) VALUES (:id, :name, :description, :organization)")
+  int save(@Bind("id") String id, @Bind("name") String name, @Bind("description") String description, @Bind("organization") String organization);
+
+  @SqlQuery("SELECT id, name, description FROM study WHERE id = :studyId")
+  Study get(@Bind("studyId") String id);
 
   @SqlQuery("SELECT id, name, description FROM study WHERE name = :name")
-  List<Study> get(@Bind("name") String name);
-
+  List<Study> getByName(@Bind("name") String name);
 }

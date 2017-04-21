@@ -30,7 +30,7 @@ import java.util.List;
 import static org.springframework.http.MediaType.*;
 
 @RestController
-@RequestMapping(path="/study")
+@RequestMapping(path="/studies")
 @RequiredArgsConstructor
 public class StudyController {
 
@@ -50,7 +50,7 @@ public class StudyController {
   @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
   public int saveStudy(@RequestBody Study study) {
-    return studyService.saveStudy(study.getName(), study.getDescription());
+    return studyService.saveStudy(study);
   }
 
   @GetMapping(path="/validationTest")

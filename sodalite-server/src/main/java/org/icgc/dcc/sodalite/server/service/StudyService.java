@@ -40,12 +40,23 @@ public class StudyService {
   StudyRepository studyRepository;
 
   @SneakyThrows
+  public Study getStudy(String studyId) {
+    return studyRepository.get(studyId);
+  }
+  
+  @SneakyThrows
   public List<Study> getStudyByName(String name) {
-    return studyRepository.get(name);
+    return studyRepository.getByName(name);
   }
 
-  public int saveStudy(String name, String description) {
-    return studyRepository.save(idService.newId(), name, description);
+  /**
+   * We manually determine study id because it's a meaningful abbreviation usually pre-determined.
+   * 
+   * @param studyId
+   * @return
+   */
+  public int saveStudy(Study study) {
+    return studyRepository.save(study.getId(), study.getName(), study.getDescription(), study.getOrganization());
   }
 
 }

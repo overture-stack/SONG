@@ -36,14 +36,17 @@ public class Study {
   String id;
   String name;
   String description;
+  String organization;
 
   @JsonCreator
   public Study(@JsonProperty("id") String id,
                @JsonProperty("name") String name,
-               @JsonProperty("description") String description) {
+               @JsonProperty("description") String description,
+               @JsonProperty("organization") String organization) {
     this.id = id;
     this.name = name;
     this.description = description;
+    this.organization = organization;
   }
 
 }
