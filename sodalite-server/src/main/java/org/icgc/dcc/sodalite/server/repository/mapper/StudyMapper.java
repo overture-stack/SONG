@@ -32,6 +32,7 @@ public class StudyMapper implements ResultSetMapper<Study> {
         .id(r.getString("id"))
         .name(r.getString("name"))
         .description(r.getString("description"))
+        .organization(r.getString("organization"))
         .build();
   }
 

@@ -35,3 +35,6 @@ spring.datasource:
   max-idle: 1
   min-idle: 1
 
+id:
+  server-instance: 0
+  worker-instance: 0
