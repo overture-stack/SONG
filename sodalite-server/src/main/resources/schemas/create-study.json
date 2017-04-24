@@ -1,0 +1,46 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://sodalite.icgc.org/messages",
+	"type": "object",
+	"properties": {
+		"createStudy": {
+			"id": "/properties/createStudy",
+			"type": "object",
+			"properties": {
+			  "apiVersion": {
+					"id": "/properties/createStudy/properties/apiVersion",
+					"type": "string"
+				},
+			  "submissionId": {
+					"id": "/properties/createStudy/properties/submissionId",
+					"type": "string"
+				},
+				"study": {
+					"id": "/properties/createStudy/properties/study",
+					"type": "object",
+					"properties": {
+						"studyId": {
+							"id": "/properties/createStudy/properties/study/properties/studyId",
+							"type": "string"
+						},
+						"name": {
+							"id": "/properties/createStudy/properties/study/properties/name",
+							"type": "string"
+						},
+						"organization": {
+							"id": "/properties/createStudy/properties/study/properties/organization",
+							"type": "string"
+						},
+						"description": {
+							"id": "/properties/createStudy/properties/study/properties/description",
+							"type": "string"
+						}
+					},
+					"required": ["studyId", "name", "organization", "description"]
+				}
+			},
+			"required": ["apiVersion", "submissionId"]
+		}
+	},
+	"required": ["createStudy"]
+}
