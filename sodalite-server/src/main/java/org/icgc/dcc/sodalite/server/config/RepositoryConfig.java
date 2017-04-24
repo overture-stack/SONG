@@ -18,6 +18,10 @@
 package org.icgc.dcc.sodalite.server.config;
 
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
+import org.icgc.dcc.sodalite.server.repository.DonorRepository;
+import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
+import org.icgc.dcc.sodalite.server.repository.SampleRepository;
+
 import org.skife.jdbi.v2.DBI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -40,5 +44,13 @@ public class RepositoryConfig {
 
   @Bean
   public StudyRepository studyRepository(DBI dbi) { return dbi.open(StudyRepository.class); }
-
+  
+  @Bean
+  public DonorRepository donorRepository(DBI dbi) { return dbi.open(DonorRepository.class); }
+  
+  @Bean
+  public SpecimenRepository SpecimenRepository(DBI dbi) { return dbi.open(SpecimenRepository.class); }
+  
+  @Bean
+  public SampleRepository SampleRepository(DBI dbi) { return dbi.open(SampleRepository.class); }
 }

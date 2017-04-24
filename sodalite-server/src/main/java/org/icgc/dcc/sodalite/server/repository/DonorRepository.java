@@ -15,28 +15,24 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.model;
+package org.icgc.dcc.sodalite.server.repository;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Value;
+import org.icgc.dcc.sodalite.server.model.Donor;
+import org.icgc.dcc.sodalite.server.model.Gender;
+import org.icgc.dcc.sodalite.server.repository.mapper.DonorMapper;
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
-@Builder
-@Value
-public class Study {
-  String id;
-  String name;
-  String description;
+import java.util.List;
 
-  @JsonCreator
-  public Study(@JsonProperty("id") String id,
-               @JsonProperty("name") String name,
-               @JsonProperty("description") String description) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-  }
+@RegisterMapper(DonorMapper.class)
+public interface DonorRepository {
 
+  @SqlUpdate("INSERT INTO Donor (id, study_id, submitter_id, gender) VALUES (:id, :study_id, :submitter_id, :gender)")
+  int save(@Bind("id") String id, @Bind(":study_id") String study_id, @Bind("submitter_id") String submitter_id, @Bind("gender") Gender gender);
+
+  @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE study_id=:study_id and submitter_id=:submitter_id")
+  List<Donor> get(@Bind("study_id") String study_id, @Bind("submitter_id") String submitter_id);
 }
-

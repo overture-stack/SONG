@@ -15,28 +15,26 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.model;
+package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Value;
+import org.icgc.dcc.sodalite.server.model.Donor;
+import org.icgc.dcc.sodalite.server.model.Gender;
+import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-@Builder
-@Value
-public class Study {
-  String id;
-  String name;
-  String description;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-  @JsonCreator
-  public Study(@JsonProperty("id") String id,
-               @JsonProperty("name") String name,
-               @JsonProperty("description") String description) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
+public class DonorMapper implements ResultSetMapper<Donor> {
+
+  public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException
+  { // I prefer braces on next line when declaring exception throws in method signature - Dušan
+    return Donor.builder()
+        .id(r.getString("id"))
+        .study_id(r.getString("study_id"))
+        .submitter_id(r.getString("description"))
+        .gender(Gender.valueOf(r.getString("gender")))
+        .build();
   }
 
 }
-
