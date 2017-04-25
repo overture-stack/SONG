@@ -41,16 +41,14 @@ public class StudyService {
     return studyRepository.save(id, name, organization, description);
   }
 
-  public int createStudy(String json) {
-	// deserialize fields of json
-	  
-	// TODO: 
-	// validate(json vs create-study-message.json schema)
-	// verify: json.createStudy.apiVersion is supported
-	// log this?: json.createStudy.submissionId
-	// json.createStudy.study.{id,name,organization,description} => save to repository
-	// saveStudy(id,name,organization, description)
-	// return status of save operation
-	return 0;
+
+  /**
+   * We manually determine study id because it's a meaningful abbreviation usually pre-determined.
+   * 
+   * @param studyId
+   * @return
+   */
+  public int saveStudy(Study study) {
+    return studyRepository.save(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
   }
 }

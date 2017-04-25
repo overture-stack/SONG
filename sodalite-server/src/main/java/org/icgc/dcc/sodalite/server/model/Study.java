@@ -17,29 +17,117 @@
  */
 package org.icgc.dcc.sodalite.server.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.HashMap;
+import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Value;
 
-@Builder
-@Value
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+    "studyId",
+    "name",
+    "organization",
+    "description"
+})
 public class Study {
-  String id;
-  String name;
-  String description;
-  String organization;
+    @JsonProperty("studyId")
+    private String studyId;
 
-  @JsonCreator
-  public Study(@JsonProperty("id") String id,
-               @JsonProperty("name") String name,
-               @JsonProperty("description") String description,
-               @JsonProperty("organization") String organization) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.organization = organization;
-  }
+    @JsonProperty("name")
+    private String name;
+
+    @JsonProperty("organization")
+    private String organization;
+
+    @JsonProperty("description")
+    private String description;
+    @JsonIgnore
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @JsonProperty("studyId")
+    public String getStudyId() {
+        return studyId;
+    }
+
+    @JsonProperty("studyId")
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
+    }
+
+    public Study withStudyId(String studyId) {
+        this.studyId = studyId;
+        return this;
+    }
+
+    @JsonProperty("name")
+    public String getName() {
+        return name;
+    }
+
+    @JsonProperty("name")
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Study withName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    @JsonProperty("organization")
+    public String getOrganization() {
+        return organization;
+    }
+
+    @JsonProperty("organization")
+    public void setOrganization(String organization) {
+        this.organization = organization;
+    }
+
+    public Study withOrganization(String organization) {
+        this.organization = organization;
+        return this;
+    }
+
+    @JsonProperty("description")
+    public String getDescription() {
+        return description;
+    }
+
+    @JsonProperty("description")
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Study withDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+    }
+
+    public Study withAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+        return this;
+    }
 
 }
-
