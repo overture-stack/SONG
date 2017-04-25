@@ -1,5 +1,5 @@
 {
-  "submit": {
+  "variantCallSubmission": {
     "apiVersion": "1.0",
     "submissionId": "ABC",
     "variantCall": {

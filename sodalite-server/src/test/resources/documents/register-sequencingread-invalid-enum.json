@@ -1,12 +1,17 @@
 {
-  "submit": {
+  "sequencingReadSubmission": {
     "apiVersion": "1.0",
     "submissionId": "ABC",
-    "variantCall": {
-	    "variantCallingTool": "silver bullet",
-			"tumourSampleSubmitterId": "",
-			"matchedNormalSampleSubmitterId": ""
-		},
+    "sequencingRead": {
+      "libraryStrategy": "WXS",
+      "pairedEnd": false,
+      "insertSize": 900,
+      "aligned": true,
+      "alignmentTool": "MUSE variant call pipeline",
+      "referenceGenomeFiles": [
+        "hs37d5"
+      ]
+    },
     "study": {
       "studyId": "ABCD-CA",
       "name": "Example Study",
