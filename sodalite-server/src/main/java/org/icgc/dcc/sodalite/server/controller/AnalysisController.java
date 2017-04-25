@@ -25,11 +25,17 @@ public class AnalysisController {
 
   @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
-  public int createOrUpdateAnalysis(@RequestBody String json) {
+  public int createAnalysis(@RequestBody String json) {
 	AnalysisRequest a = AnalysisRequest.parse(json);
-    return analysisService.CreateOrUpdateAnalysis(a);
+    return analysisService.create(a);
   }
   
+  @PutMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+  @ResponseBody
+  public int modifyAnalysis(@RequestBody String json) {
+	AnalysisRequest a = AnalysisRequest.parse(json);
+    return analysisService.modify(a);
+  }
   
   @GetMapping(value="/{id}")
   public List<Analysis> GetAnalysisyById(@PathVariable("id") String id) {

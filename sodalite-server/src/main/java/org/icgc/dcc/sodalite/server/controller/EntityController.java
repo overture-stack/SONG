@@ -2,6 +2,8 @@ package org.icgc.dcc.sodalite.server.controller;
 import lombok.RequiredArgsConstructor;
 
 import org.icgc.dcc.sodalite.server.model.Entity;
+import org.icgc.dcc.sodalite.server.model.json.create.CreateEntityMessage;
+import org.icgc.dcc.sodalite.server.model.json.update.entity.EntityUpdateMessage;
 import org.icgc.dcc.sodalite.server.service.EntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +26,14 @@ public class EntityController {
 
   @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
-  public int createOrUpdateEntity(@RequestBody String json) {
-    return entityService.CreateOrUpdate(json);
+  public int createEntity(@RequestBody CreateEntityMessage message) {
+    return entityService.create(message.getCreateEntity());
+  }
+  
+  @PutMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+  @ResponseBody
+  public int modifyEntity(@RequestBody EntityUpdateMessage message) {
+    return entityService.modify(message.getEntityUpdate());
   }
   
   

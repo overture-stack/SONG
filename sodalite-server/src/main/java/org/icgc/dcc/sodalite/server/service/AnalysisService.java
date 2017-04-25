@@ -36,5 +36,13 @@ public class AnalysisService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	public int create(AnalysisRequest a) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	public int modify(AnalysisRequest a) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }

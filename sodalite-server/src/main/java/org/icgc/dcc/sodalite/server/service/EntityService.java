@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.Entity;
+import org.icgc.dcc.sodalite.server.model.json.create.CreateEntity;
+import org.icgc.dcc.sodalite.server.model.json.update.entity.EntityUpdate;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,9 +21,9 @@ public class EntityService {
 	private void info(String fmt, Object... args) {
 		log.info(format(fmt, args));
 	}
-	public int CreateOrUpdate(String json) {
+	public int create(CreateEntity request) {
 		// TODO Auto-generated method stub
-		info("Called CreateOrUpdate with '%s'\n",json);
+		info("Called CreateOrUpdate with '%s'\n", request);
 		return 0;
 	}
 	
@@ -42,6 +45,10 @@ public class EntityService {
 	public List<Entity> getEntities(Map<String, String> params) {
 		info("Called getEntities with '%s'", params);
 		return null;
+	}
+	public int modify(EntityUpdate entityUpdate) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 }
