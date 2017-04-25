@@ -5,8 +5,11 @@ import static java.lang.String.format;
 import java.util.List;
 import java.util.Map;
 
-import org.icgc.dcc.sodalite.server.jsonstub.AnalysisRequest;
 import org.icgc.dcc.sodalite.server.model.Analysis;
+import org.icgc.dcc.sodalite.server.model.json.register.SequencingReadSubmission;
+import org.icgc.dcc.sodalite.server.model.json.register.VariantCallSubmission;
+import org.icgc.dcc.sodalite.server.model.json.update.analysis.SequencingReadUpdate;
+import org.icgc.dcc.sodalite.server.model.json.update.analysis.VariantCallUpdate;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -19,11 +22,7 @@ public class AnalysisService {
 	private void info(String fmt, Object... args) {
 		log.info(format(fmt, args));
 	}
-	public int CreateOrUpdateAnalysis(AnalysisRequest a) {
-		// TODO Auto-generated method stub
-		info("Called CreateOrUpdateAnalysis with '%s'", a);
-		return 0;
-	}
+
 
 	public List<Analysis> getAnalysisById(String id) {
 		// TODO Auto-generated method stub
@@ -36,13 +35,28 @@ public class AnalysisService {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	public int create(AnalysisRequest a) {
+
+	public int registerSequencingRead(SequencingReadSubmission sequencingReadSubmission) {
+		// TODO Auto-generated method stub
+		
+		return 0;
+	}
+	public int registerVariantCall(VariantCallSubmission variantCallSubmission) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	public int modify(AnalysisRequest a) {
+
+
+	public int updateSequencingRead(SequencingReadUpdate sequencingReadUpdate) {
 		// TODO Auto-generated method stub
 		return 0;
+		
+	}
+
+
+	public int updateVariantCall(VariantCallUpdate variantCallUpdate) {
+		return 0;
+		
 	}
 
 }

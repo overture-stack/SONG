@@ -46,7 +46,8 @@ public class EntityService {
 		info("Called getEntities with '%s'", params);
 		return null;
 	}
-	public int modify(EntityUpdate entityUpdate) {
+	
+	public int update(EntityUpdate entityUpdate) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

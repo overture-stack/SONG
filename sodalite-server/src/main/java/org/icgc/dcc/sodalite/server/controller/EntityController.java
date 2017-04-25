@@ -33,7 +33,7 @@ public class EntityController {
   @PutMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
   public int modifyEntity(@RequestBody EntityUpdateMessage message) {
-    return entityService.modify(message.getEntityUpdate());
+    return entityService.update(message.getEntityUpdate());
   }
   
   

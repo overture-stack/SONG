@@ -18,7 +18,7 @@
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
 import org.icgc.dcc.sodalite.server.model.Donor;
-import org.icgc.dcc.sodalite.server.model.Gender;
+import org.icgc.dcc.sodalite.server.model.DonorGender;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -29,12 +29,10 @@ public class DonorMapper implements ResultSetMapper<Donor> {
 
   public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException
   { // I prefer braces on next line when declaring exception throws in method signature - Dušan
-    return Donor.builder()
-        .id(r.getString("id"))
-        .study_id(r.getString("study_id"))
-        .submitter_id(r.getString("description"))
-        .gender(Gender.valueOf(r.getString("gender")))
-        .build();
+    return new Donor()
+        .withDonorId(r.getString("id"))
+        .withDonorSubmitterId(r.getString("description"))
+        .withDonorGender(DonorGender.valueOf(r.getString("gender")));
   }
 
 }
