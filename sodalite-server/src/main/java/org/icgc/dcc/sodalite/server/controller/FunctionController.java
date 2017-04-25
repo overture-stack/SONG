@@ -3,7 +3,7 @@ package org.icgc.dcc.sodalite.server.controller;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import org.icgc.dcc.sodalite.server.service.UploadService;
+import org.icgc.dcc.sodalite.server.service.FunctionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,18 +18,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FunctionController {
 	@Autowired
-	private final UploadService uploadService;
+	private final FunctionService functionService;
 
 	  @PostMapping(value="notify-upload", consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
 	  @ResponseBody
 	  public int notifyUpload(@PathVariable("study_id") String id) {
-		  return uploadService.notifyUpload(id);
+		  return functionService.notifyUpload(id);
 	  }
 	  
 	  @PostMapping(value="publish", consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
 	  @ResponseBody
 	  public int publish(@PathVariable("study_id") String id) {
-		  return uploadService.publish(id);
+		  return functionService.publish(id);
 	  }
 
 }

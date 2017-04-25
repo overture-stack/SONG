@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import java.util.List;
 import java.util.Map;
 
+import org.icgc.dcc.sodalite.server.jsonstub.AnalysisRequest;
 import org.icgc.dcc.sodalite.server.model.Analysis;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,9 @@ public class AnalysisService {
 	private void info(String fmt, Object... args) {
 		log.info(format(fmt, args));
 	}
-	public int CreateOrUpdateAnalysis(String json) {
+	public int CreateOrUpdateAnalysis(AnalysisRequest a) {
 		// TODO Auto-generated method stub
-		info("Called CreateOrUpdateAnalysis with '%s'", json);
+		info("Called CreateOrUpdateAnalysis with '%s'", a);
 		return 0;
 	}
 

@@ -1,6 +1,7 @@
 package org.icgc.dcc.sodalite.server.controller;
 import lombok.RequiredArgsConstructor;
 
+import org.icgc.dcc.sodalite.server.jsonstub.AnalysisRequest;
 import org.icgc.dcc.sodalite.server.model.Analysis;
 import org.icgc.dcc.sodalite.server.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,8 @@ public class AnalysisController {
   @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
   public int createOrUpdateAnalysis(@RequestBody String json) {
-    return analysisService.CreateOrUpdateAnalysis(json);
+	AnalysisRequest a = AnalysisRequest.parse(json);
+    return analysisService.CreateOrUpdateAnalysis(a);
   }
   
   

@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UploadService {
+public class FunctionService {
 	private void info(String fmt, Object... args) {
 		log.info(format(fmt, args));
 	}
