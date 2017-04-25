@@ -22,7 +22,6 @@ import org.icgc.dcc.sodalite.server.model.Study;
 import org.icgc.dcc.sodalite.server.service.StudyService;
 import org.icgc.dcc.sodalite.server.service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,15 +41,10 @@ public class StudyController {
   @Autowired
   private final ValidationService validationService;
 
-  @GetMapping
-  public List<Study> getStudy(@RequestParam("name") String name) {
-    return studyService.getStudyByName(name);
-  }
-
-  @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+  @PutMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
-  public int saveStudy(@RequestBody Study study) {
-    return studyService.saveStudy(study.getName(), study.getDescription());
+  public int getStudy(@RequestBody String json) {
+    return studyService.createStudy(json);
   }
 
   @GetMapping(path="/validationTest")

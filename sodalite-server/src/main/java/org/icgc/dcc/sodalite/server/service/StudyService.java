@@ -18,8 +18,7 @@
 package org.icgc.dcc.sodalite.server.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.val;
+
 import org.icgc.dcc.sodalite.server.model.Study;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +38,22 @@ public class StudyService {
   @Autowired
   StudyRepository studyRepository;
 
-  @SneakyThrows
-  public List<Study> getStudyByName(String name) {
-    return studyRepository.get(name);
+  
+  public int saveStudy(String id, String name, String organization, String description) {
+    return studyRepository.save(id, name, organization, description);
   }
 
-  public int saveStudy(String name, String description) {
-    return studyRepository.save(idService.newId(), name, description);
-  }
+  public int createStudy(String json) {
+	// deserialize fields of json
+	  
+	// TODO: 
+	// validate(json vs create-study-message.json schema)
+	// verify: json.createStudy.apiVersion is supported
+	// log this?: json.createStudy.submissionId
+	// json.createStudy.study.{id,name,organization,description} => save to repository
+	// saveStudy(id,name,organization, description)
+	// return status of save operation
+	return 0;
+}
 
 }

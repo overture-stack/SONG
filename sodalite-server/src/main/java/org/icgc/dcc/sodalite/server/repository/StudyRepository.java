@@ -29,9 +29,9 @@ import java.util.List;
 @RegisterMapper(StudyMapper.class)
 public interface StudyRepository {
 
-  @SqlUpdate("INSERT INTO study (id, name, description) VALUES (:id, :name, :description)")
-  int save(@Bind("id") String id, @Bind("name") String name, @Bind("description") String description);
+  @SqlUpdate("INSERT INTO study (id, name, organization, description) VALUES (:id, :name, :description)")
+  int save(@Bind("id") String id, @Bind("name") String name, @Bind("organization") String organization, @Bind("description") String description);
 
-  @SqlQuery("SELECT id, name, description FROM study WHERE name = :name")
-  List<Study> get(@Bind("name") String name);
+  @SqlQuery("SELECT id, name, organization, description FROM study WHERE id=:id")
+  List<Study> get(@Bind("id") String id);
 }
