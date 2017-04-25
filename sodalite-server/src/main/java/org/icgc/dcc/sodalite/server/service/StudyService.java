@@ -29,7 +29,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class StudyService {
-
   /**
    * Dependencies
    */
@@ -38,7 +37,6 @@ public class StudyService {
   @Autowired
   StudyRepository studyRepository;
 
-  
   public int saveStudy(String id, String name, String organization, String description) {
     return studyRepository.save(id, name, organization, description);
   }
@@ -54,6 +52,5 @@ public class StudyService {
 	// saveStudy(id,name,organization, description)
 	// return status of save operation
 	return 0;
-}
-
+  }
 }

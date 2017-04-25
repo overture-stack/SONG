@@ -28,7 +28,6 @@ import java.util.List;
 
 @RegisterMapper(StudyMapper.class)
 public interface StudyRepository {
-
   @SqlUpdate("INSERT INTO study (id, name, organization, description) VALUES (:id, :name, :description)")
   int save(@Bind("id") String id, @Bind("name") String name, @Bind("organization") String organization, @Bind("description") String description);
 
