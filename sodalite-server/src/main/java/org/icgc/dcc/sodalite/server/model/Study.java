@@ -17,6 +17,7 @@
  */
 package org.icgc.dcc.sodalite.server.model;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -33,7 +34,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "studyId",
     "name",
     "organization",
-    "description"
+    "description",
+    "donors"
 })
 public class Study {
     @JsonProperty("studyId")
@@ -47,8 +49,13 @@ public class Study {
 
     @JsonProperty("description")
     private String description;
+    
+    @JsonProperty("donors")
+    private Collection<Donor> donors;
+        
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    
 
     @JsonProperty("studyId")
     public String getStudyId() {
@@ -108,6 +115,29 @@ public class Study {
     public Study withDescription(String description) {
         this.description = description;
         return this;
+    }
+    
+    @JsonProperty("donors")
+    public Collection<Donor> getDonors() {
+    	return donors;
+    }
+    
+    @JsonProperty("donors")
+    public void setDonors(Collection<Donor> donors) {
+    	this.donors=donors;
+    }
+    
+    public void addDonor(Donor donor) {
+    	donors.add(donor);
+    }
+    
+    public void addDonors(Collection<Donor> donors) {
+    	donors.addAll(donors);
+    }
+    
+    public Study withDonors(Collection<Donor> donors) {
+    	this.donors=donors;
+    	return this;
     }
 
     @Override

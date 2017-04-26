@@ -1,24 +1,23 @@
 package org.icgc.dcc.sodalite.server.model;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonValue;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-		"specimenId",
+	"specimenId",
     "specimenSubmitterId",
     "specimenClass",
     "specimenType",
-    "sample"
+    "samples"
 })
 public class Specimen {
 
@@ -34,8 +33,8 @@ public class Specimen {
     @JsonProperty("specimenType")
     private SpecimenType specimenType;
 
-    @JsonProperty("sample")
-    private Sample sample;
+    @JsonProperty("samples")
+    private Collection<Sample> samples;
     
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -101,18 +100,22 @@ public class Specimen {
         return this;
     }
 
-    @JsonProperty("sample")
-    public Sample getSample() {
-        return sample;
+    @JsonProperty("samples")
+    public Collection<Sample> getSamples() {
+        return samples;
     }
 
-    @JsonProperty("sample")
-    public void setSample(Sample sample) {
-        this.sample = sample;
+    @JsonProperty("samples")
+    public void setSamples(Collection<Sample> samples) {
+        this.samples = samples;
+    }
+    
+    public void addSample(Sample sample) {
+    	samples.add(sample);
     }
 
-    public Specimen withSample(Sample sample) {
-        this.sample = sample;
+    public Specimen withSamples(Collection<Sample> samples) {
+        this.samples = samples;
         return this;
     }
 

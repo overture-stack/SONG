@@ -1,21 +1,20 @@
 package org.icgc.dcc.sodalite.server.model;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonValue;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-		"sampleId",
+	"sampleId",
     "sampleSubmitterId",
     "sampleType",
     "files"
@@ -32,7 +31,7 @@ public class Sample {
   private SampleType sampleType;
   
   @JsonProperty("files")
-  private List<File> files = null;
+  private Collection<File> files = null;
   
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -83,16 +82,16 @@ public class Sample {
   }
 
   @JsonProperty("files")
-  public List<File> getFiles() {
+  public Collection<File> getFiles() {
       return files;
   }
 
   @JsonProperty("files")
-  public void setFiles(List<File> files) {
+  public void setFiles(Collection<File> files) {
       this.files = files;
   }
 
-  public Sample withFiles(List<File> files) {
+  public Sample withFiles(Collection<File> files) {
       this.files = files;
       return this;
   }

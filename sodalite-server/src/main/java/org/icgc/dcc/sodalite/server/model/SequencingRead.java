@@ -1,6 +1,7 @@
 
 package org.icgc.dcc.sodalite.server.model;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class SequencingRead {
     @JsonProperty("pairedEnd")
     private boolean pairedEnd;
     @JsonProperty("referenceGenomeFiles")
-    private List<String> referenceGenomeFiles = null;
+    private Collection<String> referenceGenomeFiles = null;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -140,16 +141,16 @@ public class SequencingRead {
     }
 
     @JsonProperty("referenceGenomeFiles")
-    public List<String> getReferenceGenomeFiles() {
+    public Collection<String> getReferenceGenomeFiles() {
         return referenceGenomeFiles;
     }
 
     @JsonProperty("referenceGenomeFiles")
-    public void setReferenceGenomeFiles(List<String> referenceGenomeFiles) {
+    public void setReferenceGenomeFiles(Collection<String> referenceGenomeFiles) {
         this.referenceGenomeFiles = referenceGenomeFiles;
     }
 
-    public SequencingRead withReferenceGenomeFiles(List<String> referenceGenomeFiles) {
+    public SequencingRead withReferenceGenomeFiles(Collection<String> referenceGenomeFiles) {
         this.referenceGenomeFiles = referenceGenomeFiles;
         return this;
     }

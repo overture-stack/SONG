@@ -2,8 +2,6 @@ package org.icgc.dcc.sodalite.server.controller;
 import lombok.RequiredArgsConstructor;
 
 import org.icgc.dcc.sodalite.server.model.Entity;
-import org.icgc.dcc.sodalite.server.model.json.create.CreateEntityMessage;
-import org.icgc.dcc.sodalite.server.model.json.update.entity.EntityUpdateMessage;
 import org.icgc.dcc.sodalite.server.service.EntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +13,7 @@ import static org.springframework.http.MediaType.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/studies/{study}/entities")
+@RequestMapping("/studies/{study_id}/entities")
 public class EntityController {
 	
   /**
@@ -26,14 +24,14 @@ public class EntityController {
 
   @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
-  public int createEntity(@RequestBody CreateEntityMessage message) {
-    return entityService.create(message.getCreateEntity());
+  public String createEntity(@PathVariable("study_id") String study_id, @RequestBody String json) {
+    return entityService.create(study_id, json);
   }
   
   @PutMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
-  public int modifyEntity(@RequestBody EntityUpdateMessage message) {
-    return entityService.update(message.getEntityUpdate());
+  public String modifyEntity(@PathVariable("study_id") String study_id, String json) {
+    return entityService.update(study_id, json);
   }
   
   

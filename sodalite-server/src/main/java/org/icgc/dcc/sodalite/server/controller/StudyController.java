@@ -24,7 +24,6 @@ import org.icgc.dcc.sodalite.server.service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 import static org.springframework.http.MediaType.*;
 
@@ -45,7 +44,8 @@ public class StudyController {
   @ResponseBody
 
   public int getStudy(@RequestBody Study study) {
-    return studyService.saveStudy(study);
+	return 3;
+    // return studyService.saveStudy(study);
   }
 
   @GetMapping(path="/validationTest")

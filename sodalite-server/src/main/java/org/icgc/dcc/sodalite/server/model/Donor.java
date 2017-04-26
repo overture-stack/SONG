@@ -1,15 +1,14 @@
 package org.icgc.dcc.sodalite.server.model;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonValue;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -17,7 +16,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 		"donorId",
     "donorSubmitterId",
     "donorGender",
-    "specimen"
+    "specimens"
 })
 public class Donor {
 
@@ -30,8 +29,8 @@ public class Donor {
   @JsonProperty("donorGender")
   private DonorGender donorGender;
 
-  @JsonProperty("specimen")
-  private Specimen specimen;
+  @JsonProperty("specimens")
+  private Collection<Specimen> specimens;
   
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -81,18 +80,22 @@ public class Donor {
       return this;
   }
 
-  @JsonProperty("specimen")
-  public Specimen getSpecimen() {
-      return specimen;
+  @JsonProperty("specimens")
+  public Collection<Specimen> getSpecimens() {
+      return specimens;
+  }
+  
+  public void addSpecimen(Specimen specimen) {
+	  specimens.add(specimen);
   }
 
-  @JsonProperty("specimen")
-  public void setSpecimen(Specimen specimen) {
-      this.specimen = specimen;
+  @JsonProperty("specimens")
+  public void setSpecimens(Collection<Specimen> specimens) {
+      this.specimens = specimens;
   }
 
-  public Donor withSpecimen(Specimen specimen) {
-      this.specimen = specimen;
+  public Donor withSpecimens(Collection<Specimen> specimens) {
+      this.specimens = specimens;
       return this;
   }
 

@@ -4,17 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonValue;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-		"objectId",
+	"objectId",
     "fileName",
     "fileSize",
     "fileType",
@@ -29,7 +27,7 @@ public class File {
     private String fileName;
 
     @JsonProperty("fileSize")
-    private int fileSize;
+    private long fileSize;
 
     @JsonProperty("fileType")
     private FileType fileType;
@@ -56,16 +54,16 @@ public class File {
     }
 
     @JsonProperty("fileSize")
-    public int getFileSize() {
+    public long getFileSize() {
         return fileSize;
     }
 
     @JsonProperty("fileSize")
-    public void setFileSize(int fileSize) {
+    public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
     }
 
-    public File withFileSize(int fileSize) {
+    public File withFileSize(long fileSize) {
         this.fileSize = fileSize;
         return this;
     }

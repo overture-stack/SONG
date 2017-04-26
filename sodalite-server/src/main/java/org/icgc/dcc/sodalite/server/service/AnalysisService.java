@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.Analysis;
-import org.icgc.dcc.sodalite.server.model.json.register.SequencingReadSubmission;
-import org.icgc.dcc.sodalite.server.model.json.register.VariantCallSubmission;
-import org.icgc.dcc.sodalite.server.model.json.update.analysis.SequencingReadUpdate;
-import org.icgc.dcc.sodalite.server.model.json.update.analysis.VariantCallUpdate;
+
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
@@ -35,28 +36,54 @@ public class AnalysisService {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	public int registerSequencingRead(SequencingReadSubmission sequencingReadSubmission) {
-		// TODO Auto-generated method stub
+	
+	@SneakyThrows
+	public String registerAnalysis(String studyId, String json) {	
+		ObjectMapper mapper=new ObjectMapper();
+		JsonNode node = mapper.readTree(json);
 		
-		return 0;
+		if (node.has("sequencingReadSubmission")) {
+			return registerSequencingRead(studyId, node);
+		} else if (node.has("variantCallSubmission")) {
+			return registerVariantCall(studyId, node);
+		}
+		return "Register Analysis failed: Unknown Analysis Type";
 	}
-	public int registerVariantCall(VariantCallSubmission variantCallSubmission) {
-		// TODO Auto-generated method stub
-		return 0;
+
+	String registerSequencingRead(String studyId, JsonNode node) {
+		String analysisId="Mock_SequencingReadId";
+		return analysisId;
+	}
+	String registerVariantCall(String studyId, JsonNode node) {
+		String analysisId="MockVariantCallId";
+		return analysisId;
 	}
 
 
-	public int updateSequencingRead(SequencingReadUpdate sequencingReadUpdate) {
-		// TODO Auto-generated method stub
-		return 0;
+	String updateSequencingRead(String studyId, JsonNode node) {
+		String status="Sequencing Read Updated Successfully";
+		return status;
+	}
+
+
+	String updateVariantCall(String studyId, JsonNode node) {
+		String status="Variant Call Updated Successfully";
+		return status;		
+	}
+
+
+	@SneakyThrows
+	public String updateAnalysis(String studyId, String json) {
+		ObjectMapper mapper=new ObjectMapper(); 
+		JsonNode node = mapper.readTree(json);
 		
+		if (node.has("sequencingReadUpdate")) {
+			return updateSequencingRead(studyId, node);
+		} else if (node.has("variantUpdateCall")) {
+			return updateVariantCall(studyId, node);
+		}
+		return "Updated Analysis failed: unknown analysis type";		
 	}
 
-
-	public int updateVariantCall(VariantCallUpdate variantCallUpdate) {
-		return 0;
-		
-	}
 
 }
