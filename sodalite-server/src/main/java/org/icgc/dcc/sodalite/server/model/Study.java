@@ -37,7 +37,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "description",
     "donors"
 })
-public class Study {
+public class Study implements Entity {
     @JsonProperty("studyId")
     private String studyId;
 

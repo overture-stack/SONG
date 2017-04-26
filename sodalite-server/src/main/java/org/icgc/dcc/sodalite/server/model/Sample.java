@@ -19,7 +19,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "sampleType",
     "files"
 })
-public class Sample {
+public class Sample implements Entity {
 
   @JsonProperty("sampleId")
   private String sampleId;

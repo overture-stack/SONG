@@ -6,10 +6,10 @@ insert into Specimen (id, donor_id, submitter_id, class, type) values ('SP2','DO
 insert into Sample (id, specimen_id, submitter_id, type) values ('SA1', 'SP1', 'T285-G7-A5','DNA'); 
 insert into Sample (id, specimen_id, submitter_id, type) values ('SA11', 'SP1', 'T285-G7-B9','DNA');
 insert into Sample (id, specimen_id, submitter_id, type) values ('SA21', 'SP2', 'T285-G7N','DNA');
-insert into File (id, sample_id, name, size, type, metadata_doc) values ('FI1', 'SA1','ABC-TC285G7-A5-ae3458712345.bam', 122333444455555, 'BAM', '<XML>Not even well-formed <XML></XML>');
-insert into File (id, sample_id, name, size, type, metadata_doc) values ('FI2', 'SA1','ABC-TC285G7-A5-wleazprt453.bai', 123456789, 'BAI', '<XML>Not even well-formed<XML></XML>');
-insert into File(id, sample_id, name, size, type, metadata_doc) values ('FI3', 'SA11', 'ABC-TC285-G7-B9-kthx12345.bai', 23456789,'BAI','<XML><Status>Inconclusive</Status></XML>');
-insert into File(id, sample_id, name, size, type, metadata_doc) values ('FI4','SA21','ABC-TC285-G7N-alpha12345.fai', 12345,'FAI','<XML></XML>');
+insert into File (id, uuid, sample_id, name, size, type, metadata_doc) values ('FI1', 'uuid1', 'SA1','ABC-TC285G7-A5-ae3458712345.bam', 122333444455555, 'BAM', '<XML>Not even well-formed <XML></XML>');
+insert into File (id, uuid, sample_id, name, size, type, metadata_doc) values ('FI2', 'uuid2', 'SA1','ABC-TC285G7-A5-wleazprt453.bai', 123456789, 'BAI', '<XML>Not even well-formed<XML></XML>');
+insert into File(id, uuid, sample_id, name, size, type, metadata_doc) values ('FI3', 'uuid3', 'SA11', 'ABC-TC285-G7-B9-kthx12345.bai', 23456789,'BAI','<XML><Status>Inconclusive</Status></XML>');
+insert into File(id, uuid, sample_id, name, size, type, metadata_doc) values ('FI4','uuid4', 'SA21','ABC-TC285-G7N-alpha12345.fai', 12345,'FAI','<XML></XML>');
 insert into VariantCallAnalysis(id, study_id, state, variant_calling_tool) values ('AN1',  'ABC123', 'Suppressed', 'SuperNewVariantCallingTool');
 insert into VariantCallFileSet(id, analysis_id, file_id) values ('FS1','AN1','FI1'),('FS2','AN1','FI2');
 insert into SequencingReadAnalysis (id, study_id, state, library_strategy, paired_end, insert_size, aligned, alignment_tool, reference) values ('AN2','ABC123','Suppressed', 'Other', TRUE, 12345, TRUE, 'BigWrench', 'A Reference');

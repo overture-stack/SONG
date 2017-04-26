@@ -20,7 +20,7 @@ package org.icgc.dcc.sodalite.server.service;
 import lombok.RequiredArgsConstructor;
 
 import org.icgc.dcc.sodalite.server.model.Study;
-
+import org.icgc.dcc.sodalite.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,23 +30,23 @@ public class StudyService {
   /**
    * Dependencies
    */
-//  @Autowired
-//  IdService idService;
-//  @Autowired
-//  StudyRepository studyRepository;
-//
-//  public int saveStudy(String id, String name, String organization, String description) {
-//    return studyRepository.save(id, name, organization, description);
-//  }
-//
-//
-//  /**
-//   * We manually determine study id because it's a meaningful abbreviation usually pre-determined.
-//   * 
-//   * @param studyId
-//   * @return
-//   */
-//  public int saveStudy(Study study) {
-//    return studyRepository.save(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
-//  }
+  @Autowired
+  IdService idService;
+  @Autowired
+  StudyRepository studyRepository;
+
+  public int saveStudy(String id, String name, String organization, String description) {
+    return studyRepository.save(id, name, organization, description);
+  }
+
+
+  /**
+   * We manually determine study id because it's a meaningful abbreviation usually pre-determined.
+   * 
+   * @param studyId
+   * @return
+   */
+  public int saveStudy(Study study) {
+    return studyRepository.save(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
+  }
 }

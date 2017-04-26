@@ -29,12 +29,10 @@ public class SampleMapper implements ResultSetMapper<Sample> {
 
   public Sample map(int index, ResultSet r, StatementContext ctx) throws SQLException
   { // I prefer braces on next line when declaring exception throws in method signature - Dušan
-    return Sample.builder()
-        .id(r.getString("id"))
-        .specimen_id("specimen_id")
-        .submitter_id(r.getString("submitter_id"))
-        .type(SampleType.valueOf(r.getString("type")))
-        .build();
+    return new Sample()
+    	.withSampleId(r.getString("id"))
+    	.withSampleType(SampleType.valueOf(r.getString("type")))
+    	.withSampleSubmitterId("submitter_id");
   }
 
 }

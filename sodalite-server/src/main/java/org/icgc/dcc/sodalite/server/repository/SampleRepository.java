@@ -30,7 +30,8 @@ import java.util.List;
 @RegisterMapper(SampleMapper.class)
 public interface SampleRepository {
   @SqlUpdate("INSERT INTO Sample (id, specimen_id, submitter_id, type) VALUES (:id, :specimen_id, :submitter_id, :type)")
-  int save(@Bind("id") String id, @Bind("specimen_id") String name, @Bind("submitter_id") String submitter_id, @Bind SampleType type);
+  int save(@Bind("id") String id, @Bind("specimen_id") String name, @Bind("submitter_id") String submitter_id,
+		  @Bind SampleType type);
 
   @SqlQuery("SELECT id, study_id, submitter_id, gender FROM study WHERE study_id=:study_id and submitter_id=:submitter_id")
   List<Sample> get(@Bind("name") String name);

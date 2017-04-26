@@ -13,12 +13,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-		"donorId",
+	"donorId",
     "donorSubmitterId",
     "donorGender",
     "specimens"
 })
-public class Donor {
+public class Donor implements Entity {
 
   @JsonProperty("donorId")
   private String donorId;

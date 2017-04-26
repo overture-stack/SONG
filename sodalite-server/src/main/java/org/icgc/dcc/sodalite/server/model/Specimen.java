@@ -19,8 +19,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "specimenType",
     "samples"
 })
-public class Specimen {
-
+public class Specimen implements Entity {
   	@JsonProperty("specimenId")
   	private String specimenId;
   
@@ -38,7 +37,6 @@ public class Specimen {
     
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
 
     @JsonProperty("specimenId")
     public String getSpecimenId() {

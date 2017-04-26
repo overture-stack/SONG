@@ -44,8 +44,7 @@ public class StudyController {
   @ResponseBody
 
   public int getStudy(@RequestBody Study study) {
-	return 3;
-    // return studyService.saveStudy(study);
+	return studyService.saveStudy(study);
   }
 
   @GetMapping(path="/validationTest")

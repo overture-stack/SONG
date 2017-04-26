@@ -33,6 +33,12 @@ public interface DonorRepository {
   @SqlUpdate("INSERT INTO Donor (id, study_id, submitter_id, gender) VALUES (:id, :study_id, :submitter_id, :gender)")
   int save(@Bind("id") String id, @Bind(":study_id") String study_id, @Bind("submitter_id") String submitter_id, @Bind("gender") DonorGender gender);
 
-  @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE study_id=:study_id and submitter_id=:submitter_id")
-  List<Donor> get(@Bind("study_id") String study_id, @Bind("submitter_id") String submitter_id);
+  @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE study_id=:study_id")
+  List<Donor> getDonorsByStudyId(@Bind("study_id") String study_id);
+  
+  @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE id=:id")
+  Donor getDonorByDonorId(@Bind("id") String donor_id);
+  
+  @SqlQuery("SELECT study_id FROM donor where id=:id")
+  String parentId(@Bind("id") String id);
 }

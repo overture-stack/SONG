@@ -34,9 +34,8 @@ public class EntityController {
     return entityService.update(study_id, json);
   }
   
-  
   @GetMapping(value="/{id}")
-  public List<Entity> getEntityById(@PathVariable("id") String id) {
+  public String getEntityById(@PathVariable("id") String id) {
     return entityService.getEntityById(id);
   }
 
@@ -47,7 +46,8 @@ public class EntityController {
   
   @DeleteMapping(value="/{ids}")
   public int deleteEntity(@PathVariable("ids") List<String> ids) {
-	  return entityService.deleteEntity(ids);
+	  //return entityService.deleteEntity(ids);
+	  return 0;
   }
    
 }
