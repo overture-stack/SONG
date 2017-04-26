@@ -1,50 +1,52 @@
 
-package org.icgc.dcc.sodalite.server.model.json.update.analysis;
+package org.icgc.dcc.sodalite.server.model;
 
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "specimenId",
+		"specimenId",
+    "specimenSubmitterId",
+    "specimenClass",
+    "specimenType",
     "sample"
 })
 public class Specimen {
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
-    @JsonProperty("specimenId")
-    private String specimenId;
+  	@JsonProperty("specimenId")
+  	private String specimenId;
+  
+    @JsonProperty("specimenSubmitterId")
+    private String specimenSubmitterId;
+
+    @JsonProperty("specimenClass")
+    private SpecimenClass specimenClass;
+
+    @JsonProperty("specimenType")
+    private SpecimenType specimenType;
+
     @JsonProperty("sample")
     private Sample sample;
+    
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
+
     @JsonProperty("specimenId")
     public String getSpecimenId() {
         return specimenId;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("specimenId")
     public void setSpecimenId(String specimenId) {
         this.specimenId = specimenId;
@@ -52,6 +54,51 @@ public class Specimen {
 
     public Specimen withSpecimenId(String specimenId) {
         this.specimenId = specimenId;
+        return this;
+    }
+    
+    @JsonProperty("specimenSubmitterId")
+    public String getSpecimenSubmitterId() {
+        return specimenSubmitterId;
+    }
+
+    @JsonProperty("specimenSubmitterId")
+    public void setSpecimenSubmitterId(String specimenSubmitterId) {
+        this.specimenSubmitterId = specimenSubmitterId;
+    }
+
+    public Specimen withSpecimenSubmitterId(String specimenSubmitterId) {
+        this.specimenSubmitterId = specimenSubmitterId;
+        return this;
+    }
+
+    @JsonProperty("specimenClass")
+    public SpecimenClass getSpecimenClass() {
+        return specimenClass;
+    }
+
+    @JsonProperty("specimenClass")
+    public void setSpecimenClass(SpecimenClass specimenClass) {
+        this.specimenClass = specimenClass;
+    }
+
+    public Specimen withSpecimenClass(SpecimenClass specimenClass) {
+        this.specimenClass = specimenClass;
+        return this;
+    }
+
+    @JsonProperty("specimenType")
+    public SpecimenType getSpecimenType() {
+        return specimenType;
+    }
+
+    @JsonProperty("specimenType")
+    public void setSpecimenType(SpecimenType specimenType) {
+        this.specimenType = specimenType;
+    }
+
+    public Specimen withSpecimenType(SpecimenType specimenType) {
+        this.specimenType = specimenType;
         return this;
     }
 
@@ -89,5 +136,4 @@ public class Specimen {
         this.additionalProperties.put(name, value);
         return this;
     }
-
 }

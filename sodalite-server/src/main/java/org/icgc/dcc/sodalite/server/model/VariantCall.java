@@ -1,5 +1,5 @@
 
-package org.icgc.dcc.sodalite.server.model.json.update.analysis;
+package org.icgc.dcc.sodalite.server.model;
 
 import java.util.HashMap;
 import java.util.Map;

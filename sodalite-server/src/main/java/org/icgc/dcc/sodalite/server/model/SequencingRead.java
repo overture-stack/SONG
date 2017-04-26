@@ -1,5 +1,5 @@
 
-package org.icgc.dcc.sodalite.server.model.json.update.analysis;
+package org.icgc.dcc.sodalite.server.model;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.icgc.dcc.sodalite.server.model.LibraryStrategy;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -40,7 +41,7 @@ public class SequencingRead {
     @JsonProperty("insertSize")
     private int insertSize;
     @JsonProperty("libraryStrategy")
-    private SequencingRead.LibraryStrategy libraryStrategy;
+    private LibraryStrategy libraryStrategy;
     @JsonProperty("pairedEnd")
     private boolean pairedEnd;
     @JsonProperty("referenceGenomeFiles")
@@ -48,21 +49,11 @@ public class SequencingRead {
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("analysisId")
     public String getAnalysisId() {
         return analysisId;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("analysisId")
     public void setAnalysisId(String analysisId) {
         this.analysisId = analysisId;
@@ -119,16 +110,16 @@ public class SequencingRead {
     }
 
     @JsonProperty("libraryStrategy")
-    public SequencingRead.LibraryStrategy getLibraryStrategy() {
+    public LibraryStrategy getLibraryStrategy() {
         return libraryStrategy;
     }
 
     @JsonProperty("libraryStrategy")
-    public void setLibraryStrategy(SequencingRead.LibraryStrategy libraryStrategy) {
+    public void setLibraryStrategy(LibraryStrategy libraryStrategy) {
         this.libraryStrategy = libraryStrategy;
     }
 
-    public SequencingRead withLibraryStrategy(SequencingRead.LibraryStrategy libraryStrategy) {
+    public SequencingRead withLibraryStrategy(LibraryStrategy libraryStrategy) {
         this.libraryStrategy = libraryStrategy;
         return this;
     }
@@ -182,51 +173,4 @@ public class SequencingRead {
         this.additionalProperties.put(name, value);
         return this;
     }
-
-    public enum LibraryStrategy {
-
-        WGS("WGS"),
-        WXS("WXS"),
-        RNA_SEQ("RNA-Seq"),
-        CH_IP_SEQ("ChIP-Seq"),
-        MI_RNA_SEQ("miRNA-Seq"),
-        BISULFITE_SEQ("Bisulfite-Seq"),
-        VALIDATION("Validation"),
-        AMPLICON("Amplicon"),
-        OTHER("Other");
-        private final String value;
-        private final static Map<String, SequencingRead.LibraryStrategy> CONSTANTS = new HashMap<String, SequencingRead.LibraryStrategy>();
-
-        static {
-            for (SequencingRead.LibraryStrategy c: values()) {
-                CONSTANTS.put(c.value, c);
-            }
-        }
-
-        private LibraryStrategy(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return this.value;
-        }
-
-        @JsonValue
-        public String value() {
-            return this.value;
-        }
-
-        @JsonCreator
-        public static SequencingRead.LibraryStrategy fromValue(String value) {
-            SequencingRead.LibraryStrategy constant = CONSTANTS.get(value);
-            if (constant == null) {
-                throw new IllegalArgumentException(value);
-            } else {
-                return constant;
-            }
-        }
-
-    }
-
 }

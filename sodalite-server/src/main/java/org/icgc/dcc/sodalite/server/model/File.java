@@ -1,5 +1,5 @@
 
-package org.icgc.dcc.sodalite.server.model.json.register;
+package org.icgc.dcc.sodalite.server.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+		"objectId",
     "fileName",
     "fileSize",
     "fileType",
@@ -22,52 +23,29 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 })
 public class File {
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
+		@JsonProperty("objectId")
+		private String objectId;
+  
     @JsonProperty("fileName")
     private String fileName;
-    /**
-     * 
-     * (Required)
-     * 
-     */
+
     @JsonProperty("fileSize")
     private int fileSize;
-    /**
-     * 
-     * (Required)
-     * 
-     */
+
     @JsonProperty("fileType")
-    private File.FileType fileType;
-    /**
-     * 
-     * (Required)
-     * 
-     */
+    private FileType fileType;
+
     @JsonProperty("fileMd5")
     private String fileMd5;
+    
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("fileName")
     public String getFileName() {
         return fileName;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("fileName")
     public void setFileName(String fileName) {
         this.fileName = fileName;
@@ -78,21 +56,11 @@ public class File {
         return this;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("fileSize")
     public int getFileSize() {
         return fileSize;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("fileSize")
     public void setFileSize(int fileSize) {
         this.fileSize = fileSize;
@@ -103,46 +71,26 @@ public class File {
         return this;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("fileType")
-    public File.FileType getFileType() {
+    public FileType getFileType() {
         return fileType;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("fileType")
-    public void setFileType(File.FileType fileType) {
+    public void setFileType(FileType fileType) {
         this.fileType = fileType;
     }
 
-    public File withFileType(File.FileType fileType) {
+    public File withFileType(FileType fileType) {
         this.fileType = fileType;
         return this;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("fileMd5")
     public String getFileMd5() {
         return fileMd5;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("fileMd5")
     public void setFileMd5(String fileMd5) {
         this.fileMd5 = fileMd5;
@@ -172,51 +120,4 @@ public class File {
         this.additionalProperties.put(name, value);
         return this;
     }
-
-    public enum FileType {
-
-        FASTA("FASTA"),
-        FAI("FAI"),
-        FASTQ("FASTQ"),
-        BAM("BAM"),
-        BAI("BAI"),
-        VCF("VCF"),
-        TBI("TBI"),
-        IDX("IDX"),
-        XML("XML");
-        private final String value;
-        private final static Map<String, File.FileType> CONSTANTS = new HashMap<String, File.FileType>();
-
-        static {
-            for (File.FileType c: values()) {
-                CONSTANTS.put(c.value, c);
-            }
-        }
-
-        private FileType(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return this.value;
-        }
-
-        @JsonValue
-        public String value() {
-            return this.value;
-        }
-
-        @JsonCreator
-        public static File.FileType fromValue(String value) {
-            File.FileType constant = CONSTANTS.get(value);
-            if (constant == null) {
-                throw new IllegalArgumentException(value);
-            } else {
-                return constant;
-            }
-        }
-
-    }
-
 }

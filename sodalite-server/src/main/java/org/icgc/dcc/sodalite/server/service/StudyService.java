@@ -56,7 +56,7 @@ public class StudyService {
    * @return
    */
   public int saveStudy(Study study) {
-    return studyRepository.save(study.getId(), study.getName(), study.getDescription(), study.getOrganization());
+    return studyRepository.save(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
   }
 
 }
