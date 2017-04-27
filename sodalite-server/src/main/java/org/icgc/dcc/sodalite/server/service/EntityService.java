@@ -1,5 +1,6 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.icgc.dcc.sodalite.server.model.Entity;
 import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.model.Sample;
 import org.icgc.dcc.sodalite.server.model.Specimen;
+import org.icgc.dcc.sodalite.server.model.Study;
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
 import org.icgc.dcc.sodalite.server.repository.FileRepository;
 import org.icgc.dcc.sodalite.server.repository.SampleRepository;
@@ -15,6 +17,8 @@ import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +46,13 @@ public class EntityService {
 	IdService idService;
 	@Autowired
 	StudyRepository studyRepository;
+	@Autowired
 	DonorRepository donorRepository;
+	@Autowired
 	SpecimenRepository specimenRepository;
+	@Autowired
 	SampleRepository sampleRepository;
+	@Autowired
 	FileRepository fileRepository;
 	
 	private void info(String fmt, Object... args) {
@@ -56,29 +64,50 @@ public class EntityService {
 		long start=System.currentTimeMillis();
 		
 		info("Creating a new entity for study '%s', with json '%s'",studyId,json);
+		@NonNull
+		Study study = studyRepository.get(studyId);
+		if (study == null) {
+			return "{\"status\": \"Study " + studyId + " does not exist: please create it first.\"}";
+		}
+		info("Got study '%s",study.toString());
+		study.setStudyId(studyId);
 		ObjectMapper mapper=new ObjectMapper();
+		@NonNull
 		JsonNode node = mapper.readTree(json);
-		JsonNode donors=node.path("createEntity/donors");
+
+		@NonNull
+		JsonNode create=node.path("createEntity");
+		info("Got createEntity node '%s",create.toString());
+		@NonNull
+		JsonNode donors=create.path("donors");
 		assert(donors.isContainerNode());
+		info("donors is '%s",donors.toString());
+		List<Donor> donorList = new ArrayList<Donor>();
 		for(JsonNode n: donors) {
 			info("Converting this JSON to a DONOR object '%s'",n.toString());
-			Donor donor = mapper.readValue(n.toString(),Donor.class);
+			Donor donor = mapper.treeToValue(n, Donor.class);
+			donorList.add(donor);
 			createDonor(studyId, donor);
 		}
+		study.setDonors(donorList);
 		long end=System.currentTimeMillis();
-		info("Elapsed time = %ld seconds",(end-start)/1000);
-		return "Entities created";
+		info("Elapsed time = %d seconds",(end-start)/1000);
+		return study.toString();
 	}
 	
 	
 	String createDonor(String studyId, Donor donor) {
+		info("Called createDonor with studyId '%s', donor '%s'",studyId,donor.toString());
 		String donorId = donor.getDonorId();
 		if (isNullOrEmpty(donorId)) {
 			donorId=idService.generateDonorId();
+			info("Set null donorId to '%s",donorId.toString());
 			donor.setDonorId(donorId);
+		} else {
+			info("Non-null donorId was '%s'", donor.toString());
 		}
-	
-		donorRepository.save(donor.getDonorId(),studyId, donor.getDonorSubmitterId(), donor.getDonorGender());
+		info("Donor is now '%s'",donor.toString());
+		donorRepository.save(donor.getDonorId(),studyId, donor.getDonorSubmitterId(), donor.getDonorGender().toString());
 		for(Specimen specimen: donor.getSpecimens()) {
 			createSpecimen(donorId, specimen);
 		}
@@ -86,11 +115,12 @@ public class EntityService {
 	}
 	
 	String createSpecimen(String donorId, Specimen specimen) {
+		info("Creating specemin with donorId=%s, specimen=%s",donorId.toString(), specimen.toString());
 		String specimenId = specimen.getSpecimenId();
 		if(isNullOrEmpty(specimenId)) {
 			specimenId=idService.generateSpecimenId();
 		}
-		
+		info("Specimen id is '%s",specimenId);
 		specimenRepository.save(specimenId, donorId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass(), 
 				specimen.getSpecimenType());
 		
@@ -101,10 +131,12 @@ public class EntityService {
 	}
 	
 	String createSample(String specimenId, Sample sample) {
+		info("Creating sample with specimenId '%s', sample='%s'",specimenId.toString(), sample.toString());
 		String sampleId=sample.getSampleId();
 		if(isNullOrEmpty(sampleId)) {
 			sampleId=idService.generateSampleId();
 		}
+		info("Sample id is '%s'",sampleId);
 		sampleRepository.save(sampleId, specimenId, sample.getSampleSubmitterId(), sample.getSampleType());
 		for(File file:sample.getFiles()) {
 			createFile(sampleId, file);
@@ -115,9 +147,9 @@ public class EntityService {
 	String createFile(String sampleId, File file) {
 		String fileId=file.getObjectId();
 		if(isNullOrEmpty(fileId)) {
-			//fileId=idService.generateFileId();
-			fileId="Stub";
+			fileId=idService.generateFileId();
 		}
+		info("Saving to file repository with fileId=%s,file='%s'",fileId,file.toString());
 		fileRepository.save(fileId, sampleId, file.getFileName(), file.getFileSize(), file.getFileMd5(), 
 				file.getFileType());
 		return fileId;
@@ -131,12 +163,13 @@ public class EntityService {
 			case DONOR_ID_PREFIX: return getDonorById(id);
 			case SPECIMEN_ID_PREFIX: return getSpecimenById(id);
 			case SAMPLE_ID_PREFIX: return getSampleById(id);
-			case FILE_ID_PREFIX: return getFileBy(id);
+			case FILE_ID_PREFIX: return getFileById(id);
 			default: return "Error: Unknown ID type"+type;
 		}
 	}
 	
-	private String getFileBy(String id) {
+	private String getFileById(String id) {
+		
 		// TODO Auto-generated method stub
 		return null;
 	}

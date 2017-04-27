@@ -18,7 +18,7 @@
 package org.icgc.dcc.sodalite.server.repository;
 
 import org.icgc.dcc.sodalite.server.model.Donor;
-import org.icgc.dcc.sodalite.server.model.DonorGender;
+//import org.icgc.dcc.sodalite.server.model.DonorGender;
 import org.icgc.dcc.sodalite.server.repository.mapper.DonorMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
@@ -31,7 +31,8 @@ import java.util.List;
 public interface DonorRepository {
 
   @SqlUpdate("INSERT INTO Donor (id, study_id, submitter_id, gender) VALUES (:id, :study_id, :submitter_id, :gender)")
-  int save(@Bind("id") String id, @Bind(":study_id") String study_id, @Bind("submitter_id") String submitter_id, @Bind("gender") DonorGender gender);
+  int save(@Bind("id") String id, @Bind("study_id") String study_id, @Bind("submitter_id") String submitter_id,
+		  @Bind("gender") String gender);
 
   @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE study_id=:study_id")
   List<Donor> getDonorsByStudyId(@Bind("study_id") String study_id);

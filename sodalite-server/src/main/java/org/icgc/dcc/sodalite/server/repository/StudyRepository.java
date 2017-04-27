@@ -24,13 +24,11 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
-import java.util.List;
-
 @RegisterMapper(StudyMapper.class)
 public interface StudyRepository {
-  @SqlUpdate("INSERT INTO study (id, name, organization, description) VALUES (:id, :name, :description)")
+  @SqlUpdate("INSERT INTO study (id, name, organization, description) VALUES (:id, :name, :organization, :description)")
   int save(@Bind("id") String id, @Bind("name") String name, @Bind("organization") String organization, @Bind("description") String description);
 
   @SqlQuery("SELECT id, name, organization, description FROM study WHERE id=:id")
-  List<Study> get(@Bind("id") String id);
+  Study get(@Bind("id") String id);
 }
