@@ -22,17 +22,22 @@ import org.icgc.dcc.sodalite.server.model.DonorGender;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@Slf4j
 public class DonorMapper implements ResultSetMapper<Donor> {
 
   public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException
   { // I prefer braces on next line when declaring exception throws in method signature - Dušan
+	log.info("Creating donor from result set:" + r.toString());
+	log.info("id=" + r.getString("id")  + "submitter id=" + r.getString("submitter_id") + "gender=" + r.getString("gender"));
     return new Donor()
         .withDonorId(r.getString("id"))
-        .withDonorSubmitterId(r.getString("description"))
-        .withDonorGender(DonorGender.valueOf(r.getString("gender")));
+        .withDonorSubmitterId(r.getString("submitter_id"))
+        .withDonorGender(DonorGender.fromValue(r.getString("gender")));
   }
 
 }

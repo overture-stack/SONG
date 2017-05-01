@@ -31,8 +31,8 @@ public class SampleMapper implements ResultSetMapper<Sample> {
   { // I prefer braces on next line when declaring exception throws in method signature - Dušan
     return new Sample()
     	.withSampleId(r.getString("id"))
-    	.withSampleType(SampleType.valueOf(r.getString("type")))
-    	.withSampleSubmitterId("submitter_id");
+    	.withSampleType(SampleType.fromValue(r.getString("type")))
+    	.withSampleSubmitterId(r.getString("submitter_id"));
   }
 
 }

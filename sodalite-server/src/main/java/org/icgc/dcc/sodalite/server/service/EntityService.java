@@ -65,7 +65,7 @@ public class EntityService {
 		
 		info("Creating a new entity for study '%s', with json '%s'",studyId,json);
 		@NonNull
-		Study study = studyRepository.get(studyId);
+		Study study = studyRepository.getById(studyId);
 		if (study == null) {
 			return "{\"status\": \"Study " + studyId + " does not exist: please create it first.\"}";
 		}
@@ -119,10 +119,11 @@ public class EntityService {
 		String specimenId = specimen.getSpecimenId();
 		if(isNullOrEmpty(specimenId)) {
 			specimenId=idService.generateSpecimenId();
+			specimen.setSpecimenId(specimenId);
 		}
 		info("Specimen id is '%s",specimenId);
-		specimenRepository.save(specimenId, donorId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass(), 
-				specimen.getSpecimenType());
+		specimenRepository.save(specimenId, donorId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(), 
+				specimen.getSpecimenType().toString());
 		
 		for(Sample sample: specimen.getSamples()) {
 			createSample(specimenId, sample);
@@ -136,8 +137,9 @@ public class EntityService {
 		if(isNullOrEmpty(sampleId)) {
 			sampleId=idService.generateSampleId();
 		}
+		sample.setSampleId(sampleId);
 		info("Sample id is '%s'",sampleId);
-		sampleRepository.save(sampleId, specimenId, sample.getSampleSubmitterId(), sample.getSampleType());
+		sampleRepository.save(sampleId, specimenId, sample.getSampleSubmitterId(), sample.getSampleType().toString());
 		for(File file:sample.getFiles()) {
 			createFile(sampleId, file);
 		}
@@ -149,15 +151,15 @@ public class EntityService {
 		if(isNullOrEmpty(fileId)) {
 			fileId=idService.generateFileId();
 		}
+		file.setObjectId(fileId);;
 		info("Saving to file repository with fileId=%s,file='%s'",fileId,file.toString());
 		fileRepository.save(fileId, sampleId, file.getFileName(), file.getFileSize(), file.getFileMd5(), 
-				file.getFileType());
+				file.getFileType().toString());
 		return fileId;
 	}
-	
-	
+		
 	public String getEntityById(String id) {
-		String type=id.substring(2);
+		String type=id.substring(0,2);
 		switch(type) {
 			case PROJECT_ID_PREFIX: return getStudyById(id);
 			case DONOR_ID_PREFIX: return getDonorById(id);
@@ -169,28 +171,38 @@ public class EntityService {
 	}
 	
 	private String getFileById(String id) {
-		
-		// TODO Auto-generated method stub
-		return null;
+		return fileRepository.getById(id).toString();
 	}
 
 	private String getSampleById(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		return sampleRepository.getById(id).toString();
 	}
 
 	private String getSpecimenById(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		info("Called getSpecimenById with %s",id);
+		List<Specimen> s = specimenRepository.getById(id);
+		if (s.isEmpty()) {
+			info("Specimen is not found");
+			return "{\"msg\";\"Specimen " + id + " not found\"}";
+		}
+		return s.get(0).toString();
 	}
 
 	private String getDonorById(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		info("Called getDonorById with %s",id);
+		List<Donor> d = donorRepository.getById(id);
+		if (d.isEmpty()) {
+			info("Donor is not found");
+			return "{\"msg\";\"Donor " + id + " not found\"}";
+		} else {
+			info("{\"Donor\":onor='%s'",d.get(0).toString());
+		}
+		return d.get(0).toString();
 	}
 
 	String getStudyById(String id) {
-		return null;
+		info("Called getStudyById with %d",id);
+		return studyRepository.getById(id).toString();
 		
 	}
 	

@@ -42,8 +42,12 @@ public class StudyController {
 
   @PutMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
-  public int getStudy(@RequestBody Study study) {
-	return studyService.saveStudy(study);
+  public String getStudy(@RequestBody Study study) {
+	int status=studyService.saveStudy(study);
+	if (status == 1) {
+		return "{\"msg\": \"Study created successfully.\"}";
+	}
+	return "\"{msg\": \"Study creation failed\", \"error code\":" + status + "}";
   }
 
   @GetMapping(path="/validationTest")

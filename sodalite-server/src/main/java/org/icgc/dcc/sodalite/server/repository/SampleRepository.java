@@ -18,7 +18,7 @@
 package org.icgc.dcc.sodalite.server.repository;
 
 import org.icgc.dcc.sodalite.server.model.Sample;
-import org.icgc.dcc.sodalite.server.model.SampleType;
+
 import org.icgc.dcc.sodalite.server.repository.mapper.SampleMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
@@ -31,8 +31,12 @@ import java.util.List;
 public interface SampleRepository {
   @SqlUpdate("INSERT INTO Sample (id, specimen_id, submitter_id, type) VALUES (:id, :specimen_id, :submitter_id, :type)")
   int save(@Bind("id") String id, @Bind("specimen_id") String name, @Bind("submitter_id") String submitter_id,
-		  @Bind SampleType type);
+		  @Bind("type") String type);
 
-  @SqlQuery("SELECT id, study_id, submitter_id, gender FROM study WHERE study_id=:study_id and submitter_id=:submitter_id")
-  List<Sample> get(@Bind("name") String name);
+  @SqlQuery("SELECT id, specimen_id, submitter_id, type FROM Sample WHERE id=:id")
+  Sample getById(@Bind("id") String id);
+  
+  @SqlQuery("SELECT id, submitter_id, type) FROM Sample WHERE specimen_id=:specimen_id")
+  List<Sample> getSamples(@Bind("specimen_id") String specimen_id);
+
 }

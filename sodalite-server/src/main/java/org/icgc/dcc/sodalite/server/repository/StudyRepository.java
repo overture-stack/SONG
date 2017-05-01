@@ -30,5 +30,5 @@ public interface StudyRepository {
   int save(@Bind("id") String id, @Bind("name") String name, @Bind("organization") String organization, @Bind("description") String description);
 
   @SqlQuery("SELECT id, name, organization, description FROM study WHERE id=:id")
-  Study get(@Bind("id") String id);
+  Study getById(@Bind("id") String id);
 }
