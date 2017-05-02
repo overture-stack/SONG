@@ -94,19 +94,19 @@ public class StudyController {
    * @return
    */
 	protected ResponseEntity<String> register(String schemaName, String studyId, String uploadId, String payload) {
-		
-		// do pre-check for whether this upload id has been used. We want to return this error synchronously
-		if (statusService.exists(studyId, uploadId)) {
-  		return conflict(studyId, uploadId);
+
+    // do pre-check for whether this upload id has been used. We want to return this error synchronously
+    if (statusService.exists(studyId, uploadId)) {
+      return conflict(studyId, uploadId);
+    }
+
+    try {
+      validationService.validate(schemaName, studyId, uploadId, payload);
   	}
-  	
-  	try {
-  		validationService.validate(schemaName, studyId, uploadId, payload);
-  	}
-		catch(Exception e) {
-			log.error(e.toString());
-			return badRequest().body(e.getMessage());
-		}
+    catch(Exception e) {
+      log.error(e.toString());
+      return badRequest().body(e.getMessage());
+    }
     return ok(uploadId);
 	}
   
@@ -126,11 +126,11 @@ public class StudyController {
       @PathVariable("studyId") String studyId,
       @PathVariable("uploadId") String uploadId) {
 
-  	return statusService.getStatus(studyId, uploadId);
+    return statusService.getStatus(studyId, uploadId);
   }
 
   protected ResponseEntity<String> conflict(String studyId, String uploadId) {
-		return ResponseEntity.status(HttpStatus.CONFLICT)
-				.body(String.format("The upload id '%s' has already been used in a previous submission for this study (%s)", uploadId, studyId));
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+    	  .body(String.format("The upload id '%s' has already been used in a previous submission for this study (%s)", uploadId, studyId));
   }
 }
