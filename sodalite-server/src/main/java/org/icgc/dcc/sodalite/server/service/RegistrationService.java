@@ -17,14 +17,10 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
-import lombok.SneakyThrows;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.SQLException;
-
 import org.icgc.dcc.sodalite.server.validation.SchemaValidator;
-import org.icgc.dcc.sodalite.server.validation.ValidationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -37,7 +33,7 @@ import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
 @Slf4j
 @Service
-public class ValidationService {
+public class RegistrationService {
 
 	@Autowired
 	private SchemaValidator validator;
@@ -48,7 +44,7 @@ public class ValidationService {
 	protected static final ObjectMapper mapper = new ObjectMapper();
 	
   @Async
-  public void validate(String schemaId, String studyId, String uploadId, String payload) {
+  public void register(String schemaId, String studyId, String uploadId, String payload) {
   	val scrubbed = payload.replaceAll("[\\r\\n]+", "");
   	try {
   		statusService.log(studyId, uploadId, scrubbed);
@@ -64,6 +60,8 @@ public class ValidationService {
   		
   		if (response.isValid()) {
   			statusService.updateAsValid(studyId, uploadId);
+  			// TODO: perform registration now - with the scrubbed payload string
+  			// or could potentially pass in the JsonNode as well
   		} 
   		else {
   			statusService.updateAsInvalid(studyId, uploadId, response.getValidationErrors());

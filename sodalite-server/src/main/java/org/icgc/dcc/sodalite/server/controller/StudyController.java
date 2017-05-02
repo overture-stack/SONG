@@ -24,7 +24,7 @@ import org.icgc.dcc.sodalite.server.model.Study;
 import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
 import org.icgc.dcc.sodalite.server.service.StatusService;
 import org.icgc.dcc.sodalite.server.service.StudyService;
-import org.icgc.dcc.sodalite.server.service.ValidationService;
+import org.icgc.dcc.sodalite.server.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,7 +53,7 @@ public class StudyController {
   @Autowired
   private final StudyService studyService;
   @Autowired
-  private final ValidationService validationService;
+  private final RegistrationService registrationService;
   @Autowired
   private final StatusService statusService;
   
@@ -101,7 +101,7 @@ public class StudyController {
     }
 
     try {
-      validationService.validate(schemaName, studyId, uploadId, payload);
+      registrationService.register(schemaName, studyId, uploadId, payload);
   	}
     catch(Exception e) {
       log.error(e.toString());
