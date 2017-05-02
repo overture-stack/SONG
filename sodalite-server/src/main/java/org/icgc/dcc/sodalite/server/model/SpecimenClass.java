@@ -11,6 +11,7 @@ public enum SpecimenClass {
   NORMAL("Normal"),
   TUMOUR("Tumour"),
   ADJACENT_NORMAL("Adjacent normal");
+
   private final String value;
   private final static Map<String, SpecimenClass> CONSTANTS = new HashMap<String, SpecimenClass>();
 

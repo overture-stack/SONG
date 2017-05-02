@@ -1,0 +1,29 @@
+package org.icgc.dcc.sodalite.server.repository;
+
+import java.util.List;
+
+import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
+import org.icgc.dcc.sodalite.server.repository.mapper.StatusMapper;
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+
+@RegisterMapper(StatusMapper.class)
+public interface StatusRepository {
+
+	// CREATE TABLE Submissions (id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50), errors TEXT, payload TEXT);
+
+  @SqlUpdate("INSERT INTO submissions (id, study_id, state, payload, updated_at) VALUES (:id, :studyId, :state, :payload, now())")
+  int create(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state, @Bind("payload") String jsonPayload);
+
+  @SqlUpdate("UPDATE submissions SET state = :state, errors = :errors, updated_at = now() WHERE id = :id AND study_id = :studyId")
+  int update(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state, @Bind("errors") String errors);
+
+  @SqlQuery("SELECT id, study_id, state, errors, payload FROM submissions WHERE id = :uploadId AND study_id = :studyId")
+  SubmissionStatus get(@Bind("uploadId") String id, @Bind("studyId") String studyId);
+
+  @SqlQuery("SELECT id FROM submissions WHERE id = :uploadId AND study_id = :studyId")
+  List<String> checkIfExists(@Bind("uploadId") String id, @Bind("studyId") String studyId);
+
+}

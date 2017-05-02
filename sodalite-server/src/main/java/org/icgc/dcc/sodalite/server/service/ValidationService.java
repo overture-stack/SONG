@@ -17,17 +17,66 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
+import lombok.SneakyThrows;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+
+import java.sql.SQLException;
+
+import org.icgc.dcc.sodalite.server.validation.SchemaValidator;
+import org.icgc.dcc.sodalite.server.validation.ValidationResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
 @Slf4j
 @Service
 public class ValidationService {
 
+	@Autowired
+	private SchemaValidator validator;
+	
+  @Autowired
+  private StatusService statusService;
+  
+	protected static final ObjectMapper mapper = new ObjectMapper();
+	
   @Async
-  public void validate() {
-    log.info("Async validation...");
+  public void validate(String schemaId, String studyId, String uploadId, String payload) {
+  	val scrubbed = payload.replaceAll("[\\r\\n]+", "");
+  	try {
+  		statusService.log(studyId, uploadId, scrubbed);
+  	}
+  	catch(UnableToExecuteStatementException jdbie) {
+  		log.error(jdbie.getCause().getMessage());
+  		throw new RepositoryException(jdbie.getCause());
+  	}
+ 
+  	try {
+  		JsonNode jsonNode = mapper.reader().readTree(scrubbed);
+  		val response = validator.validate(schemaId, jsonNode);
+  		
+  		if (response.isValid()) {
+  			statusService.updateAsValid(studyId, uploadId);
+  		} 
+  		else {
+  			statusService.updateAsInvalid(studyId, uploadId, response.getValidationErrors());
+  		}
+  	}
+  	catch(JsonProcessingException jpe) {
+  		log.error(jpe.getMessage());
+  		statusService.updateAsInvalid(studyId, uploadId, String.format("Invalid JSON document submitted: %s", jpe.getMessage()));
+  	}
+  	catch(Exception e) {
+  		log.error(e.getMessage());
+  		statusService.updateAsInvalid(studyId, uploadId, String.format("Unknown processing problem: %s", e.getMessage()));
+  	}
   }
 
 }
