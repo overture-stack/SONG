@@ -54,7 +54,12 @@
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
         </dependency>
-
+        <dependency>
+          <groupId>org.flywaydb</groupId>
+          <artifactId>flyway-core</artifactId>
+          <version>${flywaydb.version}</version>
+        </dependency>
+        
         <!-- JDBI -->
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -151,6 +156,7 @@
     <properties>
         <!-- Versions - Spring Boot - Jackson -->
         <jackson.version>2.8.3</jackson.version>
+        <flywaydb.version>4.2.0</flywaydb.version>
     
         <!-- Spring Security oath2 -->
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
