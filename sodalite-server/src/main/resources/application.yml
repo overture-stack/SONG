@@ -25,16 +25,52 @@ server:
 management:
   port: 8081
 
+id:
+  server-instance: 0
+  worker-instance: 0
+
+validation:
+  threads:
+    core: 5
+    max: 10
+  queue:
+    capacity: 100
+
+flyway:
+  locations: db/migration/{vendor}
+  baselineOnMigrate: true
+
+---
+spring:
+  profiles: dev
+  
 # Datasource
 spring.datasource:
   driver-class-name: org.h2.Driver
-  url: jdbc:h2:file:${java.io.tmpdir}/db;MULTI_THREADED=TRUE;AUTO_SERVER=TRUE;MODE=PostgreSQL;INIT=runscript from 'classpath:sql/drop_tables.sql'\;runscript from 'classpath:sql/data_types/h2.sql'\;runscript from 'classpath:sql/schema.sql'\;runscript from 'classpath:sql/insert_test_data.sql'
+#  url: jdbc:h2:file:${java.io.tmpdir}/db;MULTI_THREADED=TRUE;AUTO_SERVER=TRUE;MODE=PostgreSQL;INIT=runscript from 'classpath:sql/drop_tables.sql'\;runscript from 'classpath:sql/data_types/h2.sql'\;runscript from 'classpath:sql/schema.sql'\;runscript from 'classpath:sql/insert_test_data.sql'
+  url: jdbc:h2:file:${java.io.tmpdir}/db
+  
   username:
   password:
   max-active: 10
   max-idle: 1
   min-idle: 1
 
-id:
-  server-instance: 0
-  worker-instance: 0
+
+---
+
+spring:
+  profiles: prod
+  
+# Datasource
+spring.datasource:
+  driver-class-name: org.postgresql.Driver
+  url: jdbc:postgresql://localhost/sodalite
+
+  username:
+  password:
+  max-active: 10
+  max-idle: 1
+  min-idle: 1
+
+
