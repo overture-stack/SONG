@@ -17,7 +17,7 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
-import static org.junit.Assert.*;
+//import static org.junit.Assert.*;
 
 public class IdServiceTest {
 

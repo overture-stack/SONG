@@ -33,10 +33,15 @@ public interface SampleRepository {
   int save(@Bind("id") String id, @Bind("specimen_id") String name, @Bind("submitter_id") String submitter_id,
 		  @Bind("type") String type);
 
-  @SqlQuery("SELECT id, specimen_id, submitter_id, type FROM Sample WHERE id=:id")
+  @SqlQuery("SELECT id, submitter_id, type FROM Sample WHERE id=:id")
   Sample getById(@Bind("id") String id);
   
-  @SqlQuery("SELECT id, submitter_id, type) FROM Sample WHERE specimen_id=:specimen_id")
-  List<Sample> getSamples(@Bind("specimen_id") String specimen_id);
-
+  @SqlQuery("SELECT id, submitter_id, type FROM Sample WHERE specimen_id=:specimen_id")
+  List<Sample> getBySpecimenId(@Bind("specimen_id") String specimen_id);
+  
+  @SqlQuery("SELECT id from Sample where specimen_id=:specimen_id")
+  List<String> getSampleIdsBySpecimenId(@Bind("specimen_id") String specimen_id);
+  
+  @SqlUpdate("DELETE from Sample where id=:id")
+  int delete(@Bind("id") String id);
 }

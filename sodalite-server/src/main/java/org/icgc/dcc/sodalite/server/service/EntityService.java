@@ -1,6 +1,7 @@
 package org.icgc.dcc.sodalite.server.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.model.Sample;
 import org.icgc.dcc.sodalite.server.model.Specimen;
 import org.icgc.dcc.sodalite.server.model.Study;
+
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
 import org.icgc.dcc.sodalite.server.repository.FileRepository;
 import org.icgc.dcc.sodalite.server.repository.SampleRepository;
@@ -21,6 +23,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +38,13 @@ import static java.lang.String.format;
 @Service
 @RequiredArgsConstructor
 public class EntityService {
-	public static final String PROJECT_ID_PREFIX = "PR";
 	public static final String DONOR_ID_PREFIX = "DO"; 
 	public static final String SPECIMEN_ID_PREFIX = "SP";
 	public static final String SAMPLE_ID_PREFIX = "SA"; 
 	public static final String MUTATION_ID_PREFIX = "MU"; 
 	public static final String FILE_ID_PREFIX = "FI";
-	
+	public static final int SUCCESS=1; // sql functions return  1 for success, 0 for failure
+	ObjectMapper mapper=new ObjectMapper();
 	@Autowired
 	IdService idService;
 	@Autowired
@@ -54,6 +57,7 @@ public class EntityService {
 	SampleRepository sampleRepository;
 	@Autowired
 	FileRepository fileRepository;
+	
 	
 	private void info(String fmt, Object... args) {
 		log.info(format(fmt, args));
@@ -71,7 +75,7 @@ public class EntityService {
 		}
 		info("Got study '%s",study.toString());
 		study.setStudyId(studyId);
-		ObjectMapper mapper=new ObjectMapper();
+		
 		@NonNull
 		JsonNode node = mapper.readTree(json);
 
@@ -92,7 +96,7 @@ public class EntityService {
 		study.setDonors(donorList);
 		long end=System.currentTimeMillis();
 		info("Elapsed time = %d seconds",(end-start)/1000);
-		return study.toString();
+		return mapper.writeValueAsString(study);
 	}
 	
 	
@@ -115,7 +119,7 @@ public class EntityService {
 	}
 	
 	String createSpecimen(String donorId, Specimen specimen) {
-		info("Creating specemin with donorId=%s, specimen=%s",donorId.toString(), specimen.toString());
+		info("Creating specimen with donorId=%s, specimen=%s",donorId.toString(), specimen.toString());
 		String specimenId = specimen.getSpecimenId();
 		if(isNullOrEmpty(specimenId)) {
 			specimenId=idService.generateSpecimenId();
@@ -160,71 +164,84 @@ public class EntityService {
 		
 	public String getEntityById(String id) {
 		String type=id.substring(0,2);
+		
 		switch(type) {
-			case PROJECT_ID_PREFIX: return getStudyById(id);
-			case DONOR_ID_PREFIX: return getDonorById(id);
-			case SPECIMEN_ID_PREFIX: return getSpecimenById(id);
-			case SAMPLE_ID_PREFIX: return getSampleById(id);
-			case FILE_ID_PREFIX: return getFileById(id);
+			case DONOR_ID_PREFIX: return json(getDonorById(id));
+			case SPECIMEN_ID_PREFIX: return json(getSpecimenById(id));
+			case SAMPLE_ID_PREFIX: return json(getSampleById(id));
+			case FILE_ID_PREFIX: return json(getFileById(id));
 			default: return "Error: Unknown ID type"+type;
 		}
 	}
+
+	@SneakyThrows
+	private String json(Object o) {
+		return mapper.writeValueAsString(o);
+	}
 	
-	private String getFileById(String id) {
-		return fileRepository.getById(id).toString();
+	void setFiles(Sample sample) {
+		sample.setFiles(fileRepository.getBySampleId(sample.getSampleId()));
 	}
-
-	private String getSampleById(String id) {
-		return sampleRepository.getById(id).toString();
-	}
-
-	private String getSpecimenById(String id) {
-		info("Called getSpecimenById with %s",id);
-		List<Specimen> s = specimenRepository.getById(id);
-		if (s.isEmpty()) {
-			info("Specimen is not found");
-			return "{\"msg\";\"Specimen " + id + " not found\"}";
+	
+	void setSamples(Specimen specimen) {
+		specimen.setSamples(sampleRepository.getBySpecimenId(specimen.getSpecimenId()));
+		for(val sample: specimen.getSamples()) {
+			setFiles(sample);
 		}
-		return s.get(0).toString();
 	}
-
-	private String getDonorById(String id) {
-		info("Called getDonorById with %s",id);
-		List<Donor> d = donorRepository.getById(id);
-		if (d.isEmpty()) {
-			info("Donor is not found");
-			return "{\"msg\";\"Donor " + id + " not found\"}";
-		} else {
-			info("{\"Donor\":onor='%s'",d.get(0).toString());
+	
+	void setSpecimens(Donor donor) {
+		donor.setSpecimens(specimenRepository.getByDonorId(donor.getDonorId()));
+		for(val specimen: donor.getSpecimens()) {
+			setSamples(specimen);
 		}
-		return d.get(0).toString();
-	}
-
-	String getStudyById(String id) {
-		info("Called getStudyById with %d",id);
-		return studyRepository.getById(id).toString();
-		
 	}
 	
-	
-	// getEntityById
-	// (1) Lookup entity in table
-	// (2) Get parent ids,types
-	// (3) Lookup children in table & add them.
+	void setDonors(Study study) {
+		study.setDonors(donorRepository.getDonorsByStudyId(study.getStudyId()));
+		for(val donor: study.getDonors()) {
+			setSpecimens(donor);
+		}
+	}
 
-//	public int deleteEntity(List<String> ids) {
-//		for (val id:ids) {
-//			val type=id.substring(2);
-//			switch(type) {
-//			case PROJECT_ID_PREFIX: return repository.deleteStudy(id);
-//			case DONOR_ID_PREFIX: return repository.deleteDonor(id);
-//			case SPECIMEN_ID_PREFIX: return repository.deleteSpecimen(id);
-//			case SAMPLE_ID_PREFIX: return repository.deleteSample(id);
-//			case FILE_ID_PREFIX: return repository.deleteFile(id);
-//			}
-//		}
-//		return 0;
-//	}
+	@SneakyThrows
+	File getFileById(String id) {
+		File file = fileRepository.getById(id);
+		return file;
+	}
+	
+	@SneakyThrows
+	Sample getSampleById(String id) {
+		Sample sample = sampleRepository.getById(id);
+		setFiles(sample);
+		return sample;
+	}
+	
+	@SneakyThrows
+	Specimen getSpecimenById(String id) {
+		Specimen specimen = specimenRepository.getById(id);
+		setSamples(specimen);
+		return specimen;
+	}
+	
+	@SneakyThrows
+	Donor getDonorById(String id) {
+		Donor donor = donorRepository.getById(id);
+		setSpecimens(donor);
+		return donor;
+	}
+	
+	@SneakyThrows
+	public String getStudyById(String id) {
+		Study s= studyRepository.getById(id);
+		if (s == null) {
+			return "{ \"msg\": \"Study with id '" + id +"' does not exist\"}";
+		}
+		info(mapper.writeValueAsString(s));
+		setDonors(s);
+
+		return mapper.writeValueAsString(s);
+	}
 
 	public List<Entity> getEntities(Map<String, String> params) {
 		info("Called getEntities with '%s'", params);
@@ -236,4 +253,59 @@ public class EntityService {
 		return "Not implemented yet";
 	}
 	
+	public String delete(List<String> ids) {
+		Map<String,String> results = new HashMap<>();
+		for (val id: ids) {
+			val status=deleteId(id);
+			results.put(id,  status);
+		}
+		return json(results);
+		
+	}
+	
+	int deleteFile(String id) {
+		return fileRepository.delete(id);
+	}
+	
+	int deleteSample(String id) {
+		// TODO: Wrap these in transactions
+		fileRepository.deleteBySampleId(id);
+		return sampleRepository.delete(id);
+	}
+	
+	int deleteSpecimen(String id) {
+		List<String> ids = sampleRepository.getSampleIdsBySpecimenId(id);
+		for(val sampleId:ids) {
+			deleteSample(sampleId);
+		}
+		return specimenRepository.delete(id);
+	}
+	
+	int deleteDonor(String id) {
+		List<String> ids=specimenRepository.getSpecimenIdsByDonorId(id);
+		for(val specimenId:ids) {
+			deleteSpecimen(specimenId);
+		}
+		return donorRepository.delete(id);
+	}
+	
+	String statusMsg(int status) {
+		if (status == SUCCESS) {
+			return "OK";
+		} else {
+			return "FAILED";
+		}
+	}
+	
+	String deleteId(String id) {
+		String type=id.substring(0,2);
+		
+		switch(type) {
+			case DONOR_ID_PREFIX: return statusMsg(deleteDonor(id));
+			case SPECIMEN_ID_PREFIX: return statusMsg(deleteSpecimen(id));
+			case SAMPLE_ID_PREFIX: return statusMsg(deleteSample(id));
+			case FILE_ID_PREFIX: return statusMsg(deleteFile(id));
+			default: return "Error: Unknown ID type"+type;
+		}
+	}
 }

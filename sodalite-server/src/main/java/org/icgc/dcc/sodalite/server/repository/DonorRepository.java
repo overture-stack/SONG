@@ -38,9 +38,11 @@ public interface DonorRepository {
   List<Donor> getDonorsByStudyId(@Bind("study_id") String study_id);
   
   @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE id=:id")
-  List<Donor> getById(@Bind("id") String donor_id);
+  Donor getById(@Bind("id") String donor_id);
   
   @SqlQuery("SELECT study_id FROM donor where id=:id")
   String parentId(@Bind("id") String id);
-
+  
+  @SqlUpdate("DELETE from donor where id=:id")
+  int delete(@Bind("id") String id);
 }

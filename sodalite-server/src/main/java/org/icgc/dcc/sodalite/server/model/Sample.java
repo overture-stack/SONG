@@ -115,4 +115,8 @@ public class Sample implements Entity {
       this.additionalProperties.put(name, value);
       return this;
   }
+
+  public void addFile(File f) {
+	  files.add(f);	
+  }
 }

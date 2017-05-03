@@ -57,4 +57,5 @@ public class RepositoryConfig {
   
   @Bean
   public FileRepository FileRepository(DBI dbi) { return dbi.open(FileRepository.class); }
+  
 }
