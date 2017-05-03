@@ -1,7 +1,7 @@
 package org.icgc.dcc.sodalite.server.validation;
 
 import java.util.Set;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.joining;
 
 import com.networknt.schema.ValidationMessage;
 
@@ -24,7 +24,7 @@ public class ValidationResponse {
 	public String getValidationErrors() {
 		val errorMessages = messages.stream()
 				.map(ValidationMessage::getMessage)
-				.collect(Collectors.joining("|"));
+				.collect(joining("|"));
 		return errorMessages;
 	}
 }
