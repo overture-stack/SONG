@@ -28,6 +28,9 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 
@@ -41,7 +44,10 @@ public class RegistrationService {
   @Autowired
   private StatusService statusService;
   
-	protected static final ObjectMapper mapper = new ObjectMapper();
+	protected static final ObjectMapper mapper = new ObjectMapper()
+      .registerModule(new ParameterNamesModule())
+      .registerModule(new Jdk8Module())
+      .registerModule(new JavaTimeModule());
 	
   @Async
   public void register(String schemaId, String studyId, String uploadId, String payload) {
