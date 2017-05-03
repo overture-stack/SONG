@@ -78,42 +78,6 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
                 <package.attach>true</package.attach>
             </properties>
         </profile>
-
-        <!-- Profile that enables static code analysis -->
-        <profile>
-            <id>code-analysis</id>
-            <properties>
-                <install.skipFindbugs>false</install.skipFindbugs>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-pmd-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${pmd.targetdir}</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${pmd.sourcedir}/config/style</directory>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 
     <properties>
