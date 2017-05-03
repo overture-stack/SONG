@@ -1,14 +1,11 @@
 package org.icgc.dcc.sodalite.server.validation;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
-import com.networknt.schema.ValidationMessage;
 
 import lombok.SneakyThrows;
 import lombok.val;

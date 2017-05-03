@@ -36,8 +36,8 @@ public class StatusMapper implements ResultSetMapper<SubmissionStatus> {
   			.withStudyId(rs.getString("study_id"))
 		  	.withState(rs.getString("state"))
 		  	.withPayload(rs.getString("payload"))
-		  	.withCreatedAt(rs.getObject("createdAt", LocalDateTime.class))
-		  	.withUpdatedAt(rs.getObject("updatedAt", LocalDateTime.class));
+		  	.withCreatedAt(rs.getTimestamp("created_at").toLocalDateTime())
+		  	.withUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
   	
   	String errorString = rs.getString("errors");
   	if (errorString == null) {

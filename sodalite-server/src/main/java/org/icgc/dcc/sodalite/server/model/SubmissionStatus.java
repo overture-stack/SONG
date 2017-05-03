@@ -20,10 +20,10 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
     "uploadId",
     "studyId",
     "state",
-    "errors",
-    "payload",
     "createdAt",
-    "updatedAt"
+    "updatedAt",
+    "errors",
+    "payload"
 })
 
 public class SubmissionStatus {

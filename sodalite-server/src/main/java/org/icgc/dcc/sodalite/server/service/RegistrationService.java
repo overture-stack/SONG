@@ -51,9 +51,8 @@ public class RegistrationService {
 	
   @Async
   public void register(String schemaId, String studyId, String uploadId, String payload) {
-  	val scrubbed = payload.replaceAll("[\\r\\n]+", "");
   	try {
-  		statusService.log(studyId, uploadId, scrubbed);
+  		statusService.log(studyId, uploadId, payload);
   	}
   	catch(UnableToExecuteStatementException jdbie) {
   		log.error(jdbie.getCause().getMessage());
@@ -61,12 +60,12 @@ public class RegistrationService {
   	}
  
   	try {
-  		JsonNode jsonNode = mapper.reader().readTree(scrubbed);
+  		JsonNode jsonNode = mapper.reader().readTree(payload);
   		val response = validator.validate(schemaId, jsonNode);
   		
   		if (response.isValid()) {
   			statusService.updateAsValid(studyId, uploadId);
-  			// TODO: perform registration now - with the scrubbed payload string
+  			// TODO: perform registration now - with the payload string
   			// or could potentially pass in the JsonNode as well
   		} 
   		else {
