@@ -38,48 +38,44 @@ import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 @Service
 public class RegistrationService {
 
-	@Autowired
-	private SchemaValidator validator;
-	
+  @Autowired
+  private SchemaValidator validator;
+
   @Autowired
   private StatusService statusService;
-  
-	protected static final ObjectMapper mapper = new ObjectMapper()
-      .registerModule(new ParameterNamesModule())
+
+  protected static final ObjectMapper mapper = new ObjectMapper().registerModule(new ParameterNamesModule())
       .registerModule(new Jdk8Module())
       .registerModule(new JavaTimeModule());
-	
+
   @Async
   public void register(String schemaId, String studyId, String uploadId, String payload) {
-  	try {
-  		statusService.log(studyId, uploadId, payload);
-  	}
-  	catch(UnableToExecuteStatementException jdbie) {
-  		log.error(jdbie.getCause().getMessage());
-  		throw new RepositoryException(jdbie.getCause());
-  	}
- 
-  	try {
-  		JsonNode jsonNode = mapper.reader().readTree(payload);
-  		val response = validator.validate(schemaId, jsonNode);
-  		
-  		if (response.isValid()) {
-  			statusService.updateAsValid(studyId, uploadId);
-  			// TODO: perform registration now - with the payload string
-  			// or could potentially pass in the JsonNode as well
-  		} 
-  		else {
-  			statusService.updateAsInvalid(studyId, uploadId, response.getValidationErrors());
-  		}
-  	}
-  	catch(JsonProcessingException jpe) {
-  		log.error(jpe.getMessage());
-  		statusService.updateAsInvalid(studyId, uploadId, String.format("Invalid JSON document submitted: %s", jpe.getMessage()));
-  	}
-  	catch(Exception e) {
-  		log.error(e.getMessage());
-  		statusService.updateAsInvalid(studyId, uploadId, String.format("Unknown processing problem: %s", e.getMessage()));
-  	}
+    try {
+      statusService.log(studyId, uploadId, payload);
+    } catch (UnableToExecuteStatementException jdbie) {
+      log.error(jdbie.getCause().getMessage());
+      throw new RepositoryException(jdbie.getCause());
+    }
+
+    try {
+      JsonNode jsonNode = mapper.reader().readTree(payload);
+      val response = validator.validate(schemaId, jsonNode);
+
+      if (response.isValid()) {
+        statusService.updateAsValid(studyId, uploadId);
+        // TODO: perform registration now - with the payload string
+        // or could potentially pass in the JsonNode as well
+      }
+      else {
+        statusService.updateAsInvalid(studyId, uploadId, response.getValidationErrors());
+      }
+    } catch (JsonProcessingException jpe) {
+      log.error(jpe.getMessage());
+      statusService.updateAsInvalid(studyId, uploadId, String.format("Invalid JSON document submitted: %s", jpe.getMessage()));
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      statusService.updateAsInvalid(studyId, uploadId, String.format("Unknown processing problem: %s", e.getMessage()));
+    }
   }
 
 }

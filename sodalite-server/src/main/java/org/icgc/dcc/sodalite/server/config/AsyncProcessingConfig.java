@@ -11,24 +11,24 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 @EnableAsync
 public class AsyncProcessingConfig extends AsyncConfigurerSupport {
-	
-	@Value("${validation.threads.core}")
+
+  @Value("${validation.threads.core}")
   private int corePoolSize;
 
-	@Value("${validation.threads.max}")
+  @Value("${validation.threads.max}")
   private int maxPoolSize;
 
-	@Value("${validation.queue.capacity}")
-	private int queueCapacity;
+  @Value("${validation.queue.capacity}")
+  private int queueCapacity;
 
   @Override
   public Executor getAsyncExecutor() {
-      ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-      executor.setCorePoolSize(corePoolSize);
-      executor.setMaxPoolSize(maxPoolSize);
-      executor.setQueueCapacity(queueCapacity);
-      executor.setThreadNamePrefix("SodaliteMessageValidation-");
-      executor.initialize();
-      return executor;
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(corePoolSize);
+    executor.setMaxPoolSize(maxPoolSize);
+    executor.setQueueCapacity(queueCapacity);
+    executor.setThreadNamePrefix("SodaliteMessageValidation-");
+    executor.initialize();
+    return executor;
   }
 }
