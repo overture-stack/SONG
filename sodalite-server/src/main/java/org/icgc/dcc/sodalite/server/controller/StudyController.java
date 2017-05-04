@@ -128,4 +128,5 @@ public class StudyController {
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(String.format("The upload id '%s' has already been used in a previous submission for this study (%s)", uploadId, studyId));
   }
+
 }
