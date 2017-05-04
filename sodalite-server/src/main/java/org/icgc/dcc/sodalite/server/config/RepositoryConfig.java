@@ -17,6 +17,7 @@
  */
 package org.icgc.dcc.sodalite.server.config;
 
+import org.icgc.dcc.sodalite.server.repository.StatusRepository;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
 import org.skife.jdbi.v2.DBI;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,8 @@ public class RepositoryConfig {
 
   @Bean
   public StudyRepository studyRepository(DBI dbi) { return dbi.open(StudyRepository.class); }
+
+  @Bean
+  public StatusRepository statusRepository(DBI dbi) { return dbi.open(StatusRepository.class); }
 
 }

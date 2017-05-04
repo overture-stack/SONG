@@ -3,120 +3,109 @@
   "id": "http://sodalite.icgc.org/messages/updateSequencingRead",
   "type": "object",
   "properties": {
-    "sequencingReadUpdate": {
-      "id": "/properties/sequencingReadUpdate",
+    "apiVersion": {
+      "id": "/properties/updateSequencingRead/properties/apiVersion",
+      "type": "string"
+    },
+    "submissionId": {
+      "id": "/properties/updateSequencingRead/properties/submissionId",
+      "type": "string"
+    },
+    "sequencingRead": {
+      "id": "/properties/updateSequencingRead/properties/sequencingRead",
       "type": "object",
       "properties": {
-        "apiVersion": {
-          "id": "/properties/sequencingReadUpdate/properties/apiVersion",
+        "analysisId": {
+          "id": "/properties/updateSequencingRead/properties/sequencingRead/properties/analysisId",
           "type": "string"
         },
-        "submissionId": {
-          "id": "/properties/sequencingReadUpdate/properties/submissionId",
+        "aligned": {
+          "id": "/properties/updateSequencingRead/properties/sequencingRead/properties/aligned",
+          "type": "boolean"
+        },
+        "alignmentTool": {
+          "id": "/properties/updateSequencingRead/properties/sequencingRead/properties/alignmentTool",
           "type": "string"
         },
-        "sequencingRead": {
-          "id": "/properties/sequencingReadUpdate/properties/sequencingRead",
-          "type": "object",
-          "properties": {
-            "analysisId": {
-              "id": "/properties/sequencingReadUpdate/properties/sequencingRead/properties/analysisId",
-              "type": "string"
-            },
-            "aligned": {
-              "id": "/properties/sequencingReadUpdate/properties/sequencingRead/properties/aligned",
-              "type": "boolean"
-            },
-            "alignmentTool": {
-              "id": "/properties/sequencingReadUpdate/properties/sequencingRead/properties/alignmentTool",
-              "type": "string"
-            },
-            "insertSize": {
-              "id": "/properties/sequencingReadUpdate/properties/sequencingRead/properties/insertSize",
-              "type": "integer"
-            },
-            "libraryStrategy": {
-              "id": "/properties/sequencingReadUpdate/properties/sequencingRead/properties/libraryStrategy",
-              "type": "string",
-              "enum": ["WGS", "WXS", "RNA-Seq", "ChIP-Seq", "miRNA-Seq", "Bisulfite-Seq", "Validation", "Amplicon", "Other" ]
-            },
-            "pairedEnd": {
-              "id": "/properties/sequencingReadUpdate/properties/sequencingRead/properties/pairedEnd",
-              "type": "boolean"
-            },
-            "referenceGenomeFiles": {
-              "id": "/properties/sequencingReadUpdate/properties/sequencingRead/properties/referenceGenomeFiles",
-              "type": "array",
-              "items": {
-                "id": "/properties/sequencingReadUpdate/properties/sequencingRead/properties/referenceGenomeFiles/items",
-                "type": "string"
-              }
-            }
-          },
-          "required":["analysisId"]
+        "insertSize": {
+          "id": "/properties/updateSequencingRead/properties/sequencingRead/properties/insertSize",
+          "type": "integer"
         },
-        "study": {
-          "id": "/properties/sequencingReadUpdate/properties/study",
-          "type": "object",
-          "properties": {
-            "studyId": {
-              "id": "/properties/sequencingReadUpdate/properties/study/properties/studyId",
-              "type": "string"
-            },
-            "donor": {
-              "id": "/properties/sequencingReadUpdate/properties/study/properties/donor",
-              "type": "object",
-              "properties": {
-                "donorId": {
-                  "id": "/properties/sequencingReadUpdate/properties/study/properties/donor/properties/donorId",
-                  "type": "string"
-                },
-                "specimen": {
-                  "id": "/properties/sequencingReadUpdate/properties/study/properties/donor/properties/specimen",
-                  "type": "object",
-                  "properties": {
-                    "specimenId": {
-                      "id": "/properties/sequencingReadUpdate/properties/study/properties/donor/properties/specimen/properties/specimenId",
-                      "type": "string"
-                    },
-                    "sample": {
-                      "id": "/properties/sequencingReadUpdate/properties/study/properties/donor/properties/specimen/properties/sample",
-                      "type": "object",
-                      "properties": {
-                        "sampleId": {
-                          "id": "/properties/sequencingReadUpdate/properties/study/properties/donor/properties/specimen/properties/sample/properties/sampleId",
-                          "type": "string"
-                        },
-                        "files": {
-                          "id": "/properties/sequencingReadUpdate/properties/study/properties/donor/properties/specimen/properties/sample/properties/files",
-                          "type": "array",
-                          "items": {
-                            "id": "/properties/sequencingReadUpdate/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items",
-                            "type": "object",
-                            "properties": {
-                              "objectId": {
-                                "id": "/properties/sequencingReadUpdate/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/objectId",
-                                "type": "string"
-                              }
-                            },
-                            "required":["objectId"]
-                          }
-                        }
-                      },
-                      "required":["sampleId"]
-                    }
-                  },
-                  "required":["specimenId"]
-                }
-              },
-              "required":["donorId"]
-            }
-          },
-          "required":["studyId", "donor"]
+        "libraryStrategy": {
+          "id": "/properties/updateSequencingRead/properties/sequencingRead/properties/libraryStrategy",
+          "type": "string",
+          "enum": ["WGS", "WXS", "RNA-Seq", "ChIP-Seq", "miRNA-Seq", "Bisulfite-Seq", "Validation", "Amplicon", "Other" ]
+        },
+        "pairedEnd": {
+          "id": "/properties/updateSequencingRead/properties/sequencingRead/properties/pairedEnd",
+          "type": "boolean"
+        },
+        "referenceGenome": {
+          "id": "/properties/updateSequencingRead/properties/sequencingRead/properties/referenceGenomeFiles",
+          "type": "string"
         }
       },
-      "required":["apiVersion", "sequencingRead"]
+      "required":["analysisId"]
+    },
+    "study": {
+      "id": "/properties/updateSequencingRead/properties/study",
+      "type": "object",
+      "properties": {
+        "studyId": {
+          "id": "/properties/updateSequencingRead/properties/study/properties/studyId",
+          "type": "string"
+        },
+        "donor": {
+          "id": "/properties/updateSequencingRead/properties/study/properties/donor",
+          "type": "object",
+          "properties": {
+            "donorId": {
+              "id": "/properties/updateSequencingRead/properties/study/properties/donor/properties/donorId",
+              "type": "string"
+            },
+            "specimen": {
+              "id": "/properties/updateSequencingRead/properties/study/properties/donor/properties/specimen",
+              "type": "object",
+              "properties": {
+                "specimenId": {
+                  "id": "/properties/updateSequencingRead/properties/study/properties/donor/properties/specimen/properties/specimenId",
+                  "type": "string"
+                },
+                "sample": {
+                  "id": "/properties/updateSequencingRead/properties/study/properties/donor/properties/specimen/properties/sample",
+                  "type": "object",
+                  "properties": {
+                    "sampleId": {
+                      "id": "/properties/updateSequencingRead/properties/study/properties/donor/properties/specimen/properties/sample/properties/sampleId",
+                      "type": "string"
+                    },
+                    "files": {
+                      "id": "/properties/updateSequencingRead/properties/study/properties/donor/properties/specimen/properties/sample/properties/files",
+                      "type": "array",
+                      "items": {
+                        "id": "/properties/updateSequencingRead/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items",
+                        "type": "object",
+                        "properties": {
+                          "objectId": {
+                            "id": "/properties/updateSequencingRead/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/objectId",
+                            "type": "string"
+                          }
+                        },
+                        "required":["objectId"]
+                      }
+                    }
+                  },
+                  "required":["sampleId"]
+                }
+              },
+              "required":["specimenId"]
+            }
+          },
+          "required":["donorId"]
+        }
+      },
+      "required":["studyId", "donor"]
     }
   },
-  "required":["sequencingReadUpdate"]
+  "required":["apiVersion", "sequencingRead"]
 }

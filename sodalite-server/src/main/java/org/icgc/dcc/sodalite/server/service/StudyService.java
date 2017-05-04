@@ -52,7 +52,7 @@ public class StudyService {
   /**
    * We manually determine study id because it's a meaningful abbreviation usually pre-determined.
    * 
-   * @param studyId
+   * @param study
    * @return
    */
   public int saveStudy(Study study) {

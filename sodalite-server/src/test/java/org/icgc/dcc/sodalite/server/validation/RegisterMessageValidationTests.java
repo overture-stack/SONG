@@ -47,7 +47,7 @@ public class RegisterMessageValidationTests {
 	@Test
 	public void validate_submit_variant_call_missing_required() throws Exception {
 		val errors = validate("schemas/register-variantcall-message.json", "documents/register-variantcall-missing-required.json");
-		assertThat(errors.size()).isEqualTo(3);
+		assertThat(errors.size()).isEqualTo(1);
 	}
 	
 	@Test

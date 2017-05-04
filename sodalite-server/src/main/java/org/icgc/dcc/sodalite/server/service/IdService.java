@@ -31,6 +31,7 @@ public class IdService {
 	public static final String DONOR_ID_PREFIX = "DO";
 	public static final String SPECIMEN_ID_PREFIX = "SP";
 	public static final String SAMPLE_ID_PREFIX = "SA";
+	public static final String FILE_ID_PREFIX = "FI";
 	
 	/**
 	 * Dependencies
@@ -55,6 +56,10 @@ public class IdService {
   	return String.format("%s%s", SAMPLE_ID_PREFIX, identifier());
   }
 
+  public String generateFileId() {
+  	return String.format("%s%s", FILE_ID_PREFIX, identifier());
+  }
+  
   /**
    * Copied from metadata service:
    * https://github.com/icgc-dcc/dcc-metadata/blob/develop/dcc-metadata-server/src/main/java/org/icgc/dcc/metadata/server/service/EntityService.java#L69
