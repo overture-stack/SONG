@@ -28,20 +28,36 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import java.util.List;
 
 @RegisterMapper(DonorMapper.class)
-public interface DonorRepository {
+public interface DonorRepository extends EntityRepository<Donor>{
 
   @SqlUpdate("INSERT INTO Donor (id, study_id, submitter_id, gender) VALUES (:id, :study_id, :submitter_id, :gender)")
   int save(@Bind("id") String id, @Bind("study_id") String study_id, @Bind("submitter_id") String submitter_id,
 		  @Bind("gender") String gender);
-
+  
+  @SqlUpdate("UPDATE Donor SET submitter_id=:submitter_id, gender=:gender where id=:id")
+  int set(@Bind("id") String id, @Bind("submitter_id") String submitter_id,
+		  @Bind("gender") String gender);
+  
+  default String add(String parentId, Donor d) {
+	   if (save(d.getDonorId(), parentId, d.getDonorSubmitterId(), d.getDonorGender().toString()) == 1) {
+		   return "{\"created\": \"" + d.getDonorId() + "}";
+	   }
+	   return "{\"error\": \"Could not create donor " + d.toString() + "\"}";
+  }
+  
+  default String update(Donor d) {
+	  set(d.getDonorId(), d.getDonorSubmitterId(), d.getDonorGender().toString());
+	  return "{\"updated\": " + d.getDonorId() + "}";
+  }
+  
   @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE study_id=:study_id")
-  List<Donor> getDonorsByStudyId(@Bind("study_id") String study_id);
+  List<Donor> getByParentId(@Bind("study_id") String study_id);
   
-  @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE id=:id")
+  @SqlQuery("SELECT id from donor where study_id=:study_id")
+  List<String> getIds(@Bind("study_id") String parent_id);
+  
+  @SqlQuery("SELECT id, submitter_id, gender FROM donor WHERE id=:id")
   Donor getById(@Bind("id") String donor_id);
-  
-  @SqlQuery("SELECT study_id FROM donor where id=:id")
-  String parentId(@Bind("id") String id);
   
   @SqlUpdate("DELETE from donor where id=:id")
   int delete(@Bind("id") String id);

@@ -3,7 +3,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.icgc.dcc.sodalite.server.model.Entity;
 
-import org.icgc.dcc.sodalite.server.service.EntityService;
+import org.icgc.dcc.sodalite.server.service.OldEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,38 +21,39 @@ public class EntityController {
    * Dependencies
    */
   @Autowired
-  private final EntityService entityService;
+  private final OldEntityService oldEntityService;
 
   @PostMapping(value="/entities",consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
   public String createEntity(@PathVariable("study_id") String study_id, @RequestBody String json) {
-    return entityService.create(study_id, json);
+    return oldEntityService.create(study_id, json);
   }
   
   @PutMapping(value="/entities",consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
-  public String modifyEntity(@PathVariable("study_id") String study_id, String json) {
-    return entityService.update(study_id, json);
+  public String modifyEntity(@PathVariable("study_id") String study_id, @RequestBody String json) {
+    return oldEntityService.update(study_id, json);
   }
   
   @GetMapping(value="/entities/{id}")
   public String getEntityById(@PathVariable("id") String id) {
-    return entityService.getEntityById(id);
+    return oldEntityService.getEntityById(id);
   }
+  
 
   @GetMapping(value="/entities")
   public List<Entity> getEntities(@RequestParam Map<String, String> params) {
-	  return entityService.getEntities(params);
+	  return oldEntityService.getEntities(params);
   }
   
   @GetMapping(value="")
   public String getEntireStudy(@PathVariable("study_id") String id) {
-	  return entityService.getStudyById(id);
+	  return oldEntityService.getStudyById(id);
   }
   
   @DeleteMapping(value="/entities/{ids}")
   public String deleteEntity(@PathVariable("ids") List<String> ids) {
-	  return entityService.delete(ids);
+	  return oldEntityService.delete(ids);
   }
    
 }

@@ -2,7 +2,6 @@ package org.icgc.dcc.sodalite.server.model;
 
 import java.util.Collection;
 import java.util.HashMap;
-
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -19,7 +18,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "sampleType",
     "files"
 })
-public class Sample implements Entity {
+public class Sample implements Entity{
 
   @JsonProperty("sampleId")
   private String sampleId;
@@ -119,4 +118,5 @@ public class Sample implements Entity {
   public void addFile(File f) {
 	  files.add(f);	
   }
+
 }

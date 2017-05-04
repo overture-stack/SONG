@@ -116,7 +116,7 @@ public class Specimen implements Entity {
         this.samples = samples;
         return this;
     }
-
+    
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);

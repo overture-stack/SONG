@@ -16,8 +16,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "fileName",
     "fileSize",
     "fileType",
-    "fileMd5"
 })
+
 public class File implements Entity {
 	@JsonProperty("objectId")
 	private String objectId;
@@ -31,9 +31,6 @@ public class File implements Entity {
     @JsonProperty("fileType")
     private FileType fileType;
 
-    @JsonProperty("fileMd5")
-    private String fileMd5;
-    
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -95,21 +92,6 @@ public class File implements Entity {
 
     public File withFileType(FileType fileType) {
         this.fileType = fileType;
-        return this;
-    }
-
-    @JsonProperty("fileMd5")
-    public String getFileMd5() {
-        return fileMd5;
-    }
-
-    @JsonProperty("fileMd5")
-    public void setFileMd5(String fileMd5) {
-        this.fileMd5 = fileMd5;
-    }
-
-    public File withFileMd5(String fileMd5) {
-        this.fileMd5 = fileMd5;
         return this;
     }
 

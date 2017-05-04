@@ -19,6 +19,7 @@ package org.icgc.dcc.sodalite.server.model;
 
 import java.util.Collection;
 import java.util.HashMap;
+
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;

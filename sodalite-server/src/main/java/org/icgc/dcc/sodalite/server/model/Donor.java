@@ -118,4 +118,5 @@ public class Donor implements Entity {
       this.additionalProperties.put(name, value);
       return this;
   }
+
 }
