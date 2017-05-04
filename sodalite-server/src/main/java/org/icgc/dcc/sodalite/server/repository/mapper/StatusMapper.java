@@ -17,23 +17,38 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import org.icgc.dcc.sodalite.server.model.Study;
+import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import lombok.val;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
-public class StudyMapper implements ResultSetMapper<Study> {
+public class StatusMapper implements ResultSetMapper<SubmissionStatus> {
 
-  public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException
-  {
-  	Study study = new Study();
-  	study.withStudyId(r.getString("id"))
-		  	.withName(r.getString("name"))
-		  	.withDescription(r.getString("description"))
-		  	.withOrganization(r.getString("organization"));
-  	return study;
+  public SubmissionStatus map(int index, ResultSet rs, StatementContext ctx) throws SQLException
+  { // I prefer braces on next line when declaring exception throws in method signature - Dušan
+  	SubmissionStatus status = new SubmissionStatus();
+  	status.withUploadId(rs.getString("id"))
+  			.withStudyId(rs.getString("study_id"))
+		  	.withState(rs.getString("state"))
+		  	.withPayload(rs.getString("payload"))
+		  	.withCreatedAt(rs.getTimestamp("created_at").toLocalDateTime())
+		  	.withUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+  	
+  	String errorString = rs.getString("errors");
+  	if (errorString == null) {
+  		errorString = "";
+  	}
+  	String[] errors = errorString.split("\\|");
+  	for (val e : errors) {
+  		status.withError(e);
+  	}
+  	return status;
   }
 
+  
 }

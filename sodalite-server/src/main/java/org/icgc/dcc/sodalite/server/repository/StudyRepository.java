@@ -17,6 +17,8 @@
  */
 package org.icgc.dcc.sodalite.server.repository;
 
+import java.util.List;
+
 import org.icgc.dcc.sodalite.server.model.Study;
 import org.icgc.dcc.sodalite.server.repository.mapper.StudyMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -32,6 +34,9 @@ public interface StudyRepository {
   @SqlUpdate("UPDATE study SET name=:name, organization=:organization, description=:description where id=:id")
   int set(@Bind("id") String id, @Bind("name") String name, @Bind("organization") String organization, @Bind("description") String description);
 
-  @SqlQuery("SELECT id, name, organization, description FROM study WHERE id=:id")
-  Study getById(@Bind("id") String id);
+  @SqlQuery("SELECT id, name, description FROM study WHERE id = :studyId")
+  Study get(@Bind("studyId") String id);
+
+  @SqlQuery("SELECT id, name, description FROM study WHERE name = :name")
+  List<Study> getByName(@Bind("name") String name);
 }

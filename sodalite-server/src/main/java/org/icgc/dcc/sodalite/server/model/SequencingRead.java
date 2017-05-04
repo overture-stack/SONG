@@ -21,15 +21,11 @@ import org.icgc.dcc.sodalite.server.model.LibraryStrategy;
     "insertSize",
     "libraryStrategy",
     "pairedEnd",
-    "referenceGenomeFiles"
+    "referenceGenome"
 })
+
 public class SequencingRead {
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("analysisId")
     private String analysisId;
     @JsonProperty("aligned")
@@ -42,8 +38,9 @@ public class SequencingRead {
     private LibraryStrategy libraryStrategy;
     @JsonProperty("pairedEnd")
     private boolean pairedEnd;
-    @JsonProperty("referenceGenomeFiles")
-    private Collection<String> referenceGenomeFiles = null;
+    @JsonProperty("referenceGenome")
+    private String referenceGenome;
+    
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -136,19 +133,19 @@ public class SequencingRead {
         this.pairedEnd = pairedEnd;
         return this;
     }
-
-    @JsonProperty("referenceGenomeFiles")
-    public Collection<String> getReferenceGenomeFiles() {
-        return referenceGenomeFiles;
+ 
+    @JsonProperty("referenceGenome")
+    public String getReferenceGenome() {
+        return referenceGenome;
     }
 
-    @JsonProperty("referenceGenomeFiles")
-    public void setReferenceGenomeFiles(Collection<String> referenceGenomeFiles) {
-        this.referenceGenomeFiles = referenceGenomeFiles;
+    @JsonProperty("referenceGenome")
+    public void setReferenceGenome(String referenceGenome) {
+        this.referenceGenome = referenceGenome;
     }
 
-    public SequencingRead withReferenceGenomeFiles(Collection<String> referenceGenomeFiles) {
-        this.referenceGenomeFiles = referenceGenomeFiles;
+    public SequencingRead withReferenceGenome(String referenceGenome) {
+        this.referenceGenome = referenceGenome;
         return this;
     }
 

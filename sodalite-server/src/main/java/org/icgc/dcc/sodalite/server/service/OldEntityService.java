@@ -89,7 +89,7 @@ public class OldEntityService {
 		
 		info("Creating a new entity for study '%s', with json '%s'",studyId,json);
 		@NonNull
-		Study study = studyRepository.getById(studyId);
+		Study study = studyRepository.get(studyId);
 		if (study == null) {
 			return "{\"status\": \"Study " + studyId + " does not exist: please create it first.\"}";
 		}
@@ -254,7 +254,7 @@ public class OldEntityService {
 	
 	@SneakyThrows
 	public String getStudyById(String id) {
-		Study s= studyRepository.getById(id);
+		Study s= studyRepository.get(id);
 		if (s == null) {
 			return "{ \"msg\": \"Study with id '" + id +"' does not exist\"}";
 		}

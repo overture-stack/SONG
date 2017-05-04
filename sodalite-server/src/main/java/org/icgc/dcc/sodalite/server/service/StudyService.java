@@ -18,6 +18,9 @@
 package org.icgc.dcc.sodalite.server.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+
+import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.Study;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
@@ -35,15 +38,21 @@ public class StudyService {
   @Autowired
   StudyRepository studyRepository;
 
-  public int saveStudy(String id, String name, String organization, String description) {
-    return studyRepository.save(id, name, organization, description);
+  @SneakyThrows
+  public Study getStudy(String studyId) {
+    return studyRepository.get(studyId);
+  }
+  
+  @SneakyThrows
+  public List<Study> getStudyByName(String name) {
+    return studyRepository.getByName(name);
   }
 
 
   /**
    * We manually determine study id because it's a meaningful abbreviation usually pre-determined.
    * 
-   * @param studyId
+   * @param study
    * @return
    */
   public int saveStudy(Study study) {

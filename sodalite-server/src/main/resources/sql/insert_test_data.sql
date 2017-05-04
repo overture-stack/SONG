@@ -12,7 +12,7 @@ insert into File(id, sample_id, name, size, type) values ('FI3', 'SA11', 'ABC-TC
 insert into File(id, sample_id, name, size, type) values ('FI4', 'SA21','ABC-TC285-G7N-alpha12345.fai', 12345,'FAI');
 insert into VariantCallAnalysis(id, study_id, state, variant_calling_tool) values ('AN1',  'ABC123', 'Suppressed', 'SuperNewVariantCallingTool');
 insert into VariantCallFileSet(id, analysis_id, file_id) values ('FS1','AN1','FI1'),('FS2','AN1','FI2');
-insert into SequencingReadAnalysis (id, study_id, state, library_strategy, paired_end, insert_size, aligned, alignment_tool, reference) values ('AN2','ABC123','Suppressed', 'Other', TRUE, 12345, TRUE, 'BigWrench', 'A Reference');
+insert into SequencingReadAnalysis (id, study_id, state, library_strategy, paired_end, insert_size, aligned, alignment_tool, reference_genome) values ('AN2','ABC123','Suppressed', 'Other', TRUE, 12345, TRUE, 'BigWrench', 'hg19');
 insert into SequencingReadFileSet(id, analysis_id, file_id) values ('FS3','AN2', 'FI1'),('FS4','AN2','FI3');
 insert into MAFAnalysis(id, study_id) values ('MU1','ABC123');
 insert into MAFFileSet(id, analysis_id, file_id) values ('FS3', 'MU1', 'FI1'),('FS5','MU1','FI2'),('FS6','MU1','FI3');

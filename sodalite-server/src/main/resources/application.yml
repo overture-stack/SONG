@@ -38,3 +38,10 @@ spring.datasource:
 id:
   server-instance: 0
   worker-instance: 0
+
+validation:
+  threads:
+    core: 5
+    max: 10
+  queue:
+    capacity: 100

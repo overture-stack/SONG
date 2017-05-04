@@ -17,9 +17,11 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
+import org.icgc.dcc.common.core.util.UUID5;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.earnstone.id.Generator;
+import com.google.common.base.Joiner;
 
 @Service
 public class IdService {
@@ -51,9 +53,21 @@ public class IdService {
   public String generateSampleId() {
   	return String.format("%s%s", SAMPLE_ID_PREFIX, identifier());
   }
-  
+
   public String generateFileId() {
-	  return String.format("%s%s", FILE_ID_PREFIX, identifier());
+  	return String.format("%s%s", FILE_ID_PREFIX, identifier());
+  }
+  
+  /**
+   * Copied from metadata service:
+   * https://github.com/icgc-dcc/dcc-metadata/blob/develop/dcc-metadata-server/src/main/java/org/icgc/dcc/metadata/server/service/EntityService.java#L69
+   * 
+   * Object id 
+   * @param parts
+   * @return
+   */
+  private static String generateObjectId(String... parts) {
+    return UUID5.fromUTF8(UUID5.getNamespace(), Joiner.on('/').join(parts)).toString();
   }
 
 }
