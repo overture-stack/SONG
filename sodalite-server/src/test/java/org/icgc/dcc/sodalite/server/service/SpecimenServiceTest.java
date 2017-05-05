@@ -52,7 +52,7 @@ public class SpecimenServiceTest {
 				.withSpecimenClass(SpecimenClass.TUMOUR)
 				.withSamples(new ArrayList<Sample>());
 		
-		String status = specimenService.create("DO1",s);
+		String status = specimenService.create("DO2",s);
 		val id = s.getSpecimenId();
 		
 		assertThat(id).startsWith("SP");		
@@ -75,7 +75,7 @@ public class SpecimenServiceTest {
 				.withSamples(new ArrayList<Sample>());
 			 	
 		
-		specimenService.create("DO1",s);
+		specimenService.create("DO2",s);
 		
 		val id = s.getSpecimenId();
 		

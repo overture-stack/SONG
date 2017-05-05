@@ -49,7 +49,7 @@ public class SampleServiceTest {
 				.withSampleType(SampleType.AMPLIFIED_DNA)
 				.withFiles(new ArrayList<File>());
 		
-		String status = sampleService.create("SP1",s);
+		String status = sampleService.create("SP2",s);
 		val id = s.getSampleId();
 		
 		assertThat(id).startsWith("SA");		
@@ -71,7 +71,7 @@ public class SampleServiceTest {
 				.withFiles(new ArrayList<File>());
 			 	
 		
-		sampleService.create("SP1",s);
+		sampleService.create("SP2",s);
 		
 		val id = s.getSampleId();
 		
