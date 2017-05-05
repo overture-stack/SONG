@@ -16,7 +16,7 @@ public interface SpecimenRepository extends EntityRepository<Specimen>{
   int save(@Bind("id") String id, @Bind("donor_id") String donor_id, @Bind("submitter_id") String submitter_id, 
 		  @Bind("class") String class_, @Bind("type") String type);
   
-  @SqlUpdate("UPDATE Specimen submitter_id=:submitter_id, class=:class, type=:type where id=:id")
+  @SqlUpdate("UPDATE Specimen SET submitter_id=:submitter_id, class=:class, type=:type where id=:id")
   int set(@Bind("id") String id, @Bind("submitter_id") String submitter_id, 
 		  @Bind("class") String class_, @Bind("type") String type);
   

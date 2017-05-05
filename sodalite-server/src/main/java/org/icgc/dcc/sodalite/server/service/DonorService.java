@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 @RequiredArgsConstructor
 @Service
-public class DonorService extends EntityService<Donor> {
+public class DonorService extends AbstractEntityService<Donor> {
 	@Autowired
 	DonorRepository donorRepository;
 	@Autowired
@@ -23,6 +23,7 @@ public class DonorService extends EntityService<Donor> {
 	@Override
 	public String create(String parentId, Donor d) {
 		String id=idService.generateDonorId();
+		d.setDonorId(id);
 		int status=donorRepository.save(id, parentId, d.getDonorSubmitterId(), d.getDonorGender().toString());
 		if (status != 1) {
 			return "error: Can't create" + d.toString();

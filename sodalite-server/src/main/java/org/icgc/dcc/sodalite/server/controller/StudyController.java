@@ -62,6 +62,11 @@ public class StudyController {
   public List<Study> getStudy(@PathVariable("studyId") String studyId) {
     return Arrays.asList(studyService.getStudy(studyId));
   }
+  
+  @GetMapping("/{studyId}/all")
+  public Study getSEntireStudy(@PathVariable("studyId") String studyId) {
+	  return studyService.getEntireStudy(studyId);
+  }
 
   @PostMapping(value = "/{studyId}/analyses/sequencingread/{uploadId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   public ResponseEntity<String> registerSequencingRead(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,

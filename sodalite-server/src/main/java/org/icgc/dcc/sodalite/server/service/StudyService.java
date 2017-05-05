@@ -37,10 +37,22 @@ public class StudyService {
   IdService idService;
   @Autowired
   StudyRepository studyRepository;
+  @Autowired
+  DonorService donorService;
 
   @SneakyThrows
   public Study getStudy(String studyId) {
     return studyRepository.get(studyId);
+  }
+  
+  @SneakyThrows
+  public Study getEntireStudy(String studyId) {
+	  Study study = studyRepository.get(studyId);
+	  if (study == null) {
+		  return null;
+	  }
+	  study.setDonors(donorService.findByParentId(studyId));
+	  return study;
   }
   
   @SneakyThrows

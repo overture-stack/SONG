@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Service
 @NoArgsConstructor
-public class FileService extends EntityService<File> {
+public class FileService extends AbstractEntityService<File> {
 	@Autowired
 	FileRepository repository;
 	@Autowired
@@ -21,6 +21,7 @@ public class FileService extends EntityService<File> {
 	@Override
 	public String create(String parentId, File f) {
 		String id=idService.generateFileId();
+		f.setObjectId(id);
 		int status=repository.save(id, parentId,f.getFileName(), f.getFileSize(), f.getFileType().toString());
 		
 		if (status != 1) {
@@ -40,6 +41,11 @@ public class FileService extends EntityService<File> {
 	public String delete(String id) {
 		repository.delete(id);
 		return "ok";
+	}
+	
+	@Override
+	public File getById(String id) {
+		return repository.getById(id);
 	}
 	
 	@Override

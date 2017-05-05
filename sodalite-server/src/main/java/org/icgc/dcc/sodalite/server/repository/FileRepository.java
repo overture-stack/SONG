@@ -16,7 +16,7 @@ public interface FileRepository extends EntityRepository<File> {
 			  @Bind("size") Long size, 
 			  @Bind("file_type") String fileType);
 	  
-	  @SqlUpdate("UPDATE File name=:name,size=:size,type=:file_type where id=:id")
+	  @SqlUpdate("UPDATE File SET name=:name,size=:size,type=:file_type where id=:id")
 	  int set(@Bind("id") String id, @Bind("name") String name, 
 			  @Bind("size") Long size, 
 			  @Bind("file_type") String fileType);

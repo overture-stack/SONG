@@ -31,8 +31,7 @@ public class StudyMapper implements ResultSetMapper<Study> {
   	Study study = new Study();
   	study.withStudyId(r.getString("id"))
 		  	.withName(r.getString("name"))
-		  	.withDescription(r.getString("description"))
-		  	.withOrganization(r.getString("organization"));
+		  	.withDescription(r.getString("description"));
   	return study;
   }
 

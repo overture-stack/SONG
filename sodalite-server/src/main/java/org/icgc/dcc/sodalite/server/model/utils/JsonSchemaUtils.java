@@ -3,7 +3,6 @@ package org.icgc.dcc.sodalite.server.model.utils;
 import java.io.InputStream;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 

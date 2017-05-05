@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.model.Sample;
-import org.icgc.dcc.sodalite.server.model.Specimen;
 import org.icgc.dcc.sodalite.server.repository.SampleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,7 @@ import lombok.val;
 
 @Service
 @NoArgsConstructor
-public class SampleService extends EntityService<Sample>{
+public class SampleService extends AbstractEntityService<Sample>{
 	@Autowired
 	SampleRepository repository;
 	@Autowired
@@ -25,6 +24,7 @@ public class SampleService extends EntityService<Sample>{
 	@Override
 	public String create(String parentId, Sample s) {
 		String id=idService.generateSampleId();
+		s.setSampleId(id);
 		int status=repository.save(id, parentId, s.getSampleSubmitterId(), s.getSampleType().toString());
 		
 		if (status != 1) {

@@ -13,7 +13,7 @@ import lombok.val;
 
 @Service
 @NoArgsConstructor
-public class SpecimenService extends EntityService<Specimen> {
+public class SpecimenService extends AbstractEntityService<Specimen> {
 	@Autowired
 	IdService idService;
 	@Autowired
@@ -24,6 +24,7 @@ public class SpecimenService extends EntityService<Specimen> {
 	@Override
 	public String create(String parentId, Specimen s) {
 		String id=idService.generateSpecimenId();
+		s.setSpecimenId(id);
 		int status=repository.save(id, parentId, s.getSpecimenSubmitterId(), s.getSpecimenClass().toString(), s.getSpecimenType().toString());
 		if (status != 1) {
 			return "error: Can't create" + s.toString();

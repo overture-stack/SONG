@@ -51,7 +51,7 @@ public interface DonorRepository extends EntityRepository<Donor>{
   }
   
   @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE study_id=:study_id")
-  List<Donor> getByParentId(@Bind("study_id") String study_id);
+  List<Donor> findByParentId(@Bind("study_id") String study_id);
   
   @SqlQuery("SELECT id from donor where study_id=:study_id")
   List<String> getIds(@Bind("study_id") String parent_id);
