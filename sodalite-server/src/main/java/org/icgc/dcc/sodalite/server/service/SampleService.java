@@ -66,6 +66,9 @@ public class SampleService extends AbstractEntityService<Sample>{
 	@Override
 	public Sample getById(String id) {	
 		Sample sample= repository.getById(id);
+		if (sample == null) {
+			return null;
+		}
 		sample.setFiles(fileService.findByParentId(id));
 		return sample;
 	}

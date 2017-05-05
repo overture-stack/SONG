@@ -63,6 +63,9 @@ public class SpecimenService extends AbstractEntityService<Specimen> {
 	@Override
 	public Specimen getById(String id) {	
 		Specimen specimen = repository.getById(id);
+		if (specimen == null) {
+			return null;
+		}
 		specimen.setSamples(sampleService.findByParentId(id));
 		return specimen;
 	}
