@@ -12,128 +12,124 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-	"specimenId",
-    "specimenSubmitterId",
-    "specimenClass",
-    "specimenType",
-    "samples"
+@JsonPropertyOrder({ "specimenId", "specimenSubmitterId", "specimenClass", "specimenType", "samples"
 })
 public class Specimen implements Entity {
-  	@JsonProperty("specimenId")
-  	private String specimenId;
-  
-    @JsonProperty("specimenSubmitterId")
-    private String specimenSubmitterId;
 
-    @JsonProperty("specimenClass")
-    private SpecimenClass specimenClass;
+  @JsonProperty("specimenId")
+  private String specimenId;
 
-    @JsonProperty("specimenType")
-    private SpecimenType specimenType;
+  @JsonProperty("specimenSubmitterId")
+  private String specimenSubmitterId;
 
-    @JsonProperty("samples")
-    private Collection<Sample> samples;
-    
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  @JsonProperty("specimenClass")
+  private SpecimenClass specimenClass;
 
-    @JsonProperty("specimenId")
-    public String getSpecimenId() {
-        return specimenId;
-    }
+  @JsonProperty("specimenType")
+  private SpecimenType specimenType;
 
-    @JsonProperty("specimenId")
-    public void setSpecimenId(String specimenId) {
-        this.specimenId = specimenId;
-    }
+  @JsonProperty("samples")
+  private Collection<Sample> samples;
 
-    public Specimen withSpecimenId(String specimenId) {
-        this.specimenId = specimenId;
-        return this;
-    }
-    
-    @JsonProperty("specimenSubmitterId")
-    public String getSpecimenSubmitterId() {
-        return specimenSubmitterId;
-    }
+  @JsonIgnore
+  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("specimenSubmitterId")
-    public void setSpecimenSubmitterId(String specimenSubmitterId) {
-        this.specimenSubmitterId = specimenSubmitterId;
-    }
+  @JsonProperty("specimenId")
+  public String getSpecimenId() {
+    return specimenId;
+  }
 
-    public Specimen withSpecimenSubmitterId(String specimenSubmitterId) {
-        this.specimenSubmitterId = specimenSubmitterId;
-        return this;
-    }
+  @JsonProperty("specimenId")
+  public void setSpecimenId(String specimenId) {
+    this.specimenId = specimenId;
+  }
 
-    @JsonProperty("specimenClass")
-    public SpecimenClass getSpecimenClass() {
-        return specimenClass;
-    }
+  public Specimen withSpecimenId(String specimenId) {
+    this.specimenId = specimenId;
+    return this;
+  }
 
-    @JsonProperty("specimenClass")
-    public void setSpecimenClass(SpecimenClass specimenClass) {
-        this.specimenClass = specimenClass;
-    }
+  @JsonProperty("specimenSubmitterId")
+  public String getSpecimenSubmitterId() {
+    return specimenSubmitterId;
+  }
 
-    public Specimen withSpecimenClass(SpecimenClass specimenClass) {
-        this.specimenClass = specimenClass;
-        return this;
-    }
+  @JsonProperty("specimenSubmitterId")
+  public void setSpecimenSubmitterId(String specimenSubmitterId) {
+    this.specimenSubmitterId = specimenSubmitterId;
+  }
 
-    @JsonProperty("specimenType")
-    public SpecimenType getSpecimenType() {
-        return specimenType;
-    }
+  public Specimen withSpecimenSubmitterId(String specimenSubmitterId) {
+    this.specimenSubmitterId = specimenSubmitterId;
+    return this;
+  }
 
-    @JsonProperty("specimenType")
-    public void setSpecimenType(SpecimenType specimenType) {
-        this.specimenType = specimenType;
-    }
+  @JsonProperty("specimenClass")
+  public SpecimenClass getSpecimenClass() {
+    return specimenClass;
+  }
 
-    public Specimen withSpecimenType(SpecimenType specimenType) {
-        this.specimenType = specimenType;
-        return this;
-    }
+  @JsonProperty("specimenClass")
+  public void setSpecimenClass(SpecimenClass specimenClass) {
+    this.specimenClass = specimenClass;
+  }
 
-    @JsonProperty("samples")
-    public Collection<Sample> getSamples() {
-        return samples;
-    }
+  public Specimen withSpecimenClass(SpecimenClass specimenClass) {
+    this.specimenClass = specimenClass;
+    return this;
+  }
 
-    @JsonProperty("samples")
-    public void setSamples(Collection<Sample> samples) {
-        this.samples = samples;
-    }
-    
-    public void addSample(Sample sample) {
-    	samples.add(sample);
-    }
+  @JsonProperty("specimenType")
+  public SpecimenType getSpecimenType() {
+    return specimenType;
+  }
 
-    public Specimen withSamples(Collection<Sample> samples) {
-        this.samples = samples;
-        return this;
-    }
-    
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+  @JsonProperty("specimenType")
+  public void setSpecimenType(SpecimenType specimenType) {
+    this.specimenType = specimenType;
+  }
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+  public Specimen withSpecimenType(SpecimenType specimenType) {
+    this.specimenType = specimenType;
+    return this;
+  }
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+  @JsonProperty("samples")
+  public Collection<Sample> getSamples() {
+    return samples;
+  }
 
-    public Specimen withAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-        return this;
-    }
+  @JsonProperty("samples")
+  public void setSamples(Collection<Sample> samples) {
+    this.samples = samples;
+  }
+
+  public void addSample(Sample sample) {
+    samples.add(sample);
+  }
+
+  public Specimen withSamples(Collection<Sample> samples) {
+    this.samples = samples;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
+
+  @JsonAnyGetter
+  public Map<String, Object> getAdditionalProperties() {
+    return this.additionalProperties;
+  }
+
+  @JsonAnySetter
+  public void setAdditionalProperty(String name, Object value) {
+    this.additionalProperties.put(name, value);
+  }
+
+  public Specimen withAdditionalProperty(String name, Object value) {
+    this.additionalProperties.put(name, value);
+    return this;
+  }
 }

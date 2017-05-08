@@ -12,13 +12,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-	"sampleId",
-    "sampleSubmitterId",
-    "sampleType",
-    "files"
+@JsonPropertyOrder({ "sampleId", "sampleSubmitterId", "sampleType", "files"
 })
-public class Sample implements Entity{
+public class Sample implements Entity {
 
   @JsonProperty("sampleId")
   private String sampleId;
@@ -28,95 +24,95 @@ public class Sample implements Entity{
 
   @JsonProperty("sampleType")
   private SampleType sampleType;
-  
+
   @JsonProperty("files")
   private Collection<File> files = null;
-  
+
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
   @JsonProperty("sampleId")
   public String getSampleId() {
-      return sampleId;
+    return sampleId;
   }
 
   @JsonProperty("sampleId")
   public void setSampleId(String sampleId) {
-      this.sampleId = sampleId;
+    this.sampleId = sampleId;
   }
 
   public Sample withSampleId(String sampleId) {
-      this.sampleId = sampleId;
-      return this;
+    this.sampleId = sampleId;
+    return this;
   }
-  
+
   @JsonProperty("sampleSubmitterId")
   public String getSampleSubmitterId() {
-      return sampleSubmitterId;
+    return sampleSubmitterId;
   }
 
   @JsonProperty("sampleSubmitterId")
   public void setSampleSubmitterId(String sampleSubmitterId) {
-      this.sampleSubmitterId = sampleSubmitterId;
+    this.sampleSubmitterId = sampleSubmitterId;
   }
 
   public Sample withSampleSubmitterId(String sampleSubmitterId) {
-      this.sampleSubmitterId = sampleSubmitterId;
-      return this;
+    this.sampleSubmitterId = sampleSubmitterId;
+    return this;
   }
 
   @JsonProperty("sampleType")
   public SampleType getSampleType() {
-      return sampleType;
+    return sampleType;
   }
 
   @JsonProperty("sampleType")
   public void setSampleType(SampleType sampleType) {
-      this.sampleType = sampleType;
+    this.sampleType = sampleType;
   }
 
   public Sample withSampleType(SampleType sampleType) {
-      this.sampleType = sampleType;
-      return this;
+    this.sampleType = sampleType;
+    return this;
   }
 
   @JsonProperty("files")
   public Collection<File> getFiles() {
-      return files;
+    return files;
   }
 
   @JsonProperty("files")
   public void setFiles(Collection<File> files) {
-      this.files = files;
+    this.files = files;
   }
 
   public Sample withFiles(Collection<File> files) {
-      this.files = files;
-      return this;
+    this.files = files;
+    return this;
   }
 
   @Override
   public String toString() {
-      return ToStringBuilder.reflectionToString(this);
+    return ToStringBuilder.reflectionToString(this);
   }
 
   @JsonAnyGetter
   public Map<String, Object> getAdditionalProperties() {
-      return this.additionalProperties;
+    return this.additionalProperties;
   }
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {
-      this.additionalProperties.put(name, value);
+    this.additionalProperties.put(name, value);
   }
 
   public Sample withAdditionalProperty(String name, Object value) {
-      this.additionalProperties.put(name, value);
-      return this;
+    this.additionalProperties.put(name, value);
+    return this;
   }
 
   public void addFile(File f) {
-	  files.add(f);	
+    files.add(f);
   }
 
 }

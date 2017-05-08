@@ -13,49 +13,50 @@ import lombok.NoArgsConstructor;
 @Service
 @NoArgsConstructor
 public class FileService extends AbstractEntityService<File> {
-	@Autowired
-	FileRepository repository;
-	@Autowired
-	IdService idService;
-	
-	@Override
-	public String create(String parentId, File f) {
-		String id=idService.generateFileId();
-		f.setObjectId(id);
-		int status=repository.save(id, parentId,f.getFileName(), f.getFileSize(), f.getFileType().toString());
-		
-		if (status != 1) {
-			return "error: Can't create" + f.toString();
-		}
-				
-		return "ok:" + id;
-	}
-	
-	@Override
-	public String update(File f) {
-		repository.set(f.getObjectId(), f.getFileName(),f.getFileSize(), f.getFileType().toString());
-		return "ok";
-	}
-	
-	@Override
-	public String delete(String id) {
-		repository.delete(id);
-		return "ok";
-	}
-	
-	@Override
-	public File getById(String id) {
-		return repository.getById(id);
-	}
-	
-	@Override
-	public String deleteByParentId(String parentId) {
-		repository.deleteBySampleId(parentId);
-		return "ok";
-	}
-	
-	@Override
-	public List<File> findByParentId(String parentId) {
-		return repository.findByParentId(parentId);
-	}
+
+  @Autowired
+  FileRepository repository;
+  @Autowired
+  IdService idService;
+
+  @Override
+  public String create(String parentId, File f) {
+    String id = idService.generateFileId();
+    f.setObjectId(id);
+    int status = repository.save(id, parentId, f.getFileName(), f.getFileSize(), f.getFileType().toString());
+
+    if (status != 1) {
+      return "error: Can't create" + f.toString();
+    }
+
+    return "ok:" + id;
+  }
+
+  @Override
+  public String update(File f) {
+    repository.set(f.getObjectId(), f.getFileName(), f.getFileSize(), f.getFileType().toString());
+    return "ok";
+  }
+
+  @Override
+  public String delete(String id) {
+    repository.delete(id);
+    return "ok";
+  }
+
+  @Override
+  public File getById(String id) {
+    return repository.getById(id);
+  }
+
+  @Override
+  public String deleteByParentId(String parentId) {
+    repository.deleteBySampleId(parentId);
+    return "ok";
+  }
+
+  @Override
+  public List<File> findByParentId(String parentId) {
+    return repository.findByParentId(parentId);
+  }
 }

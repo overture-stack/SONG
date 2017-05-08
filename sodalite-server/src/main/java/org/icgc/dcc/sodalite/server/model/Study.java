@@ -31,134 +31,129 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "studyId",
-    "name",
-    "organization",
-    "description",
-    "donors"
+@JsonPropertyOrder({ "studyId", "name", "organization", "description", "donors"
 })
 public class Study implements Entity {
-    @JsonProperty("studyId")
-    private String studyId;
 
-    @JsonProperty("name")
-    private String name;
+  @JsonProperty("studyId")
+  private String studyId;
 
-    @JsonProperty("organization")
-    private String organization;
+  @JsonProperty("name")
+  private String name;
 
-    @JsonProperty("description")
-    private String description;
-    
-    @JsonProperty("donors")
-    private Collection<Donor> donors;
-        
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-    
+  @JsonProperty("organization")
+  private String organization;
 
-    @JsonProperty("studyId")
-    public String getStudyId() {
-        return studyId;
-    }
+  @JsonProperty("description")
+  private String description;
 
-    @JsonProperty("studyId")
-    public void setStudyId(String studyId) {
-        this.studyId = studyId;
-    }
+  @JsonProperty("donors")
+  private Collection<Donor> donors;
 
-    public Study withStudyId(String studyId) {
-        this.studyId = studyId;
-        return this;
-    }
+  @JsonIgnore
+  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("name")
-    public String getName() {
-        return name;
-    }
+  @JsonProperty("studyId")
+  public String getStudyId() {
+    return studyId;
+  }
 
-    @JsonProperty("name")
-    public void setName(String name) {
-        this.name = name;
-    }
+  @JsonProperty("studyId")
+  public void setStudyId(String studyId) {
+    this.studyId = studyId;
+  }
 
-    public Study withName(String name) {
-        this.name = name;
-        return this;
-    }
+  public Study withStudyId(String studyId) {
+    this.studyId = studyId;
+    return this;
+  }
 
-    @JsonProperty("organization")
-    public String getOrganization() {
-        return organization;
-    }
+  @JsonProperty("name")
+  public String getName() {
+    return name;
+  }
 
-    @JsonProperty("organization")
-    public void setOrganization(String organization) {
-        this.organization = organization;
-    }
+  @JsonProperty("name")
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Study withOrganization(String organization) {
-        this.organization = organization;
-        return this;
-    }
+  public Study withName(String name) {
+    this.name = name;
+    return this;
+  }
 
-    @JsonProperty("description")
-    public String getDescription() {
-        return description;
-    }
+  @JsonProperty("organization")
+  public String getOrganization() {
+    return organization;
+  }
 
-    @JsonProperty("description")
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  @JsonProperty("organization")
+  public void setOrganization(String organization) {
+    this.organization = organization;
+  }
 
-    public Study withDescription(String description) {
-        this.description = description;
-        return this;
-    }
-    
-    @JsonProperty("donors")
-    public Collection<Donor> getDonors() {
-    	return donors;
-    }
-    
-    @JsonProperty("donors")
-    public void setDonors(Collection<Donor> donors) {
-    	this.donors=donors;
-    }
-    
-    public void addDonor(Donor donor) {
-    	donors.add(donor);
-    }
-    
-    public void addDonors(Collection<Donor> donors) {
-    	donors.addAll(donors);
-    }
-    
-    public Study withDonors(Collection<Donor> donors) {
-    	this.donors=donors;
-    	return this;
-    }
+  public Study withOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+  @JsonProperty("description")
+  public String getDescription() {
+    return description;
+  }
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+  @JsonProperty("description")
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+  public Study withDescription(String description) {
+    this.description = description;
+    return this;
+  }
 
-    public Study withAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-        return this;
-    }
+  @JsonProperty("donors")
+  public Collection<Donor> getDonors() {
+    return donors;
+  }
+
+  @JsonProperty("donors")
+  public void setDonors(Collection<Donor> donors) {
+    this.donors = donors;
+  }
+
+  public void addDonor(Donor donor) {
+    donors.add(donor);
+  }
+
+  public void addDonors(Collection<Donor> donors) {
+    donors.addAll(donors);
+  }
+
+  public Study withDonors(Collection<Donor> donors) {
+    this.donors = donors;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
+
+  @JsonAnyGetter
+  public Map<String, Object> getAdditionalProperties() {
+    return this.additionalProperties;
+  }
+
+  @JsonAnySetter
+  public void setAdditionalProperty(String name, Object value) {
+    this.additionalProperties.put(name, value);
+  }
+
+  public Study withAdditionalProperty(String name, Object value) {
+    this.additionalProperties.put(name, value);
+    return this;
+  }
 
 }

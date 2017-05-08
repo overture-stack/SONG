@@ -14,22 +14,23 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(path="/studies/{study_id}/func/")
+@RequestMapping(path = "/studies/{study_id}/func/")
 @RequiredArgsConstructor
 public class FunctionController {
-	@Autowired
-	private final FunctionService functionService;
 
-	  @PostMapping(value="notify-upload", consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
-	  @ResponseBody
-	  public int notifyUpload(@PathVariable("study_id") String id) {
-		  return functionService.notifyUpload(id);
-	  }
-	  
-	  @PostMapping(value="publish", consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
-	  @ResponseBody
-	  public int publish(@PathVariable("study_id") String id) {
-		  return functionService.publish(id);
-	  }
+  @Autowired
+  private final FunctionService functionService;
+
+  @PostMapping(value = "notify-upload", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @ResponseBody
+  public int notifyUpload(@PathVariable("study_id") String id) {
+    return functionService.notifyUpload(id);
+  }
+
+  @PostMapping(value = "publish", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @ResponseBody
+  public int publish(@PathVariable("study_id") String id) {
+    return functionService.publish(id);
+  }
 
 }

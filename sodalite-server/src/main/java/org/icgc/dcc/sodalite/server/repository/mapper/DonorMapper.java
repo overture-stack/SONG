@@ -30,10 +30,13 @@ import java.sql.SQLException;
 @Slf4j
 public class DonorMapper implements ResultSetMapper<Donor> {
 
-  public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException
-  { // I prefer braces on next line when declaring exception throws in method signature - Dušan
-	log.info("Creating donor from result set:" + r.toString());
-	log.info("id=" + r.getString("id")  + "submitter id=" + r.getString("submitter_id") + "gender=" + r.getString("gender"));
+  public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException { // I prefer braces on next line
+                                                                                       // when declaring exception
+                                                                                       // throws in method signature -
+                                                                                       // Dušan
+    log.info("Creating donor from result set:" + r.toString());
+    log.info(
+        "id=" + r.getString("id") + "submitter id=" + r.getString("submitter_id") + "gender=" + r.getString("gender"));
     return new Donor()
         .withDonorId(r.getString("id"))
         .withDonorSubmitterId(r.getString("submitter_id"))

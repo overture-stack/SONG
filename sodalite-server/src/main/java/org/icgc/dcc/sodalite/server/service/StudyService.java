@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class StudyService {
+
   /**
    * Dependencies
    */
@@ -44,22 +45,21 @@ public class StudyService {
   public Study getStudy(String studyId) {
     return studyRepository.get(studyId);
   }
-  
+
   @SneakyThrows
   public Study getEntireStudy(String studyId) {
-	  Study study = studyRepository.get(studyId);
-	  if (study == null) {
-		  return null;
-	  }
-	  study.setDonors(donorService.findByParentId(studyId));
-	  return study;
+    Study study = studyRepository.get(studyId);
+    if (study == null) {
+      return null;
+    }
+    study.setDonors(donorService.findByParentId(studyId));
+    return study;
   }
-  
+
   @SneakyThrows
   public List<Study> getStudyByName(String name) {
     return studyRepository.getByName(name);
   }
-
 
   /**
    * We manually determine study id because it's a meaningful abbreviation usually pre-determined.

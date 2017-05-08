@@ -29,27 +29,27 @@ import java.util.List;
 
 @RegisterMapper(SampleMapper.class)
 public interface SampleRepository extends EntityRepository<Sample> {
+
   @SqlUpdate("INSERT INTO Sample (id, specimen_id, submitter_id, type) VALUES (:id, :specimen_id, :submitter_id, :type)")
   int save(@Bind("id") String id, @Bind("specimen_id") String specimen_id, @Bind("submitter_id") String submitter_id,
-		  @Bind("type") String type);
-  
+      @Bind("type") String type);
+
   @SqlUpdate("UPDATE Sample SET submitter_id=:submitter_id, type=:type where id=:id")
   int set(@Bind("id") String id, @Bind("submitter_id") String submitter_id,
-		  @Bind("type") String type);
- 
+      @Bind("type") String type);
 
   @SqlQuery("SELECT id, submitter_id, type FROM Sample WHERE id=:id")
   Sample getById(@Bind("id") String id);
-  
+
   @SqlQuery("SELECT id, submitter_id, type FROM Sample WHERE specimen_id=:specimen_id")
   List<Sample> findByParentId(@Bind("specimen_id") String specimen_id);
-  
+
   @SqlQuery("SELECT id from Sample where specimen_id=:specimen_id")
   List<String> getIds(@Bind("specimen_id") String specimen_id);
-  
+
   @SqlUpdate("DELETE from Sample where id=:id")
   int delete(@Bind("id") String id);
-  
+
   @SqlUpdate("DELETE from Sample where specimen_id=:specimen_id")
   String deleteByParentId(String specimen_id);
 }

@@ -26,13 +26,12 @@ import java.sql.SQLException;
 
 public class StudyMapper implements ResultSetMapper<Study> {
 
-  public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException
-  {
-  	Study study = new Study();
-  	study.withStudyId(r.getString("id"))
-		  	.withName(r.getString("name"))
-		  	.withDescription(r.getString("description"));
-  	return study;
+  public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+    Study study = new Study();
+    study.withStudyId(r.getString("id"))
+        .withName(r.getString("name"))
+        .withDescription(r.getString("description"));
+    return study;
   }
 
 }

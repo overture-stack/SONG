@@ -1,4 +1,5 @@
 package org.icgc.dcc.sodalite.server.controller;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -16,37 +17,35 @@ import static org.springframework.http.MediaType.*;
 @RequiredArgsConstructor
 @RequestMapping("/studies/{study_id}/analyses")
 public class AnalysisController {
-	
+
   /**
    * Dependencies
    */
   @Autowired
   private final AnalysisService analysisService;
 
-  @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+  @PostMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @SneakyThrows
   public String createAnalysis(@PathVariable("studyId") String studyId, @RequestBody String json) {
-	  return analysisService.registerAnalysis(studyId, json);   
+    return analysisService.registerAnalysis(studyId, json);
   }
-  
-  @PutMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+
+  @PutMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @SneakyThrows
   public String modifyAnalysis(@PathVariable("study_id") String studyId, @RequestBody String json) {
-	  return analysisService.updateAnalysis(studyId, json);
+    return analysisService.updateAnalysis(studyId, json);
   }
-  
-  @GetMapping(value="/{id}")
+
+  @GetMapping(value = "/{id}")
   public List<Analysis> GetAnalysisyById(@PathVariable("id") String id) {
     return analysisService.getAnalysisById(id);
   }
 
-  @GetMapping(value="")
+  @GetMapping(value = "")
   public List<Analysis> getAnalyses(@RequestParam Map<String, String> params) {
-	  return analysisService.getAnalyses(params);
+    return analysisService.getAnalyses(params);
   }
-  
-   
-}
 
+}

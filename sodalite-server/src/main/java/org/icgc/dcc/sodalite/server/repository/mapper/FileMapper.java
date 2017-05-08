@@ -27,13 +27,14 @@ import java.sql.SQLException;
 
 public class FileMapper implements ResultSetMapper<File> {
 
-  public File map(int index, ResultSet r, StatementContext ctx) throws SQLException
-  { // I prefer braces on next line when declaring exception throws in method signature - Dušan
-	return new File()
-			.withObjectId(r.getString("id"))
-			.withFileType(FileType.valueOf(r.getString("type")))
-			.withFileName(r.getString("name"))
-			.withFileSize(r.getLong("size"));
+  public File map(int index, ResultSet r, StatementContext ctx) throws SQLException { // I prefer braces on next line
+                                                                                      // when declaring exception throws
+                                                                                      // in method signature - Dušan
+    return new File()
+        .withObjectId(r.getString("id"))
+        .withFileType(FileType.valueOf(r.getString("type")))
+        .withFileName(r.getString("name"))
+        .withFileSize(r.getLong("size"));
   }
 
 }

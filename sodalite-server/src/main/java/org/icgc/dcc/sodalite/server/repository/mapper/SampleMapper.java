@@ -27,12 +27,14 @@ import java.sql.SQLException;
 
 public class SampleMapper implements ResultSetMapper<Sample> {
 
-  public Sample map(int index, ResultSet r, StatementContext ctx) throws SQLException
-  { // I prefer braces on next line when declaring exception throws in method signature - Dušan
+  public Sample map(int index, ResultSet r, StatementContext ctx) throws SQLException { // I prefer braces on next line
+                                                                                        // when declaring exception
+                                                                                        // throws in method signature -
+                                                                                        // Dušan
     return new Sample()
-    	.withSampleId(r.getString("id"))
-    	.withSampleType(SampleType.fromValue(r.getString("type")))
-    	.withSampleSubmitterId(r.getString("submitter_id"));
+        .withSampleId(r.getString("id"))
+        .withSampleType(SampleType.fromValue(r.getString("type")))
+        .withSampleSubmitterId(r.getString("submitter_id"));
   }
 
 }
