@@ -1,5 +1,9 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.ArrayList;
+
 import org.icgc.dcc.sodalite.server.model.Sample;
 import org.icgc.dcc.sodalite.server.model.Specimen;
 import org.icgc.dcc.sodalite.server.model.SpecimenClass;
@@ -12,10 +16,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import lombok.val;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
-
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class SpecimenServiceTest {
@@ -27,7 +27,7 @@ public class SpecimenServiceTest {
 
   @Test
   public void testReadSpecimen() {
-    String id = "SP1";
+    val id = "SP1";
     Specimen specimen = specimenService.getById(id);
     assertThat(specimen.getSpecimenId()).isEqualTo(id);
     assertThat(specimen.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
@@ -36,9 +36,7 @@ public class SpecimenServiceTest {
     assertThat(specimen.getSamples().size()).isEqualTo(2);
 
     // Verify that we got the same samples as the sample service says we should.
-    for (val sample : specimen.getSamples()) {
-      assertThat(sample.equals(getSample(sample.getSampleId())));
-    }
+    specimen.getSamples().forEach(sample -> assertThat(sample.equals(getSample(sample.getSampleId()))));
   }
 
   private Sample getSample(String id) {
@@ -53,13 +51,13 @@ public class SpecimenServiceTest {
         .withSpecimenClass(SpecimenClass.TUMOUR)
         .withSamples(new ArrayList<Sample>());
 
-    String status = specimenService.create("DO2", s);
+    val status = specimenService.create("DO2", s);
     val id = s.getSpecimenId();
 
     assertThat(id).startsWith("SP");
     assertThat(status).isEqualTo("ok:" + id);
 
-    Specimen check = specimenService.getById(id);
+    val check = specimenService.getById(id);
     assertThat(s).isEqualToComparingFieldByField(check);
 
     specimenService.delete(id);
@@ -69,7 +67,7 @@ public class SpecimenServiceTest {
 
   @Test
   public void testUpdateSpecimen() {
-    Specimen s = new Specimen()
+    val s = new Specimen()
         .withSpecimenSubmitterId("Specimen 102 Chiron-Beta Prime")
         .withSpecimenType(SpecimenType.METASTATIC_TUMOUR_ADDITIONAL_METASTATIC)
         .withSpecimenClass(SpecimenClass.TUMOUR)
@@ -79,7 +77,7 @@ public class SpecimenServiceTest {
 
     val id = s.getSpecimenId();
 
-    Specimen s2 = new Specimen()
+    val s2 = new Specimen()
         .withSpecimenId(id)
         .withSpecimenSubmitterId("Specimen 102")
         .withSpecimenType(SpecimenType.NORMAL_OTHER)
@@ -88,7 +86,7 @@ public class SpecimenServiceTest {
 
     specimenService.update(s2);
 
-    Specimen s3 = specimenService.getById(id);
+    val s3 = specimenService.getById(id);
     assertThat(s3).isEqualToComparingFieldByField(s2);
   }
 

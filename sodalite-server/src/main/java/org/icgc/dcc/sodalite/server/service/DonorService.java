@@ -3,7 +3,6 @@ package org.icgc.dcc.sodalite.server.service;
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.Donor;
-import org.icgc.dcc.sodalite.server.model.Specimen;
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,11 +28,8 @@ public class DonorService extends AbstractEntityService<Donor> {
     int status = donorRepository.save(id, parentId, d.getDonorSubmitterId(), d.getDonorGender().toString());
     if (status != 1) {
       return "error: Can't create" + d.toString();
-
     }
-    for (Specimen s : d.getSpecimens()) {
-      specimenService.create(id, s);
-    }
+    d.getSpecimens().forEach(s -> specimenService.create(id, s));
 
     return "ok:" + id;
   }
@@ -55,16 +51,14 @@ public class DonorService extends AbstractEntityService<Donor> {
 
   @Override
   public String deleteByParentId(String parentId) {
-    List<String> ids = donorRepository.getIds(parentId);
-    for (val id : ids) {
-      delete(id);
-    }
+    donorRepository.getIds(parentId).forEach(this::delete);
+
     return "OK";
   }
 
   @Override
   public Donor getById(String id) {
-    Donor donor = donorRepository.getById(id);
+    val donor = donorRepository.getById(id);
     if (donor == null) {
       return null;
     }
@@ -74,10 +68,8 @@ public class DonorService extends AbstractEntityService<Donor> {
 
   @Override
   public List<Donor> findByParentId(String parentId) {
-    List<Donor> donors = donorRepository.findByParentId(parentId);
-    for (Donor d : donors) {
-      d.setSpecimens(specimenService.findByParentId(d.getDonorId()));
-    }
+    val donors = donorRepository.findByParentId(parentId);
+    donors.forEach(d -> d.setSpecimens(specimenService.findByParentId(d.getDonorId())));
     return donors;
   }
 

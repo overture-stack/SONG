@@ -1,5 +1,9 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.ArrayList;
+
 import org.icgc.dcc.sodalite.server.model.Donor;
 import org.icgc.dcc.sodalite.server.model.DonorGender;
 import org.icgc.dcc.sodalite.server.model.Specimen;
@@ -10,10 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import lombok.val;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -27,7 +27,7 @@ public class DonorServiceTest {
   @Test
   public void testReadDonor() {
     // check for data that we know exists in the H2 database already
-    Donor d = service.getById("DO1");
+    val d = service.getById("DO1");
     assertThat(d != null);
     assertThat(d.getDonorId()).isEqualTo("DO1");
     assertThat(d.getDonorGender()).isEqualTo(DonorGender.MALE);
@@ -36,9 +36,7 @@ public class DonorServiceTest {
 
     // Just check that each specimen object that we get is the same as the one we get from the
     // specimen service. Let the specimen service tests verify that the contents are right.
-    for (val specimen : d.getSpecimens()) {
-      assertThat(specimen.equals(getMatchingSpecimen(specimen)));
-    }
+    d.getSpecimens().forEach(specimen -> assertThat(specimen.equals(getMatchingSpecimen(specimen))));
 
   }
 
@@ -48,13 +46,13 @@ public class DonorServiceTest {
 
   @Test
   public void testCreateAndDeleteDonor() {
-    Donor d = new Donor()
+    val d = new Donor()
         .withDonorGender(DonorGender.UNSPECIFIED)
         .withDonorSubmitterId("Subject X21-Alpha")
         .withSpecimens(new ArrayList<Specimen>());
     assertThat(d.getDonorId()).isNull();
 
-    String status = service.create("XYZ234", d);
+    val status = service.create("XYZ234", d);
     val id = d.getDonorId();
 
     assertThat(id).startsWith("DO");
@@ -70,7 +68,7 @@ public class DonorServiceTest {
 
   @Test
   public void testUpdateDonor() {
-    Donor d = new Donor()
+    val d = new Donor()
         .withDonorGender(DonorGender.MALE)
         .withDonorSubmitterId("Triangle-Arrow-S")
         .withSpecimens(new ArrayList<Specimen>());
@@ -79,7 +77,7 @@ public class DonorServiceTest {
 
     val id = d.getDonorId();
 
-    Donor d2 = new Donor()
+    val d2 = new Donor()
         .withDonorId(id)
         .withDonorGender(DonorGender.FEMALE)
         .withDonorSubmitterId("X21-Beta-17")
@@ -87,7 +85,7 @@ public class DonorServiceTest {
 
     service.update(d2);
 
-    Donor d3 = service.getById(id);
+    val d3 = service.getById(id);
     assertThat(d3).isEqualToComparingFieldByField(d2);
   }
 

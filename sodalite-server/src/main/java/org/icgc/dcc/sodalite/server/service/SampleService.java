@@ -2,7 +2,6 @@ package org.icgc.dcc.sodalite.server.service;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.model.Sample;
 import org.icgc.dcc.sodalite.server.repository.SampleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +23,14 @@ public class SampleService extends AbstractEntityService<Sample> {
 
   @Override
   public String create(String parentId, Sample s) {
-    String id = idService.generateSampleId();
+    val id = idService.generateSampleId();
     s.setSampleId(id);
     int status = repository.save(id, parentId, s.getSampleSubmitterId(), s.getSampleType().toString());
 
     if (status != 1) {
       return "error: Can't create" + s.toString();
     }
-
-    for (File f : s.getFiles()) {
-      fileService.create(id, f);
-    }
+    s.getFiles().forEach(f -> fileService.create(id, f));
 
     return "ok:" + id;
   }
@@ -56,16 +52,15 @@ public class SampleService extends AbstractEntityService<Sample> {
 
   @Override
   public String deleteByParentId(String parentId) {
-    List<String> ids = repository.getIds(parentId);
-    for (val id : ids) {
-      delete(id);
-    }
+    val ids = repository.getIds(parentId);
+    ids.forEach(this::delete);
+
     return "ok";
   }
 
   @Override
   public Sample getById(String id) {
-    Sample sample = repository.getById(id);
+    val sample = repository.getById(id);
     if (sample == null) {
       return null;
     }
@@ -75,10 +70,8 @@ public class SampleService extends AbstractEntityService<Sample> {
 
   @Override
   public List<Sample> findByParentId(String parentId) {
-    List<Sample> samples = repository.findByParentId(parentId);
-    for (Sample s : samples) {
-      s.setFiles(fileService.findByParentId(s.getSampleId()));
-    }
+    val samples = repository.findByParentId(parentId);
+    samples.forEach(s -> s.setFiles(fileService.findByParentId(s.getSampleId())));
     return samples;
   }
 

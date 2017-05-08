@@ -1,5 +1,7 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.model.FileType;
 import org.junit.Test;
@@ -10,8 +12,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import lombok.val;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class FileServiceTest {
@@ -21,8 +21,8 @@ public class FileServiceTest {
 
   @Test
   public void testReadFile() {
-    String id = "FI1";
-    File file = fileService.getById(id);
+    val id = "FI1";
+    val file = fileService.getById(id);
     assertThat(file.getObjectId()).isEqualTo(id);
     assertThat(file.getFileName()).isEqualTo("ABC-TC285G7-A5-ae3458712345.bam");
     assertThat(file.getFileType()).isEqualTo(FileType.BAM);
@@ -31,12 +31,12 @@ public class FileServiceTest {
 
   @Test
   public void testCreateAndDeleteFile() {
-    File f = new File()
+    val f = new File()
         .withFileName("ABC-TC285G87-A5-sqrl.bai")
         .withFileSize(0)
         .withFileType(FileType.FAI);
 
-    String status = fileService.create("SA1", f);
+    val status = fileService.create("SA1", f);
     val id = f.getObjectId();
 
     assertThat(id).startsWith("FI");
@@ -46,13 +46,13 @@ public class FileServiceTest {
     assertThat(f).isEqualToComparingFieldByField(check);
 
     fileService.delete(id);
-    File check2 = fileService.getById(id);
+    val check2 = fileService.getById(id);
     assertThat(check2).isNull();
   }
 
   @Test
   public void testUpdateFile() {
-    File s = new File()
+    val s = new File()
         .withFileName("file123.fasta")
         .withFileType(FileType.FASTA)
         .withFileSize(12345);
@@ -61,7 +61,7 @@ public class FileServiceTest {
 
     val id = s.getObjectId();
 
-    File s2 = new File()
+    val s2 = new File()
         .withObjectId(id)
         .withFileName("File 102.fai")
         .withFileType(FileType.FAI)
@@ -69,7 +69,7 @@ public class FileServiceTest {
 
     fileService.update(s2);
 
-    File s3 = fileService.getById(id);
+    val s3 = fileService.getById(id);
     assertThat(s3).isEqualToComparingFieldByField(s2);
   }
 

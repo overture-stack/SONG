@@ -2,7 +2,6 @@ package org.icgc.dcc.sodalite.server.service;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.Sample;
 import org.icgc.dcc.sodalite.server.model.Specimen;
 import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +22,16 @@ public class SpecimenService extends AbstractEntityService<Specimen> {
   SampleService sampleService;
 
   @Override
-  public String create(String parentId, Specimen s) {
-    String id = idService.generateSpecimenId();
-    s.setSpecimenId(id);
-    int status = repository.save(id, parentId, s.getSpecimenSubmitterId(), s.getSpecimenClass().toString(),
-        s.getSpecimenType().toString());
+  public String create(String parentId, Specimen specimen) {
+    val id = idService.generateSpecimenId();
+    specimen.setSpecimenId(id);
+    int status =
+        repository.save(id, parentId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(),
+            specimen.getSpecimenType().toString());
     if (status != 1) {
-      return "error: Can't create" + s.toString();
+      return "error: Can't create" + specimen.toString();
     }
-
-    for (Sample sample : s.getSamples()) {
-      sampleService.create(id, sample);
-    }
-
+    specimen.getSamples().forEach(s -> sampleService.create(id, s));
     return "ok:" + id;
   }
 
@@ -50,22 +46,18 @@ public class SpecimenService extends AbstractEntityService<Specimen> {
   public String delete(String id) {
     sampleService.deleteByParentId(id);
     repository.delete(id);
-
     return "ok";
   }
 
   @Override
   public String deleteByParentId(String parentId) {
-    List<String> ids = repository.getIds(parentId);
-    for (val id : ids) {
-      delete(id);
-    }
+    repository.getIds(parentId).forEach(this::delete);
     return "ok";
   }
 
   @Override
   public Specimen getById(String id) {
-    Specimen specimen = repository.getById(id);
+    val specimen = repository.getById(id);
     if (specimen == null) {
       return null;
     }
@@ -75,12 +67,8 @@ public class SpecimenService extends AbstractEntityService<Specimen> {
 
   @Override
   public List<Specimen> findByParentId(String parentId) {
-    List<Specimen> specimens = repository.findByParentId(parentId);
-
-    for (Specimen s : specimens) {
-      s.setSamples(sampleService.findByParentId(s.getSpecimenId()));
-    }
-
+    val specimens = repository.findByParentId(parentId);
+    specimens.forEach(s -> s.setSamples(sampleService.findByParentId(s.getSpecimenId())));
     return specimens;
   }
 

@@ -1,29 +1,26 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import static java.lang.String.format;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.Donor;
 import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.model.Sample;
 import org.icgc.dcc.sodalite.server.model.Specimen;
-import org.icgc.dcc.sodalite.server.model.Study;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.lang.String.format;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -65,25 +62,25 @@ public class EntityService {
 
     info("Creating a new entity for study '%s', with json '%s'", studyId, json);
 
-    Study study = studyService.getStudy(studyId);
+    val study = studyService.getStudy(studyId);
     if (study == null) {
       return "{\"status\": \"Study " + studyId + " does not exist: please create it first.\"}";
     }
 
     @NonNull
-    JsonNode node = mapper.readTree(json);
+    val node = mapper.readTree(json);
 
     @NonNull
-    JsonNode create = node.path("createEntity");
+    val create = node.path("createEntity");
     info("Got createEntity node '%s", create.toString());
 
-    JsonNode donors = create.path("donors");
+    val donors = create.path("donors");
     assert (donors.isContainerNode());
     info("donors is '%s", donors.toString());
-    List<Donor> donorList = new ArrayList<Donor>();
-    for (JsonNode n : donors) {
+    val donorList = new ArrayList<Donor>();
+    for (val n : donors) {
       info("Converting this JSON to a DONOR object '%s'", n.toString());
-      Donor donor = mapper.treeToValue(n, Donor.class);
+      val donor = mapper.treeToValue(n, Donor.class);
       donorList.add(donor);
       donorService.create(studyId, donor);
     }
@@ -120,18 +117,18 @@ public class EntityService {
     info("Updating entities for study '%s', with json '%s'", studyId, json);
 
     @NonNull
-    JsonNode root = mapper.readTree(json);
+    val root = mapper.readTree(json);
     assert (root.isContainerNode()); // array of entities
 
     int i = 0;
     for (JsonNode n : root) {
       i = i + 1;
-      String id = findId(n);
+      val id = findId(n);
       if ("".equals(id)) {
         return "{\"error\": \"Can't find an id field for item " + json(n) + "\"}";
       }
       info("Looking up type of '%s'", id);
-      String type = id.substring(0, 2);
+      val type = id.substring(0, 2);
 
       switch (type) {
       case DONOR_ID_PREFIX:
@@ -157,8 +154,8 @@ public class EntityService {
   String findId(JsonNode n) {
     String[] names = { "studyId", "donorId", "specimenId", "sampleId", "objectId" };
     info("Looking for id for %s", n.toString());
-    for (String name : names) {
-      JsonNode idNode = n.get(name);
+    for (val name : names) {
+      val idNode = n.get(name);
       if (idNode == null || idNode.isMissingNode()) {
         info("Couldn't find node type '%s'", name);
       } else {
@@ -170,13 +167,9 @@ public class EntityService {
   }
 
   public String delete(List<String> ids) {
-    Map<String, String> results = new HashMap<>();
-    for (val id : ids) {
-      val status = deleteId(id);
-      results.put(id, status);
-    }
+    val results = new HashMap<String, String>();
+    ids.forEach(id -> results.put(id, deleteId(id)));
     return json(results);
-
   }
 
   String statusMsg(int status) {

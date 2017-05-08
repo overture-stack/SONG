@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.repository.FileRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.NoArgsConstructor;
+import lombok.val;
 
 @Service
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class FileService extends AbstractEntityService<File> {
 
   @Override
   public String create(String parentId, File f) {
-    String id = idService.generateFileId();
+    val id = idService.generateFileId();
     f.setObjectId(id);
     int status = repository.save(id, parentId, f.getFileName(), f.getFileSize(), f.getFileType().toString());
 

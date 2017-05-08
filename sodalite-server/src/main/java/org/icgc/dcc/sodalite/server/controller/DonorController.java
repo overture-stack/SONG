@@ -31,8 +31,7 @@ public class DonorController {
   @GetMapping(value = "/donor/{id}")
   @ResponseBody
   public Donor read(@PathVariable("id") String id) {
-    Donor d = donorService.getById(id);
-    return d;
+    return donorService.getById(id);
   }
 
   @PutMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
@@ -43,9 +42,7 @@ public class DonorController {
 
   @DeleteMapping(value = "/donor/{ids}")
   public String delete(@PathVariable("ids") List<String> ids) {
-    for (String id : ids) {
-      donorService.delete(id);
-    }
+    ids.forEach(donorService::delete); 
     return "OK";
   }
 

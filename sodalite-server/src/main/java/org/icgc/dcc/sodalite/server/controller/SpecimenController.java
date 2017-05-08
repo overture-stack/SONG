@@ -30,8 +30,7 @@ public class SpecimenController {
   @GetMapping(value = "/specimen/{id}")
   @ResponseBody
   public Specimen read(@PathVariable("id") String id) {
-    Specimen d = specimenService.getById(id);
-    return d;
+    return specimenService.getById(id);
   }
 
   @PutMapping(value = "/specimen", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
@@ -42,9 +41,7 @@ public class SpecimenController {
 
   @DeleteMapping(value = "/specimen/{ids}")
   public String delete(@PathVariable("ids") List<String> ids) {
-    for (String id : ids) {
-      specimenService.delete(id);
-    }
+    ids.forEach(specimenService::delete);
     return "OK";
   }
 
