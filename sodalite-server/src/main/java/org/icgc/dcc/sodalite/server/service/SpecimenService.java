@@ -12,7 +12,7 @@ import lombok.val;
 
 @Service
 @NoArgsConstructor
-public class SpecimenService extends AbstractEntityService<Specimen> {
+public class SpecimenService {
 
   @Autowired
   IdService idService;
@@ -21,7 +21,6 @@ public class SpecimenService extends AbstractEntityService<Specimen> {
   @Autowired
   SampleService sampleService;
 
-  @Override
   public String create(String parentId, Specimen specimen) {
     val id = idService.generateSpecimenId();
     specimen.setSpecimenId(id);
@@ -35,27 +34,23 @@ public class SpecimenService extends AbstractEntityService<Specimen> {
     return "ok:" + id;
   }
 
-  @Override
   public String update(Specimen s) {
     repository.set(s.getSpecimenId(), s.getSpecimenSubmitterId(), s.getSpecimenClass().toString(),
         s.getSpecimenType().toString());
     return "ok";
   }
 
-  @Override
   public String delete(String id) {
     sampleService.deleteByParentId(id);
     repository.delete(id);
     return "ok";
   }
 
-  @Override
   public String deleteByParentId(String parentId) {
     repository.getIds(parentId).forEach(this::delete);
     return "ok";
   }
 
-  @Override
   public Specimen getById(String id) {
     val specimen = repository.getById(id);
     if (specimen == null) {
@@ -65,7 +60,6 @@ public class SpecimenService extends AbstractEntityService<Specimen> {
     return specimen;
   }
 
-  @Override
   public List<Specimen> findByParentId(String parentId) {
     val specimens = repository.findByParentId(parentId);
     specimens.forEach(s -> s.setSamples(sampleService.findByParentId(s.getSpecimenId())));

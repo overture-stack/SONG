@@ -12,7 +12,7 @@ import lombok.val;
 
 @Service
 @NoArgsConstructor
-public class SampleService extends AbstractEntityService<Sample> {
+public class SampleService {
 
   @Autowired
   SampleRepository repository;
@@ -21,7 +21,6 @@ public class SampleService extends AbstractEntityService<Sample> {
   @Autowired
   FileService fileService;
 
-  @Override
   public String create(String parentId, Sample s) {
     val id = idService.generateSampleId();
     s.setSampleId(id);
@@ -35,13 +34,11 @@ public class SampleService extends AbstractEntityService<Sample> {
     return "ok:" + id;
   }
 
-  @Override
   public String update(Sample s) {
     repository.set(s.getSampleId(), s.getSampleSubmitterId(), s.getSampleType().toString());
     return "ok";
   }
 
-  @Override
   public String delete(String id) {
     fileService.deleteByParentId(id);
     System.out.println("About to delete" + id);
@@ -50,7 +47,6 @@ public class SampleService extends AbstractEntityService<Sample> {
     return "ok";
   }
 
-  @Override
   public String deleteByParentId(String parentId) {
     val ids = repository.getIds(parentId);
     ids.forEach(this::delete);
@@ -58,7 +54,6 @@ public class SampleService extends AbstractEntityService<Sample> {
     return "ok";
   }
 
-  @Override
   public Sample getById(String id) {
     val sample = repository.getById(id);
     if (sample == null) {
@@ -68,7 +63,6 @@ public class SampleService extends AbstractEntityService<Sample> {
     return sample;
   }
 
-  @Override
   public List<Sample> findByParentId(String parentId) {
     val samples = repository.findByParentId(parentId);
     samples.forEach(s -> s.setFiles(fileService.findByParentId(s.getSampleId())));

@@ -17,18 +17,17 @@
  */
 package org.icgc.dcc.sodalite.server.repository;
 
-import org.icgc.dcc.sodalite.server.model.Sample;
+import java.util.List;
 
+import org.icgc.dcc.sodalite.server.model.Sample;
 import org.icgc.dcc.sodalite.server.repository.mapper.SampleMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
-import java.util.List;
-
 @RegisterMapper(SampleMapper.class)
-public interface SampleRepository extends EntityRepository<Sample> {
+public interface SampleRepository {
 
   @SqlUpdate("INSERT INTO Sample (id, specimen_id, submitter_id, type) VALUES (:id, :specimen_id, :submitter_id, :type)")
   int save(@Bind("id") String id, @Bind("specimen_id") String specimen_id, @Bind("submitter_id") String submitter_id,
