@@ -8,40 +8,38 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum LibraryStrategy {
 
-	WGS("WGS"), WXS("WXS"), RNA_SEQ("RNA-Seq"), CH_IP_SEQ("ChIP-Seq"), MI_RNA_SEQ("miRNA-Seq"), 
-		BISULFITE_SEQ("Bisulfite-Seq"), VALIDATION("Validation"), AMPLICON("Amplicon"), OTHER("Other");
+  WGS("WGS"), WXS("WXS"), RNA_SEQ("RNA-Seq"), CH_IP_SEQ("ChIP-Seq"), MI_RNA_SEQ("miRNA-Seq"), BISULFITE_SEQ("Bisulfite-Seq"), VALIDATION("Validation"), AMPLICON("Amplicon"), OTHER("Other");
 
-	private final String value;
-	private final static Map<String, LibraryStrategy> CONSTANTS = new HashMap<String, LibraryStrategy>();
+  private final String value;
+  private final static Map<String, LibraryStrategy> CONSTANTS = new HashMap<String, LibraryStrategy>();
 
-	static {
-		for (LibraryStrategy c : values()) {
-			CONSTANTS.put(c.value, c);
-		}
-	}
+  static {
+    for (LibraryStrategy c : values()) {
+      CONSTANTS.put(c.value, c);
+    }
+  }
 
-	private LibraryStrategy(String value) {
-		this.value = value;
-	}
+  private LibraryStrategy(String value) {
+    this.value = value;
+  }
 
-	@Override
-	public String toString() {
-		return this.value;
-	}
+  @Override
+  public String toString() {
+    return this.value;
+  }
 
-	@JsonValue
-	public String value() {
-		return this.value;
-	}
+  @JsonValue
+  public String value() {
+    return this.value;
+  }
 
-	@JsonCreator
-	public static LibraryStrategy fromValue(String value) {
-		LibraryStrategy constant = CONSTANTS.get(value);
-		if (constant == null) {
-			throw new IllegalArgumentException(value);
-		} else {
-			return constant;
-		}
-	}
-
+  @JsonCreator
+  public static LibraryStrategy fromValue(String value) {
+    LibraryStrategy constant = CONSTANTS.get(value);
+    if (constant == null) {
+      throw new IllegalArgumentException(value);
+    } else {
+      return constant;
+    }
+  }
 }

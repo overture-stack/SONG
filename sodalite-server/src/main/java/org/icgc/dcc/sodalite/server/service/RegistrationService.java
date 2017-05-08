@@ -65,13 +65,13 @@ public class RegistrationService {
         statusService.updateAsValid(studyId, uploadId);
         // TODO: perform registration now - with the payload string
         // or could potentially pass in the JsonNode as well
-      }
-      else {
+      } else {
         statusService.updateAsInvalid(studyId, uploadId, response.getValidationErrors());
       }
     } catch (JsonProcessingException jpe) {
       log.error(jpe.getMessage());
-      statusService.updateAsInvalid(studyId, uploadId, String.format("Invalid JSON document submitted: %s", jpe.getMessage()));
+      statusService.updateAsInvalid(studyId, uploadId,
+          String.format("Invalid JSON document submitted: %s", jpe.getMessage()));
     } catch (Exception e) {
       log.error(e.getMessage());
       statusService.updateAsInvalid(studyId, uploadId, String.format("Unknown processing problem: %s", e.getMessage()));

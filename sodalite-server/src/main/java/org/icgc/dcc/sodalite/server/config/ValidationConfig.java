@@ -21,35 +21,29 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @Data
 public class ValidationConfig {
-	
-	private static String[] schemaList = {
-			"schemas/create-entity-message.json",
-			"schemas/create-study-message.json",
-			"schemas/register-sequencingread-message.json",
-			"schemas/register-variantcall-message.json",
-			"schemas/update-entity-message.json",
-			"schemas/update-sequencingread-message.json",
-			"schemas/update-variantcall-message.json"
-	};
 
-	@Bean
-	public SchemaValidator schemaValidator() {
-		return new SchemaValidator();
-	}
-	
+  private static String[] schemaList =
+      { "schemas/create-entity-message.json", "schemas/create-study-message.json", "schemas/register-sequencingread-message.json", "schemas/register-variantcall-message.json", "schemas/update-entity-message.json", "schemas/update-sequencingread-message.json", "schemas/update-variantcall-message.json"
+      };
+
+  @Bean
+  public SchemaValidator schemaValidator() {
+    return new SchemaValidator();
+  }
+
   @Bean
   @SneakyThrows
   public Map<String, JsonSchema> schemaCache() {
     val cache = new HashMap<String, JsonSchema>();
     // TODO: Arrays.stream(schemaList)
     for (val schema : schemaList) {
-    	log.debug("Loading schema {}", schema);
-    	JsonNode node = JsonDocUtils.getJsonNodeFromClasspath(schema);
-    	cache.put(JsonSchemaUtils.getSchemaId(node), JsonSchemaUtils.getJsonSchema(node));
+      log.debug("Loading schema {}", schema);
+      JsonNode node = JsonDocUtils.getJsonNodeFromClasspath(schema);
+      cache.put(JsonSchemaUtils.getSchemaId(node), JsonSchemaUtils.getJsonSchema(node));
     }
     for (val s : cache.keySet()) {
-    	log.info(s);
+      log.info(s);
     }
     return cache;
-  }  
+  }
 }

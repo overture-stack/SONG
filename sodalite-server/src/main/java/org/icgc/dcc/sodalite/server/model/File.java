@@ -1,123 +1,113 @@
-
 package org.icgc.dcc.sodalite.server.model;
 
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonValue;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-		"objectId",
-    "fileName",
-    "fileSize",
-    "fileType",
-    "fileMd5"
+@JsonPropertyOrder({ "objectId", "fileName", "fileSize", "fileType",
 })
-public class File {
 
-		@JsonProperty("objectId")
-		private String objectId;
-  
-    @JsonProperty("fileName")
-    private String fileName;
+public class File implements Entity {
 
-    @JsonProperty("fileSize")
-    private int fileSize;
+  @JsonProperty("objectId")
+  private String objectId;
 
-    @JsonProperty("fileType")
-    private FileType fileType;
+  @JsonProperty("fileName")
+  private String fileName;
 
-    @JsonProperty("fileMd5")
-    private String fileMd5;
-    
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  @JsonProperty("fileSize")
+  private long fileSize;
 
-    @JsonProperty("fileName")
-    public String getFileName() {
-        return fileName;
-    }
+  @JsonProperty("fileType")
+  private FileType fileType;
 
-    @JsonProperty("fileName")
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
+  @JsonIgnore
+  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public File withFileName(String fileName) {
-        this.fileName = fileName;
-        return this;
-    }
+  @JsonProperty("objectId")
+  public String getObjectId() {
+    return objectId;
+  }
 
-    @JsonProperty("fileSize")
-    public int getFileSize() {
-        return fileSize;
-    }
+  @JsonProperty("objectId")
+  public void setObjectId(String objectId) {
+    this.objectId = objectId;
+  }
 
-    @JsonProperty("fileSize")
-    public void setFileSize(int fileSize) {
-        this.fileSize = fileSize;
-    }
+  public File withObjectId(String objectId) {
+    this.objectId = objectId;
+    return this;
+  }
 
-    public File withFileSize(int fileSize) {
-        this.fileSize = fileSize;
-        return this;
-    }
+  @JsonProperty("fileName")
+  public String getFileName() {
+    return fileName;
+  }
 
-    @JsonProperty("fileType")
-    public FileType getFileType() {
-        return fileType;
-    }
+  @JsonProperty("fileName")
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }
 
-    @JsonProperty("fileType")
-    public void setFileType(FileType fileType) {
-        this.fileType = fileType;
-    }
+  public File withFileName(String fileName) {
+    this.fileName = fileName;
+    return this;
+  }
 
-    public File withFileType(FileType fileType) {
-        this.fileType = fileType;
-        return this;
-    }
+  @JsonProperty("fileSize")
+  public long getFileSize() {
+    return fileSize;
+  }
 
-    @JsonProperty("fileMd5")
-    public String getFileMd5() {
-        return fileMd5;
-    }
+  @JsonProperty("fileSize")
+  public void setFileSize(long fileSize) {
+    this.fileSize = fileSize;
+  }
 
-    @JsonProperty("fileMd5")
-    public void setFileMd5(String fileMd5) {
-        this.fileMd5 = fileMd5;
-    }
+  public File withFileSize(long fileSize) {
+    this.fileSize = fileSize;
+    return this;
+  }
 
-    public File withFileMd5(String fileMd5) {
-        this.fileMd5 = fileMd5;
-        return this;
-    }
+  @JsonProperty("fileType")
+  public FileType getFileType() {
+    return fileType;
+  }
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+  @JsonProperty("fileType")
+  public void setFileType(FileType fileType) {
+    this.fileType = fileType;
+  }
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+  public File withFileType(FileType fileType) {
+    this.fileType = fileType;
+    return this;
+  }
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
 
-    public File withAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-        return this;
-    }
+  @JsonAnyGetter
+  public Map<String, Object> getAdditionalProperties() {
+    return this.additionalProperties;
+  }
+
+  @JsonAnySetter
+  public void setAdditionalProperty(String name, Object value) {
+    this.additionalProperties.put(name, value);
+  }
+
+  public File withAdditionalProperty(String name, Object value) {
+    this.additionalProperties.put(name, value);
+    return this;
+  }
 }

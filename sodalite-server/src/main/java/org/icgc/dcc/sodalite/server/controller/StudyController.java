@@ -26,6 +26,7 @@ import org.icgc.dcc.sodalite.server.service.StatusService;
 import org.icgc.dcc.sodalite.server.service.StudyService;
 import org.icgc.dcc.sodalite.server.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,8 +63,14 @@ public class StudyController {
     return Arrays.asList(studyService.getStudy(studyId));
   }
 
+  @GetMapping("/{studyId}/all")
+  public Study getSEntireStudy(@PathVariable("studyId") String studyId) {
+    return studyService.getEntireStudy(studyId);
+  }
+
   @PostMapping(value = "/{studyId}/analyses/sequencingread/{uploadId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  public ResponseEntity<String> registerSequencingRead(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
+  public ResponseEntity<String> registerSequencingRead(
+      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("uploadId") String uploadId,
       @RequestBody @Valid String payload) {
@@ -73,11 +80,11 @@ public class StudyController {
   }
 
   @PostMapping(value = "/{studyId}/analyses/variantcall/{uploadId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  public ResponseEntity<String> registerVariantCall(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
+  public ResponseEntity<String> registerVariantCall(
+      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("uploadId") String uploadId,
       @RequestBody @Valid String payload) {
-
     // TODO: security check
     return register("registerVariantCall", studyId, uploadId, payload);
   }
@@ -110,14 +117,15 @@ public class StudyController {
 
   @PostMapping(value = "/{studyId}/", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  public int saveStudy(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken, @RequestBody Study study) {
-
+  public int saveStudy(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
+      @RequestBody Study study) {
     // TODO: security check
     return studyService.saveStudy(study);
   }
 
   @GetMapping(value = "/{studyId}/statuses/{uploadId}")
-  public @ResponseBody SubmissionStatus getStatus(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
+  public @ResponseBody SubmissionStatus getStatus(
+      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("uploadId") String uploadId) {
 
@@ -126,7 +134,8 @@ public class StudyController {
 
   protected ResponseEntity<String> conflict(String studyId, String uploadId) {
     return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(String.format("The upload id '%s' has already been used in a previous submission for this study (%s)", uploadId, studyId));
+        .body(String.format("The upload id '%s' has already been used in a previous submission for this study (%s)",
+            uploadId, studyId));
   }
 
 }

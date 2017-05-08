@@ -2,172 +2,162 @@
 package org.icgc.dcc.sodalite.server.model;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonValue;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.icgc.dcc.sodalite.server.model.LibraryStrategy;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "analysisId",
-    "aligned",
-    "alignmentTool",
-    "insertSize",
-    "libraryStrategy",
-    "pairedEnd",
-    "referenceGenome"
+@JsonPropertyOrder({ "analysisId", "aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "referenceGenome"
 })
 
 public class SequencingRead {
 
-    @JsonProperty("analysisId")
-    private String analysisId;
-    @JsonProperty("aligned")
-    private boolean aligned;
-    @JsonProperty("alignmentTool")
-    private String alignmentTool;
-    @JsonProperty("insertSize")
-    private int insertSize;
-    @JsonProperty("libraryStrategy")
-    private LibraryStrategy libraryStrategy;
-    @JsonProperty("pairedEnd")
-    private boolean pairedEnd;
-    @JsonProperty("referenceGenome")
-    private String referenceGenome;
-    
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  @JsonProperty("analysisId")
+  private String analysisId;
+  @JsonProperty("aligned")
+  private boolean aligned;
+  @JsonProperty("alignmentTool")
+  private String alignmentTool;
+  @JsonProperty("insertSize")
+  private int insertSize;
+  @JsonProperty("libraryStrategy")
+  private LibraryStrategy libraryStrategy;
+  @JsonProperty("pairedEnd")
+  private boolean pairedEnd;
+  @JsonProperty("referenceGenome")
+  private String referenceGenome;
 
-    @JsonProperty("analysisId")
-    public String getAnalysisId() {
-        return analysisId;
-    }
+  @JsonIgnore
+  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("analysisId")
-    public void setAnalysisId(String analysisId) {
-        this.analysisId = analysisId;
-    }
+  @JsonProperty("analysisId")
+  public String getAnalysisId() {
+    return analysisId;
+  }
 
-    public SequencingRead withAnalysisId(String analysisId) {
-        this.analysisId = analysisId;
-        return this;
-    }
+  @JsonProperty("analysisId")
+  public void setAnalysisId(String analysisId) {
+    this.analysisId = analysisId;
+  }
 
-    @JsonProperty("aligned")
-    public boolean isAligned() {
-        return aligned;
-    }
+  public SequencingRead withAnalysisId(String analysisId) {
+    this.analysisId = analysisId;
+    return this;
+  }
 
-    @JsonProperty("aligned")
-    public void setAligned(boolean aligned) {
-        this.aligned = aligned;
-    }
+  @JsonProperty("aligned")
+  public boolean isAligned() {
+    return aligned;
+  }
 
-    public SequencingRead withAligned(boolean aligned) {
-        this.aligned = aligned;
-        return this;
-    }
+  @JsonProperty("aligned")
+  public void setAligned(boolean aligned) {
+    this.aligned = aligned;
+  }
 
-    @JsonProperty("alignmentTool")
-    public String getAlignmentTool() {
-        return alignmentTool;
-    }
+  public SequencingRead withAligned(boolean aligned) {
+    this.aligned = aligned;
+    return this;
+  }
 
-    @JsonProperty("alignmentTool")
-    public void setAlignmentTool(String alignmentTool) {
-        this.alignmentTool = alignmentTool;
-    }
+  @JsonProperty("alignmentTool")
+  public String getAlignmentTool() {
+    return alignmentTool;
+  }
 
-    public SequencingRead withAlignmentTool(String alignmentTool) {
-        this.alignmentTool = alignmentTool;
-        return this;
-    }
+  @JsonProperty("alignmentTool")
+  public void setAlignmentTool(String alignmentTool) {
+    this.alignmentTool = alignmentTool;
+  }
 
-    @JsonProperty("insertSize")
-    public int getInsertSize() {
-        return insertSize;
-    }
+  public SequencingRead withAlignmentTool(String alignmentTool) {
+    this.alignmentTool = alignmentTool;
+    return this;
+  }
 
-    @JsonProperty("insertSize")
-    public void setInsertSize(int insertSize) {
-        this.insertSize = insertSize;
-    }
+  @JsonProperty("insertSize")
+  public int getInsertSize() {
+    return insertSize;
+  }
 
-    public SequencingRead withInsertSize(int insertSize) {
-        this.insertSize = insertSize;
-        return this;
-    }
+  @JsonProperty("insertSize")
+  public void setInsertSize(int insertSize) {
+    this.insertSize = insertSize;
+  }
 
-    @JsonProperty("libraryStrategy")
-    public LibraryStrategy getLibraryStrategy() {
-        return libraryStrategy;
-    }
+  public SequencingRead withInsertSize(int insertSize) {
+    this.insertSize = insertSize;
+    return this;
+  }
 
-    @JsonProperty("libraryStrategy")
-    public void setLibraryStrategy(LibraryStrategy libraryStrategy) {
-        this.libraryStrategy = libraryStrategy;
-    }
+  @JsonProperty("libraryStrategy")
+  public LibraryStrategy getLibraryStrategy() {
+    return libraryStrategy;
+  }
 
-    public SequencingRead withLibraryStrategy(LibraryStrategy libraryStrategy) {
-        this.libraryStrategy = libraryStrategy;
-        return this;
-    }
+  @JsonProperty("libraryStrategy")
+  public void setLibraryStrategy(LibraryStrategy libraryStrategy) {
+    this.libraryStrategy = libraryStrategy;
+  }
 
-    @JsonProperty("pairedEnd")
-    public boolean isPairedEnd() {
-        return pairedEnd;
-    }
+  public SequencingRead withLibraryStrategy(LibraryStrategy libraryStrategy) {
+    this.libraryStrategy = libraryStrategy;
+    return this;
+  }
 
-    @JsonProperty("pairedEnd")
-    public void setPairedEnd(boolean pairedEnd) {
-        this.pairedEnd = pairedEnd;
-    }
+  @JsonProperty("pairedEnd")
+  public boolean isPairedEnd() {
+    return pairedEnd;
+  }
 
-    public SequencingRead withPairedEnd(boolean pairedEnd) {
-        this.pairedEnd = pairedEnd;
-        return this;
-    }
+  @JsonProperty("pairedEnd")
+  public void setPairedEnd(boolean pairedEnd) {
+    this.pairedEnd = pairedEnd;
+  }
 
-    @JsonProperty("referenceGenome")
-    public String getReferenceGenome() {
-        return referenceGenome;
-    }
+  public SequencingRead withPairedEnd(boolean pairedEnd) {
+    this.pairedEnd = pairedEnd;
+    return this;
+  }
 
-    @JsonProperty("referenceGenome")
-    public void setReferenceGenome(String referenceGenome) {
-        this.referenceGenome = referenceGenome;
-    }
+  @JsonProperty("referenceGenome")
+  public String getReferenceGenome() {
+    return referenceGenome;
+  }
 
-    public SequencingRead withReferenceGenome(String referenceGenome) {
-        this.referenceGenome = referenceGenome;
-        return this;
-    }
+  @JsonProperty("referenceGenome")
+  public void setReferenceGenome(String referenceGenome) {
+    this.referenceGenome = referenceGenome;
+  }
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+  public SequencingRead withReferenceGenome(String referenceGenome) {
+    this.referenceGenome = referenceGenome;
+    return this;
+  }
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+  @JsonAnyGetter
+  public Map<String, Object> getAdditionalProperties() {
+    return this.additionalProperties;
+  }
 
-    public SequencingRead withAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-        return this;
-    }
+  @JsonAnySetter
+  public void setAdditionalProperty(String name, Object value) {
+    this.additionalProperties.put(name, value);
+  }
+
+  public SequencingRead withAdditionalProperty(String name, Object value) {
+    this.additionalProperties.put(name, value);
+    return this;
+  }
 }

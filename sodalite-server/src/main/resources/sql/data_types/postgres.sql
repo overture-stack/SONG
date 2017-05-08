@@ -1,5 +1,5 @@
 DROP TYPE IF EXISTS gender CASCADE;
-CREATE TYPE gender as ENUM('Male','Female','Unknown');
+CREATE TYPE gender as ENUM('male','female','unknown');
 DROP TYPE IF EXISTS specimen_class CASCADE;
 CREATE TYPE specimen_class as ENUM('Normal','Tumour','Adjacent normal');
 DROP TYPE IF EXISTS specimen_type CASCADE;

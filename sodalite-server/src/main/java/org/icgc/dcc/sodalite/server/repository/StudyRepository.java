@@ -17,6 +17,8 @@
  */
 package org.icgc.dcc.sodalite.server.repository;
 
+import java.util.List;
+
 import org.icgc.dcc.sodalite.server.model.Study;
 import org.icgc.dcc.sodalite.server.repository.mapper.StudyMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -24,13 +26,15 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
-import java.util.List;
-
 @RegisterMapper(StudyMapper.class)
 public interface StudyRepository {
 
-  @SqlUpdate("INSERT INTO study (id, name, description, organization) VALUES (:id, :name, :description, :organization)")
-  int save(@Bind("id") String id, @Bind("name") String name, @Bind("description") String description, @Bind("organization") String organization);
+  @SqlUpdate("INSERT INTO study (id, name,  description) VALUES (:id, :name, :description)")
+  int save(@Bind("id") String id, @Bind("name") String name, @Bind("organization") String organization,
+      @Bind("description") String description);
+
+  @SqlUpdate("UPDATE study SET name=:name, description=:description where id=:id")
+  int set(@Bind("id") String id, @Bind("name") String name, @Bind("description") String description);
 
   @SqlQuery("SELECT id, name, description FROM study WHERE id = :studyId")
   Study get(@Bind("studyId") String id);

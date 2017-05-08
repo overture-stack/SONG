@@ -9,29 +9,29 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(path="/id")
+@RequestMapping(path = "/id")
 @RequiredArgsConstructor
 public class IdController {
-	
+
   /**
    * Dependencies
    */
   @Autowired
-	private IdService	idService;
+  private IdService idService;
 
-  @GetMapping(path="/donor")
+  @GetMapping(path = "/donor")
   public String generateDonorId() {
-  	return idService.generateDonorId();
+    return idService.generateDonorId();
   }
-  
-  @GetMapping(path="/specimen")
+
+  @GetMapping(path = "/specimen")
   public String generateSpecimenId() {
-  	return idService.generateSpecimenId();
+    return idService.generateSpecimenId();
   }
-  
-  @GetMapping(path="/sample")
+
+  @GetMapping(path = "/sample")
   public String generateSampleId() {
-  	return idService.generateSampleId();
+    return idService.generateSampleId();
   }
 
 }
