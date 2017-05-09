@@ -5,8 +5,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.Donor;
-import org.icgc.dcc.sodalite.server.service.DonorService;
+import org.icgc.dcc.sodalite.server.model.Sample;
+import org.icgc.dcc.sodalite.server.service.SampleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,37 +19,40 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{study_id}")
-public class DonorController {
+public class SampleController {
 
   @Autowired
-  private final DonorService donorService;
+  private final SampleService sampleService;
 
-  @PostMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(value = "/sample", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  public String create(@PathVariable("study_id") String study_id, @RequestBody Donor donor) {
-    return donorService.create(study_id, donor);
+  public String create(@PathVariable("study_id") String study_id, @RequestBody Sample sample) {
+    val specimenId = (String) sample.getAdditionalProperties().get("specimenId");
+
+    return sampleService.create(specimenId, sample);
 
   }
 
-  @GetMapping(value = "/donor/{id}")
+  @GetMapping(value = "/sample/{id}")
   @ResponseBody
-  public Donor read(@PathVariable("study_id") String studyId, @PathVariable("id") String id) {
-    return donorService.getById(studyId, id);
+  public Sample read(@PathVariable("id") String id) {
+    return sampleService.getById(id);
   }
 
-  @PutMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PutMapping(value = "/sample", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  public String update(@PathVariable("study_id") String studyId, @RequestBody Donor donor) {
-    return donorService.update(studyId, donor);
+  public String update(@PathVariable("study_id") String study_id, @RequestBody Sample sample) {
+    return sampleService.update(sample);
   }
 
-  @DeleteMapping(value = "/donor/{ids}")
-  public String delete(@PathVariable("study_id") String studyId, @PathVariable("ids") List<String> ids) {
-    ids.forEach(id -> donorService.delete(studyId, id));
+  @DeleteMapping(value = "/sample/{ids}")
+  public String delete(@PathVariable("ids") List<String> ids) {
+    ids.forEach(sampleService::delete);
     return "OK";
   }
 

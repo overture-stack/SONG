@@ -27,7 +27,7 @@ public class DonorServiceTest {
   @Test
   public void testReadDonor() {
     // check for data that we know exists in the H2 database already
-    val d = service.getById("DO1");
+    val d = service.getById("ABC123", "DO1");
     assertThat(d != null);
     assertThat(d.getDonorId()).isEqualTo("DO1");
     assertThat(d.getDonorGender()).isEqualTo(DonorGender.MALE);
@@ -58,11 +58,11 @@ public class DonorServiceTest {
     assertThat(id).startsWith("DO");
     assertThat(status).isEqualTo("ok:" + id);
 
-    Donor check = service.getById(id);
+    Donor check = service.getById("XYZ234", id);
     assertThat(d).isEqualToComparingFieldByField(check);
 
-    service.delete(id);
-    Donor check2 = service.getById(id);
+    service.delete("XYZ234", id);
+    Donor check2 = service.getById("XYZ234", id);
     assertThat(check2).isNull();
   }
 
@@ -83,9 +83,9 @@ public class DonorServiceTest {
         .withDonorSubmitterId("X21-Beta-17")
         .withSpecimens(new ArrayList<Specimen>());
 
-    service.update(d2);
+    service.update("ABC123", d2);
 
-    val d3 = service.getById(id);
+    val d3 = service.getById("ABC123", id);
     assertThat(d3).isEqualToComparingFieldByField(d2);
   }
 

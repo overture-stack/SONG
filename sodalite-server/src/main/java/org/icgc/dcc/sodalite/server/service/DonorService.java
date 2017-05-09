@@ -12,7 +12,7 @@ import lombok.val;
 
 @RequiredArgsConstructor
 @Service
-public class DonorService extends AbstractEntityService<Donor> {
+public class DonorService {
 
   @Autowired
   DonorRepository donorRepository;
@@ -21,7 +21,6 @@ public class DonorService extends AbstractEntityService<Donor> {
   @Autowired
   SpecimenService specimenService;
 
-  @Override
   public String create(String parentId, Donor d) {
     String id = idService.generateDonorId();
     d.setDonorId(id);
@@ -34,31 +33,27 @@ public class DonorService extends AbstractEntityService<Donor> {
     return "ok:" + id;
   }
 
-  @Override
-  public String update(Donor d) {
-    if (donorRepository.set(d.getDonorId(), d.getDonorSubmitterId(), d.getDonorGender().toString()) == 1) {
+  public String update(String studyId, Donor d) {
+    if (donorRepository.set(d.getDonorId(), studyId, d.getDonorSubmitterId(), d.getDonorGender().toString()) == 1) {
       return "Updated";
     }
     return "Failed";
   }
 
-  @Override
-  public String delete(String id) {
+  public String delete(String studyId, String id) {
     specimenService.deleteByParentId(id);
-    donorRepository.delete(id);
+    donorRepository.delete(studyId, id);
     return "OK";
   }
 
-  @Override
-  public String deleteByParentId(String parentId) {
-    donorRepository.getIds(parentId).forEach(this::delete);
+  public String deleteByParentId(String studyId) {
+    donorRepository.getIds(studyId).forEach(id -> delete(studyId, id));
 
     return "OK";
   }
 
-  @Override
-  public Donor getById(String id) {
-    val donor = donorRepository.getById(id);
+  public Donor getById(String studyId, String id) {
+    val donor = donorRepository.getById(studyId, id);
     if (donor == null) {
       return null;
     }
@@ -66,7 +61,6 @@ public class DonorService extends AbstractEntityService<Donor> {
     return donor;
   }
 
-  @Override
   public List<Donor> findByParentId(String parentId) {
     val donors = donorRepository.findByParentId(parentId);
     donors.forEach(d -> d.setSpecimens(specimenService.findByParentId(d.getDonorId())));

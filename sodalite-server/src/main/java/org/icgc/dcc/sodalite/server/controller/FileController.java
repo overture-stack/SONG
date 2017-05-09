@@ -5,8 +5,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.Donor;
-import org.icgc.dcc.sodalite.server.service.DonorService;
+import org.icgc.dcc.sodalite.server.model.File;
+import org.icgc.dcc.sodalite.server.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,37 +19,38 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{study_id}")
-public class DonorController {
+public class FileController {
 
   @Autowired
-  private final DonorService donorService;
+  private final FileService fileService;
 
-  @PostMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  public String create(@PathVariable("study_id") String study_id, @RequestBody Donor donor) {
-    return donorService.create(study_id, donor);
-
+  public String create(@PathVariable("study_id") String study_id, @RequestBody File file) {
+    val sampleId = (String) file.getAdditionalProperties().get("sampleId");
+    return fileService.create(sampleId, file);
   }
 
-  @GetMapping(value = "/donor/{id}")
+  @GetMapping(value = "/file/{id}")
   @ResponseBody
-  public Donor read(@PathVariable("study_id") String studyId, @PathVariable("id") String id) {
-    return donorService.getById(studyId, id);
+  public File read(@PathVariable("id") String id) {
+    return fileService.getById(id);
   }
 
-  @PutMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PutMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  public String update(@PathVariable("study_id") String studyId, @RequestBody Donor donor) {
-    return donorService.update(studyId, donor);
+  public String update(@PathVariable("study_id") String study_id, @RequestBody File file) {
+    return fileService.update(file);
   }
 
-  @DeleteMapping(value = "/donor/{ids}")
-  public String delete(@PathVariable("study_id") String studyId, @PathVariable("ids") List<String> ids) {
-    ids.forEach(id -> donorService.delete(studyId, id));
+  @DeleteMapping(value = "/file/{ids}")
+  public String delete(@PathVariable("study_id") String study_id, @PathVariable("ids") List<String> ids) {
+    ids.forEach(fileService::delete);
     return "OK";
   }
 
