@@ -102,7 +102,7 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
     remoteTokenServices.setClientSecret(clientSecret);
     remoteTokenServices.setAccessTokenConverter(accessTokenConverter());
 
-    log.debug("using auth server: " + checkTokenUrl);
+    log.info("using auth server: " + checkTokenUrl);
 
     return remoteTokenServices;
   }
