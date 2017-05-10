@@ -26,22 +26,12 @@ import java.sql.SQLException;
 
 public class StudyMapper implements ResultSetMapper<Study> {
 
-  public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException
-  { // I prefer braces on next line when declaring exception throws in method signature - Dušan
-  	/*
-    return Study.builder()
-        .id(r.getString("id"))
-        .name(r.getString("name"))
-        .description(r.getString("description"))
-        .organization(r.getString("organization"))
-        .build();
-     */
-  	Study study = new Study();
-  	study.withStudyId(r.getString("id"))
-		  	.withName(r.getString("name"))
-		  	.withDescription(r.getString("description"))
-		  	.withOrganization(r.getString("organization"));
-  	return study;
+  public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+    Study study = new Study();
+    study.withStudyId(r.getString("id"))
+        .withName(r.getString("name"))
+        .withDescription(r.getString("description"));
+    return study;
   }
 
 }

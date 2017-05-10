@@ -60,6 +60,12 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
 
   @Override
   public void configure(HttpSecurity http) throws Exception {
+    // allow access to H2 console
+    // TODO: tie this to dev profile?
+    http.authorizeRequests().antMatchers("/").permitAll().and().authorizeRequests().antMatchers("/console/**")
+        .permitAll();
+    http.headers().frameOptions().disable();
+
     http.addFilterAfter(new OncePerRequestFilter() {
 
       @Override
@@ -96,7 +102,7 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
     remoteTokenServices.setClientSecret(clientSecret);
     remoteTokenServices.setAccessTokenConverter(accessTokenConverter());
 
-    log.debug("using auth server: " + checkTokenUrl);
+    log.info("using auth server: " + checkTokenUrl);
 
     return remoteTokenServices;
   }

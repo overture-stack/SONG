@@ -15,19 +15,26 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.service;
+package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import org.icgc.dcc.sodalite.server.model.File;
+import org.icgc.dcc.sodalite.server.model.FileType;
+import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-@Slf4j
-@Service
-public class ValidationService {
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-  @Async
-  public void validate() {
-    log.info("Async validation...");
+public class FileMapper implements ResultSetMapper<File> {
+
+  public File map(int index, ResultSet r, StatementContext ctx) throws SQLException { // I prefer braces on next line
+                                                                                      // when declaring exception throws
+                                                                                      // in method signature - Dušan
+    return new File()
+        .withObjectId(r.getString("id"))
+        .withFileType(FileType.valueOf(r.getString("type")))
+        .withFileName(r.getString("name"))
+        .withFileSize(r.getLong("size"));
   }
 
 }

@@ -19,13 +19,13 @@ package org.icgc.dcc.sodalite.server.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.val;
+
+import java.util.List;
+
 import org.icgc.dcc.sodalite.server.model.Study;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,12 +38,24 @@ public class StudyService {
   IdService idService;
   @Autowired
   StudyRepository studyRepository;
+  @Autowired
+  DonorService donorService;
 
   @SneakyThrows
   public Study getStudy(String studyId) {
     return studyRepository.get(studyId);
   }
-  
+
+  @SneakyThrows
+  public Study getEntireStudy(String studyId) {
+    Study study = studyRepository.get(studyId);
+    if (study == null) {
+      return null;
+    }
+    study.setDonors(donorService.findByParentId(studyId));
+    return study;
+  }
+
   @SneakyThrows
   public List<Study> getStudyByName(String name) {
     return studyRepository.getByName(name);
@@ -52,11 +64,10 @@ public class StudyService {
   /**
    * We manually determine study id because it's a meaningful abbreviation usually pre-determined.
    * 
-   * @param studyId
+   * @param study
    * @return
    */
   public int saveStudy(Study study) {
     return studyRepository.save(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
   }
-
 }

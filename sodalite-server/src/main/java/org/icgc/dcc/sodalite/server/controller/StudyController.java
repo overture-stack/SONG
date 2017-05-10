@@ -18,19 +18,33 @@
 package org.icgc.dcc.sodalite.server.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.icgc.dcc.sodalite.server.model.Study;
+import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
+import org.icgc.dcc.sodalite.server.service.StatusService;
 import org.icgc.dcc.sodalite.server.service.StudyService;
-import org.icgc.dcc.sodalite.server.service.ValidationService;
+import org.icgc.dcc.sodalite.server.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.badRequest;
+
+import java.util.Arrays;
 import java.util.List;
+
+import javax.validation.Valid;
 
 import static org.springframework.http.MediaType.*;
 
+@Slf4j
 @RestController
-@RequestMapping(path="/studies")
+@RequestMapping(path = "/studies")
 @RequiredArgsConstructor
 public class StudyController {
 
@@ -40,22 +54,88 @@ public class StudyController {
   @Autowired
   private final StudyService studyService;
   @Autowired
-  private final ValidationService validationService;
+  private final RegistrationService registrationService;
+  @Autowired
+  private final StatusService statusService;
 
-  @GetMapping
-  public List<Study> getStudy(@RequestParam("name") String name) {
-    return studyService.getStudyByName(name);
+  @GetMapping("/{studyId}")
+  public List<Study> getStudy(@PathVariable("studyId") String studyId) {
+    return Arrays.asList(studyService.getStudy(studyId));
   }
 
-  @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+  @GetMapping("/{studyId}/all")
+  public Study getSEntireStudy(@PathVariable("studyId") String studyId) {
+    return studyService.getEntireStudy(studyId);
+  }
+
+  @PostMapping(value = "/{studyId}/analyses/sequencingread/{uploadId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  public ResponseEntity<String> registerSequencingRead(
+      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @PathVariable("uploadId") String uploadId,
+      @RequestBody @Valid String payload) {
+
+    // TODO: security check
+    return register("registerSequencingRead", studyId, uploadId, payload);
+  }
+
+  @PostMapping(value = "/{studyId}/analyses/variantcall/{uploadId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  public ResponseEntity<String> registerVariantCall(
+      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @PathVariable("uploadId") String uploadId,
+      @RequestBody @Valid String payload) {
+    // TODO: security check
+    return register("registerVariantCall", studyId, uploadId, payload);
+  }
+
+  /**
+   * Common registration logic for both Sequencing Reads and Variant Calls
+   * 
+   * @param schemaName
+   * @param studyId
+   * @param uploadId
+   * @param payload
+   * @return
+   */
+  protected ResponseEntity<String> register(String schemaName, String studyId, String uploadId, String payload) {
+
+    // do pre-check for whether this upload id has been used. We want to return
+    // this error synchronously
+    if (statusService.exists(studyId, uploadId)) {
+      return conflict(studyId, uploadId);
+    }
+
+    try {
+      registrationService.register(schemaName, studyId, uploadId, payload);
+    } catch (Exception e) {
+      log.error(e.toString());
+      return badRequest().body(e.getMessage());
+    }
+    return ok(uploadId);
+  }
+
+  @PostMapping(value = "/{studyId}/", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  public int saveStudy(@RequestBody Study study) {
+  public int saveStudy(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
+      @RequestBody Study study) {
+    // TODO: security check
     return studyService.saveStudy(study);
   }
 
-  @GetMapping(path="/validationTest")
-  public void testValidation() {
-    validationService.validate();
+  @GetMapping(value = "/{studyId}/statuses/{uploadId}")
+  public @ResponseBody SubmissionStatus getStatus(
+      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @PathVariable("uploadId") String uploadId) {
+
+    return statusService.getStatus(studyId, uploadId);
+  }
+
+  protected ResponseEntity<String> conflict(String studyId, String uploadId) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(String.format("The upload id '%s' has already been used in a previous submission for this study (%s)",
+            uploadId, studyId));
   }
 
 }
