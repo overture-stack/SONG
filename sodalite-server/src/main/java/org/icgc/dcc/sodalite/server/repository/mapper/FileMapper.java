@@ -34,7 +34,9 @@ public class FileMapper implements ResultSetMapper<File> {
         .withObjectId(r.getString("id"))
         .withFileType(FileType.valueOf(r.getString("type")))
         .withFileName(r.getString("name"))
-        .withFileSize(r.getLong("size"));
+        .withFileSize(r.getLong("size"))
+        .withFileMd5(r.getString("md5"))
+        .withMetadataDoc(r.getString("metadata_doc"));
   }
 
 }

@@ -36,6 +36,17 @@ validation:
   queue:
     capacity: 100
 
+auth:
+  server:
+    url: "http://localhost:8000/o/"
+    clientId: "clientId"
+    clientSecret: "clientSecret"
+    enableStrictSSL: false
+    enableHttpLogging: false
+    uploadScope: "upload"
+    downloadScope: "download"
+
+
 flyway:
   baselineOnMigrate: true
 
@@ -77,12 +88,4 @@ spring.datasource:
 
 flyway:
   locations: db/migration/{vendor}
-auth:
-  server:
-    url: "http://localhost:8000/o/"
-    clientId: "clientId"
-    clientSecret: "clientSecret"
-    enableStrictSSL: false
-    enableHttpLogging: false
-    uploadScope: "upload"
-    downloadScope: "download"
+  
