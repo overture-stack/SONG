@@ -17,7 +17,7 @@
  */
  
 DROP DOMAIN IF EXISTS gender;
-CREATE DOMAIN gender as TEXT CHECK(VALUE IN('Male','Female','Unknown'));
+CREATE DOMAIN gender as TEXT CHECK(VALUE IN('male','female','unspecified'));
 DROP DOMAIN IF EXISTS SPECIMEN_CLASS;
 CREATE DOMAIN specimen_class as TEXT CHECK(VALUE IN('Normal','Tumour','Adjacent normal'));
 DROP DOMAIN IF EXISTS specimen_type;

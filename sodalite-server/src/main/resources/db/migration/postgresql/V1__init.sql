@@ -16,7 +16,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 DROP TYPE IF EXISTS gender CASCADE;
-CREATE TYPE gender as ENUM('Male','Female','Unknown');
+CREATE TYPE gender as ENUM('male','female','unspecified');
 DROP TYPE IF EXISTS specimen_class CASCADE;
 CREATE TYPE specimen_class as ENUM('Normal','Tumour','Adjacent normal');
 DROP TYPE IF EXISTS specimen_type CASCADE;
