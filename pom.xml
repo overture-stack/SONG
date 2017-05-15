@@ -25,6 +25,7 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
     <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>sodalite-server</module>
+        <module>sodalite-client</module>
     </modules>
 
     <parent>
