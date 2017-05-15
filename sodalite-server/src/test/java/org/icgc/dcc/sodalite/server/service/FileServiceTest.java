@@ -19,7 +19,7 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class FileServiceTest {
@@ -35,7 +35,7 @@ public class FileServiceTest {
     assertThat(file.getFileName()).isEqualTo("ABC-TC285G7-A5-ae3458712345.bam");
     assertThat(file.getFileType()).isEqualTo(FileType.BAM);
     assertThat(file.getFileSize()).isEqualTo(122333444455555L);
-    assertThat(file.getFileMd5()).isEqualTo(null);
+    assertThat(file.getFileMd5()).isEqualTo("20de2982390c60e33452bf8736c3a9f1");
   }
 
   @Test
