@@ -39,11 +39,11 @@ public class RegisterCommand extends Command {
 
   @Override
   public Status run() {
-    if (args.length < 2) {
-      err("Usage: sodalite-client register <file>");
+    if (args.length < 3) {
+      err("Usage: sodalite-client register <uploadID> <file>");
       return this.status;
     }
-    val file = new File(args[1]);
+    val file = new File(args[2]);
     String json;
     try {
       json = Files.toString(file, Charsets.UTF_8);
@@ -53,7 +53,7 @@ public class RegisterCommand extends Command {
 
     val config = new SodaliteConfig();
     registry = new Registry(config);
-    String uploadId = "uploadID1";
+    String uploadId = args[1];
 
     String result = registry.registerAnalysis(uploadId, json);
     output(result);
