@@ -22,7 +22,8 @@ public class FileService {
   public String create(String parentId, File f) {
     val id = idService.generateFileId();
     f.setObjectId(id);
-    int status = repository.save(id, parentId, f.getFileName(), f.getFileSize(), f.getFileType().toString());
+    int status =
+        repository.save(id, parentId, f.getFileName(), f.getFileSize(), f.getFileMd5(), f.getFileType().toString());
 
     if (status != 1) {
       return "error: Can't create" + f.toString();
@@ -32,7 +33,7 @@ public class FileService {
   }
 
   public String update(File f) {
-    repository.set(f.getObjectId(), f.getFileName(), f.getFileSize(), f.getFileType().toString());
+    repository.set(f.getObjectId(), f.getFileName(), f.getFileSize(), f.getFileMd5(), f.getFileType().toString());
     return "ok";
   }
 

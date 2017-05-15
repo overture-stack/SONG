@@ -27,6 +27,7 @@ public class FileServiceTest {
     assertThat(file.getFileName()).isEqualTo("ABC-TC285G7-A5-ae3458712345.bam");
     assertThat(file.getFileType()).isEqualTo(FileType.BAM);
     assertThat(file.getFileSize()).isEqualTo(122333444455555L);
+    assertThat(file.getFileMd5()).isEqualTo(null);
   }
 
   @Test

@@ -2,16 +2,18 @@ package org.icgc.dcc.sodalite.server.model;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "objectId", "fileName", "fileSize", "fileType",
+@JsonPropertyOrder({ "objectId", "fileName", "fileSize", "fileType", "fileMd5"
 })
 
 public class File implements Entity {
@@ -30,6 +32,8 @@ public class File implements Entity {
 
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+  private String fileMd5;
 
   @JsonProperty("objectId")
   public String getObjectId() {
@@ -88,6 +92,21 @@ public class File implements Entity {
 
   public File withFileType(FileType fileType) {
     this.fileType = fileType;
+    return this;
+  }
+
+  @JsonProperty("fileMd5")
+  public void setFileMd5(String fileMd5) {
+    this.fileMd5 = fileMd5;
+  }
+
+  @JsonProperty("fileMd5")
+  public String getFileMd5() {
+    return fileMd5;
+  }
+
+  public File withFileMd5(String fileMd5) {
+    this.fileMd5 = fileMd5;
     return this;
   }
 
