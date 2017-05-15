@@ -2,6 +2,7 @@
 .project
 .classpath
 .settings
+.settings/
 .apt_generated
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.apt.core.prefs
