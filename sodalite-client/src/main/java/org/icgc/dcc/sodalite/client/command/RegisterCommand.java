@@ -59,7 +59,6 @@ public class RegisterCommand extends Command {
     output(result);
 
     return this.status;
-
   }
 
 }

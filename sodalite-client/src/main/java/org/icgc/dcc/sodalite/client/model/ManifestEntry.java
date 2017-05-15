@@ -25,4 +25,5 @@ public class ManifestEntry {
   String fileId;
   String fileName;
   String md5sum;
+
 }

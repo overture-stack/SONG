@@ -31,9 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.val;
 
-/**
- * 
- */
 public class Registry {
 
   private final String serverUrl;

@@ -18,30 +18,10 @@
 # DCC Client Server - Default Configuration
 #
 
-server:
-  port: 9090
+serverURL:
+  http://localhost:8080/
 
-# Management
-management:
-  port: 9091
+studyId:
+  ABC123
+  
 
-id:
-  server-instance: 0
-  worker-instance: 0
-
-validation:
-  threads:
-    core: 5
-    max: 10
-  queue:
-    capacity: 100
-
-auth:
-  server:
-    url: "http://localhost:8000/o/"
-    clientId: "clientId"
-    clientSecret: "clientSecret"
-    enableStrictSSL: false
-    enableHttpLogging: false
-    uploadScope: "upload"
-    downloadScope: "download"

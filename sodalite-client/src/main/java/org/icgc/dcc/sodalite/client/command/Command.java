@@ -20,6 +20,8 @@ package org.icgc.dcc.sodalite.client.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.val;
+
 //import lombok.extern.slf4j.Slf4j;
 
 //@Slf4j
@@ -68,9 +70,9 @@ public class Command {
     if (args.length == 0) {
       return new ErrorCommand("No subcommand given");
     }
-    String cmd = args[0];
+    val cmd = args[0];
     // log.info("Looking up command " + cmd);
-    Command c = commands.getOrDefault(cmd, new ErrorCommand("Unknown subcommand: " + cmd));
+    val c = commands.getOrDefault(cmd, new ErrorCommand("Unknown subcommand: " + cmd));
     c.setArgs(args);
     return c;
   }
