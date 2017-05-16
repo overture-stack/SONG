@@ -22,27 +22,21 @@ import org.icgc.dcc.sodalite.client.register.Registry;
 
 import lombok.val;
 
-/**
- * 
- */
+
 public class StatusCommand extends Command {
 
   @Override
-  public Status run() {
-    if (args.length < 2) {
+  public void run(SodaliteConfig config) {
+    if (getArgs().length < 2) {
       err("Usage: sodalite-client status <uploadId>");
-      return this.status;
+      return;
     }
 
-    val config = new SodaliteConfig();
     val registry = new Registry(config);
-    String uploadId = args[1];
+    String uploadId = getArgs()[1];
 
-    String result = registry.getRegistrationState(config.studyId, uploadId);
+    String result = registry.getRegistrationState(config.getStudyId(), uploadId);
     output(result);
-
-    return this.status;
-
   }
 
 }

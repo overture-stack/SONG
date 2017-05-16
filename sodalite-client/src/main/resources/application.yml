@@ -17,11 +17,7 @@
 #
 # DCC Client Server - Default Configuration
 #
-
-serverURL:
-  http://localhost:8080/
-
-studyId:
-  ABC123
-  
-
+client:
+  serverUrl: http://localhost:8080/
+  studyId: ABC123
+logging.level.org.springframework: OFF

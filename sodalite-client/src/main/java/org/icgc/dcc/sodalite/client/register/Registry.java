@@ -42,7 +42,7 @@ public class Registry {
   SodaliteConfig config;
 
   public Registry(SodaliteConfig config) {
-    this.serverUrl = config.serverUrl;
+    this.serverUrl = config.getServerUrl();
 
     this.rest = new RestTemplate();
     this.mapper = new ObjectMapper();

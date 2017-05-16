@@ -17,15 +17,22 @@
  */
 package org.icgc.dcc.sodalite.client.config;
 
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import lombok.Data;
 
 /**
  * 
  */
-@Configuration
+@ConfigurationProperties(prefix="client")
+@Component
+@Data
 public class SodaliteConfig {
-
-  public String serverUrl = "http://localhost:8080/";
-  public String studyId = "ABC123";
-
+  @Value("client.serverUrl")
+  private String serverUrl;
+  @Value("client.studyId")
+  private String studyId;
 }
+

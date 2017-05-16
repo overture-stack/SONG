@@ -17,6 +17,8 @@
  */
 package org.icgc.dcc.sodalite.client.command;
 
+import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+
 /**
  * 
  */
@@ -31,15 +33,13 @@ public class HelpCommand extends Command {
   }
 
   @Override
-  public Status run() {
+  public void run(SodaliteConfig config) {
     output("Usage:\n");
     output("    sodalite-client <subcommand>");
     output("    Valid subcommands are:");
     for (String s : Command.commands.keySet()) {
       output(s + " ");
     }
-
-    return this.status;
   }
 
 }

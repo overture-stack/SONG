@@ -22,43 +22,35 @@ import java.io.IOException;
 
 import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
 import org.icgc.dcc.sodalite.client.register.Registry;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
+import lombok.NonNull;
 import lombok.val;
 
-/**
- * 
- */
 public class RegisterCommand extends Command {
-
-  @Autowired
-  Registry registry;
-
   @Override
-  public Status run() {
-    if (args.length < 3) {
+  public void run(SodaliteConfig config) {
+    if (getArgs().length < 3) {
       err("Usage: sodalite-client register <uploadID> <file>");
-      return this.status;
+      return;
     }
-    val file = new File(args[2]);
+    @NonNull val file = new File(getArgs()[2]);
     String json;
     try {
       json = Files.toString(file, Charsets.UTF_8);
     } catch (IOException e) {
-      return err("Error: Can't open file '%s'", file);
+      err("Error: Can't open file '%s'", file);
+      return;
     }
 
-    val config = new SodaliteConfig();
-    registry = new Registry(config);
-    String uploadId = args[1];
+    val registry = new Registry(config);
+    String uploadId = getArgs()[1];
 
     String result = registry.registerAnalysis(uploadId, json);
     output(result);
 
-    return this.status;
   }
 
 }

@@ -15,19 +15,54 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.model;
+package org.icgc.dcc.sodalite.client.command;
 
-import lombok.Value;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-@Value
-public class ManifestEntry {
+import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.model.Manifest;
+import org.icgc.dcc.sodalite.client.model.ManifestEntry;
+import org.icgc.dcc.sodalite.client.register.Registry;
 
-	String fileId;
-	String fileName;
-	String md5sum;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-	public String toString() {
-		return fileId + "\t" + fileName + "\t" + md5sum;
-	}
+import lombok.SneakyThrows;
+import lombok.val;
+
+public class ManifestCommand extends Command {
 	
+  @SneakyThrows
+  @Override
+  public void run(SodaliteConfig config) {
+    if (getArgs().length < 3) {
+      err("Usage: sodalite-client manifest <uploadId> <filename>");
+      return;
+    }
+
+    val registry = new Registry(config);
+    String uploadId = getArgs()[1];
+    String fileName = getArgs()[2];
+    String result = registry.getRegistrationState(config.getStudyId(), uploadId);
+    
+    val mapper = new ObjectMapper();
+    val root = mapper.readTree(result);
+    val m = new Manifest(uploadId);
+    
+    for(val file: root.at("/payload/study/donor/specimen/sample/files")) {
+    	val id=file.get("objectId");
+    	
+    	String fileId;
+    	if (id == null) {
+    		fileId = "<Invalid or missing object Id>";
+    	} else {
+    		fileId = id.asText();
+    	}
+    	m.add(new ManifestEntry(fileId, file.get("fileName").asText(),file.get("fileMd5").asText()));
+    }
+    
+    Files.write(Paths.get(fileName), m.toString().getBytes());
+    output("Wrote manifest file '%s' for uploadId '%s'", fileName, uploadId);
+  }
+
 }
