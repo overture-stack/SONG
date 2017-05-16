@@ -30,13 +30,16 @@ import lombok.NonNull;
 import lombok.val;
 
 public class RegisterCommand extends Command {
+
   @Override
   public void run(SodaliteConfig config) {
     if (getArgs().length < 3) {
       err("Usage: sodalite-client register <uploadID> <file>");
       return;
     }
-    @NonNull val file = new File(getArgs()[2]);
+
+    @NonNull
+    val file = new File(getArgs()[2]);
     String json;
     try {
       json = Files.toString(file, Charsets.UTF_8);
@@ -46,9 +49,9 @@ public class RegisterCommand extends Command {
     }
 
     val registry = new Registry(config);
-    String uploadId = getArgs()[1];
+    val uploadId = getArgs()[1];
 
-    String result = registry.registerAnalysis(uploadId, json);
+    val result = registry.registerAnalysis(uploadId, json);
     output(result);
 
   }

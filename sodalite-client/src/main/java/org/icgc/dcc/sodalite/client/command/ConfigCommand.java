@@ -7,16 +7,19 @@ import lombok.SneakyThrows;
 import lombok.val;
 
 public class ConfigCommand extends Command {
-	@SneakyThrows
-	@Override
-	public void run(@NonNull SodaliteConfig config) {
-		output("Current configuration:\n");
-		
-		@NonNull val url = config.getServerUrl();
-		output("URL: %s\n", url);
-		
-		@NonNull val id = config.getStudyId();
-		output("Study ID: %s\n", id);
-	}
+
+  @SneakyThrows
+  @Override
+  public void run(@NonNull SodaliteConfig config) {
+    output("Current configuration:\n");
+
+    @NonNull
+    val url = config.getServerUrl();
+    output("URL: %s\n", url);
+
+    @NonNull
+    val id = config.getStudyId();
+    output("Study ID: %s\n", id);
+  }
 
 }

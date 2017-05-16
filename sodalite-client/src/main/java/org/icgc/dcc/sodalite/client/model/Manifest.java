@@ -24,20 +24,21 @@ import lombok.Data;
 
 @Data
 public class Manifest {
-	final String analysisId;
-	final Collection<ManifestEntry> entries;
 
-	public Manifest(String uploadId) {
-		this.analysisId = uploadId;
-		this.entries = new ArrayList<ManifestEntry>();
-	}
-	
-	public void add(ManifestEntry m) {
-		entries.add(m);
-	}
-	
-	public String toString() {
-		return analysisId + "\n" + entries.stream().map(e-> e.toString() + "\n").reduce("", (a,b) -> a+b);
-	}
+  final String analysisId;
+  final Collection<ManifestEntry> entries;
+
+  public Manifest(String uploadId) {
+    this.analysisId = uploadId;
+    this.entries = new ArrayList<ManifestEntry>();
+  }
+
+  public void add(ManifestEntry m) {
+    entries.add(m);
+  }
+
+  public String toString() {
+    return analysisId + "\n" + entries.stream().map(e -> e.toString() + "\n").reduce("", (a, b) -> a + b);
+  }
 
 }

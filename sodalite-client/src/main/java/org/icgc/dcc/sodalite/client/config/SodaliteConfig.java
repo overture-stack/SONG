@@ -26,13 +26,13 @@ import lombok.Data;
 /**
  * 
  */
-@ConfigurationProperties(prefix="client")
+@ConfigurationProperties(prefix = "client")
 @Component
 @Data
 public class SodaliteConfig {
+
   @Value("client.serverUrl")
   private String serverUrl;
   @Value("client.studyId")
   private String studyId;
 }
-

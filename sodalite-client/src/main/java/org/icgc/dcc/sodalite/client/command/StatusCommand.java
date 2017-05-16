@@ -22,7 +22,6 @@ import org.icgc.dcc.sodalite.client.register.Registry;
 
 import lombok.val;
 
-
 public class StatusCommand extends Command {
 
   @Override
@@ -33,9 +32,9 @@ public class StatusCommand extends Command {
     }
 
     val registry = new Registry(config);
-    String uploadId = getArgs()[1];
+    val uploadId = getArgs()[1];
 
-    String result = registry.getRegistrationState(config.getStudyId(), uploadId);
+    val result = registry.getRegistrationState(config.getStudyId(), uploadId);
     output(result);
   }
 

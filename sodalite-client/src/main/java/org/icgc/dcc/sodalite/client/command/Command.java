@@ -30,16 +30,17 @@ import lombok.val;
 //@Slf4j
 
 /**
- * 
+ * A parent class that commands can inherit from. Will probably soon be replaced by JCommander
  */
 @Data
 public class Command {
+
   static Map<String, Command> commands = new HashMap<String, Command>();
   public static String[] noArgs = new String[0];
   static {
-	commands.put("config", new ConfigCommand());
+    commands.put("config", new ConfigCommand());
     commands.put("help", new HelpCommand());
-    commands.put("manifest",  new ManifestCommand());
+    commands.put("manifest", new ManifestCommand());
     commands.put("register", new RegisterCommand());
     commands.put("status", new StatusCommand());
   }
@@ -52,6 +53,7 @@ public class Command {
 
   /***
    * Return the command corresponding to args
+   * 
    * @param args
    * @return If args is length 0, or the first argument is not a valid subcommand, returns an ErrorCommand with an error
    * message.
@@ -72,6 +74,7 @@ public class Command {
 
   /***
    * Convenience method for children to save error message
+   * 
    * @param format See String.format
    * @param args
    * 
@@ -84,6 +87,7 @@ public class Command {
 
   /***
    * Convenience method for child classes to save output message
+   * 
    * @param format See String.format
    * @param args
    * 
@@ -93,5 +97,10 @@ public class Command {
     status.output(format, args);
   }
 
-  public void run(SodaliteConfig config) {}
+  /***
+   * Define an empty run method for children to implement.
+   * @param config
+   */
+  public void run(SodaliteConfig config) {
+  }
 }

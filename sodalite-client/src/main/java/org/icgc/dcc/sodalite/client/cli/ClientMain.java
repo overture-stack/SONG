@@ -7,14 +7,15 @@ import org.springframework.boot.*;
 import org.springframework.stereotype.*;
 
 @Component
-public class ClientMain implements CommandLineRunner{
+public class ClientMain implements CommandLineRunner {
+
   SodaliteConfig config;
-  
+
   @Autowired
   ClientMain(SodaliteConfig config) {
-	  this.config = config;
+    this.config = config;
   }
-  
+
   public void run(String... args) {
     Command c = Command.parse(args);
     c.run(config);
