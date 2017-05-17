@@ -65,7 +65,7 @@ public class ManifestCommand extends Command {
     val m = new Manifest(uploadId);
 
     Iterable<JsonNode> iter = () -> root.at(JSON_PATH_TO_FILES).iterator();
-    m.setEntries(StreamSupport.stream(iter.spliterator(), false)
+    m.addAll(StreamSupport.stream(iter.spliterator(), false)
         .map(this::jsonNodeToManifestEntry)
         .collect(Collectors.toList()));
     return m;

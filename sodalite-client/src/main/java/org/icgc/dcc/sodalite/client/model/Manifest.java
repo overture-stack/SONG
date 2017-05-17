@@ -43,7 +43,7 @@ public class Manifest {
     return analysisId + "\n" + entries.stream().map(e -> e.toString() + "\n").reduce("", (a, b) -> a + b);
   }
 
-  public void setEntries(@NonNull Collection<? extends ManifestEntry> collect) {
+  public void addAll(@NonNull Collection<? extends ManifestEntry> collect) {
     entries.addAll(collect);
   }
 
