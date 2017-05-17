@@ -8,6 +8,7 @@ import java.util.List;
 import org.icgc.dcc.sodalite.server.model.Specimen;
 import org.icgc.dcc.sodalite.server.service.SpecimenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,7 @@ public class SpecimenController {
 
   @PostMapping(value = "/specimen", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String create(@PathVariable("study_id") String study_id, @RequestBody Specimen specimen) {
     val donorId = (String) specimen.getAdditionalProperties().get("donorId");
     return specimenService.create(donorId, specimen);
@@ -44,11 +46,13 @@ public class SpecimenController {
 
   @PutMapping(value = "/specimen", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String update(@PathVariable("study_id") String study_id, @RequestBody Specimen specimen) {
     return specimenService.update(specimen);
   }
 
   @DeleteMapping(value = "/specimen/{ids}")
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(@PathVariable("study_id") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(specimenService::delete);
     return "OK";

@@ -8,6 +8,7 @@ import java.util.List;
 import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,7 @@ public class FileController {
 
   @PostMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String create(@PathVariable("study_id") String study_id, @RequestBody File file) {
     val sampleId = (String) file.getAdditionalProperties().get("sampleId");
     return fileService.create(sampleId, file);
@@ -44,11 +46,13 @@ public class FileController {
 
   @PutMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String update(@PathVariable("study_id") String study_id, @RequestBody File file) {
     return fileService.update(file);
   }
 
   @DeleteMapping(value = "/file/{ids}")
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(@PathVariable("study_id") String study_id, @PathVariable("ids") List<String> ids) {
     ids.forEach(fileService::delete);
     return "OK";

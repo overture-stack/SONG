@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -69,6 +70,7 @@ public class StudyController {
   }
 
   @PostMapping(value = "/{studyId}/analyses/sequencingread/{uploadId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> registerSequencingRead(
       @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
@@ -80,6 +82,7 @@ public class StudyController {
   }
 
   @PostMapping(value = "/{studyId}/analyses/variantcall/{uploadId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> registerVariantCall(
       @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
@@ -116,6 +119,7 @@ public class StudyController {
   }
 
   @PostMapping(value = "/{studyId}/", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @ResponseBody
   public int saveStudy(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) final String accessToken,
       @RequestBody Study study) {

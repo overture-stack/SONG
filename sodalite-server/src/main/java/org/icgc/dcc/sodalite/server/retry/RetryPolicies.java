@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 The Ontario Institute for Cancer Research. All rights reserved.                             
+ * Copyright (c) 2016 The Ontario Institute for Cancer Research. All rights reserved.
  *                                                                                                               
  * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
  * You should have received a copy of the GNU General Public License along with                                  
@@ -15,21 +15,33 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.security;
+package org.icgc.dcc.sodalite.server.retry;
 
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import com.google.common.collect.ImmutableMap;
+import lombok.NoArgsConstructor;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
-public class CachingRemoteTokenServices extends RemoteTokenServices {
+import java.util.Map;
 
-  @Override
-  @Cacheable("tokens")
-  public OAuth2Authentication loadAuthentication(String accessToken)
-      throws AuthenticationException, InvalidTokenException {
-    return super.loadAuthentication(accessToken);
+import static java.lang.Boolean.TRUE;
+import static lombok.AccessLevel.PRIVATE;
+
+@NoArgsConstructor(access = PRIVATE)
+public final class RetryPolicies {
+
+  /**
+   * Returns a map with exceptions that should be retried by the Spring Retry Framework.
+   * 
+   * <ul>
+   * <li><b>ResourceAccessException</b> - to retry Connection Timeout</li>
+   * <li><b>HttpServerErrorException</b> - to retry 503 Service Unavailable</li>
+   * </ul>
+   */
+  public static Map<Class<? extends Throwable>, Boolean> getRetryableExceptions() {
+    return ImmutableMap.of(
+        ResourceAccessException.class, TRUE,
+        HttpServerErrorException.class, TRUE);
   }
 
 }

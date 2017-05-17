@@ -17,19 +17,56 @@
  */
 package org.icgc.dcc.sodalite.server.security;
 
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 
-public class CachingRemoteTokenServices extends RemoteTokenServices {
+import java.util.Collections;
+import java.util.Set;
 
-  @Override
-  @Cacheable("tokens")
-  public OAuth2Authentication loadAuthentication(String accessToken)
-      throws AuthenticationException, InvalidTokenException {
-    return super.loadAuthentication(accessToken);
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
+
+@Slf4j
+public class StudyScopeStrategy {
+
+  private static final String SCOPE_STRATEGY = "sodalite.%s.%s";
+
+  @Value("${auth.server.uploadScope}")
+  protected String uploadScope;
+
+  public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
+    log.info("Checking authorization with study id {}", studyId);
+
+    // if not OAuth2, then no scopes available at all
+    Set<String> grantedScopes = Collections.emptySet();
+    if (authentication instanceof OAuth2Authentication) {
+      OAuth2Authentication o2auth = (OAuth2Authentication) authentication;
+      grantedScopes = getScopes(o2auth);
+    }
+
+    return verify(grantedScopes, studyId);
+  }
+
+  protected void setAuthorizeScope(String scopeStr) {
+    uploadScope = scopeStr;
+  }
+
+  protected String getAuthorizeScope() {
+    return uploadScope;
+  }
+
+  private Set<String> getScopes(@NonNull OAuth2Authentication o2auth) {
+    return o2auth.getOAuth2Request().getScope();
+  }
+
+  private boolean verify(@NonNull Set<String> grantedScopes, @NonNull final String studyId) {
+    val strategy = format(SCOPE_STRATEGY, studyId.toUpperCase(), uploadScope);
+    val check = grantedScopes.stream().filter(s -> s.equals(strategy)).collect(toList());
+    return !check.isEmpty();
   }
 
 }

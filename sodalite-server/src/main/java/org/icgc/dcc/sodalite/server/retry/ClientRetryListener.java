@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 The Ontario Institute for Cancer Research. All rights reserved.                             
+ * Copyright (c) 2016 The Ontario Institute for Cancer Research. All rights reserved.
  *                                                                                                               
  * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
  * You should have received a copy of the GNU General Public License along with                                  
@@ -15,21 +15,25 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.security;
+package org.icgc.dcc.sodalite.server.retry;
 
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.FieldDefaults;
+import org.springframework.retry.listener.RetryListenerSupport;
 
-public class CachingRemoteTokenServices extends RemoteTokenServices {
+import static lombok.AccessLevel.PROTECTED;
 
-  @Override
-  @Cacheable("tokens")
-  public OAuth2Authentication loadAuthentication(String accessToken)
-      throws AuthenticationException, InvalidTokenException {
-    return super.loadAuthentication(accessToken);
-  }
+/**
+ * ClientRetryListener allows to inject client logic which will be executed before any statements of
+ * {@link DefaultRetryListener}. If after a call to the ClientRetryListener {@code isRetry()} returns {@code FALSE} the
+ * default retry logic will not be executed.
+ */
+@Data
+@FieldDefaults(level = PROTECTED)
+@EqualsAndHashCode(callSuper = false)
+public class ClientRetryListener extends RetryListenerSupport {
+
+  boolean retry = true;
 
 }

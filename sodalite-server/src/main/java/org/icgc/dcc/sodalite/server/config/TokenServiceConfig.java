@@ -17,37 +17,39 @@
  */
 package org.icgc.dcc.sodalite.server.config;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import lombok.NoArgsConstructor;
+import lombok.val;
+import org.icgc.dcc.sodalite.server.oauth.RetryTokenServices;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 
-@Slf4j
+@NoArgsConstructor
 @Configuration
 @Profile("secure")
-@EnableWebSecurity
-@EnableResourceServer
-public class SecurityConfig extends ResourceServerConfigurerAdapter {
+public class TokenServiceConfig {
 
-  @Value("${auth.server.uploadScope}")
-  private String uploadScope;
+  @Bean
+  public RemoteTokenServices remoteTokenServices(
+      @Value("${auth.server.url}") String checkTokenUrl,
+      @Value("${auth.server.clientId}") String clientId,
+      @Value("${auth.server.clientSecret}") String clientSecret) {
+    val remoteTokenServices = new RetryTokenServices();
+    remoteTokenServices.setCheckTokenEndpointUrl(checkTokenUrl);
+    remoteTokenServices.setClientId(clientId);
+    remoteTokenServices.setClientSecret(clientSecret);
+    remoteTokenServices.setAccessTokenConverter(accessTokenConverter());
 
-  @Override
-  @SneakyThrows
-  public void configure(HttpSecurity http) {
-    http
-        .authorizeRequests()
-        .antMatchers("/health").permitAll()
-        .antMatchers("/upload/**").permitAll()
-        .antMatchers("/download/**").permitAll()
-        .and()
-        .authorizeRequests()
-        .anyRequest().authenticated();
+    return remoteTokenServices;
+  }
+
+  @Bean
+  public AccessTokenConverter accessTokenConverter() {
+    return new DefaultAccessTokenConverter();
   }
 
 }
