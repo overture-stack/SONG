@@ -36,4 +36,16 @@ public class StatusService {
     statusRepository.update(uploadId, studyId, SubmissionStatus.VALIDATION_ERROR, errorMessages);
   }
 
+  public void updateAsUploaded(String studyId, String uploadId) {
+    statusRepository.update(uploadId, studyId, SubmissionStatus.UPLOADED, "");
+  }
+
+  public void updateAsPublished(String studyId, String uploadId) {
+    statusRepository.update(uploadId, studyId, SubmissionStatus.PUBLISHED, "");
+  }
+
+  public int publishAll(String studyId) {
+    return statusRepository.updateState(studyId, SubmissionStatus.UPLOADED, SubmissionStatus.PUBLISHED);
+  }
+
 }
