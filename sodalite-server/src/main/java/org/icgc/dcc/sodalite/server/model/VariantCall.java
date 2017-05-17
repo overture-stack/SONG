@@ -12,10 +12,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "analysisId", "variantCallingTool", "tumourSampleSubmitterId", "tumourSampleId", "matchedNormalSampleSubmitterId", "matchedNormalSampleId"
+@JsonPropertyOrder({ "studyId", "analysisId", "variantCallingTool", "tumourSampleSubmitterId", "tumourSampleId", "matchedNormalSampleSubmitterId", "matchedNormalSampleId"
 })
 public class VariantCall {
 
+  @JsonProperty("studyId")
+  private String studyId;
   @JsonProperty("analysisId")
   private String analysisId;
   @JsonProperty("variantCallingTool")
@@ -30,6 +32,21 @@ public class VariantCall {
   private String matchedNormalSampleId;
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+  @JsonProperty("studyId")
+  public String getStudyId() {
+    return studyId;
+  }
+
+  @JsonProperty("studyId")
+  public void setStudyId(String studyId) {
+    this.studyId = studyId;
+  }
+
+  public VariantCall withStudyId(String studyId) {
+    this.studyId = studyId;
+    return this;
+  }
 
   @JsonProperty("analysisId")
   public String getAnalysisId() {

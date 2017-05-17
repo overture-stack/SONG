@@ -35,8 +35,6 @@ public class StudyService {
    * Dependencies
    */
   @Autowired
-  IdService idService;
-  @Autowired
   StudyRepository studyRepository;
   @Autowired
   DonorService donorService;
@@ -52,7 +50,7 @@ public class StudyService {
     if (study == null) {
       return null;
     }
-    study.setDonors(donorService.findByParentId(studyId));
+    study.setDonor(donorService.findByParentId(studyId).get(0));
     return study;
   }
 

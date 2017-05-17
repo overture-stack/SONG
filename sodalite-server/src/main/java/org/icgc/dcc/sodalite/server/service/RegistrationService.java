@@ -49,9 +49,9 @@ public class RegistrationService {
       .registerModule(new JavaTimeModule());
 
   @Async
-  public void register(String schemaId, String studyId, String uploadId, String payload) {
+  public void register(String schemaId, String studyId, String uploadId, String payload, final String accessToken) {
     try {
-      statusService.log(studyId, uploadId, payload);
+      statusService.log(studyId, uploadId, payload, accessToken);
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
       throw new RepositoryException(jdbie.getCause());

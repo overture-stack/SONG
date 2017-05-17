@@ -1,5 +1,6 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import org.icgc.dcc.sodalite.server.model.AnalysisState;
 import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
 import org.icgc.dcc.sodalite.server.repository.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,8 @@ public class StatusService {
     return !statusRepository.checkIfExists(uploadId, studyId).isEmpty();
   }
 
-  public void log(String studyId, String uploadId, String jsonPayload) {
-    statusRepository.create(uploadId, studyId, SubmissionStatus.CREATED, jsonPayload);
+  public void log(String studyId, String uploadId, String jsonPayload, final String accessToken) {
+    statusRepository.create(uploadId, studyId, AnalysisState.RECEIVED.value(), jsonPayload, accessToken);
   }
 
   public SubmissionStatus getStatus(String studyId, String uploadId) {
@@ -29,11 +30,11 @@ public class StatusService {
   }
 
   public void updateAsValid(String studyId, String uploadId) {
-    statusRepository.update(uploadId, studyId, SubmissionStatus.VALIDATED, "");
+    statusRepository.updateState(uploadId, studyId, AnalysisState.VALIDATED.value(), "", "SYSTEM");
   }
 
   public void updateAsInvalid(String studyId, String uploadId, String errorMessages) {
-    statusRepository.update(uploadId, studyId, SubmissionStatus.VALIDATION_ERROR, errorMessages);
+    statusRepository.updateState(uploadId, studyId, AnalysisState.ERROR.value(), errorMessages, "SYSTEM");
   }
 
 }

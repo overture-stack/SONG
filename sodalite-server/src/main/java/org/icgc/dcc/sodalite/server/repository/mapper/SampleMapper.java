@@ -31,8 +31,11 @@ public class SampleMapper implements ResultSetMapper<Sample> {
                                                                                         // when declaring exception
                                                                                         // throws in method signature -
                                                                                         // Dušan
+
     return new Sample()
         .withSampleId(r.getString("id"))
+        .withStudyId(r.getString("study_id"))
+        .withSpecimenId(r.getString("specimen_id"))
         .withSampleType(SampleType.fromValue(r.getString("type")))
         .withSampleSubmitterId(r.getString("submitter_id"));
   }

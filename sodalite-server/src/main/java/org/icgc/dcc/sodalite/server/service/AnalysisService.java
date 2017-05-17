@@ -5,7 +5,7 @@ import static java.lang.String.format;
 import java.util.List;
 import java.util.Map;
 
-import org.icgc.dcc.sodalite.server.model.Analysis;
+import org.icgc.dcc.sodalite.server.model.AnalysisObject;
 
 import org.springframework.stereotype.Service;
 
@@ -26,13 +26,13 @@ public class AnalysisService {
     log.info(format(fmt, args));
   }
 
-  public List<Analysis> getAnalysisById(String id) {
+  public List<AnalysisObject> getAnalysisById(String id) {
     // TODO Auto-generated method stub
     info("Called GetAnalysisById with %s", id);
     return null;
   }
 
-  public List<Analysis> getAnalyses(Map<String, String> params) {
+  public List<AnalysisObject> getAnalyses(Map<String, String> params) {
     info("Called getAnalyses with %s", params);
     // TODO Auto-generated method stub
     return null;

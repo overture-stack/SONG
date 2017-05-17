@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import lombok.NoArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @NoArgsConstructor
 public class SampleService {
@@ -21,37 +23,33 @@ public class SampleService {
   @Autowired
   FileService fileService;
 
-  public String create(String parentId, Sample s) {
+  public String create(Sample s) {
     val id = idService.generateSampleId();
+    // TODO: modifying input parameter.....really just for error message if status != 1
     s.setSampleId(id);
-    int status = repository.save(id, parentId, s.getSampleSubmitterId(), s.getSampleType().toString());
+    int status = repository.save(id, s.getStudyId(), s.getSpecimenId(), s.getSampleSubmitterId(), s.getSampleType().toString());
 
     if (status != 1) {
       return "error: Can't create" + s.toString();
     }
-    s.getFiles().forEach(f -> fileService.create(id, f));
 
-    return "ok:" + id;
+    return id;
   }
 
-  public String update(Sample s) {
-    repository.set(s.getSampleId(), s.getSampleSubmitterId(), s.getSampleType().toString());
-    return "ok";
+  public void update(Sample s) {
+    repository.update(s.getSampleId(), s.getStudyId(), s.getSampleSubmitterId(), s.getSampleType().toString());
   }
 
-  public String delete(String id) {
+  public void delete(String id) {
     fileService.deleteByParentId(id);
-    System.out.println("About to delete" + id);
+    log.info(String.format("About to delete Sample with id %s", id));
     repository.delete(id);
-
-    return "ok";
   }
 
-  public String deleteByParentId(String parentId) {
+  public void deleteByParentId(String parentId) {
     val ids = repository.getIds(parentId);
+    log.info(String.format("About to delete all Samples belonging to Specimen %s", parentId));
     ids.forEach(this::delete);
-
-    return "ok";
   }
 
   public Sample getById(String id) {
@@ -59,13 +57,16 @@ public class SampleService {
     if (sample == null) {
       return null;
     }
-    sample.setFiles(fileService.findByParentId(id));
+
     return sample;
   }
 
+  public Sample findByBusinessKey(String studyId, String submitterId) {
+    return repository.getByBusinessKey(studyId, submitterId);
+  }
+  
   public List<Sample> findByParentId(String parentId) {
     val samples = repository.findByParentId(parentId);
-    samples.forEach(s -> s.setFiles(fileService.findByParentId(s.getSampleId())));
     return samples;
   }
 

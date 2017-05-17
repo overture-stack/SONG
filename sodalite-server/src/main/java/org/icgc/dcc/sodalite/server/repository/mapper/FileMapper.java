@@ -31,6 +31,8 @@ public class FileMapper implements ResultSetMapper<File> {
                                                                                       // when declaring exception throws
                                                                                       // in method signature - Dušan
     return new File()
+        .withStudyId(r.getString("study_id"))
+        .withSampleId(r.getString("sample_id"))
         .withObjectId(r.getString("id"))
         .withFileType(FileType.valueOf(r.getString("type")))
         .withFileName(r.getString("name"))

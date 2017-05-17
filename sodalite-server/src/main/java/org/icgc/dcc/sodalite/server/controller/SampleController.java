@@ -8,6 +8,7 @@ import java.util.List;
 import org.icgc.dcc.sodalite.server.model.Sample;
 import org.icgc.dcc.sodalite.server.service.SampleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.badRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -31,11 +34,9 @@ public class SampleController {
 
   @PostMapping(value = "/sample", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  public String create(@PathVariable("study_id") String study_id, @RequestBody Sample sample) {
-    val specimenId = (String) sample.getAdditionalProperties().get("specimenId");
-
-    return sampleService.create(specimenId, sample);
-
+  public String create(@PathVariable("study_id") String studyId, @RequestBody Sample sample) {
+    sample.setStudyId(studyId);
+    return sampleService.create(sample);
   }
 
   @GetMapping(value = "/sample/{id}")
@@ -45,15 +46,16 @@ public class SampleController {
   }
 
   @PutMapping(value = "/sample", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
-  public String update(@PathVariable("study_id") String study_id, @RequestBody Sample sample) {
-    return sampleService.update(sample);
+  public ResponseEntity<String> update(@PathVariable("study_id") String studyId, @RequestBody Sample sample) {
+    sample.setStudyId(studyId);
+    sampleService.update(sample);
+    return ok("");
   }
 
   @DeleteMapping(value = "/sample/{ids}")
-  public String delete(@PathVariable("ids") List<String> ids) {
+  public ResponseEntity<String> delete(@PathVariable("ids") List<String> ids) {
     ids.forEach(sampleService::delete);
-    return "OK";
+    return ok("");
   }
 
 }

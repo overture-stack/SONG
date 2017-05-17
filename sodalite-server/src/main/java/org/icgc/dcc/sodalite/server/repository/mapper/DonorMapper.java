@@ -35,9 +35,10 @@ public class DonorMapper implements ResultSetMapper<Donor> {
                                                                                        // throws in method signature -
                                                                                        // Dušan
     log.info("Creating donor from result set:" + r.toString());
-    log.info(
-        "id=" + r.getString("id") + "submitter id=" + r.getString("submitter_id") + "gender=" + r.getString("gender"));
+    log.info("id=" + r.getString("id") + "submitter id=" + r.getString("submitter_id") + "gender=" + r.getString("gender"));
+    
     return new Donor()
+        .withStudyId(r.getString("study_id"))
         .withDonorId(r.getString("id"))
         .withDonorSubmitterId(r.getString("submitter_id"))
         .withDonorGender(DonorGender.fromValue(r.getString("gender")));
