@@ -3,21 +3,24 @@ package org.icgc.dcc.sodalite.client.cli;
 import org.icgc.dcc.sodalite.client.command.Command;
 import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.*;
-import org.springframework.stereotype.*;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+import lombok.val;
 
 @Component
 public class ClientMain implements CommandLineRunner {
 
-  SodaliteConfig config;
+  private SodaliteConfig config;
 
   @Autowired
   ClientMain(SodaliteConfig config) {
     this.config = config;
   }
 
+  @Override
   public void run(String... args) {
-    Command c = Command.parse(args);
+    val c = Command.parse(args);
     c.run(config);
     c.getStatus().report();
   }

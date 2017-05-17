@@ -19,18 +19,24 @@ package org.icgc.dcc.sodalite.client.command;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.json.JsonObject;
 import org.icgc.dcc.sodalite.client.model.Manifest;
 import org.icgc.dcc.sodalite.client.model.ManifestEntry;
 import org.icgc.dcc.sodalite.client.register.Registry;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
 import lombok.val;
 
 public class ManifestCommand extends Command {
+
+  private static final String JSON_PATH_TO_FILES = "/payload/study/donor/specimen/sample/files";
 
   @SneakyThrows
   @Override
@@ -41,28 +47,37 @@ public class ManifestCommand extends Command {
     }
 
     val registry = new Registry(config);
-    String uploadId = getArgs()[1];
-    String fileName = getArgs()[2];
-    String result = registry.getRegistrationState(config.getStudyId(), uploadId);
-
-    val mapper = new ObjectMapper();
-    val root = mapper.readTree(result);
-    val m = new Manifest(uploadId);
-
-    for (val file : root.at("/payload/study/donor/specimen/sample/files")) {
-      val id = file.get("objectId");
-
-      String fileId;
-      if (id == null) {
-        fileId = "<Invalid or missing object Id>";
-      } else {
-        fileId = id.asText();
-      }
-      m.add(new ManifestEntry(fileId, file.get("fileName").asText(), file.get("fileMd5").asText()));
-    }
+    val uploadId = getArgs()[1];
+    val fileName = getArgs()[2];
+    val result = registry.getRegistrationState(config.getStudyId(), uploadId);
+    val m = createManifest(uploadId, result);
 
     Files.write(Paths.get(fileName), m.toString().getBytes());
+
     output("Wrote manifest file '%s' for uploadId '%s'", fileName, uploadId);
+  }
+
+  @SneakyThrows
+  Manifest createManifest(String uploadId, String json) {
+    val mapper = new ObjectMapper();
+    val root = mapper.readTree(json);
+
+    val m = new Manifest(uploadId);
+
+    Iterable<JsonNode> iter = () -> root.at(JSON_PATH_TO_FILES).iterator();
+    m.setEntries(StreamSupport.stream(iter.spliterator(), false)
+        .map(this::jsonNodeToManifestEntry)
+        .collect(Collectors.toList()));
+    return m;
+  }
+
+  ManifestEntry jsonNodeToManifestEntry(JsonNode node) {
+    val j = new JsonObject(node);
+    val fileId = j.get("objectId");
+    val fileName = j.get("fileName");
+    val fileMd5 = j.get("fileMd5");
+
+    return new ManifestEntry(fileId, fileName, fileMd5);
   }
 
 }

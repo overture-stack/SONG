@@ -25,10 +25,6 @@ import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
 import lombok.Data;
 import lombok.val;
 
-//import lombok.extern.slf4j.Slf4j;
-
-//@Slf4j
-
 /**
  * A parent class that commands can inherit from. Will probably soon be replaced by JCommander
  */
