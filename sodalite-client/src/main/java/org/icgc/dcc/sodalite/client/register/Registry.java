@@ -18,7 +18,6 @@
 package org.icgc.dcc.sodalite.client.register;
 
 import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,16 +33,12 @@ import lombok.val;
 public class Registry {
 
   private final String serverUrl;
-
   private RestTemplate rest;
   ObjectMapper mapper;
-
-  @Autowired
   SodaliteConfig config;
 
   public Registry(SodaliteConfig config) {
-    this.serverUrl = config.serverUrl;
-
+    this.serverUrl = config.getServerUrl();
     this.rest = new RestTemplate();
     this.mapper = new ObjectMapper();
   }
@@ -114,6 +109,7 @@ public class Registry {
 
   /***
    * Returns the state of the registration on the server (JSON)
+   * 
    * @param uploadId
    * @return The state of the upload
    */
