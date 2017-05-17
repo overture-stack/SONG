@@ -1,5 +1,6 @@
 package org.icgc.dcc.sodalite.server.controller;
 
+import static java.lang.String.format;
 import static org.icgc.dcc.sodalite.server.utils.JsonUtils.jsonResponse;
 import static org.icgc.dcc.sodalite.server.utils.JsonUtils.jsonStatus;
 
@@ -36,7 +37,7 @@ public class FunctionController {
     if (numPublished == 0) {
       return jsonResponse("status", "No new uploads were left to publish");
     }
-    return jsonResponse("status", String.format("Successfully published %d uploads.", numPublished));
+    return jsonResponse("status", format("Successfully published %d uploads.", numPublished));
   }
 
   @PostMapping(value = "publish/{upload_id}")

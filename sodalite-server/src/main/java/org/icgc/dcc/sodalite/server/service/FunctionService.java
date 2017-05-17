@@ -4,6 +4,7 @@ import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
@@ -14,7 +15,7 @@ public class FunctionService {
   @Autowired
   StatusService statusService;
 
-  public boolean notifyUpload(String studyId, String uploadId) {
+  public boolean notifyUpload(@NonNull String studyId, @NonNull String uploadId) {
     if (notInState(SubmissionStatus.VALIDATED, studyId, uploadId)) {
       return false;
     }
@@ -23,11 +24,11 @@ public class FunctionService {
     return true;
   }
 
-  public int publish(String studyId) {
+  public int publish(@NonNull String studyId) {
     return statusService.publishAll(studyId);
   }
 
-  public boolean publishId(String studyId, String uploadId) {
+  public boolean publishId(@NonNull String studyId, @NonNull String uploadId) {
     if (notInState(SubmissionStatus.UPLOADED, studyId, uploadId)) {
       return false;
     }
