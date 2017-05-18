@@ -22,13 +22,20 @@ import java.io.IOException;
 
 import org.icgc.dcc.sodalite.client.register.Registry;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import lombok.NonNull;
 import lombok.val;
 
+@Parameters(separators = "=", commandDescription = "Register analysis metadata for uploading")
 public class RegisterCommand extends Command {
+
+  private int count = 1;
+
+  @Parameter(names = { "-f", "--file" }, description = "file", required = true)
+  String fileName;
 
   Registry registry;
 
@@ -37,15 +44,8 @@ public class RegisterCommand extends Command {
   }
 
   @Override
-  public void run(String... args) {
-    if (args.length < 3) {
-      err("Usage: sodalite-client register <uploadID> <file>");
-      return;
-    }
-    run(args[1], args[2]);
-  }
-
-  public void run(@NonNull String uploadId, @NonNull String fileName) {
+  public void run() {
+    val uploadId = generateOutputId();
     val file = new File(fileName);
     String json;
     try {
@@ -57,6 +57,11 @@ public class RegisterCommand extends Command {
 
     val result = registry.registerAnalysis(uploadId, json);
     output(result);
+  }
+
+  String generateOutputId() {
+    // TODO: Replace this with a better output generator
+    return "x" + count++;
   }
 
 }

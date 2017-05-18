@@ -28,6 +28,8 @@ import org.icgc.dcc.sodalite.client.model.Manifest;
 import org.icgc.dcc.sodalite.client.model.ManifestEntry;
 import org.icgc.dcc.sodalite.client.register.Registry;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,7 +39,14 @@ import lombok.SneakyThrows;
 import lombok.val;
 
 @RequiredArgsConstructor
+@Parameters(commandDescription = "Generate a manifest file for the given uploadId")
 public class ManifestCommand extends Command {
+
+  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = true)
+  String uploadId;
+
+  @Parameter(names = { "--file", "-f" }, description = "Filename")
+  String fileName;
 
   @NonNull
   Registry registry;
@@ -46,22 +55,17 @@ public class ManifestCommand extends Command {
   private static final String JSON_PATH_TO_FILES = "/payload/study/donor/specimen/sample/files";
 
   @Override
-  public void run(String... args) {
-    if (args.length < 3) {
-      err("Usage: sodalite-client manifest <uploadId> <filename>");
-      return;
-    }
-    run(args[1], args[2]);
-  }
-
   @SneakyThrows
-  public void run(String uploadId, String fileName) {
+  public void run() {
     val result = registry.getRegistrationState(config.getStudyId(), uploadId);
     val m = createManifest(uploadId, result);
 
-    Files.write(Paths.get(fileName), m.toString().getBytes());
-
-    output("Wrote manifest file '%s' for uploadId '%s'", fileName, uploadId);
+    if (fileName == null) {
+      output(m.toString());
+    } else {
+      Files.write(Paths.get(fileName), m.toString().getBytes());
+      output("Wrote manifest file '%s' for uploadId '%s'", fileName, uploadId);
+    }
   }
 
   @SneakyThrows

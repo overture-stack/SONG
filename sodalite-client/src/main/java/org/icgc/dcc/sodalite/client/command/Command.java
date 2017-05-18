@@ -35,7 +35,7 @@ public class Command {
    * 
    * Formats a string and adds it to the output for the command
    */
-  Status err(String format, Object... args) {
+  public Status err(String format, Object... args) {
     status.err(format, args);
     return status;
   }
@@ -48,7 +48,7 @@ public class Command {
    * 
    * Formats a string and adds it to the error message for the command
    */
-  void output(String format, Object... args) {
+  public void output(String format, Object... args) {
     status.output(format, args);
   }
 
@@ -56,6 +56,6 @@ public class Command {
    * Define an empty run method for children to implement.
    * @param config
    */
-  public void run(String... args) {
+  public void run() {
   }
 }

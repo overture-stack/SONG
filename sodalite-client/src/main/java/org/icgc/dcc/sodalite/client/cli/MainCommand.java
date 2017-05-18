@@ -15,61 +15,16 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.command;
+package org.icgc.dcc.sodalite.client.cli;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import lombok.NonNull;
+import com.beust.jcommander.Parameter;
 
 /**
  * 
  */
-public class HelpCommand extends Command {
+public class MainCommand {
 
-  String programName;
-
-  List<String> commands;
-
-  public HelpCommand(String programName, Collection<String> commands) {
-    this.programName = programName;
-    this.commands = new ArrayList<String>();
-    this.commands.addAll(commands);
-    if (commands.contains("help")) {
-      // do nothing
-    } else {
-      this.commands.add("help");
-    }
-  }
-
-  @Override
-  public void run(String... args) {
-    if (args.length == 2) {
-      getHelpFor(args[1]);
-      return;
-    }
-    run();
-  }
-
-  public void run() {
-    output("Usage:\n");
-    output("    %s <subcommand>\n\n", programName);
-    output("    Valid subcommands are:\n");
-    output("    ");
-    for (String s : commands) {
-      output(s + " ");
-    }
-    output("\n\n");
-    output("    For help on any subcommand, type %s help <subcommand>\n", programName);
-  }
-
-  public void getHelpFor(@NonNull String subcommand) {
-    if (commands.contains(subcommand)) {
-      output("No help available yet for command '%s'", subcommand);
-    } else {
-      err("'%s' is not a valid subcommand", subcommand);
-    }
-  }
+  @Parameter(names = { "--help", "-h", "-?" }, help = true)
+  private boolean help;
 
 }
