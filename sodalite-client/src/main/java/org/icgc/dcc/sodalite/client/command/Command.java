@@ -17,13 +17,7 @@
  */
 package org.icgc.dcc.sodalite.client.command;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
-
 import lombok.Data;
-import lombok.val;
 
 /**
  * A parent class that commands can inherit from. Will probably soon be replaced by JCommander
@@ -31,42 +25,7 @@ import lombok.val;
 @Data
 public class Command {
 
-  static Map<String, Command> commands = new HashMap<String, Command>();
-  public static String[] noArgs = new String[0];
-  static {
-    commands.put("config", new ConfigCommand());
-    commands.put("help", new HelpCommand());
-    commands.put("manifest", new ManifestCommand());
-    commands.put("register", new RegisterCommand());
-    commands.put("status", new StatusCommand());
-  }
-  private Status status;
-  private String[] args;
-
-  protected Command() {
-    this.status = new Status();
-  }
-
-  /***
-   * Return the command corresponding to args
-   * 
-   * @param args
-   * @return If args is length 0, or the first argument is not a valid subcommand, returns an ErrorCommand with an error
-   * message.
-   * 
-   * Otherwise, returns a Command object capable of running the given subcommand.
-   */
-  public static Command parse(String[] args) {
-
-    if (args.length == 0) {
-      return new HelpCommand();
-    }
-    val cmd = args[0];
-    // log.info("Looking up command " + cmd);
-    val c = commands.getOrDefault(cmd, new ErrorCommand("Unknown subcommand: " + cmd));
-    c.setArgs(args);
-    return c;
-  }
+  Status status = new Status();
 
   /***
    * Convenience method for children to save error message
@@ -97,6 +56,6 @@ public class Command {
    * Define an empty run method for children to implement.
    * @param config
    */
-  public void run(SodaliteConfig config) {
+  public void run(String... args) {
   }
 }

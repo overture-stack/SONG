@@ -17,28 +17,58 @@
  */
 package org.icgc.dcc.sodalite.client.command;
 
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import lombok.NonNull;
 
 /**
  * 
  */
 public class HelpCommand extends Command {
 
-  /**
-   * @param args
-   */
+  String programName;
 
-  public HelpCommand() {
-    super();
+  List<String> commands;
+
+  public HelpCommand(String programName, Collection<String> commands) {
+    this.programName = programName;
+    this.commands = new ArrayList<String>();
+    this.commands.addAll(commands);
+    if (commands.contains("help")) {
+      // do nothing
+    } else {
+      this.commands.add("help");
+    }
   }
 
   @Override
-  public void run(SodaliteConfig config) {
+  public void run(String... args) {
+    if (args.length == 2) {
+      getHelpFor(args[1]);
+      return;
+    }
+    run();
+  }
+
+  public void run() {
     output("Usage:\n");
-    output("    sodalite-client <subcommand>");
-    output("    Valid subcommands are:");
-    for (String s : Command.commands.keySet()) {
+    output("    %s <subcommand>\n\n", programName);
+    output("    Valid subcommands are:\n");
+    output("    ");
+    for (String s : commands) {
       output(s + " ");
+    }
+    output("\n\n");
+    output("    For help on any subcommand, type %s help <subcommand>\n", programName);
+  }
+
+  public void getHelpFor(@NonNull String subcommand) {
+    if (commands.contains(subcommand)) {
+      output("No help available yet for command '%s'", subcommand);
+    } else {
+      err("'%s' is not a valid subcommand", subcommand);
     }
   }
 

@@ -12,8 +12,6 @@
     <artifactId>sodalite-client</artifactId>
 
     <dependencies>
-  
-    	
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

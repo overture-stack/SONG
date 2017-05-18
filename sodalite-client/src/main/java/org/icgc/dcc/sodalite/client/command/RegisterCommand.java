@@ -20,7 +20,6 @@ package org.icgc.dcc.sodalite.client.command;
 import java.io.File;
 import java.io.IOException;
 
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
 import org.icgc.dcc.sodalite.client.register.Registry;
 
 import com.google.common.base.Charsets;
@@ -31,15 +30,23 @@ import lombok.val;
 
 public class RegisterCommand extends Command {
 
+  Registry registry;
+
+  public RegisterCommand(Registry registry) {
+    this.registry = registry;
+  }
+
   @Override
-  public void run(SodaliteConfig config) {
-    if (getArgs().length < 3) {
+  public void run(String... args) {
+    if (args.length < 3) {
       err("Usage: sodalite-client register <uploadID> <file>");
       return;
     }
+    run(args[1], args[2]);
+  }
 
-    @NonNull
-    val file = new File(getArgs()[2]);
+  public void run(@NonNull String uploadId, @NonNull String fileName) {
+    val file = new File(fileName);
     String json;
     try {
       json = Files.toString(file, Charsets.UTF_8);
@@ -48,12 +55,8 @@ public class RegisterCommand extends Command {
       return;
     }
 
-    val registry = new Registry(config);
-    val uploadId = getArgs()[1];
-
     val result = registry.registerAnalysis(uploadId, json);
     output(result);
-
   }
 
 }

@@ -17,12 +17,14 @@
  */
 package org.icgc.dcc.sodalite.client.register;
 
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.config.Config;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,14 +32,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.val;
 
+@Component
 public class Registry {
 
   private final String serverUrl;
   private RestTemplate rest;
   ObjectMapper mapper;
-  SodaliteConfig config;
+  Config config;
 
-  public Registry(SodaliteConfig config) {
+  @Autowired
+  public Registry(Config config) {
     this.serverUrl = config.getServerUrl();
     this.rest = new RestTemplate();
     this.mapper = new ObjectMapper();

@@ -17,23 +17,31 @@
  */
 package org.icgc.dcc.sodalite.client.command;
 
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.config.Config;
 import org.icgc.dcc.sodalite.client.register.Registry;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+@RequiredArgsConstructor
 public class StatusCommand extends Command {
 
+  @NonNull
+  Registry registry;
+  @NonNull
+  Config config;
+
   @Override
-  public void run(SodaliteConfig config) {
-    if (getArgs().length < 2) {
+  public void run(String... args) {
+    if (args.length < 2) {
       err("Usage: sodalite-client status <uploadId>");
       return;
     }
+    run(args[1]);
+  }
 
-    val registry = new Registry(config);
-    val uploadId = getArgs()[1];
-
+  public void run(@NonNull String uploadId) {
     val result = registry.getRegistrationState(config.getStudyId(), uploadId);
     output(result);
   }

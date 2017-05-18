@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.config.Config;
 import org.icgc.dcc.sodalite.client.json.JsonObject;
 import org.icgc.dcc.sodalite.client.model.Manifest;
 import org.icgc.dcc.sodalite.client.model.ManifestEntry;
@@ -31,24 +31,31 @@ import org.icgc.dcc.sodalite.client.register.Registry;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 
+@RequiredArgsConstructor
 public class ManifestCommand extends Command {
 
+  @NonNull
+  Registry registry;
+  @NonNull
+  Config config;
   private static final String JSON_PATH_TO_FILES = "/payload/study/donor/specimen/sample/files";
 
-  @SneakyThrows
   @Override
-  public void run(SodaliteConfig config) {
-    if (getArgs().length < 3) {
+  public void run(String... args) {
+    if (args.length < 3) {
       err("Usage: sodalite-client manifest <uploadId> <filename>");
       return;
     }
+    run(args[1], args[2]);
+  }
 
-    val registry = new Registry(config);
-    val uploadId = getArgs()[1];
-    val fileName = getArgs()[2];
+  @SneakyThrows
+  public void run(String uploadId, String fileName) {
     val result = registry.getRegistrationState(config.getStudyId(), uploadId);
     val m = createManifest(uploadId, result);
 

@@ -1,16 +1,24 @@
 package org.icgc.dcc.sodalite.client.command;
 
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.config.Config;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+@RequiredArgsConstructor
 public class ConfigCommand extends Command {
 
-  @SneakyThrows
+  @NonNull
+  Config config;
+
   @Override
-  public void run(@NonNull SodaliteConfig config) {
+  public void run(String... args) {
+    assert args.length == 0;
+    run();
+  }
+
+  private void run() {
     output("Current configuration:\n");
 
     @NonNull

@@ -29,10 +29,12 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "client")
 @Component
 @Data
-public class SodaliteConfig {
+public class Config {
 
   @Value("client.serverUrl")
   private String serverUrl;
   @Value("client.studyId")
   private String studyId;
+  @Value("client.programName")
+  private String programName;
 }

@@ -24,8 +24,7 @@ package org.icgc.dcc.sodalite.client.command;
 public class ErrorCommand extends Command {
 
   /**
-   * All this command does is set the error string from args[0]; all other arguments are ignored.
-   * 
+   * All this command does is set the error string for display to stderr later.
    * @param args
    */
 
