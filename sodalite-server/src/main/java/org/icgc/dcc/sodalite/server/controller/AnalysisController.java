@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import org.icgc.dcc.sodalite.server.model.Analysis;
 import org.icgc.dcc.sodalite.server.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class AnalysisController {
   @PostMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @SneakyThrows
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String createAnalysis(@PathVariable("studyId") String studyId, @RequestBody String json) {
     return analysisService.registerAnalysis(studyId, json);
   }
@@ -34,6 +36,7 @@ public class AnalysisController {
   @PutMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @SneakyThrows
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String modifyAnalysis(@PathVariable("study_id") String studyId, @RequestBody String json) {
     return analysisService.updateAnalysis(studyId, json);
   }
