@@ -17,15 +17,10 @@
  */
 package org.icgc.dcc.sodalite.client.register;
 
+import org.icgc.dcc.sodalite.client.cli.Status;
 import org.icgc.dcc.sodalite.client.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -35,25 +30,15 @@ import lombok.val;
 @Component
 public class Registry {
 
-  private final String serverUrl;
-  private RestTemplate rest;
-  ObjectMapper mapper;
-  Config config;
+  private RestClient rest;
+  private ObjectMapper mapper;
+  Endpoint endpoint;
 
   @Autowired
   public Registry(Config config) {
-    this.serverUrl = config.getServerUrl();
-    this.rest = new RestTemplate();
     this.mapper = new ObjectMapper();
-  }
-
-  String analysisEndpoint(String studyId, String uploadId, String analysisType) {
-    return String.format("%s/studies/%s/analyses/%s/%s", serverUrl, studyId, analysisType, uploadId);
-  }
-
-  String statusEndpoint(String studyId, String uploadId) {
-    val url = "%s/studies/%s/statuses/%s";
-    return String.format(url, serverUrl, studyId, uploadId);
+    this.rest = new RestClient();
+    this.endpoint = new Endpoint(config.getServerUrl());
   }
 
   @SneakyThrows
@@ -74,7 +59,6 @@ public class Registry {
     return node.get("study").get("studyId").asText();
   }
 
-  @SneakyThrows
   /***
    * Register an analysis with the sodalite server.
    * 
@@ -82,22 +66,10 @@ public class Registry {
    * @param json
    * @return The analysisId that the server returned, or null if an error occurred.
    */
-  public String registerAnalysis(String uploadId, String json) {
+  public Status registerAnalysis(String uploadId, String json) {
     val analysisType = getAnalysisType(json);
-    val url = analysisEndpoint(getStudyId(json), uploadId, analysisType);
-    val response = post(url, json);
-    if (response.getStatusCode() == HttpStatus.OK && response.hasBody()) {
-      return response.getBody();
-    }
-    throw new Error(response.toString());
-  }
-
-  private ResponseEntity<String> post(String url, String json) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-    HttpEntity<String> entity = new HttpEntity<String>(json, headers);
-    val response = rest.postForEntity(url, entity, String.class);
-    return response;
+    val url = endpoint.analysis(getStudyId(json), uploadId, analysisType);
+    return rest.post(url, json);
   }
 
   /***
@@ -106,9 +78,9 @@ public class Registry {
    * @param uploadId
    * @param json
    */
-  public void updateAnalysis(String uploadId, String json) {
-    val url = analysisEndpoint(getStudyId(json), uploadId, getAnalysisType(json));
-    rest.put(url, json);
+  public Status updateAnalysis(String uploadId, String json) {
+    val url = endpoint.analysis(getStudyId(json), uploadId, getAnalysisType(json));
+    return rest.put(url, json);
   }
 
   /***
@@ -117,16 +89,19 @@ public class Registry {
    * @param uploadId
    * @return The state of the upload
    */
-  public String getRegistrationState(String studyId, String uploadId) {
-    val url = statusEndpoint(studyId, uploadId);
-    val response = rest.getForEntity(url, String.class);
-    if (response.getStatusCode() == HttpStatus.OK) {
-      if (response.getBody() == null) {
-        return String.format("Unknown uploadId '%s'\n", uploadId);
-      }
-      return response.getBody();
-    }
-    throw new Error(response.toString());
+  public Status getRegistrationState(String studyId, String uploadId) {
+    val url = endpoint.status(studyId, uploadId);
+    return rest.get(url);
+  }
+
+  public Status publishById(String studyId, String uploadId) {
+    val url = endpoint.publishById(studyId, uploadId);
+    return rest.post(url);
+  }
+
+  public Status publishAll(String studyId) {
+    val url = endpoint.publishAll(studyId);
+    return rest.post(url);
   }
 
 }

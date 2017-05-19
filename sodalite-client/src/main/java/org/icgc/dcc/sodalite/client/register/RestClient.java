@@ -15,34 +15,72 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.command;
+package org.icgc.dcc.sodalite.client.register;
 
-import org.icgc.dcc.sodalite.client.config.Config;
-import org.icgc.dcc.sodalite.client.register.Registry;
+import org.icgc.dcc.sodalite.client.cli.Status;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-@RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Get the status of an analysis by it's upload Id.")
-public class StatusCommand extends Command {
+/**
+ * 
+ */
+public class RestClient {
 
-  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = true)
-  private String uploadId;
+  private RestTemplate rest;
 
-  @NonNull
-  Registry registry;
-  @NonNull
-  Config config;
+  RestClient() {
+    this.rest = new RestTemplate();
+  }
 
-  @Override
-  public void run() {
-    val status = registry.getRegistrationState(config.getStudyId(), uploadId);
-    save(status);
+  Status get(String url) {
+    val status = new Status();
+    val response = rest.getForEntity(url, String.class);
+    if (response.getStatusCode() == HttpStatus.OK) {
+      if (response.getBody() == null) {
+        status.err("Null response from server");
+      } else {
+        status.output(response.getBody());
+      }
+    } else {
+      status.err(response.toString());
+    }
+    return status;
+  }
+
+  public Status post(String url) {
+    return post(url, "");
+  }
+
+  public Status post(String url, String json) {
+    Status status = new Status();
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+    HttpEntity<String> entity = new HttpEntity<String>(json, headers);
+
+    val response = rest.postForEntity(url, entity, String.class);
+    if (response.getStatusCode() == HttpStatus.OK && response.hasBody()) {
+      status.output(response.getBody());
+    } else {
+      status.err(response.toString());
+    }
+    return status;
+  }
+
+  public Status put(String url, String json) {
+    Status status = new Status();
+    try {
+      rest.put(url, json);
+    } catch (RestClientException e) {
+      status.err(e.getMessage());
+    }
+    return status;
   }
 
 }

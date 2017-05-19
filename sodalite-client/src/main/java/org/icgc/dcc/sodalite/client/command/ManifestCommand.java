@@ -57,8 +57,14 @@ public class ManifestCommand extends Command {
   @Override
   @SneakyThrows
   public void run() {
-    val result = registry.getRegistrationState(config.getStudyId(), uploadId);
-    val m = createManifest(uploadId, result);
+    val status = registry.getRegistrationState(config.getStudyId(), uploadId);
+
+    if (status.hasErrors()) {
+      save(status);
+      return;
+    }
+
+    val m = createManifest(uploadId, status.getOutputs());
 
     if (fileName == null) {
       output(m.toString());

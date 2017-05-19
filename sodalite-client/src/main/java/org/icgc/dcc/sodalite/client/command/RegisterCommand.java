@@ -55,8 +55,8 @@ public class RegisterCommand extends Command {
       return;
     }
 
-    val result = registry.registerAnalysis(uploadId, json);
-    output(result);
+    val status = registry.registerAnalysis(uploadId, json);
+    save(status);
   }
 
   String generateOutputId() {
