@@ -27,7 +27,7 @@ import lombok.Data;
 @Data
 public abstract class Command {
 
-  Status status = new Status();
+  private Status status = new Status();
 
   /***
    * Convenience method for children to save error message
@@ -54,8 +54,17 @@ public abstract class Command {
     status.output(format, args);
   }
 
+  public void save(Status status) {
+    this.status.save(status);
+  }
+
+  public void report() {
+    status.report();
+  }
+
   /***
    * Require all of our children to define a "run" method.
    */
   public abstract void run();
+
 }

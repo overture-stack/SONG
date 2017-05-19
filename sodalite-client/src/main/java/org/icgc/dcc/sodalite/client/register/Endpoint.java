@@ -15,66 +15,41 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.cli;
+package org.icgc.dcc.sodalite.client.register;
 
-import lombok.Data;
-import lombok.NonNull;
+import static java.lang.String.format;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.val;
 
 /**
- * This class holds status results for commands that have run.
+ * 
  */
-@Data
-public class Status {
+public class Endpoint {
 
-  private String errors;
-  private String outputs;
+  private String serverUrl;
 
-  public Status() {
-    this.errors = "";
-    this.outputs = "";
+  @Autowired
+  Endpoint(String serverUrl) {
+    this.serverUrl = serverUrl;
   }
 
-  void err(String s) {
-    errors += s;
+  String analysis(String studyId, String uploadId, String analysisType) {
+    return format("%s/studies/%s/analyses/%s/%s", serverUrl, studyId, analysisType, uploadId);
   }
 
-  void output(String s) {
-    outputs += s;
+  String publishAll(String studyId) {
+    return format("%s/studies/%s/func/publish", serverUrl, studyId);
   }
 
-  public void save(@NonNull Status s) {
-    errors += s.errors;
-    outputs += s.outputs;
+  public String publishById(String studyId, String uploadId) {
+    return publishAll(studyId) + "/" + uploadId;
   }
 
-  public boolean isOk() {
-    return errors.equals("");
-
-  }
-
-  public boolean hasErrors() {
-    return !isOk();
-  }
-
-  public void err(String format, Object... args) {
-    err(String.format(format, args));
-  }
-
-  public void output(String format, Object... args) {
-    output(String.format(format, args));
-  }
-
-  public void reportErrors() {
-    System.err.println(errors);
-  }
-
-  public void reportOutput() {
-    System.out.println(outputs);
-  }
-
-  public void report() {
-    reportOutput();
-    reportErrors();
+  String status(String studyId, String uploadId) {
+    val url = "%s/studies/%s/statuses/%s";
+    return format(url, serverUrl, studyId, uploadId);
   }
 
 }

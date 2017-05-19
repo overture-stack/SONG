@@ -15,66 +15,39 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.cli;
+package org.icgc.dcc.sodalite.client.command;
 
-import lombok.Data;
+import org.icgc.dcc.sodalite.client.cli.Status;
+import org.icgc.dcc.sodalite.client.config.Config;
+import org.icgc.dcc.sodalite.client.register.Registry;
+
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-/**
- * This class holds status results for commands that have run.
- */
-@Data
-public class Status {
+@RequiredArgsConstructor
+@Parameters(separators = "=", commandDescription = "Publish all uploaded analyses, or optionally just one.")
+public class PublishCommand extends Command {
 
-  private String errors;
-  private String outputs;
+  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = false)
+  private String uploadId;
 
-  public Status() {
-    this.errors = "";
-    this.outputs = "";
-  }
+  @NonNull
+  Registry registry;
+  @NonNull
+  Config config;
 
-  void err(String s) {
-    errors += s;
-  }
-
-  void output(String s) {
-    outputs += s;
-  }
-
-  public void save(@NonNull Status s) {
-    errors += s.errors;
-    outputs += s.outputs;
-  }
-
-  public boolean isOk() {
-    return errors.equals("");
-
-  }
-
-  public boolean hasErrors() {
-    return !isOk();
-  }
-
-  public void err(String format, Object... args) {
-    err(String.format(format, args));
-  }
-
-  public void output(String format, Object... args) {
-    output(String.format(format, args));
-  }
-
-  public void reportErrors() {
-    System.err.println(errors);
-  }
-
-  public void reportOutput() {
-    System.out.println(outputs);
-  }
-
-  public void report() {
-    reportOutput();
-    reportErrors();
+  @Override
+  public void run() {
+    Status status;
+    if (uploadId == null) {
+      status = registry.publishAll(config.getStudyId());
+    } else {
+      status = registry.publishById(config.getStudyId(), uploadId);
+    }
+    save(status);
   }
 
 }

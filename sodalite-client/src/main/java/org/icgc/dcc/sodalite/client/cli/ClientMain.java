@@ -2,6 +2,7 @@ package org.icgc.dcc.sodalite.client.cli;
 
 import org.icgc.dcc.sodalite.client.command.ConfigCommand;
 import org.icgc.dcc.sodalite.client.command.ManifestCommand;
+import org.icgc.dcc.sodalite.client.command.PublishCommand;
 import org.icgc.dcc.sodalite.client.command.RegisterCommand;
 import org.icgc.dcc.sodalite.client.command.StatusCommand;
 import org.icgc.dcc.sodalite.client.config.Config;
@@ -27,6 +28,7 @@ public class ClientMain implements CommandLineRunner {
     builder.register("manifest", new ManifestCommand(registry, config));
     builder.register("register", new RegisterCommand(registry));
     builder.register("status", new StatusCommand(registry, config));
+    builder.register("publish", new PublishCommand(registry, config));
 
     this.dispatcher = builder.build();
   }
@@ -35,7 +37,7 @@ public class ClientMain implements CommandLineRunner {
   public void run(String... args) {
     val command = dispatcher.parse(args);
     command.run();
-    command.getStatus().report();
+    command.report();
   }
 
 }
