@@ -17,25 +17,67 @@
  */
 package org.icgc.dcc.sodalite.client.command;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.json.JsonObject;
+import org.icgc.dcc.sodalite.client.model.Manifest;
+import org.icgc.dcc.sodalite.client.model.ManifestEntry;
 import org.icgc.dcc.sodalite.client.register.Registry;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.SneakyThrows;
 import lombok.val;
 
-public class StatusCommand extends Command {
+public class ManifestCommand extends Command {
 
+  private static final String JSON_PATH_TO_FILES = "/payload/study/donor/specimen/sample/files";
+
+  @SneakyThrows
   @Override
   public void run(SodaliteConfig config) {
-    if (getArgs().length < 2) {
-      err("Usage: sodalite-client status <uploadId>");
+    if (getArgs().length < 3) {
+      err("Usage: sodalite-client manifest <uploadId> <filename>");
       return;
     }
 
     val registry = new Registry(config);
     val uploadId = getArgs()[1];
-
+    val fileName = getArgs()[2];
     val result = registry.getRegistrationState(config.getStudyId(), uploadId);
-    output(result);
+    val m = createManifest(uploadId, result);
+
+    Files.write(Paths.get(fileName), m.toString().getBytes());
+
+    output("Wrote manifest file '%s' for uploadId '%s'", fileName, uploadId);
+  }
+
+  @SneakyThrows
+  Manifest createManifest(String uploadId, String json) {
+    val mapper = new ObjectMapper();
+    val root = mapper.readTree(json);
+
+    val m = new Manifest(uploadId);
+
+    Iterable<JsonNode> iter = () -> root.at(JSON_PATH_TO_FILES).iterator();
+    m.addAll(StreamSupport.stream(iter.spliterator(), false)
+        .map(this::jsonNodeToManifestEntry)
+        .collect(Collectors.toList()));
+    return m;
+  }
+
+  ManifestEntry jsonNodeToManifestEntry(JsonNode node) {
+    val j = new JsonObject(node);
+    val fileId = j.get("objectId");
+    val fileName = j.get("fileName");
+    val fileMd5 = j.get("fileMd5");
+
+    return new ManifestEntry(fileId, fileName, fileMd5);
   }
 
 }

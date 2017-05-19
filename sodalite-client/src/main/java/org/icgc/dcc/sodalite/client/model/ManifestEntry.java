@@ -17,13 +17,17 @@
  */
 package org.icgc.dcc.sodalite.client.model;
 
-/**
- * 
- */
+import lombok.Value;
+
+@Value
 public class ManifestEntry {
 
   String fileId;
   String fileName;
   String md5sum;
+
+  public String toString() {
+    return fileId + "\t" + fileName + "\t" + md5sum;
+  }
 
 }

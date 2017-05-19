@@ -1,31 +1,54 @@
 package org.icgc.dcc.sodalite.server.service;
 
-import static java.lang.String.format;
-
+import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+
 @Service
 @RequiredArgsConstructor
 public class FunctionService {
 
-  private void info(String fmt, Object... args) {
-    log.info(format(fmt, args));
+  @Autowired
+  StatusService statusService;
+
+  public boolean notifyUpload(@NonNull String studyId, @NonNull String uploadId) {
+    if (notInState(SubmissionStatus.VALIDATED, studyId, uploadId)) {
+      return false;
+    }
+
+    statusService.updateAsUploaded(studyId, uploadId);
+    return true;
   }
 
-  public int notifyUpload(String id) {
-    // TODO Auto-generated method stub
-    info("Called notifyUpload with %s", id);
-    return 0;
-
+  public int publish(@NonNull String studyId) {
+    return statusService.publishAll(studyId);
   }
 
-  public int publish(String id) {
-    // TODO Auto-generated method stub
-    info("Called publish with %s", id);
-    return 0;
+  public boolean publishId(@NonNull String studyId, @NonNull String uploadId) {
+    if (notInState(SubmissionStatus.UPLOADED, studyId, uploadId)) {
+      return false;
+    }
+
+    statusService.updateAsPublished(studyId, uploadId);
+    return true;
+  }
+
+  public boolean notInState(String state, String studyId, String uploadId) {
+    val s = statusService.getStatus(studyId, uploadId);
+
+    if (s == null) {
+      return true;
+    }
+
+    if (s.getState().equals(state)) {
+      return false;
+    }
+
+    return true;
   }
 
 }

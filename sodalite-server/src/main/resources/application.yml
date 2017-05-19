@@ -42,6 +42,10 @@ flyway:
 ---
 spring:
   profiles: dev
+
+auth:
+  server:
+    uploadScope: "upload"
   
 # Datasource
 spring.datasource:
@@ -104,4 +108,10 @@ spring.datasource:
 
 flyway:
   locations: db/migration/{vendor}
+
+---
+spring:
+  profiles: test
+  autoconfigure.exclude: SecurityConfig.class
+
   

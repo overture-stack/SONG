@@ -20,45 +20,36 @@ package org.icgc.dcc.sodalite.client.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+
+import lombok.Data;
 import lombok.val;
 
-//import lombok.extern.slf4j.Slf4j;
-
-//@Slf4j
-
 /**
- * 
+ * A parent class that commands can inherit from. Will probably soon be replaced by JCommander
  */
+@Data
 public class Command {
 
   static Map<String, Command> commands = new HashMap<String, Command>();
   public static String[] noArgs = new String[0];
   static {
+    commands.put("config", new ConfigCommand());
     commands.put("help", new HelpCommand());
+    commands.put("manifest", new ManifestCommand());
     commands.put("register", new RegisterCommand());
     commands.put("status", new StatusCommand());
   }
-  protected Status status;
-  String[] args;
+  private Status status;
+  private String[] args;
 
-  /**
-   * @param args
-   */
-  Command(String... args) {
+  protected Command() {
     this.status = new Status();
-    this.args = args;
-  }
-
-  private void setArgs(String... args) {
-    this.args = args;
-  }
-
-  String[] getArgs() {
-    return this.args;
   }
 
   /***
    * Return the command corresponding to args
+   * 
    * @param args
    * @return If args is length 0, or the first argument is not a valid subcommand, returns an ErrorCommand with an error
    * message.
@@ -68,7 +59,7 @@ public class Command {
   public static Command parse(String[] args) {
 
     if (args.length == 0) {
-      return new ErrorCommand("No subcommand given");
+      return new HelpCommand();
     }
     val cmd = args[0];
     // log.info("Looking up command " + cmd);
@@ -79,6 +70,7 @@ public class Command {
 
   /***
    * Convenience method for children to save error message
+   * 
    * @param format See String.format
    * @param args
    * 
@@ -91,6 +83,7 @@ public class Command {
 
   /***
    * Convenience method for child classes to save output message
+   * 
    * @param format See String.format
    * @param args
    * 
@@ -101,10 +94,9 @@ public class Command {
   }
 
   /***
-   * By default, just returns our status
-   * @return
+   * Define an empty run method for children to implement.
+   * @param config
    */
-  public Status run() {
-    return status;
+  public void run(SodaliteConfig config) {
   }
 }

@@ -15,36 +15,24 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.model;
+package org.icgc.dcc.sodalite.server.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
+/**
+ * Utility functions related to deal with JSON
+ */
+public class JsonUtils {
 
-import lombok.Data;
-import lombok.NonNull;
+  private static String QUOTE = "\"";
 
-@Data
-public class Manifest {
-
-  final String analysisId;
-  final Collection<ManifestEntry> entries;
-
-  public Manifest(String uploadId) {
-    this.analysisId = uploadId;
-    this.entries = new ArrayList<ManifestEntry>();
+  public static String jsonStatus(boolean status, String key, String ok, String fail) {
+    if (status) {
+      return jsonResponse(key, ok);
+    }
+    return jsonResponse(key, fail);
   }
 
-  public void add(ManifestEntry m) {
-    entries.add(m);
-  }
-
-  @Override
-  public String toString() {
-    return analysisId + "\n" + entries.stream().map(e -> e.toString() + "\n").reduce("", (a, b) -> a + b);
-  }
-
-  public void addAll(@NonNull Collection<? extends ManifestEntry> collect) {
-    entries.addAll(collect);
+  public static String jsonResponse(String key, String value) {
+    return "{" + QUOTE + key + QUOTE + ": " + QUOTE + value + QUOTE + "}";
   }
 
 }

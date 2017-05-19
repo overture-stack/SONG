@@ -15,36 +15,26 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.model;
+package org.icgc.dcc.sodalite.client.json;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import com.fasterxml.jackson.databind.JsonNode;
 
-import lombok.Data;
-import lombok.NonNull;
+import lombok.val;
 
-@Data
-public class Manifest {
+public class JsonObject {
 
-  final String analysisId;
-  final Collection<ManifestEntry> entries;
+  private JsonNode node;
 
-  public Manifest(String uploadId) {
-    this.analysisId = uploadId;
-    this.entries = new ArrayList<ManifestEntry>();
+  public JsonObject(JsonNode node) {
+    this.node = node;
   }
 
-  public void add(ManifestEntry m) {
-    entries.add(m);
-  }
-
-  @Override
-  public String toString() {
-    return analysisId + "\n" + entries.stream().map(e -> e.toString() + "\n").reduce("", (a, b) -> a + b);
-  }
-
-  public void addAll(@NonNull Collection<? extends ManifestEntry> collect) {
-    entries.addAll(collect);
+  public String get(String key) {
+    val jsonString = node.get(key);
+    if (jsonString == null) {
+      return String.format("<Invalid or missing %s>", key);
+    }
+    return jsonString.asText();
   }
 
 }
