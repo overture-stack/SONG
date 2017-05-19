@@ -15,26 +15,55 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.command;
+package org.icgc.dcc.sodalite.client.cli;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.icgc.dcc.sodalite.client.command.Command;
+
+import com.beust.jcommander.JCommander;
+
+import lombok.val;
 
 /**
- * 
+ * A class to build CommandParsers
  */
+public class CommandParserBuilder {
 
-public class ErrorCommand extends Command {
+  private Map<String, Command> commands = new HashMap<String, Command>();
+  private JCommander.Builder builder;
+  private String programName;
 
-  /**
-   * All this command does is set the error string for display to stderr later.
-   * @param args
+  /***
+   * Create a new builder class for a CommandParser
+   * @param programName The name to use to identify the main program in the help text.
+   * @param options A JCommander annotated class identifying the options for the main program.
    */
-
-  public ErrorCommand(String msg) {
-    super();
-    err(msg);
+  CommandParserBuilder(String programName, Object options) {
+    this.programName = programName;
+    this.builder = JCommander.newBuilder().addObject(options);
   }
 
-  @Override
-  public void run() {
+  /***
+   * Register a command to recognized by our command parser
+   * 
+   * @param commandName The command name, as it should appear on the command line
+   * @param command A Command class with JCommander annotations to identify all it's valid command line options.
+   */
+  public void register(String commandName, Command command) {
+    commands.put(commandName, command);
+    builder.addCommand(commandName, command);
+  }
+
+  /***
+   * Build our CommandParser for the Commands we have registered.
+   * @return A CommandParser object that can parse the registered objects
+   */
+  public CommandParser build() {
+    val jCommander = builder.build();
+    jCommander.setProgramName(programName);
+    return new CommandParser(jCommander, new HashMap<>(commands));
   }
 
 }

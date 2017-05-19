@@ -17,14 +17,52 @@
  */
 package org.icgc.dcc.sodalite.client.cli;
 
-import com.beust.jcommander.Parameter;
+import java.util.Map;
 
-/**
- * 
- */
-public class MainCommand {
+import org.icgc.dcc.sodalite.client.command.Command;
+import org.icgc.dcc.sodalite.client.command.ErrorCommand;
 
-  @Parameter(names = { "--help", "-h", "-?" }, help = true)
-  private boolean help;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 
+import lombok.AllArgsConstructor;
+import lombok.val;
+
+@AllArgsConstructor
+class CommandParser {
+
+  JCommander jc;
+  Map<String, Command> commands;
+
+  /***
+   * Parses the command line options, and returns a Command object capable of running those options.
+   * 
+   * Returns an ErrorCommand object containing a usage message if there was an error in the command line arguments.
+   * @param args
+   * @return A Command object for the given command line arguments.
+   */
+  public Command parse(String[] args) {
+    try {
+      jc.parse(args);
+    } catch (ParameterException e) {
+      return usage(e.getMessage());
+    }
+
+    // At this point, we can only get valid commands,
+    // or null, if no command was entered.
+    val cmd = jc.getParsedCommand();
+
+    if (cmd == null) {
+      return usage("");
+    }
+
+    return commands.get(cmd);
+  }
+
+  ErrorCommand usage(String msg) {
+    val s = new StringBuilder();
+    jc.usage(s);
+    s.append(msg);
+    return new ErrorCommand(s.toString());
+  }
 }

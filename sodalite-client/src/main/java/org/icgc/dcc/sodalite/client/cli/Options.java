@@ -15,26 +15,16 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.command;
+package org.icgc.dcc.sodalite.client.cli;
+
+import com.beust.jcommander.Parameter;
 
 /**
- * 
+ * This class holds all of the JCommander options for the main program.
  */
+public class Options {
 
-public class ErrorCommand extends Command {
-
-  /**
-   * All this command does is set the error string for display to stderr later.
-   * @param args
-   */
-
-  public ErrorCommand(String msg) {
-    super();
-    err(msg);
-  }
-
-  @Override
-  public void run() {
-  }
+  @Parameter(names = { "--help", "-h", "-?" }, help = true)
+  private boolean help;
 
 }

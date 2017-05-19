@@ -15,12 +15,12 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.command;
+package org.icgc.dcc.sodalite.client.cli;
 
 import lombok.Data;
 
 /**
- * 
+ * This class holds status results for commands that have run.
  */
 @Data
 public class Status {
@@ -28,7 +28,7 @@ public class Status {
   String errors;
   String outputs;
 
-  Status() {
+  public Status() {
     this.errors = "";
     this.outputs = "";
   }

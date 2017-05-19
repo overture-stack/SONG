@@ -17,13 +17,15 @@
  */
 package org.icgc.dcc.sodalite.client.command;
 
+import org.icgc.dcc.sodalite.client.cli.Status;
+
 import lombok.Data;
 
 /**
- * A parent class that commands can inherit from. Will probably soon be replaced by JCommander
+ * Abstract parent class for Command objects.
  */
 @Data
-public class Command {
+public abstract class Command {
 
   Status status = new Status();
 
@@ -53,9 +55,7 @@ public class Command {
   }
 
   /***
-   * Define an empty run method for children to implement.
-   * @param config
+   * Require all of our children to define a "run" method.
    */
-  public void run() {
-  }
+  public abstract void run();
 }
