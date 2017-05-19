@@ -15,24 +15,55 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.config;
+package org.icgc.dcc.sodalite.client.cli;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import java.util.Map;
 
-import lombok.Data;
+import org.icgc.dcc.sodalite.client.command.Command;
+import org.icgc.dcc.sodalite.client.command.ErrorCommand;
 
-/**
- * 
- */
-@ConfigurationProperties(prefix = "client")
-@Component
-@Data
-public class SodaliteConfig {
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 
-  @Value("client.serverUrl")
-  private String serverUrl;
-  @Value("client.studyId")
-  private String studyId;
+import lombok.AllArgsConstructor;
+import lombok.val;
+
+@AllArgsConstructor
+class CommandParser {
+
+  JCommander jc;
+  Map<String, Command> commands;
+
+  /***
+   * Parses the command line options, and returns a Command object capable of running those options.
+   * 
+   * Returns an ErrorCommand object containing a usage message if there was an error in the command line arguments.
+   * @param args
+   * @return A Command object for the given command line arguments.
+   */
+  public Command parse(String[] args) {
+    try {
+      jc.parse(args);
+    } catch (ParameterException e) {
+      return usage(e.getMessage());
+    }
+
+    // At this point, we can only get valid commands,
+    // or null, if no command was entered.
+    val cmd = jc.getParsedCommand();
+
+    if (cmd == null) {
+      return usage("");
+    }
+
+    return commands.get(cmd);
+  }
+
+  ErrorCommand usage(String msg) {
+    val s = new StringBuilder();
+    jc.usage(s);
+    s.append(msg);
+    return new ErrorCommand(s.toString());
+  }
+
 }

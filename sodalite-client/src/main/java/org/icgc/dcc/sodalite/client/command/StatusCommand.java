@@ -17,23 +17,30 @@
  */
 package org.icgc.dcc.sodalite.client.command;
 
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.config.Config;
 import org.icgc.dcc.sodalite.client.register.Registry;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+@RequiredArgsConstructor
+@Parameters(separators = "=", commandDescription = "Get the status of an analysis by it's upload Id.")
 public class StatusCommand extends Command {
 
+  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = true)
+  private String uploadId;
+
+  @NonNull
+  Registry registry;
+  @NonNull
+  Config config;
+
   @Override
-  public void run(SodaliteConfig config) {
-    if (getArgs().length < 2) {
-      err("Usage: sodalite-client status <uploadId>");
-      return;
-    }
-
-    val registry = new Registry(config);
-    val uploadId = getArgs()[1];
-
+  public void run() {
     val result = registry.getRegistrationState(config.getStudyId(), uploadId);
     output(result);
   }

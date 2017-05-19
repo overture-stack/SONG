@@ -15,53 +15,16 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.command;
-
-import java.io.File;
-import java.io.IOException;
-
-import org.icgc.dcc.sodalite.client.register.Registry;
+package org.icgc.dcc.sodalite.client.cli;
 
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 
-import lombok.val;
+/**
+ * This class holds all of the JCommander options for the main program.
+ */
+public class Options {
 
-@Parameters(separators = "=", commandDescription = "Register analysis metadata for uploading")
-public class RegisterCommand extends Command {
-
-  private int count = 1;
-
-  @Parameter(names = { "-f", "--file" }, description = "file", required = true)
-  String fileName;
-
-  Registry registry;
-
-  public RegisterCommand(Registry registry) {
-    this.registry = registry;
-  }
-
-  @Override
-  public void run() {
-    val uploadId = generateOutputId();
-    val file = new File(fileName);
-    String json;
-    try {
-      json = Files.toString(file, Charsets.UTF_8);
-    } catch (IOException e) {
-      err("Error: Can't open file '%s'", file);
-      return;
-    }
-
-    val result = registry.registerAnalysis(uploadId, json);
-    output(result);
-  }
-
-  String generateOutputId() {
-    // TODO: Replace this with a better output generator
-    return "x" + count++;
-  }
+  @Parameter(names = { "--help", "-h", "-?" }, help = true)
+  private boolean help;
 
 }

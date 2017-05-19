@@ -15,53 +15,55 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.command;
+package org.icgc.dcc.sodalite.client.cli;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.icgc.dcc.sodalite.client.register.Registry;
+import org.icgc.dcc.sodalite.client.command.Command;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
+import com.beust.jcommander.JCommander;
 
 import lombok.val;
 
-@Parameters(separators = "=", commandDescription = "Register analysis metadata for uploading")
-public class RegisterCommand extends Command {
+/**
+ * A class to build CommandParsers
+ */
+public class CommandParserBuilder {
 
-  private int count = 1;
+  private Map<String, Command> commands = new HashMap<String, Command>();
+  private JCommander.Builder builder;
+  private String programName;
 
-  @Parameter(names = { "-f", "--file" }, description = "file", required = true)
-  String fileName;
-
-  Registry registry;
-
-  public RegisterCommand(Registry registry) {
-    this.registry = registry;
+  /***
+   * Create a new builder class for a CommandParser
+   * @param programName The name to use to identify the main program in the help text.
+   * @param options A JCommander annotated class identifying the options for the main program.
+   */
+  CommandParserBuilder(String programName, Object options) {
+    this.programName = programName;
+    this.builder = JCommander.newBuilder().addObject(options);
   }
 
-  @Override
-  public void run() {
-    val uploadId = generateOutputId();
-    val file = new File(fileName);
-    String json;
-    try {
-      json = Files.toString(file, Charsets.UTF_8);
-    } catch (IOException e) {
-      err("Error: Can't open file '%s'", file);
-      return;
-    }
-
-    val result = registry.registerAnalysis(uploadId, json);
-    output(result);
+  /***
+   * Register a command to recognized by our command parser
+   * 
+   * @param commandName The command name, as it should appear on the command line
+   * @param command A Command class with JCommander annotations to identify all it's valid command line options.
+   */
+  public void register(String commandName, Command command) {
+    commands.put(commandName, command);
+    builder.addCommand(commandName, command);
   }
 
-  String generateOutputId() {
-    // TODO: Replace this with a better output generator
-    return "x" + count++;
+  /***
+   * Build our CommandParser for the Commands we have registered.
+   * @return A CommandParser object that can parse the registered objects
+   */
+  public CommandParser build() {
+    val jCommander = builder.build();
+    jCommander.setProgramName(programName);
+    return new CommandParser(jCommander, new HashMap<>(commands));
   }
 
 }

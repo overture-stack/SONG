@@ -1,7 +1,11 @@
 package org.icgc.dcc.sodalite.client.cli;
 
-import org.icgc.dcc.sodalite.client.command.Command;
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.command.ConfigCommand;
+import org.icgc.dcc.sodalite.client.command.ManifestCommand;
+import org.icgc.dcc.sodalite.client.command.RegisterCommand;
+import org.icgc.dcc.sodalite.client.command.StatusCommand;
+import org.icgc.dcc.sodalite.client.config.Config;
+import org.icgc.dcc.sodalite.client.register.Registry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -11,18 +15,27 @@ import lombok.val;
 @Component
 public class ClientMain implements CommandLineRunner {
 
-  private SodaliteConfig config;
+  private CommandParser dispatcher;
 
   @Autowired
-  ClientMain(SodaliteConfig config) {
-    this.config = config;
+  ClientMain(Config config, Registry registry) {
+    val programName = config.getProgramName();
+    val options = new Options();
+
+    val builder = new CommandParserBuilder(programName, options);
+    builder.register("config", new ConfigCommand(config));
+    builder.register("manifest", new ManifestCommand(registry, config));
+    builder.register("register", new RegisterCommand(registry));
+    builder.register("status", new StatusCommand(registry, config));
+
+    this.dispatcher = builder.build();
   }
 
   @Override
   public void run(String... args) {
-    val c = Command.parse(args);
-    c.run(config);
-    c.getStatus().report();
+    val command = dispatcher.parse(args);
+    command.run();
+    command.getStatus().report();
   }
 
 }

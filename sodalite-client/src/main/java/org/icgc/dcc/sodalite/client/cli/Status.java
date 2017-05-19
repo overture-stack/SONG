@@ -15,31 +15,51 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.command;
+package org.icgc.dcc.sodalite.client.cli;
 
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import lombok.Data;
 
 /**
- * 
+ * This class holds status results for commands that have run.
  */
-public class HelpCommand extends Command {
+@Data
+public class Status {
 
-  /**
-   * @param args
-   */
+  String errors;
+  String outputs;
 
-  public HelpCommand() {
-    super();
+  public Status() {
+    this.errors = "";
+    this.outputs = "";
   }
 
-  @Override
-  public void run(SodaliteConfig config) {
-    output("Usage:\n");
-    output("    sodalite-client <subcommand>");
-    output("    Valid subcommands are:");
-    for (String s : Command.commands.keySet()) {
-      output(s + " ");
-    }
+  void err(String s) {
+    errors += s;
+  }
+
+  void output(String s) {
+    outputs += s;
+  }
+
+  public void err(String format, Object... args) {
+    err(String.format(format, args));
+  }
+
+  public void output(String format, Object... args) {
+    output(String.format(format, args));
+  }
+
+  public void reportErrors() {
+    System.err.println(errors);
+  }
+
+  public void reportOutput() {
+    System.out.println(outputs);
+  }
+
+  public void report() {
+    reportOutput();
+    reportErrors();
   }
 
 }

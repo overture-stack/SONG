@@ -15,51 +15,26 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.client.command;
+package org.icgc.dcc.sodalite.client.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
 /**
  * 
  */
+@ConfigurationProperties(prefix = "client")
+@Component
 @Data
-public class Status {
+public class Config {
 
-  String errors;
-  String outputs;
-
-  Status() {
-    this.errors = "";
-    this.outputs = "";
-  }
-
-  void err(String s) {
-    errors += s;
-  }
-
-  void output(String s) {
-    outputs += s;
-  }
-
-  public void err(String format, Object... args) {
-    err(String.format(format, args));
-  }
-
-  public void output(String format, Object... args) {
-    output(String.format(format, args));
-  }
-
-  public void reportErrors() {
-    System.err.println(errors);
-  }
-
-  public void reportOutput() {
-    System.out.println(outputs);
-  }
-
-  public void report() {
-    reportOutput();
-    reportErrors();
-  }
-
+  @Value("client.serverUrl")
+  private String serverUrl;
+  @Value("client.studyId")
+  private String studyId;
+  @Value("client.programName")
+  private String programName;
 }

@@ -22,39 +22,50 @@ import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.icgc.dcc.sodalite.client.config.SodaliteConfig;
+import org.icgc.dcc.sodalite.client.config.Config;
 import org.icgc.dcc.sodalite.client.json.JsonObject;
 import org.icgc.dcc.sodalite.client.model.Manifest;
 import org.icgc.dcc.sodalite.client.model.ManifestEntry;
 import org.icgc.dcc.sodalite.client.register.Registry;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 
+@RequiredArgsConstructor
+@Parameters(commandDescription = "Generate a manifest file for the given uploadId")
 public class ManifestCommand extends Command {
 
+  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = true)
+  String uploadId;
+
+  @Parameter(names = { "--file", "-f" }, description = "Filename")
+  String fileName;
+
+  @NonNull
+  Registry registry;
+  @NonNull
+  Config config;
   private static final String JSON_PATH_TO_FILES = "/payload/study/donor/specimen/sample/files";
 
-  @SneakyThrows
   @Override
-  public void run(SodaliteConfig config) {
-    if (getArgs().length < 3) {
-      err("Usage: sodalite-client manifest <uploadId> <filename>");
-      return;
-    }
-
-    val registry = new Registry(config);
-    val uploadId = getArgs()[1];
-    val fileName = getArgs()[2];
+  @SneakyThrows
+  public void run() {
     val result = registry.getRegistrationState(config.getStudyId(), uploadId);
     val m = createManifest(uploadId, result);
 
-    Files.write(Paths.get(fileName), m.toString().getBytes());
-
-    output("Wrote manifest file '%s' for uploadId '%s'", fileName, uploadId);
+    if (fileName == null) {
+      output(m.toString());
+    } else {
+      Files.write(Paths.get(fileName), m.toString().getBytes());
+      output("Wrote manifest file '%s' for uploadId '%s'", fileName, uploadId);
+    }
   }
 
   @SneakyThrows
