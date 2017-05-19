@@ -17,10 +17,16 @@ public interface StatusRepository {
   int create(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state,
       @Bind("payload") String jsonPayload, @Bind("createdBy") String accessToken);
 
+  @SqlUpdate("UPDATE submissions SET state = :state, payload = :payload, updated_by = :updateBy, updated_at = now() WHERE id = LOWER(:id) AND study_id = UPPER(:studyId)")
+  int updatePayload(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state,
+      @Bind("payload") String jsonPayload, @Bind("updatedBy") String accessToken);
+  
   // note: avoiding handling datetime's in application; keeping it all in the SQL (also, see schema)
   @SqlUpdate("UPDATE submissions SET state = :state, errors = :errors, updated_by = :updatedBy, updated_at = now() WHERE id = LOWER(:id) AND study_id = UPPER(:studyId)")
-  int updateState(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state,
-      @Bind("errors") String errors, @Bind("updatedBy") String accessToken);
+  int updateState(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state, @Bind("errors") String errors, @Bind("updatedBy") String accessToken);
+  
+  @SqlUpdate("UPDATE submissions SET state = :newState, updated_at = now() WHERE state = :oldState AND study_id = :studyId")
+  int updateState(@Bind("studyId") String studyId, @Bind("oldState") String oldState, @Bind("newState") String newState);
 
   @SqlUpdate("UPDATE submissions SET state = :state, analysis_object = :analysis_object, updated_by = :updatedBy, updated_at = now() WHERE id = LOWER(:id) AND study_id = UPPER(:studyId)")
   int updateAnalysis(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state,

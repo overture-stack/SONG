@@ -168,14 +168,6 @@ public class Donor extends AbstractEntity {
       specimen.setStudyId(studyId);
       specimen.setDonorId(donorId);
     }
-    /*
-    if (specimens != null) {
-      for (val s : specimens) {
-        s.setStudyId(studyId);
-        s.setDonorId(donorId);
-      }
-    }
-    */
   }
 
   @Override

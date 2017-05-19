@@ -8,9 +8,11 @@ import lombok.val;
 
 public class TestDataFactory {
 
+  public static String STUDY_ID = "ABC123";
+  
   public static Donor createDonor() {
     val d = new Donor()
-        .withStudyId("ABC123")
+        .withStudyId(STUDY_ID)
         .withDonorGender(DonorGender.MALE)
         .withDonorSubmitterId("Triangle-Arrow-S")
         .withSpecimens(new ArrayList<Specimen>());
@@ -19,7 +21,7 @@ public class TestDataFactory {
   
   public static Specimen createSpecimen(String parentId) {
     val s = new Specimen()
-        .withStudyId("ABC123")
+        .withStudyId(STUDY_ID)
         .withDonorId(parentId)
         .withSpecimenSubmitterId("Specimen 102 Chiron-Beta Prime")
         .withSpecimenType(SpecimenType.METASTATIC_TUMOUR_ADDITIONAL_METASTATIC)
@@ -30,7 +32,7 @@ public class TestDataFactory {
   
   public static Sample createSample(String parentId) {
     val s = new Sample()
-        .withStudyId("ABC123")
+        .withStudyId(STUDY_ID)
         .withSpecimenId(parentId)
         .withSampleSubmitterId("101-IP-A")
         .withSampleType(SampleType.AMPLIFIED_DNA)
@@ -40,21 +42,21 @@ public class TestDataFactory {
   
   public static List<File> createFileSet(String parentId) {
     File bamf = new File()
-        .withStudyId("ABC123")
+        .withStudyId(STUDY_ID)
         .withSampleId(parentId)
         .withFileName("ABC-TC285G87-A5-sqrl.bam")
         .withFileSize(50000000000L)
         .withFileType(FileType.BAM);
     
     File baif = new File()
-        .withStudyId("ABC123")
+        .withStudyId(STUDY_ID)
         .withSampleId(parentId)
         .withFileName("ABC-TC285G87-A5-sqrl.bai")
         .withFileSize(50000)
         .withFileType(FileType.BAI);
     
     File xmlf = new File()
-        .withStudyId("ABC123")
+        .withStudyId(STUDY_ID)
         .withSampleId(parentId)
         .withFileName("hamsters.xml")
         .withFileSize(5000)
@@ -65,7 +67,7 @@ public class TestDataFactory {
   
   public static SequencingRead createSequencingRead() {
     SequencingRead result = new SequencingRead();
-    result.withStudyId("ABC123")
+    result.withStudyId(STUDY_ID)
       .withAnalysisSubmitterId("1fbb6bb0-caca-4c4f-8f11-72bfa9a5faef")
       .withState(AnalysisState.RECEIVED)
       .withAligned(true)
@@ -73,7 +75,7 @@ public class TestDataFactory {
       .withInsertSize(2000)
       .withLibraryStrategy(LibraryStrategy.OTHER)
       .withPairedEnd(true)
-      .withReferenceGenome("something something");
+      .withReferenceGenome("hg38");
     return result;
   }
 }

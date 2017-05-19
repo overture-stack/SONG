@@ -205,12 +205,6 @@ public class Specimen extends AbstractEntity {
       sample.setStudyId(studyId);
       sample.setSpecimenId(specimenId);
     }
-/*
-    for (val s : samples) {
-      s.setStudyId(studyId);
-      s.setSpecimenId(specimenId);
-    }
-*/
   }
 
   @Override

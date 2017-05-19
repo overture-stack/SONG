@@ -90,7 +90,7 @@ public class SerializationTests {
       associationService.associate(read, f);
     }
     
-    val reread = manager.loadSequencingRead(read.getAnalysisId());
+    val reread = manager.loadSequencingRead(TestDataFactory.STUDY_ID, read.getAnalysisSubmitterId());
     
     ObjectMapper mapper = new ObjectMapper();
     ObjectWriter writer = mapper.writerWithView(Views.Document.class);

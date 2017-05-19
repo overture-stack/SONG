@@ -26,7 +26,7 @@ public class SequencingRead {
   @JsonProperty("analysisSubmitterId")
   private String analysisSubmitterId;
   @JsonProperty("state")
-  private AnalysisState state;
+  private AnalysisState state = AnalysisState.RECEIVED;
   @JsonProperty("aligned")
   private boolean aligned;
   @JsonProperty("alignmentTool")

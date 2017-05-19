@@ -20,6 +20,8 @@ public class VariantCall {
   private String studyId;
   @JsonProperty("analysisId")
   private String analysisId;
+  @JsonProperty("analysisSubmitterId")
+  private String analysisSubmitterId;
   @JsonProperty("variantCallingTool")
   private String variantCallingTool;
   @JsonProperty("tumourSampleSubmitterId")
@@ -60,6 +62,21 @@ public class VariantCall {
 
   public VariantCall withAnalysisId(String analysisId) {
     this.analysisId = analysisId;
+    return this;
+  }
+
+  @JsonProperty("analysisSubmitterId")
+  public String getAnalysisSubmitterId() {
+    return analysisSubmitterId;
+  }
+
+  @JsonProperty("analysisSubmitterId")
+  public void setAnalysisSubmitterId(String analysisSubmitterId) {
+    this.analysisSubmitterId = analysisSubmitterId;
+  }
+
+  public VariantCall withAnalysisSubmitterId(String analysisSubmitterId) {
+    this.analysisSubmitterId = analysisSubmitterId;
     return this;
   }
 

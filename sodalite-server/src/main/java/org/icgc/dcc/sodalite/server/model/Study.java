@@ -153,7 +153,6 @@ public class Study extends AbstractEntity {
     if (donor != null) {
       donor.setStudyId(studyId);
     }
-    
   }
 
 }

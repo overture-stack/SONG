@@ -26,17 +26,6 @@ import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
-/*
-id               VARCHAR(36) PRIMARY KEY,
-study_id         VARCHAR(36) REFERENCES study,
-state            ANALYSIS_STATE,
-library_strategy LIBRARY_STRATEGY,
-paired_end       BOOLEAN,
-insert_size      BIGINT,
-aligned          BOOLEAN,
-alignment_tool   TEXT,
-reference_genome TEXT
-*/
 
 @RegisterMapper(SequencingReadMapper.class)
 public interface SequencingReadRepository {
@@ -62,13 +51,6 @@ public interface SequencingReadRepository {
   @SqlUpdate("DELETE FROM sequencing_read_analysis where id=:id")
   int delete(@Bind("id") String id);
 
-  /*
-   * CREATE TABLE sequencing_read_fileset (
-  id          VARCHAR(16) PRIMARY KEY,
-  study_id    VARCHAR(36) REFERENCES study,
-  analysis_id VARCHAR(36) REFERENCES sequencing_read_analysis,
-  file_id     VARCHAR(36) REFERENCES file
-   */
   @SqlUpdate("INSERT INTO sequencing_read_fileset (id, study_id, analysis_id, file_id) VALUES (:id, :study_id, :analysis_id, :file_id)")
   int saveAssociation(@Bind("id") String id, @Bind("study_id") String studyId, @Bind("analysis_id") String analysisId, @Bind("file_id") String fileId);
 

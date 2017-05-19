@@ -106,19 +106,6 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <!-- Storage Repositories -->
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>${aws-s3.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>azure-storage</artifactId>
-            <version>${azure.version}</version>
-        </dependency>
-
         <!-- Utilities -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -196,9 +183,6 @@
         <!-- Versions - Spring Boot - Jackson -->
         <jackson.version>2.8.8</jackson.version>
         <flywaydb.version>4.2.0</flywaydb.version>
-        
-        <aws-s3.version>1.11.126</aws-s3.version>
-        <azure.version>5.1.0</azure.version>
 
         <!-- Spring Security oath2 -->
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
