@@ -31,8 +31,8 @@ public class Endpoint {
   private String serverUrl;
 
   @Autowired
-  Endpoint(String url) {
-    serverUrl = url;
+  Endpoint(String serverUrl) {
+    this.serverUrl = serverUrl;
   }
 
   String analysis(String studyId, String uploadId, String analysisType) {
@@ -51,4 +51,5 @@ public class Endpoint {
     val url = "%s/studies/%s/statuses/%s";
     return format(url, serverUrl, studyId, uploadId);
   }
+
 }
