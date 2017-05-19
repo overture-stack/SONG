@@ -35,6 +35,7 @@ public class ErrorCommand extends Command {
 
   @Override
   public void run() {
+    // no-op
   }
 
 }
