@@ -6,6 +6,8 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import lombok.val;
+
 public enum AnalysisType {
   SEQUENCING_READ("sequencingRead"), VARIANT_CALL("variantCall"), TUMOUR_NORMAL_PAIR("tumourNormalPair");
 
@@ -13,7 +15,7 @@ public enum AnalysisType {
   private final static Map<String, AnalysisType> CONSTANTS = new HashMap<String, AnalysisType>();
 
   static {
-    for (AnalysisType c : values()) {
+    for (val c : values()) {
       CONSTANTS.put(c.value, c);
     }
   }
@@ -34,19 +36,18 @@ public enum AnalysisType {
 
   @JsonCreator
   public static AnalysisType fromValue(String value) {
-    AnalysisType constant = CONSTANTS.get(value);
+    val constant = CONSTANTS.get(value);
     if (constant == null) {
       throw new IllegalArgumentException(value);
     } else {
       return constant;
     }
   }
-  
+
   public static boolean isAnalysisType(String value) {
     try {
-      AnalysisType result = AnalysisType.fromValue(value);
-    }
-    catch(IllegalArgumentException iae) {
+      AnalysisType.fromValue(value);
+    } catch (IllegalArgumentException iae) {
       return false;
     }
     return true;

@@ -3,7 +3,6 @@ package org.icgc.dcc.sodalite.server.service;
 import org.icgc.dcc.sodalite.server.model.AnalysisState;
 import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
 import org.icgc.dcc.sodalite.server.repository.StatusRepository;
-import org.skife.jdbi.v2.sqlobject.Bind;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +47,8 @@ public class StatusService {
   }
 
   public int publishAll(@NonNull String studyId) {
-    return statusRepository.updateState(studyId, AnalysisState.READY_FOR_PUBLISH.value(), AnalysisState.PUBLISHED.value());
+    return statusRepository.updateState(studyId, AnalysisState.READY_FOR_PUBLISH.value(),
+        AnalysisState.PUBLISHED.value());
   }
 
 }

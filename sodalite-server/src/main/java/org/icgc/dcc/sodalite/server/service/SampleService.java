@@ -27,7 +27,8 @@ public class SampleService {
     val id = idService.generateSampleId();
     // TODO: modifying input parameter.....really just for error message if status != 1
     s.setSampleId(id);
-    int status = repository.save(id, s.getStudyId(), s.getSpecimenId(), s.getSampleSubmitterId(), s.getSampleType().toString());
+    val status =
+        repository.save(id, s.getStudyId(), s.getSpecimenId(), s.getSampleSubmitterId(), s.getSampleType().toString());
 
     if (status != 1) {
       return "error: Can't create" + s.toString();
@@ -64,7 +65,7 @@ public class SampleService {
   public Sample findByBusinessKey(String studyId, String submitterId) {
     return repository.getByBusinessKey(studyId, submitterId);
   }
-  
+
   public List<Sample> findByParentId(String parentId) {
     val samples = repository.findByParentId(parentId);
     return samples;

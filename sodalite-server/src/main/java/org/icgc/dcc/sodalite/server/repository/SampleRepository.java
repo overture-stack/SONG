@@ -19,7 +19,6 @@ package org.icgc.dcc.sodalite.server.repository;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.model.Sample;
 import org.icgc.dcc.sodalite.server.repository.mapper.SampleMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -31,7 +30,8 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 public interface SampleRepository {
 
   @SqlUpdate("INSERT INTO sample (id, study_id, specimen_id, submitter_id, type) VALUES (:id, :study_id, :specimen_id, :submitter_id, :type)")
-  int save(@Bind("id") String id, @Bind("study_id") String studyId, @Bind("specimen_id") String specimenId, @Bind("submitter_id") String submitterId,
+  int save(@Bind("id") String id, @Bind("study_id") String studyId, @Bind("specimen_id") String specimenId,
+      @Bind("submitter_id") String submitterId,
       @Bind("type") String type);
 
   @SqlUpdate("UPDATE sample SET study_id=:study_id, submitter_id=:submitter_id, type=:type where id=:id")
@@ -46,7 +46,7 @@ public interface SampleRepository {
 
   @SqlQuery("SELECT id, study_id, specimen_id, submitter_id, type FROM sample WHERE study_id=:study_id AND submitter_id=:submitter_id")
   Sample getByBusinessKey(@Bind("study_id") String studyId, @Bind("submitter_id") String submitter_id);
-  
+
   @SqlQuery("SELECT id from sample where specimen_id=:specimen_id")
   List<String> getIds(@Bind("specimen_id") String specimenId);
 

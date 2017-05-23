@@ -22,7 +22,7 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class SampleServiceTest {
@@ -41,10 +41,6 @@ public class SampleServiceTest {
     assertThat(sample.getSampleType()).isEqualTo(SampleType.DNA);
   }
 
-  private File getFile(String id) {
-    return fileService.getById(id);
-  }
-
   @Test
   public void testCreateAndDeleteSample() {
     val s = new Sample()
@@ -60,11 +56,11 @@ public class SampleServiceTest {
     assertThat(id).startsWith("SA");
     assertThat(status).isEqualTo(id);
 
-    Sample check = sampleService.getById(id);
+    val check = sampleService.getById(id);
     assertThat(s).isEqualToComparingFieldByField(check);
 
     sampleService.delete(id);
-    Sample check2 = sampleService.getById(id);
+    val check2 = sampleService.getById(id);
     assertThat(check2).isNull();
   }
 

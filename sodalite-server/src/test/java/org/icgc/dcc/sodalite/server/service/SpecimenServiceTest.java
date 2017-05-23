@@ -23,7 +23,7 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class SpecimenServiceTest {
@@ -41,14 +41,10 @@ public class SpecimenServiceTest {
     assertThat(specimen.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
     assertThat(specimen.getSpecimenClass()).isEqualTo(SpecimenClass.TUMOUR);
     assertThat(specimen.getSpecimenType()).isEqualTo(SpecimenType.RECURRENT_TUMOUR_SOLID_TISSUE);
-    //assertThat(specimen.getSamples().size()).isEqualTo(2);
+    // assertThat(specimen.getSamples().size()).isEqualTo(2);
 
     // Verify that we got the same samples as the sample service says we should.
-    //specimen.getSamples().forEach(sample -> assertThat(sample.equals(getSample(sample.getSampleId()))));
-  }
-
-  private Sample getSample(String id) {
-    return sampleService.getById(id);
+    // specimen.getSamples().forEach(sample -> assertThat(sample.equals(getSample(sample.getSampleId()))));
   }
 
   @Test

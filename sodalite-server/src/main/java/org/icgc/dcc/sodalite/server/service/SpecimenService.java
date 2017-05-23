@@ -27,8 +27,9 @@ public class SpecimenService {
     val specimenId = idService.generateSpecimenId();
     // TODO: modifying input parameter.....
     specimen.setSpecimenId(specimenId);
-    int status =
-        repository.save(specimenId, specimen.getStudyId(), specimen.getDonorId(), specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(),
+    val status =
+        repository.save(specimenId, specimen.getStudyId(), specimen.getDonorId(), specimen.getSpecimenSubmitterId(),
+            specimen.getSpecimenClass().toString(),
             specimen.getSpecimenType().toString());
     if (status != 1) {
       return "error: Can't create" + specimen.toString();
@@ -37,7 +38,8 @@ public class SpecimenService {
   }
 
   public void update(Specimen s) {
-    repository.update(s.getSpecimenId(), s.getStudyId(), s.getDonorId(), s.getSpecimenSubmitterId(), s.getSpecimenClass().toString(),
+    repository.update(s.getSpecimenId(), s.getStudyId(), s.getDonorId(), s.getSpecimenSubmitterId(),
+        s.getSpecimenClass().toString(),
         s.getSpecimenType().toString());
   }
 

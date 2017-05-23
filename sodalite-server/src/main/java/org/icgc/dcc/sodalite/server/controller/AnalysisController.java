@@ -66,11 +66,13 @@ public class AnalysisController {
   @Autowired
   private final StatusService statusService;
 
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @GetMapping("/{studyId}")
   public List<Study> getStudy(@PathVariable("studyId") String studyId) {
     return Arrays.asList(studyService.getStudy(studyId));
   }
 
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @GetMapping("/{studyId}/all")
   public Study getEntireStudy(@PathVariable("studyId") String studyId) {
     return studyService.getEntireStudy(studyId);

@@ -23,7 +23,8 @@ public class SequencingReadService {
     val analysisId = idService.generateSequenceReadId();
     // TODO: modifying input parameter.....
     read.setAnalysisId(analysisId);
-    int status = repository.save(read.getAnalysisId(), read.getStudyId(), read.getAnalysisSubmitterId(), read.getState().toString(), read.getLibraryStrategy().toString(), 
+    val status = repository.save(read.getAnalysisId(), read.getStudyId(), read.getAnalysisSubmitterId(),
+        read.getState().toString(), read.getLibraryStrategy().toString(),
         read.isPairedEnd(), read.getInsertSize(), read.isAligned(), read.getAlignmentTool(), read.getReferenceGenome());
     if (status != 1) {
       return "error: Can't create" + read.toString();
@@ -31,8 +32,9 @@ public class SequencingReadService {
     return analysisId;
   }
 
-  public void update(SequencingRead read) {    
-    repository.update(read.getAnalysisId(), read.getStudyId(), read.getAnalysisSubmitterId(), read.getState().toString(), read.getLibraryStrategy().toString(), 
+  public void update(SequencingRead read) {
+    repository.update(read.getAnalysisId(), read.getStudyId(), read.getAnalysisSubmitterId(),
+        read.getState().toString(), read.getLibraryStrategy().toString(),
         read.isPairedEnd(), read.getInsertSize(), read.isAligned(), read.getAlignmentTool(), read.getReferenceGenome());
   }
 

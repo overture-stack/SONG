@@ -1,12 +1,12 @@
 package org.icgc.dcc.sodalite.server.service;
 
 import org.icgc.dcc.sodalite.server.model.AnalysisState;
-import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +38,7 @@ public class FunctionService {
   }
 
   public boolean notInState(AnalysisState state, String studyId, String uploadId) {
-    SubmissionStatus s = statusService.getStatus(studyId, uploadId);
+    val s = statusService.getStatus(studyId, uploadId);
 
     if (s == null) {
       return true;

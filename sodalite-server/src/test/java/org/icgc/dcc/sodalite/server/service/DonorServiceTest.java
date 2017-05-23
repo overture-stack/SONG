@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -23,7 +22,7 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class DonorServiceTest {
@@ -41,11 +40,11 @@ public class DonorServiceTest {
     assertThat(d.getDonorId()).isEqualTo("DO1");
     assertThat(d.getDonorGender()).isEqualTo(DonorGender.MALE);
     assertThat(d.getDonorSubmitterId()).isEqualTo("Subject-X23Alpha7");
-    //assertThat(d.getSpecimens().size()).isEqualTo(2);
+    // assertThat(d.getSpecimens().size()).isEqualTo(2);
 
     // Just check that each specimen object that we get is the same as the one we get from the
     // specimen service. Let the specimen service tests verify that the contents are right.
-    //d.getSpecimens().forEach(specimen -> assertThat(specimen.equals(getMatchingSpecimen(specimen))));
+    // d.getSpecimens().forEach(specimen -> assertThat(specimen.equals(getMatchingSpecimen(specimen))));
 
   }
 

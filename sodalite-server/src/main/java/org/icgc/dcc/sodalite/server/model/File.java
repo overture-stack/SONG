@@ -3,29 +3,18 @@ package org.icgc.dcc.sodalite.server.model;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import lombok.val;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-  "studyId",
-  "sampleId",
-	"objectId",
-  "fileName",
-  "fileSize",
-  "fileType",
-  "fileMd5",
-  "metadataDoc"
+@JsonPropertyOrder({ "studyId", "sampleId", "objectId", "fileName", "fileSize", "fileType", "fileMd5", "metadataDoc"
 })
 
 public class File extends AbstractEntity {
@@ -35,7 +24,7 @@ public class File extends AbstractEntity {
 
   @JsonProperty("sampleId")
   private String sampleId;
-  
+
   @JsonProperty("objectId")
   private String objectId;
 
@@ -53,7 +42,7 @@ public class File extends AbstractEntity {
 
   @JsonProperty("metadataDoc")
   private String metadataDoc;
-  
+
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -104,29 +93,29 @@ public class File extends AbstractEntity {
 
   @JsonProperty("fileName")
   public String getFileName() {
-      return fileName;
+    return fileName;
   }
 
   @JsonProperty("fileName")
   public void setFileName(String fileName) {
-      this.fileName = fileName;
+    this.fileName = fileName;
   }
 
   public File withFileName(String fileName) {
-      this.fileName = fileName;
-      return this;
+    this.fileName = fileName;
+    return this;
   }
-  
+
   @JsonProperty("fileSize")
   public long getFileSize() {
     return fileSize;
   }
-  
+
   @JsonProperty("fileSize")
   public void setFileSize(long fileSize) {
     this.fileSize = fileSize;
   }
-  
+
   public File withFileSize(long fileSize) {
     this.fileSize = fileSize;
     return this;
@@ -134,69 +123,69 @@ public class File extends AbstractEntity {
 
   @JsonProperty("fileType")
   public FileType getFileType() {
-      return fileType;
+    return fileType;
   }
 
   @JsonProperty("fileType")
   public void setFileType(FileType fileType) {
-      this.fileType = fileType;
+    this.fileType = fileType;
   }
 
   public File withFileType(FileType fileType) {
-      this.fileType = fileType;
-      return this;
+    this.fileType = fileType;
+    return this;
   }
 
   @JsonProperty("fileMd5")
   public String getFileMd5() {
-      return fileMd5;
+    return fileMd5;
   }
 
   @JsonProperty("fileMd5")
   public void setFileMd5(String fileMd5) {
-      this.fileMd5 = fileMd5;
+    this.fileMd5 = fileMd5;
   }
 
   public File withFileMd5(String fileMd5) {
-      this.fileMd5 = fileMd5;
-      return this;
+    this.fileMd5 = fileMd5;
+    return this;
   }
 
   @JsonProperty("metadataDoc")
   public String getMetadataDoc() {
-      return metadataDoc;
+    return metadataDoc;
   }
 
   @JsonProperty("metadataDoc")
   public void setMetadataDoc(String metadataDoc) {
-      this.metadataDoc = metadataDoc;
+    this.metadataDoc = metadataDoc;
   }
 
   public File withMetadataDoc(String metadataDoc) {
-      this.metadataDoc = metadataDoc;
-      return this;
+    this.metadataDoc = metadataDoc;
+    return this;
   }
 
   @Override
   public String toString() {
-      return ToStringBuilder.reflectionToString(this);
+    return ToStringBuilder.reflectionToString(this);
   }
 
   @JsonAnyGetter
   public Map<String, Object> getAdditionalProperties() {
-      return this.additionalProperties;
+    return this.additionalProperties;
   }
 
   @JsonAnySetter
   public void setAdditionalProperty(String name, Object value) {
-      this.additionalProperties.put(name, value);
+    this.additionalProperties.put(name, value);
   }
 
   public File withAdditionalProperty(String name, Object value) {
-      this.additionalProperties.put(name, value);
-      return this;
+    this.additionalProperties.put(name, value);
+    return this;
   }
-  
+
   @Override
   public void propagateKeys() {
     // no behaviour
@@ -219,55 +208,31 @@ public class File extends AbstractEntity {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     File other = (File) obj;
     if (fileMd5 == null) {
-      if (other.fileMd5 != null)
-        return false;
-    }
-    else if (!fileMd5.equals(other.fileMd5))
-      return false;
+      if (other.fileMd5 != null) return false;
+    } else if (!fileMd5.equals(other.fileMd5)) return false;
     if (fileName == null) {
-      if (other.fileName != null)
-        return false;
-    }
-    else if (!fileName.equals(other.fileName))
-      return false;
-    if (fileSize != other.fileSize)
-      return false;
-    if (fileType != other.fileType)
-      return false;
+      if (other.fileName != null) return false;
+    } else if (!fileName.equals(other.fileName)) return false;
+    if (fileSize != other.fileSize) return false;
+    if (fileType != other.fileType) return false;
     if (metadataDoc == null) {
-      if (other.metadataDoc != null)
-        return false;
-    }
-    else if (!metadataDoc.equals(other.metadataDoc))
-      return false;
+      if (other.metadataDoc != null) return false;
+    } else if (!metadataDoc.equals(other.metadataDoc)) return false;
     if (objectId == null) {
-      if (other.objectId != null)
-        return false;
-    }
-    else if (!objectId.equals(other.objectId))
-      return false;
+      if (other.objectId != null) return false;
+    } else if (!objectId.equals(other.objectId)) return false;
     if (sampleId == null) {
-      if (other.sampleId != null)
-        return false;
-    }
-    else if (!sampleId.equals(other.sampleId))
-      return false;
+      if (other.sampleId != null) return false;
+    } else if (!sampleId.equals(other.sampleId)) return false;
     if (studyId == null) {
-      if (other.studyId != null)
-        return false;
-    }
-    else if (!studyId.equalsIgnoreCase(other.studyId))
-      return false;
+      if (other.studyId != null) return false;
+    } else if (!studyId.equalsIgnoreCase(other.studyId)) return false;
     return true;
   }
-  
-  
+
 }

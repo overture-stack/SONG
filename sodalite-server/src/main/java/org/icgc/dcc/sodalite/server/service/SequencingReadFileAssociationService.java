@@ -23,11 +23,12 @@ public class SequencingReadFileAssociationService {
   SequencingReadRepository repository;
 
   public String associate(SequencingRead read, File file) {
-    String associationId = idService.generateSequenceReadFileAssociationId();
+    val associationId = idService.generateSequenceReadFileAssociationId();
     // TODO: verify study id is the same in both objects
-    int status = repository.saveAssociation(associationId, read.getStudyId(), read.getAnalysisId(), file.getObjectId());
+    val status = repository.saveAssociation(associationId, read.getStudyId(), read.getAnalysisId(), file.getObjectId());
     if (status != 1) {
-      throw new DatabaseRepositoryException(String.format("Could not associate Sequencing Read id %s with File id %s", read.getAnalysisId(), file.getObjectId()));
+      throw new DatabaseRepositoryException(String.format("Could not associate Sequencing Read id %s with File id %s",
+          read.getAnalysisId(), file.getObjectId()));
     }
 
     return associationId;
@@ -35,13 +36,15 @@ public class SequencingReadFileAssociationService {
 
   public void update(String associationId, SequencingRead read, File file) {
     if (repository.updateAssociation(associationId, read.getStudyId(), read.getAnalysisId(), file.getObjectId()) != 1) {
-      throw new DatabaseRepositoryException(String.format("Could not associate Sequencing Read id %s with File id %s", read.getAnalysisId(), file.getObjectId()));
+      throw new DatabaseRepositoryException(String.format("Could not associate Sequencing Read id %s with File id %s",
+          read.getAnalysisId(), file.getObjectId()));
     }
   }
 
   public void delete(String id) {
     if (repository.delete(id) < 1) {
-      throw new DatabaseRepositoryException(String.format("Could not delete SequencingRead/File Association id %s", id));
+      throw new DatabaseRepositoryException(
+          String.format("Could not delete SequencingRead/File Association id %s", id));
     }
   }
 
@@ -52,7 +55,7 @@ public class SequencingReadFileAssociationService {
     }
     return read;
   }
-  
+
   public List<String> getFileIds(String analysisId) {
     return repository.getFileIds(analysisId);
   }

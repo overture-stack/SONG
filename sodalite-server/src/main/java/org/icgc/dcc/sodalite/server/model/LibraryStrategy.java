@@ -6,6 +6,8 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import lombok.val;
+
 public enum LibraryStrategy {
 
   WGS("WGS"), WXS("WXS"), RNA_SEQ("RNA-Seq"), CH_IP_SEQ("ChIP-Seq"), MI_RNA_SEQ("miRNA-Seq"), BISULFITE_SEQ("Bisulfite-Seq"), VALIDATION("Validation"), AMPLICON("Amplicon"), OTHER("Other");
@@ -14,7 +16,7 @@ public enum LibraryStrategy {
   private final static Map<String, LibraryStrategy> CONSTANTS = new HashMap<String, LibraryStrategy>();
 
   static {
-    for (LibraryStrategy c : values()) {
+    for (val c : values()) {
       CONSTANTS.put(c.value, c);
     }
   }
@@ -35,7 +37,7 @@ public enum LibraryStrategy {
 
   @JsonCreator
   public static LibraryStrategy fromValue(String value) {
-    LibraryStrategy constant = CONSTANTS.get(value);
+    val constant = CONSTANTS.get(value);
     if (constant == null) {
       throw new IllegalArgumentException(value);
     } else {

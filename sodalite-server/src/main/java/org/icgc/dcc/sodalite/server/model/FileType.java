@@ -6,6 +6,8 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import lombok.val;
+
 public enum FileType {
 
   FASTA("FASTA"), FAI("FAI"), FASTQ("FASTQ"), BAM("BAM"), BAI("BAI"), VCF("VCF"), TBI("TBI"), IDX("IDX"), XML("XML");
@@ -14,7 +16,7 @@ public enum FileType {
   private final static Map<String, FileType> CONSTANTS = new HashMap<String, FileType>();
 
   static {
-    for (FileType c : values()) {
+    for (val c : values()) {
       CONSTANTS.put(c.value, c);
     }
   }
@@ -35,7 +37,7 @@ public enum FileType {
 
   @JsonCreator
   public static FileType fromValue(String value) {
-    FileType constant = CONSTANTS.get(value);
+    val constant = CONSTANTS.get(value);
     if (constant == null) {
       throw new IllegalArgumentException(value);
     } else {

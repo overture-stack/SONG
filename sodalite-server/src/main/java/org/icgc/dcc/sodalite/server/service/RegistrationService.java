@@ -17,30 +17,20 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
-import lombok.SneakyThrows;
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.Optional;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import org.icgc.dcc.sodalite.server.model.AnalysisType;
-import org.icgc.dcc.sodalite.server.model.SequencingRead;
-import org.icgc.dcc.sodalite.server.model.VariantCall;
 import org.icgc.dcc.sodalite.server.validation.SchemaValidator;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -51,7 +41,7 @@ public class RegistrationService {
 
   @Autowired
   private StatusService statusService;
-  
+
   @Autowired
   private ModelManager modelManager;
 
@@ -76,8 +66,7 @@ public class RegistrationService {
         statusService.updateAsValid(studyId, uploadId);
         try {
           modelManager.persist(studyId, uploadId, jsonNode);
-        }
-        catch(IllegalArgumentException iae) {
+        } catch (IllegalArgumentException iae) {
           // This should be impossible if JSON Schema enforces valid value for root node keys
           statusService.updateAsInvalid(studyId, uploadId, "Unrecognized Analysis Object type.");
         }
@@ -86,7 +75,8 @@ public class RegistrationService {
       }
     } catch (JsonProcessingException jpe) {
       log.error(jpe.getMessage());
-      statusService.updateAsInvalid(studyId, uploadId, String.format("Invalid JSON document submitted: %s", jpe.getMessage()));
+      statusService.updateAsInvalid(studyId, uploadId,
+          String.format("Invalid JSON document submitted: %s", jpe.getMessage()));
     } catch (Exception e) {
       log.error(e.getMessage());
       statusService.updateAsInvalid(studyId, uploadId, String.format("Unknown processing problem: %s", e.getMessage()));

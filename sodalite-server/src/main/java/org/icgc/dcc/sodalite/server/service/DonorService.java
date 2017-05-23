@@ -22,9 +22,9 @@ public class DonorService {
   IdService idService;
 
   public String create(Donor d) {
-    String donorId = idService.generateDonorId();
+    val donorId = idService.generateDonorId();
     d.setDonorId(donorId);
-    int status = repository.save(donorId, d.getStudyId(), d.getDonorSubmitterId(), d.getDonorGender().toString());
+    val status = repository.save(donorId, d.getStudyId(), d.getDonorSubmitterId(), d.getDonorGender().toString());
     if (status != 1) {
       return "error: Can't create" + d.toString();
     }
@@ -34,7 +34,8 @@ public class DonorService {
   }
 
   public void update(Donor d) {
-    if (repository.update(d.getDonorId(), d.getStudyId(), d.getDonorSubmitterId(), d.getDonorGender().toString()) == 1) {
+    if (repository.update(d.getDonorId(), d.getStudyId(), d.getDonorSubmitterId(),
+        d.getDonorGender().toString()) == 1) {
       // in case any of the parent id's were changed
       d.propagateKeys();
     } else {
@@ -64,11 +65,11 @@ public class DonorService {
     }
     return donor;
   }
-  
+
   public Donor findByBusinessKey(String studyId, String submitterId) {
-    return repository.getByBusinessKey(studyId, submitterId);  
+    return repository.getByBusinessKey(studyId, submitterId);
   }
-  
+
   public List<Donor> findByParentId(String parentId) {
     val donors = repository.findByParentId(parentId);
     return donors;

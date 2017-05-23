@@ -6,16 +6,17 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import lombok.val;
+
 public enum AnalysisState {
 
-  RECEIVED("RECEIVED"), ERROR("ERROR"), SYSTEM_ERROR("SYSTEM ERROR"), VALIDATED("VALIDATED"), READY_FOR_UPLOAD("READY FOR UPLOAD"), 
-  READY_FOR_PUBLISH("READY FOR PUBLISH"), PUBLISHED("PUBLISHED"), SUPPRESSED("SUPPRESSED");
+  RECEIVED("RECEIVED"), ERROR("ERROR"), SYSTEM_ERROR("SYSTEM ERROR"), VALIDATED("VALIDATED"), READY_FOR_UPLOAD("READY FOR UPLOAD"), READY_FOR_PUBLISH("READY FOR PUBLISH"), PUBLISHED("PUBLISHED"), SUPPRESSED("SUPPRESSED");
 
   private final String value;
-  private final static Map<String, AnalysisState> CONSTANTS = new HashMap<String, AnalysisState>();
+  private final static Map<String, AnalysisState> CONSTANTS = new HashMap<>();
 
   static {
-    for (AnalysisState c : values()) {
+    for (val c : values()) {
       CONSTANTS.put(c.value, c);
     }
   }
@@ -36,7 +37,7 @@ public enum AnalysisState {
 
   @JsonCreator
   public static AnalysisState fromValue(String value) {
-    AnalysisState constant = CONSTANTS.get(value);
+    val constant = CONSTANTS.get(value);
     if (constant == null) {
       throw new IllegalArgumentException(value);
     } else {
