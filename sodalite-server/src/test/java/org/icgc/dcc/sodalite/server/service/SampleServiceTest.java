@@ -39,10 +39,6 @@ public class SampleServiceTest {
     assertThat(sample.getSampleId()).isEqualTo(id);
     assertThat(sample.getSampleSubmitterId()).isEqualTo("T285-G7-A5");
     assertThat(sample.getSampleType()).isEqualTo(SampleType.DNA);
-    assertThat(sample.getFiles().size()).isEqualTo(2);
-
-    // Verify that we got the same files as the file service says we should.
-    sample.getFiles().forEach(file -> assertThat(file.equals(getFile(file.getObjectId()))));
   }
 
   private File getFile(String id) {
@@ -52,15 +48,17 @@ public class SampleServiceTest {
   @Test
   public void testCreateAndDeleteSample() {
     val s = new Sample()
+        .withStudyId("ABC123")
+        .withSampleId("SP2")
         .withSampleSubmitterId("101-IP-A")
         .withSampleType(SampleType.AMPLIFIED_DNA)
         .withFiles(new ArrayList<File>());
 
-    val status = sampleService.create("SP2", s);
+    val status = sampleService.create(s);
     val id = s.getSampleId();
 
     assertThat(id).startsWith("SA");
-    assertThat(status).isEqualTo("ok:" + id);
+    assertThat(status).isEqualTo(id);
 
     Sample check = sampleService.getById(id);
     assertThat(s).isEqualToComparingFieldByField(check);
@@ -73,16 +71,20 @@ public class SampleServiceTest {
   @Test
   public void testUpdateSample() {
     val s = new Sample()
+        .withStudyId("ABC123")
+        .withSpecimenId("SP2")
         .withSampleSubmitterId("102-CBP-A")
         .withSampleType(SampleType.RNA)
         .withFiles(new ArrayList<File>());
 
-    sampleService.create("SP2", s);
+    sampleService.create(s);
 
     val id = s.getSampleId();
 
     val s2 = new Sample()
         .withSampleId(id)
+        .withStudyId("ABC123")
+        .withSpecimenId("SP2")
         .withSampleSubmitterId("Sample 102")
         .withSampleType(SampleType.FFPE_DNA)
         .withFiles(new ArrayList<File>());

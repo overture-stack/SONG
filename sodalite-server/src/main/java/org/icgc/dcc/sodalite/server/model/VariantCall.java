@@ -12,12 +12,16 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "analysisId", "variantCallingTool", "tumourSampleSubmitterId", "tumourSampleId", "matchedNormalSampleSubmitterId", "matchedNormalSampleId"
+@JsonPropertyOrder({ "studyId", "analysisId", "variantCallingTool", "tumourSampleSubmitterId", "tumourSampleId", "matchedNormalSampleSubmitterId", "matchedNormalSampleId"
 })
 public class VariantCall {
 
+  @JsonProperty("studyId")
+  private String studyId;
   @JsonProperty("analysisId")
   private String analysisId;
+  @JsonProperty("analysisSubmitterId")
+  private String analysisSubmitterId;
   @JsonProperty("variantCallingTool")
   private String variantCallingTool;
   @JsonProperty("tumourSampleSubmitterId")
@@ -31,6 +35,21 @@ public class VariantCall {
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+  @JsonProperty("studyId")
+  public String getStudyId() {
+    return studyId;
+  }
+
+  @JsonProperty("studyId")
+  public void setStudyId(String studyId) {
+    this.studyId = studyId;
+  }
+
+  public VariantCall withStudyId(String studyId) {
+    this.studyId = studyId;
+    return this;
+  }
+
   @JsonProperty("analysisId")
   public String getAnalysisId() {
     return analysisId;
@@ -43,6 +62,21 @@ public class VariantCall {
 
   public VariantCall withAnalysisId(String analysisId) {
     this.analysisId = analysisId;
+    return this;
+  }
+
+  @JsonProperty("analysisSubmitterId")
+  public String getAnalysisSubmitterId() {
+    return analysisSubmitterId;
+  }
+
+  @JsonProperty("analysisSubmitterId")
+  public void setAnalysisSubmitterId(String analysisSubmitterId) {
+    this.analysisSubmitterId = analysisSubmitterId;
+  }
+
+  public VariantCall withAnalysisSubmitterId(String analysisSubmitterId) {
+    this.analysisSubmitterId = analysisSubmitterId;
     return this;
   }
 

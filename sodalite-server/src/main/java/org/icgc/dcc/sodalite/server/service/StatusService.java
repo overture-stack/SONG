@@ -1,7 +1,9 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import org.icgc.dcc.sodalite.server.model.AnalysisState;
 import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
 import org.icgc.dcc.sodalite.server.repository.StatusRepository;
+import org.skife.jdbi.v2.sqlobject.Bind;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +22,8 @@ public class StatusService {
     return !statusRepository.checkIfExists(uploadId, studyId).isEmpty();
   }
 
-  public void log(@NonNull String studyId, @NonNull String uploadId, @NonNull String jsonPayload) {
-    statusRepository.create(uploadId, studyId, SubmissionStatus.CREATED, jsonPayload);
+  public void log(String studyId, String uploadId, String jsonPayload, final String accessToken) {
+    statusRepository.create(uploadId, studyId, AnalysisState.RECEIVED.value(), jsonPayload, accessToken);
   }
 
   public SubmissionStatus getStatus(@NonNull String studyId, @NonNull String uploadId) {
@@ -29,24 +31,24 @@ public class StatusService {
     return status;
   }
 
-  public void updateAsValid(@NonNull String studyId, @NonNull String uploadId) {
-    statusRepository.update(uploadId, studyId, SubmissionStatus.VALIDATED, "");
+  public void updateAsValid(String studyId, String uploadId) {
+    statusRepository.updateState(uploadId, studyId, AnalysisState.VALIDATED.value(), "", "SYSTEM");
   }
 
-  public void updateAsInvalid(@NonNull String studyId, @NonNull String uploadId, @NonNull String errorMessages) {
-    statusRepository.update(uploadId, studyId, SubmissionStatus.VALIDATION_ERROR, errorMessages);
+  public void updateAsInvalid(String studyId, String uploadId, String errorMessages) {
+    statusRepository.updateState(uploadId, studyId, AnalysisState.ERROR.value(), errorMessages, "SYSTEM");
   }
 
-  public void updateAsUploaded(@NonNull String studyId, @NonNull String uploadId) {
-    statusRepository.update(uploadId, studyId, SubmissionStatus.UPLOADED, "");
+  public void updateAsReceived(@NonNull String studyId, @NonNull String uploadId, final String accessToken) {
+    statusRepository.updateState(uploadId, studyId, AnalysisState.RECEIVED.value(), "", accessToken);
   }
 
-  public void updateAsPublished(@NonNull String studyId, @NonNull String uploadId) {
-    statusRepository.update(uploadId, studyId, SubmissionStatus.PUBLISHED, "");
+  public void updateAsPublished(@NonNull String studyId, @NonNull String uploadId, final String accessToken) {
+    statusRepository.updateState(uploadId, studyId, AnalysisState.PUBLISHED.value(), "", accessToken);
   }
 
   public int publishAll(@NonNull String studyId) {
-    return statusRepository.updateState(studyId, SubmissionStatus.UPLOADED, SubmissionStatus.PUBLISHED);
+    return statusRepository.updateState(studyId, AnalysisState.READY_FOR_PUBLISH.value(), AnalysisState.PUBLISHED.value());
   }
 
 }

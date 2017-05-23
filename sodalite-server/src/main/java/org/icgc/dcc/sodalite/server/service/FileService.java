@@ -19,38 +19,39 @@ public class FileService {
   @Autowired
   IdService idService;
 
-  public String create(String parentId, File f) {
+  public String create(File f) {
     val id = idService.generateFileId();
     f.setObjectId(id);
-    int status = repository.save(id, parentId, f.getFileName(), f.getFileSize(), f.getFileType().toString(), f.getFileMd5(), f.getMetadataDoc());
+    int status = repository.save(id, f.getStudyId(), f.getSampleId(), f.getFileName(), f.getFileSize(), f.getFileType().toString(), f.getFileMd5(), f.getMetadataDoc());
 
     if (status != 1) {
       return "error: Can't create" + f.toString();
     }
 
-    return "ok:" + id;
+    return id;
   }
 
-  public String update(File f) {
-    repository.set(f.getObjectId(), f.getFileName(), f.getFileSize(), f.getFileType().toString(), f.getFileMd5(), f.getMetadataDoc());
-    return "ok";
+  public void update(File f) {
+    repository.update(f.getObjectId(), f.getStudyId(), f.getSampleId(), f.getFileName(), f.getFileSize(), f.getFileType().toString(), f.getFileMd5(), f.getMetadataDoc());
   }
 
-  public String delete(String id) {
+  public void delete(String id) {
     repository.delete(id);
-    return "ok";
   }
 
   public File getById(String id) {
     return repository.getById(id);
   }
 
-  public String deleteByParentId(String parentId) {
-    repository.deleteBySampleId(parentId);
-    return "ok";
+  public void deleteByParentId(String sampleId) {
+    repository.deleteBySampleId(sampleId);
   }
 
-  public List<File> findByParentId(String parentId) {
-    return repository.findByParentId(parentId);
+  public File findByBusinessKey(String studyId, String submitterFileName) {
+    return repository.getByBusinessKey(studyId, submitterFileName);
+  }
+
+  public List<File> findByParentId(String sampleId) {
+    return repository.findByParentId(sampleId);
   }
 }
