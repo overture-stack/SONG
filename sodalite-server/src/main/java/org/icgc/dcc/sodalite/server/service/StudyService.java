@@ -17,15 +17,16 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.Study;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.val;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +35,6 @@ public class StudyService {
   /**
    * Dependencies
    */
-  @Autowired
-  IdService idService;
   @Autowired
   StudyRepository studyRepository;
   @Autowired
@@ -48,11 +47,11 @@ public class StudyService {
 
   @SneakyThrows
   public Study getEntireStudy(String studyId) {
-    Study study = studyRepository.get(studyId);
+    val study = studyRepository.get(studyId);
     if (study == null) {
       return null;
     }
-    study.setDonors(donorService.findByParentId(studyId));
+    study.setDonor(donorService.findByParentId(studyId).get(0));
     return study;
   }
 

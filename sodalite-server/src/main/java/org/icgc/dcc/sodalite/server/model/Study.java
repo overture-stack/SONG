@@ -17,23 +17,22 @@
  */
 package org.icgc.dcc.sodalite.server.model;
 
-import java.util.Collection;
 import java.util.HashMap;
-
 import java.util.Map;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "studyId", "name", "organization", "description", "donors"
 })
-public class Study implements Entity {
+public class Study extends AbstractEntity {
 
   @JsonProperty("studyId")
   private String studyId;
@@ -47,8 +46,8 @@ public class Study implements Entity {
   @JsonProperty("description")
   private String description;
 
-  @JsonProperty("donors")
-  private Collection<Donor> donors;
+  @JsonProperty("donor")
+  private Donor donor;
 
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -113,26 +112,18 @@ public class Study implements Entity {
     return this;
   }
 
-  @JsonProperty("donors")
-  public Collection<Donor> getDonors() {
-    return donors;
+  @JsonProperty("donor")
+  public Donor getDonor() {
+    return donor;
   }
 
-  @JsonProperty("donors")
-  public void setDonors(Collection<Donor> donors) {
-    this.donors = donors;
+  @JsonProperty("donor")
+  public void setDonor(Donor donor) {
+    this.donor = donor;
   }
 
-  public void addDonor(Donor donor) {
-    donors.add(donor);
-  }
-
-  public void addDonors(Collection<Donor> donors) {
-    donors.addAll(donors);
-  }
-
-  public Study withDonors(Collection<Donor> donors) {
-    this.donors = donors;
+  public Study withDonor(Donor donor) {
+    this.donor = donor;
     return this;
   }
 
@@ -154,6 +145,13 @@ public class Study implements Entity {
   public Study withAdditionalProperty(String name, Object value) {
     this.additionalProperties.put(name, value);
     return this;
+  }
+
+  @Override
+  public void propagateKeys() {
+    if (donor != null) {
+      donor.setStudyId(studyId);
+    }
   }
 
 }

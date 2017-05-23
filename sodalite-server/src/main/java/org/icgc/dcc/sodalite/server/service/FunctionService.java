@@ -1,6 +1,6 @@
 package org.icgc.dcc.sodalite.server.service;
 
-import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
+import org.icgc.dcc.sodalite.server.model.AnalysisState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +15,12 @@ public class FunctionService {
   @Autowired
   StatusService statusService;
 
-  public boolean notifyUpload(@NonNull String studyId, @NonNull String uploadId) {
-    if (notInState(SubmissionStatus.VALIDATED, studyId, uploadId)) {
+  public boolean notifyUpload(@NonNull String studyId, @NonNull String uploadId, @NonNull String accessToken) {
+    if (notInState(AnalysisState.VALIDATED, studyId, uploadId)) {
       return false;
     }
 
-    statusService.updateAsUploaded(studyId, uploadId);
+    statusService.updateAsReceived(studyId, uploadId, accessToken);
     return true;
   }
 
@@ -28,16 +28,16 @@ public class FunctionService {
     return statusService.publishAll(studyId);
   }
 
-  public boolean publishId(@NonNull String studyId, @NonNull String uploadId) {
-    if (notInState(SubmissionStatus.UPLOADED, studyId, uploadId)) {
+  public boolean publishId(@NonNull String studyId, @NonNull String uploadId, @NonNull String accessToken) {
+    if (notInState(AnalysisState.READY_FOR_PUBLISH, studyId, uploadId)) {
       return false;
     }
 
-    statusService.updateAsPublished(studyId, uploadId);
+    statusService.updateAsPublished(studyId, uploadId, accessToken);
     return true;
   }
 
-  public boolean notInState(String state, String studyId, String uploadId) {
+  public boolean notInState(AnalysisState state, String studyId, String uploadId) {
     val s = statusService.getStatus(studyId, uploadId);
 
     if (s == null) {

@@ -20,8 +20,10 @@ package org.icgc.dcc.sodalite.server.config;
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
 import org.icgc.dcc.sodalite.server.repository.StatusRepository;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
+import org.icgc.dcc.sodalite.server.service.SequencingReadFileAssociationService;
 import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
 import org.icgc.dcc.sodalite.server.repository.SampleRepository;
+import org.icgc.dcc.sodalite.server.repository.SequencingReadRepository;
 import org.icgc.dcc.sodalite.server.repository.FileRepository;
 import org.skife.jdbi.v2.DBI;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +68,16 @@ public class RepositoryConfig {
   @Bean
   public FileRepository FileRepository(DBI dbi) {
     return dbi.open(FileRepository.class);
+  }
+
+  @Bean
+  public SequencingReadRepository sequencingReadRepository(DBI dbi) {
+    return dbi.open(SequencingReadRepository.class);
+  }
+  
+  @Bean
+  public SequencingReadFileAssociationService sequencingReadFileAssociationService(DBI dbi) {
+    return dbi.open(SequencingReadFileAssociationService.class);
   }
 
   @Bean

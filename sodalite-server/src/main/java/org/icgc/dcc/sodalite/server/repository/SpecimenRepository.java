@@ -12,23 +12,26 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(SpecimenMapper.class)
 public interface SpecimenRepository {
 
-  @SqlUpdate("INSERT INTO Specimen (id, donor_id, submitter_id, class, type) VALUES (:id, :donor_id, :submitter_id, :class, :type)")
-  int save(@Bind("id") String id, @Bind("donor_id") String donor_id, @Bind("submitter_id") String submitter_id,
+  @SqlUpdate("INSERT INTO specimen (id, study_id, donor_id, submitter_id, class, type) VALUES (:id, :study_id, :donor_id, :submitter_id, :class, :type)")
+  int save(@Bind("id") String id, @Bind("study_id") String study_id, @Bind("donor_id") String donor_id, @Bind("submitter_id") String submitter_id,
       @Bind("class") String class_, @Bind("type") String type);
 
-  @SqlUpdate("UPDATE Specimen SET submitter_id=:submitter_id, class=:class, type=:type where id=:id")
-  int set(@Bind("id") String id, @Bind("submitter_id") String submitter_id,
+  @SqlUpdate("UPDATE specimen SET study_id=:study_id, donor_id=:donor_id, submitter_id=:submitter_id, class=:class, type=:type where id=:id")
+  int update(@Bind("id") String id, @Bind("study_id") String study_id, @Bind("donor_id") String donor_id, @Bind("submitter_id") String submitter_id,
       @Bind("class") String class_, @Bind("type") String type);
 
-  @SqlQuery("SELECT id,submitter_id, class, type FROM Specimen where donor_id=:donor_id")
+  @SqlQuery("SELECT id, study_id, donor_id, submitter_id, class, type FROM specimen where donor_id=:donor_id")
   List<Specimen> findByParentId(@Bind("donor_id") String donor_id);
 
-  @SqlQuery("SELECT id,submitter_id, class, type FROM Specimen where id=:id")
+  @SqlQuery("SELECT id, study_id, donor_id, submitter_id, class, type FROM specimen where id=:id")
   Specimen getById(@Bind("id") String id);
 
-  @SqlQuery("SELECT id from Specimen where donor_id=:donor_id")
+  @SqlQuery("SELECT id, study_id, donor_id, submitter_id, class, type FROM sample WHERE study_id=:study_id AND submitter_id=:submitter_id")
+  Specimen getByBusinessKey(@Bind("study_id") String studyId, @Bind("submitter_id") String submitter_id);
+  
+  @SqlQuery("SELECT id from specimen where donor_id=:donor_id")
   List<String> getIds(@Bind("donor_id") String donor_id);
 
-  @SqlUpdate("DELETE from Specimen where id=:id")
+  @SqlUpdate("DELETE from specimen where id=:id")
   int delete(@Bind("id") String id);
 }

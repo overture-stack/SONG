@@ -1,6 +1,6 @@
 package org.icgc.dcc.sodalite.server.model;
 
-public class Analysis {
+public class AnalysisObject {
 
   String id;
   String study_id;

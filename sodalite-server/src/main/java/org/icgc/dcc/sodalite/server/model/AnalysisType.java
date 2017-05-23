@@ -8,12 +8,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import lombok.val;
 
-public enum LibraryStrategy {
-
-  WGS("WGS"), WXS("WXS"), RNA_SEQ("RNA-Seq"), CH_IP_SEQ("ChIP-Seq"), MI_RNA_SEQ("miRNA-Seq"), BISULFITE_SEQ("Bisulfite-Seq"), VALIDATION("Validation"), AMPLICON("Amplicon"), OTHER("Other");
+public enum AnalysisType {
+  SEQUENCING_READ("sequencingRead"), VARIANT_CALL("variantCall"), TUMOUR_NORMAL_PAIR("tumourNormalPair");
 
   private final String value;
-  private final static Map<String, LibraryStrategy> CONSTANTS = new HashMap<String, LibraryStrategy>();
+  private final static Map<String, AnalysisType> CONSTANTS = new HashMap<String, AnalysisType>();
 
   static {
     for (val c : values()) {
@@ -21,7 +20,7 @@ public enum LibraryStrategy {
     }
   }
 
-  private LibraryStrategy(String value) {
+  private AnalysisType(String value) {
     this.value = value;
   }
 
@@ -36,7 +35,7 @@ public enum LibraryStrategy {
   }
 
   @JsonCreator
-  public static LibraryStrategy fromValue(String value) {
+  public static AnalysisType fromValue(String value) {
     val constant = CONSTANTS.get(value);
     if (constant == null) {
       throw new IllegalArgumentException(value);
@@ -44,4 +43,14 @@ public enum LibraryStrategy {
       return constant;
     }
   }
+
+  public static boolean isAnalysisType(String value) {
+    try {
+      AnalysisType.fromValue(value);
+    } catch (IllegalArgumentException iae) {
+      return false;
+    }
+    return true;
+  }
+
 }

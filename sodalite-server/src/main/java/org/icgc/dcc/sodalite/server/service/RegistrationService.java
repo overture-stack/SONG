@@ -17,22 +17,20 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
-
 import org.icgc.dcc.sodalite.server.validation.SchemaValidator;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -44,27 +42,34 @@ public class RegistrationService {
   @Autowired
   private StatusService statusService;
 
+  @Autowired
+  private ModelManager modelManager;
+
   protected static final ObjectMapper mapper = new ObjectMapper().registerModule(new ParameterNamesModule())
       .registerModule(new Jdk8Module())
       .registerModule(new JavaTimeModule());
 
   @Async
-  public void register(String schemaId, String studyId, String uploadId, String payload) {
+  public void register(String schemaId, String studyId, String uploadId, String payload, final String accessToken) {
     try {
-      statusService.log(studyId, uploadId, payload);
+      statusService.log(studyId, uploadId, payload, accessToken);
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
       throw new RepositoryException(jdbie.getCause());
     }
 
     try {
-      JsonNode jsonNode = mapper.reader().readTree(payload);
+      val jsonNode = mapper.reader().readTree(payload);
       val response = validator.validate(schemaId, jsonNode);
 
       if (response.isValid()) {
         statusService.updateAsValid(studyId, uploadId);
-        // TODO: perform registration now - with the payload string
-        // or could potentially pass in the JsonNode as well
+        try {
+          modelManager.persist(studyId, uploadId, jsonNode);
+        } catch (IllegalArgumentException iae) {
+          // This should be impossible if JSON Schema enforces valid value for root node keys
+          statusService.updateAsInvalid(studyId, uploadId, "Unrecognized Analysis Object type.");
+        }
       } else {
         statusService.updateAsInvalid(studyId, uploadId, response.getValidationErrors());
       }

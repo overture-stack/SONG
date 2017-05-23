@@ -9,61 +9,69 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class DonorService {
 
   @Autowired
-  DonorRepository donorRepository;
+  DonorRepository repository;
   @Autowired
   IdService idService;
-  @Autowired
-  SpecimenService specimenService;
 
-  public String create(String parentId, Donor d) {
-    String id = idService.generateDonorId();
-    d.setDonorId(id);
-    int status = donorRepository.save(id, parentId, d.getDonorSubmitterId(), d.getDonorGender().toString());
+  public String create(Donor d) {
+    val donorId = idService.generateDonorId();
+    d.setDonorId(donorId);
+    val status = repository.save(donorId, d.getStudyId(), d.getDonorSubmitterId(), d.getDonorGender().toString());
     if (status != 1) {
       return "error: Can't create" + d.toString();
     }
-    d.getSpecimens().forEach(s -> specimenService.create(id, s));
+    d.propagateKeys();
 
-    return "ok:" + id;
+    return donorId;
   }
 
-  public String update(String studyId, Donor d) {
-    if (donorRepository.set(d.getDonorId(), studyId, d.getDonorSubmitterId(), d.getDonorGender().toString()) == 1) {
-      return "Updated";
+  public void update(Donor d) {
+    if (repository.update(d.getDonorId(), d.getStudyId(), d.getDonorSubmitterId(),
+        d.getDonorGender().toString()) == 1) {
+      // in case any of the parent id's were changed
+      d.propagateKeys();
+    } else {
+      throw new DatabaseRepositoryException(String.format("", d));
     }
-    return "Failed";
   }
 
-  public String delete(String studyId, String id) {
-    specimenService.deleteByParentId(id);
-    donorRepository.delete(studyId, id);
-    return "OK";
+  public void delete(String id) {
+    log.info(String.format("About to delete Donor with id %s", id));
+    repository.delete(id);
   }
 
-  public String deleteByParentId(String studyId) {
-    donorRepository.getIds(studyId).forEach(id -> delete(studyId, id));
-
-    return "OK";
+  /**
+   * Are we sure we want to provide this capability?
+   * 
+   * @param studyId
+   */
+  public void deleteByParentId(String studyId) {
+    log.info(String.format("About to delete all Donors belonging to Study %s", studyId));
+    repository.getIds(studyId).forEach(id -> delete(id));
   }
 
-  public Donor getById(String studyId, String id) {
-    val donor = donorRepository.getById(studyId, id);
+  public Donor getById(String id) {
+    val donor = repository.getById(id);
     if (donor == null) {
       return null;
     }
-    donor.setSpecimens(specimenService.findByParentId(id));
     return donor;
   }
 
+  public Donor findByBusinessKey(String studyId, String submitterId) {
+    return repository.getByBusinessKey(studyId, submitterId);
+  }
+
   public List<Donor> findByParentId(String parentId) {
-    val donors = donorRepository.findByParentId(parentId);
-    donors.forEach(d -> d.setSpecimens(specimenService.findByParentId(d.getDonorId())));
+    val donors = repository.findByParentId(parentId);
     return donors;
   }
 
