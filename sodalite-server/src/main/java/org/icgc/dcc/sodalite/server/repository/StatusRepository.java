@@ -24,6 +24,9 @@ public interface StatusRepository {
   @SqlQuery("SELECT id, study_id, state, created_at, updated_at, errors, payload FROM submissions WHERE id = :uploadId AND study_id = :studyId")
   SubmissionStatus get(@Bind("uploadId") String id, @Bind("studyId") String studyId);
 
+  @SqlQuery("SELECT id, study_id, state, created_at, updated_at, errors, payload FROM submissions WHERE id = :uploadId")
+  SubmissionStatus get(@Bind("uploadId") String id);
+
   @SqlQuery("SELECT id FROM submissions WHERE id = :uploadId AND study_id = :studyId")
   List<String> checkIfExists(@Bind("uploadId") String id, @Bind("studyId") String studyId);
 
