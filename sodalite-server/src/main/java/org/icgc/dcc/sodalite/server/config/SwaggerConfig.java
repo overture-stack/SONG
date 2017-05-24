@@ -14,11 +14,46 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.service;
 
-//import static org.junit.Assert.*;
+package org.icgc.dcc.sodalite.server.config;
 
-public class IdServiceTest {
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.swagger.web.UiConfiguration;
+
+@EnableSwagger2
+@Configuration
+public class SwaggerConfig {
+
+  @Bean
+  public Docket api() {
+    return new Docket(DocumentationType.SWAGGER_2)
+        .select()
+        .apis(RequestHandlerSelectors.basePackage("org.icgc.dcc.sodalite.server.controller"))
+        .paths(PathSelectors.any())
+        .build()
+        .pathMapping("/");
+  }
+
+  @Bean
+  UiConfiguration uiConfig() {
+    return new UiConfiguration(
+        "validatorUrl",
+        "none",
+        "alpha",
+        "schema",
+        UiConfiguration.Constants.DEFAULT_SUBMIT_METHODS,
+        false,
+        true,
+        60000L);
+  }
 
 }

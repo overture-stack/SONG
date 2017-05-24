@@ -23,36 +23,39 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/studies/{study_id}")
+@RequestMapping("/studies/{studyId}")
 public class DonorController {
 
+  /**
+   * Dependencies
+   */
   @Autowired
   private final DonorService donorService;
 
   @PostMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(@PathVariable("study_id") String study_id, @RequestBody Donor donor) {
-    return donorService.create(study_id, donor);
+  public String create(@PathVariable("study_id") String studyId, @RequestBody Donor donor) {
+    return donorService.create(studyId, donor);
 
   }
 
   @GetMapping(value = "/donor/{id}")
   @ResponseBody
-  public Donor read(@PathVariable("study_id") String studyId, @PathVariable("id") String id) {
+  public Donor read(@PathVariable("studyId") String studyId, @PathVariable("id") String id) {
     return donorService.getById(studyId, id);
   }
 
   @PutMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String update(@PathVariable("study_id") String studyId, @RequestBody Donor donor) {
+  public String update(@PathVariable("studyId") String studyId, @RequestBody Donor donor) {
     return donorService.update(studyId, donor);
   }
 
   @DeleteMapping(value = "/donor/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String delete(@PathVariable("study_id") String studyId, @PathVariable("ids") List<String> ids) {
+  public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(id -> donorService.delete(studyId, id));
     return "OK";
   }

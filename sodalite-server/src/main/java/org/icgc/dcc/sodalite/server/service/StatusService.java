@@ -25,8 +25,11 @@ public class StatusService {
   }
 
   public SubmissionStatus getStatus(@NonNull String studyId, @NonNull String uploadId) {
-    val status = statusRepository.get(uploadId, studyId);
-    return status;
+    return statusRepository.get(uploadId, studyId);
+  }
+
+  public SubmissionStatus getStatus(@NonNull String uploadId) {
+    return statusRepository.get(uploadId);
   }
 
   public void updateAsValid(@NonNull String studyId, @NonNull String uploadId) {
