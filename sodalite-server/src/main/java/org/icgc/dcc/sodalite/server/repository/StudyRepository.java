@@ -19,7 +19,7 @@ package org.icgc.dcc.sodalite.server.repository;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.Study;
+import org.icgc.dcc.sodalite.server.model.entity.Study;
 import org.icgc.dcc.sodalite.server.repository.mapper.StudyMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;

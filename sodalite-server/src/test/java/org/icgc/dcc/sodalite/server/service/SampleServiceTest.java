@@ -6,9 +6,8 @@ import java.util.ArrayList;
 
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
-import org.icgc.dcc.sodalite.server.model.File;
-import org.icgc.dcc.sodalite.server.model.Sample;
-import org.icgc.dcc.sodalite.server.model.SampleType;
+import org.icgc.dcc.sodalite.server.model.entity.File;
+import org.icgc.dcc.sodalite.server.model.entity.Sample;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class SampleServiceTest {
     val sample = sampleService.getById(id);
     assertThat(sample.getSampleId()).isEqualTo(id);
     assertThat(sample.getSampleSubmitterId()).isEqualTo("T285-G7-A5");
-    assertThat(sample.getSampleType()).isEqualTo(SampleType.DNA);
+    assertThat(sample.getSampleType()).isEqualTo(Sample.SampleType.DNA);
     assertThat(sample.getFiles().size()).isEqualTo(2);
 
     // Verify that we got the same files as the file service says we should.
@@ -53,7 +52,7 @@ public class SampleServiceTest {
   public void testCreateAndDeleteSample() {
     val s = new Sample()
         .withSampleSubmitterId("101-IP-A")
-        .withSampleType(SampleType.AMPLIFIED_DNA)
+        .withSampleType(Sample.SampleType.AMPLIFIED_DNA)
         .withFiles(new ArrayList<File>());
 
     val status = sampleService.create("SP2", s);
@@ -74,7 +73,7 @@ public class SampleServiceTest {
   public void testUpdateSample() {
     val s = new Sample()
         .withSampleSubmitterId("102-CBP-A")
-        .withSampleType(SampleType.RNA)
+        .withSampleType(Sample.SampleType.RNA)
         .withFiles(new ArrayList<File>());
 
     sampleService.create("SP2", s);
@@ -84,7 +83,7 @@ public class SampleServiceTest {
     val s2 = new Sample()
         .withSampleId(id)
         .withSampleSubmitterId("Sample 102")
-        .withSampleType(SampleType.FFPE_DNA)
+        .withSampleType(Sample.SampleType.FFPE_DNA)
         .withFiles(new ArrayList<File>());
 
     sampleService.update(s2);

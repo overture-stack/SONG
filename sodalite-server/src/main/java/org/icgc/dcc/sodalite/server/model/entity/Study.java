@@ -14,8 +14,9 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.model;
+package org.icgc.dcc.sodalite.server.model.entity;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,7 +30,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.icgc.dcc.sodalite.server.model.entity.Donor;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "studyId", "name", "organization", "description", "donors"

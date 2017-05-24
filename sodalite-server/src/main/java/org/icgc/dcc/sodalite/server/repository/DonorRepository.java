@@ -19,8 +19,8 @@ package org.icgc.dcc.sodalite.server.repository;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.Donor;
-//import org.icgc.dcc.sodalite.server.model.DonorGender;
+import org.icgc.dcc.sodalite.server.model.entity.Donor;
+//import org.icgc.dcc.sodalite.server.model.entity.Donor.DonorGender;
 import org.icgc.dcc.sodalite.server.repository.mapper.DonorMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;

@@ -22,7 +22,7 @@ import lombok.SneakyThrows;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.Study;
+import org.icgc.dcc.sodalite.server.model.entity.Study;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,8 +34,6 @@ public class StudyService {
   /**
    * Dependencies
    */
-  @Autowired
-  IdService idService;
   @Autowired
   StudyRepository studyRepository;
   @Autowired
@@ -70,4 +68,5 @@ public class StudyService {
   public int saveStudy(Study study) {
     return studyRepository.save(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
   }
+
 }

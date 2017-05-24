@@ -17,8 +17,7 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import org.icgc.dcc.sodalite.server.model.Sample;
-import org.icgc.dcc.sodalite.server.model.SampleType;
+import org.icgc.dcc.sodalite.server.model.entity.Sample;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -33,7 +32,7 @@ public class SampleMapper implements ResultSetMapper<Sample> {
                                                                                         // Dušan
     return new Sample()
         .withSampleId(r.getString("id"))
-        .withSampleType(SampleType.fromValue(r.getString("type")))
+        .withSampleType(Sample.SampleType.fromValue(r.getString("type")))
         .withSampleSubmitterId(r.getString("submitter_id"));
   }
 

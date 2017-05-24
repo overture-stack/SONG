@@ -2,7 +2,7 @@ package org.icgc.dcc.sodalite.server.service;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.Sample;
+import org.icgc.dcc.sodalite.server.model.entity.Sample;
 import org.icgc.dcc.sodalite.server.repository.SampleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

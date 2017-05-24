@@ -17,8 +17,7 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import org.icgc.dcc.sodalite.server.model.File;
-import org.icgc.dcc.sodalite.server.model.FileType;
+import org.icgc.dcc.sodalite.server.model.entity.File;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -32,7 +31,7 @@ public class FileMapper implements ResultSetMapper<File> {
                                                                                       // in method signature - Dušan
     return new File()
         .withObjectId(r.getString("id"))
-        .withFileType(FileType.valueOf(r.getString("type")))
+        .withFileType(File.FileType.valueOf(r.getString("type")))
         .withFileName(r.getString("name"))
         .withFileSize(r.getLong("size"))
         .withFileMd5(r.getString("md5"))

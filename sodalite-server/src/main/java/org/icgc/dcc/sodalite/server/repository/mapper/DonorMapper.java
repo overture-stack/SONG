@@ -17,8 +17,7 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import org.icgc.dcc.sodalite.server.model.Donor;
-import org.icgc.dcc.sodalite.server.model.DonorGender;
+import org.icgc.dcc.sodalite.server.model.entity.Donor;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -40,7 +39,7 @@ public class DonorMapper implements ResultSetMapper<Donor> {
     return new Donor()
         .withDonorId(r.getString("id"))
         .withDonorSubmitterId(r.getString("submitter_id"))
-        .withDonorGender(DonorGender.fromValue(r.getString("gender")));
+        .withDonorGender(Donor.DonorGender.fromValue(r.getString("gender")));
   }
 
 }

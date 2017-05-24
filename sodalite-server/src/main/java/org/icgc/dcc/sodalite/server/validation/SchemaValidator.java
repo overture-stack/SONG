@@ -22,10 +22,6 @@ public class SchemaValidator {
   @Autowired
   private Map<String, JsonSchema> schemaCache;
 
-  public String test() {
-    return Integer.toString(schemaCache.size());
-  }
-
   @SneakyThrows
   public ValidationResponse validate(String schemaId, JsonNode payloadRoot) {
     if (schemaCache.containsKey(schemaId)) {

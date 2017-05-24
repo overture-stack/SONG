@@ -1,11 +1,9 @@
 package org.icgc.dcc.sodalite.server.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.SwaggerDefinition;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
-import org.icgc.dcc.sodalite.server.model.Analysis;
+import org.icgc.dcc.sodalite.server.model.entity.Analysis;
 import org.icgc.dcc.sodalite.server.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

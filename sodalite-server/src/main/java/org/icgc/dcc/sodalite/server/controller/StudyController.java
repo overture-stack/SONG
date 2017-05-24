@@ -20,26 +20,18 @@ package org.icgc.dcc.sodalite.server.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.icgc.dcc.sodalite.server.model.Study;
-import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
-import org.icgc.dcc.sodalite.server.service.StatusService;
+import org.icgc.dcc.sodalite.server.model.entity.Study;
 import org.icgc.dcc.sodalite.server.service.StudyService;
-import org.icgc.dcc.sodalite.server.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.ResponseEntity.ok;
-import static org.springframework.http.ResponseEntity.badRequest;
 
 import java.util.Arrays;
 import java.util.List;
-
-import javax.validation.Valid;
 
 import static org.springframework.http.MediaType.*;
 
