@@ -24,16 +24,19 @@ import lombok.val;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/studies/{study_id}")
+@RequestMapping("/studies/{studyId}")
 public class FileController {
 
+  /**
+   * Dependencies
+   */
   @Autowired
   private final FileService fileService;
 
   @PostMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(@PathVariable("study_id") String study_id, @RequestBody File file) {
+  public String create(@PathVariable("studyId") String studyId, @RequestBody File file) {
     val sampleId = (String) file.getAdditionalProperties().get("sampleId");
     return fileService.create(sampleId, file);
   }
@@ -47,13 +50,13 @@ public class FileController {
   @PutMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String update(@PathVariable("study_id") String study_id, @RequestBody File file) {
+  public String update(@PathVariable("studyId") String studyId, @RequestBody File file) {
     return fileService.update(file);
   }
 
   @DeleteMapping(value = "/file/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String delete(@PathVariable("study_id") String study_id, @PathVariable("ids") List<String> ids) {
+  public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(fileService::delete);
     return "OK";
   }

@@ -1,5 +1,7 @@
 package org.icgc.dcc.sodalite.server.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.SwaggerDefinition;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -16,7 +18,7 @@ import static org.springframework.http.MediaType.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/studies/{study_id}/analyses")
+@RequestMapping("/studies/{study_id}/analysis")
 public class AnalysisController {
 
   /**

@@ -24,20 +24,21 @@ import lombok.val;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/studies/{study_id}")
+@RequestMapping("/studies/{studyId}")
 public class SampleController {
 
+  /**
+   * Dependencies
+   */
   @Autowired
   private final SampleService sampleService;
 
   @PostMapping(value = "/sample", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(@PathVariable("study_id") String study_id, @RequestBody Sample sample) {
+  public String create(@PathVariable("studyId") String studyId, @RequestBody Sample sample) {
     val specimenId = (String) sample.getAdditionalProperties().get("specimenId");
-
     return sampleService.create(specimenId, sample);
-
   }
 
   @GetMapping(value = "/sample/{id}")
@@ -49,13 +50,13 @@ public class SampleController {
   @PutMapping(value = "/sample", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String update(@PathVariable("study_id") String study_id, @RequestBody Sample sample) {
+  public String update(@PathVariable("studyId") String studyId, @RequestBody Sample sample) {
     return sampleService.update(sample);
   }
 
   @DeleteMapping(value = "/sample/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String delete(@PathVariable("ids") List<String> ids) {
+  public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(sampleService::delete);
     return "OK";
   }
