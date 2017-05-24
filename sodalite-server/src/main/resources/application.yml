@@ -42,6 +42,12 @@ flyway:
 ---
 spring:
   profiles: dev
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /console
 
 auth:
   server:
