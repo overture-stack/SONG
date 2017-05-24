@@ -6,15 +6,13 @@ import java.util.ArrayList;
 
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
-import org.icgc.dcc.sodalite.server.model.Donor;
-import org.icgc.dcc.sodalite.server.model.DonorGender;
-import org.icgc.dcc.sodalite.server.model.Specimen;
+import org.icgc.dcc.sodalite.server.model.entity.Donor;
+import org.icgc.dcc.sodalite.server.model.entity.Specimen;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -39,7 +37,7 @@ public class DonorServiceTest {
     val d = service.getById("ABC123", "DO1");
     assertThat(d != null);
     assertThat(d.getDonorId()).isEqualTo("DO1");
-    assertThat(d.getDonorGender()).isEqualTo(DonorGender.MALE);
+    assertThat(d.getDonorGender()).isEqualTo(Donor.DonorGender.MALE);
     assertThat(d.getDonorSubmitterId()).isEqualTo("Subject-X23Alpha7");
     assertThat(d.getSpecimens().size()).isEqualTo(2);
 
@@ -56,7 +54,7 @@ public class DonorServiceTest {
   @Test
   public void testCreateAndDeleteDonor() {
     val d = new Donor()
-        .withDonorGender(DonorGender.UNSPECIFIED)
+        .withDonorGender(Donor.DonorGender.UNSPECIFIED)
         .withDonorSubmitterId("Subject X21-Alpha")
         .withSpecimens(new ArrayList<Specimen>());
     assertThat(d.getDonorId()).isNull();
@@ -78,7 +76,7 @@ public class DonorServiceTest {
   @Test
   public void testUpdateDonor() {
     val d = new Donor()
-        .withDonorGender(DonorGender.MALE)
+        .withDonorGender(Donor.DonorGender.MALE)
         .withDonorSubmitterId("Triangle-Arrow-S")
         .withSpecimens(new ArrayList<Specimen>());
 
@@ -88,7 +86,7 @@ public class DonorServiceTest {
 
     val d2 = new Donor()
         .withDonorId(id)
-        .withDonorGender(DonorGender.FEMALE)
+        .withDonorGender(Donor.DonorGender.FEMALE)
         .withDonorSubmitterId("X21-Beta-17")
         .withSpecimens(new ArrayList<Specimen>());
 

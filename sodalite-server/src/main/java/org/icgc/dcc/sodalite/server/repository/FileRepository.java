@@ -2,7 +2,7 @@ package org.icgc.dcc.sodalite.server.repository;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.File;
+import org.icgc.dcc.sodalite.server.model.entity.File;
 import org.icgc.dcc.sodalite.server.repository.mapper.FileMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;

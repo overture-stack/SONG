@@ -5,7 +5,7 @@ import static java.lang.String.format;
 import java.util.List;
 import java.util.Map;
 
-import org.icgc.dcc.sodalite.server.model.Analysis;
+import org.icgc.dcc.sodalite.server.model.entity.Analysis;
 
 import org.springframework.stereotype.Service;
 

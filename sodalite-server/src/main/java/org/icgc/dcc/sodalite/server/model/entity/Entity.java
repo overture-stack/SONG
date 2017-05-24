@@ -14,28 +14,9 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import org.icgc.dcc.sodalite.server.model.entity.File;
-import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
+package org.icgc.dcc.sodalite.server.model.entity;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-public class FileMapper implements ResultSetMapper<File> {
-
-  public File map(int index, ResultSet r, StatementContext ctx) throws SQLException { // I prefer braces on next line
-                                                                                      // when declaring exception throws
-                                                                                      // in method signature - Dušan
-    return new File()
-        .withObjectId(r.getString("id"))
-        .withFileType(File.FileType.valueOf(r.getString("type")))
-        .withFileName(r.getString("name"))
-        .withFileSize(r.getLong("size"))
-        .withFileMd5(r.getString("md5"))
-        .withMetadataDoc(r.getString("metadata_doc"));
-  }
-
-}
+public interface Entity {}

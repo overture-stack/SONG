@@ -17,7 +17,7 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import org.icgc.dcc.sodalite.server.model.Study;
+import org.icgc.dcc.sodalite.server.model.entity.Study;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 

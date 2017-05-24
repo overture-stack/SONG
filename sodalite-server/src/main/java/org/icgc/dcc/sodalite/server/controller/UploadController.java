@@ -98,15 +98,12 @@ public class UploadController {
   }
 
   private ResponseEntity<String> register(String schemaName, String studyId, String uploadId, String payload) {
-
-    // do pre-check for whether this upload id has been used. We want to return
-    // this error synchronously
     if (statusService.exists(studyId, uploadId)) {
-      return conflict(studyId, uploadId);
+      return conflict(studyId, uploadId); // Short return on error.
     }
 
     try {
-      registrationService.register(schemaName, studyId, uploadId, payload);
+      registrationService.register(schemaName, studyId, uploadId, payload); // Async operation.
     } catch (Exception e) {
       log.error(e.toString());
       return badRequest().body(e.getMessage());

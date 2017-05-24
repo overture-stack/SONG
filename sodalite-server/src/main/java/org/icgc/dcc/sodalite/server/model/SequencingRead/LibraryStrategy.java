@@ -14,28 +14,51 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import org.icgc.dcc.sodalite.server.model.entity.File;
-import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
+package org.icgc.dcc.sodalite.server.model.SequencingRead;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
-public class FileMapper implements ResultSetMapper<File> {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-  public File map(int index, ResultSet r, StatementContext ctx) throws SQLException { // I prefer braces on next line
-                                                                                      // when declaring exception throws
-                                                                                      // in method signature - Dušan
-    return new File()
-        .withObjectId(r.getString("id"))
-        .withFileType(File.FileType.valueOf(r.getString("type")))
-        .withFileName(r.getString("name"))
-        .withFileSize(r.getLong("size"))
-        .withFileMd5(r.getString("md5"))
-        .withMetadataDoc(r.getString("metadata_doc"));
+public enum LibraryStrategy {
+
+  WGS("WGS"), WXS("WXS"), RNA_SEQ("RNA-Seq"), CH_IP_SEQ("ChIP-Seq"), MI_RNA_SEQ("miRNA-Seq"), BISULFITE_SEQ("Bisulfite-Seq"), VALIDATION("Validation"), AMPLICON("Amplicon"), OTHER("Other");
+
+  private final String value;
+  private final static Map<String, LibraryStrategy> CONSTANTS = new HashMap<String, LibraryStrategy>();
+
+  static {
+    for (LibraryStrategy c : values()) {
+      CONSTANTS.put(c.value, c);
+    }
   }
 
+  private LibraryStrategy(String value) {
+    this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return this.value;
+  }
+
+  @JsonValue
+  public String value() {
+    return this.value;
+  }
+
+  @JsonCreator
+  public static LibraryStrategy fromValue(String value) {
+    LibraryStrategy constant = CONSTANTS.get(value);
+    if (constant == null) {
+      throw new IllegalArgumentException(value);
+    } else {
+      return constant;
+    }
+  }
 }

@@ -5,7 +5,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.Sample;
+import org.icgc.dcc.sodalite.server.model.entity.Sample;
 import org.icgc.dcc.sodalite.server.service.SampleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
