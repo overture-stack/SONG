@@ -21,7 +21,8 @@ CREATE DOMAIN gender as TEXT CHECK(VALUE IN('male','female','unspecified'));
 DROP DOMAIN IF EXISTS SPECIMEN_CLASS;
 CREATE DOMAIN specimen_class as TEXT CHECK(VALUE IN('Normal','Tumour','Adjacent normal'));
 DROP DOMAIN IF EXISTS specimen_type;
-CREATE DOMAIN specimen_type as TEXT CHECK(VALUE IN('Normal-solid tissue',
+CREATE DOMAIN specimen_type as TEXT CHECK(VALUE IN(
+	'Normal - solid tissue',
     'Normal - blood derived', 'Normal - bone marrow',
     'Normal - tissue adjacent to primary', 'Normal - buccal cell',
     'Normal - EBV immortalized', 'Normal - lymph node', 'Normal - other',
@@ -50,20 +51,23 @@ CREATE DOMAIN analysis_state as TEXT CHECK(VALUE IN('Created','Uploaded','Publis
 DROP DOMAIN IF EXISTS library_strategy;
 CREATE DOMAIN library_strategy as TEXT CHECK(VALUE IN('WGS','WXS','RNA-Seq','ChIP-Seq','miRNA-Seq','Bisulfite-Seq','Validation','Amplicon','Other'));
 
-DROP TABLE IF EXISTS Study,Donor,Specimen,Sample,File,VariantCallAnalysis,VariantCallFileSet,SequencingReadAnalysis,SequencingReadFileSet,MAFAnalysis,MAFFileSet,Submissions;
+DROP DOMAIN IF EXISTS analysis_type;
+CREATE DOMAIN analysis_type as TEXT CHECK(VALUE IN('SequencingRead','VariantCall','MAF'));
+
+DROP TABLE IF EXISTS Study,Donor,Specimen,Sample,File,Analysis,VariantCallAnalysis,Submission;
  
-CREATE TABLE Study (id VARCHAR(36) PRIMARY KEY, name TEXT, description TEXT, organization TEXT);
-CREATE TABLE Donor (id VARCHAR(16) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT, gender GENDER);
-CREATE TABLE Specimen (id VARCHAR(16) PRIMARY KEY, donor_id VARCHAR(16) references Donor, submitter_id TEXT, class SPECIMEN_CLASS, type SPECIMEN_TYPE);
+CREATE TABLE Study(id VARCHAR(36) PRIMARY KEY, name TEXT, description TEXT, organization TEXT);
+CREATE TABLE Donor(id VARCHAR(16) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT, gender GENDER);
+CREATE TABLE Specimen(id VARCHAR(16) PRIMARY KEY, donor_id VARCHAR(16) references Donor, submitter_id TEXT, class SPECIMEN_CLASS, type SPECIMEN_TYPE);
 CREATE TABLE Sample(id VARCHAR(16) PRIMARY KEY, specimen_id VARCHAR(16) references Specimen, submitter_id TEXT, type SAMPLE_TYPE);
 CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, sample_id VARCHAR(36) references Sample, name TEXT, size BIGINT, md5 CHAR(32), type FILE_TYPE, metadata_doc TEXT);
-CREATE TABLE VariantCallAnalysis (id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state ANALYSIS_STATE, variant_calling_tool TEXT);
-CREATE TABLE VariantCallFileSet (id VARCHAR(16) PRIMARY KEY, analysis_id VARCHAR(36) references VariantCallAnalysis, file_id VARCHAR(36) references File);
-CREATE TABLE SequencingReadAnalysis (id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state ANALYSIS_STATE, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN, insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT);
-CREATE TABLE SequencingReadFileSet (id VARCHAR(16) PRIMARY KEY, analysis_id VARCHAR(36) references SequencingReadAnalysis, file_id VARCHAR(36) references File);
-CREATE TABLE MAFAnalysis (id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study);
-CREATE TABLE MAFFileSet(id VARCHAR(36) PRIMARY KEY, analysis_id VARCHAR(36) references MAFAnalysis, file_id VARCHAR(36) references File);
-CREATE TABLE Submissions (id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now(), updated_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now());
+
+CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, study_id VARCHAR(36) references Study, state ANALYSIS_STATE);
+CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File);
+CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN, insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT);
+CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT);
+
+CREATE TABLE Submission(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now(), updated_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now());
 
 CREATE VIEW Details AS 
     SELECT 
@@ -77,4 +81,4 @@ CREATE VIEW Details AS
           A.specimen_id=P.id AND 
           P.donor_id = D.id AND
           D.study_id = T.id
-   ORDER BY StudyName,DonorId,Specimenid,SampleId,FileId;
+   ORDER BY StudyName,DonorId,SpecimenId,SampleId,FileId;
