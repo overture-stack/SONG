@@ -2,14 +2,12 @@ package org.icgc.dcc.sodalite.server.controller;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.ok;
 
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.File;
 import org.icgc.dcc.sodalite.server.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,35 +30,32 @@ public class FileController {
   @Autowired
   private final FileService fileService;
 
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @PostMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  public String create(@PathVariable("study_id") String studyId, @RequestBody File file) {
-    file.setStudyId(studyId);
-    return fileService.create(file);
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public String create(@PathVariable("study_id") String study_id, @RequestBody File file) {
+    val sampleId = (String) file.getAdditionalProperties().get("sampleId");
+    return fileService.create(sampleId, file);
   }
 
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @GetMapping(value = "/file/{id}")
   @ResponseBody
   public File read(@PathVariable("id") String id) {
     return fileService.getById(id);
   }
 
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @PutMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  public ResponseEntity<String> update(@PathVariable("study_id") String studyId, @RequestBody File file) {
-    file.setStudyId(studyId);
-    fileService.update(file);
-    return ok("");
+  @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public String update(@PathVariable("study_id") String study_id, @RequestBody File file) {
+    return fileService.update(file);
   }
 
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @DeleteMapping(value = "/file/{ids}")
-  public ResponseEntity<String> delete(@PathVariable("study_id") String studyId,
-      @PathVariable("ids") List<String> ids) {
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public String delete(@PathVariable("study_id") String study_id, @PathVariable("ids") List<String> ids) {
     ids.forEach(fileService::delete);
-    return ok("");
+    return "OK";
   }
 
 }

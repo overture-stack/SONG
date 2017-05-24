@@ -6,8 +6,6 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import lombok.val;
-
 public enum SampleType {
 
   DNA("DNA"), FFPE_DNA("FFPE DNA"), AMPLIFIED_DNA("Amplified DNA"), RNA("RNA"), TOTAL_RNA("Total RNA"), FFPE_RNA("FFPE RNA");
@@ -16,7 +14,7 @@ public enum SampleType {
   private final static Map<String, SampleType> CONSTANTS = new HashMap<String, SampleType>();
 
   static {
-    for (val c : values()) {
+    for (SampleType c : values()) {
       CONSTANTS.put(c.value, c);
     }
   }
@@ -37,7 +35,7 @@ public enum SampleType {
 
   @JsonCreator
   public static SampleType fromValue(String value) {
-    val constant = CONSTANTS.get(value);
+    SampleType constant = CONSTANTS.get(value);
     if (constant == null) {
       throw new IllegalArgumentException(value);
     } else {

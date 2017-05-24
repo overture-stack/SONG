@@ -17,7 +17,6 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import org.icgc.dcc.sodalite.server.model.AnalysisState;
 import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -36,16 +35,12 @@ public class StatusMapper implements ResultSetMapper<SubmissionStatus> {
                                                                                                    // in method
                                                                                                    // signature - Dušan
     SubmissionStatus status = new SubmissionStatus();
-    // id, study_id, state, errors, payload, analysis_object, created_by, created_at, updated_by, updated_at
     status.withUploadId(rs.getString("id"))
         .withStudyId(rs.getString("study_id"))
-        .withState(AnalysisState.fromValue(rs.getString("state")))
+        .withState(rs.getString("state"))
         .withPayload(rs.getString("payload"))
-        .withAnalysisObject(rs.getString("analysis_object"))
         .withCreatedAt(rs.getTimestamp("created_at").toLocalDateTime())
-        .withCreatedBy(rs.getString("created_by"))
-        .withUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-        .withUpdatedBy(rs.getString("updated_by"));
+        .withUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
 
     String errorString = rs.getString("errors");
     if (errorString == null) {

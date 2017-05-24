@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.NoArgsConstructor;
 import lombok.val;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @NoArgsConstructor
 public class SpecimenService {
@@ -23,35 +21,34 @@ public class SpecimenService {
   @Autowired
   SampleService sampleService;
 
-  public String create(Specimen specimen) {
-    val specimenId = idService.generateSpecimenId();
-    // TODO: modifying input parameter.....
-    specimen.setSpecimenId(specimenId);
-    val status =
-        repository.save(specimenId, specimen.getStudyId(), specimen.getDonorId(), specimen.getSpecimenSubmitterId(),
-            specimen.getSpecimenClass().toString(),
+  public String create(String parentId, Specimen specimen) {
+    val id = idService.generateSpecimenId();
+    specimen.setSpecimenId(id);
+    int status =
+        repository.save(id, parentId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(),
             specimen.getSpecimenType().toString());
     if (status != 1) {
       return "error: Can't create" + specimen.toString();
     }
-    return specimenId;
+    specimen.getSamples().forEach(s -> sampleService.create(id, s));
+    return "ok:" + id;
   }
 
-  public void update(Specimen s) {
-    repository.update(s.getSpecimenId(), s.getStudyId(), s.getDonorId(), s.getSpecimenSubmitterId(),
-        s.getSpecimenClass().toString(),
+  public String update(Specimen s) {
+    repository.set(s.getSpecimenId(), s.getSpecimenSubmitterId(), s.getSpecimenClass().toString(),
         s.getSpecimenType().toString());
+    return "ok";
   }
 
-  public void delete(String id) {
+  public String delete(String id) {
     sampleService.deleteByParentId(id);
-    log.info(String.format("About to delete Specimen with id %s", id));
     repository.delete(id);
+    return "ok";
   }
 
-  public void deleteByParentId(String donorId) {
-    log.info(String.format("About to delete all Specimens belonging to Donor %s", donorId));
-    repository.getIds(donorId).forEach(this::delete);
+  public String deleteByParentId(String parentId) {
+    repository.getIds(parentId).forEach(this::delete);
+    return "ok";
   }
 
   public Specimen getById(String id) {
@@ -59,15 +56,13 @@ public class SpecimenService {
     if (specimen == null) {
       return null;
     }
+    specimen.setSamples(sampleService.findByParentId(id));
     return specimen;
   }
 
-  public Specimen findByBusinessKey(String studyId, String submitterId) {
-    return repository.getByBusinessKey(studyId, submitterId);
-  }
-
-  public List<Specimen> findByParentId(String donorId) {
-    val specimens = repository.findByParentId(donorId);
+  public List<Specimen> findByParentId(String parentId) {
+    val specimens = repository.findByParentId(parentId);
+    specimens.forEach(s -> s.setSamples(sampleService.findByParentId(s.getSpecimenId())));
     return specimens;
   }
 

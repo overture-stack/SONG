@@ -34,12 +34,6 @@ public class IdService {
   public static final String SAMPLE_ID_PREFIX = "SA";
   public static final String FILE_ID_PREFIX = "FI";
 
-  public static final String SEQUENCING_READ_ID_PREFIX = "SR";
-  public static final String VARIANT_CALL_ID_PREFIX = "VC";
-
-  public static final String SEQUENCING_READ_FILE_ASSOC_PREFIX = "SRF";
-  public static final String VARIANT_CALL_FILE_ASSOC_PREFIX = "VCF";
-
   /**
    * Dependencies
    */
@@ -66,23 +60,6 @@ public class IdService {
   public String generateFileId() {
     return String.format("%s%s", FILE_ID_PREFIX, identifier());
   }
-  
-  public String generateSequenceReadId() {
-    return String.format("%s%s", SEQUENCING_READ_ID_PREFIX, identifier());
-  }  
-
-  public String generateVariantCallId() {
-    return String.format("%s%s", VARIANT_CALL_ID_PREFIX, identifier());
-  }  
-  
-  public String generateSequenceReadFileAssociationId() {
-    return String.format("%s%s", SEQUENCING_READ_FILE_ASSOC_PREFIX, identifier());
-  }  
-
-  public String generateVariantCallFileAssociationId() {
-    return String.format("%s%s", VARIANT_CALL_FILE_ASSOC_PREFIX, identifier());
-  }  
-  
   
   /**
    * Copied from metadata service:

@@ -12,33 +12,23 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(StatusMapper.class)
 public interface StatusRepository {
 
-  // id, study_id, state, errors, payload, analysis_object, created_by, created_at, updated_by, updated_at
-  @SqlUpdate("INSERT INTO submissions (id, study_id, state, payload, created_by, created_at) VALUES (LOWER(:id), UPPER(:studyId), :state, :payload, :createdBy, now())")
+  @SqlUpdate("INSERT INTO submissions (id, study_id, state, payload, updated_at) VALUES (:id, :studyId, :state, :payload, now())")
   int create(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state,
-      @Bind("payload") String jsonPayload, @Bind("createdBy") String accessToken);
+      @Bind("payload") String jsonPayload);
 
-  @SqlUpdate("UPDATE submissions SET state = :state, payload = :payload, updated_by = :updateBy, updated_at = now() WHERE id = LOWER(:id) AND study_id = UPPER(:studyId)")
-  int updatePayload(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state,
-      @Bind("payload") String jsonPayload, @Bind("updatedBy") String accessToken);
-  
   // note: avoiding handling datetime's in application; keeping it all in the SQL (also, see schema)
-  @SqlUpdate("UPDATE submissions SET state = :state, errors = :errors, updated_by = :updatedBy, updated_at = now() WHERE id = LOWER(:id) AND study_id = UPPER(:studyId)")
-  int updateState(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state, @Bind("errors") String errors, @Bind("updatedBy") String accessToken);
-  
-  @SqlUpdate("UPDATE submissions SET state = :newState, updated_at = now() WHERE state = :oldState AND study_id = :studyId")
-  int updateState(@Bind("studyId") String studyId, @Bind("oldState") String oldState, @Bind("newState") String newState);
+  @SqlUpdate("UPDATE submissions SET state = :state, errors = :errors, updated_at = now() WHERE id = :id AND study_id = :studyId")
+  int update(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state,
+      @Bind("errors") String errors);
 
-  @SqlUpdate("UPDATE submissions SET state = :state, analysis_object = :analysis_object, updated_by = :updatedBy, updated_at = now() WHERE id = LOWER(:id) AND study_id = UPPER(:studyId)")
-  int updateAnalysis(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state,
-      @Bind("errors") String errors, @Bind("updatedBy") String accessToken);
-  
-  @SqlQuery("SELECT id, study_id, state, created_at, updated_at, errors, payload FROM submissions WHERE id = LOWER(:uploadId) AND study_id = UPPER(:studyId)")
+  @SqlQuery("SELECT id, study_id, state, created_at, updated_at, errors, payload FROM submissions WHERE id = :uploadId AND study_id = :studyId")
   SubmissionStatus get(@Bind("uploadId") String id, @Bind("studyId") String studyId);
 
-  @SqlQuery("SELECT id FROM submissions WHERE study_id = UPPER(:studyId) AND state = :state")
-  List<String> getByState(@Bind("studyId") String studyId, @Bind("state") String state);
-
-  @SqlQuery("SELECT id FROM submissions WHERE id = UPPER(:uploadId) AND study_id = UPPER(:studyId)")
+  @SqlQuery("SELECT id FROM submissions WHERE id = :uploadId AND study_id = :studyId")
   List<String> checkIfExists(@Bind("uploadId") String id, @Bind("studyId") String studyId);
+
+  @SqlUpdate("UPDATE submissions SET state=:newState WHERE state=:oldState AND study_id = :studyId")
+  int updateState(@Bind("studyId") String studyId, @Bind("oldState") String oldState,
+      @Bind("newState") String newState);
 
 }
