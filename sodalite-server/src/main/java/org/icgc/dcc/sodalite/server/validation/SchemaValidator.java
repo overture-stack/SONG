@@ -34,6 +34,8 @@ public class SchemaValidator {
       val response = new ValidationResponse(results);
       log.info(response.getValidationErrors());
 
+      Thread.sleep(2500);
+
       return response;
     } else {
       // log to database

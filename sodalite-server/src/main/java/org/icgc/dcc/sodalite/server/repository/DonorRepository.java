@@ -31,25 +31,22 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 public interface DonorRepository {
 
   @SqlUpdate("INSERT INTO Donor (id, study_id, submitter_id, gender) VALUES (:id, :study_id, :submitter_id, :gender)")
-  int save(@Bind("id") String id, @Bind("study_id") String studyId, @Bind("submitter_id") String submitter_id,
+  int save(@Bind("id") String id, @Bind("study_id") String study_id, @Bind("submitter_id") String submitter_id,
       @Bind("gender") String gender);
 
   @SqlUpdate("UPDATE Donor SET submitter_id=:submitter_id, gender=:gender WHERE id=:id AND study_id=:study_id")
-  int update(@Bind("id") String id, @Bind("study_id") String studyId, @Bind("submitter_id") String submitter_id,
+  int set(@Bind("id") String id, @Bind("study_id") String study_id, @Bind("submitter_id") String submitter_id,
       @Bind("gender") String gender);
 
   @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE study_id=:study_id")
-  List<Donor> findByParentId(@Bind("study_id") String studyId);
+  List<Donor> findByParentId(@Bind("study_id") String study_id);
 
   @SqlQuery("SELECT id from donor where study_id=:study_id")
-  List<String> getIds(@Bind("study_id") String studyId);
+  List<String> getIds(@Bind("study_id") String parent_id);
 
-  @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE id=:id")
-  Donor getById(@Bind("id") String donorId);
+  @SqlQuery("SELECT id, submitter_id, gender FROM donor WHERE id=:id AND study_id=:study_id")
+  Donor getById(@Bind("study_id") String study_id, @Bind("id") String donor_id);
 
-  @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE study_id=:study_id AND submitter_id=:submitter_id")
-  Donor getByBusinessKey(@Bind("study_id") String studyId, @Bind("submitter_id") String submitterId);
-  
-  @SqlUpdate("DELETE from donor where id=:id")
-  int delete(@Bind("id") String donorId);
+  @SqlUpdate("DELETE from donor where id=:id AND study_id=:study_id")
+  int delete(@Bind("study_id") String study_id, @Bind("id") String id);
 }

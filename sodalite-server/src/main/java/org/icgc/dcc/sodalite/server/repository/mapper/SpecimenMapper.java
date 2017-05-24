@@ -16,8 +16,6 @@ public class SpecimenMapper implements ResultSetMapper<Specimen> {
                                                                                           // exception throws in method
                                                                                           // signature - Dušan
     return new Specimen()
-        .withStudyId(r.getString("study_id"))
-        .withDonorId(r.getString("donor_id"))
         .withSpecimenId(r.getString("id"))
         .withSpecimenClass(SpecimenClass.fromValue(r.getString("class")))
         .withSpecimenType(SpecimenType.fromValue(r.getString("type")))

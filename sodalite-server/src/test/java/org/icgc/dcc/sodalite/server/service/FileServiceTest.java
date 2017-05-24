@@ -19,7 +19,7 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class FileServiceTest {
@@ -35,21 +35,21 @@ public class FileServiceTest {
     assertThat(file.getFileName()).isEqualTo("ABC-TC285G7-A5-ae3458712345.bam");
     assertThat(file.getFileType()).isEqualTo(FileType.BAM);
     assertThat(file.getFileSize()).isEqualTo(122333444455555L);
+    assertThat(file.getFileMd5()).isEqualTo("20de2982390c60e33452bf8736c3a9f1");
   }
 
   @Test
   public void testCreateAndDeleteFile() {
     val f = new File()
-        .withStudyId("ABC123")
-        .withSampleId("SA1")
         .withFileName("ABC-TC285G87-A5-sqrl.bai")
         .withFileSize(0)
         .withFileType(FileType.FAI);
 
-    val status = fileService.create(f);
+    val status = fileService.create("SA1", f);
     val id = f.getObjectId();
 
-    assertThat(status).isEqualTo(id);
+    assertThat(id).startsWith("FI");
+    assertThat(status).isEqualTo("ok:" + id);
 
     File check = fileService.getById(id);
     assertThat(f).isEqualToComparingFieldByField(check);
@@ -62,19 +62,15 @@ public class FileServiceTest {
   @Test
   public void testUpdateFile() {
     val s = new File()
-        .withStudyId("ABC123")
-        .withSampleId("SA11")
         .withFileName("file123.fasta")
         .withFileType(FileType.FASTA)
         .withFileSize(12345);
 
-    fileService.create(s);
+    fileService.create("SA11", s);
 
     val id = s.getObjectId();
 
     val s2 = new File()
-        .withStudyId("ABC123")
-        .withSampleId("SA11")
         .withObjectId(id)
         .withFileName("File 102.fai")
         .withFileType(FileType.FAI)

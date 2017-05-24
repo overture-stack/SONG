@@ -14,12 +14,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.google.common.base.Strings;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "uploadId", "studyId", "state", "createdAt", "updatedAt", "errors", "payload" })
+@JsonPropertyOrder({ "uploadId", "studyId", "state", "createdAt", "updatedAt", "errors", "payload"
+})
 
 public class SubmissionStatus {
+
+  public final static String CREATED = "CREATED";
+  public final static String VALIDATED = "VALIDATED";
+  public final static String VALIDATION_ERROR = "VALIDATION_ERROR";
+  public final static String UPLOADED = "UPLOADED";
+  public final static String PUBLISHED = "PUBLISHED";
 
   @JsonProperty("uploadId")
   private String uploadId;
@@ -28,7 +34,7 @@ public class SubmissionStatus {
   private String studyId;
 
   @JsonProperty("state")
-  private AnalysisState state;
+  private String state;
 
   @JsonProperty("errors")
   private List<String> errors;
@@ -36,21 +42,12 @@ public class SubmissionStatus {
   @JsonProperty("payload")
   private String payload;
 
-  @JsonProperty("analysisObject")
-  private String analysisObject;
-  
   @JsonProperty("createdAt")
   private LocalDateTime createdAt;
 
-  @JsonProperty("createdBy")
-  private String createdBy;
-  
   @JsonProperty("updatedAt")
   private LocalDateTime updatedAt;
 
-  @JsonProperty("updatedBy")
-  private String updatedBy;
-  
   @JsonIgnore
   private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -75,16 +72,16 @@ public class SubmissionStatus {
   }
 
   @JsonProperty("state")
-  public AnalysisState getState() {
+  public String getState() {
     return state;
   }
 
   @JsonProperty("state")
-  public void setState(AnalysisState state) {
+  public void setState(String state) {
     this.state = state;
   }
 
-  public SubmissionStatus withState(AnalysisState state) {
+  public SubmissionStatus withState(String state) {
     this.state = state;
     return this;
   }
@@ -104,21 +101,6 @@ public class SubmissionStatus {
     return this;
   }
 
-  @JsonRawValue
-  public String getAnalysisObject() {
-    return analysisObject;
-  }
-
-  @JsonProperty("analysisObject")
-  public void setAnalysisObject(String analysisObject) {
-    this.analysisObject = analysisObject;
-  }
-
-  public SubmissionStatus withAnalysisObject(String analysisObject) {
-    this.analysisObject = analysisObject;
-    return this;
-  }
-  
   @JsonProperty("createdAt")
   public LocalDateTime getCreatedAt() {
     return createdAt;
@@ -134,21 +116,6 @@ public class SubmissionStatus {
     return this;
   }
 
-  @JsonProperty("createdBy")
-  public String getCreatedBy() {
-    return createdBy;
-  }
-
-  @JsonProperty("createdBy")
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  public SubmissionStatus withCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-    return this;
-  }
-  
   @JsonProperty("updatedAt")
   public LocalDateTime getUpdatedAt() {
     return updatedAt;
@@ -164,21 +131,6 @@ public class SubmissionStatus {
     return this;
   }
 
-  @JsonProperty("updatedBy")
-  public String getUpdatedBy() {
-    return updatedBy;
-  }
-
-  @JsonProperty("updatedBy")
-  public void setUpdatedBy(String updatedBy) {
-    this.updatedBy = updatedBy;
-  }
-
-  public SubmissionStatus withUpdatedBy(String updatedBy) {
-    this.updatedBy = updatedBy;
-    return this;
-  }
-  
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
@@ -203,9 +155,5 @@ public class SubmissionStatus {
     }
     this.errors.add(error);
     return this;
-  }
-  
-  public boolean isMissing() {
-    return Strings.isNullOrEmpty(this.uploadId);
   }
 }

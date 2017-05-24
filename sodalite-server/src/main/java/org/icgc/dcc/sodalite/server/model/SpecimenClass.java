@@ -6,8 +6,6 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import lombok.val;
-
 public enum SpecimenClass {
 
   NORMAL("Normal"), TUMOUR("Tumour"), ADJACENT_NORMAL("Adjacent normal");
@@ -16,7 +14,7 @@ public enum SpecimenClass {
   private final static Map<String, SpecimenClass> CONSTANTS = new HashMap<String, SpecimenClass>();
 
   static {
-    for (val c : values()) {
+    for (SpecimenClass c : values()) {
       CONSTANTS.put(c.value, c);
     }
   }
@@ -37,7 +35,7 @@ public enum SpecimenClass {
 
   @JsonCreator
   public static SpecimenClass fromValue(String value) {
-    val constant = CONSTANTS.get(value);
+    SpecimenClass constant = CONSTANTS.get(value);
     if (constant == null) {
       throw new IllegalArgumentException(value);
     } else {
