@@ -1,75 +1,88 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://sodalite.icgc.org/messages/registerVariantCall",
+  "id": "http://sodalite.icgc.org/messages/uploadSequencingRead",
   "type": "object",
   "properties": {
-    "variantCall": {
-      "id": "/properties/variantCall",
+    "sequencingRead": {
+      "id": "properties/sequencingRead",
       "type": "object",
       "properties": {
-        "variantCallingTool": {
-          "id": "/properties/variantCall/properties/variantCallingTool",
+        "aligned": {
+          "id": "properties/sequencingRead/properties/aligned",
+          "type": "boolean"
+        },
+        "alignmentTool": {
+          "id": "properties/sequencingRead/properties/alignmentTool",
           "type": "string"
         },
-        "tumourSampleSubmitterId": {
-          "id": "/properties/variantCall/properties/tumourSampleSubmitterId",
-          "type": "string"
+        "insertSize": {
+          "id": "properties/sequencingRead/properties/insertSize",
+          "type": "integer"
         },
-        "matchedNormalSampleSubmitterId": {
-          "id": "/properties/variantCall/properties/matchedNormalSampleSubmitterId",
+        "libraryStrategy": {
+          "id": "properties/sequencingRead/properties/libraryStrategy",
+          "type": "string",
+          "enum": ["WGS", "WXS", "RNA-Seq", "ChIP-Seq", "miRNA-Seq", "Bisulfite-Seq", "Validation", "Amplicon", "Other" ]
+        },
+        "pairedEnd": {
+          "id": "properties/sequencingRead/properties/pairedEnd",
+          "type": "boolean"
+        },
+        "referenceGenome": {
+          "id": "properties/sequencingRead/properties/referenceGenome",
           "type": "string"
         }
       },
-      "required":["variantCallingTool", "tumourSampleSubmitterId"]
+      "required":["aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "referenceGenome"]
     },
     "study": {
-      "id": "/properties/study",
+      "id": "properties/study",
       "type": "object",
       "properties": {
         "studyId": {
-          "id": "/properties/study/properties/studyId",
+          "id": "properties/study/properties/studyId",
           "type": "string"
         },
         "name": {
-          "id": "/properties/study/properties/name",
+          "id": "properties/study/properties/name",
           "type": "string"
         },
         "organization": {
-          "id": "/properties/study/properties/organization",
+          "id": "properties/study/properties/organization",
           "type": "string"
         },
         "description": {
-          "id": "/properties/study/properties/description",
+          "id": "properties/study/properties/description",
           "type": "string"
         },
         "donor": {
-          "id": "/properties/study/properties/donor",
+          "id": "properties/study/properties/donor",
           "type": "object",
           "properties": {
             "donorSubmitterId": {
-              "id": "/properties/study/properties/donor/properties/donorSubmitterId",
+              "id": "properties/study/properties/donor/properties/donorSubmitterId",
               "type": "string"
             },
             "donorGender": {
-              "id": "/properties/study/properties/donor/properties/donorGender",
+              "id": "properties/study/properties/donor/properties/donorGender",
               "type": "string",
               "enum": ["male", "female", "unspecified"]
             },
             "specimen": {
-              "id": "/properties/study/properties/donor/properties/specimen",
+              "id": "properties/study/properties/donor/properties/specimen",
               "type": "object",
               "properties": {
                 "specimenSubmitterId": {
-                  "id": "/properties/study/properties/donor/properties/specimen/properties/specimenSubmitterId",
+                  "id": "properties/study/properties/donor/properties/specimen/properties/specimenSubmitterId",
                   "type": "string"
                 },
                 "specimenClass": {
-                  "id": "/properties/study/properties/donor/properties/specimen/properties/specimenClass",
+                  "id": "properties/study/properties/donor/properties/specimen/properties/specimenClass",
                   "type": "string",
                   "enum": ["Normal", "Tumour", "Adjacent normal"]
                 },
                 "specimenType": {
-                  "id": "/properties/study/properties/donor/properties/specimen/properties/specimenType",
+                  "id": "properties/study/properties/donor/properties/specimen/properties/specimenType",
                   "type": "string",
                   "enum": [ "Normal - solid tissue",
                             "Normal - blood derived",
@@ -101,40 +114,40 @@
                             "Cell line - derived from xenograft tumour"]
                 },
                 "sample": {
-                  "id": "/properties/study/properties/donor/properties/specimen/properties/sample",
+                  "id": "properties/study/properties/donor/properties/specimen/properties/sample",
                   "type": "object",
                   "properties": {
                     "sampleSubmitterId": {
-                      "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/sampleSubmitterId",
+                      "id": "properties/study/properties/donor/properties/specimen/properties/sample/properties/sampleSubmitterId",
                       "type": "string"
                     },
                     "sampleType": {
-                      "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/sampleType",
+                      "id": "properties/study/properties/donor/properties/specimen/properties/sample/properties/sampleType",
                       "type": "string",
                       "enum": [ "DNA", "FFPE DNA", "Amplified DNA", "RNA", "Total RNA", "FFPE RNA"]
                     },
                     "files": {
-                      "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/files",
+                      "id": "properties/study/properties/donor/properties/specimen/properties/sample/properties/files",
                       "type": "array",
                       "items": {
-                        "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items",
+                        "id": "properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items",
                         "type": "object",
                         "properties": {
                           "fileName": {
-                            "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileName",
+                            "id": "properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileName",
                             "type": "string"
                           },
                           "fileSize": {
-                            "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileSize",
+                            "id": "properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileSize",
                             "type": "integer"
                           },
                           "fileType": {
-                            "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileType",
+                            "id": "properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileType",
                             "type": "string",
-                            "enum": ["FASTA", "FAI", "FASTQ", "BAM", "BAI", "VCF", "TBI", "IDX", "XML" ]
+                            "enum": ["FASTA", "FAI", "FASTQ", "BAM", "BAI", "VCF", "TBI", "IDX", "XML"]
                           },
                           "fileMd5": {
-                            "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileMd5",
+                            "id": "properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/fileMd5",
                             "type": "string"
                           }
                         },
@@ -154,5 +167,5 @@
       "required":["donor"]
     }
   },
-  "required":["variantCall", "study"]
+  "required":["sequencingRead", "study"]
 }

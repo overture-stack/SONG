@@ -19,28 +19,26 @@
 
 package org.icgc.dcc.sodalite.server.controller;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
-import org.icgc.dcc.sodalite.server.service.FunctionService;
-import org.icgc.dcc.sodalite.server.service.RegistrationService;
-import org.icgc.dcc.sodalite.server.service.StatusService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import javax.validation.Valid;
 
-import static org.icgc.dcc.sodalite.server.utils.JsonUtils.jsonStatus;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.badRequest;
-import static org.springframework.http.ResponseEntity.ok;
+import org.icgc.dcc.sodalite.server.model.Upload;
+import org.icgc.dcc.sodalite.server.service.UploadService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping(path = "/upload")
 @RequiredArgsConstructor
@@ -50,65 +48,36 @@ public class UploadController {
    * Dependencies
    */
   @Autowired
-  private final RegistrationService registrationService;
-  @Autowired
-  private final StatusService statusService;
-  @Autowired
-  private final FunctionService functionService;
+  private final UploadService uploadService;
 
-  @PostMapping(value = "/{studyId}/sequencingread/{uploadId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(value = "/{studyId}/sequencingread", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> registerSequencingRead(
+  public ResponseEntity<String> uploadSequencingRead(
       @PathVariable("studyId") String studyId,
-      @PathVariable("uploadId") String uploadId,
       @RequestBody @Valid String payload) {
 
-    return register("registerSequencingRead", studyId, uploadId, payload);
+    return uploadService.upload("uploadSequencingRead", studyId, payload);
   }
 
-  @PostMapping(value = "/{studyId}/variantcall/{uploadId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(value = "/{studyId}/variantcall", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> registerVariantCall(
+  public ResponseEntity<String> uploadVariantCall(
       @PathVariable("studyId") String studyId,
-      @PathVariable("uploadId") String uploadId,
       @RequestBody @Valid String payload) {
 
-    return register("registerVariantCall", studyId, uploadId, payload);
+    return uploadService.upload("uploadVariantCall", studyId, payload);
   }
 
   @GetMapping(value = "/{uploadId}")
-  public @ResponseBody
-  SubmissionStatus getStatus(@PathVariable("uploadId") String uploadId) {
-    return statusService.getStatus(uploadId);
+  public @ResponseBody Upload status(@PathVariable("uploadId") String uploadId) {
+    return uploadService.status(uploadId);
   }
 
   @PostMapping(value = "/{upload_id}/publish")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String publishByUploadId(@PathVariable("study_id") String studyId,
-                                  @PathVariable("upload_id") String uploadId) {
-    val status = functionService.publishId(studyId, uploadId);
-    return jsonStatus(status, "status", "Successfully published " + uploadId, "Publish of " + uploadId + " failed");
-  }
-
-  private ResponseEntity<String> conflict(String studyId, String uploadId) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(String.format("The upload id '%s' has already been used in a previous submission for this study (%s)",
-            uploadId, studyId));
-  }
-
-  private ResponseEntity<String> register(String schemaName, String studyId, String uploadId, String payload) {
-    if (statusService.exists(studyId, uploadId)) {
-      return conflict(studyId, uploadId); // Short return on error.
-    }
-
-    try {
-      registrationService.register(schemaName, studyId, uploadId, payload); // Async operation.
-    } catch (Exception e) {
-      log.error(e.toString());
-      return badRequest().body(e.getMessage());
-    }
-    return ok(uploadId);
+  public ResponseEntity<String> publish(@PathVariable("upload_id") String uploadId) {
+    return uploadService.publish(uploadId);
   }
 
 }

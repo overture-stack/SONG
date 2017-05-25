@@ -17,7 +17,7 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import org.icgc.dcc.sodalite.server.model.SubmissionStatus;
+import org.icgc.dcc.sodalite.server.model.Upload;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -26,15 +26,15 @@ import lombok.val;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class StatusMapper implements ResultSetMapper<SubmissionStatus> {
+public class UploadMapper implements ResultSetMapper<Upload> {
 
-  public SubmissionStatus map(int index, ResultSet rs, StatementContext ctx) throws SQLException { // I prefer braces on
+  public Upload map(int index, ResultSet rs, StatementContext ctx) throws SQLException { // I prefer braces on
                                                                                                    // next line when
                                                                                                    // declaring
                                                                                                    // exception throws
                                                                                                    // in method
                                                                                                    // signature - Dušan
-    SubmissionStatus status = new SubmissionStatus();
+    Upload status = new Upload();
     status.withUploadId(rs.getString("id"))
         .withStudyId(rs.getString("study_id"))
         .withState(rs.getString("state"))

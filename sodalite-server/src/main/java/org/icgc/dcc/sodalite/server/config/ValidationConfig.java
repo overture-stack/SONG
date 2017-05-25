@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ValidationConfig {
 
   private static String[] schemaList =
-      { "schemas/create-entity-message.json", "schemas/create-study-message.json", "schemas/register-sequencingread-message.json", "schemas/register-variantcall-message.json", "schemas/update-entity-message.json", "schemas/update-sequencingread-message.json", "schemas/update-variantcall-message.json"
+      { "schemas/create-entity-message.json", "schemas/create-study-message.json", "schemas/upload-sequencingread-message.json", "schemas/upload-variantcall-message.json", "schemas/update-entity-message.json", "schemas/update-sequencingread-message.json", "schemas/update-variantcall-message.json"
       };
 
   @Bean
@@ -46,4 +46,5 @@ public class ValidationConfig {
     }
     return cache;
   }
+
 }

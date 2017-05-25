@@ -18,7 +18,7 @@
 package org.icgc.dcc.sodalite.server.config;
 
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
-import org.icgc.dcc.sodalite.server.repository.StatusRepository;
+import org.icgc.dcc.sodalite.server.repository.UploadRepository;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
 import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
 import org.icgc.dcc.sodalite.server.repository.SampleRepository;
@@ -69,8 +69,8 @@ public class RepositoryConfig {
   }
 
   @Bean
-  public StatusRepository statusRepository(DBI dbi) {
-    return dbi.open(StatusRepository.class);
+  public UploadRepository statusRepository(DBI dbi) {
+    return dbi.open(UploadRepository.class);
   }
 
 }

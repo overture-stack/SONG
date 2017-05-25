@@ -67,7 +67,7 @@ CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHA
 CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN, insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT);
 CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT);
 
-CREATE TABLE Submission(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now(), updated_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now());
+CREATE TABLE Upload(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now(), updated_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now());
 
 CREATE VIEW Details AS 
     SELECT 
