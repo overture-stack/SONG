@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 @JsonPropertyOrder({ "uploadId", "studyId", "state", "createdAt", "updatedAt", "errors", "payload"
 })
 
-public class SubmissionStatus {
+public class Upload {
 
   public final static String CREATED = "CREATED";
   public final static String VALIDATED = "VALIDATED";
@@ -56,7 +56,7 @@ public class SubmissionStatus {
     this.uploadId = uploadId;
   }
 
-  public SubmissionStatus withUploadId(String uploadId) {
+  public Upload withUploadId(String uploadId) {
     this.uploadId = uploadId;
     return this;
   }
@@ -66,7 +66,7 @@ public class SubmissionStatus {
     this.studyId = studyId;
   }
 
-  public SubmissionStatus withStudyId(String studyId) {
+  public Upload withStudyId(String studyId) {
     this.studyId = studyId;
     return this;
   }
@@ -81,7 +81,7 @@ public class SubmissionStatus {
     this.state = state;
   }
 
-  public SubmissionStatus withState(String state) {
+  public Upload withState(String state) {
     this.state = state;
     return this;
   }
@@ -96,7 +96,7 @@ public class SubmissionStatus {
     this.payload = payload;
   }
 
-  public SubmissionStatus withPayload(String payload) {
+  public Upload withPayload(String payload) {
     this.payload = payload;
     return this;
   }
@@ -111,7 +111,7 @@ public class SubmissionStatus {
     this.createdAt = createdAt;
   }
 
-  public SubmissionStatus withCreatedAt(LocalDateTime createdAt) {
+  public Upload withCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     return this;
   }
@@ -126,7 +126,7 @@ public class SubmissionStatus {
     this.updatedAt = updatedAt;
   }
 
-  public SubmissionStatus withUpdatedAt(LocalDateTime updatedAt) {
+  public Upload withUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }
@@ -149,7 +149,7 @@ public class SubmissionStatus {
     this.errors.add(error);
   }
 
-  public SubmissionStatus withError(String error) {
+  public Upload withError(String error) {
     if (this.errors == null) {
       this.errors = new ArrayList<String>();
     }

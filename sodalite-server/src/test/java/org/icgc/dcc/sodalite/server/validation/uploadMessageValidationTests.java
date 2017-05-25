@@ -18,46 +18,46 @@ import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class RegisterMessageValidationTests {
+public class uploadMessageValidationTests {
 
   @Test
   public void validate_submit_sequencing_read_happy_path() throws Exception {
     val errors =
-        validate("schemas/register-sequencingread-message.json", "documents/register-sequencingread-valid.json");
+        validate("schemas/upload-sequencingread-message.json", "documents/upload-sequencingread-valid.json");
     assertThat(errors.size()).isEqualTo(0);
   }
 
   @Test
   public void validate_submit_sequencing_read_missing_required() throws Exception {
-    val errors = validate("schemas/register-sequencingread-message.json",
-        "documents/register-sequencingread-missing-required.json");
+    val errors = validate("schemas/upload-sequencingread-message.json",
+        "documents/upload-sequencingread-missing-required.json");
     assertThat(errors.size()).isEqualTo(2);
   }
 
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
     val errors =
-        validate("schemas/register-sequencingread-message.json", "documents/register-sequencingread-invalid-enum.json");
+        validate("schemas/upload-sequencingread-message.json", "documents/upload-sequencingread-invalid-enum.json");
     assertThat(errors.size()).isEqualTo(4);
   }
 
   @Test
   public void validate_submit_variant_call_happy_path() throws Exception {
-    val errors = validate("schemas/register-variantcall-message.json", "documents/register-variantcall-valid.json");
+    val errors = validate("schemas/upload-variantcall-message.json", "documents/upload-variantcall-valid.json");
     assertThat(errors.size()).isEqualTo(0);
   }
 
   @Test
   public void validate_submit_variant_call_missing_required() throws Exception {
     val errors =
-        validate("schemas/register-variantcall-message.json", "documents/register-variantcall-missing-required.json");
+        validate("schemas/upload-variantcall-message.json", "documents/upload-variantcall-missing-required.json");
     assertThat(errors.size()).isEqualTo(1);
   }
 
   @Test
   public void validate_submit_variant_call_invalid_enum() throws Exception {
     val errors =
-        validate("schemas/register-variantcall-message.json", "documents/register-variantcall-invalid-enum.json");
+        validate("schemas/upload-variantcall-message.json", "documents/upload-variantcall-invalid-enum.json");
     assertThat(errors.size()).isEqualTo(4);
   }
 
