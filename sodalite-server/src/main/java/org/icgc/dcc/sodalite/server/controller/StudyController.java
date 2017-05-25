@@ -17,23 +17,28 @@
  */
 package org.icgc.dcc.sodalite.server.controller;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import org.icgc.dcc.sodalite.server.model.entity.Study;
-import org.icgc.dcc.sodalite.server.service.StudyService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.springframework.http.MediaType.*;
+import org.icgc.dcc.sodalite.server.model.entity.Study;
+import org.icgc.dcc.sodalite.server.service.StudyService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
@@ -53,7 +58,7 @@ public class StudyController {
   }
 
   @GetMapping("/{studyId}/all")
-  public Study getSEntireStudy(@PathVariable("studyId") String studyId) {
+  public Study getEntireStudy(@PathVariable("studyId") String studyId) {
     return studyService.getEntireStudy(studyId);
   }
 

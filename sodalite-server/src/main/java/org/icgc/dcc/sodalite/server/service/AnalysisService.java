@@ -5,8 +5,7 @@ import static java.lang.String.format;
 import java.util.List;
 import java.util.Map;
 
-import org.icgc.dcc.sodalite.server.model.entity.Analysis;
-
+import org.icgc.dcc.sodalite.server.model.analysis.Analysis;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,7 +38,7 @@ public class AnalysisService {
   }
 
   @SneakyThrows
-  public String registerAnalysis(String studyId, String json) {
+  public String createAnalysis(String studyId, String json) {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode node = mapper.readTree(json);
 
