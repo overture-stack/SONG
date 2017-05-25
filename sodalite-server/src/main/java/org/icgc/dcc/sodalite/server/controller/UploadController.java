@@ -68,15 +68,16 @@ public class UploadController {
     return uploadService.upload("uploadVariantCall", studyId, payload);
   }
 
-  @GetMapping(value = "/{uploadId}")
+  @GetMapping(value = "/{studyId}/status/{uploadId}")
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public @ResponseBody Upload status(@PathVariable("uploadId") String uploadId) {
     return uploadService.status(uploadId);
   }
 
-  @PostMapping(value = "/{upload_id}/publish")
+  @PostMapping(value = "/{studyId}/publish/{uploadId}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> publish(@PathVariable("upload_id") String uploadId) {
+  public ResponseEntity<String> publish(@PathVariable("uploadId") String uploadId) {
     return uploadService.publish(uploadId);
   }
 

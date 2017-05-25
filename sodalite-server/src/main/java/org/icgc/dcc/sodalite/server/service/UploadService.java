@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -32,7 +31,6 @@ public class UploadService {
 
   @Autowired
   IdService id;
-
   @Autowired
   private SchemaValidator validator;
 
@@ -43,24 +41,8 @@ public class UploadService {
   @Autowired
   private final UploadRepository uploadRepository;
 
-  private void save(@NonNull String studyId, @NonNull String uploadId, @NonNull String jsonPayload) {
-    uploadRepository.create(uploadId, studyId, Upload.CREATED, jsonPayload);
-  }
-
   public Upload status(@NonNull String uploadId) {
     return uploadRepository.get(uploadId);
-  }
-
-  private void updateAsValid(@NonNull String uploadId) {
-    uploadRepository.update(uploadId, Upload.VALIDATED, "");
-  }
-
-  private void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
-    uploadRepository.update(uploadId, Upload.VALIDATION_ERROR, errorMessages);
-  }
-
-  private void updateAsPublished(@NonNull String uploadId) {
-    uploadRepository.update(uploadId, Upload.PUBLISHED, "");
   }
 
   public ResponseEntity<String> upload(String schemaName, String studyId, String payload) {
@@ -78,10 +60,28 @@ public class UploadService {
     return ok(uploadId);
   }
 
+  public ResponseEntity<String> publish(@NonNull String uploadId) {
+    val s = status(uploadId);
+    if (s == null) {
+      return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
+    }
+    val state = s.getState();
+    if (!state.equals(Upload.VALIDATED)) {
+      return status(HttpStatus.CONFLICT,
+          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be published.", uploadId,
+          state);
+    }
+
+    updateAsPublished(uploadId);
+    // TODO: Create the analysis object here.
+    return ok("Successfully published " + uploadId);
+  }
+
   @Async
+  // TODO: Move this into another class so that Spring can call it asynchronously.
   private void validate(String schemaId, String uploadId, String payload) {
     try {
-      JsonNode jsonNode = mapper.reader().readTree(payload);
+      val jsonNode = mapper.reader().readTree(payload);
       val response = validator.validate(schemaId, jsonNode);
 
       if (response.isValid()) {
@@ -98,21 +98,20 @@ public class UploadService {
     }
   }
 
-  public ResponseEntity<String> publish(@NonNull String uploadId) {
-    val s = status(uploadId);
-    if (s == null) {
-      return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
-    }
-    val state = s.getState();
-    if (!state.equals(Upload.VALIDATED)) {
-      return status(HttpStatus.CONFLICT,
-          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be published.", uploadId,
-          state);
-    }
+  private void save(@NonNull String studyId, @NonNull String uploadId, @NonNull String jsonPayload) {
+    uploadRepository.create(uploadId, studyId, Upload.CREATED, jsonPayload);
+  }
 
-    updateAsPublished(uploadId);
-    // TODO: Create the analysis object here.
-    return ok("Successfully published " + uploadId);
+  private void updateAsValid(@NonNull String uploadId) {
+    uploadRepository.update(uploadId, Upload.VALIDATED, "");
+  }
+
+  private void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
+    uploadRepository.update(uploadId, Upload.VALIDATION_ERROR, errorMessages);
+  }
+
+  private void updateAsPublished(@NonNull String uploadId) {
+    uploadRepository.update(uploadId, Upload.PUBLISHED, "");
   }
 
   private ResponseEntity<String> status(HttpStatus status, String format, Object... args) {
