@@ -1,7 +1,6 @@
 package org.icgc.dcc.sodalite.server.service;
 
 import static java.lang.String.format;
-import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 
 import org.icgc.dcc.sodalite.server.model.Upload;
@@ -74,12 +73,7 @@ public class UploadService {
       throw new RepositoryException(jdbie.getCause());
     }
 
-    try {
-      validate(schemaName, uploadId, payload); // Async operation.
-    } catch (Exception e) {
-      log.error(e.toString());
-      return badRequest().body(e.getMessage());
-    }
+    validate(schemaName, uploadId, payload); // Async operation.
 
     return ok(uploadId);
   }
@@ -97,8 +91,7 @@ public class UploadService {
       }
     } catch (JsonProcessingException jpe) {
       log.error(jpe.getMessage());
-      updateAsInvalid(uploadId,
-          format("Invalid JSON document submitted: %s", jpe.getMessage()));
+      updateAsInvalid(uploadId, format("Invalid JSON document submitted: %s", jpe.getMessage()));
     } catch (Exception e) {
       log.error(e.getMessage());
       updateAsInvalid(uploadId, format("Unknown processing problem: %s", e.getMessage()));
