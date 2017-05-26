@@ -23,6 +23,5 @@ public class Analysis {
 
   String id;
   String study_id;
-  AnalysisState state;
   AnalysisType type;
 }

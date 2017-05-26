@@ -31,4 +31,10 @@ public interface SpecimenRepository {
 
   @SqlUpdate("DELETE from Specimen where id=:id")
   int delete(@Bind("id") String id);
+
+  @SqlQuery("SELECT s.id from Specimen s, Donor d "
+      + "WHERE s.submitter_id=:submitterId "
+      + "AND s.donor_id = d.id "
+      + "AND d.study_id=:studyId")
+  String getIdByBusinessKey(@Bind("studyId") String studyId, @Bind("submitterId") String submitterId);
 }

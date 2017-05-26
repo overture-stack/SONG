@@ -51,4 +51,12 @@ public interface SampleRepository {
 
   @SqlUpdate("DELETE from Sample where specimen_id=:specimen_id")
   String deleteByParentId(String specimen_id);
+
+  @SqlQuery("SELECT s.id "
+      + "FROM Sample s, Specimen sp, Donor d "
+      + "WHERE s.submitter_id = :submitterId AND "
+      + "s.specimen_id = sp.id AND "
+      + "sp.donor_id = d.id AND "
+      + "d.study_id = :studyId")
+  String getIdByBusinessKey(@Bind("studyId") String studyId, @Bind("submitterId") String submitterId);
 }

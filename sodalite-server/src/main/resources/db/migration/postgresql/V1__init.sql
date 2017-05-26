@@ -51,7 +51,7 @@ DROP TYPE IF EXISTS library_strategy CASCADE;
 CREATE TYPE library_strategy as ENUM('WGS','WXS','RNA-Seq','ChIP-Seq','miRNA-Seq','Bisulfite-Seq','Validation','Amplicon','Other');
 
 DROP TYPE IF EXISTS analysis_type;
-CREATE TYPE analysis_type as ENUM('SequencingRead','VariantCall','MAF');
+CREATE TYPE analysis_type as ENUM('sequencingRead','variantCall','MAF');
 
 CREATE TABLE Study(id VARCHAR(36) PRIMARY KEY, name TEXT, description TEXT, organization TEXT);
 CREATE TABLE Donor(id VARCHAR(16) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT, gender GENDER);

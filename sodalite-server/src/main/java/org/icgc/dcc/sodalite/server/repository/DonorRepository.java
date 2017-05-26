@@ -49,4 +49,7 @@ public interface DonorRepository {
 
   @SqlUpdate("DELETE from donor where id=:id AND study_id=:study_id")
   int delete(@Bind("study_id") String study_id, @Bind("id") String id);
+
+  @SqlQuery("SELECT id from donor where study_id=:studyId AND submitter_id=:key")
+  String getIdByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
 }

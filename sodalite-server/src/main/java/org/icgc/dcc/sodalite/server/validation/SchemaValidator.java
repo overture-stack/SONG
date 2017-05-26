@@ -2,7 +2,6 @@ package org.icgc.dcc.sodalite.server.validation;
 
 import java.util.Map;
 
-import org.icgc.dcc.sodalite.server.model.analysis.AnalysisType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,16 +37,6 @@ public class SchemaValidator {
       // log to database
       throw new IllegalArgumentException("Internal Error: could not find specified schema " + schemaId);
     }
-  }
-
-  public AnalysisType getAnalysisType(JsonNode payloadRoot) {
-    for (val type : AnalysisType.values()) {
-      log.info("Checking analysis type " + type.toString());
-      if (payloadRoot.has(type.toString())) {
-        return type;
-      }
-    }
-    return null;
   }
 
 }

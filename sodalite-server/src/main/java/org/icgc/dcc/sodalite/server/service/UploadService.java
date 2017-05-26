@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static org.springframework.http.ResponseEntity.ok;
 
 import org.icgc.dcc.sodalite.server.model.Upload;
+import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.UploadRepository;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 public class UploadService {
 
   @Autowired
-  IdService id;
+  private final IdService id;
   @Autowired
-  ValidationService validator;
+  private final ValidationService validator;
   @Autowired
-  AnalysisService analysis;
+  private final AnalysisService analysis;
 
   @Autowired
   private final UploadRepository uploadRepository;
@@ -36,7 +37,7 @@ public class UploadService {
   }
 
   public ResponseEntity<String> upload(String studyId, String payload) {
-    val uploadId = id.generateUploadId();
+    val uploadId = id.generate(IdPrefix.Upload);
 
     try {
       save(studyId, uploadId, payload);
@@ -44,8 +45,8 @@ public class UploadService {
       log.error(jdbie.getCause().getMessage());
       throw new RepositoryException(jdbie.getCause());
     }
-
-    validator.validate(uploadId, payload); // Async operation.
+    val analysisType = analysis.getAnalysisType(payload);
+    validator.validate(uploadId, payload, analysisType); // Async operation.
 
     return ok(uploadId);
   }
@@ -64,7 +65,7 @@ public class UploadService {
 
     updateAsPublished(uploadId);
     val json = s.getPayload();
-    analysis.createAnalysis(studyId, json);
+    analysis.create(studyId, json);
     return ok("Successfully published " + uploadId);
   }
 

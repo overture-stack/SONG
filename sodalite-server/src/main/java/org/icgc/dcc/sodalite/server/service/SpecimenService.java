@@ -1,5 +1,7 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import static org.icgc.dcc.sodalite.server.model.utils.IdPrefix.Specimen;
+
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.entity.Specimen;
@@ -22,7 +24,7 @@ public class SpecimenService {
   SampleService sampleService;
 
   public String create(String parentId, Specimen specimen) {
-    val id = idService.generateSpecimenId();
+    val id = idService.generate(Specimen);
     specimen.setSpecimenId(id);
     int status =
         repository.save(id, parentId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(),
@@ -64,6 +66,16 @@ public class SpecimenService {
     val specimens = repository.findByParentId(parentId);
     specimens.forEach(s -> s.setSamples(sampleService.findByParentId(s.getSpecimenId())));
     return specimens;
+  }
+
+  /**
+   * @param studyId
+   * @param submitterId
+   * @return
+   */
+  public String getIdByBusinessKey(String studyId, String submitterId) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

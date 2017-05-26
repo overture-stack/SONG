@@ -17,19 +17,20 @@
  */
 package org.icgc.dcc.sodalite.server.config;
 
+import javax.sql.DataSource;
+
+import org.icgc.dcc.sodalite.server.repository.AnalysisRepository;
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
-import org.icgc.dcc.sodalite.server.repository.UploadRepository;
-import org.icgc.dcc.sodalite.server.repository.StudyRepository;
-import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
-import org.icgc.dcc.sodalite.server.repository.SampleRepository;
 import org.icgc.dcc.sodalite.server.repository.FileRepository;
+import org.icgc.dcc.sodalite.server.repository.SampleRepository;
+import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
+import org.icgc.dcc.sodalite.server.repository.StudyRepository;
+import org.icgc.dcc.sodalite.server.repository.UploadRepository;
 import org.skife.jdbi.v2.DBI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-
-import javax.sql.DataSource;
 
 @Lazy
 @Configuration
@@ -71,6 +72,11 @@ public class RepositoryConfig {
   @Bean
   public UploadRepository statusRepository(DBI dbi) {
     return dbi.open(UploadRepository.class);
+  }
+
+  @Bean
+  public AnalysisRepository AnalysisRepository(DBI dbi) {
+    return dbi.open(AnalysisRepository.class);
   }
 
 }

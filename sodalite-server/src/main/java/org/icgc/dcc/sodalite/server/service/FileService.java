@@ -1,5 +1,7 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import static org.icgc.dcc.sodalite.server.model.utils.IdPrefix.File;
+
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.entity.File;
@@ -20,9 +22,10 @@ public class FileService {
   IdService idService;
 
   public String create(String parentId, File f) {
-    val id = idService.generateFileId();
+    val id = idService.generate(File);
     f.setObjectId(id);
-    int status = repository.save(id, parentId, f.getFileName(), f.getFileSize(), f.getFileType().toString(), f.getFileMd5(), f.getMetadataDoc());
+    int status = repository.save(id, parentId, f.getFileName(), f.getFileSize(), f.getFileType().toString(),
+        f.getFileMd5(), f.getMetadataDoc());
 
     if (status != 1) {
       return "error: Can't create" + f.toString();
@@ -32,7 +35,8 @@ public class FileService {
   }
 
   public String update(File f) {
-    repository.set(f.getObjectId(), f.getFileName(), f.getFileSize(), f.getFileType().toString(), f.getFileMd5(), f.getMetadataDoc());
+    repository.set(f.getObjectId(), f.getFileName(), f.getFileSize(), f.getFileType().toString(), f.getFileMd5(),
+        f.getMetadataDoc());
     return "ok";
   }
 
