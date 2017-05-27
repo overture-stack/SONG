@@ -45,6 +45,7 @@ public class UploadService {
       log.error(jdbie.getCause().getMessage());
       throw new RepositoryException(jdbie.getCause());
     }
+
     val analysisType = analysis.getAnalysisType(payload);
     validator.validate(uploadId, payload, analysisType); // Async operation.
 
