@@ -17,9 +17,6 @@
  */
 package org.icgc.dcc.sodalite.server.model.analysis;
 
-/**
- * 
- */
 public enum AnalysisType {
   sequencingRead, variantCall, MAF
 }

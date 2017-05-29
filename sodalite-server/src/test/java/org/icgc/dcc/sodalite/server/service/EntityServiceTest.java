@@ -9,7 +9,6 @@ import org.icgc.dcc.sodalite.server.model.entity.File.FileType;
 import org.icgc.dcc.sodalite.server.model.entity.Sample.SampleType;
 import org.icgc.dcc.sodalite.server.model.entity.Specimen.SpecimenClass;
 import org.icgc.dcc.sodalite.server.model.entity.Specimen.SpecimenType;
-import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import lombok.SneakyThrows;
 import lombok.val;
@@ -47,14 +48,8 @@ public class EntityServiceTest {
   @Test
   public void testSaveDonor_Create() {
     val studyId = "ABC123";
-
-    String json = "{";
-    json += JsonUtils.jsonPair("donorSubmitterId", "donor_abc123") + ",";
-    json += JsonUtils.jsonPair("donorGender", "female");
-    json += "}";
-
-    val donor = JsonUtils.getTree(json);
-    assertThat(donor != null);
+    val donor =
+        JsonNodeFactory.instance.objectNode().put("donorSubmitterId", "donor_abc123").put("donorGender", "female");
 
     // This should create a new record, because there is no entry
     // in the existing test data for "donor_abc123"
@@ -71,13 +66,8 @@ public class EntityServiceTest {
   public void testSaveDonor_Update() {
     val studyId = "ABC123";
 
-    String json = "{";
-    json += JsonUtils.jsonPair("donorSubmitterId", "Subject-X23Alpha7") + ",";
-    json += JsonUtils.jsonPair("donorGender", "female");
-    json += "}";
-
-    val donor = JsonUtils.getTree(json);
-    assertThat(donor != null);
+    val donor =
+        JsonNodeFactory.instance.objectNode().put("donorSubmitterId", "Subject-X23Alpha7").put("donorGender", "female");
 
     // this submitterId and study already exists in our test data,
     // so we should update the existing donor record, not create a new one...
@@ -98,14 +88,8 @@ public class EntityServiceTest {
   public void testSaveSpecimen_Create() {
     val studyId = "ABC123";
 
-    String json = "{";
-    json += JsonUtils.jsonPair("specimenSubmitterId", "specimen_abc123") + ",";
-    json += JsonUtils.jsonPair("specimenClass", "Normal") + ",";
-    json += JsonUtils.jsonPair("specimenType", "Normal - solid tissue");
-    json += "}";
-
-    val specimen = JsonUtils.getTree(json);
-    assertThat(specimen != null);
+    val specimen = JsonNodeFactory.instance.objectNode().put("specimenSubmitterId", "specimen_abc123")
+        .put("specimenClass", "Normal").put("specimenType", "Normal - solid tissue");
 
     // This should create a new record
     val donorId = "DO1";
@@ -122,14 +106,8 @@ public class EntityServiceTest {
   public void testSaveSpecimen_Update() {
     val studyId = "ABC123";
 
-    String json = "{";
-    json += JsonUtils.jsonPair("specimenSubmitterId", "Tissue-Culture 284 Gamma 3") + ",";
-    json += JsonUtils.jsonPair("specimenClass", "Tumour") + ",";
-    json += JsonUtils.jsonPair("specimenType", "Recurrent tumour - other");
-    json += "}";
-
-    val specimen = JsonUtils.getTree(json);
-    assertThat(specimen != null);
+    val specimen = JsonNodeFactory.instance.objectNode().put("specimenSubmitterId", "Tissue-Culture 284 Gamma 3")
+        .put("specimenClass", "Tumour").put("specimenType", "Recurrent tumour - other");
 
     // This should update the record for specimen "SP1"
     val donorId = "DO1";
@@ -148,13 +126,8 @@ public class EntityServiceTest {
   public void testSaveSample_Create() {
     val studyId = "ABC123";
 
-    String json = "{";
-    json += JsonUtils.jsonPair("sampleSubmitterId", "sample_abc123") + ",";
-    json += JsonUtils.jsonPair("sampleType", "Total RNA");
-    json += "}";
-
-    val sample = JsonUtils.getTree(json);
-    assertThat(sample != null);
+    val sample =
+        JsonNodeFactory.instance.objectNode().put("sampleSubmitterId", "sample_abc123").put("sampleType", "Total RNA");
 
     // This should create a new record
     val specimenId = "SP1";
@@ -171,13 +144,8 @@ public class EntityServiceTest {
   public void testSaveSample_Update() {
     val studyId = "ABC123";
 
-    String json = "{";
-    json += JsonUtils.jsonPair("sampleSubmitterId", "T285-G7-B9") + ",";
-    json += JsonUtils.jsonPair("sampleType", "Total RNA");
-    json += "}";
-
-    val sample = JsonUtils.getTree(json);
-    assertThat(sample != null);
+    val sample =
+        JsonNodeFactory.instance.objectNode().put("sampleSubmitterId", "T285-G7-B9").put("sampleType", "Total RNA");
 
     // This should update sample "SA11"
     val specimenId = "SP1";
@@ -197,15 +165,8 @@ public class EntityServiceTest {
 
     val name = "file_abc123.idx.gz";
     val md5 = "mmmmdddd5555";
-    String json = "{";
-    json += JsonUtils.jsonPair("fileName", name) + ",";
-    json += JsonUtils.jsonPair("fileSize", 12345L) + ",";
-    json += JsonUtils.jsonPair("fileMd5", md5) + ",";
-    json += JsonUtils.jsonPair("fileType", "IDX");
-    json += "}";
-
-    val file = JsonUtils.getTree(json);
-    assertThat(file != null);
+    val file = JsonNodeFactory.instance.objectNode().put("fileName", name).put("fileSize", 12345L).put("fileMd5", md5)
+        .put("fileType", "IDX");
 
     // This should create a new record
     val sampleId = "SA1";
@@ -226,15 +187,8 @@ public class EntityServiceTest {
 
     val name = "ABC-TC285-G7-B9-kthx12345.bai";
     val md5 = "mmmmdddd5555";
-    String json = "{";
-    json += JsonUtils.jsonPair("fileName", name) + ",";
-    json += JsonUtils.jsonPair("fileSize", 12345L) + ",";
-    json += JsonUtils.jsonPair("fileMd5", md5) + ",";
-    json += JsonUtils.jsonPair("fileType", "IDX");
-    json += "}";
-
-    val file = JsonUtils.getTree(json);
-    assertThat(file != null);
+    val file = JsonNodeFactory.instance.objectNode().put("fileName", name).put("fileSize", 12345L).put("fileMd5", md5)
+        .put("fileType", "IDX");
 
     // This should update the row with fileId "FI3".
     val sampleId = "SA11";

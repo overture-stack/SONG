@@ -19,6 +19,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import lombok.SneakyThrows;
 import lombok.val;
@@ -73,16 +74,11 @@ public class AnalysisServiceTest {
   @Test
   public void testCreateSequencingRead() {
     val id = "AN3";
-    String json = "{";
-    json += JsonUtils.jsonPair("libraryStrategy", "WXS") + ",";
-    json += JsonUtils.jsonPair("pairedEnd", false) + ",";
-    json += JsonUtils.jsonPair("insertSize", 900L) + ",";
-    json += JsonUtils.jsonPair("aligned", true) + ",";
-    json += JsonUtils.jsonPair("alignmentTool", "MUSE variant call pipeline") + ",";
-    json += JsonUtils.jsonPair("referenceGenome", "hs37d5");
-    json += "}";
 
-    val node = JsonUtils.getTree(json);
+    val node = JsonNodeFactory.instance.objectNode().put("libraryStrategy", "WXS").put("pairedEnd", false)
+        .put("insertSize", 900L).put("aligned", true).put("alignmentTool", "Muse variant call pipeline")
+        .put("referenceGenome", "hs37d5");
+
     service.createSequencingRead(id, node);
     // TODO: Verify record was added to SequencingRead table
 
@@ -96,12 +92,9 @@ public class AnalysisServiceTest {
     val studyId = "ABC123";
     val type = AnalysisType.variantCall;
 
-    String json = "{";
-    json += JsonUtils.jsonPair("variantCallingTool", "silver bullet") + ",";
-    json += JsonUtils.jsonPair("tumourSampleSubmitterId", "tumor1A") + ",";
-    json += JsonUtils.jsonPair("matchedNormalSampleSubmitterId", "reference2B");
-    json += "}";
-    val node = JsonUtils.getTree(json);
+    val node = JsonNodeFactory.instance.objectNode().put("variantCallingTool", "silver bullet")
+        .put("tumourSampleSubmitterId", "tumor1A").put("matchedNormalSampleSubmitterId", "reference2B");
+
     service.createAnalysis(id, studyId, type);
     service.createVariantCall(id, node);
 

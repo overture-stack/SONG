@@ -24,7 +24,7 @@ public class DonorService {
   SpecimenService specimenService;
 
   public String create(String parentId, Donor d) {
-    String id = idService.generate(Donor);
+    val id = idService.generate(Donor);
     d.setDonorId(id);
     int status = donorRepository.save(id, parentId, d.getDonorSubmitterId(), d.getDonorGender().toString());
     if (status != 1) {

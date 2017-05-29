@@ -40,13 +40,21 @@ public class AnalysisController {
     return analysisService.updateAnalysis(studyId, json);
   }
 
-  // Return the JSON for this analysis (it's type, details, fileIds, etc.)
+  /***
+   * Return the JSON for this analysis (it's type, details, fileIds, etc.)
+   * @param id An analysis id
+   * @return A JSON object representing this analysis
+   */
   @GetMapping(value = "/{id}")
   public String getAnalysisyById(@PathVariable("id") String id) {
     return analysisService.getAnalysisById(id);
   }
 
-  // All the analysis ids for this study matching the given parameters
+  /***
+   * Return all the analysis ids for this study matching the given parameters
+   * @param params A set of command line parameters to search against
+   * @return A list of analysis ids
+   */
   @GetMapping(value = "")
   public List<String> getAnalyses(@RequestParam Map<String, String> params) {
     return analysisService.getAnalyses(params);
