@@ -50,22 +50,12 @@ public class UploadController {
   @Autowired
   private final UploadService uploadService;
 
-  @PostMapping(value = "/{studyId}/sequencingread", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(value = "/{studyId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> uploadSequencingRead(
+  public ResponseEntity<String> upload(
       @PathVariable("studyId") String studyId,
       @RequestBody @Valid String payload) {
-
-    return uploadService.upload("uploadSequencingRead", studyId, payload);
-  }
-
-  @PostMapping(value = "/{studyId}/variantcall", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> uploadVariantCall(
-      @PathVariable("studyId") String studyId,
-      @RequestBody @Valid String payload) {
-
-    return uploadService.upload("uploadVariantCall", studyId, payload);
+    return uploadService.upload(studyId, payload);
   }
 
   @GetMapping(value = "/{studyId}/status/{uploadId}")
@@ -77,8 +67,9 @@ public class UploadController {
   @PostMapping(value = "/{studyId}/publish/{uploadId}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> publish(@PathVariable("uploadId") String uploadId) {
-    return uploadService.publish(uploadId);
+  public ResponseEntity<String> publish(@PathVariable("studyId") String studyId,
+      @PathVariable("uploadId") String uploadId) {
+    return uploadService.publish(studyId, uploadId);
   }
 
 }

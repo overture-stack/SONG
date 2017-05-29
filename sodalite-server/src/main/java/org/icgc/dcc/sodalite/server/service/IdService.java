@@ -19,6 +19,7 @@ package org.icgc.dcc.sodalite.server.service;
 
 import static java.lang.String.format;
 
+import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,16 +28,6 @@ import com.earnstone.id.Generator;
 @Service
 public class IdService {
 
-  public static final String PROJECT_ID_PREFIX = "PR";
-  public static final String DONOR_ID_PREFIX = "DO";
-  public static final String SPECIMEN_ID_PREFIX = "SP";
-  public static final String SAMPLE_ID_PREFIX = "SA";
-  public static final String FILE_ID_PREFIX = "FI";
-  private static final Object UPLOAD_ID_PREFIX = "UP";
-
-  /**
-   * Dependencies
-   */
   @Autowired
   private Generator generator;
 
@@ -45,24 +36,8 @@ public class IdService {
     return Long.toString(id, 36).toUpperCase();
   }
 
-  public String generateDonorId() {
-    return format("%s%s", DONOR_ID_PREFIX, identifier());
-  }
-
-  public String generateSpecimenId() {
-    return format("%s%s", SPECIMEN_ID_PREFIX, identifier());
-  }
-
-  public String generateSampleId() {
-    return format("%s%s", SAMPLE_ID_PREFIX, identifier());
-  }
-
-  public String generateFileId() {
-    return format("%s%s", FILE_ID_PREFIX, identifier());
-  }
-
-  public String generateUploadId() {
-    return format("%s%s", UPLOAD_ID_PREFIX, identifier());
+  public String generate(IdPrefix prefix) {
+    return format("%s%s", prefix.toString(), identifier());
   }
 
 }

@@ -20,7 +20,9 @@ package org.icgc.dcc.sodalite.server.service;
 import static java.lang.String.format;
 
 import org.icgc.dcc.sodalite.server.model.Upload;
+import org.icgc.dcc.sodalite.server.model.analysis.AnalysisType;
 import org.icgc.dcc.sodalite.server.repository.UploadRepository;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.icgc.dcc.sodalite.server.validation.SchemaValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -52,16 +54,28 @@ public class ValidationService {
   @Autowired
   private final UploadRepository uploadRepository;
 
-  @Async
-  public void validate(String schemaId, String uploadId, String payload) {
-    try {
-      val jsonNode = mapper.reader().readTree(payload);
-      val response = validator.validate(schemaId, jsonNode);
+  private String upperCaseFirstLetter(String s) {
+    return s.substring(0, 1).toUpperCase() + s.substring(1);
+  }
 
-      if (response.isValid()) {
-        updateAsValid(uploadId);
+  @Async
+  public void validate(@NonNull String uploadId, @NonNull String payload, AnalysisType analysisType) {
+    log.info("Valdidating payload for upload Id=" + uploadId + "payload=" + payload);
+    try {
+      val jsonNode = JsonUtils.getTree(payload);
+
+      if (analysisType == null) {
+        updateAsInvalid(uploadId, "Uploaded JSON document does not contain a valid analysis type");
       } else {
-        updateAsInvalid(uploadId, response.getValidationErrors());
+        val type = analysisType.toString();
+        val schemaId = "upload" + upperCaseFirstLetter(type);
+        val response = validator.validate(schemaId, jsonNode);
+
+        if (response.isValid()) {
+          updateAsValid(uploadId);
+        } else {
+          updateAsInvalid(uploadId, response.getValidationErrors());
+        }
       }
     } catch (JsonProcessingException jpe) {
       log.error(jpe.getMessage());

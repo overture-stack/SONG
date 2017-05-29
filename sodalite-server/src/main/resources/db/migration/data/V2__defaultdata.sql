@@ -13,14 +13,14 @@ insert into File(id, sample_id, name, size, type, md5, metadata_doc) values ('FI
 insert into File(id, sample_id, name, size, type, md5, metadata_doc) values ('FI4', 'SA21', 'ABC-TC285-G7N-alpha12345.fai', 12345, 'FAI', '1ad22383391004fd12441f39ba7f2380', '<XML></XML>');
 
 
-insert into Analysis(id, study_id, type, state) values('AN1','ABC123','VariantCall', 'Suppressed');
+insert into Analysis(id, study_id, type) values('AN1','ABC123','variantCall');
 insert into VariantCall(id, variant_calling_tool) values ('AN1','SuperNewVariantCallingTool');
 insert into FileSet(analysis_id, file_id) values ('AN1', 'FI1'),('AN1','FI2');
 
 
-insert into Analysis(id, study_id, type, state) values ('AN2','ABC123','SequencingRead','Suppressed');
+insert into Analysis(id, study_id, type) values ('AN2','ABC123','sequencingRead');
 insert into SequencingRead (id, library_strategy, paired_end, insert_size, aligned, alignment_tool, reference_genome) values ('AN2','Other', TRUE, 12345, TRUE, 'BigWrench', 'hg19');
 insert into FileSet(analysis_id, file_id) values ('AN2', 'FI1'),('AN2','FI3');
 
-insert into Analysis(id, study_id, type, state) values ('MU1', 'ABC123', 'MAF', 'Suppressed');
+insert into Analysis(id, study_id, type) values ('MU1', 'ABC123', 'MAF');
 insert into FileSet(analysis_id, file_id) values ('MU1','FI1'),('MU1','FI2'),('MU1','FI3');

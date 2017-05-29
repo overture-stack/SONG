@@ -18,7 +18,7 @@
  *
  */
 
-package org.icgc.dcc.sodalite.server.model.SequencingRead;
+package org.icgc.dcc.sodalite.server.model.analysis.sequencingRead;
 
 import java.util.HashMap;
 import java.util.Map;

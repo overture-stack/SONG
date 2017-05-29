@@ -1,22 +1,29 @@
 package org.icgc.dcc.sodalite.server.controller;
 
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-
-import org.icgc.dcc.sodalite.server.model.entity.Analysis;
-import org.icgc.dcc.sodalite.server.service.AnalysisService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.http.MediaType.*;
+import org.icgc.dcc.sodalite.server.service.AnalysisService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/studies/{study_id}/analysis")
+@RequestMapping("/studies/{studyId}/analysis")
 public class AnalysisController {
 
   /**
@@ -25,29 +32,31 @@ public class AnalysisController {
   @Autowired
   private final AnalysisService analysisService;
 
-  @PostMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
-  @SneakyThrows
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String createAnalysis(@PathVariable("studyId") String studyId, @RequestBody String json) {
-    return analysisService.registerAnalysis(studyId, json);
-  }
-
   @PutMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String modifyAnalysis(@PathVariable("study_id") String studyId, @RequestBody String json) {
+  public String modifyAnalysis(@PathVariable("studyId") String studyId, @RequestBody String json) {
     return analysisService.updateAnalysis(studyId, json);
   }
 
+  /***
+   * Return the JSON for this analysis (it's type, details, fileIds, etc.)
+   * @param id An analysis id
+   * @return A JSON object representing this analysis
+   */
   @GetMapping(value = "/{id}")
-  public List<Analysis> GetAnalysisyById(@PathVariable("id") String id) {
+  public String getAnalysisyById(@PathVariable("id") String id) {
     return analysisService.getAnalysisById(id);
   }
 
+  /***
+   * Return all the analysis ids for this study matching the given parameters
+   * @param params A set of command line parameters to search against
+   * @return A list of analysis ids
+   */
   @GetMapping(value = "")
-  public List<Analysis> getAnalyses(@RequestParam Map<String, String> params) {
+  public List<String> getAnalyses(@RequestParam Map<String, String> params) {
     return analysisService.getAnalyses(params);
   }
 

@@ -15,53 +15,8 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.utils;
+package org.icgc.dcc.sodalite.server.model.analysis;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-
-/**
- * Utility functions related to deal with JSON
- */
-public class JsonUtils {
-
-  protected static final ObjectMapper mapper = new ObjectMapper().registerModule(new ParameterNamesModule())
-      .registerModule(new Jdk8Module())
-      .registerModule(new JavaTimeModule());
-
-  private static String QUOTE = "\"";
-
-  public static String jsonStatus(boolean status, String key, String ok, String fail) {
-    if (status) {
-      return jsonResponse(key, ok);
-    }
-    return jsonResponse(key, fail);
-  }
-
-  public static String jsonResponse(String key, String value) {
-    return "{" + jsonPair(key, value) + "}";
-  }
-
-  public static String jsonPair(String key, String value) {
-    return QUOTE + key + QUOTE + ": " + QUOTE + value + QUOTE;
-  }
-
-  public static String jsonPair(String key, Long value) {
-    return QUOTE + key + QUOTE + ": " + value;
-  }
-
-  public static JsonNode getTree(String json) throws JsonProcessingException, IOException {
-    return mapper.readTree(json);
-  }
-
-  public static String jsonPair(String key, boolean b) {
-    return QUOTE + key + QUOTE + ": " + b;
-  }
-
+public enum AnalysisType {
+  sequencingRead, variantCall, MAF
 }

@@ -1,87 +1,141 @@
 package org.icgc.dcc.sodalite.server.service;
 
-import static java.lang.String.format;
-
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.icgc.dcc.sodalite.server.model.entity.Analysis;
-
+import org.icgc.dcc.sodalite.server.model.analysis.AnalysisType;
+import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
+import org.icgc.dcc.sodalite.server.repository.AnalysisRepository;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-
 public class AnalysisService {
 
-  private void info(String fmt, Object... args) {
-    log.info(format(fmt, args));
-  }
-
-  public List<Analysis> getAnalysisById(String id) {
-    // TODO Auto-generated method stub
-    info("Called GetAnalysisById with %s", id);
-    return null;
-  }
-
-  public List<Analysis> getAnalyses(Map<String, String> params) {
-    info("Called getAnalyses with %s", params);
-    // TODO Auto-generated method stub
-    return null;
-  }
+  @Autowired
+  private final AnalysisRepository repository;
+  @Autowired
+  private final IdService idService;
+  @Autowired
+  private final EntityService entityService;
 
   @SneakyThrows
-  public String registerAnalysis(String studyId, String json) {
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode node = mapper.readTree(json);
+  public AnalysisType getAnalysisType(String json) {
+    return getAnalysisType(JsonUtils.getTree(json));
+  }
 
-    if (node.has("sequencingReadSubmission")) {
-      return registerSequencingRead(studyId, node);
-    } else if (node.has("variantCallSubmission")) {
-      return registerVariantCall(studyId, node);
+  public AnalysisType getAnalysisType(JsonNode node) {
+    for (val type : AnalysisType.values()) {
+      log.info("Checking analysis type " + type.toString());
+      if (node.has(type.toString())) {
+        return type;
+      }
     }
-    return "Register Analysis failed: Unknown Analysis Type";
+    return null;
   }
 
-  String registerSequencingRead(String studyId, JsonNode node) {
-    String analysisId = "Mock_SequencingReadId";
-    return analysisId;
-  }
-
-  String registerVariantCall(String studyId, JsonNode node) {
-    String analysisId = "MockVariantCallId";
-    return analysisId;
-  }
-
-  String updateSequencingRead(String studyId, JsonNode node) {
-    String status = "Sequencing Read Updated Successfully";
-    return status;
-  }
-
-  String updateVariantCall(String studyId, JsonNode node) {
-    String status = "Variant Call Updated Successfully";
-    return status;
+  void createAnalysis(String id, String studyId, AnalysisType type) {
+    repository.createAnalysis(id, studyId, type.toString());
   }
 
   @SneakyThrows
+  public String create(String studyId, String json) {
+    val node = JsonUtils.getTree(json);
+    val type = getAnalysisType(node);
+
+    val id = idService.generate(IdPrefix.Analysis);
+
+    createAnalysis(id, studyId, type);
+
+    val study = node.get("study");
+    val fileIds = saveStudy(studyId, study);
+
+    for (val f : fileIds) {
+      addFile(id, f);
+    }
+
+    val analysis = node.get(type.toString());
+    switch (type) {
+    case sequencingRead:
+      return createSequencingRead(id, analysis);
+    case variantCall:
+      return createVariantCall(id, analysis);
+    default:
+      return "Upload Analysis failed: Unknown Analysis Type";
+    }
+  }
+
+  void addFile(String id, String fileId) {
+    repository.addFile(id, fileId);
+  }
+
+  Collection<String> saveStudy(String studyId, JsonNode study) {
+    val fileIds = new HashSet<String>();
+
+    val donor = study.get("donor");
+    val donorId = entityService.saveDonor(studyId, donor);
+
+    val specimen = donor.get("specimen");
+    val specimenId = entityService.saveSpecimen(studyId, donorId, specimen);
+
+    val sample = specimen.get("sample");
+    val sampleId = entityService.saveSample(studyId, specimenId, sample);
+
+    val files = sample.get("files");
+    for (val file : files) {
+      val fileId = entityService.saveFile(studyId, sampleId, file);
+      fileIds.add(fileId);
+    }
+
+    return fileIds;
+  }
+
+  String createSequencingRead(String id, JsonNode node) {
+    val strategy = node.get("libraryStrategy").asText();
+    val isPaired = node.get("pairedEnd").asBoolean();
+    val size = node.get("insertSize").asLong();
+    val isAligned = node.get("aligned").asBoolean();
+    val tool = node.get("alignmentTool").asText();
+    val genome = node.get("referenceGenome").asText();
+
+    repository.createSequencingRead(id, strategy, isPaired, size, isAligned, tool, genome);
+
+    return id;
+  }
+
+  String createVariantCall(String id, JsonNode node) {
+    val tool = node.get("variantCallingTool").asText();
+    val tumorId = node.get("tumourSampleSubmitterId").asText();
+    val normalId = node.get("matchedNormalSampleSubmitterId").asText();
+    repository.createVariantCall(id, tool, tumorId, normalId);
+    return id;
+  }
+
+  public List<String> getAnalyses(Map<String, String> params) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public String getAnalysisById(String id) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
   public String updateAnalysis(String studyId, String json) {
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode node = mapper.readTree(json);
-
-    if (node.has("sequencingReadUpdate")) {
-      return updateSequencingRead(studyId, node);
-    } else if (node.has("variantUpdateCall")) {
-      return updateVariantCall(studyId, node);
-    }
-    return "Updated Analysis failed: unknown analysis type";
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

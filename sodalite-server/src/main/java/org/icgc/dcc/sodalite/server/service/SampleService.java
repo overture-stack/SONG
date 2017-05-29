@@ -1,5 +1,7 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import static org.icgc.dcc.sodalite.server.model.utils.IdPrefix.Sample;
+
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.entity.Sample;
@@ -22,7 +24,7 @@ public class SampleService {
   FileService fileService;
 
   public String create(String parentId, Sample s) {
-    val id = idService.generateSampleId();
+    val id = idService.generate(Sample);
     s.setSampleId(id);
     int status = repository.save(id, parentId, s.getSampleSubmitterId(), s.getSampleType().toString());
 

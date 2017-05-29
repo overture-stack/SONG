@@ -46,13 +46,12 @@ DROP DOMAIN IF EXISTS sample_type;
 CREATE DOMAIN sample_type as TEXT CHECK(VALUE IN('DNA','FFPE DNA','Amplified DNA','RNA','Total RNA','FFPE RNA'));
 DROP DOMAIN IF EXISTS file_type;
 CREATE DOMAIN file_type as TEXT CHECK(VALUE IN('FASTA','FAI','FASTQ','BAM','BAI','VCF','TBI','IDX'));
-DROP DOMAIN IF EXISTS analysis_state;
-CREATE DOMAIN analysis_state as TEXT CHECK(VALUE IN('Created','Uploaded','Published','Suppressed'));
+
 DROP DOMAIN IF EXISTS library_strategy;
 CREATE DOMAIN library_strategy as TEXT CHECK(VALUE IN('WGS','WXS','RNA-Seq','ChIP-Seq','miRNA-Seq','Bisulfite-Seq','Validation','Amplicon','Other'));
 
 DROP DOMAIN IF EXISTS analysis_type;
-CREATE DOMAIN analysis_type as TEXT CHECK(VALUE IN('SequencingRead','VariantCall','MAF'));
+CREATE DOMAIN analysis_type as TEXT CHECK(VALUE IN('sequencingRead','variantCall','MAF'));
 
 DROP TABLE IF EXISTS Study,Donor,Specimen,Sample,File,Analysis,VariantCallAnalysis,Submission;
  
@@ -62,10 +61,11 @@ CREATE TABLE Specimen(id VARCHAR(16) PRIMARY KEY, donor_id VARCHAR(16) reference
 CREATE TABLE Sample(id VARCHAR(16) PRIMARY KEY, specimen_id VARCHAR(16) references Specimen, submitter_id TEXT, type SAMPLE_TYPE);
 CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, sample_id VARCHAR(36) references Sample, name TEXT, size BIGINT, md5 CHAR(32), type FILE_TYPE, metadata_doc TEXT);
 
-CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, study_id VARCHAR(36) references Study, state ANALYSIS_STATE);
+CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, study_id VARCHAR(36) references Study);
 CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File);
 CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN, insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT);
-CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT);
+CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT, tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT); 
+;
 
 CREATE TABLE Upload(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now(), updated_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now());
 
