@@ -17,9 +17,16 @@
  */
 package org.icgc.dcc.sodalite.server.repository;
 
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import java.util.List;
 
+import org.icgc.dcc.sodalite.server.model.entity.File;
+import org.icgc.dcc.sodalite.server.repository.mapper.FileMapper;
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+
+@RegisterMapper(FileMapper.class)
 public interface AnalysisRepository {
 
   @SqlUpdate("INSERT INTO Analysis (id, study_id, type) VALUES (:id, :studyId, :type)")
@@ -38,4 +45,10 @@ public interface AnalysisRepository {
   @SqlUpdate("INSERT INTO VariantCall (id, variant_calling_tool,tumour_sample_submitter_id, matched_normal_sample_submitter_id) values(:id, :tool, :tumorId, :normalId)")
   void createVariantCall(@Bind("id") String id, @Bind("tool") String tool, @Bind("tumorId") String tumorId,
       @Bind("normalId") String normalId);
+
+  @SqlQuery("SELECT f.id, f.name, f.size, f.type, f.md5, f.metadata_doc "
+      + "FROM File f, FileSet s "
+      + "WHERE s.analysis_id=:id "
+      + "  AND f.id = s.file_id")
+  List<File> getFilesById(@Bind("id") String id);
 }

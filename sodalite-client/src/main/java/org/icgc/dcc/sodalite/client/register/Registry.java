@@ -62,25 +62,12 @@ public class Registry {
   /***
    * Register an analysis with the sodalite server.
    * 
-   * @param uploadId
-   * @param json
+   * @param analysisId
    * @return The analysisId that the server returned, or null if an error occurred.
    */
-  public Status registerAnalysis(String uploadId, String json) {
-    val analysisType = getAnalysisType(json);
-    val url = endpoint.analysis(getStudyId(json), uploadId, analysisType);
+  public Status upload(String json) {
+    val url = endpoint.upload(getStudyId(json));
     return rest.post(url, json);
-  }
-
-  /***
-   * Update an existing analysis object on the sodalite server
-   * 
-   * @param uploadId
-   * @param json
-   */
-  public Status updateAnalysis(String uploadId, String json) {
-    val url = endpoint.analysis(getStudyId(json), uploadId, getAnalysisType(json));
-    return rest.put(url, json);
   }
 
   /***
@@ -89,19 +76,19 @@ public class Registry {
    * @param uploadId
    * @return The state of the upload
    */
-  public Status getRegistrationState(String studyId, String uploadId) {
+  public Status getUploadStatus(String studyId, String uploadId) {
     val url = endpoint.status(studyId, uploadId);
     return rest.get(url);
   }
 
-  public Status publishById(String studyId, String uploadId) {
+  public Status publish(String studyId, String uploadId) {
     val url = endpoint.publishById(studyId, uploadId);
     return rest.post(url);
   }
 
-  public Status publishAll(String studyId) {
-    val url = endpoint.publishAll(studyId);
-    return rest.post(url);
+  public Status getAnalysisFiles(String studyId, String analysisId) {
+    val url = endpoint.getAnalysisFiles(studyId, analysisId);
+    return rest.get(url);
   }
 
 }

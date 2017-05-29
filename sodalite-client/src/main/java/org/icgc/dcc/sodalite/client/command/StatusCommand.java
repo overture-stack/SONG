@@ -41,7 +41,7 @@ public class StatusCommand extends Command {
 
   @Override
   public void run() {
-    val status = registry.getRegistrationState(config.getStudyId(), uploadId);
+    val status = registry.getUploadStatus(config.getStudyId(), uploadId);
     save(status);
   }
 

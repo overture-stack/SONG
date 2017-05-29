@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @Parameters(separators = "=", commandDescription = "Publish all uploaded analyses, or optionally just one.")
 public class PublishCommand extends Command {
 
-  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = false)
+  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = true)
   private String uploadId;
 
   @NonNull
@@ -42,11 +42,7 @@ public class PublishCommand extends Command {
   @Override
   public void run() {
     Status status;
-    if (uploadId == null) {
-      status = registry.publishAll(config.getStudyId());
-    } else {
-      status = registry.publishById(config.getStudyId(), uploadId);
-    }
+    status = registry.publish(config.getStudyId(), uploadId);
     save(status);
   }
 

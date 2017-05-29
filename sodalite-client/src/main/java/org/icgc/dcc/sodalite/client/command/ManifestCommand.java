@@ -39,11 +39,11 @@ import lombok.SneakyThrows;
 import lombok.val;
 
 @RequiredArgsConstructor
-@Parameters(commandDescription = "Generate a manifest file for the given uploadId")
+@Parameters(commandDescription = "Generate a manifest file for the given analysis")
 public class ManifestCommand extends Command {
 
-  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = true)
-  String uploadId;
+  @Parameter(names = { "-a", "--analysis-id" }, description = "The analysis id you got when you published your upload id", required = true)
+  String analysisId;
 
   @Parameter(names = { "--file", "-f" }, description = "Filename")
   String fileName;
@@ -52,34 +52,34 @@ public class ManifestCommand extends Command {
   Registry registry;
   @NonNull
   Config config;
-  private static final String JSON_PATH_TO_FILES = "/payload/study/donor/specimen/sample/files";
+  private static final String JSON_PATH_TO_FILES = "";
 
   @Override
   @SneakyThrows
   public void run() {
-    val status = registry.getRegistrationState(config.getStudyId(), uploadId);
+    val status = registry.getAnalysisFiles(config.getStudyId(), analysisId);
 
     if (status.hasErrors()) {
       save(status);
       return;
     }
 
-    val m = createManifest(uploadId, status.getOutputs());
+    val m = createManifest(analysisId, status.getOutputs());
 
     if (fileName == null) {
       output(m.toString());
     } else {
       Files.write(Paths.get(fileName), m.toString().getBytes());
-      output("Wrote manifest file '%s' for uploadId '%s'", fileName, uploadId);
+      output("Wrote manifest file '%s' for uploadId '%s'", fileName, analysisId);
     }
   }
 
   @SneakyThrows
-  Manifest createManifest(String uploadId, String json) {
+  Manifest createManifest(String analysisId, String json) {
     val mapper = new ObjectMapper();
     val root = mapper.readTree(json);
 
-    val m = new Manifest(uploadId);
+    val m = new Manifest(analysisId);
 
     Iterable<JsonNode> iter = () -> root.at(JSON_PATH_TO_FILES).iterator();
     m.addAll(StreamSupport.stream(iter.spliterator(), false)

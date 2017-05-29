@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.analysis.AnalysisType;
+import org.icgc.dcc.sodalite.server.model.entity.File;
 import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.AnalysisRepository;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
@@ -136,6 +137,10 @@ public class AnalysisService {
   public String updateAnalysis(String studyId, String json) {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  public List<File> getFilesById(String id) {
+    return repository.getFilesById(id);
   }
 
 }

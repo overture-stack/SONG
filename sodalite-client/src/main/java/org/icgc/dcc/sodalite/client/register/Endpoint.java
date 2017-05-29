@@ -21,11 +21,6 @@ import static java.lang.String.format;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import lombok.val;
-
-/**
- * 
- */
 public class Endpoint {
 
   private String serverUrl;
@@ -35,21 +30,20 @@ public class Endpoint {
     this.serverUrl = serverUrl;
   }
 
-  String analysis(String studyId, String uploadId, String analysisType) {
-    return format("%s/studies/%s/analyses/%s/%s", serverUrl, studyId, analysisType, uploadId);
-  }
-
-  String publishAll(String studyId) {
-    return format("%s/studies/%s/func/publish", serverUrl, studyId);
+  String upload(String studyId) {
+    return format("%s/upload/%s", serverUrl, studyId);
   }
 
   public String publishById(String studyId, String uploadId) {
-    return publishAll(studyId) + "/" + uploadId;
+    return format("%s/upload/%s/publish/%s", serverUrl, studyId, uploadId);
   }
 
   String status(String studyId, String uploadId) {
-    val url = "%s/studies/%s/statuses/%s";
-    return format(url, serverUrl, studyId, uploadId);
+    return format("%s/upload/%s/status/%s", serverUrl, studyId, uploadId);
+  }
+
+  public String getAnalysisFiles(String studyId, String analysisId) {
+    return format("%s/studies/%s/analysis/%s/files", serverUrl, studyId, analysisId);
   }
 
 }

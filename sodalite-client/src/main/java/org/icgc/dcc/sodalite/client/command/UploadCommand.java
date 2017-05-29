@@ -30,22 +30,19 @@ import com.google.common.io.Files;
 import lombok.val;
 
 @Parameters(separators = "=", commandDescription = "Register analysis metadata for uploading")
-public class RegisterCommand extends Command {
-
-  private int count = 1;
+public class UploadCommand extends Command {
 
   @Parameter(names = { "-f", "--file" }, description = "file", required = true)
   String fileName;
 
   Registry registry;
 
-  public RegisterCommand(Registry registry) {
+  public UploadCommand(Registry registry) {
     this.registry = registry;
   }
 
   @Override
   public void run() {
-    val uploadId = generateOutputId();
     val file = new File(fileName);
     String json;
     try {
@@ -55,13 +52,8 @@ public class RegisterCommand extends Command {
       return;
     }
 
-    val status = registry.registerAnalysis(uploadId, json);
+    val status = registry.upload(json);
     save(status);
-  }
-
-  String generateOutputId() {
-    // TODO: Replace this with a better output generator
-    return "x" + count++;
   }
 
 }

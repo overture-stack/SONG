@@ -3,7 +3,7 @@ package org.icgc.dcc.sodalite.client.cli;
 import org.icgc.dcc.sodalite.client.command.ConfigCommand;
 import org.icgc.dcc.sodalite.client.command.ManifestCommand;
 import org.icgc.dcc.sodalite.client.command.PublishCommand;
-import org.icgc.dcc.sodalite.client.command.RegisterCommand;
+import org.icgc.dcc.sodalite.client.command.UploadCommand;
 import org.icgc.dcc.sodalite.client.command.StatusCommand;
 import org.icgc.dcc.sodalite.client.config.Config;
 import org.icgc.dcc.sodalite.client.register.Registry;
@@ -26,7 +26,7 @@ public class ClientMain implements CommandLineRunner {
     val builder = new CommandParserBuilder(programName, options);
     builder.register("config", new ConfigCommand(config));
     builder.register("manifest", new ManifestCommand(registry, config));
-    builder.register("register", new RegisterCommand(registry));
+    builder.register("upload", new UploadCommand(registry));
     builder.register("status", new StatusCommand(registry, config));
     builder.register("publish", new PublishCommand(registry, config));
 
