@@ -36,14 +36,16 @@ public class AnalysisServiceTest {
 
   @Test
   public void testGetAnalysisType_SequencingRead() {
-    val s = JsonUtils.jsonResponse("sequencingRead", "{}");
+    val node = JsonNodeFactory.instance.objectNode().put("sequencingRead", "{}");
+    val s = JsonUtils.nodeToJSON(node);
     val result = service.getAnalysisType(s);
     assertThat(result == AnalysisType.sequencingRead);
   }
 
   @Test
   public void testGetAnalysisType_VariantCall() {
-    val s = JsonUtils.jsonResponse("variantCall", "{}");
+    val node = JsonNodeFactory.instance.objectNode().put("variantCall", "{}");
+    val s = JsonUtils.nodeToJSON(node);
     val result = service.getAnalysisType(s);
     assertThat(result == AnalysisType.variantCall);
   }
@@ -109,7 +111,7 @@ public class AnalysisServiceTest {
     val studyId = "ABC123";
 
     String json = getJsonNodeFromClasspath(fileName);
-    val study = JsonUtils.getTree(json).get("study");
+    val study = JsonUtils.readTree(json).get("study");
 
     val fileIds = service.saveStudy(studyId, study);
     // TODO: 1) Verify that the correct records were added to / updated in the Donor, Specimen, Sample, and File tables

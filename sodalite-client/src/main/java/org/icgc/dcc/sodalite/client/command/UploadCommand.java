@@ -29,10 +29,10 @@ import com.google.common.io.Files;
 
 import lombok.val;
 
-@Parameters(separators = "=", commandDescription = "Register analysis metadata for uploading")
+@Parameters(separators = "=", commandDescription = "Upload an analysis file, and get an upload id")
 public class UploadCommand extends Command {
 
-  @Parameter(names = { "-f", "--file" }, description = "file", required = true)
+  @Parameter(names = { "-f", "--file" }, required = true)
   String fileName;
 
   Registry registry;

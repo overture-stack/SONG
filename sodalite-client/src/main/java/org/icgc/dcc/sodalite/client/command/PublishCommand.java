@@ -28,10 +28,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Publish all uploaded analyses, or optionally just one.")
+@Parameters(separators = "=", commandDescription = "Publish an uploaded analysis by it's upload id, and get an analysis id")
 public class PublishCommand extends Command {
 
-  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = true)
+  @Parameter(names = { "-u", "--upload-id" }, required = true)
   private String uploadId;
 
   @NonNull

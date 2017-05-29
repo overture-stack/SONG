@@ -34,7 +34,7 @@ public class AnalysisService {
 
   @SneakyThrows
   public AnalysisType getAnalysisType(String json) {
-    return getAnalysisType(JsonUtils.getTree(json));
+    return getAnalysisType(JsonUtils.readTree(json));
   }
 
   public AnalysisType getAnalysisType(JsonNode node) {
@@ -53,7 +53,7 @@ public class AnalysisService {
 
   @SneakyThrows
   public String create(String studyId, String json) {
-    val node = JsonUtils.getTree(json);
+    val node = JsonUtils.readTree(json);
     val type = getAnalysisType(node);
 
     val id = idService.generate(IdPrefix.Analysis);
@@ -82,10 +82,12 @@ public class AnalysisService {
     repository.addFile(id, fileId);
   }
 
+  @SneakyThrows
   Collection<String> saveStudy(String studyId, JsonNode study) {
     val fileIds = new HashSet<String>();
 
     val donor = study.get("donor");
+
     val donorId = entityService.saveDonor(studyId, donor);
 
     val specimen = donor.get("specimen");

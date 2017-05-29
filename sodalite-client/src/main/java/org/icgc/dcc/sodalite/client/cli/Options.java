@@ -24,7 +24,7 @@ import com.beust.jcommander.Parameter;
  */
 public class Options {
 
-  @Parameter(names = { "--help", "-h", "-?" }, help = true)
+  @Parameter(names = { "--help", "-h", "-?" }, description = "Show this help screen", help = true)
   private boolean help;
 
 }

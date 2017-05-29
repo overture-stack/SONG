@@ -39,13 +39,13 @@ import lombok.SneakyThrows;
 import lombok.val;
 
 @RequiredArgsConstructor
-@Parameters(commandDescription = "Generate a manifest file for the given analysis")
+@Parameters(commandDescription = "Generate a manifest file for the analysis with the specified analysis id")
 public class ManifestCommand extends Command {
 
-  @Parameter(names = { "-a", "--analysis-id" }, description = "The analysis id you got when you published your upload id", required = true)
+  @Parameter(names = { "-a", "--analysis-id" }, required = true)
   String analysisId;
 
-  @Parameter(names = { "--file", "-f" }, description = "Filename")
+  @Parameter(names = { "--file", "-f" }, description = "Filename to save file in (if not set, displays manifest on standard output")
   String fileName;
 
   @NonNull

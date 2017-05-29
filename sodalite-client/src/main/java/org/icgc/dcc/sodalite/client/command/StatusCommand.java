@@ -28,10 +28,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Get the status of an analysis by it's upload Id.")
+@Parameters(separators = "=", commandDescription = "Get the status of an upload from it's upload id.")
 public class StatusCommand extends Command {
 
-  @Parameter(names = { "-i", "--upload-id" }, description = "<uploadId>", required = true)
+  @Parameter(names = { "-u", "--upload-id" }, required = true)
   private String uploadId;
 
   @NonNull
