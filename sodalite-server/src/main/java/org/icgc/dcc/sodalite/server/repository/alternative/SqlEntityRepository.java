@@ -15,7 +15,7 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.repository;
+package org.icgc.dcc.sodalite.server.repository.alternative;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,25 +32,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.SneakyThrows;
 import lombok.val;
 
-public abstract class EntityRepository {
-
-  public abstract void create(String id, String parentId, String studyId, JsonNode data);
-
-  public abstract JsonNode read(String id);
-
-  public abstract void update(String id, JsonNode data);
-
-  public abstract void delete(String id);
-
-  abstract public String keyField();
-
-  public abstract String findByBusinessKey(String studyId, String key);
-
-  public abstract Collection<String> findByParent(String parentId);
-
-}
-
-class Test extends EntityRepository {
+class SqlEntityRepository extends EntityRepository {
 
   @Autowired
   Handle h;
@@ -63,15 +45,12 @@ class Test extends EntityRepository {
   List<String> fields;
   private String tableName;
   private String parentIdField;
-  private String keyFieldName;
 
-  Test(Handle h, String tableName, String parentIdField, String keyFieldName, List<String> fields) {
+  SqlEntityRepository(Handle h, String tableName, String parentIdField, List<String> fields) {
     this.h = h;
     this.tableName = tableName;
     this.parentIdField = parentIdField;
     this.fields = fields;
-    this.keyFieldName = keyFieldName;
-
     val insert = sqlCmdCreate(tableName, parentIdField, fields);
     create = h.createStatement(insert);
   }
@@ -163,13 +142,8 @@ class Test extends EntityRepository {
   }
 
   @Override
-  public String keyField() {
-    return keyFieldName;
-  }
-
-  @Override
   public String findByBusinessKey(String studyId, String key) {
-    String sql = "SELECT id FROM " + tableName + "WHERE study_id=? AND " + keyField() + "=?";
+    String sql = "SELECT id FROM " + tableName + "WHERE study_id=? AND submitter_id=?";
     val query = h.createQuery(sql);
     query.bind(0, studyId);
     query.bind(1, key);
@@ -180,15 +154,13 @@ class Test extends EntityRepository {
     return strings.get(0);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.icgc.dcc.sodalite.server.service.EntityRepository#findByParent(java.lang.String)
-   */
   @Override
   public Collection<String> findByParent(String parentId) {
-    // TODO Auto-generated method stub
-    return null;
+    String sql = "SELECT id FROM " + tableName + "WHERE " + parentIdField + "=?";
+    val query = h.createQuery(sql);
+    query.bind(0, parentId);
+    val strings = query.map(StringMapper.FIRST).list();
+    return strings;
   }
 
 }

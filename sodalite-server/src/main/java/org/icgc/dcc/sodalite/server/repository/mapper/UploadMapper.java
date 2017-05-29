@@ -17,23 +17,19 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.icgc.dcc.sodalite.server.model.Upload;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import lombok.val;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 public class UploadMapper implements ResultSetMapper<Upload> {
 
-  public Upload map(int index, ResultSet rs, StatementContext ctx) throws SQLException { // I prefer braces on
-                                                                                                   // next line when
-                                                                                                   // declaring
-                                                                                                   // exception throws
-                                                                                                   // in method
-                                                                                                   // signature - Dušan
+  @Override
+  public Upload map(int index, ResultSet rs, StatementContext ctx) throws SQLException {
     Upload status = new Upload();
     status.withUploadId(rs.getString("id"))
         .withStudyId(rs.getString("study_id"))

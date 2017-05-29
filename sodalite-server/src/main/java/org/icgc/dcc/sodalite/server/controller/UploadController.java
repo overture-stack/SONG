@@ -55,7 +55,6 @@ public class UploadController {
   public ResponseEntity<String> upload(
       @PathVariable("studyId") String studyId,
       @RequestBody @Valid String payload) {
-
     return uploadService.upload(studyId, payload);
   }
 

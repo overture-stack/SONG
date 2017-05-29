@@ -2,6 +2,8 @@ package org.icgc.dcc.sodalite.server.service;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.analysis.AnalysisType;
 import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
@@ -71,7 +73,7 @@ public class AnalysisService {
     case variantCall:
       return createVariantCall(id, analysis);
     default:
-      return "Register Analysis failed: Unknown Analysis Type";
+      return "Upload Analysis failed: Unknown Analysis Type";
     }
   }
 
@@ -119,6 +121,21 @@ public class AnalysisService {
     val normalId = node.get("matchedNormalSampleSubmitterId").asText();
     repository.createVariantCall(id, tool, tumorId, normalId);
     return id;
+  }
+
+  public List<String> getAnalyses(Map<String, String> params) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public String getAnalysisById(String id) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public String updateAnalysis(String studyId, String json) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

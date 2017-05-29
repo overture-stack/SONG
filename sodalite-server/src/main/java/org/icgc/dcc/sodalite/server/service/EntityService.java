@@ -56,7 +56,6 @@ public class EntityService {
     if (donorId == null) {
       donorId = idService.generate(IdPrefix.Donor);
       donorRepository.save(donorId, studyId, submitterId, gender);
-
     } else {
       donorRepository.set(donorId, studyId, submitterId, gender);
     }
