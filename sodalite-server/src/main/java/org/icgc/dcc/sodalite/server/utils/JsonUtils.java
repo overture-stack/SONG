@@ -22,9 +22,12 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+
+import lombok.SneakyThrows;
 
 /**
  * Utility functions related to deal with JSON
@@ -35,33 +38,22 @@ public class JsonUtils {
       .registerModule(new Jdk8Module())
       .registerModule(new JavaTimeModule());
 
-  private static String QUOTE = "\"";
-
-  public static String jsonStatus(boolean status, String key, String ok, String fail) {
-    if (status) {
-      return jsonResponse(key, ok);
-    }
-    return jsonResponse(key, fail);
-  }
-
-  public static String jsonResponse(String key, String value) {
-    return "{" + jsonPair(key, value) + "}";
-  }
-
-  public static String jsonPair(String key, String value) {
-    return QUOTE + key + QUOTE + ": " + QUOTE + value + QUOTE;
-  }
-
-  public static String jsonPair(String key, Long value) {
-    return QUOTE + key + QUOTE + ": " + value;
-  }
-
-  public static JsonNode getTree(String json) throws JsonProcessingException, IOException {
+  public static JsonNode readTree(String json) throws JsonProcessingException, IOException {
     return mapper.readTree(json);
   }
 
-  public static String jsonPair(String key, boolean b) {
-    return QUOTE + key + QUOTE + ": " + b;
+  @SneakyThrows
+  public static String nodeToJSON(ObjectNode node) {
+    return mapper.writeValueAsString(node);
+  }
+
+  @SneakyThrows
+  public static String nodeToJSON(JsonNode node) {
+    return mapper.writeValueAsString(node);
+  }
+
+  public static ObjectMapper mapper() {
+    return mapper;
   }
 
 }

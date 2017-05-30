@@ -62,7 +62,7 @@ public class ValidationService {
   public void validate(@NonNull String uploadId, @NonNull String payload, AnalysisType analysisType) {
     log.info("Valdidating payload for upload Id=" + uploadId + "payload=" + payload);
     try {
-      val jsonNode = JsonUtils.getTree(payload);
+      val jsonNode = JsonUtils.readTree(payload);
 
       if (analysisType == null) {
         updateAsInvalid(uploadId, "Uploaded JSON document does not contain a valid analysis type");

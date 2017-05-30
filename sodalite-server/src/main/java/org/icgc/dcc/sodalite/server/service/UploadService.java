@@ -66,8 +66,7 @@ public class UploadService {
 
     updateAsPublished(uploadId);
     val json = s.getPayload();
-    analysis.create(studyId, json);
-    return ok("Successfully published " + uploadId);
+    return ok(analysis.create(studyId, json));
   }
 
   private void save(@NonNull String studyId, @NonNull String uploadId, @NonNull String jsonPayload) {

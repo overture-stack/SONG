@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.analysis.AnalysisType;
+import org.icgc.dcc.sodalite.server.model.entity.File;
 import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.AnalysisRepository;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
@@ -33,7 +34,7 @@ public class AnalysisService {
 
   @SneakyThrows
   public AnalysisType getAnalysisType(String json) {
-    return getAnalysisType(JsonUtils.getTree(json));
+    return getAnalysisType(JsonUtils.readTree(json));
   }
 
   public AnalysisType getAnalysisType(JsonNode node) {
@@ -52,7 +53,7 @@ public class AnalysisService {
 
   @SneakyThrows
   public String create(String studyId, String json) {
-    val node = JsonUtils.getTree(json);
+    val node = JsonUtils.readTree(json);
     val type = getAnalysisType(node);
 
     val id = idService.generate(IdPrefix.Analysis);
@@ -81,10 +82,12 @@ public class AnalysisService {
     repository.addFile(id, fileId);
   }
 
+  @SneakyThrows
   Collection<String> saveStudy(String studyId, JsonNode study) {
     val fileIds = new HashSet<String>();
 
     val donor = study.get("donor");
+
     val donorId = entityService.saveDonor(studyId, donor);
 
     val specimen = donor.get("specimen");
@@ -136,6 +139,10 @@ public class AnalysisService {
   public String updateAnalysis(String studyId, String json) {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  public List<File> getFilesById(String id) {
+    return repository.getFilesById(id);
   }
 
 }
