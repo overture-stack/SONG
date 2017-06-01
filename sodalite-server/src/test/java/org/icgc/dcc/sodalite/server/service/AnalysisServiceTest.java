@@ -3,9 +3,11 @@ package org.icgc.dcc.sodalite.server.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
+import org.icgc.dcc.sodalite.server.model.entity.File;
 import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.junit.Test;
@@ -32,6 +34,8 @@ import lombok.val;
 public class AnalysisServiceTest {
 
   @Autowired
+  FileService fileService;
+  @Autowired
   AnalysisService service;
 
   @Test
@@ -52,7 +56,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testAddFile() {
-    val id = "AN1";
+    val id = "MU1";
     val fileId = "FI3";
 
     service.addFile(id, fileId);
@@ -136,6 +140,18 @@ public class AnalysisServiceTest {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode node = mapper.readTree(is1);
     return mapper.writeValueAsString(node);
+  }
+
+  @Test
+  public void testGetFilesById() {
+    val files = service.getFilesById("AN1");
+    System.err.printf("Got files '%s'", files);
+    val expectedFiles = new ArrayList<File>();
+    expectedFiles.add(fileService.getById("FI1"));
+    expectedFiles.add(fileService.getById("FI2"));
+
+    assertThat(files).containsAll(expectedFiles);
+    assertThat(expectedFiles).containsAll(files);
   }
 
 }
