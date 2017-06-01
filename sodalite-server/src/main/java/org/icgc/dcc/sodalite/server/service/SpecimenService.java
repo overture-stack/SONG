@@ -28,7 +28,7 @@ public class SpecimenService {
     specimen.setSpecimenId(id);
     specimen.setDonorId(parentId);
     int status =
-        repository.save(id, parentId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(),
+        repository.create(id, parentId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(),
             specimen.getSpecimenType().toString());
     if (status != 1) {
       return "error: Can't create" + specimen.toString();
@@ -38,7 +38,7 @@ public class SpecimenService {
   }
 
   public String update(Specimen s) {
-    repository.set(s.getSpecimenId(), s.getSpecimenSubmitterId(), s.getSpecimenClass().toString(),
+    repository.update(s.getSpecimenId(), s.getSpecimenSubmitterId(), s.getSpecimenClass().toString(),
         s.getSpecimenType().toString());
     return "ok";
   }
@@ -50,12 +50,12 @@ public class SpecimenService {
   }
 
   public String deleteByParentId(String parentId) {
-    repository.getIds(parentId).forEach(this::delete);
+    repository.findByParentId(parentId).forEach(this::delete);
     return "ok";
   }
 
   public Specimen getById(String id) {
-    val specimen = repository.getById(id);
+    val specimen = repository.read(id);
     if (specimen == null) {
       return null;
     }
@@ -64,7 +64,7 @@ public class SpecimenService {
   }
 
   public List<Specimen> findByParentId(String parentId) {
-    val specimens = repository.findByParentId(parentId);
+    val specimens = repository.readByParentId(parentId);
     specimens.forEach(s -> s.setSamples(sampleService.findByParentId(s.getSpecimenId())));
     return specimens;
   }

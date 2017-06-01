@@ -25,7 +25,7 @@ public class FileService {
     val id = idService.generate(File);
     f.setObjectId(id);
     f.setSampleId(parentId);
-    int status = repository.save(id, parentId, f.getFileName(), f.getFileSize(), f.getFileType().toString(),
+    int status = repository.create(id, parentId, f.getFileName(), f.getFileSize(), f.getFileType().toString(),
         f.getFileMd5(), f.getMetadataDoc());
 
     if (status != 1) {
@@ -36,7 +36,7 @@ public class FileService {
   }
 
   public String update(File f) {
-    repository.set(f.getObjectId(), f.getFileName(), f.getFileSize(), f.getFileType().toString(), f.getFileMd5(),
+    repository.update(f.getObjectId(), f.getFileName(), f.getFileSize(), f.getFileType().toString(), f.getFileMd5(),
         f.getMetadataDoc());
     return "ok";
   }
@@ -47,15 +47,10 @@ public class FileService {
   }
 
   public File getById(String id) {
-    return repository.getById(id);
-  }
-
-  public String deleteByParentId(String parentId) {
-    repository.deleteBySampleId(parentId);
-    return "ok";
+    return repository.read(id);
   }
 
   public List<File> findByParentId(String parentId) {
-    return repository.findByParentId(parentId);
+    return repository.readByParentId(parentId);
   }
 }

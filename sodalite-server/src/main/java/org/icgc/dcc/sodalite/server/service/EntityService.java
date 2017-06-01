@@ -94,7 +94,7 @@ public class EntityService {
     }
     d.setStudyId(studyId);
 
-    String donorId = donorRepository.getIdByBusinessKey(studyId, d.getDonorSubmitterId());
+    String donorId = donorRepository.findByBusinessKey(studyId, d.getDonorSubmitterId());
     if (donorId == null) {
       donorId = idService.generate(IdPrefix.Donor);
       d.setDonorId(donorId);
@@ -128,12 +128,12 @@ public class EntityService {
     val class_ = getDefault(specimen, "specimenClass", "");
     val type = getDefault(specimen, "specimenType", "");
 
-    String specimenId = specimenRepository.getIdByBusinessKey(studyId, submitterId);
+    String specimenId = specimenRepository.findByBusinessKey(studyId, submitterId);
     if (specimenId == null) {
       specimenId = idService.generate(IdPrefix.Specimen);
-      specimenRepository.save(specimenId, donorId, submitterId, class_, type);
+      specimenRepository.create(specimenId, donorId, submitterId, class_, type);
     } else {
-      specimenRepository.set(specimenId, submitterId, class_, type);
+      specimenRepository.update(specimenId, submitterId, class_, type);
     }
     return specimenId;
   }
@@ -142,12 +142,12 @@ public class EntityService {
     val submitterId = sample.get("sampleSubmitterId").asText();
     val type = sample.get("sampleType").asText();
 
-    String sampleId = sampleRepository.getIdByBusinessKey(studyId, submitterId);
+    String sampleId = sampleRepository.findByBusinessKey(studyId, submitterId);
     if (sampleId == null) {
       sampleId = idService.generate(IdPrefix.Sample);
-      sampleRepository.save(sampleId, specimenId, submitterId, type);
+      sampleRepository.create(sampleId, specimenId, submitterId, type);
     } else {
-      sampleRepository.set(sampleId, submitterId, type);
+      sampleRepository.update(sampleId, submitterId, type);
     }
     return sampleId;
   }
@@ -163,12 +163,12 @@ public class EntityService {
       metadata = file.get("fileMetadata").asText();
     }
 
-    String fileId = fileRepository.getIdByBusinessKey(studyId, name);
+    String fileId = fileRepository.findByBusinessKey(studyId, name);
     if (fileId == null) {
       fileId = idService.generate(IdPrefix.File);
-      fileRepository.save(fileId, sampleId, name, size, type, md5, metadata);
+      fileRepository.create(fileId, sampleId, name, size, type, md5, metadata);
     } else {
-      fileRepository.set(fileId, name, size, type, md5, metadata);
+      fileRepository.update(fileId, name, size, type, md5, metadata);
     }
     return fileId;
   }

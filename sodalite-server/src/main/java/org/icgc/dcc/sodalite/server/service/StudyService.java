@@ -41,12 +41,12 @@ public class StudyService {
 
   @SneakyThrows
   public Study getStudy(String studyId) {
-    return studyRepository.get(studyId);
+    return studyRepository.read(studyId);
   }
 
   @SneakyThrows
   public Study getEntireStudy(String studyId) {
-    Study study = studyRepository.get(studyId);
+    Study study = studyRepository.read(studyId);
     if (study == null) {
       return null;
     }
@@ -66,7 +66,7 @@ public class StudyService {
    * @return
    */
   public int saveStudy(Study study) {
-    return studyRepository.save(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
+    return studyRepository.create(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
   }
 
 }

@@ -34,21 +34,21 @@ public interface DonorRepository {
   @SqlUpdate("INSERT INTO Donor (id, submitter_id, study_id, gender, info) VALUES (:donorId, :donorSubmitterId, :studyId, :donorGender, :donorInfo)")
   int create(@BindBean Donor donor);
 
-  @SqlUpdate("UPDATE Donor SET submitter_id=:donorSubmitterId, gender=:donorGender, info=:donorInfo WHERE id=:donorId")
-  int update(@BindBean Donor donor);
-
-  @SqlQuery("SELECT id, submitter_id, study_id, gender, info FROM donor WHERE study_id=:study_id")
-  List<Donor> findByParentId(@Bind("study_id") String study_id);
-
-  @SqlQuery("SELECT id from donor where study_id=:study_id")
-  List<String> getIds(@Bind("study_id") String parent_id);
-
   @SqlQuery("SELECT id, submitter_id, study_id, gender, info FROM donor WHERE id=:id")
   Donor read(@Bind("id") String donor_id);
+
+  @SqlUpdate("UPDATE Donor SET submitter_id=:donorSubmitterId, gender=:donorGender, info=:donorInfo WHERE id=:donorId")
+  int update(@BindBean Donor donor);
 
   @SqlUpdate("DELETE from donor where id=:id AND study_id=:study_id")
   int delete(@Bind("study_id") String study_id, @Bind("id") String id);
 
+  @SqlQuery("SELECT id, submitter_id, study_id, gender, info FROM donor WHERE study_id=:study_id")
+  List<Donor> readByParentId(@Bind("study_id") String study_id);
+
+  @SqlQuery("SELECT id from donor where study_id=:study_id")
+  List<String> findByParentId(@Bind("study_id") String parent_id);
+
   @SqlQuery("SELECT id from donor where study_id=:studyId AND submitter_id=:key")
-  String getIdByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
+  String findByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
 }

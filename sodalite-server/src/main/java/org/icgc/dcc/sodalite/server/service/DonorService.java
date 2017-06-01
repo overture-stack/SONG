@@ -50,7 +50,7 @@ public class DonorService {
   }
 
   public String deleteByParentId(String studyId) {
-    donorRepository.getIds(studyId).forEach(id -> delete(studyId, id));
+    donorRepository.findByParentId(studyId).forEach(id -> delete(studyId, id));
 
     return "OK";
   }
@@ -65,7 +65,7 @@ public class DonorService {
   }
 
   public List<Donor> readByParentId(String parentId) {
-    val donors = donorRepository.findByParentId(parentId);
+    val donors = donorRepository.readByParentId(parentId);
     donors.forEach(d -> d.setSpecimens(specimenService.findByParentId(d.getDonorId())));
     return donors;
   }

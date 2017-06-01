@@ -27,7 +27,7 @@ public class SampleService {
     val id = idService.generate(Sample);
     s.setSampleId(id);
     s.setSpecimenId(parentId);
-    int status = repository.save(id, parentId, s.getSampleSubmitterId(), s.getSampleType().toString());
+    int status = repository.create(id, parentId, s.getSampleSubmitterId(), s.getSampleType().toString());
 
     if (status != 1) {
       return "error: Can't create" + s.toString();
@@ -38,27 +38,25 @@ public class SampleService {
   }
 
   public String update(Sample s) {
-    repository.set(s.getSampleId(), s.getSampleSubmitterId(), s.getSampleType().toString());
+    repository.update(s.getSampleId(), s.getSampleSubmitterId(), s.getSampleType().toString());
     return "ok";
   }
 
   public String delete(String id) {
-    fileService.deleteByParentId(id);
-    System.out.println("About to delete" + id);
     repository.delete(id);
 
     return "ok";
   }
 
   public String deleteByParentId(String parentId) {
-    val ids = repository.getIds(parentId);
+    val ids = repository.findByParentId(parentId);
     ids.forEach(this::delete);
 
     return "ok";
   }
 
   public Sample getById(String id) {
-    val sample = repository.getById(id);
+    val sample = repository.read(id);
     if (sample == null) {
       return null;
     }
@@ -67,7 +65,7 @@ public class SampleService {
   }
 
   public List<Sample> findByParentId(String parentId) {
-    val samples = repository.findByParentId(parentId);
+    val samples = repository.readByParentId(parentId);
     samples.forEach(s -> s.setFiles(fileService.findByParentId(s.getSampleId())));
     return samples;
   }
