@@ -19,6 +19,8 @@
 
 package org.icgc.dcc.sodalite.server.model.analysis;
 
+import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
+
 public class Analysis {
 
   String id;

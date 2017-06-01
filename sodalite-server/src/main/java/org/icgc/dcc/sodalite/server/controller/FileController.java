@@ -37,7 +37,7 @@ public class FileController {
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String create(@PathVariable("studyId") String studyId, @RequestBody File file) {
-    val sampleId = (String) file.getAdditionalProperties().get("sampleId");
+    val sampleId = file.getSampleId();
     return fileService.create(sampleId, file);
   }
 

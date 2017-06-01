@@ -26,6 +26,7 @@ public class SpecimenService {
   public String create(String parentId, Specimen specimen) {
     val id = idService.generate(Specimen);
     specimen.setSpecimenId(id);
+    specimen.setDonorId(parentId);
     int status =
         repository.save(id, parentId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(),
             specimen.getSpecimenType().toString());

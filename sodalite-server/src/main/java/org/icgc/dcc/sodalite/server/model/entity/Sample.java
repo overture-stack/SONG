@@ -19,153 +19,40 @@
 
 package org.icgc.dcc.sodalite.server.model.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.fasterxml.jackson.annotation.*;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.icgc.dcc.sodalite.server.model.enums.SampleType;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
+import lombok.NonNull;
+
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "sampleId", "sampleSubmitterId", "sampleType", "files"
-})
-public class Sample implements Entity {
+public class Sample {
 
-  @JsonProperty("sampleId")
+  @NonNull
   private String sampleId;
-
-  @JsonProperty("sampleSubmitterId")
+  @NonNull
   private String sampleSubmitterId;
-
-  @JsonProperty("sampleType")
+  @NonNull
+  private String specimenId;
+  @NonNull
   private SampleType sampleType;
-
-  @JsonProperty("files")
-  private Collection<File> files = null;
-
-  @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-  @JsonProperty("sampleId")
-  public String getSampleId() {
-    return sampleId;
-  }
-
-  @JsonProperty("sampleId")
-  public void setSampleId(String sampleId) {
-    this.sampleId = sampleId;
-  }
-
-  public Sample withSampleId(String sampleId) {
-    this.sampleId = sampleId;
-    return this;
-  }
-
-  @JsonProperty("sampleSubmitterId")
-  public String getSampleSubmitterId() {
-    return sampleSubmitterId;
-  }
-
-  @JsonProperty("sampleSubmitterId")
-  public void setSampleSubmitterId(String sampleSubmitterId) {
-    this.sampleSubmitterId = sampleSubmitterId;
-  }
-
-  public Sample withSampleSubmitterId(String sampleSubmitterId) {
-    this.sampleSubmitterId = sampleSubmitterId;
-    return this;
-  }
-
-  @JsonProperty("sampleType")
-  public SampleType getSampleType() {
-    return sampleType;
-  }
-
-  @JsonProperty("sampleType")
-  public void setSampleType(SampleType sampleType) {
-    this.sampleType = sampleType;
-  }
-
-  public Sample withSampleType(SampleType sampleType) {
-    this.sampleType = sampleType;
-    return this;
-  }
-
-  @JsonProperty("files")
-  public Collection<File> getFiles() {
-    return files;
-  }
+  private Collection<File> files = new ArrayList<>();
+  // @NonNull
+  // private String sampleInfo;
 
   @JsonProperty("files")
   public void setFiles(Collection<File> files) {
-    this.files = files;
-  }
-
-  public Sample withFiles(Collection<File> files) {
-    this.files = files;
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
-  @JsonAnyGetter
-  public Map<String, Object> getAdditionalProperties() {
-    return this.additionalProperties;
-  }
-
-  @JsonAnySetter
-  public void setAdditionalProperty(String name, Object value) {
-    this.additionalProperties.put(name, value);
-  }
-
-  public Sample withAdditionalProperty(String name, Object value) {
-    this.additionalProperties.put(name, value);
-    return this;
+    this.files.clear();
+    this.files.addAll(files);
   }
 
   public void addFile(File f) {
     files.add(f);
-  }
-
-  public static enum SampleType {
-
-    DNA("DNA"), FFPE_DNA("FFPE DNA"), AMPLIFIED_DNA("Amplified DNA"), RNA("RNA"), TOTAL_RNA("Total RNA"), FFPE_RNA("FFPE RNA");
-
-    private final String value;
-    private final static Map<String, SampleType> CONSTANTS = new HashMap<String, SampleType>();
-
-    static {
-      for (SampleType c : SampleType.values()) {
-        CONSTANTS.put(c.value, c);
-      }
-    }
-
-    private SampleType(String value) {
-      this.value = value;
-    }
-
-    @Override
-    public String toString() {
-      return this.value;
-    }
-
-    @JsonValue
-    public String value() {
-      return this.value;
-    }
-
-    @JsonCreator
-    public static SampleType fromValue(String value) {
-      SampleType constant = CONSTANTS.get(value);
-      if (constant == null) {
-        throw new IllegalArgumentException(value);
-      } else {
-        return constant;
-      }
-    }
-
   }
 }

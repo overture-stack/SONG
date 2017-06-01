@@ -26,6 +26,7 @@ public class SampleService {
   public String create(String parentId, Sample s) {
     val id = idService.generate(Sample);
     s.setSampleId(id);
+    s.setSpecimenId(parentId);
     int status = repository.save(id, parentId, s.getSampleSubmitterId(), s.getSampleType().toString());
 
     if (status != 1) {

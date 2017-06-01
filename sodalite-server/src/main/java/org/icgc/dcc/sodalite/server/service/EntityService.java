@@ -17,6 +17,8 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
+import org.icgc.dcc.sodalite.server.model.entity.Donor;
+import org.icgc.dcc.sodalite.server.model.entity.Specimen;
 import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
 import org.icgc.dcc.sodalite.server.repository.FileRepository;
@@ -25,9 +27,13 @@ import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.val;
 
 @Service
@@ -35,6 +41,7 @@ import lombok.val;
 /***
  * Save JSON objects into repository storage
  */
+
 public class EntityService {
 
   @Autowired
@@ -48,24 +55,78 @@ public class EntityService {
   @Autowired
   FileRepository fileRepository;
 
-  public String saveDonor(String studyId, JsonNode donor) {
-    val submitterId = donor.get("donorSubmitterId").asText();
-    val gender = donor.get("donorGender").asText();
+  private void setDefault(ObjectNode node, String field, String value) {
+    if (node.has(field)) {
+      return;
+    }
+    node.put(field, value);
+  }
 
-    String donorId = donorRepository.getIdByBusinessKey(studyId, submitterId);
+  @SneakyThrows
+  public String saveDonor(String studyId, ObjectNode donor) {
+    val mapper = new ObjectMapper();
+    mapper.disable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
+    mapper.disable(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS);
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    boolean hasSpecimen = false;
+    JsonNode specimen = null;
+    setDefault(donor, "donorId", "");
+    setDefault(donor, "studyId", "");
+    setDefaultObject(donor, "donorInfo");
+    if (donor.has("specimen")) {
+      specimen = donor.get("specimen");
+      hasSpecimen = true;
+      donor.remove("specimen");
+    }
+
+    val d = mapper.convertValue(donor, Donor.class);
+    if (hasSpecimen) {
+      donor.put("specimen", specimen);
+
+      if (specimen.isObject()) {
+        val spNode = (ObjectNode) specimen;
+        setDefault(spNode, "specimenId", "");
+        setDefault(spNode, "donorId", "");
+
+        val sp = mapper.convertValue(spNode, Specimen.class);
+        d.addSpecimen(sp);
+      }
+    }
+    d.setStudyId(studyId);
+
+    String donorId = donorRepository.getIdByBusinessKey(studyId, d.getDonorSubmitterId());
     if (donorId == null) {
       donorId = idService.generate(IdPrefix.Donor);
-      donorRepository.save(donorId, studyId, submitterId, gender);
+      d.setDonorId(donorId);
+      System.err.printf("Creating new donor with id=%s,gender='%s'\n", donorId, d.getDonorGender());
+      donorRepository.create(d);
     } else {
-      donorRepository.set(donorId, studyId, submitterId, gender);
+      donorRepository.update(d);
     }
     return donorId;
   }
 
+  private void setDefaultObject(ObjectNode donor, String key) {
+    if (donor.has(key)) {
+      return;
+    }
+    donor.with(key);
+  }
+
+  private String getDefault(JsonNode node, String key, String defaultValue) {
+    if (node == null) {
+      return defaultValue;
+    }
+    if (node.has(key)) {
+      return node.get(key).asText();
+    }
+    return defaultValue;
+  }
+
   public String saveSpecimen(String studyId, String donorId, JsonNode specimen) {
-    val submitterId = specimen.get("specimenSubmitterId").asText();
-    val class_ = specimen.get("specimenClass").asText();
-    val type = specimen.get("specimenType").asText();
+    val submitterId = getDefault(specimen, "specimenSubmitterId", "");
+    val class_ = getDefault(specimen, "specimenClass", "");
+    val type = getDefault(specimen, "specimenType", "");
 
     String specimenId = specimenRepository.getIdByBusinessKey(studyId, submitterId);
     if (specimenId == null) {

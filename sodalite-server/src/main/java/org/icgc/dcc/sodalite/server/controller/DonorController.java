@@ -35,22 +35,22 @@ public class DonorController {
   @PostMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(@PathVariable("study_id") String studyId, @RequestBody Donor donor) {
-    return donorService.create(studyId, donor);
+  public String create(@RequestBody Donor donor) {
+    return donorService.create(donor);
 
   }
 
   @GetMapping(value = "/donor/{id}")
   @ResponseBody
-  public Donor read(@PathVariable("studyId") String studyId, @PathVariable("id") String id) {
-    return donorService.getById(studyId, id);
+  public Donor read(@PathVariable("id") String id) {
+    return donorService.read(id);
   }
 
   @PutMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String update(@PathVariable("studyId") String studyId, @RequestBody Donor donor) {
-    return donorService.update(studyId, donor);
+  public String update(@RequestBody Donor donor) {
+    return donorService.update(donor);
   }
 
   @DeleteMapping(value = "/donor/{ids}")

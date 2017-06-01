@@ -37,7 +37,7 @@ public class SampleController {
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String create(@PathVariable("studyId") String studyId, @RequestBody Sample sample) {
-    val specimenId = (String) sample.getAdditionalProperties().get("specimenId");
+    val specimenId = sample.getSpecimenId();
     return sampleService.create(specimenId, sample);
   }
 

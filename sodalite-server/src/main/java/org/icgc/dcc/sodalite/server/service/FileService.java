@@ -24,6 +24,7 @@ public class FileService {
   public String create(String parentId, File f) {
     val id = idService.generate(File);
     f.setObjectId(id);
+    f.setSampleId(parentId);
     int status = repository.save(id, parentId, f.getFileName(), f.getFileSize(), f.getFileType().toString(),
         f.getFileMd5(), f.getMetadataDoc());
 

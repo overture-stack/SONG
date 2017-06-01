@@ -50,7 +50,7 @@ public class StudyService {
     if (study == null) {
       return null;
     }
-    study.setDonors(donorService.findByParentId(studyId));
+    study.setDonors(donorService.readByParentId(studyId));
     return study;
   }
 

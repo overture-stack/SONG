@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
-import org.icgc.dcc.sodalite.server.model.entity.Donor.DonorGender;
-import org.icgc.dcc.sodalite.server.model.entity.File.FileType;
-import org.icgc.dcc.sodalite.server.model.entity.Sample.SampleType;
-import org.icgc.dcc.sodalite.server.model.entity.Specimen.SpecimenClass;
-import org.icgc.dcc.sodalite.server.model.entity.Specimen.SpecimenType;
+import org.icgc.dcc.sodalite.server.model.enums.DonorGender;
+import org.icgc.dcc.sodalite.server.model.enums.FileType;
+import org.icgc.dcc.sodalite.server.model.enums.SampleType;
+import org.icgc.dcc.sodalite.server.model.enums.SpecimenClass;
+import org.icgc.dcc.sodalite.server.model.enums.SpecimenType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +55,7 @@ public class EntityServiceTest {
     // in the existing test data for "donor_abc123"
     val id = service.saveDonor(studyId, donor);
 
-    val d = donorService.getById(studyId, id);
+    val d = donorService.read(id);
     assertThat(d.getDonorGender().equals(DonorGender.FEMALE));
     assertThat(d.getDonorSubmitterId().equals("donor_abc123"));
     assertThat(d.getDonorId().equals(id));
@@ -74,7 +74,7 @@ public class EntityServiceTest {
     val id = service.saveDonor(studyId, donor);
 
     // check that what we saved is what's in the database...
-    val d = donorService.getById(studyId, id);
+    val d = donorService.read(id);
     assertThat(d.getDonorGender().equals(DonorGender.FEMALE));
     assertThat(d.getDonorSubmitterId().equals("Subject-X23Alpha7"));
     assertThat(d.getDonorId().equals(id));

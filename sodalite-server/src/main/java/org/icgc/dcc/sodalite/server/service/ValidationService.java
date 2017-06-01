@@ -20,7 +20,7 @@ package org.icgc.dcc.sodalite.server.service;
 import static java.lang.String.format;
 
 import org.icgc.dcc.sodalite.server.model.Upload;
-import org.icgc.dcc.sodalite.server.model.analysis.AnalysisType;
+import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
 import org.icgc.dcc.sodalite.server.repository.UploadRepository;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.icgc.dcc.sodalite.server.validation.SchemaValidator;

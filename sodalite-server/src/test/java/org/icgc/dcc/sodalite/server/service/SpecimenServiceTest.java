@@ -2,12 +2,12 @@ package org.icgc.dcc.sodalite.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
-
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.sodalite.server.model.entity.Sample;
 import org.icgc.dcc.sodalite.server.model.entity.Specimen;
+import org.icgc.dcc.sodalite.server.model.enums.SpecimenClass;
+import org.icgc.dcc.sodalite.server.model.enums.SpecimenType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class SpecimenServiceTest {
@@ -37,8 +37,8 @@ public class SpecimenServiceTest {
     Specimen specimen = specimenService.getById(id);
     assertThat(specimen.getSpecimenId()).isEqualTo(id);
     assertThat(specimen.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
-    assertThat(specimen.getSpecimenClass()).isEqualTo(Specimen.SpecimenClass.TUMOUR);
-    assertThat(specimen.getSpecimenType()).isEqualTo(Specimen.SpecimenType.RECURRENT_TUMOUR_SOLID_TISSUE);
+    assertThat(specimen.getSpecimenClass()).isEqualTo(SpecimenClass.TUMOUR);
+    assertThat(specimen.getSpecimenType()).isEqualTo(SpecimenType.RECURRENT_TUMOUR_SOLID_TISSUE);
     assertThat(specimen.getSamples().size()).isEqualTo(2);
 
     // Verify that we got the same samples as the sample service says we should.
@@ -51,11 +51,12 @@ public class SpecimenServiceTest {
 
   @Test
   public void testCreateAndDeleteSpecimen() {
-    Specimen s = new Specimen()
-        .withSpecimenSubmitterId("Specimen 101 Ipsilon Prime")
-        .withSpecimenType(Specimen.SpecimenType.CELL_LINE_DERIVED_FROM_TUMOUR)
-        .withSpecimenClass(Specimen.SpecimenClass.TUMOUR)
-        .withSamples(new ArrayList<Sample>());
+    val donorId = "";
+    Specimen s = new Specimen("",
+        "Specimen 101 Ipsilon Prime",
+        donorId,
+        SpecimenClass.TUMOUR,
+        SpecimenType.CELL_LINE_DERIVED_FROM_TUMOUR);
 
     val status = specimenService.create("DO2", s);
     val id = s.getSpecimenId();
@@ -73,22 +74,22 @@ public class SpecimenServiceTest {
 
   @Test
   public void testUpdateSpecimen() {
-    val s = new Specimen()
-        .withSpecimenSubmitterId("Specimen 102 Chiron-Beta Prime")
-        .withSpecimenType(Specimen.SpecimenType.METASTATIC_TUMOUR_ADDITIONAL_METASTATIC)
-        .withSpecimenClass(Specimen.SpecimenClass.TUMOUR)
-        .withSamples(new ArrayList<Sample>());
+    val donorId = "";
+    val s = new Specimen("",
+        "Specimen 102 Chiron-Beta Prime",
+        donorId,
+        SpecimenClass.TUMOUR,
+        SpecimenType.METASTATIC_TUMOUR_ADDITIONAL_METASTATIC);
 
     specimenService.create("DO2", s);
 
     val id = s.getSpecimenId();
 
-    val s2 = new Specimen()
-        .withSpecimenId(id)
-        .withSpecimenSubmitterId("Specimen 102")
-        .withSpecimenType(Specimen.SpecimenType.NORMAL_OTHER)
-        .withSpecimenClass(Specimen.SpecimenClass.NORMAL)
-        .withSamples(new ArrayList<Sample>());
+    val s2 = new Specimen(id,
+        "Specimen 102",
+        s.getDonorId(),
+        SpecimenClass.NORMAL,
+        SpecimenType.NORMAL_OTHER);
 
     specimenService.update(s2);
 

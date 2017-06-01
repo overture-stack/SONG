@@ -23,10 +23,11 @@ public class DonorService {
   @Autowired
   SpecimenService specimenService;
 
-  public String create(String parentId, Donor d) {
+  public String create(Donor d) {
     val id = idService.generate(Donor);
     d.setDonorId(id);
-    int status = donorRepository.save(id, parentId, d.getDonorSubmitterId(), d.getDonorGender().toString());
+
+    int status = donorRepository.create(d);
     if (status != 1) {
       return "error: Can't create" + d.toString();
     }
@@ -35,8 +36,8 @@ public class DonorService {
     return "ok:" + id;
   }
 
-  public String update(String studyId, Donor d) {
-    if (donorRepository.set(d.getDonorId(), studyId, d.getDonorSubmitterId(), d.getDonorGender().toString()) == 1) {
+  public String update(Donor d) {
+    if (donorRepository.update(d) == 1) {
       return "Updated";
     }
     return "Failed";
@@ -54,8 +55,8 @@ public class DonorService {
     return "OK";
   }
 
-  public Donor getById(String studyId, String id) {
-    val donor = donorRepository.getById(studyId, id);
+  public Donor read(String id) {
+    val donor = donorRepository.read(id);
     if (donor == null) {
       return null;
     }
@@ -63,7 +64,7 @@ public class DonorService {
     return donor;
   }
 
-  public List<Donor> findByParentId(String parentId) {
+  public List<Donor> readByParentId(String parentId) {
     val donors = donorRepository.findByParentId(parentId);
     donors.forEach(d -> d.setSpecimens(specimenService.findByParentId(d.getDonorId())));
     return donors;

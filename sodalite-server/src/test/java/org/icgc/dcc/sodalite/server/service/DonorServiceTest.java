@@ -2,12 +2,12 @@ package org.icgc.dcc.sodalite.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
-
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.sodalite.server.model.entity.Donor;
 import org.icgc.dcc.sodalite.server.model.entity.Specimen;
+import org.icgc.dcc.sodalite.server.model.enums.DonorGender;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class DonorServiceTest {
@@ -34,10 +34,10 @@ public class DonorServiceTest {
   @Test
   public void testReadDonor() {
     // check for data that we know exists in the H2 database already
-    val d = service.getById("ABC123", "DO1");
+    val d = service.read("DO1");
     assertThat(d != null);
     assertThat(d.getDonorId()).isEqualTo("DO1");
-    assertThat(d.getDonorGender()).isEqualTo(Donor.DonorGender.MALE);
+    assertThat(d.getDonorGender()).isEqualTo(DonorGender.MALE.value());
     assertThat(d.getDonorSubmitterId()).isEqualTo("Subject-X23Alpha7");
     assertThat(d.getSpecimens().size()).isEqualTo(2);
 
@@ -53,46 +53,47 @@ public class DonorServiceTest {
 
   @Test
   public void testCreateAndDeleteDonor() {
-    val d = new Donor()
-        .withDonorGender(Donor.DonorGender.UNSPECIFIED)
-        .withDonorSubmitterId("Subject X21-Alpha")
-        .withSpecimens(new ArrayList<Specimen>());
-    assertThat(d.getDonorId()).isNull();
+    val json = JsonUtils.mapper().createObjectNode();
+    val studyId = "XYZ234";
+    json.put("donorId", "");
+    json.put("donorSubmitterId", "Subject X21-Alpha");
+    json.put("studyId", studyId);
+    json.put("donorGender", "unspecified");
+    json.put("notes", "There are no notes for this donor");
+    json.put("ageCategory", 7);
 
-    val status = service.create("XYZ234", d);
+    val d = JsonUtils.mapper().convertValue(json, Donor.class);
+
+    assertThat(d.getDonorId()).isEqualTo("");
+
+    val status = service.create(d);
     val id = d.getDonorId();
 
     assertThat(id).startsWith("DO");
     assertThat(status).isEqualTo("ok:" + id);
 
-    Donor check = service.getById("XYZ234", id);
+    Donor check = service.read(id);
     assertThat(d).isEqualToComparingFieldByField(check);
 
     service.delete("XYZ234", id);
-    Donor check2 = service.getById("XYZ234", id);
+    Donor check2 = service.read(id);
     assertThat(check2).isNull();
   }
 
   @Test
   public void testUpdateDonor() {
-    val d = new Donor()
-        .withDonorGender(Donor.DonorGender.MALE)
-        .withDonorSubmitterId("Triangle-Arrow-S")
-        .withSpecimens(new ArrayList<Specimen>());
+    val studyId = "ABC123";
 
-    service.create("ABC123", d);
+    val d = new Donor("", "Triangle-Arrow-S", studyId, DonorGender.MALE);
+    service.create(d);
 
     val id = d.getDonorId();
 
-    val d2 = new Donor()
-        .withDonorId(id)
-        .withDonorGender(Donor.DonorGender.FEMALE)
-        .withDonorSubmitterId("X21-Beta-17")
-        .withSpecimens(new ArrayList<Specimen>());
+    val d2 = new Donor(id, "X21-Beta-17", studyId, DonorGender.FEMALE);
 
-    service.update("ABC123", d2);
+    service.update(d2);
 
-    val d3 = service.getById("ABC123", id);
+    val d3 = service.read(id);
     assertThat(d3).isEqualToComparingFieldByField(d2);
   }
 

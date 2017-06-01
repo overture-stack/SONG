@@ -14,25 +14,51 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.repository.mapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+package org.icgc.dcc.sodalite.server.model.enums;
 
-import org.icgc.dcc.sodalite.server.model.entity.Study;
-import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import java.util.HashMap;
+import java.util.Map;
 
-public class StudyMapper implements ResultSetMapper<Study> {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-  @Override
-  public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    Study study = new Study(r.getString("id"),
-        r.getString("name"),
-        r.getString("organization"),
-        r.getString("description"));
-    return study;
+public enum LibraryStrategy {
+
+  WGS("WGS"), WXS("WXS"), RNA_SEQ("RNA-Seq"), CH_IP_SEQ("ChIP-Seq"), MI_RNA_SEQ("miRNA-Seq"), BISULFITE_SEQ("Bisulfite-Seq"), VALIDATION("Validation"), AMPLICON("Amplicon"), OTHER("Other");
+
+  private final String value;
+  private final static Map<String, LibraryStrategy> CONSTANTS = new HashMap<String, LibraryStrategy>();
+
+  static {
+    for (LibraryStrategy c : values()) {
+      CONSTANTS.put(c.value, c);
+    }
   }
 
+  private LibraryStrategy(String value) {
+    this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return this.value;
+  }
+
+  @JsonValue
+  public String value() {
+    return this.value;
+  }
+
+  @JsonCreator
+  public static LibraryStrategy fromValue(String value) {
+    LibraryStrategy constant = CONSTANTS.get(value);
+    if (constant == null) {
+      throw new IllegalArgumentException(value);
+    } else {
+      return constant;
+    }
+  }
 }

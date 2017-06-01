@@ -29,7 +29,7 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(SampleMapper.class)
 public interface SampleRepository {
 
-  @SqlUpdate("INSERT INTO Sample (id, specimen_id, submitter_id, type) VALUES (:id, :specimen_id, :submitter_id, :type)")
+  @SqlUpdate("INSERT INTO Sample (id, submitter_id, specimen_id, type) VALUES (:id, :submitter_id, :specimen_id, :type)")
   int save(@Bind("id") String id, @Bind("specimen_id") String specimen_id, @Bind("submitter_id") String submitter_id,
       @Bind("type") String type);
 
@@ -37,10 +37,10 @@ public interface SampleRepository {
   int set(@Bind("id") String id, @Bind("submitter_id") String submitter_id,
       @Bind("type") String type);
 
-  @SqlQuery("SELECT id, submitter_id, type FROM Sample WHERE id=:id")
+  @SqlQuery("SELECT id, submitter_id, specimen_id, type FROM Sample WHERE id=:id")
   Sample getById(@Bind("id") String id);
 
-  @SqlQuery("SELECT id, submitter_id, type FROM Sample WHERE specimen_id=:specimen_id")
+  @SqlQuery("SELECT id, submitter_id, specimen_id, type FROM Sample WHERE specimen_id=:specimen_id")
   List<Sample> findByParentId(@Bind("specimen_id") String specimen_id);
 
   @SqlQuery("SELECT id from Sample where specimen_id=:specimen_id")

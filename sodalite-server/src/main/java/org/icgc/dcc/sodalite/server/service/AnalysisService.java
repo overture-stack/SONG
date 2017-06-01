@@ -1,12 +1,14 @@
 package org.icgc.dcc.sodalite.server.service;
 
+import static java.lang.String.format;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.icgc.dcc.sodalite.server.model.analysis.AnalysisType;
 import org.icgc.dcc.sodalite.server.model.entity.File;
+import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
 import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.AnalysisRepository;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -82,11 +85,20 @@ public class AnalysisService {
     repository.addFile(id, fileId);
   }
 
+  ObjectNode get(JsonNode root, String key) {
+    val node = root.get(key);
+    if (node.isObject()) {
+      return (ObjectNode) node;
+    }
+    throw new IllegalArgumentException(format("node '%s'{%s} is not an object node", node, key));
+  }
+
   @SneakyThrows
   Collection<String> saveStudy(String studyId, JsonNode study) {
     val fileIds = new HashSet<String>();
 
-    val donor = study.get("donor");
+    val donor = get(study, "donor");
+    donor.put("studyId", studyId);
 
     val donorId = entityService.saveDonor(studyId, donor);
 

@@ -37,7 +37,7 @@ public class SpecimenController {
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String create(@PathVariable("studyId") String studyId, @RequestBody Specimen specimen) {
-    val donorId = (String) specimen.getAdditionalProperties().get("donorId");
+    val donorId = specimen.getDonorId();
     return specimenService.create(donorId, specimen);
   }
 
