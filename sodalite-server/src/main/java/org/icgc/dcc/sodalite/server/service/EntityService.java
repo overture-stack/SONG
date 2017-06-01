@@ -81,7 +81,7 @@ public class EntityService {
 
     val d = mapper.convertValue(donor, Donor.class);
     if (hasSpecimen) {
-      donor.put("specimen", specimen);
+      donor.set("specimen", specimen);
 
       if (specimen.isObject()) {
         val spNode = (ObjectNode) specimen;

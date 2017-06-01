@@ -32,6 +32,7 @@ import lombok.val;
 
 public class DonorMapper implements ResultSetMapper<Donor> {
 
+  @SuppressWarnings("unchecked")
   @Override
   @SneakyThrows
   public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException {
@@ -45,6 +46,7 @@ public class DonorMapper implements ResultSetMapper<Donor> {
     if (info == null) {
       info = "{}";
     }
+    @SuppressWarnings("rawtypes")
     val m = JsonUtils.mapper().readValue(info, Map.class);
     d.setDonorInfo(m);
 

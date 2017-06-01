@@ -34,6 +34,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.val;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -53,11 +54,6 @@ public class Donor {
 
   private Collection<Specimen> specimens = new ArrayList<>();
 
-  @JsonProperty("specimens")
-  public Collection<Specimen> getSpecimens() {
-    return specimens;
-  }
-
   public String getDonorGender() {
     return donorGender.value();
   }
@@ -67,8 +63,19 @@ public class Donor {
     return JsonUtils.mapper().writeValueAsString(donorInfo);
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void addDonorInfo(String json) {
+    val info = JsonUtils.mapper().convertValue(json, donorInfo.getClass());
+    donorInfo.putAll(info);
+  }
+
   public void addSpecimen(Specimen specimen) {
     specimens.add(specimen);
+  }
+
+  @JsonProperty("specimens")
+  public Collection<Specimen> getSpecimens() {
+    return specimens;
   }
 
   public void setSpecimens(Collection<Specimen> specimens) {

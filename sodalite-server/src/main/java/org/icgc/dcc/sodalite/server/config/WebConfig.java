@@ -17,15 +17,15 @@
  */
 package org.icgc.dcc.sodalite.server.config;
 
-import org.springframework.context.annotation.Bean;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
+//import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-
-import org.h2.server.web.WebServlet;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
+//import org.h2.server.web.WebServlet;
+//import org.springframework.boot.web.servlet.ServletRegistrationBean;
 
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {
