@@ -15,8 +15,6 @@ public interface FileRepository {
 
   @SqlUpdate("INSERT INTO File (id,      name,      sample_id, size,      type,      md5,      metadata_doc) "
       + "VALUES (:objectId, :fileName, :sampleId, :fileSize, :fileType, :fileMd5, :metadata)")
-  // File(fileId=FI3PYMOM68M4G, fileName=ABC-TC285G87-A5-sqrl.bai, sampleId=SA1, fileSize=0, fileType=FAI,
-  // fileMd5=md5abcdefg, metadata={})
   int create(@BindBean File f);
 
   @SqlQuery("SELECT id, name, sample_id, size, type, md5, metadata_doc FROM File WHERE id=:id")
@@ -28,7 +26,6 @@ public interface FileRepository {
   @SqlUpdate("DELETE From File where id=:id")
   int delete(@Bind("id") String id);
 
-  // Remove this
   @SqlQuery("SELECT id, name, sample_id, size, type, md5, metadata_doc FROM File WHERE sample_id=:sampleId")
   List<File> readByParentId(@Bind("sampleId") String sample_id);
 
