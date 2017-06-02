@@ -24,24 +24,12 @@ import org.icgc.dcc.sodalite.server.model.entity.File;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import lombok.val;
-
 public class FileMapper implements ResultSetMapper<File> {
 
   @Override
   public File map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    val f = new File();
-
-    f.setId(r.getString("id"));
-    f.setName(r.getString("name"));
-    f.setSampleId(r.getString("sample_id"));
-    f.setFileSize(r.getLong("size"));
-    f.setType(r.getString("type"));
-    f.setMd5(r.getString("md5"));
-
-    f.addMetadata(r.getString("metadata_doc"));
-
-    return f;
+    return File.create(r.getString("id"), r.getString("name"), r.getString("sample_id"),
+        r.getLong("size"), r.getString("type"), r.getString("md5"), r.getString("metadata_doc"));
   }
 
 }

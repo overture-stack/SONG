@@ -44,7 +44,7 @@ public class SpecimenController {
   @GetMapping(value = "/specimen/{id}")
   @ResponseBody
   public Specimen read(@PathVariable("id") String id) {
-    return specimenService.getById(id);
+    return specimenService.read(id);
   }
 
   @PutMapping(value = "/specimen", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })

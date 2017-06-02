@@ -95,7 +95,7 @@ public class EntityServiceTest {
     val donorId = "DO1";
 
     val id = service.saveSpecimen(studyId, donorId, specimen);
-    val sp = specimenService.getById(id);
+    val sp = specimenService.read(id);
     assertThat(sp.getSpecimenId().equals(id));
     assertThat(sp.getSpecimenClass().equals(SpecimenClass.NORMAL));
     assertThat(sp.getSpecimenType().equals(SpecimenType.NORMAL_SOLID_TISSUE));
@@ -113,7 +113,7 @@ public class EntityServiceTest {
     val donorId = "DO1";
 
     val id = service.saveSpecimen(studyId, donorId, specimen);
-    val sp = specimenService.getById(id);
+    val sp = specimenService.read(id);
     assertThat(id.equals("SP1"));
     assertThat(sp.getSpecimenId().equals(id));
     assertThat(sp.getSpecimenSubmitterId().equals("Tissue-Culture 284 Gamma 3"));
@@ -133,7 +133,7 @@ public class EntityServiceTest {
     val specimenId = "SP1";
 
     val id = service.saveSample(studyId, specimenId, sample);
-    val sa = sampleService.getById(id);
+    val sa = sampleService.read(id);
     assertThat(sa.getSampleId().equals(id));
     assertThat(sa.getSampleType().equals(SampleType.TOTAL_RNA));
     assertThat(sa.getSampleSubmitterId().equals("sample_abc123"));
@@ -151,7 +151,7 @@ public class EntityServiceTest {
     val specimenId = "SP1";
 
     val id = service.saveSample(studyId, specimenId, sample);
-    val sa = sampleService.getById(id);
+    val sa = sampleService.read(id);
     assertThat(id.equals("SA11"));
     assertThat(sa.getSampleId().equals(id));
     assertThat(sa.getSampleType().equals(SampleType.TOTAL_RNA));
@@ -172,12 +172,12 @@ public class EntityServiceTest {
     val sampleId = "SA1";
 
     val id = service.saveFile(studyId, sampleId, file);
-    val f = fileService.getById(id);
-    assertThat(f.getId().equals(id));
-    assertThat(f.getName().equals(name));
+    val f = fileService.read(id);
+    assertThat(f.getObjectId().equals(id));
+    assertThat(f.getFileName().equals(name));
     assertThat(f.getFileSize() == 12345L);
-    assertThat(f.getMd5().equals(md5));
-    assertThat(f.getType().equals(FileType.IDX));
+    assertThat(f.getFileMd5().equals(md5));
+    assertThat(f.getFileType().equals(FileType.IDX));
   }
 
   @SneakyThrows
@@ -190,17 +190,17 @@ public class EntityServiceTest {
     val file = JsonNodeFactory.instance.objectNode().put("fileName", name).put("fileSize", 12345L).put("fileMd5", md5)
         .put("fileType", "IDX");
 
-    // This should update the row with fileId "FI3".
+    // This should update the row with ObjectId "FI3".
     val sampleId = "SA11";
 
     val id = service.saveFile(studyId, sampleId, file);
-    val f = fileService.getById(id);
+    val f = fileService.read(id);
     assertThat(id.equals("FI3"));
-    assertThat(f.getId().equals(id));
-    assertThat(f.getName().equals(name));
+    assertThat(f.getObjectId().equals(id));
+    assertThat(f.getFileName().equals(name));
     assertThat(f.getFileSize() == 12345L);
-    assertThat(f.getMd5().equals(md5));
-    assertThat(f.getType().equals(FileType.IDX));
+    assertThat(f.getFileMd5().equals(md5));
+    assertThat(f.getFileType().equals(FileType.IDX));
   }
 
 }

@@ -44,7 +44,7 @@ public class SampleController {
   @GetMapping(value = "/sample/{id}")
   @ResponseBody
   public Sample read(@PathVariable("id") String id) {
-    return sampleService.getById(id);
+    return sampleService.read(id);
   }
 
   @PutMapping(value = "/sample", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })

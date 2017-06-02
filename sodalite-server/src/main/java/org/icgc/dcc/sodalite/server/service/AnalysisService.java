@@ -154,7 +154,7 @@ public class AnalysisService {
     return null;
   }
 
-  public List<File> getFilesById(String id) {
+  public List<File> readFilesByAnalysisId(String id) {
     return repository.getFilesById(id);
   }
 

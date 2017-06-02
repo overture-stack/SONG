@@ -22,6 +22,7 @@ import java.util.List;
 import org.icgc.dcc.sodalite.server.model.entity.Sample;
 import org.icgc.dcc.sodalite.server.repository.mapper.SampleMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
@@ -29,28 +30,26 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(SampleMapper.class)
 public interface SampleRepository {
 
-  @SqlUpdate("INSERT INTO Sample (id, submitter_id, specimen_id, type) VALUES (:id, :submitter_id, :specimen_id, :type)")
-  int create(@Bind("id") String id, @Bind("specimen_id") String specimen_id, @Bind("submitter_id") String submitter_id,
-      @Bind("type") String type);
+  @SqlUpdate("INSERT INTO Sample (id, submitter_id, specimen_id, type) VALUES (:sampleId, :sampleSubmitterId, :specimenId, :sampleType)")
+  int create(@BindBean Sample sample);
 
   @SqlQuery("SELECT id, submitter_id, specimen_id, type FROM Sample WHERE id=:id")
   Sample read(@Bind("id") String id);
 
-  @SqlUpdate("UPDATE Sample SET submitter_id=:submitter_id, type=:type where id=:id")
-  int update(@Bind("id") String id, @Bind("submitter_id") String submitter_id,
-      @Bind("type") String type);
+  @SqlQuery("SELECT id, submitter_id, specimen_id, type FROM Sample WHERE specimen_id=:specimen_id")
+  List<Sample> readByParentId(@Bind("specimen_id") String specimenId);
+
+  @SqlUpdate("UPDATE Sample SET submitter_id=:sampleSubmitterId, type=:sampleType where id=:sampleId")
+  int update(@BindBean Sample sample);
 
   @SqlUpdate("DELETE from Sample where id=:id")
   int delete(@Bind("id") String id);
 
-  @SqlQuery("SELECT id, submitter_id, specimen_id, type FROM Sample WHERE specimen_id=:specimen_id")
-  List<Sample> readByParentId(@Bind("specimen_id") String specimen_id);
+  @SqlUpdate("DELETE from Sample where specimen_id=:specimenId")
+  String deleteByParentId(String specimenId);
 
-  @SqlQuery("SELECT id from Sample where specimen_id=:specimen_id")
-  List<String> findByParentId(@Bind("specimen_id") String specimen_id);
-
-  // @SqlUpdate("DELETE from Sample where specimen_id=:specimen_id")
-  // String deleteByParentId(String specimen_id);
+  @SqlQuery("SELECT id from Sample where specimen_id=:specimenId")
+  List<String> findByParentId(@Bind("specimenId") String specimen_id);
 
   @SqlQuery("SELECT s.id "
       + "FROM Sample s, Specimen sp, Donor d "

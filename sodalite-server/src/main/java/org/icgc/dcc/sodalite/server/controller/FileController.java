@@ -44,7 +44,7 @@ public class FileController {
   @GetMapping(value = "/file/{id}")
   @ResponseBody
   public File read(@PathVariable("id") String id) {
-    return fileService.getById(id);
+    return fileService.read(id);
   }
 
   @PutMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })

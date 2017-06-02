@@ -38,6 +38,9 @@ import lombok.val;
  */
 public class JsonUtils {
 
+  private static final String SINGLE_QUOTE = "'";
+  private static final String DOUBLE_QUOTE = "\"";
+
   protected static final ObjectMapper mapper = mapper();
 
   public static ObjectMapper mapper() {
@@ -79,12 +82,19 @@ public class JsonUtils {
 
   @SuppressWarnings("unchecked")
   public static Map<String, Object> toMap(String json, String keyName) {
+    if (json == null || json.equals("")) {
+      json = "{}";
+    }
     try {
       return mapper.convertValue(mapper.readTree(json), Map.class);
     } catch (IllegalArgumentException | IOException e) {
       val j = ObjectNode().put(keyName, json);
       return mapper.convertValue(j, Map.class);
     }
+  }
+
+  public static String fromSingleQuoted(String singleQuotedJson) {
+    return singleQuotedJson.replaceAll(SINGLE_QUOTE, DOUBLE_QUOTE);
   }
 
   public static <T> T convertValue(Object fromValue, Class<T> toValue) {

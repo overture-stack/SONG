@@ -32,15 +32,19 @@ public class UploadService {
   @Autowired
   private final UploadRepository uploadRepository;
 
-  public Upload status(@NonNull String uploadId) {
+  public Upload read(@NonNull String uploadId) {
     return uploadRepository.get(uploadId);
+  }
+
+  private void create(@NonNull String studyId, @NonNull String uploadId, @NonNull String jsonPayload) {
+    uploadRepository.create(uploadId, studyId, Upload.CREATED, jsonPayload);
   }
 
   public ResponseEntity<String> upload(String studyId, String payload) {
     val uploadId = id.generate(IdPrefix.Upload);
 
     try {
-      save(studyId, uploadId, payload);
+      create(studyId, uploadId, payload);
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
       throw new RepositoryException(jdbie.getCause());
@@ -53,7 +57,7 @@ public class UploadService {
   }
 
   public ResponseEntity<String> publish(@NonNull String studyId, @NonNull String uploadId) {
-    val s = status(uploadId);
+    val s = read(uploadId);
     if (s == null) {
       return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
     }
@@ -67,10 +71,6 @@ public class UploadService {
     updateAsPublished(uploadId);
     val json = s.getPayload();
     return ok(analysis.create(studyId, json));
-  }
-
-  private void save(@NonNull String studyId, @NonNull String uploadId, @NonNull String jsonPayload) {
-    uploadRepository.create(uploadId, studyId, Upload.CREATED, jsonPayload);
   }
 
   private void updateAsPublished(@NonNull String uploadId) {

@@ -30,26 +30,41 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
+import lombok.val;
 
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @Data
 public class File {
 
-  private String id = "";
-  private String name = "";
+  private String objectId = "";
+  private String fileName = "";
   private String sampleId = "";
   private Long fileSize = -1L;
-  private FileType type = FileType.IDX;
-  private String md5 = "";
+  private FileType fileType = FileType.IDX;
+  private String fileMd5 = "";
 
   private final Map<String, Object> metadata = new TreeMap<>();
 
-  public String getType() {
-    return type.value();
+  public static File create(String id, String name, String sample, Long size, String type, String md5,
+      String metadata) {
+    val f = new File();
+    f.setObjectId(id);
+    f.setFileName(name);
+    f.setSampleId(sample);
+    f.setFileSize(size);
+    f.setFileType(type);
+    f.setFileMd5(md5);
+
+    f.addMetadata(metadata);
+    return f;
   }
 
-  public void setType(String fileType) {
-    type = FileType.fromValue(fileType);
+  public void setFileType(String type) {
+    fileType = FileType.fromValue(type);
+  }
+
+  public String getFileType() {
+    return fileType.value();
   }
 
   @JsonAnySetter
@@ -67,5 +82,35 @@ public class File {
   public String getMetadata() {
     return JsonUtils.toJson(metadata);
   }
+
+  // @JsonIgnore
+  // public String getId() {
+  // return getFileId();
+  // }
+  //
+  // @JsonIgnore
+  // public void setId(String id) {
+  // setFileId(id);
+  // }
+  //
+  // @JsonIgnore
+  // public String getBusinessKey() {
+  // return getFileName();
+  // }
+  //
+  // @JsonIgnore
+  // public void setKey(String key) {
+  // setFileName(key);
+  // }
+  //
+  // @JsonIgnore
+  // void setParentId(String id) {
+  // setSampleId(id);
+  // }
+  //
+  // @JsonIgnore
+  // String getParentId(String id) {
+  // return getSampleId();
+  // }
 
 }

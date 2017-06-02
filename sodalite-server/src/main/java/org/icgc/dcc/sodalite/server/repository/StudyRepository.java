@@ -40,5 +40,6 @@ public interface StudyRepository {
   Study read(@Bind("studyId") String id);
 
   @SqlQuery("SELECT id, name, organization, description FROM study WHERE name = :name")
-  List<Study> getByName(@Bind("name") String name);
+  List<Study> readByName(@Bind("name") String name);
+
 }

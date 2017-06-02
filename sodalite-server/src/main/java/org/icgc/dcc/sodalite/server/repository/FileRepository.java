@@ -13,13 +13,16 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(FileMapper.class)
 public interface FileRepository {
 
-  @SqlUpdate("INSERT INTO File (id, name, sample_id, size, type, md5, metadata_doc) VALUES (:id, :name, :sampleId, :fileSize, :type, :md5, :metadata)")
-  int create(@BindBean File file);
+  @SqlUpdate("INSERT INTO File (id,      name,      sample_id, size,      type,      md5,      metadata_doc) "
+      + "VALUES (:objectId, :fileName, :sampleId, :fileSize, :fileType, :fileMd5, :metadata)")
+  // File(fileId=FI3PYMOM68M4G, fileName=ABC-TC285G87-A5-sqrl.bai, sampleId=SA1, fileSize=0, fileType=FAI,
+  // fileMd5=md5abcdefg, metadata={})
+  int create(@BindBean File f);
 
   @SqlQuery("SELECT id, name, sample_id, size, type, md5, metadata_doc FROM File WHERE id=:id")
   File read(@Bind("id") String id);
 
-  @SqlUpdate("UPDATE File SET name=:name, size=:fileSize, type=:type, md5=:md5, metadata_doc=:metadata where id=:id")
+  @SqlUpdate("UPDATE File SET name=:fileName, size=:fileSize, type=:fileType, md5=:fileMd5, metadata_doc=:metadata where id=:objectId")
   int update(@BindBean File file);
 
   @SqlUpdate("DELETE From File where id=:id")

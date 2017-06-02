@@ -21,18 +21,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.icgc.dcc.sodalite.server.model.entity.Sample;
-import org.icgc.dcc.sodalite.server.model.enums.SampleType;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+
+import lombok.val;
 
 public class SampleMapper implements ResultSetMapper<Sample> {
 
   @Override
   public Sample map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    return new Sample(r.getString("id"),
-        r.getString("submitter_id"),
-        r.getString("specimen_id"),
-        SampleType.fromValue(r.getString("type")));
+    val metadata = ""; // TODO: Fix this when we modify the table definitions
+    return Sample.create(r.getString("id"), r.getString("submitter_id"), r.getString("specimen_id"),
+        r.getString("type"), metadata);
   }
 
 }

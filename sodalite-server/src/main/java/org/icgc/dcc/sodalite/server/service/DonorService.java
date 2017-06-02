@@ -5,6 +5,7 @@ import static org.icgc.dcc.sodalite.server.model.enums.IdPrefix.Donor;
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.entity.Donor;
+import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,21 @@ public class DonorService {
     return "ok:" + id;
   }
 
+  public Donor read(String id) {
+    val donor = donorRepository.read(id);
+    if (donor == null) {
+      return null;
+    }
+    donor.setSpecimens(specimenService.readByParentId(id));
+    return donor;
+  }
+
+  public List<Donor> readByParentId(String parentId) {
+    val donors = donorRepository.readByParentId(parentId);
+    donors.forEach(d -> d.setSpecimens(specimenService.readByParentId(d.getDonorId())));
+    return donors;
+  }
+
   public String update(Donor d) {
     if (donorRepository.update(d) == 1) {
       return "Updated";
@@ -55,19 +71,19 @@ public class DonorService {
     return "OK";
   }
 
-  public Donor read(String id) {
-    val donor = donorRepository.read(id);
-    if (donor == null) {
-      return null;
-    }
-    donor.setSpecimens(specimenService.findByParentId(id));
-    return donor;
-  }
+  public String save(String studyId, Donor d) {
+    d.setStudyId(studyId);
 
-  public List<Donor> readByParentId(String parentId) {
-    val donors = donorRepository.readByParentId(parentId);
-    donors.forEach(d -> d.setSpecimens(specimenService.findByParentId(d.getDonorId())));
-    return donors;
+    String donorId = donorRepository.findByBusinessKey(studyId, d.getDonorSubmitterId());
+    if (donorId == null) {
+      donorId = idService.generate(IdPrefix.Donor);
+      d.setDonorId(donorId);
+      System.err.printf("Creating new donor with id=%s,gender='%s'\n", donorId, d.getDonorGender());
+      donorRepository.create(d);
+    } else {
+      donorRepository.update(d);
+    }
+    return donorId;
   }
 
 }

@@ -143,15 +143,15 @@ public class AnalysisServiceTest {
   }
 
   @Test
-  public void testGetFilesById() {
-    val files = service.getFilesById("AN1");
-    System.err.printf("Got files '%s'", files);
-    val expectedFiles = new ArrayList<File>();
-    expectedFiles.add(fileService.getById("FI1"));
-    expectedFiles.add(fileService.getById("FI2"));
-
-    assertThat(files).containsAll(expectedFiles);
-    assertThat(expectedFiles).containsAll(files);
-  }
+    public void testReadFilesByAnalysisId() {
+      val files = service.readFilesByAnalysisId("AN1");
+      System.err.printf("Got files '%s'", files);
+      val expectedFiles = new ArrayList<File>();
+      expectedFiles.add(fileService.read("FI1"));
+      expectedFiles.add(fileService.read("FI2"));
+  
+      assertThat(files).containsAll(expectedFiles);
+      assertThat(expectedFiles).containsAll(files);
+    }
 
 }

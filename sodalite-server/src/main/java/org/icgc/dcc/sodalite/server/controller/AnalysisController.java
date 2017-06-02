@@ -58,7 +58,7 @@ public class AnalysisController {
    */
   @GetMapping(value = "/{id}/files")
   public List<File> getFilesById(@PathVariable("id") String id) {
-    return analysisService.getFilesById(id);
+    return analysisService.readFilesByAnalysisId(id);
   }
 
   /***

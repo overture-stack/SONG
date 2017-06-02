@@ -15,66 +15,32 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.service;
+package org.icgc.dcc.sodalite.server.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Collections;
 import java.util.Map;
+import java.util.TreeMap;
 
-import org.icgc.dcc.sodalite.server.model.entity.Donor;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
-import org.junit.Test;
 
-import lombok.SneakyThrows;
-import lombok.val;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 
-public class SerializationTest {
+public class Metadata {
 
-  @Test
-  @SneakyThrows
-  public void testConvertValue() {
-    val json = "{}";
+  private final Map<String, Object> metadata = new TreeMap<>();
 
-    @SuppressWarnings("rawtypes")
-    val m = JsonUtils.fromJson(json, Map.class);
-    assertThat(Collections.emptyMap()).isEqualTo(m);
+  @JsonAnySetter
+  public void setMetadata(String key, Object value) {
+    metadata.put(key, value);
   }
 
-  @Test
-  @SneakyThrows
-  public void testDonor() {
-    val donor = JsonUtils.fromJson("{}", Donor.class);
-    assertThat(donor.getDonorId()).isEqualTo("");
-    assertThat(donor.getDonorSubmitterId()).isEqualTo("");
-    assertThat(donor.getStudyId()).isEqualTo("");
-    assertThat(donor.getDonorGender()).isEqualTo("unspecified");
-    assertThat(donor.getSpecimens()).isEqualTo(Collections.emptyList());
+  public void addMetadata(String json) {
+    if (json == null) {
+      return;
+    }
+    metadata.putAll(JsonUtils.toMap(json, "metadata"));
   }
 
-  @Test
-  public void testDonorToJson() {
-    val donor = new Donor();
-    val json = JsonUtils.toJson(donor);
-
-    val expected =
-        "{'donorId':'','donorSubmitterId':'','studyId':'','donorGender':'unspecified',"
-            + "'specimens':[],'metadata':'{}'}";
-    val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertThat(json).isEqualTo(expectedJson);
+  public String getMetadata() {
+    return JsonUtils.toJson(metadata);
   }
-
-  @Test
-  public void testDonorSettings() {
-    val donor = new Donor();
-    donor.setDonorId(null);
-    val json = JsonUtils.toJson(donor);
-    System.err.printf("json='%s'\n", json);
-    val expected =
-        "{'donorId':null,'donorSubmitterId':'','studyId':'','donorGender':'unspecified',"
-            + "'specimens':[],'metadata':'{}'}";
-    val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertThat(json).isEqualTo(expectedJson);
-  }
-
 }

@@ -5,15 +5,16 @@ import static org.icgc.dcc.sodalite.server.model.enums.IdPrefix.Specimen;
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.entity.Specimen;
+import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+@RequiredArgsConstructor
 @Service
-@NoArgsConstructor
 public class SpecimenService {
 
   @Autowired
@@ -28,8 +29,7 @@ public class SpecimenService {
     specimen.setSpecimenId(id);
     specimen.setDonorId(parentId);
     int status =
-        repository.create(id, parentId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(),
-            specimen.getSpecimenType().toString());
+        repository.create(specimen);
     if (status != 1) {
       return "error: Can't create" + specimen.toString();
     }
@@ -37,9 +37,23 @@ public class SpecimenService {
     return "ok:" + id;
   }
 
+  public Specimen read(String id) {
+    val specimen = repository.read(id);
+    if (specimen == null) {
+      return null;
+    }
+    specimen.setSamples(sampleService.readByParentId(id));
+    return specimen;
+  }
+
+  public List<Specimen> readByParentId(String parentId) {
+    val specimens = repository.readByParentId(parentId);
+    specimens.forEach(s -> s.setSamples(sampleService.readByParentId(s.getSpecimenId())));
+    return specimens;
+  }
+
   public String update(Specimen s) {
-    repository.update(s.getSpecimenId(), s.getSpecimenSubmitterId(), s.getSpecimenClass().toString(),
-        s.getSpecimenType().toString());
+    repository.update(s);
     return "ok";
   }
 
@@ -54,29 +68,25 @@ public class SpecimenService {
     return "ok";
   }
 
-  public Specimen getById(String id) {
-    val specimen = repository.read(id);
-    if (specimen == null) {
-      return null;
+  public List<String> findByParentId(String donorId) {
+    return repository.findByParentId(donorId);
+  }
+
+  public String findByBusinessKey(String studyId, String submitterId) {
+    return repository.findByBusinessKey(studyId, submitterId);
+  }
+
+  public String save(String studyId, Specimen specimen) {
+    String specimenId = repository.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
+    if (specimenId == null) {
+      specimenId = idService.generate(IdPrefix.Specimen);
+      specimen.setSpecimenId(specimenId);
+      repository.create(specimen);
+    } else {
+      specimen.setSpecimenId(specimenId);
+      repository.update(specimen);
     }
-    specimen.setSamples(sampleService.findByParentId(id));
-    return specimen;
-  }
-
-  public List<Specimen> findByParentId(String parentId) {
-    val specimens = repository.readByParentId(parentId);
-    specimens.forEach(s -> s.setSamples(sampleService.findByParentId(s.getSpecimenId())));
-    return specimens;
-  }
-
-  /**
-   * @param studyId
-   * @param submitterId
-   * @return
-   */
-  public String getIdByBusinessKey(String studyId, String submitterId) {
-    // TODO Auto-generated method stub
-    return null;
+    return specimenId;
   }
 
 }

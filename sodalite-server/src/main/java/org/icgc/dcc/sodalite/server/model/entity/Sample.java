@@ -22,31 +22,45 @@ package org.icgc.dcc.sodalite.server.model.entity;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.icgc.dcc.sodalite.server.model.Metadata;
 import org.icgc.dcc.sodalite.server.model.enums.SampleType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
-import lombok.NonNull;
+import lombok.EqualsAndHashCode;
+import lombok.val;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Sample {
+@JsonInclude(JsonInclude.Include.ALWAYS)
+public class Sample extends Metadata {
 
-  @NonNull
   private String sampleId;
-  @NonNull
   private String sampleSubmitterId;
-  @NonNull
   private String specimenId;
-  @NonNull
   private SampleType sampleType;
-  private Collection<File> files = new ArrayList<>();
-  // @NonNull
-  // private String sampleInfo;
 
-  @JsonProperty("files")
+  public static Sample create(String id, String submitter, String specimen, String type, String metadata) {
+    val sample = new Sample();
+    sample.setSampleId(id);
+    sample.setSampleSubmitterId(submitter);
+    sample.setSpecimenId(specimen);
+    sample.setSampleType(type);
+    sample.addMetadata(metadata);
+    return sample;
+  }
+
+  public String getSampleType() {
+    return sampleType.value();
+  }
+
+  public void setSampleType(String type) {
+    sampleType = SampleType.fromValue(type);
+  }
+
+  private Collection<File> files = new ArrayList<>();
+
   public void setFiles(Collection<File> files) {
     this.files.clear();
     this.files.addAll(files);

@@ -48,7 +48,7 @@ public class DonorServiceTest {
   }
 
   Specimen getMatchingSpecimen(Specimen specimen) {
-    return specimenService.getById(specimen.getSpecimenId());
+    return specimenService.read(specimen.getSpecimenId());
   }
 
   @Test
@@ -59,8 +59,6 @@ public class DonorServiceTest {
     json.put("donorSubmitterId", "Subject X21-Alpha");
     json.put("studyId", studyId);
     json.put("donorGender", "unspecified");
-    json.put("notes", "There are no notes for this donor");
-    json.put("ageCategory", 7);
 
     val d = JsonUtils.mapper().convertValue(json, Donor.class);
 

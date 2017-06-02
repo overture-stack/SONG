@@ -19,10 +19,8 @@ package org.icgc.dcc.sodalite.server.service;
 
 import org.icgc.dcc.sodalite.server.model.entity.Donor;
 import org.icgc.dcc.sodalite.server.model.entity.File;
-import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
-import org.icgc.dcc.sodalite.server.repository.DonorRepository;
-import org.icgc.dcc.sodalite.server.repository.SampleRepository;
-import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
+import org.icgc.dcc.sodalite.server.model.entity.Sample;
+import org.icgc.dcc.sodalite.server.model.entity.Specimen;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,86 +42,39 @@ public class EntityService {
 
   @Autowired
   IdService idService;
+
   @Autowired
-  DonorRepository donorRepository;
+  DonorService donorService;
   @Autowired
-  SpecimenRepository specimenRepository;
+  SpecimenService specimenService;
   @Autowired
-  SampleRepository sampleRepository;
+  SampleService sampleService;
   @Autowired
   FileService fileService;
 
   @SneakyThrows
   public String saveDonor(String studyId, ObjectNode donor) {
     val d = JsonUtils.convertValue(donor, Donor.class);
-    d.setStudyId(studyId);
+    return donorService.save(studyId, d);
 
-    String donorId = donorRepository.findByBusinessKey(studyId, d.getDonorSubmitterId());
-    if (donorId == null) {
-      donorId = idService.generate(IdPrefix.Donor);
-      d.setDonorId(donorId);
-      System.err.printf("Creating new donor with id=%s,gender='%s'\n", donorId, d.getDonorGender());
-      donorRepository.create(d);
-    } else {
-      donorRepository.update(d);
-    }
-    return donorId;
-  }
-
-  private String getDefault(JsonNode node, String key, String defaultValue) {
-    if (node == null) {
-      return defaultValue;
-    }
-    if (node.has(key)) {
-      return node.get(key).asText();
-    }
-    return defaultValue;
   }
 
   public String saveSpecimen(String studyId, String donorId, JsonNode specimen) {
-    val submitterId = getDefault(specimen, "specimenSubmitterId", "");
-    val class_ = getDefault(specimen, "specimenClass", "");
-    val type = getDefault(specimen, "specimenType", "");
-
-    String specimenId = specimenRepository.findByBusinessKey(studyId, submitterId);
-    if (specimenId == null) {
-      specimenId = idService.generate(IdPrefix.Specimen);
-      specimenRepository.create(specimenId, donorId, submitterId, class_, type);
-    } else {
-      specimenRepository.update(specimenId, submitterId, class_, type);
-    }
-    return specimenId;
+    val s = JsonUtils.convertValue(specimen, Specimen.class);
+    s.setDonorId(donorId);
+    return specimenService.save(studyId, s);
   }
 
   public String saveSample(String studyId, String specimenId, JsonNode sample) {
-    val submitterId = sample.get("sampleSubmitterId").asText();
-    val type = sample.get("sampleType").asText();
-
-    String sampleId = sampleRepository.findByBusinessKey(studyId, submitterId);
-    if (sampleId == null) {
-      sampleId = idService.generate(IdPrefix.Sample);
-      sampleRepository.create(sampleId, specimenId, submitterId, type);
-    } else {
-      sampleRepository.update(sampleId, submitterId, type);
-    }
-    return sampleId;
+    val s = JsonUtils.convertValue(sample, Sample.class);
+    s.setSpecimenId(specimenId);
+    return sampleService.save(studyId, s);
   }
 
   public String saveFile(String studyId, String sampleId, JsonNode file) {
-    // val name = file.get("fileName").asText();
-    // val size = file.get("fileSize").asLong();
-    // val type = file.get("fileType").asText();
-    // val md5 = file.get("fileMd5").asText();
-    //
-    // String metadata = "";
-    // if (file.has("fileMetadata")) {
-    // metadata = file.get("fileMetadata").asText();
-    // }
-    //
     val f = JsonUtils.convertValue(file, File.class);
     f.setSampleId(sampleId);
     return fileService.save(studyId, f);
-
   }
 
 }

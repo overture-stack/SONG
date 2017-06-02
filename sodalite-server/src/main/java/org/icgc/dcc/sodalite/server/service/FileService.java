@@ -24,7 +24,7 @@ public class FileService {
 
   public String create(String parentId, File f) {
     val id = idService.generate(File);
-    f.setId(id);
+    f.setObjectId(id);
     f.setSampleId(parentId);
 
     int status = repository.create(f);
@@ -34,6 +34,14 @@ public class FileService {
     }
 
     return "ok:" + id;
+  }
+
+  public File read(String id) {
+    return repository.read(id);
+  }
+
+  public List<File> readByParentId(String parentId) {
+    return repository.readByParentId(parentId);
   }
 
   public String update(File f) {
@@ -47,10 +55,10 @@ public class FileService {
   }
 
   public String save(String studyId, File f) {
-    String fileId = repository.findByBusinessKey(studyId, f.getName());
+    String fileId = repository.findByBusinessKey(studyId, f.getFileName());
     if (fileId == null) {
       fileId = idService.generate(IdPrefix.File);
-      f.setId(fileId);
+      f.setObjectId(fileId);
       repository.create(f);
     } else {
       repository.update(f);
@@ -58,11 +66,4 @@ public class FileService {
     return fileId;
   }
 
-  public File getById(String id) {
-    return repository.read(id);
-  }
-
-  public List<File> findByParentId(String parentId) {
-    return repository.readByParentId(parentId);
-  }
 }

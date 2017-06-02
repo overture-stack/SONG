@@ -28,10 +28,9 @@ public class VariantCall {
 
   private String analysisId;
   private String variantCallingTool;
-
   private String tumourSampleSubmitterId;
   private String tumourSampleId;
-
   private String matchedNormalSampleSubmitterId;
   private String matchedNormalSampleId;
+
 }
