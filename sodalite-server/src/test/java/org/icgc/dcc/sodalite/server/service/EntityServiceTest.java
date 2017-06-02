@@ -166,18 +166,18 @@ public class EntityServiceTest {
     val name = "file_abc123.idx.gz";
     val md5 = "mmmmdddd5555";
     val file = JsonNodeFactory.instance.objectNode().put("fileName", name).put("fileSize", 12345L).put("fileMd5", md5)
-        .put("fileType", "IDX");
+        .put("type", "IDX");
 
     // This should create a new record
     val sampleId = "SA1";
 
     val id = service.saveFile(studyId, sampleId, file);
     val f = fileService.getById(id);
-    assertThat(f.getObjectId().equals(id));
-    assertThat(f.getFileName().equals(name));
+    assertThat(f.getId().equals(id));
+    assertThat(f.getName().equals(name));
     assertThat(f.getFileSize() == 12345L);
-    assertThat(f.getFileMd5().equals(md5));
-    assertThat(f.getFileType().equals(FileType.IDX));
+    assertThat(f.getMd5().equals(md5));
+    assertThat(f.getType().equals(FileType.IDX));
   }
 
   @SneakyThrows
@@ -196,11 +196,11 @@ public class EntityServiceTest {
     val id = service.saveFile(studyId, sampleId, file);
     val f = fileService.getById(id);
     assertThat(id.equals("FI3"));
-    assertThat(f.getObjectId().equals(id));
-    assertThat(f.getFileName().equals(name));
+    assertThat(f.getId().equals(id));
+    assertThat(f.getName().equals(name));
     assertThat(f.getFileSize() == 12345L);
-    assertThat(f.getFileMd5().equals(md5));
-    assertThat(f.getFileType().equals(FileType.IDX));
+    assertThat(f.getMd5().equals(md5));
+    assertThat(f.getType().equals(FileType.IDX));
   }
 
 }

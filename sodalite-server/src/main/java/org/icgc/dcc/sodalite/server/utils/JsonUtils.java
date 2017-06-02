@@ -18,28 +18,48 @@
 package org.icgc.dcc.sodalite.server.utils;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 import lombok.SneakyThrows;
+import lombok.val;
 
 /**
  * Utility functions related to deal with JSON
  */
 public class JsonUtils {
 
-  protected static final ObjectMapper mapper = new ObjectMapper().registerModule(new ParameterNamesModule())
-      .registerModule(new Jdk8Module())
-      .registerModule(new JavaTimeModule());
+  protected static final ObjectMapper mapper = mapper();
+
+  public static ObjectMapper mapper() {
+    val mapper = new ObjectMapper().registerModule(new ParameterNamesModule())
+        .registerModule(new Jdk8Module())
+        .registerModule(new JavaTimeModule());
+    mapper.disable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
+    mapper.disable(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS);
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+    mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
+    mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+    return mapper;
+  }
 
   public static JsonNode readTree(String json) throws JsonProcessingException, IOException {
     return mapper.readTree(json);
+  }
+
+  public static ObjectNode ObjectNode() {
+    return mapper.createObjectNode();
   }
 
   @SneakyThrows
@@ -48,12 +68,27 @@ public class JsonUtils {
   }
 
   @SneakyThrows
-  public static String nodeToJSON(JsonNode node) {
-    return mapper.writeValueAsString(node);
+  public static String toJson(Object o) {
+    return mapper.writeValueAsString(o);
   }
 
-  public static ObjectMapper mapper() {
-    return mapper;
+  @SneakyThrows
+  public static <T> T fromJson(String json, Class<T> toValue) {
+    return mapper.convertValue(mapper.readTree(json), toValue);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Map<String, Object> toMap(String json, String keyName) {
+    try {
+      return mapper.convertValue(mapper.readTree(json), Map.class);
+    } catch (IllegalArgumentException | IOException e) {
+      val j = ObjectNode().put(keyName, json);
+      return mapper.convertValue(j, Map.class);
+    }
+  }
+
+  public static <T> T convertValue(Object fromValue, Class<T> toValue) {
+    return mapper().convertValue(fromValue, toValue);
   }
 
 }

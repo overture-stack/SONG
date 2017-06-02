@@ -15,20 +15,60 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.model.utils;
+package org.icgc.dcc.sodalite.server.service;
 
-public enum IdPrefix {
-  Donor("DO"), Specimen("SP"), Sample("SA"), File("FI"), Upload("UP"), Analysis("AN");
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private String value;
+import java.util.Collections;
+import java.util.Map;
 
-  IdPrefix(String value) {
-    this.value = value;
+import org.icgc.dcc.sodalite.server.model.entity.Donor;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
+import org.junit.Test;
+
+import lombok.SneakyThrows;
+import lombok.val;
+
+public class SerializationTest {
+
+  @Test
+  @SneakyThrows
+  public void testConvertValue() {
+    val json = "{}";
+
+    @SuppressWarnings("rawtypes")
+    val m = JsonUtils.fromJson(json, Map.class);
+    assertThat(Collections.emptyMap()).isEqualTo(m);
   }
 
-  @Override
-  public String toString() {
-    return this.value;
+  @Test
+  @SneakyThrows
+  public void testDonor() {
+    val donor = JsonUtils.fromJson("{}", Donor.class);
+    assertThat(donor.getDonorId()).isEqualTo("");
+    assertThat(donor.getDonorSubmitterId()).isEqualTo("");
+    assertThat(donor.getStudyId()).isEqualTo("");
+    assertThat(donor.getDonorGender()).isEqualTo("unspecified");
+    assertThat(donor.getSpecimens()).isEqualTo(Collections.emptyList());
   }
 
+  @Test
+  public void testDonorToJson() {
+    val donor = new Donor();
+    val json = JsonUtils.toJson(donor);
+
+    val expected =
+        "{\"donorId\":\"\",\"donorSubmitterId\":\"\",\"studyId\":\"\",\"donorGender\":\"unspecified\",\"specimens\":[]}";
+    assertThat(json).isEqualTo(expected);
+  }
+
+  @Test
+  public void testDonorSettings() {
+    val donor = new Donor();
+    donor.setDonorId(null);
+    val json = JsonUtils.toJson(donor);
+    val expected =
+        "{\"donorSubmitterId\":\"\",\"studyId\":\"\",\"donorGender\":\"unspecified\",\"specimens\":[]}";
+    assertThat(json).isEqualTo(expected);
+  }
 }

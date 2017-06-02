@@ -21,59 +21,35 @@ package org.icgc.dcc.sodalite.server.model.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.enums.DonorGender;
-import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.val;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class Donor {
 
-  @NonNull
-  private String donorId;
-  @NonNull
-  private String donorSubmitterId;
-  @NonNull
-  private String studyId;
-  @NonNull
-  private DonorGender donorGender;
+  private String donorId = "";
+  private String donorSubmitterId = "";
+  private String studyId = "";
+  private DonorGender donorGender = DonorGender.UNSPECIFIED;
+  private final Collection<Specimen> specimens = new ArrayList<>();
 
-  @JsonAnySetter
-  private Map<String, Object> donorInfo = new HashMap<>();
-
-  private Collection<Specimen> specimens = new ArrayList<>();
+  public void setDonorGender(String gender) {
+    donorGender = DonorGender.fromValue(gender);
+  }
 
   public String getDonorGender() {
     return donorGender.value();
-  }
-
-  @SneakyThrows
-  public String getDonorInfo() {
-    return JsonUtils.mapper().writeValueAsString(donorInfo);
-  }
-
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void addDonorInfo(String json) {
-    val info = JsonUtils.mapper().convertValue(json, donorInfo.getClass());
-    donorInfo.putAll(info);
   }
 
   public void addSpecimen(Specimen specimen) {
     specimens.add(specimen);
   }
 
-  @JsonProperty("specimens")
   public Collection<Specimen> getSpecimens() {
     return specimens;
   }

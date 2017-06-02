@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.entity.File;
 import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
-import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
+import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.AnalysisRepository;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,17 +98,18 @@ public class AnalysisService {
     val fileIds = new HashSet<String>();
 
     val donor = get(study, "donor");
-    donor.put("studyId", studyId);
+    val specimen = donor.get("specimen");
+    val sample = specimen.get("sample");
+    val files = sample.get("files");
 
+    donor.put("studyId", studyId);
+    donor.remove("specimen");
     val donorId = entityService.saveDonor(studyId, donor);
 
-    val specimen = donor.get("specimen");
     val specimenId = entityService.saveSpecimen(studyId, donorId, specimen);
 
-    val sample = specimen.get("sample");
     val sampleId = entityService.saveSample(studyId, specimenId, sample);
 
-    val files = sample.get("files");
     for (val file : files) {
       val fileId = entityService.saveFile(studyId, sampleId, file);
       fileIds.add(fileId);

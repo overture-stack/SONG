@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NonNull;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
 public class Study {
 
@@ -38,8 +38,6 @@ public class Study {
   private String organization;
   @NonNull
   private String description;
-  // @NonNull
-  // private String studyInfo
 
   private Collection<Donor> donors = new ArrayList<>();
 

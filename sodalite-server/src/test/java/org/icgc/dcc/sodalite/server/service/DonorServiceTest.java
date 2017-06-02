@@ -84,12 +84,20 @@ public class DonorServiceTest {
   public void testUpdateDonor() {
     val studyId = "ABC123";
 
-    val d = new Donor("", "Triangle-Arrow-S", studyId, DonorGender.MALE);
+    val d = new Donor();
+    d.setDonorId("");
+    d.setDonorSubmitterId("Triangle-Arrow-S");
+    d.setStudyId(studyId);
+    d.setDonorGender("male");
     service.create(d);
 
     val id = d.getDonorId();
 
-    val d2 = new Donor(id, "X21-Beta-17", studyId, DonorGender.FEMALE);
+    val d2 = new Donor();
+    d2.setDonorId(id);
+    d2.setDonorSubmitterId("X21-Beta-17");
+    d2.setStudyId(studyId);
+    d2.setDonorGender("female");
 
     service.update(d2);
 

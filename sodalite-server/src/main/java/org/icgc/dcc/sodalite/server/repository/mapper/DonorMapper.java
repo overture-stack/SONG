@@ -19,11 +19,8 @@ package org.icgc.dcc.sodalite.server.repository.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.entity.Donor;
-import org.icgc.dcc.sodalite.server.model.enums.DonorGender;
-import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -32,23 +29,15 @@ import lombok.val;
 
 public class DonorMapper implements ResultSetMapper<Donor> {
 
-  @SuppressWarnings("unchecked")
   @Override
   @SneakyThrows
   public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    System.err.printf("id='%s',gender='%s'\n", r.getString("id"), r.getString("gender"));
-    val d = new Donor(r.getString("id"),
-        r.getString("submitter_id"),
-        r.getString("study_id"),
-        DonorGender.fromValue(r.getString("gender")));
-    String info = r.getString("info");
 
-    if (info == null) {
-      info = "{}";
-    }
-    @SuppressWarnings("rawtypes")
-    val m = JsonUtils.mapper().readValue(info, Map.class);
-    d.setDonorInfo(m);
+    val d = new Donor();
+    d.setDonorId(r.getString("id"));
+    d.setDonorSubmitterId(r.getString("submitter_id"));
+    d.setStudyId(r.getString("study_id"));
+    d.setDonorGender(r.getString("gender"));
 
     return d;
 

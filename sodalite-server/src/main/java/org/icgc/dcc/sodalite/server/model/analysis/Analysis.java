@@ -19,12 +19,44 @@
 
 package org.icgc.dcc.sodalite.server.model.analysis;
 
-import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
+
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.Data;
+import lombok.SneakyThrows;
+import lombok.val;
+
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
+
+@Data
 public class Analysis {
 
   String id;
-  String study_id;
+  String study;
   AnalysisType type;
+  Map<String, Object> info;
+
+  @JsonAnySetter
+  private Map<String, Object> donorInfo = new HashMap<>();
+
+  @SneakyThrows
+  public String getDonorInfo() {
+    return JsonUtils.toJson(donorInfo);
+  }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void addDonorInfo(String json) {
+    if (json == null) {
+      return;
+    }
+    val info = JsonUtils.fromJson(json, donorInfo.getClass());
+    donorInfo.putAll(info);
+  }
 
 }

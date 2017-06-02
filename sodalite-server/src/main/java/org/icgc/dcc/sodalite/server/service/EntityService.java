@@ -18,18 +18,16 @@
 package org.icgc.dcc.sodalite.server.service;
 
 import org.icgc.dcc.sodalite.server.model.entity.Donor;
-import org.icgc.dcc.sodalite.server.model.entity.Specimen;
-import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
+import org.icgc.dcc.sodalite.server.model.entity.File;
+import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
-import org.icgc.dcc.sodalite.server.repository.FileRepository;
 import org.icgc.dcc.sodalite.server.repository.SampleRepository;
 import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.AllArgsConstructor;
@@ -53,45 +51,11 @@ public class EntityService {
   @Autowired
   SampleRepository sampleRepository;
   @Autowired
-  FileRepository fileRepository;
-
-  private void setDefault(ObjectNode node, String field, String value) {
-    if (node.has(field)) {
-      return;
-    }
-    node.put(field, value);
-  }
+  FileService fileService;
 
   @SneakyThrows
   public String saveDonor(String studyId, ObjectNode donor) {
-    val mapper = new ObjectMapper();
-    mapper.disable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
-    mapper.disable(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS);
-    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    boolean hasSpecimen = false;
-    JsonNode specimen = null;
-    setDefault(donor, "donorId", "");
-    setDefault(donor, "studyId", "");
-    setDefaultObject(donor, "donorInfo");
-    if (donor.has("specimen")) {
-      specimen = donor.get("specimen");
-      hasSpecimen = true;
-      donor.remove("specimen");
-    }
-
-    val d = mapper.convertValue(donor, Donor.class);
-    if (hasSpecimen) {
-      donor.set("specimen", specimen);
-
-      if (specimen.isObject()) {
-        val spNode = (ObjectNode) specimen;
-        setDefault(spNode, "specimenId", "");
-        setDefault(spNode, "donorId", "");
-
-        val sp = mapper.convertValue(spNode, Specimen.class);
-        d.addSpecimen(sp);
-      }
-    }
+    val d = JsonUtils.convertValue(donor, Donor.class);
     d.setStudyId(studyId);
 
     String donorId = donorRepository.findByBusinessKey(studyId, d.getDonorSubmitterId());
@@ -104,13 +68,6 @@ public class EntityService {
       donorRepository.update(d);
     }
     return donorId;
-  }
-
-  private void setDefaultObject(ObjectNode donor, String key) {
-    if (donor.has(key)) {
-      return;
-    }
-    donor.with(key);
   }
 
   private String getDefault(JsonNode node, String key, String defaultValue) {
@@ -153,24 +110,20 @@ public class EntityService {
   }
 
   public String saveFile(String studyId, String sampleId, JsonNode file) {
-    val name = file.get("fileName").asText();
-    val size = file.get("fileSize").asLong();
-    val type = file.get("fileType").asText();
-    val md5 = file.get("fileMd5").asText();
+    // val name = file.get("fileName").asText();
+    // val size = file.get("fileSize").asLong();
+    // val type = file.get("fileType").asText();
+    // val md5 = file.get("fileMd5").asText();
+    //
+    // String metadata = "";
+    // if (file.has("fileMetadata")) {
+    // metadata = file.get("fileMetadata").asText();
+    // }
+    //
+    val f = JsonUtils.convertValue(file, File.class);
+    f.setSampleId(sampleId);
+    return fileService.save(studyId, f);
 
-    String metadata = "";
-    if (file.has("fileMetadata")) {
-      metadata = file.get("fileMetadata").asText();
-    }
-
-    String fileId = fileRepository.findByBusinessKey(studyId, name);
-    if (fileId == null) {
-      fileId = idService.generate(IdPrefix.File);
-      fileRepository.create(fileId, sampleId, name, size, type, md5, metadata);
-    } else {
-      fileRepository.update(fileId, name, size, type, md5, metadata);
-    }
-    return fileId;
   }
 
 }

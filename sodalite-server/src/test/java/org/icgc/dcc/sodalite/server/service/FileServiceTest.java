@@ -31,20 +31,28 @@ public class FileServiceTest {
   public void testReadFile() {
     val id = "FI1";
     val file = fileService.getById(id);
-    assertThat(file.getObjectId()).isEqualTo(id);
-    assertThat(file.getFileName()).isEqualTo("ABC-TC285G7-A5-ae3458712345.bam");
-    assertThat(file.getFileType()).isEqualTo(FileType.BAM);
+    assertThat(file.getId()).isEqualTo(id);
+    assertThat(file.getName()).isEqualTo("ABC-TC285G7-A5-ae3458712345.bam");
+    assertThat(file.getType()).isEqualTo(FileType.BAM.value());
     assertThat(file.getFileSize()).isEqualTo(122333444455555L);
-    assertThat(file.getFileMd5()).isEqualTo("20de2982390c60e33452bf8736c3a9f1");
+    assertThat(file.getMd5()).isEqualTo("20de2982390c60e33452bf8736c3a9f1");
   }
 
   @Test
   public void testCreateAndDeleteFile() {
     val sampleId = "";
-    val f = new File("", "ABC-TC285G87-A5-sqrl.bai", sampleId, 0L, FileType.FAI, "md5abcdefg", "metadata");
+    val f = new File();
+    f.setId("");
+    f.setName("ABC-TC285G87-A5-sqrl.bai");
+
+    f.setSampleId(sampleId);
+
+    f.setFileSize(0L);
+    f.setType(FileType.FAI.value());
+    f.setMd5("md5abcdefg");
 
     val status = fileService.create("SA1", f);
-    val id = f.getObjectId();
+    val id = f.getId();
 
     assertThat(id).startsWith("FI");
     assertThat(status).isEqualTo("ok:" + id);
@@ -60,19 +68,25 @@ public class FileServiceTest {
   @Test
   public void testUpdateFile() {
     val sampleId = "";
-    val s = new File("", "file123.fasta", sampleId, 12345L, FileType.FASTA, "md5sumaebcefghadwa", "info");
+    val s = new File();
+    s.setId("");
+    s.setName("file123.fasta");
+    s.setSampleId(sampleId);
+    s.setFileSize(12345L);
+    s.setType(FileType.FASTA.value());
+    s.setMd5("md5sumaebcefghadwa");
 
     fileService.create("SA11", s);
 
-    val id = s.getObjectId();
+    val id = s.getId();
 
-    val s2 = new File(id,
-        "File 102.fai",
-        s.getSampleId(),
-        123456789L,
-        FileType.FAI,
-        "md5magical",
-        "no more info");
+    val s2 = new File();
+    s2.setId(id);
+    s2.setName("File 102.fai");
+    s2.setSampleId(s.getSampleId());
+    s2.setFileSize(1234356789L);
+    s2.setType(FileType.FAI.value());
+    s2.setMd5("md5magical");
 
     fileService.update(s2);
 

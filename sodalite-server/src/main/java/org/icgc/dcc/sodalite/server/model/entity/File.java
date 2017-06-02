@@ -20,29 +20,52 @@
 
 package org.icgc.dcc.sodalite.server.model.entity;
 
-import org.icgc.dcc.sodalite.server.model.enums.FileType;
+import java.util.Map;
+import java.util.TreeMap;
 
+import org.icgc.dcc.sodalite.server.model.enums.FileType;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
+
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
-import lombok.NonNull;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 @Data
 public class File {
 
-  @NonNull
-  private String objectId;
-  @NonNull
-  private String fileName;
-  @NonNull
-  private String sampleId;
-  @NonNull
-  private Long fileSize;
-  @NonNull
-  private FileType fileType;
-  @NonNull
-  private String fileMd5;
-  @NonNull
-  private String metadataDoc;
+  private String id = "";
+  private String name = "";
+  private String sampleId = "";
+  private Long fileSize = -1L;
+  private FileType type = FileType.IDX;
+  private String md5 = "";
+
+  private final Map<String, Object> metadata = new TreeMap<>();
+
+  public String getType() {
+    return type.value();
+  }
+
+  public void setType(String fileType) {
+    type = FileType.fromValue(fileType);
+  }
+
+  @JsonAnySetter
+  public void setMetadata(String key, Object value) {
+    metadata.put(key, value);
+  }
+
+  public void addMetadata(String json) {
+    if (json == null) {
+      return;
+    }
+    metadata.putAll(JsonUtils.toMap(json, "metadata"));
+  }
+
+  public String getMetadata() {
+    return JsonUtils.toJson(metadata);
+  }
+
 }

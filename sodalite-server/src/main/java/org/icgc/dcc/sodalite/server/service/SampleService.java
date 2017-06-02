@@ -1,6 +1,6 @@
 package org.icgc.dcc.sodalite.server.service;
 
-import static org.icgc.dcc.sodalite.server.model.utils.IdPrefix.Sample;
+import static org.icgc.dcc.sodalite.server.model.enums.IdPrefix.Sample;
 
 import java.util.List;
 

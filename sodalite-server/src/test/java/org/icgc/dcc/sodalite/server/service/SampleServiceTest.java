@@ -40,7 +40,7 @@ public class SampleServiceTest {
     assertThat(sample.getFiles().size()).isEqualTo(2);
 
     // Verify that we got the same files as the file service says we should.
-    sample.getFiles().forEach(file -> assertThat(file.equals(getFile(file.getObjectId()))));
+    sample.getFiles().forEach(file -> assertThat(file.equals(getFile(file.getId()))));
   }
 
   private File getFile(String id) {

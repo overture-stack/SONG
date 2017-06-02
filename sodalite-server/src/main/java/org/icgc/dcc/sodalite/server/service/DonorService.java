@@ -1,6 +1,6 @@
 package org.icgc.dcc.sodalite.server.service;
 
-import static org.icgc.dcc.sodalite.server.model.utils.IdPrefix.Donor;
+import static org.icgc.dcc.sodalite.server.model.enums.IdPrefix.Donor;
 
 import java.util.List;
 

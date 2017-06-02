@@ -4,7 +4,7 @@ import static java.lang.String.format;
 import static org.springframework.http.ResponseEntity.ok;
 
 import org.icgc.dcc.sodalite.server.model.Upload;
-import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
+import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.UploadRepository;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
