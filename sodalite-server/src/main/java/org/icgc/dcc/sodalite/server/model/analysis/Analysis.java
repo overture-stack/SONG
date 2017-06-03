@@ -19,44 +19,28 @@
 
 package org.icgc.dcc.sodalite.server.model.analysis;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.ANALYSIS_TYPE;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
 
-import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
-import org.icgc.dcc.sodalite.server.utils.JsonUtils;
+import org.icgc.dcc.sodalite.server.model.Metadata;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
-import lombok.SneakyThrows;
-import lombok.val;
+import lombok.EqualsAndHashCode;
 
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
-
+@EqualsAndHashCode(callSuper = false)
 @Data
-public class Analysis {
+public class Analysis extends Metadata {
 
   String id;
   String study;
-  AnalysisType type;
-  Map<String, Object> info;
+  String type;
 
-  @JsonAnySetter
-  private Map<String, Object> donorInfo = new HashMap<>();
-
-  @SneakyThrows
-  public String getDonorInfo() {
-    return JsonUtils.toJson(donorInfo);
-  }
-
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void addDonorInfo(String json) {
-    if (json == null) {
-      return;
-    }
-    val info = JsonUtils.fromJson(json, donorInfo.getClass());
-    donorInfo.putAll(info);
+  public void setType(String type) {
+    validate(ANALYSIS_TYPE, type);
+    this.type = type;
   }
 
 }

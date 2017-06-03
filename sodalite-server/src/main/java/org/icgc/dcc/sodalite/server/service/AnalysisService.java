@@ -1,6 +1,7 @@
 package org.icgc.dcc.sodalite.server.service;
 
 import static java.lang.String.format;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.ANALYSIS_TYPE;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -8,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.icgc.dcc.sodalite.server.model.entity.File;
-import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
 import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.AnalysisRepository;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
@@ -36,22 +36,22 @@ public class AnalysisService {
   private final EntityService entityService;
 
   @SneakyThrows
-  public AnalysisType getAnalysisType(String json) {
+  public String getAnalysisType(String json) {
     return getAnalysisType(JsonUtils.readTree(json));
   }
 
-  public AnalysisType getAnalysisType(JsonNode node) {
-    for (val type : AnalysisType.values()) {
-      log.info("Checking analysis type " + type.toString());
-      if (node.has(type.toString())) {
+  public String getAnalysisType(JsonNode node) {
+    for (val type : ANALYSIS_TYPE) {
+      log.info("Checking analysis type " + type);
+      if (node.has(type)) {
         return type;
       }
     }
     return null;
   }
 
-  void createAnalysis(String id, String studyId, AnalysisType type) {
-    repository.createAnalysis(id, studyId, type.toString());
+  void createAnalysis(String id, String studyId, String type) {
+    repository.createAnalysis(id, studyId, type);
   }
 
   @SneakyThrows
@@ -72,9 +72,9 @@ public class AnalysisService {
 
     val analysis = node.get(type.toString());
     switch (type) {
-    case sequencingRead:
+    case "sequencingRead":
       return createSequencingRead(id, analysis);
-    case variantCall:
+    case "variantCall":
       return createVariantCall(id, analysis);
     default:
       return "Upload Analysis failed: Unknown Analysis Type";

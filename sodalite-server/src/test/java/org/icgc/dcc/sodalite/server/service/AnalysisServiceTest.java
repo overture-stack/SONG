@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.sodalite.server.model.entity.File;
-import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,18 +39,18 @@ public class AnalysisServiceTest {
 
   @Test
   public void testGetAnalysisType_SequencingRead() {
-    val node = JsonNodeFactory.instance.objectNode().put("sequencingRead", "{}");
+    val node = JsonUtils.ObjectNode().put("sequencingRead", "{}");
     val s = JsonUtils.nodeToJSON(node);
     val result = service.getAnalysisType(s);
-    assertThat(result == AnalysisType.sequencingRead);
+    assertThat(result).isEqualTo("sequencingRead");
   }
 
   @Test
   public void testGetAnalysisType_VariantCall() {
-    val node = JsonNodeFactory.instance.objectNode().put("variantCall", "{}");
+    val node = JsonUtils.ObjectNode().put("variantCall", "{}");
     val s = JsonUtils.nodeToJSON(node);
     val result = service.getAnalysisType(s);
-    assertThat(result == AnalysisType.variantCall);
+    assertThat(result).isEqualTo("variantCall");
   }
 
   @Test
@@ -68,7 +67,7 @@ public class AnalysisServiceTest {
   public void testCreateAnalysis() {
     val id = "AN3";
     val studyId = "ABC123";
-    val type = AnalysisType.sequencingRead;
+    val type = "sequencingRead";
 
     service.createAnalysis(id, studyId, type);
     // TODO: verify record was added to Analysis table
@@ -96,7 +95,7 @@ public class AnalysisServiceTest {
   public void testCreateVariantCall() {
     val id = "AN4";
     val studyId = "ABC123";
-    val type = AnalysisType.variantCall;
+    val type = "variantCall";
 
     val node = JsonNodeFactory.instance.objectNode().put("variantCallingTool", "silver bullet")
         .put("tumourSampleSubmitterId", "tumor1A").put("matchedNormalSampleSubmitterId", "reference2B");
@@ -143,15 +142,15 @@ public class AnalysisServiceTest {
   }
 
   @Test
-    public void testReadFilesByAnalysisId() {
-      val files = service.readFilesByAnalysisId("AN1");
-      System.err.printf("Got files '%s'", files);
-      val expectedFiles = new ArrayList<File>();
-      expectedFiles.add(fileService.read("FI1"));
-      expectedFiles.add(fileService.read("FI2"));
-  
-      assertThat(files).containsAll(expectedFiles);
-      assertThat(expectedFiles).containsAll(files);
-    }
+  public void testReadFilesByAnalysisId() {
+    val files = service.readFilesByAnalysisId("AN1");
+    System.err.printf("Got files '%s'", files);
+    val expectedFiles = new ArrayList<File>();
+    expectedFiles.add(fileService.read("FI1"));
+    expectedFiles.add(fileService.read("FI2"));
+
+    assertThat(files).containsAll(expectedFiles);
+    assertThat(expectedFiles).containsAll(files);
+  }
 
 }

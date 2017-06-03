@@ -6,8 +6,6 @@ import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.sodalite.server.model.entity.Sample;
 import org.icgc.dcc.sodalite.server.model.entity.Specimen;
-import org.icgc.dcc.sodalite.server.model.enums.SpecimenClass;
-import org.icgc.dcc.sodalite.server.model.enums.SpecimenType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +35,8 @@ public class SpecimenServiceTest {
     Specimen specimen = specimenService.read(id);
     assertThat(specimen.getSpecimenId()).isEqualTo(id);
     assertThat(specimen.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
-    assertThat(specimen.getSpecimenClass()).isEqualTo(SpecimenClass.TUMOUR.value());
-    assertThat(specimen.getSpecimenType()).isEqualTo(SpecimenType.RECURRENT_TUMOUR_SOLID_TISSUE.value());
+    assertThat(specimen.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen.getSpecimenType()).isEqualTo("Recurrent tumour - solid tissue");
     assertThat(specimen.getSamples().size()).isEqualTo(2);
 
     // Verify that we got the same samples as the sample service says we should.
@@ -63,11 +61,7 @@ public class SpecimenServiceTest {
   @Test
   public void testCreateAndDeleteSpecimen() {
     val donorId = "";
-    Specimen s = createSpecimen("",
-        "Specimen 101 Ipsilon Prime",
-        donorId,
-        SpecimenClass.TUMOUR.value(),
-        SpecimenType.CELL_LINE_DERIVED_FROM_TUMOUR.value());
+    Specimen s = createSpecimen("", "Specimen 101 Ipsilon Prime", donorId, "Tumour", "Cell line - derived from tumour");
 
     val status = specimenService.create("DO2", s);
     val id = s.getSpecimenId();
@@ -86,21 +80,14 @@ public class SpecimenServiceTest {
   @Test
   public void testUpdateSpecimen() {
     val donorId = "";
-    val s = createSpecimen("",
-        "Specimen 102 Chiron-Beta Prime",
-        donorId,
-        SpecimenClass.TUMOUR.value(),
-        SpecimenType.METASTATIC_TUMOUR_ADDITIONAL_METASTATIC.value());
+    val s = createSpecimen("", "Specimen 102 Chiron-Beta Prime", donorId, "Tumour",
+        "Metastatic tumour - additional metastatic");
 
     specimenService.create("DO2", s);
 
     val id = s.getSpecimenId();
 
-    val s2 = createSpecimen(id,
-        "Specimen 102",
-        s.getDonorId(),
-        SpecimenClass.NORMAL.value(),
-        SpecimenType.NORMAL_OTHER.value());
+    val s2 = createSpecimen(id, "Specimen 102", s.getDonorId(), "Normal", "Normal - other");
 
     specimenService.update(s2);
 

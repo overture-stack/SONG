@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.sodalite.server.model.entity.File;
-import org.icgc.dcc.sodalite.server.model.enums.FileType;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +32,7 @@ public class FileServiceTest {
     val id = "FI1";
     val name = "ABC-TC285G7-A5-ae3458712345.bam";
     val sample = "SA1";
-    val type = FileType.BAM.value();
+    val type = "BAM";
     val size = 122333444455555L;
     val md5 = "20de2982390c60e33452bf8736c3a9f1";
     val metadata = JsonUtils.fromSingleQuoted("{'metadata':'<XML>Not even well-formed <XML></XML>'}");
@@ -53,7 +52,7 @@ public class FileServiceTest {
     f.setSampleId(sampleId);
 
     f.setFileSize(0L);
-    f.setFileType(FileType.FAI.value());
+    f.setFileType("FAI");
     f.setFileMd5("md5abcdefg");
 
     val status = fileService.create("SA1", f);
@@ -77,7 +76,7 @@ public class FileServiceTest {
     val name = "file123.fasta";
     val sampleId = "";
     val size = 12345L;
-    val type = FileType.FASTA.value();
+    val type = "FASTA";
     val md5 = "md5sumaebcefghadwa";
     val metadata = "";
 
@@ -86,7 +85,7 @@ public class FileServiceTest {
     fileService.create("SA11", s);
     val id2 = s.getObjectId();
 
-    val s2 = File.create(id2, "File 102.fai", s.getSampleId(), 123456789L, FileType.FAI.value(), "md5magical", "");
+    val s2 = File.create(id2, "File 102.fai", s.getSampleId(), 123456789L, "FAI", "md5magical", "");
     fileService.update(s2);
 
     val s3 = fileService.read(id2);

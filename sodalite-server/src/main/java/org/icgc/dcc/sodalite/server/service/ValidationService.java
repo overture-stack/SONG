@@ -20,7 +20,6 @@ package org.icgc.dcc.sodalite.server.service;
 import static java.lang.String.format;
 
 import org.icgc.dcc.sodalite.server.model.Upload;
-import org.icgc.dcc.sodalite.server.model.enums.AnalysisType;
 import org.icgc.dcc.sodalite.server.repository.UploadRepository;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.icgc.dcc.sodalite.server.validation.SchemaValidator;
@@ -59,7 +58,7 @@ public class ValidationService {
   }
 
   @Async
-  public void validate(@NonNull String uploadId, @NonNull String payload, AnalysisType analysisType) {
+  public void validate(@NonNull String uploadId, @NonNull String payload, String analysisType) {
     log.info("Valdidating payload for upload Id=" + uploadId + "payload=" + payload);
     try {
       val jsonNode = JsonUtils.readTree(payload);
@@ -67,7 +66,7 @@ public class ValidationService {
       if (analysisType == null) {
         updateAsInvalid(uploadId, "Uploaded JSON document does not contain a valid analysis type");
       } else {
-        val type = analysisType.toString();
+        val type = analysisType;
         val schemaId = "upload" + upperCaseFirstLetter(type);
         val response = validator.validate(schemaId, jsonNode);
 

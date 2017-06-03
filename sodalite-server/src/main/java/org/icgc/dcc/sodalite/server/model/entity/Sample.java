@@ -19,11 +19,13 @@
 
 package org.icgc.dcc.sodalite.server.model.entity;
 
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.SAMPLE_TYPE;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.icgc.dcc.sodalite.server.model.Metadata;
-import org.icgc.dcc.sodalite.server.model.enums.SampleType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -36,10 +38,11 @@ import lombok.val;
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public class Sample extends Metadata {
 
-  private String sampleId;
-  private String sampleSubmitterId;
-  private String specimenId;
-  private SampleType sampleType;
+  private String sampleId = "";
+  private String sampleSubmitterId = "";
+  private String specimenId = "";
+  private String sampleType = "";
+  private Collection<File> files = new ArrayList<>();
 
   public static Sample create(String id, String submitter, String specimen, String type, String metadata) {
     val sample = new Sample();
@@ -51,15 +54,10 @@ public class Sample extends Metadata {
     return sample;
   }
 
-  public String getSampleType() {
-    return sampleType.value();
-  }
-
   public void setSampleType(String type) {
-    sampleType = SampleType.fromValue(type);
+    validate(SAMPLE_TYPE, type);
+    sampleType = type;
   }
-
-  private Collection<File> files = new ArrayList<>();
 
   public void setFiles(Collection<File> files) {
     this.files.clear();
@@ -69,4 +67,5 @@ public class Sample extends Metadata {
   public void addFile(File f) {
     files.add(f);
   }
+
 }

@@ -19,11 +19,13 @@
 
 package org.icgc.dcc.sodalite.server.model.entity;
 
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.DONOR_GENDER;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.icgc.dcc.sodalite.server.model.Metadata;
-import org.icgc.dcc.sodalite.server.model.enums.DonorGender;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -36,12 +38,13 @@ import lombok.val;
 @Data
 @JsonPropertyOrder({ "donorId", "donorSubmitterId", "studyId", "donorGender", "specimens", "metadata" })
 @JsonInclude(JsonInclude.Include.ALWAYS)
+
 public class Donor extends Metadata {
 
   private String donorId = "";
   private String donorSubmitterId = "";
   private String studyId = "";
-  private DonorGender donorGender = DonorGender.UNSPECIFIED;
+  private String donorGender = "";
   private final Collection<Specimen> specimens = new ArrayList<>();
 
   public static Donor create(String id, String submitterId, String studyId, String gender, String metadata) {
@@ -56,11 +59,8 @@ public class Donor extends Metadata {
   }
 
   public void setDonorGender(String gender) {
-    donorGender = DonorGender.fromValue(gender);
-  }
-
-  public String getDonorGender() {
-    return donorGender.value();
+    validate(DONOR_GENDER, gender);
+    this.donorGender = gender;
   }
 
   public void addSpecimen(Specimen specimen) {

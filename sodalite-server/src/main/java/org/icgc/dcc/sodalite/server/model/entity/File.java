@@ -20,8 +20,10 @@
 
 package org.icgc.dcc.sodalite.server.model.entity;
 
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.FILE_TYPE;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
+
 import org.icgc.dcc.sodalite.server.model.Metadata;
-import org.icgc.dcc.sodalite.server.model.enums.FileType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -38,7 +40,7 @@ public class File extends Metadata {
   private String fileName = "";
   private String sampleId = "";
   private Long fileSize = -1L;
-  private FileType fileType = FileType.IDX;
+  private String fileType = "";
   private String fileMd5 = "";
 
   public static File create(String id, String name, String sample, Long size, String type, String md5,
@@ -56,11 +58,8 @@ public class File extends Metadata {
   }
 
   public void setFileType(String type) {
-    fileType = FileType.fromValue(type);
-  }
-
-  public String getFileType() {
-    return fileType.value();
+    validate(FILE_TYPE, type);
+    fileType = type;
   }
 
 }

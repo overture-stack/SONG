@@ -19,12 +19,14 @@
 
 package org.icgc.dcc.sodalite.server.model.entity;
 
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.SPECIMEN_CLASS;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.SPECIMEN_TYPE;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.icgc.dcc.sodalite.server.model.Metadata;
-import org.icgc.dcc.sodalite.server.model.enums.SpecimenClass;
-import org.icgc.dcc.sodalite.server.model.enums.SpecimenType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -40,8 +42,8 @@ public class Specimen extends Metadata {
   private String specimenId = "";
   private String specimenSubmitterId = "";
   private String donorId = "";
-  private SpecimenClass specimenClass = SpecimenClass.NORMAL;
-  private SpecimenType specimenType = SpecimenType.NORMAL_OTHER;
+  private String specimenClass = "";
+  private String specimenType = "";
 
   private Collection<Sample> samples = new ArrayList<>();
 
@@ -58,19 +60,13 @@ public class Specimen extends Metadata {
   }
 
   public void setSpecimenClass(String specimenClass) {
-    this.specimenClass = SpecimenClass.fromValue(specimenClass);
-  }
-
-  public String getSpecimenClass() {
-    return specimenClass.value();
+    validate(SPECIMEN_CLASS, specimenClass);
+    this.specimenClass = specimenClass;
   }
 
   public void setSpecimenType(String type) {
-    specimenType = SpecimenType.fromValue(type);
-  }
-
-  public String getSpecimenType() {
-    return specimenType.value();
+    validate(SPECIMEN_TYPE, type);
+    specimenType = type;
   }
 
   public void setSamples(Collection<Sample> samples) {

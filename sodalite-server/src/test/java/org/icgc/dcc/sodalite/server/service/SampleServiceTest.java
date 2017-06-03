@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.sodalite.server.model.entity.Sample;
-import org.icgc.dcc.sodalite.server.model.enums.SampleType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +32,14 @@ public class SampleServiceTest {
     val sample = sampleService.read(id);
     assertThat(sample.getSampleId()).isEqualTo(id);
     assertThat(sample.getSampleSubmitterId()).isEqualTo("T285-G7-A5");
-    assertThat(sample.getSampleType()).isEqualTo(SampleType.DNA.value());
+    assertThat(sample.getSampleType()).isEqualTo("DNA");
   }
 
   @Test
   public void testCreateAndDeleteSample() {
     val specimenId = "";
     val metadata = "";
-    val s = Sample.create("", "101-IP-A", specimenId, SampleType.AMPLIFIED_DNA.value(), metadata);
+    val s = Sample.create("", "101-IP-A", specimenId, "Amplified DNA", metadata);
 
     val status = sampleService.create("SP2", s);
     val id = s.getSampleId();
@@ -60,13 +59,13 @@ public class SampleServiceTest {
   public void testUpdateSample() {
     val metadata = "";
     val specimenId = "";
-    val s = Sample.create("", "102-CBP-A", specimenId, SampleType.RNA.value(), metadata);
+    val s = Sample.create("", "102-CBP-A", specimenId, "RNA", metadata);
 
     sampleService.create("SP2", s);
 
     val id = s.getSampleId();
 
-    val s2 = Sample.create(id, "Sample 102", s.getSpecimenId(), SampleType.FFPE_DNA.value(), metadata);
+    val s2 = Sample.create(id, "Sample 102", s.getSpecimenId(), "FFPE RNA", metadata);
 
     sampleService.update(s2);
 

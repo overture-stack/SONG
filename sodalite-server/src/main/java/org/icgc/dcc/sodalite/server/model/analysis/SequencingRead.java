@@ -20,7 +20,8 @@
 
 package org.icgc.dcc.sodalite.server.model.analysis;
 
-import org.icgc.dcc.sodalite.server.model.enums.LibraryStrategy;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.LIBRARY_STRATEGY;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -34,8 +35,13 @@ public class SequencingRead {
   private boolean aligned;
   private String alignmentTool;
   private int insertSize;
-  private LibraryStrategy libraryStrategy;
+  private String libraryStrategy;
   private boolean pairedEnd;
   private String referenceGenome;
+
+  public void setLibraryStrategy(String strategy) {
+    validate(LIBRARY_STRATEGY, strategy);
+    libraryStrategy = strategy;
+  }
 
 }

@@ -6,7 +6,6 @@ import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.sodalite.server.model.entity.Donor;
 import org.icgc.dcc.sodalite.server.model.entity.Specimen;
-import org.icgc.dcc.sodalite.server.model.enums.DonorGender;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +36,7 @@ public class DonorServiceTest {
     val d = service.read("DO1");
     assertThat(d != null);
     assertThat(d.getDonorId()).isEqualTo("DO1");
-    assertThat(d.getDonorGender()).isEqualTo(DonorGender.MALE.value());
+    assertThat(d.getDonorGender()).isEqualTo("male");
     assertThat(d.getDonorSubmitterId()).isEqualTo("Subject-X23Alpha7");
     assertThat(d.getSpecimens().size()).isEqualTo(2);
 

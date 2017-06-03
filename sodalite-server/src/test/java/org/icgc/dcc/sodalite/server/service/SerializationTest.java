@@ -44,12 +44,24 @@ public class SerializationTest {
   @Test
   @SneakyThrows
   public void testDonor() {
-    val donor = JsonUtils.fromJson("{}", Donor.class);
-    assertThat(donor.getDonorId()).isEqualTo("");
-    assertThat(donor.getDonorSubmitterId()).isEqualTo("");
-    assertThat(donor.getStudyId()).isEqualTo("");
-    assertThat(donor.getDonorGender()).isEqualTo("unspecified");
+    val donorId = "DO1234";
+    val submitter = "1234";
+    val study = "X2345-QRP";
+    val gender = "female";
+
+    val single = String.format(
+        "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
+            + "'roses':'red','violets':'blue'}",
+        donorId, submitter, study, gender);
+    val metadata = JsonUtils.fromSingleQuoted("{'roses':'red','violets':'blue'}");
+    val json = JsonUtils.fromSingleQuoted(single);
+    val donor = JsonUtils.fromJson(json, Donor.class);
+    assertThat(donor.getDonorId()).isEqualTo(donorId);
+    assertThat(donor.getDonorSubmitterId()).isEqualTo(submitter);
+    assertThat(donor.getStudyId()).isEqualTo(study);
+    assertThat(donor.getDonorGender()).isEqualTo(gender);
     assertThat(donor.getSpecimens()).isEqualTo(Collections.emptyList());
+    assertThat(donor.getMetadata()).isEqualTo(metadata);
   }
 
   @Test
@@ -58,7 +70,7 @@ public class SerializationTest {
     val json = JsonUtils.toJson(donor);
 
     val expected =
-        "{'donorId':'','donorSubmitterId':'','studyId':'','donorGender':'unspecified',"
+        "{'donorId':'','donorSubmitterId':'','studyId':'','donorGender':'',"
             + "'specimens':[],'metadata':'{}'}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
@@ -71,10 +83,47 @@ public class SerializationTest {
     val json = JsonUtils.toJson(donor);
     System.err.printf("json='%s'\n", json);
     val expected =
-        "{'donorId':null,'donorSubmitterId':'','studyId':'','donorGender':'unspecified',"
+        "{'donorId':null,'donorSubmitterId':'','studyId':'','donorGender':'',"
             + "'specimens':[],'metadata':'{}'}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
   }
 
+  @Test
+  public void testDonorValues() {
+    val id = "DO000123";
+    val submitterId = "123";
+    val studyId = "X23-CA";
+    val gender = "male";
+    val metadata = "";
+
+    val donor = Donor.create(id, submitterId, studyId, gender, metadata);
+    val json = JsonUtils.toJson(donor);
+
+    val expected = String.format(
+        "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
+            + "'specimens':[],'metadata':'{%s}'}",
+        id, submitterId, studyId, gender, metadata);
+    val expectedJson = JsonUtils.fromSingleQuoted(expected);
+    assertThat(json).isEqualTo(expectedJson);
+  }
+
+  @Test
+  public void testInvalidValues() {
+    val id = "DO000123";
+    val submitterId = "123";
+    val studyId = "X23-CA";
+    val gender = "potatoes";
+    val metadata = "";
+
+    boolean failed = false;
+    try {
+      Donor.create(id, submitterId, studyId, gender, metadata);
+    } catch (IllegalArgumentException e) {
+      failed = true;
+    }
+
+    assertThat(failed).isTrue();
+
+  }
 }

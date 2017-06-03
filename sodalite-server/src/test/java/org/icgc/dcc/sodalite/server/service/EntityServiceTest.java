@@ -4,11 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
-import org.icgc.dcc.sodalite.server.model.enums.DonorGender;
-import org.icgc.dcc.sodalite.server.model.enums.FileType;
-import org.icgc.dcc.sodalite.server.model.enums.SampleType;
-import org.icgc.dcc.sodalite.server.model.enums.SpecimenClass;
-import org.icgc.dcc.sodalite.server.model.enums.SpecimenType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +51,7 @@ public class EntityServiceTest {
     val id = service.saveDonor(studyId, donor);
 
     val d = donorService.read(id);
-    assertThat(d.getDonorGender().equals(DonorGender.FEMALE));
+    assertThat(d.getDonorGender().equals("female"));
     assertThat(d.getDonorSubmitterId().equals("donor_abc123"));
     assertThat(d.getDonorId().equals(id));
   }
@@ -75,7 +70,7 @@ public class EntityServiceTest {
 
     // check that what we saved is what's in the database...
     val d = donorService.read(id);
-    assertThat(d.getDonorGender().equals(DonorGender.FEMALE));
+    assertThat(d.getDonorGender().equals("female"));
     assertThat(d.getDonorSubmitterId().equals("Subject-X23Alpha7"));
     assertThat(d.getDonorId().equals(id));
 
@@ -97,8 +92,8 @@ public class EntityServiceTest {
     val id = service.saveSpecimen(studyId, donorId, specimen);
     val sp = specimenService.read(id);
     assertThat(sp.getSpecimenId().equals(id));
-    assertThat(sp.getSpecimenClass().equals(SpecimenClass.NORMAL));
-    assertThat(sp.getSpecimenType().equals(SpecimenType.NORMAL_SOLID_TISSUE));
+    assertThat(sp.getSpecimenClass()).isEqualTo("Normal");
+    assertThat(sp.getSpecimenType()).isEqualTo("Normal - solid tissue");
   }
 
   @SneakyThrows
@@ -117,8 +112,8 @@ public class EntityServiceTest {
     assertThat(id.equals("SP1"));
     assertThat(sp.getSpecimenId().equals(id));
     assertThat(sp.getSpecimenSubmitterId().equals("Tissue-Culture 284 Gamma 3"));
-    assertThat(sp.getSpecimenClass().equals(SpecimenClass.TUMOUR));
-    assertThat(sp.getSpecimenType().equals(SpecimenType.RECURRENT_TUMOUR_OTHER));
+    assertThat(sp.getSpecimenClass().equals("Tumour"));
+    assertThat(sp.getSpecimenType().equals("Recurrent tumour - other"));
   }
 
   @SneakyThrows
@@ -134,9 +129,9 @@ public class EntityServiceTest {
 
     val id = service.saveSample(studyId, specimenId, sample);
     val sa = sampleService.read(id);
-    assertThat(sa.getSampleId().equals(id));
-    assertThat(sa.getSampleType().equals(SampleType.TOTAL_RNA));
-    assertThat(sa.getSampleSubmitterId().equals("sample_abc123"));
+    assertThat(sa.getSampleId()).isEqualTo(id);
+    assertThat(sa.getSampleType()).isEqualTo("Total RNA");
+    assertThat(sa.getSampleSubmitterId()).isEqualTo("sample_abc123");
   }
 
   @SneakyThrows
@@ -154,7 +149,7 @@ public class EntityServiceTest {
     val sa = sampleService.read(id);
     assertThat(id.equals("SA11"));
     assertThat(sa.getSampleId().equals(id));
-    assertThat(sa.getSampleType().equals(SampleType.TOTAL_RNA));
+    assertThat(sa.getSampleType().equals("Total RNA"));
     assertThat(sa.getSampleSubmitterId().equals("sample_abc123"));
   }
 
@@ -166,7 +161,7 @@ public class EntityServiceTest {
     val name = "file_abc123.idx.gz";
     val md5 = "mmmmdddd5555";
     val file = JsonNodeFactory.instance.objectNode().put("fileName", name).put("fileSize", 12345L).put("fileMd5", md5)
-        .put("type", "IDX");
+        .put("fileType", "IDX");
 
     // This should create a new record
     val sampleId = "SA1";
@@ -177,7 +172,7 @@ public class EntityServiceTest {
     assertThat(f.getFileName().equals(name));
     assertThat(f.getFileSize() == 12345L);
     assertThat(f.getFileMd5().equals(md5));
-    assertThat(f.getFileType().equals(FileType.IDX));
+    assertThat(f.getFileType().equals("IDX"));
   }
 
   @SneakyThrows
@@ -200,7 +195,7 @@ public class EntityServiceTest {
     assertThat(f.getFileName().equals(name));
     assertThat(f.getFileSize() == 12345L);
     assertThat(f.getFileMd5().equals(md5));
-    assertThat(f.getFileType().equals(FileType.IDX));
+    assertThat(f.getFileType().equals("IDX"));
   }
 
 }
