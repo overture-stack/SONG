@@ -19,152 +19,57 @@
 
 package org.icgc.dcc.sodalite.server.model.entity;
 
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.DONOR_GENDER;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
+
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.fasterxml.jackson.annotation.*;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.icgc.dcc.sodalite.server.model.Metadata;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "donorId", "donorSubmitterId", "donorGender", "specimens"})
-public class Donor implements Entity {
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-  @JsonProperty("donorId")
-  private String donorId;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.val;
 
-  @JsonProperty("donorSubmitterId")
-  private String donorSubmitterId;
+@EqualsAndHashCode(callSuper = false)
+@Data
+@JsonPropertyOrder({ "donorId", "donorSubmitterId", "studyId", "donorGender", "specimens", "metadata" })
+@JsonInclude(JsonInclude.Include.ALWAYS)
 
-  @JsonProperty("donorGender")
-  private DonorGender donorGender;
+public class Donor extends Metadata {
 
-  @JsonProperty("specimens")
-  private Collection<Specimen> specimens;
+  private String donorId = "";
+  private String donorSubmitterId = "";
+  private String studyId = "";
+  private String donorGender = "";
+  private final Collection<Specimen> specimens = new ArrayList<>();
 
-  @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+  public static Donor create(String id, String submitterId, String studyId, String gender, String metadata) {
+    val d = new Donor();
+    d.setDonorId(id);
+    d.setStudyId(studyId);
+    d.setDonorSubmitterId(submitterId);
+    d.setDonorGender(gender);
+    d.addMetadata(metadata);
 
-  @JsonProperty("donorId")
-  public String getDonorId() {
-    return donorId;
+    return d;
   }
 
-  @JsonProperty("donorId")
-  public void setDonorId(String donorId) {
-    this.donorId = donorId;
-  }
-
-  public Donor withDonorId(String donorId) {
-    this.donorId = donorId;
-    return this;
-  }
-
-  @JsonProperty("donorSubmitterId")
-  public String getDonorSubmitterId() {
-    return donorSubmitterId;
-  }
-
-  @JsonProperty("donorSubmitterId")
-  public void setDonorSubmitterId(String donorSubmitterId) {
-    this.donorSubmitterId = donorSubmitterId;
-  }
-
-  public Donor withDonorSubmitterId(String donorSubmitterId) {
-    this.donorSubmitterId = donorSubmitterId;
-    return this;
-  }
-
-  @JsonProperty("donorGender")
-  public DonorGender getDonorGender() {
-    return donorGender;
-  }
-
-  @JsonProperty("donorGender")
-  public void setDonorGender(DonorGender donorGender) {
-    this.donorGender = donorGender;
-  }
-
-  public Donor withDonorGender(DonorGender donorGender) {
-    this.donorGender = donorGender;
-    return this;
-  }
-
-  @JsonProperty("specimens")
-  public Collection<Specimen> getSpecimens() {
-    return specimens;
+  public void setDonorGender(String gender) {
+    validate(DONOR_GENDER, gender);
+    this.donorGender = gender;
   }
 
   public void addSpecimen(Specimen specimen) {
     specimens.add(specimen);
   }
 
-  @JsonProperty("specimens")
   public void setSpecimens(Collection<Specimen> specimens) {
-    this.specimens = specimens;
+    this.specimens.clear();
+    this.specimens.addAll(specimens);
   }
 
-  public Donor withSpecimens(Collection<Specimen> specimens) {
-    this.specimens = specimens;
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
-  @JsonAnyGetter
-  public Map<String, Object> getAdditionalProperties() {
-    return this.additionalProperties;
-  }
-
-  @JsonAnySetter
-  public void setAdditionalProperty(String name, Object value) {
-    this.additionalProperties.put(name, value);
-  }
-
-  public Donor withAdditionalProperty(String name, Object value) {
-    this.additionalProperties.put(name, value);
-    return this;
-  }
-
-  public enum DonorGender {
-
-    MALE("male"), FEMALE("female"), UNSPECIFIED("unspecified");
-
-    private final String value;
-    private final static Map<String, DonorGender> CONSTANTS = new HashMap<String, DonorGender>();
-
-    static {
-      for (DonorGender c : DonorGender.values()) {
-        CONSTANTS.put(c.value, c);
-      }
-    }
-
-    DonorGender(String value) {
-      this.value = value;
-    }
-
-    @Override
-    public String toString() {
-      return this.value;
-    }
-
-    @JsonValue
-    public String value() {
-      return this.value;
-    }
-
-    @JsonCreator
-    public static DonorGender fromValue(String value) {
-      DonorGender constant = CONSTANTS.get(value);
-      if (constant == null) {
-        throw new IllegalArgumentException(value);
-      } else {
-        return constant;
-      }
-    }
-
-  }
 }

@@ -18,143 +18,27 @@
  */
 package org.icgc.dcc.sodalite.server.model.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
-import java.util.Map;
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import lombok.Data;
+import lombok.NonNull;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "studyId", "name", "organization", "description", "donors"
-})
-public class Study implements Entity {
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Data
+public class Study {
 
-  @JsonProperty("studyId")
+  @NonNull
   private String studyId;
-
-  @JsonProperty("name")
+  @NonNull
   private String name;
-
-  @JsonProperty("organization")
+  @NonNull
   private String organization;
-
-  @JsonProperty("description")
+  @NonNull
   private String description;
 
-  @JsonProperty("donors")
-  private Collection<Donor> donors;
-
-  @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-  @JsonProperty("studyId")
-  public String getStudyId() {
-    return studyId;
-  }
-
-  @JsonProperty("studyId")
-  public void setStudyId(String studyId) {
-    this.studyId = studyId;
-  }
-
-  public Study withStudyId(String studyId) {
-    this.studyId = studyId;
-    return this;
-  }
-
-  @JsonProperty("name")
-  public String getName() {
-    return name;
-  }
-
-  @JsonProperty("name")
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Study withName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  @JsonProperty("organization")
-  public String getOrganization() {
-    return organization;
-  }
-
-  @JsonProperty("organization")
-  public void setOrganization(String organization) {
-    this.organization = organization;
-  }
-
-  public Study withOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  @JsonProperty("description")
-  public String getDescription() {
-    return description;
-  }
-
-  @JsonProperty("description")
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public Study withDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
-  @JsonProperty("donors")
-  public Collection<Donor> getDonors() {
-    return donors;
-  }
-
-  @JsonProperty("donors")
-  public void setDonors(Collection<Donor> donors) {
-    this.donors = donors;
-  }
-
-  public void addDonor(Donor donor) {
-    donors.add(donor);
-  }
-
-  public void addDonors(Collection<Donor> donors) {
-    donors.addAll(donors);
-  }
-
-  public Study withDonors(Collection<Donor> donors) {
-    this.donors = donors;
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
-  @JsonAnyGetter
-  public Map<String, Object> getAdditionalProperties() {
-    return this.additionalProperties;
-  }
-
-  @JsonAnySetter
-  public void setAdditionalProperty(String name, Object value) {
-    this.additionalProperties.put(name, value);
-  }
-
-  public Study withAdditionalProperty(String name, Object value) {
-    this.additionalProperties.put(name, value);
-    return this;
-  }
+  private Collection<Donor> donors = new ArrayList<>();
 
 }

@@ -1,19 +1,37 @@
+/*
+ * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.                             
+ *                                                                                                               
+ * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License along with                                  
+ * this program. If not, see <http://www.gnu.org/licenses/>.                                                     
+ *                                                                                                               
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY                           
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES                          
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT                           
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                                
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED                          
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;                               
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER                              
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.icgc.dcc.sodalite.server.service;
 
-import static org.icgc.dcc.sodalite.server.model.utils.IdPrefix.Specimen;
+import static org.icgc.dcc.sodalite.server.model.enums.IdPrefix.Specimen;
 
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.entity.Specimen;
+import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+@RequiredArgsConstructor
 @Service
-@NoArgsConstructor
 public class SpecimenService {
 
   @Autowired
@@ -26,9 +44,9 @@ public class SpecimenService {
   public String create(String parentId, Specimen specimen) {
     val id = idService.generate(Specimen);
     specimen.setSpecimenId(id);
+    specimen.setDonorId(parentId);
     int status =
-        repository.save(id, parentId, specimen.getSpecimenSubmitterId(), specimen.getSpecimenClass().toString(),
-            specimen.getSpecimenType().toString());
+        repository.create(specimen);
     if (status != 1) {
       return "error: Can't create" + specimen.toString();
     }
@@ -36,9 +54,23 @@ public class SpecimenService {
     return "ok:" + id;
   }
 
+  public Specimen read(String id) {
+    val specimen = repository.read(id);
+    if (specimen == null) {
+      return null;
+    }
+    specimen.setSamples(sampleService.readByParentId(id));
+    return specimen;
+  }
+
+  public List<Specimen> readByParentId(String parentId) {
+    val specimens = repository.readByParentId(parentId);
+    specimens.forEach(s -> s.setSamples(sampleService.readByParentId(s.getSpecimenId())));
+    return specimens;
+  }
+
   public String update(Specimen s) {
-    repository.set(s.getSpecimenId(), s.getSpecimenSubmitterId(), s.getSpecimenClass().toString(),
-        s.getSpecimenType().toString());
+    repository.update(s);
     return "ok";
   }
 
@@ -49,33 +81,29 @@ public class SpecimenService {
   }
 
   public String deleteByParentId(String parentId) {
-    repository.getIds(parentId).forEach(this::delete);
+    repository.findByParentId(parentId).forEach(this::delete);
     return "ok";
   }
 
-  public Specimen getById(String id) {
-    val specimen = repository.getById(id);
-    if (specimen == null) {
-      return null;
+  public List<String> findByParentId(String donorId) {
+    return repository.findByParentId(donorId);
+  }
+
+  public String findByBusinessKey(String studyId, String submitterId) {
+    return repository.findByBusinessKey(studyId, submitterId);
+  }
+
+  public String save(String studyId, Specimen specimen) {
+    String specimenId = repository.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
+    if (specimenId == null) {
+      specimenId = idService.generate(IdPrefix.Specimen);
+      specimen.setSpecimenId(specimenId);
+      repository.create(specimen);
+    } else {
+      specimen.setSpecimenId(specimenId);
+      repository.update(specimen);
     }
-    specimen.setSamples(sampleService.findByParentId(id));
-    return specimen;
-  }
-
-  public List<Specimen> findByParentId(String parentId) {
-    val specimens = repository.findByParentId(parentId);
-    specimens.forEach(s -> s.setSamples(sampleService.findByParentId(s.getSpecimenId())));
-    return specimens;
-  }
-
-  /**
-   * @param studyId
-   * @param submitterId
-   * @return
-   */
-  public String getIdByBusinessKey(String studyId, String submitterId) {
-    // TODO Auto-generated method stub
-    return null;
+    return specimenId;
   }
 
 }

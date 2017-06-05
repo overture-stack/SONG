@@ -35,48 +35,30 @@
  *
  */
 
-package org.icgc.dcc.sodalite.server.model.entity;
+package org.icgc.dcc.sodalite.server.model.analysis;
 
-import static org.icgc.dcc.sodalite.server.model.enums.Constants.FILE_TYPE;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.LIBRARY_STRATEGY;
 import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
-
-import org.icgc.dcc.sodalite.server.model.Metadata;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.val;
 
-@EqualsAndHashCode(callSuper = false)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @Data
-public class File extends Metadata {
+public class SequencingRead {
 
-  private String objectId = "";
-  private String fileName = "";
-  private String sampleId = "";
-  private Long fileSize = -1L;
-  private String fileType = "";
-  private String fileMd5 = "";
+  private String analysisId;
+  private boolean aligned;
+  private String alignmentTool;
+  private int insertSize;
+  private String libraryStrategy;
+  private boolean pairedEnd;
+  private String referenceGenome;
 
-  public static File create(String id, String name, String sample, Long size, String type, String md5,
-      String metadata) {
-    val f = new File();
-    f.setObjectId(id);
-    f.setFileName(name);
-    f.setSampleId(sample);
-    f.setFileSize(size);
-    f.setFileType(type);
-    f.setFileMd5(md5);
-
-    f.addMetadata(metadata);
-    return f;
-  }
-
-  public void setFileType(String type) {
-    validate(FILE_TYPE, type);
-    fileType = type;
+  public void setLibraryStrategy(String strategy) {
+    validate(LIBRARY_STRATEGY, strategy);
+    libraryStrategy = strategy;
   }
 
 }

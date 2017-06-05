@@ -1,10 +1,28 @@
+/*
+ * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.                             
+ *                                                                                                               
+ * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License along with                                  
+ * this program. If not, see <http://www.gnu.org/licenses/>.                                                     
+ *                                                                                                               
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY                           
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES                          
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT                           
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                                
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED                          
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;                               
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER                              
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.icgc.dcc.sodalite.server.service;
 
-import static org.icgc.dcc.sodalite.server.model.utils.IdPrefix.Donor;
+import static org.icgc.dcc.sodalite.server.model.enums.IdPrefix.Donor;
 
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.entity.Donor;
+import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.DonorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,10 +41,11 @@ public class DonorService {
   @Autowired
   SpecimenService specimenService;
 
-  public String create(String parentId, Donor d) {
+  public String create(Donor d) {
     val id = idService.generate(Donor);
     d.setDonorId(id);
-    int status = donorRepository.save(id, parentId, d.getDonorSubmitterId(), d.getDonorGender().toString());
+
+    int status = donorRepository.create(d);
     if (status != 1) {
       return "error: Can't create" + d.toString();
     }
@@ -35,8 +54,23 @@ public class DonorService {
     return "ok:" + id;
   }
 
-  public String update(String studyId, Donor d) {
-    if (donorRepository.set(d.getDonorId(), studyId, d.getDonorSubmitterId(), d.getDonorGender().toString()) == 1) {
+  public Donor read(String id) {
+    val donor = donorRepository.read(id);
+    if (donor == null) {
+      return null;
+    }
+    donor.setSpecimens(specimenService.readByParentId(id));
+    return donor;
+  }
+
+  public List<Donor> readByParentId(String parentId) {
+    val donors = donorRepository.readByParentId(parentId);
+    donors.forEach(d -> d.setSpecimens(specimenService.readByParentId(d.getDonorId())));
+    return donors;
+  }
+
+  public String update(Donor d) {
+    if (donorRepository.update(d) == 1) {
       return "Updated";
     }
     return "Failed";
@@ -49,24 +83,24 @@ public class DonorService {
   }
 
   public String deleteByParentId(String studyId) {
-    donorRepository.getIds(studyId).forEach(id -> delete(studyId, id));
+    donorRepository.findByParentId(studyId).forEach(id -> delete(studyId, id));
 
     return "OK";
   }
 
-  public Donor getById(String studyId, String id) {
-    val donor = donorRepository.getById(studyId, id);
-    if (donor == null) {
-      return null;
-    }
-    donor.setSpecimens(specimenService.findByParentId(id));
-    return donor;
-  }
+  public String save(String studyId, Donor d) {
+    d.setStudyId(studyId);
 
-  public List<Donor> findByParentId(String parentId) {
-    val donors = donorRepository.findByParentId(parentId);
-    donors.forEach(d -> d.setSpecimens(specimenService.findByParentId(d.getDonorId())));
-    return donors;
+    String donorId = donorRepository.findByBusinessKey(studyId, d.getDonorSubmitterId());
+    if (donorId == null) {
+      donorId = idService.generate(IdPrefix.Donor);
+      d.setDonorId(donorId);
+      System.err.printf("Creating new donor with id=%s,gender='%s'\n", donorId, d.getDonorGender());
+      donorRepository.create(d);
+    } else {
+      donorRepository.update(d);
+    }
+    return donorId;
   }
 
 }

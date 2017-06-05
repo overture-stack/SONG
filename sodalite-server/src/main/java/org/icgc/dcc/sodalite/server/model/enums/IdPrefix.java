@@ -15,8 +15,20 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.model.analysis;
+package org.icgc.dcc.sodalite.server.model.enums;
 
-public enum AnalysisType {
-  sequencingRead, variantCall, MAF
+public enum IdPrefix {
+  Donor("DO"), Specimen("SP"), Sample("SA"), File("FI"), Upload("UP"), Analysis("AN");
+
+  private String value;
+
+  IdPrefix(String value) {
+    this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return this.value;
+  }
+
 }

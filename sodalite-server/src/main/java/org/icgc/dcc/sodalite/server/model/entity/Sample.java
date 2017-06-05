@@ -19,153 +19,53 @@
 
 package org.icgc.dcc.sodalite.server.model.entity;
 
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.SAMPLE_TYPE;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
+
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.fasterxml.jackson.annotation.*;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.icgc.dcc.sodalite.server.model.Metadata;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "sampleId", "sampleSubmitterId", "sampleType", "files"
-})
-public class Sample implements Entity {
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-  @JsonProperty("sampleId")
-  private String sampleId;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.val;
 
-  @JsonProperty("sampleSubmitterId")
-  private String sampleSubmitterId;
+@EqualsAndHashCode(callSuper = false)
+@Data
+@JsonInclude(JsonInclude.Include.ALWAYS)
+public class Sample extends Metadata {
 
-  @JsonProperty("sampleType")
-  private SampleType sampleType;
+  private String sampleId = "";
+  private String sampleSubmitterId = "";
+  private String specimenId = "";
+  private String sampleType = "";
+  private Collection<File> files = new ArrayList<>();
 
-  @JsonProperty("files")
-  private Collection<File> files = null;
-
-  @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-  @JsonProperty("sampleId")
-  public String getSampleId() {
-    return sampleId;
+  public static Sample create(String id, String submitter, String specimen, String type, String metadata) {
+    val sample = new Sample();
+    sample.setSampleId(id);
+    sample.setSampleSubmitterId(submitter);
+    sample.setSpecimenId(specimen);
+    sample.setSampleType(type);
+    sample.addMetadata(metadata);
+    return sample;
   }
 
-  @JsonProperty("sampleId")
-  public void setSampleId(String sampleId) {
-    this.sampleId = sampleId;
+  public void setSampleType(String type) {
+    validate(SAMPLE_TYPE, type);
+    sampleType = type;
   }
 
-  public Sample withSampleId(String sampleId) {
-    this.sampleId = sampleId;
-    return this;
-  }
-
-  @JsonProperty("sampleSubmitterId")
-  public String getSampleSubmitterId() {
-    return sampleSubmitterId;
-  }
-
-  @JsonProperty("sampleSubmitterId")
-  public void setSampleSubmitterId(String sampleSubmitterId) {
-    this.sampleSubmitterId = sampleSubmitterId;
-  }
-
-  public Sample withSampleSubmitterId(String sampleSubmitterId) {
-    this.sampleSubmitterId = sampleSubmitterId;
-    return this;
-  }
-
-  @JsonProperty("sampleType")
-  public SampleType getSampleType() {
-    return sampleType;
-  }
-
-  @JsonProperty("sampleType")
-  public void setSampleType(SampleType sampleType) {
-    this.sampleType = sampleType;
-  }
-
-  public Sample withSampleType(SampleType sampleType) {
-    this.sampleType = sampleType;
-    return this;
-  }
-
-  @JsonProperty("files")
-  public Collection<File> getFiles() {
-    return files;
-  }
-
-  @JsonProperty("files")
   public void setFiles(Collection<File> files) {
-    this.files = files;
-  }
-
-  public Sample withFiles(Collection<File> files) {
-    this.files = files;
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
-  @JsonAnyGetter
-  public Map<String, Object> getAdditionalProperties() {
-    return this.additionalProperties;
-  }
-
-  @JsonAnySetter
-  public void setAdditionalProperty(String name, Object value) {
-    this.additionalProperties.put(name, value);
-  }
-
-  public Sample withAdditionalProperty(String name, Object value) {
-    this.additionalProperties.put(name, value);
-    return this;
+    this.files.clear();
+    this.files.addAll(files);
   }
 
   public void addFile(File f) {
     files.add(f);
   }
 
-  public static enum SampleType {
-
-    DNA("DNA"), FFPE_DNA("FFPE DNA"), AMPLIFIED_DNA("Amplified DNA"), RNA("RNA"), TOTAL_RNA("Total RNA"), FFPE_RNA("FFPE RNA");
-
-    private final String value;
-    private final static Map<String, SampleType> CONSTANTS = new HashMap<String, SampleType>();
-
-    static {
-      for (SampleType c : SampleType.values()) {
-        CONSTANTS.put(c.value, c);
-      }
-    }
-
-    private SampleType(String value) {
-      this.value = value;
-    }
-
-    @Override
-    public String toString() {
-      return this.value;
-    }
-
-    @JsonValue
-    public String value() {
-      return this.value;
-    }
-
-    @JsonCreator
-    public static SampleType fromValue(String value) {
-      SampleType constant = CONSTANTS.get(value);
-      if (constant == null) {
-        throw new IllegalArgumentException(value);
-      } else {
-        return constant;
-      }
-    }
-
-  }
 }

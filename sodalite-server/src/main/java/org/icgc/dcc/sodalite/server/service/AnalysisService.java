@@ -1,19 +1,39 @@
+/*
+ * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.                             
+ *                                                                                                               
+ * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License along with                                  
+ * this program. If not, see <http://www.gnu.org/licenses/>.                                                     
+ *                                                                                                               
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY                           
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES                          
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT                           
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                                
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED                          
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;                               
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER                              
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.icgc.dcc.sodalite.server.service;
+
+import static java.lang.String.format;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.ANALYSIS_TYPE;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.icgc.dcc.sodalite.server.model.analysis.AnalysisType;
 import org.icgc.dcc.sodalite.server.model.entity.File;
-import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
+import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.icgc.dcc.sodalite.server.repository.AnalysisRepository;
 import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -33,22 +53,22 @@ public class AnalysisService {
   private final EntityService entityService;
 
   @SneakyThrows
-  public AnalysisType getAnalysisType(String json) {
+  public String getAnalysisType(String json) {
     return getAnalysisType(JsonUtils.readTree(json));
   }
 
-  public AnalysisType getAnalysisType(JsonNode node) {
-    for (val type : AnalysisType.values()) {
-      log.info("Checking analysis type " + type.toString());
-      if (node.has(type.toString())) {
+  public String getAnalysisType(JsonNode node) {
+    for (val type : ANALYSIS_TYPE) {
+      log.info("Checking analysis type " + type);
+      if (node.has(type)) {
         return type;
       }
     }
     return null;
   }
 
-  void createAnalysis(String id, String studyId, AnalysisType type) {
-    repository.createAnalysis(id, studyId, type.toString());
+  void createAnalysis(String id, String studyId, String type) {
+    repository.createAnalysis(id, studyId, type);
   }
 
   @SneakyThrows
@@ -69,9 +89,9 @@ public class AnalysisService {
 
     val analysis = node.get(type.toString());
     switch (type) {
-    case sequencingRead:
+    case "sequencingRead":
       return createSequencingRead(id, analysis);
-    case variantCall:
+    case "variantCall":
       return createVariantCall(id, analysis);
     default:
       return "Upload Analysis failed: Unknown Analysis Type";
@@ -82,21 +102,31 @@ public class AnalysisService {
     repository.addFile(id, fileId);
   }
 
+  ObjectNode get(JsonNode root, String key) {
+    val node = root.get(key);
+    if (node.isObject()) {
+      return (ObjectNode) node;
+    }
+    throw new IllegalArgumentException(format("node '%s'{%s} is not an object node", node, key));
+  }
+
   @SneakyThrows
   Collection<String> saveStudy(String studyId, JsonNode study) {
     val fileIds = new HashSet<String>();
 
-    val donor = study.get("donor");
+    val donor = get(study, "donor");
+    val specimen = donor.get("specimen");
+    val sample = specimen.get("sample");
+    val files = sample.get("files");
 
+    donor.put("studyId", studyId);
+    donor.remove("specimen");
     val donorId = entityService.saveDonor(studyId, donor);
 
-    val specimen = donor.get("specimen");
     val specimenId = entityService.saveSpecimen(studyId, donorId, specimen);
 
-    val sample = specimen.get("sample");
     val sampleId = entityService.saveSample(studyId, specimenId, sample);
 
-    val files = sample.get("files");
     for (val file : files) {
       val fileId = entityService.saveFile(studyId, sampleId, file);
       fileIds.add(fileId);
@@ -141,7 +171,7 @@ public class AnalysisService {
     return null;
   }
 
-  public List<File> getFilesById(String id) {
+  public List<File> readFilesByAnalysisId(String id) {
     return repository.getFilesById(id);
   }
 

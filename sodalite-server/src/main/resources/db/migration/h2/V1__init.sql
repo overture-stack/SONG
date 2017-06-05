@@ -56,7 +56,7 @@ CREATE DOMAIN analysis_type as TEXT CHECK(VALUE IN('sequencingRead','variantCall
 DROP TABLE IF EXISTS Study,Donor,Specimen,Sample,File,Analysis,VariantCallAnalysis,Submission;
  
 CREATE TABLE Study(id VARCHAR(36) PRIMARY KEY, name TEXT, description TEXT, organization TEXT);
-CREATE TABLE Donor(id VARCHAR(16) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT, gender GENDER);
+CREATE TABLE Donor(id VARCHAR(16) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT, gender GENDER, info TEXT);
 CREATE TABLE Specimen(id VARCHAR(16) PRIMARY KEY, donor_id VARCHAR(16) references Donor, submitter_id TEXT, class SPECIMEN_CLASS, type SPECIMEN_TYPE);
 CREATE TABLE Sample(id VARCHAR(16) PRIMARY KEY, specimen_id VARCHAR(16) references Specimen, submitter_id TEXT, type SAMPLE_TYPE);
 CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, sample_id VARCHAR(36) references Sample, name TEXT, size BIGINT, md5 CHAR(32), type FILE_TYPE, metadata_doc TEXT);

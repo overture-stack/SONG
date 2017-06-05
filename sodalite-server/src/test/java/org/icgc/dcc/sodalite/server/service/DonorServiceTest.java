@@ -1,13 +1,29 @@
+/*
+ * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.                             
+ *                                                                                                               
+ * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License along with                                  
+ * this program. If not, see <http://www.gnu.org/licenses/>.                                                     
+ *                                                                                                               
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY                           
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES                          
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT                           
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                                
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED                          
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;                               
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER                              
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.icgc.dcc.sodalite.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
 
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.sodalite.server.model.entity.Donor;
 import org.icgc.dcc.sodalite.server.model.entity.Specimen;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +37,7 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class DonorServiceTest {
@@ -34,10 +50,10 @@ public class DonorServiceTest {
   @Test
   public void testReadDonor() {
     // check for data that we know exists in the H2 database already
-    val d = service.getById("ABC123", "DO1");
+    val d = service.read("DO1");
     assertThat(d != null);
     assertThat(d.getDonorId()).isEqualTo("DO1");
-    assertThat(d.getDonorGender()).isEqualTo(Donor.DonorGender.MALE);
+    assertThat(d.getDonorGender()).isEqualTo("male");
     assertThat(d.getDonorSubmitterId()).isEqualTo("Subject-X23Alpha7");
     assertThat(d.getSpecimens().size()).isEqualTo(2);
 
@@ -48,51 +64,58 @@ public class DonorServiceTest {
   }
 
   Specimen getMatchingSpecimen(Specimen specimen) {
-    return specimenService.getById(specimen.getSpecimenId());
+    return specimenService.read(specimen.getSpecimenId());
   }
 
   @Test
   public void testCreateAndDeleteDonor() {
-    val d = new Donor()
-        .withDonorGender(Donor.DonorGender.UNSPECIFIED)
-        .withDonorSubmitterId("Subject X21-Alpha")
-        .withSpecimens(new ArrayList<Specimen>());
-    assertThat(d.getDonorId()).isNull();
+    val json = JsonUtils.mapper().createObjectNode();
+    val studyId = "XYZ234";
+    json.put("donorId", "");
+    json.put("donorSubmitterId", "Subject X21-Alpha");
+    json.put("studyId", studyId);
+    json.put("donorGender", "unspecified");
 
-    val status = service.create("XYZ234", d);
+    val d = JsonUtils.mapper().convertValue(json, Donor.class);
+
+    assertThat(d.getDonorId()).isEqualTo("");
+
+    val status = service.create(d);
     val id = d.getDonorId();
 
     assertThat(id).startsWith("DO");
     assertThat(status).isEqualTo("ok:" + id);
 
-    Donor check = service.getById("XYZ234", id);
+    Donor check = service.read(id);
     assertThat(d).isEqualToComparingFieldByField(check);
 
     service.delete("XYZ234", id);
-    Donor check2 = service.getById("XYZ234", id);
+    Donor check2 = service.read(id);
     assertThat(check2).isNull();
   }
 
   @Test
   public void testUpdateDonor() {
-    val d = new Donor()
-        .withDonorGender(Donor.DonorGender.MALE)
-        .withDonorSubmitterId("Triangle-Arrow-S")
-        .withSpecimens(new ArrayList<Specimen>());
+    val studyId = "ABC123";
 
-    service.create("ABC123", d);
+    val d = new Donor();
+    d.setDonorId("");
+    d.setDonorSubmitterId("Triangle-Arrow-S");
+    d.setStudyId(studyId);
+    d.setDonorGender("male");
+    service.create(d);
 
     val id = d.getDonorId();
 
-    val d2 = new Donor()
-        .withDonorId(id)
-        .withDonorGender(Donor.DonorGender.FEMALE)
-        .withDonorSubmitterId("X21-Beta-17")
-        .withSpecimens(new ArrayList<Specimen>());
+    val d2 = new Donor();
+    d2.setDonorId(id);
+    d2.setDonorSubmitterId("X21-Beta-17");
+    d2.setStudyId(studyId);
+    d2.setDonorGender("female");
 
-    service.update("ABC123", d2);
+    service.update(d2);
 
-    val d3 = service.getById("ABC123", id);
+    val d3 = service.read(id);
     assertThat(d3).isEqualToComparingFieldByField(d2);
   }
 

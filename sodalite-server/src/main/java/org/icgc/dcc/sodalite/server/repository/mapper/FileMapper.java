@@ -17,25 +17,19 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.icgc.dcc.sodalite.server.model.entity.File;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 public class FileMapper implements ResultSetMapper<File> {
 
-  public File map(int index, ResultSet r, StatementContext ctx) throws SQLException { // I prefer braces on next line
-                                                                                      // when declaring exception throws
-                                                                                      // in method signature - Dušan
-    return new File()
-        .withObjectId(r.getString("id"))
-        .withFileType(File.FileType.valueOf(r.getString("type")))
-        .withFileName(r.getString("name"))
-        .withFileSize(r.getLong("size"))
-        .withFileMd5(r.getString("md5"))
-        .withMetadataDoc(r.getString("metadata_doc"));
+  @Override
+  public File map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+    return File.create(r.getString("id"), r.getString("name"), r.getString("sample_id"),
+        r.getLong("size"), r.getString("type"), r.getString("md5"), r.getString("metadata_doc"));
   }
 
 }

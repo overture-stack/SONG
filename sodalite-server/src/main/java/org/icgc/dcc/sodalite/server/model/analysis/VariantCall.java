@@ -16,49 +16,21 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+package org.icgc.dcc.sodalite.server.model.analysis;
 
-package org.icgc.dcc.sodalite.server.model.analysis.sequencingRead;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.HashMap;
-import java.util.Map;
+import lombok.Data;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+@Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class VariantCall {
 
-public enum LibraryStrategy {
+  private String analysisId;
+  private String variantCallingTool;
+  private String tumourSampleSubmitterId;
+  private String tumourSampleId;
+  private String matchedNormalSampleSubmitterId;
+  private String matchedNormalSampleId;
 
-  WGS("WGS"), WXS("WXS"), RNA_SEQ("RNA-Seq"), CH_IP_SEQ("ChIP-Seq"), MI_RNA_SEQ("miRNA-Seq"), BISULFITE_SEQ("Bisulfite-Seq"), VALIDATION("Validation"), AMPLICON("Amplicon"), OTHER("Other");
-
-  private final String value;
-  private final static Map<String, LibraryStrategy> CONSTANTS = new HashMap<String, LibraryStrategy>();
-
-  static {
-    for (LibraryStrategy c : values()) {
-      CONSTANTS.put(c.value, c);
-    }
-  }
-
-  private LibraryStrategy(String value) {
-    this.value = value;
-  }
-
-  @Override
-  public String toString() {
-    return this.value;
-  }
-
-  @JsonValue
-  public String value() {
-    return this.value;
-  }
-
-  @JsonCreator
-  public static LibraryStrategy fromValue(String value) {
-    LibraryStrategy constant = CONSTANTS.get(value);
-    if (constant == null) {
-      throw new IllegalArgumentException(value);
-    } else {
-      return constant;
-    }
-  }
 }

@@ -24,29 +24,17 @@ import org.icgc.dcc.sodalite.server.model.Upload;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import lombok.val;
-
 public class UploadMapper implements ResultSetMapper<Upload> {
 
   @Override
   public Upload map(int index, ResultSet rs, StatementContext ctx) throws SQLException {
-    Upload status = new Upload();
-    status.withUploadId(rs.getString("id"))
-        .withStudyId(rs.getString("study_id"))
-        .withState(rs.getString("state"))
-        .withPayload(rs.getString("payload"))
-        .withCreatedAt(rs.getTimestamp("created_at").toLocalDateTime())
-        .withUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-
-    String errorString = rs.getString("errors");
-    if (errorString == null) {
-      errorString = "";
-    }
-    String[] errors = errorString.split("\\|");
-    for (val e : errors) {
-      status.withError(e);
-    }
-    return status;
+    return Upload.create(rs.getString("id"),
+        rs.getString("study_id"),
+        rs.getString("state"),
+        rs.getString("errors"),
+        rs.getString("payload"),
+        rs.getTimestamp("created_at").toLocalDateTime(),
+        rs.getTimestamp("updated_at").toLocalDateTime());
   }
 
 }

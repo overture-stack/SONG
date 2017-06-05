@@ -1,8 +1,23 @@
+/*
+ * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.                             
+ *                                                                                                               
+ * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License along with                                  
+ * this program. If not, see <http://www.gnu.org/licenses/>.                                                     
+ *                                                                                                               
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY                           
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES                          
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT                           
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                                
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED                          
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;                               
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER                              
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.icgc.dcc.sodalite.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
 
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
@@ -21,7 +36,7 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class SpecimenServiceTest {
@@ -34,11 +49,11 @@ public class SpecimenServiceTest {
   @Test
   public void testReadSpecimen() {
     val id = "SP1";
-    Specimen specimen = specimenService.getById(id);
+    Specimen specimen = specimenService.read(id);
     assertThat(specimen.getSpecimenId()).isEqualTo(id);
     assertThat(specimen.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
-    assertThat(specimen.getSpecimenClass()).isEqualTo(Specimen.SpecimenClass.TUMOUR);
-    assertThat(specimen.getSpecimenType()).isEqualTo(Specimen.SpecimenType.RECURRENT_TUMOUR_SOLID_TISSUE);
+    assertThat(specimen.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen.getSpecimenType()).isEqualTo("Recurrent tumour - solid tissue");
     assertThat(specimen.getSamples().size()).isEqualTo(2);
 
     // Verify that we got the same samples as the sample service says we should.
@@ -46,16 +61,24 @@ public class SpecimenServiceTest {
   }
 
   private Sample getSample(String id) {
-    return sampleService.getById(id);
+    return sampleService.read(id);
+  }
+
+  private Specimen createSpecimen(String id, String submitterId, String donorId, String specimenClass, String type) {
+    val sp = new Specimen();
+    sp.setSpecimenId(id);
+    sp.setSpecimenSubmitterId(submitterId);
+    sp.setDonorId(donorId);
+    sp.setSpecimenClass(specimenClass);
+    sp.setSpecimenType(type);
+    return sp;
+
   }
 
   @Test
   public void testCreateAndDeleteSpecimen() {
-    Specimen s = new Specimen()
-        .withSpecimenSubmitterId("Specimen 101 Ipsilon Prime")
-        .withSpecimenType(Specimen.SpecimenType.CELL_LINE_DERIVED_FROM_TUMOUR)
-        .withSpecimenClass(Specimen.SpecimenClass.TUMOUR)
-        .withSamples(new ArrayList<Sample>());
+    val donorId = "";
+    Specimen s = createSpecimen("", "Specimen 101 Ipsilon Prime", donorId, "Tumour", "Cell line - derived from tumour");
 
     val status = specimenService.create("DO2", s);
     val id = s.getSpecimenId();
@@ -63,36 +86,29 @@ public class SpecimenServiceTest {
     assertThat(id).startsWith("SP");
     assertThat(status).isEqualTo("ok:" + id);
 
-    val check = specimenService.getById(id);
+    val check = specimenService.read(id);
     assertThat(s).isEqualToComparingFieldByField(check);
 
     specimenService.delete(id);
-    Specimen check2 = specimenService.getById(id);
+    Specimen check2 = specimenService.read(id);
     assertThat(check2).isNull();
   }
 
   @Test
   public void testUpdateSpecimen() {
-    val s = new Specimen()
-        .withSpecimenSubmitterId("Specimen 102 Chiron-Beta Prime")
-        .withSpecimenType(Specimen.SpecimenType.METASTATIC_TUMOUR_ADDITIONAL_METASTATIC)
-        .withSpecimenClass(Specimen.SpecimenClass.TUMOUR)
-        .withSamples(new ArrayList<Sample>());
+    val donorId = "";
+    val s = createSpecimen("", "Specimen 102 Chiron-Beta Prime", donorId, "Tumour",
+        "Metastatic tumour - additional metastatic");
 
     specimenService.create("DO2", s);
 
     val id = s.getSpecimenId();
 
-    val s2 = new Specimen()
-        .withSpecimenId(id)
-        .withSpecimenSubmitterId("Specimen 102")
-        .withSpecimenType(Specimen.SpecimenType.NORMAL_OTHER)
-        .withSpecimenClass(Specimen.SpecimenClass.NORMAL)
-        .withSamples(new ArrayList<Sample>());
+    val s2 = createSpecimen(id, "Specimen 102", s.getDonorId(), "Normal", "Normal - other");
 
     specimenService.update(s2);
 
-    val s3 = specimenService.getById(id);
+    val s3 = specimenService.read(id);
     assertThat(s3).isEqualToComparingFieldByField(s2);
   }
 

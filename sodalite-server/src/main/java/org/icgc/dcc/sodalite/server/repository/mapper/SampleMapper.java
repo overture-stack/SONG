@@ -17,23 +17,22 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.icgc.dcc.sodalite.server.model.entity.Sample;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import lombok.val;
 
 public class SampleMapper implements ResultSetMapper<Sample> {
 
-  public Sample map(int index, ResultSet r, StatementContext ctx) throws SQLException { // I prefer braces on next line
-                                                                                        // when declaring exception
-                                                                                        // throws in method signature -
-                                                                                        // Dušan
-    return new Sample()
-        .withSampleId(r.getString("id"))
-        .withSampleType(Sample.SampleType.fromValue(r.getString("type")))
-        .withSampleSubmitterId(r.getString("submitter_id"));
+  @Override
+  public Sample map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+    val metadata = ""; // TODO: Fix this when we modify the table definitions
+    return Sample.create(r.getString("id"), r.getString("submitter_id"), r.getString("specimen_id"),
+        r.getString("type"), metadata);
   }
 
 }

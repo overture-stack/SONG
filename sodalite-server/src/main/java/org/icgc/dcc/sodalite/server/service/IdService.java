@@ -19,7 +19,7 @@ package org.icgc.dcc.sodalite.server.service;
 
 import static java.lang.String.format;
 
-import org.icgc.dcc.sodalite.server.model.utils.IdPrefix;
+import org.icgc.dcc.sodalite.server.model.enums.IdPrefix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

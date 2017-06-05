@@ -61,7 +61,7 @@ public class UploadController {
   @GetMapping(value = "/{studyId}/status/{uploadId}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public @ResponseBody Upload status(@PathVariable("uploadId") String uploadId) {
-    return uploadService.status(uploadId);
+    return uploadService.read(uploadId);
   }
 
   @PostMapping(value = "/{studyId}/publish/{uploadId}")

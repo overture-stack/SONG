@@ -17,15 +17,15 @@
  */
 package org.icgc.dcc.sodalite.server.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-
 import java.util.List;
 
 import org.icgc.dcc.sodalite.server.model.entity.Study;
 import org.icgc.dcc.sodalite.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
 @Service
 @RequiredArgsConstructor
@@ -40,33 +40,27 @@ public class StudyService {
   DonorService donorService;
 
   @SneakyThrows
-  public Study getStudy(String studyId) {
-    return studyRepository.get(studyId);
+  public Study read(String studyId) {
+    return studyRepository.read(studyId);
   }
 
   @SneakyThrows
-  public Study getEntireStudy(String studyId) {
-    Study study = studyRepository.get(studyId);
+  public Study readWithChildren(String studyId) {
+    Study study = studyRepository.read(studyId);
     if (study == null) {
       return null;
     }
-    study.setDonors(donorService.findByParentId(studyId));
+    study.setDonors(donorService.readByParentId(studyId));
     return study;
   }
 
   @SneakyThrows
-  public List<Study> getStudyByName(String name) {
-    return studyRepository.getByName(name);
+  public List<Study> readByName(String name) {
+    return studyRepository.readByName(name);
   }
 
-  /**
-   * We manually determine study id because it's a meaningful abbreviation usually pre-determined.
-   * 
-   * @param study
-   * @return
-   */
   public int saveStudy(Study study) {
-    return studyRepository.save(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
+    return studyRepository.create(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
   }
 
 }

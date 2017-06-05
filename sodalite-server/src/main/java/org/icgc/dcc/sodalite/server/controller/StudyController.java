@@ -52,12 +52,12 @@ public class StudyController {
 
   @GetMapping("/{studyId}")
   public List<Study> getStudy(@PathVariable("studyId") String studyId) {
-    return Arrays.asList(studyService.getStudy(studyId));
+    return Arrays.asList(studyService.read(studyId));
   }
 
   @GetMapping("/{studyId}/all")
   public Study getEntireStudy(@PathVariable("studyId") String studyId) {
-    return studyService.getEntireStudy(studyId);
+    return studyService.readWithChildren(studyId);
   }
 
   @PostMapping(value = "/{studyId}/", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })

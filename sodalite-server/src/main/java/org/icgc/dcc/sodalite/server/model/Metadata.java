@@ -15,20 +15,43 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.sodalite.server.model.utils;
+package org.icgc.dcc.sodalite.server.model;
 
-public enum IdPrefix {
-  Donor("DO"), Specimen("SP"), Sample("SA"), File("FI"), Upload("UP"), Analysis("AN");
+import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
 
-  private String value;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 
-  IdPrefix(String value) {
-    this.value = value;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+
+import lombok.val;
+
+public class Metadata {
+
+  private final Map<String, Object> metadata = new TreeMap<>();
+
+  @JsonAnySetter
+  public void setMetadata(String key, Object value) {
+    metadata.put(key, value);
   }
 
-  @Override
-  public String toString() {
-    return this.value;
+  @SuppressWarnings("unchecked")
+  public void addMetadata(String json) {
+    if (json == null || json.equals("")) {
+      return;
+    }
+    Map<String, Object> m;
+    try {
+      m = JsonUtils.toMap(json);
+    } catch (IllegalArgumentException | IOException e) {
+      val j = JsonUtils.ObjectNode().put("metadata", json);
+      m = JsonUtils.convertValue(j, Map.class);
+    }
+    metadata.putAll(m);
   }
 
+  public String getMetadata() {
+    return JsonUtils.toJson(metadata);
+  }
 }

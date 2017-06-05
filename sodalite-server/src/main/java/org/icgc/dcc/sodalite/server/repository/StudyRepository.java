@@ -29,16 +29,17 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(StudyMapper.class)
 public interface StudyRepository {
 
-  @SqlUpdate("INSERT INTO study (id, name,  description) VALUES (:id, :name, :description)")
-  int save(@Bind("id") String id, @Bind("name") String name, @Bind("organization") String organization,
+  @SqlUpdate("INSERT INTO study (id, name,  organization, description) VALUES (:id, :name, :organization, :description)")
+  int create(@Bind("id") String id, @Bind("name") String name, @Bind("organization") String organization,
       @Bind("description") String description);
 
   @SqlUpdate("UPDATE study SET name=:name, description=:description where id=:id")
   int set(@Bind("id") String id, @Bind("name") String name, @Bind("description") String description);
 
-  @SqlQuery("SELECT id, name, description FROM study WHERE id = :studyId")
-  Study get(@Bind("studyId") String id);
+  @SqlQuery("SELECT id, name, organization, description FROM study WHERE id = :studyId")
+  Study read(@Bind("studyId") String id);
 
-  @SqlQuery("SELECT id, name, description FROM study WHERE name = :name")
-  List<Study> getByName(@Bind("name") String name);
+  @SqlQuery("SELECT id, name, organization, description FROM study WHERE name = :name")
+  List<Study> readByName(@Bind("name") String name);
+
 }

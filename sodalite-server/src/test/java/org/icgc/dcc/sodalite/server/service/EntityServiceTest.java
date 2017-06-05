@@ -1,14 +1,26 @@
+/*
+ * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.                             
+ *                                                                                                               
+ * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License along with                                  
+ * this program. If not, see <http://www.gnu.org/licenses/>.                                                     
+ *                                                                                                               
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY                           
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES                          
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT                           
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                                
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED                          
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;                               
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER                              
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.icgc.dcc.sodalite.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
-import org.icgc.dcc.sodalite.server.model.entity.Donor.DonorGender;
-import org.icgc.dcc.sodalite.server.model.entity.File.FileType;
-import org.icgc.dcc.sodalite.server.model.entity.Sample.SampleType;
-import org.icgc.dcc.sodalite.server.model.entity.Specimen.SpecimenClass;
-import org.icgc.dcc.sodalite.server.model.entity.Specimen.SpecimenType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +67,8 @@ public class EntityServiceTest {
     // in the existing test data for "donor_abc123"
     val id = service.saveDonor(studyId, donor);
 
-    val d = donorService.getById(studyId, id);
-    assertThat(d.getDonorGender().equals(DonorGender.FEMALE));
+    val d = donorService.read(id);
+    assertThat(d.getDonorGender().equals("female"));
     assertThat(d.getDonorSubmitterId().equals("donor_abc123"));
     assertThat(d.getDonorId().equals(id));
   }
@@ -74,8 +86,8 @@ public class EntityServiceTest {
     val id = service.saveDonor(studyId, donor);
 
     // check that what we saved is what's in the database...
-    val d = donorService.getById(studyId, id);
-    assertThat(d.getDonorGender().equals(DonorGender.FEMALE));
+    val d = donorService.read(id);
+    assertThat(d.getDonorGender().equals("female"));
     assertThat(d.getDonorSubmitterId().equals("Subject-X23Alpha7"));
     assertThat(d.getDonorId().equals(id));
 
@@ -95,10 +107,10 @@ public class EntityServiceTest {
     val donorId = "DO1";
 
     val id = service.saveSpecimen(studyId, donorId, specimen);
-    val sp = specimenService.getById(id);
+    val sp = specimenService.read(id);
     assertThat(sp.getSpecimenId().equals(id));
-    assertThat(sp.getSpecimenClass().equals(SpecimenClass.NORMAL));
-    assertThat(sp.getSpecimenType().equals(SpecimenType.NORMAL_SOLID_TISSUE));
+    assertThat(sp.getSpecimenClass()).isEqualTo("Normal");
+    assertThat(sp.getSpecimenType()).isEqualTo("Normal - solid tissue");
   }
 
   @SneakyThrows
@@ -113,12 +125,12 @@ public class EntityServiceTest {
     val donorId = "DO1";
 
     val id = service.saveSpecimen(studyId, donorId, specimen);
-    val sp = specimenService.getById(id);
+    val sp = specimenService.read(id);
     assertThat(id.equals("SP1"));
     assertThat(sp.getSpecimenId().equals(id));
     assertThat(sp.getSpecimenSubmitterId().equals("Tissue-Culture 284 Gamma 3"));
-    assertThat(sp.getSpecimenClass().equals(SpecimenClass.TUMOUR));
-    assertThat(sp.getSpecimenType().equals(SpecimenType.RECURRENT_TUMOUR_OTHER));
+    assertThat(sp.getSpecimenClass().equals("Tumour"));
+    assertThat(sp.getSpecimenType().equals("Recurrent tumour - other"));
   }
 
   @SneakyThrows
@@ -133,10 +145,10 @@ public class EntityServiceTest {
     val specimenId = "SP1";
 
     val id = service.saveSample(studyId, specimenId, sample);
-    val sa = sampleService.getById(id);
-    assertThat(sa.getSampleId().equals(id));
-    assertThat(sa.getSampleType().equals(SampleType.TOTAL_RNA));
-    assertThat(sa.getSampleSubmitterId().equals("sample_abc123"));
+    val sa = sampleService.read(id);
+    assertThat(sa.getSampleId()).isEqualTo(id);
+    assertThat(sa.getSampleType()).isEqualTo("Total RNA");
+    assertThat(sa.getSampleSubmitterId()).isEqualTo("sample_abc123");
   }
 
   @SneakyThrows
@@ -151,10 +163,10 @@ public class EntityServiceTest {
     val specimenId = "SP1";
 
     val id = service.saveSample(studyId, specimenId, sample);
-    val sa = sampleService.getById(id);
+    val sa = sampleService.read(id);
     assertThat(id.equals("SA11"));
     assertThat(sa.getSampleId().equals(id));
-    assertThat(sa.getSampleType().equals(SampleType.TOTAL_RNA));
+    assertThat(sa.getSampleType().equals("Total RNA"));
     assertThat(sa.getSampleSubmitterId().equals("sample_abc123"));
   }
 
@@ -172,12 +184,12 @@ public class EntityServiceTest {
     val sampleId = "SA1";
 
     val id = service.saveFile(studyId, sampleId, file);
-    val f = fileService.getById(id);
+    val f = fileService.read(id);
     assertThat(f.getObjectId().equals(id));
     assertThat(f.getFileName().equals(name));
     assertThat(f.getFileSize() == 12345L);
     assertThat(f.getFileMd5().equals(md5));
-    assertThat(f.getFileType().equals(FileType.IDX));
+    assertThat(f.getFileType().equals("IDX"));
   }
 
   @SneakyThrows
@@ -190,17 +202,17 @@ public class EntityServiceTest {
     val file = JsonNodeFactory.instance.objectNode().put("fileName", name).put("fileSize", 12345L).put("fileMd5", md5)
         .put("fileType", "IDX");
 
-    // This should update the row with fileId "FI3".
+    // This should update the row with ObjectId "FI3".
     val sampleId = "SA11";
 
     val id = service.saveFile(studyId, sampleId, file);
-    val f = fileService.getById(id);
+    val f = fileService.read(id);
     assertThat(id.equals("FI3"));
     assertThat(f.getObjectId().equals(id));
     assertThat(f.getFileName().equals(name));
     assertThat(f.getFileSize() == 12345L);
     assertThat(f.getFileMd5().equals(md5));
-    assertThat(f.getFileType().equals(FileType.IDX));
+    assertThat(f.getFileType().equals("IDX"));
   }
 
 }

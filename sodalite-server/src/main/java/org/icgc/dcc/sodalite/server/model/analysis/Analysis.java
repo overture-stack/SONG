@@ -19,10 +19,28 @@
 
 package org.icgc.dcc.sodalite.server.model.analysis;
 
-public class Analysis {
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.ANALYSIS_TYPE;
+import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
+
+import org.icgc.dcc.sodalite.server.model.Metadata;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
+@EqualsAndHashCode(callSuper = false)
+@Data
+public class Analysis extends Metadata {
 
   String id;
-  String study_id;
-  AnalysisType type;
+  String study;
+  String type;
+
+  public void setType(String type) {
+    validate(ANALYSIS_TYPE, type);
+    this.type = type;
+  }
 
 }

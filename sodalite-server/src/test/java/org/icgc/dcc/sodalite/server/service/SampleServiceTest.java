@@ -1,12 +1,26 @@
+/*
+ * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.                             
+ *                                                                                                               
+ * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License along with                                  
+ * this program. If not, see <http://www.gnu.org/licenses/>.                                                     
+ *                                                                                                               
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY                           
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES                          
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT                           
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                                
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED                          
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;                               
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER                              
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.icgc.dcc.sodalite.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
-
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
-import org.icgc.dcc.sodalite.server.model.entity.File;
 import org.icgc.dcc.sodalite.server.model.entity.Sample;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,39 +35,28 @@ import lombok.val;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
 @ActiveProfiles("dev")
 public class SampleServiceTest {
 
   @Autowired
   SampleService sampleService;
-  @Autowired
-  FileService fileService;
 
   @Test
   public void testReadSample() {
     val id = "SA1";
-    val sample = sampleService.getById(id);
+    val sample = sampleService.read(id);
     assertThat(sample.getSampleId()).isEqualTo(id);
     assertThat(sample.getSampleSubmitterId()).isEqualTo("T285-G7-A5");
-    assertThat(sample.getSampleType()).isEqualTo(Sample.SampleType.DNA);
-    assertThat(sample.getFiles().size()).isEqualTo(2);
-
-    // Verify that we got the same files as the file service says we should.
-    sample.getFiles().forEach(file -> assertThat(file.equals(getFile(file.getObjectId()))));
-  }
-
-  private File getFile(String id) {
-    return fileService.getById(id);
+    assertThat(sample.getSampleType()).isEqualTo("DNA");
   }
 
   @Test
   public void testCreateAndDeleteSample() {
-    val s = new Sample()
-        .withSampleSubmitterId("101-IP-A")
-        .withSampleType(Sample.SampleType.AMPLIFIED_DNA)
-        .withFiles(new ArrayList<File>());
+    val specimenId = "";
+    val metadata = "";
+    val s = Sample.create("", "101-IP-A", specimenId, "Amplified DNA", metadata);
 
     val status = sampleService.create("SP2", s);
     val id = s.getSampleId();
@@ -61,34 +64,29 @@ public class SampleServiceTest {
     assertThat(id).startsWith("SA");
     assertThat(status).isEqualTo("ok:" + id);
 
-    Sample check = sampleService.getById(id);
+    Sample check = sampleService.read(id);
     assertThat(s).isEqualToComparingFieldByField(check);
 
     sampleService.delete(id);
-    Sample check2 = sampleService.getById(id);
+    Sample check2 = sampleService.read(id);
     assertThat(check2).isNull();
   }
 
   @Test
   public void testUpdateSample() {
-    val s = new Sample()
-        .withSampleSubmitterId("102-CBP-A")
-        .withSampleType(Sample.SampleType.RNA)
-        .withFiles(new ArrayList<File>());
+    val metadata = "";
+    val specimenId = "";
+    val s = Sample.create("", "102-CBP-A", specimenId, "RNA", metadata);
 
     sampleService.create("SP2", s);
 
     val id = s.getSampleId();
 
-    val s2 = new Sample()
-        .withSampleId(id)
-        .withSampleSubmitterId("Sample 102")
-        .withSampleType(Sample.SampleType.FFPE_DNA)
-        .withFiles(new ArrayList<File>());
+    val s2 = Sample.create(id, "Sample 102", s.getSpecimenId(), "FFPE RNA", metadata);
 
     sampleService.update(s2);
 
-    val s3 = sampleService.getById(id);
+    val s3 = sampleService.read(id);
     assertThat(s3).isEqualToComparingFieldByField(s2);
   }
 

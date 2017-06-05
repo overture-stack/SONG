@@ -23,6 +23,7 @@ import org.icgc.dcc.sodalite.server.model.entity.Donor;
 //import org.icgc.dcc.sodalite.server.model.entity.Donor.DonorGender;
 import org.icgc.dcc.sodalite.server.repository.mapper.DonorMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
@@ -30,26 +31,24 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(DonorMapper.class)
 public interface DonorRepository {
 
-  @SqlUpdate("INSERT INTO Donor (id, study_id, submitter_id, gender) VALUES (:id, :study_id, :submitter_id, :gender)")
-  int save(@Bind("id") String id, @Bind("study_id") String study_id, @Bind("submitter_id") String submitter_id,
-      @Bind("gender") String gender);
+  @SqlUpdate("INSERT INTO Donor (id, submitter_id, study_id, gender) VALUES (:donorId, :donorSubmitterId, :studyId, :donorGender)")
+  int create(@BindBean Donor donor);
 
-  @SqlUpdate("UPDATE Donor SET submitter_id=:submitter_id, gender=:gender WHERE id=:id AND study_id=:study_id")
-  int set(@Bind("id") String id, @Bind("study_id") String study_id, @Bind("submitter_id") String submitter_id,
-      @Bind("gender") String gender);
+  @SqlQuery("SELECT id, submitter_id, study_id, gender, info FROM donor WHERE id=:id")
+  Donor read(@Bind("id") String donor_id);
 
-  @SqlQuery("SELECT id, study_id, submitter_id, gender FROM donor WHERE study_id=:study_id")
-  List<Donor> findByParentId(@Bind("study_id") String study_id);
-
-  @SqlQuery("SELECT id from donor where study_id=:study_id")
-  List<String> getIds(@Bind("study_id") String parent_id);
-
-  @SqlQuery("SELECT id, submitter_id, gender FROM donor WHERE id=:id AND study_id=:study_id")
-  Donor getById(@Bind("study_id") String study_id, @Bind("id") String donor_id);
+  @SqlUpdate("UPDATE Donor SET submitter_id=:donorSubmitterId, gender=:donorGender WHERE id=:donorId")
+  int update(@BindBean Donor donor);
 
   @SqlUpdate("DELETE from donor where id=:id AND study_id=:study_id")
   int delete(@Bind("study_id") String study_id, @Bind("id") String id);
 
+  @SqlQuery("SELECT id, submitter_id, study_id, gender FROM donor WHERE study_id=:study_id")
+  List<Donor> readByParentId(@Bind("study_id") String study_id);
+
+  @SqlQuery("SELECT id from donor where study_id=:study_id")
+  List<String> findByParentId(@Bind("study_id") String parent_id);
+
   @SqlQuery("SELECT id from donor where study_id=:studyId AND submitter_id=:key")
-  String getIdByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
+  String findByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
 }

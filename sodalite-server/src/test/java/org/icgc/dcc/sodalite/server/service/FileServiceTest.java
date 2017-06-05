@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.                             
+ *                                                                                                               
+ * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License along with                                  
+ * this program. If not, see <http://www.gnu.org/licenses/>.                                                     
+ *                                                                                                               
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY                           
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES                          
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT                           
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                                
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED                          
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;                               
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER                              
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN                         
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.icgc.dcc.sodalite.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -5,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.sodalite.server.model.entity.File;
+import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,20 +47,30 @@ public class FileServiceTest {
   @Test
   public void testReadFile() {
     val id = "FI1";
-    val file = fileService.getById(id);
-    assertThat(file.getObjectId()).isEqualTo(id);
-    assertThat(file.getFileName()).isEqualTo("ABC-TC285G7-A5-ae3458712345.bam");
-    assertThat(file.getFileType()).isEqualTo(File.FileType.BAM);
-    assertThat(file.getFileSize()).isEqualTo(122333444455555L);
-    assertThat(file.getFileMd5()).isEqualTo("20de2982390c60e33452bf8736c3a9f1");
+    val name = "ABC-TC285G7-A5-ae3458712345.bam";
+    val sample = "SA1";
+    val type = "BAM";
+    val size = 122333444455555L;
+    val md5 = "20de2982390c60e33452bf8736c3a9f1";
+    val metadata = JsonUtils.fromSingleQuoted("{'metadata':'<XML>Not even well-formed <XML></XML>'}");
+    val file = fileService.read(id);
+
+    val expected = File.create(id, name, sample, size, type, md5, metadata);
+    assertThat(file).isEqualToComparingFieldByField(expected);
   }
 
   @Test
   public void testCreateAndDeleteFile() {
-    val f = new File()
-        .withFileName("ABC-TC285G87-A5-sqrl.bai")
-        .withFileSize(0)
-        .withFileType(File.FileType.FAI);
+    val sampleId = "";
+    val f = new File();
+    f.setObjectId("");
+    f.setFileName("ABC-TC285G87-A5-sqrl.bai");
+
+    f.setSampleId(sampleId);
+
+    f.setFileSize(0L);
+    f.setFileType("FAI");
+    f.setFileMd5("md5abcdefg");
 
     val status = fileService.create("SA1", f);
     val id = f.getObjectId();
@@ -50,34 +78,34 @@ public class FileServiceTest {
     assertThat(id).startsWith("FI");
     assertThat(status).isEqualTo("ok:" + id);
 
-    File check = fileService.getById(id);
+    File check = fileService.read(id);
     assertThat(f).isEqualToComparingFieldByField(check);
 
     fileService.delete(id);
-    val check2 = fileService.getById(id);
+    val check2 = fileService.read(id);
     assertThat(check2).isNull();
   }
 
   @Test
   public void testUpdateFile() {
-    val s = new File()
-        .withFileName("file123.fasta")
-        .withFileType(File.FileType.FASTA)
-        .withFileSize(12345);
+
+    val id = "";
+    val name = "file123.fasta";
+    val sampleId = "";
+    val size = 12345L;
+    val type = "FASTA";
+    val md5 = "md5sumaebcefghadwa";
+    val metadata = "";
+
+    val s = File.create(id, name, sampleId, size, type, md5, metadata);
 
     fileService.create("SA11", s);
+    val id2 = s.getObjectId();
 
-    val id = s.getObjectId();
-
-    val s2 = new File()
-        .withObjectId(id)
-        .withFileName("File 102.fai")
-        .withFileType(File.FileType.FAI)
-        .withFileSize(123456789);
-
+    val s2 = File.create(id2, "File 102.fai", s.getSampleId(), 123456789L, "FAI", "md5magical", "");
     fileService.update(s2);
 
-    val s3 = fileService.getById(id);
+    val s3 = fileService.read(id2);
     assertThat(s3).isEqualToComparingFieldByField(s2);
   }
 

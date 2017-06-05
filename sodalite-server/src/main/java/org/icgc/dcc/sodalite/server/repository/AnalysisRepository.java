@@ -46,7 +46,7 @@ public interface AnalysisRepository {
   void createVariantCall(@Bind("id") String id, @Bind("tool") String tool, @Bind("tumorId") String tumorId,
       @Bind("normalId") String normalId);
 
-  @SqlQuery("SELECT f.id, f.name, f.size, f.type, f.md5, f.metadata_doc "
+  @SqlQuery("SELECT f.id, f.name, f.sample_id, f.size, f.type, f.md5, f.metadata_doc "
       + "FROM File f, FileSet s "
       + "WHERE s.analysis_id=:id "
       + "  AND f.id = s.file_id")

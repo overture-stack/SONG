@@ -17,20 +17,21 @@
  */
 package org.icgc.dcc.sodalite.server.repository.mapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.icgc.dcc.sodalite.server.model.entity.Study;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 public class StudyMapper implements ResultSetMapper<Study> {
 
+  @Override
   public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    Study study = new Study();
-    study.withStudyId(r.getString("id"))
-        .withName(r.getString("name"))
-        .withDescription(r.getString("description"));
+    Study study = new Study(r.getString("id"),
+        r.getString("name"),
+        r.getString("organization"),
+        r.getString("description"));
     return study;
   }
 
