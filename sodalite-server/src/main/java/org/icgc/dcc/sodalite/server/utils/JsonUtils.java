@@ -81,16 +81,9 @@ public class JsonUtils {
   }
 
   @SuppressWarnings("unchecked")
-  public static Map<String, Object> toMap(String json, String keyName) {
-    if (json == null || json.equals("")) {
-      json = "{}";
-    }
-    try {
-      return mapper.convertValue(mapper.readTree(json), Map.class);
-    } catch (IllegalArgumentException | IOException e) {
-      val j = ObjectNode().put(keyName, json);
-      return mapper.convertValue(j, Map.class);
-    }
+  public static Map<String, Object> toMap(String json)
+      throws IllegalArgumentException, JsonProcessingException, IOException {
+    return mapper.convertValue(mapper.readTree(json), Map.class);
   }
 
   public static String fromSingleQuoted(String singleQuotedJson) {

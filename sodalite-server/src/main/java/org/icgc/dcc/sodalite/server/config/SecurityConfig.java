@@ -27,7 +27,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 
 import lombok.SneakyThrows;
 
-//@Slf4j
 @Configuration
 @Profile("secure")
 @EnableWebSecurity

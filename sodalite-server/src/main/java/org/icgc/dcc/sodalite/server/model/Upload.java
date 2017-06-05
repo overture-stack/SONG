@@ -1,8 +1,9 @@
 package org.icgc.dcc.sodalite.server.model;
 
+import static java.util.Arrays.asList;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +67,7 @@ public class Upload {
     }
 
     this.errors.clear();
-    this.errors.addAll(Arrays.asList(errorString.split("\\|")));
+    this.errors.addAll(asList(errorString.split("\\|")));
   }
 
   public void addErrors(Collection<String> errors) {

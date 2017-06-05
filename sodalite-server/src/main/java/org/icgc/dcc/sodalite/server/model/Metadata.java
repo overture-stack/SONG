@@ -24,6 +24,8 @@ import org.icgc.dcc.sodalite.server.utils.JsonUtils;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
+import lombok.val;
+
 public class Metadata {
 
   private final Map<String, Object> metadata = new TreeMap<>();
@@ -33,11 +35,18 @@ public class Metadata {
     metadata.put(key, value);
   }
 
+  @SuppressWarnings("unchecked")
   public void addMetadata(String json) {
-    if (json == null) {
-      return;
+    if (json != null && !json.equals("")) {
+      Map<String, Object> m;
+      try {
+        m = JsonUtils.fromJson(json, Map.class);
+      } catch (IllegalArgumentException e) {
+        val j = JsonUtils.ObjectNode().put("metadata", json);
+        m = JsonUtils.convertValue(j, Map.class);
+      }
+      metadata.putAll(m);
     }
-    metadata.putAll(JsonUtils.toMap(json, "metadata"));
   }
 
   public String getMetadata() {
