@@ -17,7 +17,7 @@
  *
  */
 
-package org.icgc.dcc.sodalite.server.config;
+package org.icgc.dcc.song.server.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +37,7 @@ public class SwaggerConfig {
   public Docket api() {
     return new Docket(DocumentationType.SWAGGER_2)
         .select()
-        .apis(RequestHandlerSelectors.basePackage("org.icgc.dcc.sodalite.server.controller"))
+        .apis(RequestHandlerSelectors.basePackage("org.icgc.dcc.song.server.controller"))
         .paths(PathSelectors.any())
         .build()
         .pathMapping("/");

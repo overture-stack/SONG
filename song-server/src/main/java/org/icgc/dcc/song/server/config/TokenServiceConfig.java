@@ -14,12 +14,13 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.config;
+package org.icgc.dcc.song.server.config;
 
 import lombok.NoArgsConstructor;
 import lombok.val;
-import org.icgc.dcc.sodalite.server.oauth.RetryTokenServices;
+import org.icgc.dcc.song.server.oauth.RetryTokenServices;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://sodalite.icgc.org/messages/uploadSequencingRead",
+  "id": "http://song.icgc.org/messages/uploadSequencingRead",
   "type": "object",
   "properties": {
     "sequencingRead": {

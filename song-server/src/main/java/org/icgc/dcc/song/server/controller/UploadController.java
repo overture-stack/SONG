@@ -17,15 +17,15 @@
  *
  */
 
-package org.icgc.dcc.sodalite.server.controller;
+package org.icgc.dcc.song.server.controller;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import javax.validation.Valid;
 
-import org.icgc.dcc.sodalite.server.model.Upload;
-import org.icgc.dcc.sodalite.server.service.UploadService;
+import org.icgc.dcc.song.server.model.Upload;
+import org.icgc.dcc.song.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,7 +60,8 @@ public class UploadController {
 
   @GetMapping(value = "/{studyId}/status/{uploadId}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public @ResponseBody Upload status(@PathVariable("uploadId") String uploadId) {
+  public @ResponseBody
+  Upload status(@PathVariable("uploadId") String uploadId) {
     return uploadService.read(uploadId);
   }
 

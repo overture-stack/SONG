@@ -16,7 +16,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.sodalite.server.model.entity;
+package org.icgc.dcc.song.server.model.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;

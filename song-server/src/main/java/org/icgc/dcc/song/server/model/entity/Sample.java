@@ -17,21 +17,19 @@
  *
  */
 
-package org.icgc.dcc.sodalite.server.model.entity;
-
-import static org.icgc.dcc.sodalite.server.model.enums.Constants.SAMPLE_TYPE;
-import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
+package org.icgc.dcc.song.server.model.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.icgc.dcc.sodalite.server.model.Metadata;
+import org.icgc.dcc.song.server.model.Metadata;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.icgc.dcc.song.server.model.enums.Constants;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -55,7 +53,7 @@ public class Sample extends Metadata {
   }
 
   public void setSampleType(String type) {
-    validate(SAMPLE_TYPE, type);
+    Constants.validate(Constants.SAMPLE_TYPE, type);
     sampleType = type;
   }
 

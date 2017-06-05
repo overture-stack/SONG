@@ -14,8 +14,9 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.controller;
+package org.icgc.dcc.song.server.controller;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -23,8 +24,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import java.util.Arrays;
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.entity.Study;
-import org.icgc.dcc.sodalite.server.service.StudyService;
+import org.icgc.dcc.song.server.model.entity.Study;
+import org.icgc.dcc.song.server.service.StudyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -17,17 +17,15 @@
  *
  */
 
-package org.icgc.dcc.sodalite.server.model.analysis;
+package org.icgc.dcc.song.server.model.analysis;
 
-import static org.icgc.dcc.sodalite.server.model.enums.Constants.ANALYSIS_TYPE;
-import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
-
-import org.icgc.dcc.sodalite.server.model.Metadata;
+import org.icgc.dcc.song.server.model.Metadata;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.icgc.dcc.song.server.model.enums.Constants;
 
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @EqualsAndHashCode(callSuper = false)
@@ -39,7 +37,7 @@ public class Analysis extends Metadata {
   String type;
 
   public void setType(String type) {
-    validate(ANALYSIS_TYPE, type);
+    Constants.validate(Constants.ANALYSIS_TYPE, type);
     this.type = type;
   }
 

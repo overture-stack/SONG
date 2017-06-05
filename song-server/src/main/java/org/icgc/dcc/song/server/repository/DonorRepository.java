@@ -14,14 +14,14 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.repository;
+package org.icgc.dcc.song.server.repository;
 
 import java.util.List;
 
-import org.icgc.dcc.sodalite.server.model.entity.Donor;
-//import org.icgc.dcc.sodalite.server.model.entity.Donor.DonorGender;
-import org.icgc.dcc.sodalite.server.repository.mapper.DonorMapper;
+import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.repository.mapper.DonorMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;

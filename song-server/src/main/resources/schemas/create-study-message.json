@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://sodalite.icgc.org/messages/createStudy",
+  "id": "http://song.icgc.org/messages/createStudy",
   "type": "object",
   "properties": {
     "apiVersion": {

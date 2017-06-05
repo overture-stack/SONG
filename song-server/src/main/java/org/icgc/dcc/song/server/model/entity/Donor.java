@@ -17,15 +17,15 @@
  *
  */
 
-package org.icgc.dcc.sodalite.server.model.entity;
+package org.icgc.dcc.song.server.model.entity;
 
-import static org.icgc.dcc.sodalite.server.model.enums.Constants.DONOR_GENDER;
-import static org.icgc.dcc.sodalite.server.model.enums.Constants.validate;
+import static org.icgc.dcc.song.server.model.enums.Constants.DONOR_GENDER;
+import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.icgc.dcc.sodalite.server.model.Metadata;
+import org.icgc.dcc.song.server.model.Metadata;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

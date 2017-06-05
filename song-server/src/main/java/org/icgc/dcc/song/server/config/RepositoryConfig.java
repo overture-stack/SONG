@@ -14,18 +14,19 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.config;
+package org.icgc.dcc.song.server.config;
 
 import javax.sql.DataSource;
 
-import org.icgc.dcc.sodalite.server.repository.AnalysisRepository;
-import org.icgc.dcc.sodalite.server.repository.DonorRepository;
-import org.icgc.dcc.sodalite.server.repository.FileRepository;
-import org.icgc.dcc.sodalite.server.repository.SampleRepository;
-import org.icgc.dcc.sodalite.server.repository.SpecimenRepository;
-import org.icgc.dcc.sodalite.server.repository.StudyRepository;
-import org.icgc.dcc.sodalite.server.repository.UploadRepository;
+import org.icgc.dcc.song.server.repository.AnalysisRepository;
+import org.icgc.dcc.song.server.repository.DonorRepository;
+import org.icgc.dcc.song.server.repository.FileRepository;
+import org.icgc.dcc.song.server.repository.SampleRepository;
+import org.icgc.dcc.song.server.repository.SpecimenRepository;
+import org.icgc.dcc.song.server.repository.StudyRepository;
+import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.skife.jdbi.v2.DBI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

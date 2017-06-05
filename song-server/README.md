@@ -1,7 +1,7 @@
-# sodalite
-Sodalite Server - Metadata and Validation system 
+# SONG
+SONG Server - Metadata and Validation system 
 
-This module of Sodalite implements the following functions:
+This module of SONG implements the following functions:
 
 - distributed entity ID generation
 - endpoints to accept and validate metadata JSON documents

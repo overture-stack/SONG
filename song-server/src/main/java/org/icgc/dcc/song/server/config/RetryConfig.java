@@ -14,12 +14,13 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.sodalite.server.config;
+package org.icgc.dcc.song.server.config;
 
 import lombok.val;
-import org.icgc.dcc.sodalite.server.retry.ClientRetryListener;
-import org.icgc.dcc.sodalite.server.retry.DefaultRetryListener;
+import org.icgc.dcc.song.server.retry.ClientRetryListener;
+import org.icgc.dcc.song.server.retry.DefaultRetryListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +35,7 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.icgc.dcc.sodalite.server.retry.RetryPolicies.getRetryableExceptions;
+import static org.icgc.dcc.song.server.retry.RetryPolicies.getRetryableExceptions;
 import static org.springframework.retry.backoff.ExponentialBackOffPolicy.DEFAULT_MULTIPLIER;
 
 @Configuration

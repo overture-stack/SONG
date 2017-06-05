@@ -104,7 +104,7 @@ spring:
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost/sodalite
+  url: jdbc:postgresql://localhost/song
 
   username:
   password:

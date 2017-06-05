@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://sodalite.icgc.org/messages/uploadVariantCall",
+  "id": "http://song.icgc.org/messages/uploadVariantCall",
   "type": "object",
   "properties": {
     "variantCall": {
