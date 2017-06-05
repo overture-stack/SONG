@@ -17,6 +17,7 @@
  */
 package org.icgc.dcc.sodalite.server.model;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -37,16 +38,17 @@ public class Metadata {
 
   @SuppressWarnings("unchecked")
   public void addMetadata(String json) {
-    if (json != null && !json.equals("")) {
-      Map<String, Object> m;
-      try {
-        m = JsonUtils.fromJson(json, Map.class);
-      } catch (IllegalArgumentException e) {
-        val j = JsonUtils.ObjectNode().put("metadata", json);
-        m = JsonUtils.convertValue(j, Map.class);
-      }
-      metadata.putAll(m);
+    if (json == null || json.equals("")) {
+      return;
     }
+    Map<String, Object> m;
+    try {
+      m = JsonUtils.toMap(json);
+    } catch (IllegalArgumentException | IOException e) {
+      val j = JsonUtils.ObjectNode().put("metadata", json);
+      m = JsonUtils.convertValue(j, Map.class);
+    }
+    metadata.putAll(m);
   }
 
   public String getMetadata() {
