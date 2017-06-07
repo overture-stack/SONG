@@ -36,7 +36,7 @@ public class Endpoint {
   }
 
   public String publishById(String studyId, String uploadId) {
-    return format("%s/upload/%s/publish/%s", serverUrl, studyId, uploadId);
+    return format("%s/upload/%s/save/%s", serverUrl, studyId, uploadId);
   }
 
   String status(String studyId, String uploadId) {
