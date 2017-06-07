@@ -31,7 +31,7 @@ public class ExistenceService {
   }
 
   @SneakyThrows
-  public boolean isObjectExist(String accessToken, String objectId) {
+  public boolean isObjectExist(@NonNull String accessToken, @NonNull String objectId) {
 //    [JIRA]: DCC-5630 - Add Retry feature for ExistenceService
 //    return retryTemplate.execute(new RetryCallback<Boolean, Throwable>() {
 //      @Override public Boolean doWithRetry(RetryContext retryContext) throws Throwable {

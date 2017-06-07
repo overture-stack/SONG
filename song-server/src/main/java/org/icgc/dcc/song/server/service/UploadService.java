@@ -48,9 +48,6 @@ public class UploadService {
   private final AnalysisService analysis;
 
   @Autowired
-  private final ExistenceService existence;
-
-  @Autowired
   private final UploadRepository uploadRepository;
 
   public Upload read(@NonNull String uploadId) {
@@ -77,9 +74,9 @@ public class UploadService {
     return ok(uploadId);
   }
 
-  public ResponseEntity<String> save(@NonNull String access_token, @NonNull String studyId, @NonNull String uploadId) {
+  public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId) {
     val s = read(uploadId);
-    if (s == null || ! existence.isObjectExist(access_token, uploadId)) {
+    if (s == null ){
       return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
     }
     val state = s.getState();
