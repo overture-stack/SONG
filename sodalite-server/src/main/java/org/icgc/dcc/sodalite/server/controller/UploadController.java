@@ -19,16 +19,14 @@
 
 package org.icgc.dcc.sodalite.server.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import javax.validation.Valid;
-
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.icgc.dcc.sodalite.server.model.Upload;
 import org.icgc.dcc.sodalite.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +35,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
+import javax.validation.Valid;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(path = "/upload")
@@ -69,7 +70,10 @@ public class UploadController {
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> publish(@PathVariable("studyId") String studyId,
       @PathVariable("uploadId") String uploadId) {
-    return uploadService.publish(studyId, uploadId);
+    val authentication = SecurityContextHolder.getContext().getAuthentication();
+    val access_token = (String)authentication.getCredentials();
+
+    return uploadService.publish(access_token, studyId, uploadId);
   }
 
 }
