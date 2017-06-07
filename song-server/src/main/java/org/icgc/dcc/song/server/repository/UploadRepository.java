@@ -38,5 +38,4 @@ public interface UploadRepository {
 
   @SqlQuery("SELECT id, study_id, state, created_at, updated_at, errors, payload FROM upload WHERE id = :uploadId")
   Upload get(@Bind("uploadId") String id);
-
 }

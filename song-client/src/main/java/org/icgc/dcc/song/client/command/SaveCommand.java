@@ -29,8 +29,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Publish an uploaded analysis by it's upload id, and get an analysis id")
-public class PublishCommand extends Command {
+@Parameters(separators = "=", commandDescription = "Save an uploaded analysis by it's upload id, and get the permanent analysis id")
+public class SaveCommand extends Command {
 
   @Parameter(names = { "-u", "--upload-id" }, required = true)
   private String uploadId;
@@ -43,7 +43,7 @@ public class PublishCommand extends Command {
   @Override
   public void run() {
     Status status;
-    status = registry.publish(config.getStudyId(), uploadId);
+    status = registry.save(config.getStudyId(), uploadId);
     save(status);
   }
 

@@ -33,6 +33,9 @@ public interface AnalysisRepository {
   @SqlUpdate("INSERT INTO Analysis (id, study_id, type) VALUES (:id, :studyId, :type)")
   void createAnalysis(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("type") String type);
 
+  @SqlUpdate("Update Analysis set state=:state where id=:id")
+  void updateState(@Bind("id") String id, @Bind("state") String state);
+
   @SqlUpdate("INSERT INTO FileSet (analysis_id, file_id) values (:id, :fileId)")
   void addFile(@Bind("id") String id, @Bind("fileId") String fileId);
 

@@ -59,6 +59,14 @@ public class AnalysisController {
     return analysisService.updateAnalysis(studyId, json);
   }
 
+  @PutMapping(value="/publish/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @ResponseBody
+  @SneakyThrows
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public String publishAnalysis(@PathVariable("id") String id) {
+    return analysisService.publish(id);
+  }
+
   /***
    * Return the JSON for this analysis (it's type, details, fileIds, etc.)
    * @param id An analysis id

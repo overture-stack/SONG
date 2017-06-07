@@ -24,6 +24,7 @@ import static org.icgc.dcc.song.server.model.enums.Constants.ANALYSIS_TYPE;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.icgc.dcc.song.server.model.entity.File;
@@ -174,6 +175,26 @@ public class AnalysisService {
 
   public List<File> readFilesByAnalysisId(String id) {
     return repository.getFilesById(id);
+  }
+
+  public String publish(String id) {
+    val files = readFilesByAnalysisId(id);
+    List<String> missingUploads=new ArrayList<>();
+    for (val f: files) {
+       if ( !confirmUploaded(f.getObjectId()) ) {
+         missingUploads.add(f.getObjectId());
+       }
+    }
+    if (missingUploads.isEmpty()) {
+      repository.updateState(id,"PUBLISHED");
+      return JsonUtils.fromSingleQuoted(format("'status':'success','msg': 'Analysis %s' successfully published.'", id));
+    }
+    return JsonUtils.fromSingleQuoted(format("'status': 'failure', 'msg': 'The following file ids must be published before analysis id %s can be published: %s',id, files"));
+  }
+
+  public boolean confirmUploaded(String fileId) {
+    // TODO: Close the loop; make this actually look up the real status from the storage server.
+    return true;
   }
 
 }
