@@ -39,7 +39,7 @@ public class ExistenceService {
         val url = new URL(endpointUrl);
         val con = (HttpURLConnection)url.openConnection();
         con.setRequestMethod("GET");
-        con.setRequestProperty("Authorization", "Bearer "+accessToken);
+        con.setRequestProperty("Authorization", accessToken);
         val opt = getReader(con)
             .lines()
             .findFirst();
