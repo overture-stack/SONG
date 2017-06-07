@@ -83,7 +83,7 @@ public class Registry {
   }
 
   public Status save(String studyId, String uploadId) {
-    val url = endpoint.publishById(studyId, uploadId);
+    val url = endpoint.saveById(studyId, uploadId);
     return rest.post(url);
   }
 

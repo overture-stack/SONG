@@ -18,9 +18,9 @@
  */
 package org.icgc.dcc.song.client.register;
 
-import static java.lang.String.format;
-
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static java.lang.String.format;
 
 public class Endpoint {
 
@@ -35,7 +35,7 @@ public class Endpoint {
     return format("%s/upload/%s", serverUrl, studyId);
   }
 
-  public String publishById(String studyId, String uploadId) {
+  public String saveById(String studyId, String uploadId) {
     return format("%s/upload/%s/save/%s", serverUrl, studyId, uploadId);
   }
 
