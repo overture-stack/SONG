@@ -70,7 +70,7 @@ public class AnalysisService {
   }
 
   void createAnalysis(String id, String studyId, String type) {
-    repository.createAnalysis(id, studyId, type);
+    repository.createAnalysis(id, studyId, type, "UNPUBLISHED");
   }
 
   @SneakyThrows
@@ -190,6 +190,11 @@ public class AnalysisService {
       return JsonUtils.fromSingleQuoted(format("'status':'success','msg': 'Analysis %s' successfully published.'", id));
     }
     return JsonUtils.fromSingleQuoted(format("'status': 'failure', 'msg': 'The following file ids must be published before analysis id %s can be published: %s',id, files"));
+  }
+
+  public String suppress(String id) {
+    repository.updateState(id, "SUPPRESSED");
+    return JsonUtils.fromSingleQuoted(format("'status':'ok', 'msg': 'Analysis %s was suppressed'",id));
   }
 
   public boolean confirmUploaded(String fileId) {
