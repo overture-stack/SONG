@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://song.icgc.org/messages/updateVariantCall",
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "id": "/properties/apiVersion",
+      "type": "string"
+    },
+    "submissionId": {
+      "id": "/properties/submissionId",
+      "type": "string"
+    },
+    "variantCall": {
+      "id": "/properties/variantCall",
+      "type": "object",
+      "properties": {
+        "analysisId": {
+          "id": "/properties/variantCall/properties/analysisId",
+          "type": "string"
+        },
+        "variantCallingTool": {
+          "id": "/properties/variantCall/properties/variantCallingTool",
+          "type": "string"
+        },
+        "tumourSampleSubmitterId": {
+          "id": "/properties/variantCall/properties/tumourSampleSubmitterId",
+          "type": "string"
+        },
+        "tumourSampleId": {
+          "id": "/properties/variantCall/properties/tumourSampleId",
+          "type": "string"
+        },
+        "matchedNormalSampleSubmitterId": {
+          "id": "/properties/variantCall/properties/matchedNormalSampleSubmitterId",
+          "type": "string"
+        },
+        "matchedNormalSampleId": {
+          "id": "/properties/variantCall/properties/matchedTumourSampleSubmitterId",
+          "type": "string"
+        }          
+      },
+      "required":["aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "referenceGenomeFiles"],
+      "dependencies": {
+        "tumourSampleSubmitterId": "tumourSampleId"
+      }
+    },
+    "study": {
+      "id": "/properties/study",
+      "type": "object",
+      "properties": {
+        "studyId": {
+          "id": "/properties/study/properties/studyId",
+          "type": "string"
+        },
+        "donor": {
+          "id": "/properties/study/properties/donor",
+          "type": "object",
+          "properties": {
+            "donorId": {
+              "id": "/properties/study/properties/donor/properties/donorId",
+              "type": "string"
+            },
+            "specimen": {
+              "id": "/properties/study/properties/donor/properties/specimen",
+              "type": "object",
+              "properties": {
+                "specimenId": {
+                  "id": "/properties/study/properties/donor/properties/specimen/properties/specimenId",
+                  "type": "string"
+                },
+                "sample": {
+                  "id": "/properties/study/properties/donor/properties/specimen/properties/sample",
+                  "type": "object",
+                  "properties": {
+                    "sampleId": {
+                      "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/sampleId",
+                      "type": "string"
+                    },
+                    "files": {
+                      "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/files",
+                      "type": "array",
+                      "items": {
+                        "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items",
+                        "type": "object",
+                        "properties": {
+                          "objectId": {
+                            "id": "/properties/study/properties/donor/properties/specimen/properties/sample/properties/files/items/properties/objectId",
+                            "type": "string"
+                          }
+                        },
+                        "required":["objectId"]
+                      }
+                    }
+                  },
+                  "required":["sampleId"]
+                }
+              },
+              "required":["specimenId"]
+            }
+          },
+          "required":["donorId"]
+        }
+      },
+      "required":["studyId", "donor"]
+    }
+  },
+  "required":["apiVersion", "submissionId", "variantCall"]
+}

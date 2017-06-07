@@ -1,0 +1,54 @@
+NAME
+song-client
+Interact with SONG server
+
+SYNOPSIS
+song-client config set <key> <value>
+song-client config show [ <key> ] # show command line options used, configuration file read from, environment variables in use, etc. (overrides all other options)
+song-client register [<directory>] [<directory>...]  # creates uploadId in directory
+song-client validate
+(optional) upload/download
+song-client publish
+
+song-client status [<directory>]
+song-client register validate upload publish
+
+song-client update [<directory>] # updata metadata on server with changes
+song-client search [<directory>] # query metadata
+
+song-client --version # lists help
+song-client --help    # lists help
+
+DESCRIPTION:
+song-client has different sub-commands to register metadata.
+
+It aggregates the contents of json files from the top directory down,
+with lower level settings over-riding( or just adding to?) existing settings?
+
+Register 
+--------
+0) Request access from icgc; get study name
+1) Register samples
+Get: FileIDs (donor, specimen, sample IDs)
+3) Register analysis (list of fileIds) for samples
+4) Poll for status until finished
+4) Generate manifest 
+
+Conceptual Steps:
+-----------------
+1) song-client --configure "study information"
+2) song-client --submit <directory>
+3) Create analysis object(s)
+   for file in find -iname 'meta.json', append/overwrite metadata to
+   finalMetadata.json. Append analysis objects to make a list. Keep the
+   hierarchy for file objects associated with the analysis objects.
+
+  for each data file listed to upload, verify that it exists, and set the 
+file length.  (and md5 ONLY IF requested). Optionally, set the file type based on the file extension (or change the file extension based upon the listed type).
+
+4) for each analysis object:
+   (1) Register it analysis object with a download id.
+   (2) Poll incomplete download ids for status 
+   (3) Once a download id is completed, list all the results to a file called manifest.json in the current directory, and mark it available for upload.
+   (4) Optional: launch uploader with data from completed directory
+

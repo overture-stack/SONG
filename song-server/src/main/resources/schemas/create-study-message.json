@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://song.icgc.org/messages/createStudy",
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "id": "/properties/apiVersion",
+      "type": "string"
+    },
+    "submissionId": {
+      "id": "/properties/submissionId",
+      "type": "string"
+    },
+    "study": {
+      "id": "/properties/study",
+      "type": "object",
+      "properties": {
+        "studyId": {
+          "id": "/properties/study/properties/studyId",
+          "type": "string"
+        },
+        "name": {
+          "id": "/properties/study/properties/name",
+          "type": "string"
+        },
+        "organization": {
+          "id": "/properties/study/properties/organization",
+          "type": "string"
+        },
+        "description": {
+          "id": "/properties/study/properties/description",
+          "type": "string"
+        }
+      },
+      "required": ["studyId", "name", "organization", "description"]
+    }
+  },
+  "required": ["apiVersion", "submissionId", "study"]
+}

@@ -1,0 +1,108 @@
+/*
+ * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+package org.icgc.dcc.song.server.service;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import static java.lang.String.format;
+import static org.springframework.http.ResponseEntity.ok;
+
+import org.icgc.dcc.song.server.model.Upload;
+import org.icgc.dcc.song.server.model.enums.IdPrefix;
+import org.icgc.dcc.song.server.repository.UploadRepository;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import static java.lang.String.format;
+import static org.springframework.http.ResponseEntity.ok;
+
+@RequiredArgsConstructor
+@Service
+@Slf4j
+public class UploadService {
+
+  @Autowired
+  private final IdService id;
+  @Autowired
+  private final ValidationService validator;
+
+  @Autowired
+  private final AnalysisService analysis;
+
+  @Autowired
+  private final ExistenceService existence;
+
+  @Autowired
+  private final UploadRepository uploadRepository;
+
+  public Upload read(@NonNull String uploadId) {
+    return uploadRepository.get(uploadId);
+  }
+
+  private void create(@NonNull String studyId, @NonNull String uploadId, @NonNull String jsonPayload) {
+    uploadRepository.create(uploadId, studyId, Upload.CREATED, jsonPayload);
+  }
+
+  public ResponseEntity<String> upload(String studyId, String payload) {
+    val uploadId = id.generate(IdPrefix.Upload);
+
+    try {
+      create(studyId, uploadId, payload);
+    } catch (UnableToExecuteStatementException jdbie) {
+      log.error(jdbie.getCause().getMessage());
+      throw new RepositoryException(jdbie.getCause());
+    }
+
+    val analysisType = analysis.getAnalysisType(payload);
+    validator.validate(uploadId, payload, analysisType); // Async operation.
+
+    return ok(uploadId);
+  }
+
+  public ResponseEntity<String> publish(@NonNull String access_token, @NonNull String studyId, @NonNull String uploadId) {
+    val s = status(uploadId);
+    if (s == null || ! existence.isObjectExist(access_token, uploadId)) {
+      return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
+    }
+    val state = s.getState();
+    if (!state.equals(Upload.VALIDATED)) {
+      return status(HttpStatus.CONFLICT,
+          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be published.", uploadId,
+          state);
+    }
+
+    updateAsPublished(uploadId);
+    val json = s.getPayload();
+    return ok(analysis.create(studyId, json));
+  }
+
+  private void updateAsPublished(@NonNull String uploadId) {
+    uploadRepository.update(uploadId, Upload.PUBLISHED, "");
+  }
+
+  private ResponseEntity<String> status(HttpStatus status, String format, Object... args) {
+    return ResponseEntity.status(status).body(format(format, args));
+  }
+
+}
