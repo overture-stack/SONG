@@ -22,9 +22,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import static java.lang.String.format;
-import static org.springframework.http.ResponseEntity.ok;
-
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.UploadRepository;
@@ -81,7 +78,8 @@ public class UploadService {
   }
 
   public ResponseEntity<String> publish(@NonNull String access_token, @NonNull String studyId, @NonNull String uploadId) {
-    val s = status(uploadId);
+
+    val s = read(uploadId);
     if (s == null || ! existence.isObjectExist(access_token, uploadId)) {
       return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
     }
