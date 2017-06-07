@@ -74,7 +74,7 @@ public class UploadService {
     return ok(uploadId);
   }
 
-  public ResponseEntity<String> publish(@NonNull String studyId, @NonNull String uploadId) {
+  public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId) {
     val s = read(uploadId);
     if (s == null) {
       return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
@@ -82,17 +82,17 @@ public class UploadService {
     val state = s.getState();
     if (!state.equals(Upload.VALIDATED)) {
       return status(HttpStatus.CONFLICT,
-          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be published.", uploadId,
+          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be saved.", uploadId,
           state);
     }
 
-    updateAsPublished(uploadId);
+    updateAsSaved(uploadId);
     val json = s.getPayload();
     return ok(analysis.create(studyId, json));
   }
 
-  private void updateAsPublished(@NonNull String uploadId) {
-    uploadRepository.update(uploadId, Upload.PUBLISHED, "");
+  private void updateAsSaved(@NonNull String uploadId) {
+    uploadRepository.update(uploadId, Upload.SAVED, "");
   }
 
   private ResponseEntity<String> status(HttpStatus status, String format, Object... args) {

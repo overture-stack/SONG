@@ -65,12 +65,12 @@ public class UploadController {
     return uploadService.read(uploadId);
   }
 
-  @PostMapping(value = "/{studyId}/publish/{uploadId}")
+  @PostMapping(value = "/{studyId}/save/{uploadId}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> publish(@PathVariable("studyId") String studyId,
       @PathVariable("uploadId") String uploadId) {
-    return uploadService.publish(studyId, uploadId);
+    return uploadService.save(studyId, uploadId);
   }
 
 }
