@@ -16,39 +16,34 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.client.register;
+package org.icgc.dcc.song.client.command;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.icgc.dcc.song.client.cli.Status;
+import org.icgc.dcc.song.client.config.Config;
+import org.icgc.dcc.song.client.register.Registry;
 
-import static java.lang.String.format;
+@RequiredArgsConstructor
+@Parameters(separators = "=", commandDescription = "Publish an analysis id using the manifest file" )
+public class PublishCommand extends Command {
 
-public class Endpoint {
+  @Parameter(names = { "-p", "--publish-id" }, required = true)
+  private String publishId;
 
-  private String serverUrl;
+  @NonNull
+  Registry registry;
 
-  @Autowired
-  Endpoint(String serverUrl) {
-    this.serverUrl = serverUrl;
-  }
+  @NonNull
+  Config config;
 
-  String upload(String studyId) {
-    return format("%s/upload/%s", serverUrl, studyId);
-  }
-
-  public String saveById(String studyId, String uploadId) {
-    return format("%s/upload/%s/save/%s", serverUrl, studyId, uploadId);
-  }
-
-  String status(String studyId, String uploadId) {
-    return format("%s/upload/%s/status/%s", serverUrl, studyId, uploadId);
-  }
-
-  public String getAnalysisFiles(String studyId, String analysisId) {
-    return format("%s/studies/%s/analysis/%s/files", serverUrl, studyId, analysisId);
-  }
-
-  public String publish(String studyId, String analysisId) {
-    return format("%s/studies/%s/analysis/publish/%s", serverUrl, studyId, analysisId);
+  @Override
+  public void run() {
+    Status status;
+    status = registry.publish(config.getStudyId(),publishId);
+    save(status);
   }
 
 }
