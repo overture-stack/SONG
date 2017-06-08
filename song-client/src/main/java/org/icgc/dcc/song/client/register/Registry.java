@@ -60,10 +60,10 @@ public class Registry {
     return node.get("study").get("studyId").asText();
   }
 
-  /***
+  /**
    * Register an analysis with the song server.
    * 
-   * @param analysisId
+   * @param  analysisId
    * @return The analysisId that the server returned, or null if an error occurred.
    */
   public Status upload(String json) {
@@ -83,13 +83,18 @@ public class Registry {
   }
 
   public Status save(String studyId, String uploadId) {
-    val url = endpoint.publishById(studyId, uploadId);
+    val url = endpoint.saveById(studyId, uploadId);
     return rest.post(url);
   }
 
   public Status getAnalysisFiles(String studyId, String analysisId) {
     val url = endpoint.getAnalysisFiles(studyId, analysisId);
     return rest.get(url);
+  }
+
+  public Status publish(String studyId, String analysisId ){
+    val url = endpoint.publish(studyId, analysisId);
+    return rest.put(url);
   }
 
 }

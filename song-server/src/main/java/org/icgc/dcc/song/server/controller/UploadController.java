@@ -67,8 +67,7 @@ public class UploadController {
   @PostMapping(value = "/{studyId}/save/{uploadId}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> publish(
-      @PathVariable("studyId") String studyId,
+  public ResponseEntity<String> save(@PathVariable("studyId") String studyId,
       @PathVariable("uploadId") String uploadId) {
     return uploadService.save(studyId, uploadId);
   }

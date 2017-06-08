@@ -44,6 +44,7 @@ public class ClientMain implements CommandLineRunner {
     builder.register("status", new StatusCommand(registry, config));
     builder.register("save", new SaveCommand(registry, config));
     builder.register("manifest", new ManifestCommand(registry, config));
+    builder.register("publish", new PublishCommand(registry, config));
     this.dispatcher = builder.build();
   }
 

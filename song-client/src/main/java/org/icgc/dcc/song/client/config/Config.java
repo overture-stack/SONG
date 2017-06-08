@@ -38,4 +38,5 @@ public class Config {
   private String studyId;
   @Value("client.programName")
   private String programName;
+
 }
