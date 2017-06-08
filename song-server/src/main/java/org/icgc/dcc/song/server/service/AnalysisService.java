@@ -18,15 +18,13 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import static java.lang.String.format;
-import static org.icgc.dcc.song.server.model.enums.Constants.ANALYSIS_TYPE;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
@@ -34,13 +32,14 @@ import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
+import static java.lang.String.format;
+import static org.icgc.dcc.song.server.model.enums.Constants.ANALYSIS_TYPE;
 
 @Slf4j
 @Service
@@ -53,6 +52,8 @@ public class AnalysisService {
   private final IdService idService;
   @Autowired
   private final EntityService entityService;
+  @Autowired
+  private final ExistenceService existence;
 
   @SneakyThrows
   public String getAnalysisType(String json) {
@@ -177,11 +178,11 @@ public class AnalysisService {
     return repository.getFilesById(id);
   }
 
-  public String publish(String id) {
+  public String publish(@NonNull String accessToken, @NonNull String id) {
     val files = readFilesByAnalysisId(id);
     List<String> missingUploads=new ArrayList<>();
     for (val f: files) {
-       if ( !confirmUploaded(f.getObjectId()) ) {
+       if ( !confirmUploaded(accessToken,f.getObjectId()) ) {
          missingUploads.add(f.getObjectId());
        }
     }
@@ -197,9 +198,8 @@ public class AnalysisService {
     return JsonUtils.fromSingleQuoted(format("'status':'ok', 'msg': 'Analysis %s was suppressed'",id));
   }
 
-  public boolean confirmUploaded(String fileId) {
-    // TODO: Close the loop; make this actually look up the real status from the storage server.
-    return true;
+  public boolean confirmUploaded(String accessToken, String fileId) {
+    return existence.isObjectExist(accessToken,fileId);
   }
 
 }
