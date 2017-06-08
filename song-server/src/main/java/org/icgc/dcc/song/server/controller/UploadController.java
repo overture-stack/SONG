@@ -19,11 +19,7 @@
 
 package org.icgc.dcc.song.server.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import javax.validation.Valid;
-
+import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +33,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
+import javax.validation.Valid;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(path = "/upload")
@@ -68,7 +67,8 @@ public class UploadController {
   @PostMapping(value = "/{studyId}/save/{uploadId}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> publish(@PathVariable("studyId") String studyId,
+  public ResponseEntity<String> publish(
+      @PathVariable("studyId") String studyId,
       @PathVariable("uploadId") String uploadId) {
     return uploadService.save(studyId, uploadId);
   }
