@@ -21,6 +21,9 @@
 server:
   port: 8080
 
+dcc-storage:
+  url: "https://storage.cancercollaboratory.org"
+
 # Management
 management:
   port: 8081
