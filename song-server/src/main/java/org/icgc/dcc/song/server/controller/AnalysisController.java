@@ -70,6 +70,14 @@ public class AnalysisController {
     return analysisService.publish(accessToken,id);
   }
 
+  @PutMapping(value="/suppress/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @ResponseBody
+  @SneakyThrows
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public String suppressAnalysis(@PathVariable("id") String id) {
+    return analysisService.suppress(id);
+  }
+
   /***
    * Return the JSON for this analysis (it's type, details, fileIds, etc.)
    * @param id An analysis id

@@ -30,8 +30,9 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(FileMapper.class)
 public interface AnalysisRepository {
 
-  @SqlUpdate("INSERT INTO Analysis (id, study_id, type) VALUES (:id, :studyId, :type)")
-  void createAnalysis(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("type") String type);
+  @SqlUpdate("INSERT INTO Analysis (id, study_id, type,state) VALUES (:id, :studyId, :type, :state)")
+  void createAnalysis(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("type") String type,
+                      @Bind("state") String state);
 
   @SqlUpdate("Update Analysis set state=:state where id=:id")
   void updateState(@Bind("id") String id, @Bind("state") String state);
