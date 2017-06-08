@@ -27,7 +27,7 @@ import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
 
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Publish an analysis id using the manifest file" )
+@Parameters(separators = "=", commandDescription = "Publish an analysis id" )
 public class PublishCommand extends Command {
 
   @Parameter(names = { "-p", "--publish-id" }, required = true)
