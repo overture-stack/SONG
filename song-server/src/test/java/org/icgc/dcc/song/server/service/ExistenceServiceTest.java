@@ -8,9 +8,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.server.config.RetryConfig;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -18,7 +26,15 @@ import java.net.InetSocketAddress;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SpringBootTest
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = RetryConfig.class)
+@ActiveProfiles({"dev", "secure"})
+//@ActiveProfiles(profiles = {"dev","test", "secure"})
 public class ExistenceServiceTest {
+
+  @Autowired
+  private RetryTemplate retryTemplate;
 
   @Test
   @SneakyThrows
@@ -37,7 +53,7 @@ public class ExistenceServiceTest {
     mockServer.createContext(format("/upload/%s",objectId2),new MockDccStorageHandler(false, token));
     mockServer.start();
 
-    val exi = ExistenceService.createExistenceService(mockServerUrl);
+    val exi = ExistenceService.createExistenceService(retryTemplate,mockServerUrl);
     assertThat(exi.isObjectExist(token,objectId1)).isTrue();
     assertThat(exi.isObjectExist(token,objectId2)).isFalse();
     val seconds = 1;
