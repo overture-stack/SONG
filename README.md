@@ -3,7 +3,7 @@ SONG - Metadata and Validation system
 
 [![Build Status](https://travis-ci.org/icgc-dcc/SONG.svg?branch=develop)](https://travis-ci.org/icgc-dcc/SONG)
 
-Project containing both the SONG server microservice and SONG client CLI client. 
+Project containing both the SONG microservice and CLI client. 
 Both are written using JAVA 8 and Spring Boot. 
 
 Contains code adapted from Corey Hulen https://github.com/coreyhulen/earnstone-id
