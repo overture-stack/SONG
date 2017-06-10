@@ -46,24 +46,22 @@ public class Registry {
   String getAnalysisType(String json) {
     val node = mapper.readTree(json);
 
-    if (node.has("sequencingRead")) {
-      return "sequencingread";
-    } else if (node.has("variantUpdateCall")) {
-      return "variantcall";
+    if (node.has("analysisType")) {
+      return node.get("analysisType").asText();
     }
-    throw new Error("Updated Analysis failed: unknown analysis type" + node.asText());
+    throw new Error("No analysis type specified in JSON document" + node.asText());
   }
 
   @SneakyThrows
   String getStudyId(String json) {
     val node = mapper.readTree(json);
-    return node.get("study").get("studyId").asText();
+    return node.get("study").asText();
   }
 
   /***
    * Register an analysis with the song server.
    * 
-   * @param analysisId
+   * @param json
    * @return The analysisId that the server returned, or null if an error occurred.
    */
   public Status upload(String json) {

@@ -20,7 +20,9 @@ package org.icgc.dcc.song.server.service;
 
 import java.util.List;
 
+import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
+import org.icgc.dcc.song.server.model.entity.composites.StudyDonors;
 import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,11 +48,9 @@ public class StudyService {
   }
 
   @SneakyThrows
-  public Study readWithChildren(String studyId) {
-    Study study = studyRepository.read(studyId);
-    if (study == null) {
-      return null;
-    }
+  public StudyDonors readWithChildren(String studyId) {
+    val study = new StudyDonors();
+    study.setStudy(read(studyId));
     study.setDonors(donorService.readByParentId(studyId));
     return study;
   }

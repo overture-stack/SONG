@@ -69,7 +69,7 @@ public class uploadMessageValidationTests {
   public void validate_submit_variant_call_missing_required() throws Exception {
     val errors =
         validate("schemas/upload-variantcall-message.json", "documents/upload-variantcall-missing-required.json");
-    assertThat(errors.size()).isEqualTo(1);
+    assertThat(errors.size()).isEqualTo(3);
   }
 
   @Test

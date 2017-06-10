@@ -20,9 +20,11 @@ package org.icgc.dcc.song.server.service;
 
 import static org.icgc.dcc.song.server.model.enums.IdPrefix.Donor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.model.entity.composites.DonorSpecimens;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +38,13 @@ import lombok.val;
 public class DonorService {
 
   @Autowired
-  DonorRepository donorRepository;
+  private final DonorRepository donorRepository;
   @Autowired
-  IdService idService;
+  private final IdService idService;
   @Autowired
-  SpecimenService specimenService;
+  private final SpecimenService specimenService;
 
-  public String create(Donor d) {
+  public String create(DonorSpecimens d) {
     val id = idService.generate(Donor);
     d.setDonorId(id);
 
@@ -56,17 +58,21 @@ public class DonorService {
   }
 
   public Donor read(String id) {
-    val donor = donorRepository.read(id);
-    if (donor == null) {
-      return null;
-    }
+    return donorRepository.read(id);
+  }
+
+  public DonorSpecimens readWithSpecimens(String id) {
+    val donor = new DonorSpecimens();
+    donor.setDonor(read(id));
+
     donor.setSpecimens(specimenService.readByParentId(id));
     return donor;
   }
 
-  public List<Donor> readByParentId(String parentId) {
-    val donors = donorRepository.readByParentId(parentId);
-    donors.forEach(d -> d.setSpecimens(specimenService.readByParentId(d.getDonorId())));
+  public List<DonorSpecimens> readByParentId(String parentId) {
+    val donors = new ArrayList<DonorSpecimens>();
+    val ids = donorRepository.findByParentId(parentId);
+    ids.forEach(id -> donors.add(readWithSpecimens(id)));
     return donors;
   }
 
@@ -85,7 +91,6 @@ public class DonorService {
 
   public String deleteByParentId(String studyId) {
     donorRepository.findByParentId(studyId).forEach(id -> delete(studyId, id));
-
     return "OK";
   }
 
@@ -96,7 +101,7 @@ public class DonorService {
     if (donorId == null) {
       donorId = idService.generate(IdPrefix.Donor);
       d.setDonorId(donorId);
-      System.err.printf("Creating new donor with id=%s,gender='%s'\n", donorId, d.getDonorGender());
+      System.err.printf("Creating new donor with analysisId=%s,gender='%s'\n", donorId, d.getDonorGender());
       donorRepository.create(d);
     } else {
       donorRepository.update(d);

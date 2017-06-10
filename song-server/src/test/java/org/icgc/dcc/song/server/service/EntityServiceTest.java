@@ -179,18 +179,18 @@ public class EntityServiceTest {
 
     val name = "file_abc123.idx.gz";
     val md5 = "mmmmdddd5555";
-    val file = JsonNodeFactory.instance.objectNode().put("fileName", name).put("fileSize", 12345L).put("fileMd5", md5)
-        .put("fileType", "IDX");
+    val file = JsonNodeFactory.instance.objectNode().put("fileName", name).
+            put("fileSize", 12345L).put("fileMd5sum", md5).put("fileType", "IDX");
 
-    // This should create a new record
-    val sampleId = "SA1";
-
-    val id = service.saveFile(studyId, sampleId, file);
+    val id = service.saveFile(studyId, file);
+    assertThat(id).isNotNull();
+    System.out.printf("Got id '%s' from saveFile".format(id));
     val f = fileService.read(id);
+    assertThat(f).isNotNull();
     assertThat(f.getObjectId().equals(id));
     assertThat(f.getFileName().equals(name));
     assertThat(f.getFileSize() == 12345L);
-    assertThat(f.getFileMd5().equals(md5));
+    assertThat(f.getFileMd5sum().equals(md5));
     assertThat(f.getFileType().equals("IDX"));
   }
 
@@ -201,19 +201,16 @@ public class EntityServiceTest {
 
     val name = "ABC-TC285-G7-B9-kthx12345.bai";
     val md5 = "mmmmdddd5555";
-    val file = JsonNodeFactory.instance.objectNode().put("fileName", name).put("fileSize", 12345L).put("fileMd5", md5)
-        .put("fileType", "IDX");
+    val file = JsonNodeFactory.instance.objectNode().put("fileName", name).
+            put("fileSize", 12345L).put("fileMd5sum", md5).put("fileType", "IDX");
 
-    // This should update the row with ObjectId "FI3".
-    val sampleId = "SA11";
-
-    val id = service.saveFile(studyId, sampleId, file);
+    val id = service.saveFile(studyId, file);
     val f = fileService.read(id);
     assertThat(id.equals("FI3"));
     assertThat(f.getObjectId().equals(id));
     assertThat(f.getFileName().equals(name));
     assertThat(f.getFileSize() == 12345L);
-    assertThat(f.getFileMd5().equals(md5));
+    assertThat(f.getFileMd5sum().equals(md5));
     assertThat(f.getFileType().equals("IDX"));
   }
 

@@ -30,30 +30,30 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(FileMapper.class)
 public interface AnalysisRepository {
 
-  @SqlUpdate("INSERT INTO Analysis (id, study_id, type,state) VALUES (:id, :studyId, :type, :state)")
-  void createAnalysis(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("type") String type,
+  @SqlUpdate("INSERT INTO Analysis (id, study_id,state) VALUES (:analysisId, :studyId, :state)")
+  void createAnalysis(@Bind("analysisId") String id, @Bind("studyId") String studyId,
                       @Bind("state") String state);
 
-  @SqlUpdate("Update Analysis set state=:state where id=:id")
-  void updateState(@Bind("id") String id, @Bind("state") String state);
+  @SqlUpdate("Update Analysis set state=:state where id=:analysisId")
+  void updateState(@Bind("analysisId") String id, @Bind("state") String state);
 
-  @SqlUpdate("INSERT INTO FileSet (analysis_id, file_id) values (:id, :fileId)")
-  void addFile(@Bind("id") String id, @Bind("fileId") String fileId);
+  @SqlUpdate("INSERT INTO FileSet (analysis_id, file_id) values (:analysisId, :fileId)")
+  void addFile(@Bind("analysisId") String id, @Bind("fileId") String fileId);
 
   @SqlUpdate("INSERT INTO SequencingRead (id, library_strategy, paired_end, insert_size,aligned,alignment_tool, reference_genome) "
-      + "VALUES (:id, :libraryStrategy, :pairedEnd, :insertSize, :aligned, :alignmentTool, :referenceGenome)")
-  void createSequencingRead(@Bind("id") String id, @Bind("libraryStrategy") String libraryStrategy,
+      + "VALUES (:analysisId, :libraryStrategy, :pairedEnd, :insertSize, :aligned, :alignmentTool, :referenceGenome)")
+  void createSequencingRead(@Bind("analysisId") String id, @Bind("libraryStrategy") String libraryStrategy,
       @Bind("pairedEnd") Boolean pairedEnd,
       @Bind("insertSize") Long insertSize, @Bind("aligned") Boolean aligned,
       @Bind("alignmentTool") String alignmentTool, @Bind("referenceGenome") String referenceGenome);
 
-  @SqlUpdate("INSERT INTO VariantCall (id, variant_calling_tool,tumour_sample_submitter_id, matched_normal_sample_submitter_id) values(:id, :tool, :tumorId, :normalId)")
-  void createVariantCall(@Bind("id") String id, @Bind("tool") String tool, @Bind("tumorId") String tumorId,
+  @SqlUpdate("INSERT INTO VariantCall (id, variant_calling_tool,tumour_sample_submitter_id, matched_normal_sample_submitter_id) values(:analysisId, :tool, :tumorId, :normalId)")
+  void createVariantCall(@Bind("analysisId") String id, @Bind("tool") String tool, @Bind("tumorId") String tumorId,
       @Bind("normalId") String normalId);
 
-  @SqlQuery("SELECT f.id, f.name, f.sample_id, f.size, f.type, f.md5, f.metadata_doc "
+  @SqlQuery("SELECT f.id, f.name, f.study_id, f.size, f.type, f.md5, f.info "
       + "FROM File f, FileSet s "
-      + "WHERE s.analysis_id=:id "
+      + "WHERE s.analysis_id=:analysisId "
       + "  AND f.id = s.file_id")
-  List<File> getFilesById(@Bind("id") String id);
+  List<File> getFilesById(@Bind("analysisId") String id);
 }

@@ -77,7 +77,7 @@ public class AnalysisController {
 
   /***
    * Return the JSON for this analysis (it's type, details, fileIds, etc.)
-   * @param id An analysis id
+   * @param id An analysis analysisId
    * @return A JSON object representing this analysis
    */
   @GetMapping(value = "/{id}")
@@ -87,8 +87,8 @@ public class AnalysisController {
 
   /***
    * Return all of the files in the fileset for this analyis
-   * @param id The analysis id
-   * @return A list of all the files in this analysis id's fileset.
+   * @param id The analysis analysisId
+   * @return A list of all the files in this analysis analysisId's fileset.
    */
   @GetMapping(value = "/{id}/files")
   public List<File> getFilesById(@PathVariable("id") String id) {

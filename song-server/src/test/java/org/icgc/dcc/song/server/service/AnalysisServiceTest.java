@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.assertj.core.api.Assertions;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
@@ -58,7 +59,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testGetAnalysisType_SequencingRead() {
-    val node = JsonUtils.ObjectNode().put("sequencingRead", "{}");
+    val node = JsonUtils.ObjectNode().put("analysisType","sequencingRead");
     val s = JsonUtils.nodeToJSON(node);
     val result = service.getAnalysisType(s);
     assertThat(result).isEqualTo("sequencingRead");
@@ -66,10 +67,25 @@ public class AnalysisServiceTest {
 
   @Test
   public void testGetAnalysisType_VariantCall() {
-    val node = JsonUtils.ObjectNode().put("variantCall", "{}");
+    val node = JsonUtils.ObjectNode().put("analysisType", "variantCall");
     val s = JsonUtils.nodeToJSON(node);
     val result = service.getAnalysisType(s);
     assertThat(result).isEqualTo("variantCall");
+  }
+
+  /***
+   * Tell javac/Eclipse/IntelliJ, etc. that our code might throw an Exception.
+   *
+   * When we put code that throws exceptions with @SneakyThrows
+   * inside a try/catch block with sneakyCatch(), we can catch
+   * Sneaky exceptions.
+   *
+   * @throws Exception
+   */
+  private void sneakyCatch() throws Exception {
+      if (false) {
+        throw new Exception();
+      }
   }
 
   @Test
@@ -86,9 +102,8 @@ public class AnalysisServiceTest {
   public void testCreateAnalysis() {
     val id = "AN3";
     val studyId = "ABC123";
-    val type = "sequencingRead";
 
-    service.createAnalysis(id, studyId, type);
+    service.createAnalysis(id, studyId);
     // TODO: verify record was added to Analysis table
 
     assertThat(true); // we didn't crash
@@ -119,26 +134,11 @@ public class AnalysisServiceTest {
     val node = JsonNodeFactory.instance.objectNode().put("variantCallingTool", "silver bullet")
         .put("tumourSampleSubmitterId", "tumor1A").put("matchedNormalSampleSubmitterId", "reference2B");
 
-    service.createAnalysis(id, studyId, type);
+    service.createAnalysis(id, studyId);
     service.createVariantCall(id, node);
 
     // TODO: Verify record was added to VariantCallTable
     assertThat(true); // no crash yet
-  }
-
-  @SneakyThrows
-  @Test
-  public void testSaveStudy() {
-    val fileName = "documents/upload-sequencingread-valid.json";
-    val studyId = "ABC123";
-
-    String json = getJsonNodeFromClasspath(fileName);
-    val study = JsonUtils.readTree(json).get("study");
-
-    val fileIds = service.saveStudy(studyId, study);
-    // TODO: 1) Verify that the correct records were added to / updated in the Donor, Specimen, Sample, and File tables
-    // 2) Verify that the fileIds that were returned were the correct
-    assertThat(fileIds.size() == 2);
   }
 
   @SneakyThrows

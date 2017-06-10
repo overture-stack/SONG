@@ -18,19 +18,32 @@
  */
 package org.icgc.dcc.song.server.model.analysis;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
+import lombok.val;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class VariantCall {
-
+public class VariantCall extends Experiment {
   private String analysisId;
   private String variantCallingTool;
-  private String tumourSampleSubmitterId;
-  private String tumourSampleId;
   private String matchedNormalSampleSubmitterId;
-  private String matchedNormalSampleId;
 
+  @JsonGetter
+  public String getAnalysisType() {
+    return "variantCall";
+  }
+
+  public static VariantCall create(String id, String tool, String submitterId, String info) {
+    val v = new VariantCall();
+    v.setAnalysisId(id);
+    v.setVariantCallingTool(tool);
+    v.setMatchedNormalSampleSubmitterId(submitterId);
+    v.addInfo(info);
+
+    return v;
+
+  }
 }

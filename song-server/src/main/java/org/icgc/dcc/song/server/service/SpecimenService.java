@@ -20,9 +20,11 @@ package org.icgc.dcc.song.server.service;
 
 import static org.icgc.dcc.song.server.model.enums.IdPrefix.Specimen;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.icgc.dcc.song.server.model.entity.Specimen;
+import org.icgc.dcc.song.server.model.entity.composites.SpecimenSamples;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,23 +38,31 @@ import lombok.val;
 public class SpecimenService {
 
   @Autowired
-  IdService idService;
+  private final IdService idService;
   @Autowired
-  SpecimenRepository repository;
+  private final SpecimenRepository repository;
   @Autowired
-  SampleService sampleService;
+  private final SampleService sampleService;
 
   public String create(String parentId, Specimen specimen) {
     val id = idService.generate(Specimen);
     specimen.setSpecimenId(id);
     specimen.setDonorId(parentId);
-    int status =
-        repository.create(specimen);
+    int status = repository.create(specimen);
     if (status != 1) {
       return "error: Can't create" + specimen.toString();
     }
-    specimen.getSamples().forEach(s -> sampleService.create(id, s));
+
     return "ok:" + id;
+  }
+
+  public String createWithSamples(String parentId, SpecimenSamples specimen) {
+    val status = create(parentId, specimen.getSpecimen());
+    if (status.startsWith("error")) {
+      return status;
+    }
+    specimen.getSamples().forEach(s -> sampleService.create(parentId, s));
+    return status;
   }
 
   public Specimen read(String id) {
@@ -60,13 +70,22 @@ public class SpecimenService {
     if (specimen == null) {
       return null;
     }
-    specimen.setSamples(sampleService.readByParentId(id));
+
     return specimen;
   }
 
-  public List<Specimen> readByParentId(String parentId) {
-    val specimens = repository.readByParentId(parentId);
-    specimens.forEach(s -> s.setSamples(sampleService.readByParentId(s.getSpecimenId())));
+  public SpecimenSamples readWithSamples(String id) {
+    val specimen = repository.read(id);
+    val s = new SpecimenSamples();
+    s.setSpecimen(specimen);
+    s.setSamples(sampleService.readByParentId(id));
+    return s;
+  }
+
+  public List<SpecimenSamples> readByParentId(String parentId) {
+    val ids = repository.findByParentId(parentId);
+    val specimens = new ArrayList<SpecimenSamples>();
+    ids.forEach(id -> specimens.add(readWithSamples(id)));
     return specimens;
   }
 

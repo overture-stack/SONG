@@ -40,12 +40,12 @@ public class FileService {
   @Autowired
   IdService idService;
 
-  public String create(String parentId, File f) {
+  public String create(String studyId, File f) {
     val id = idService.generate(File);
     f.setObjectId(id);
-    f.setSampleId(parentId);
+    f.setStudyId(studyId);
 
-    int status = repository.create(f);
+    val status = repository.create(f);
 
     if (status != 1) {
       return "error: Can't create" + f.toString();
@@ -56,10 +56,6 @@ public class FileService {
 
   public File read(String id) {
     return repository.read(id);
-  }
-
-  public List<File> readByParentId(String parentId) {
-    return repository.readByParentId(parentId);
   }
 
   public String update(File f) {
@@ -75,9 +71,13 @@ public class FileService {
   public String save(String studyId, File f) {
     String fileId = repository.findByBusinessKey(studyId, f.getFileName());
     if (fileId == null) {
-      fileId = idService.generate(IdPrefix.File);
+      fileId = idService.generate(File);
       f.setObjectId(fileId);
-      repository.create(f);
+      f.setStudyId(studyId);
+      val status=repository.create(f);
+      if (status==-1) {
+        return null;
+      }
     } else {
       repository.update(f);
     }

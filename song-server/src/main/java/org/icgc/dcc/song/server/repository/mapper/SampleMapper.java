@@ -31,9 +31,8 @@ public class SampleMapper implements ResultSetMapper<Sample> {
 
   @Override
   public Sample map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    val metadata = ""; // TODO: Fix this when we modify the table definitions
     return Sample.create(r.getString("id"), r.getString("submitter_id"), r.getString("specimen_id"),
-        r.getString("type"), metadata);
+        r.getString("type"), r.getString("info"));
   }
 
 }

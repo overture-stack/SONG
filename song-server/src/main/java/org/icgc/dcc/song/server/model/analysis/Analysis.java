@@ -19,26 +19,37 @@
 
 package org.icgc.dcc.song.server.model.analysis;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.icgc.dcc.song.server.model.Metadata;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.icgc.dcc.song.server.model.entity.composites.AnalysisSample;
+import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.enums.Constants;
 
-@JsonInclude(JsonInclude.Include.NON_ABSENT)
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = false)
 @Data
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class Analysis extends Metadata {
 
-  String id;
+  String analysisId;
   String study;
-  String type;
+  String analysisState;
 
-  public void setType(String type) {
-    Constants.validate(Constants.ANALYSIS_TYPE, type);
-    this.type = type;
+  List<AnalysisSample> sample;
+  Experiment experiment;
+  List<File> file;
+
+  public void setAnalysisState(String state) {
+    Constants.validate(Constants.ANALYSIS_STATE, state);
+    this.analysisState=state;
   }
+
 
 }

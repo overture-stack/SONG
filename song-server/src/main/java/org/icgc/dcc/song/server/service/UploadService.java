@@ -21,9 +21,11 @@ package org.icgc.dcc.song.server.service;
 import static java.lang.String.format;
 import static org.springframework.http.ResponseEntity.ok;
 
+import lombok.SneakyThrows;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.UploadRepository;
+import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,6 +60,7 @@ public class UploadService {
     uploadRepository.create(uploadId, studyId, Upload.CREATED, jsonPayload);
   }
 
+  @SneakyThrows
   public ResponseEntity<String> upload(String studyId, String payload) {
     val uploadId = id.generate(IdPrefix.Upload);
 
@@ -68,7 +71,7 @@ public class UploadService {
       throw new RepositoryException(jdbie.getCause());
     }
 
-    val analysisType = analysis.getAnalysisType(payload);
+    val analysisType = JsonUtils.readTree(payload).at("/experiment/analysisType").asText("");
     validator.validate(uploadId, payload, analysisType); // Async operation.
 
     return ok(uploadId);

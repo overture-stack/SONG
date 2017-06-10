@@ -51,7 +51,7 @@ public class SampleService {
     if (status != 1) {
       return "error: Can't create" + s.toString();
     }
-    s.getFiles().forEach(f -> fileService.create(id, f));
+
     return "ok:" + id;
   }
 
@@ -60,13 +60,13 @@ public class SampleService {
     if (sample == null) {
       return null;
     }
-    sample.setFiles(fileService.readByParentId(id));
+
     return sample;
   }
 
   public List<Sample> readByParentId(String parentId) {
     val samples = repository.readByParentId(parentId);
-    samples.forEach(s -> s.setFiles(fileService.readByParentId(s.getSampleId())));
+
     return samples;
   }
 

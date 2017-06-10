@@ -21,7 +21,6 @@ package org.icgc.dcc.song.server.utils;
 import java.io.IOException;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,11 +53,12 @@ public class JsonUtils {
     mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
     mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
+    //mapper.enableDefaultTyping();
     mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
     return mapper;
   }
 
-  public static JsonNode readTree(String json) throws JsonProcessingException, IOException {
+  public static JsonNode readTree(String json) throws  IOException {
     return mapper.readTree(json);
   }
 
@@ -83,7 +83,7 @@ public class JsonUtils {
 
   @SuppressWarnings("unchecked")
   public static Map<String, Object> toMap(String json)
-      throws IllegalArgumentException, JsonProcessingException, IOException {
+      throws IllegalArgumentException, IOException {
     return mapper.convertValue(mapper.readTree(json), Map.class);
   }
 

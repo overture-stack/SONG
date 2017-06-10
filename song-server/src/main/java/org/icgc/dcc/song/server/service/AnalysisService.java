@@ -19,13 +19,9 @@
 package org.icgc.dcc.song.server.service;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.server.model.enums.Constants.ANALYSIS_TYPE;
+import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
@@ -53,6 +49,8 @@ public class AnalysisService {
   private final IdService idService;
   @Autowired
   private final EntityService entityService;
+  @Autowired
+  private final FileService fileService;
 
   @SneakyThrows
   public String getAnalysisType(String json) {
@@ -60,43 +58,61 @@ public class AnalysisService {
   }
 
   public String getAnalysisType(JsonNode node) {
-    for (val type : ANALYSIS_TYPE) {
-      log.info("Checking analysis type " + type);
-      if (node.has(type)) {
-        return type;
-      }
-    }
-    return null;
+    val type = node.get("analysisType").asText();
+    return type;
   }
 
-  void createAnalysis(String id, String studyId, String type) {
-    repository.createAnalysis(id, studyId, type, "UNPUBLISHED");
+  public String createAnalysis(String id, String studyId) {
+    repository.createAnalysis(id, studyId,"UNPUBLISHED");
+    return id;
   }
 
   @SneakyThrows
   public String create(String studyId, String json) {
     val node = JsonUtils.readTree(json);
-    val type = getAnalysisType(node);
 
     val id = idService.generate(IdPrefix.Analysis);
+    val claimedStudyId = node.get("study").asText();
 
-    createAnalysis(id, studyId, type);
-
-    val study = node.get("study");
-    val fileIds = saveStudy(studyId, study);
-
-    for (val f : fileIds) {
-      addFile(id, f);
+    if (!studyId.equals(claimedStudyId)) {
+      return "Study Id in JSON file does not match study Id in URL";
     }
 
-    val analysis = node.get(type.toString());
+    createAnalysis(id, studyId);
+
+    //TODO: Save the sample, and associate it with this analysis!
+
+    JsonNode fileNode = node.get("file");
+    String foo = JsonUtils.toJson(fileNode);
+
+    List<File> files = Arrays.asList(JsonUtils.fromJson(foo, File[].class));
+
+    saveFiles(id, studyId, files);
+    val experiment = node.get("experiment");
+    return saveExperiment(id, experiment);
+  }
+
+  public String saveExperiment(String id, JsonNode analysis) {
+
+    if (analysis == null) {
+      return "Missing required analysis section 'experiment'";
+    }
+    val type = getAnalysisType(analysis);
+
     switch (type) {
-    case "sequencingRead":
-      return createSequencingRead(id, analysis);
-    case "variantCall":
-      return createVariantCall(id, analysis);
-    default:
-      return "Upload Analysis failed: Unknown Analysis Type";
+      case "sequencingRead":
+        return createSequencingRead(id, analysis);
+      case "variantCall":
+        return createVariantCall(id, analysis);
+      default:
+        return "Upload Analysis failed: Unknown Analysis Type";
+    }
+  }
+
+  void saveFiles(String id, String studyId, List<File> files) {
+    for (val f : files) {
+      val fileId = fileService.save(studyId, f);
+      addFile(id, fileId);
     }
   }
 
@@ -110,31 +126,6 @@ public class AnalysisService {
       return (ObjectNode) node;
     }
     throw new IllegalArgumentException(format("node '%s'{%s} is not an object node", node, key));
-  }
-
-  @SneakyThrows
-  Collection<String> saveStudy(String studyId, JsonNode study) {
-    val fileIds = new HashSet<String>();
-
-    val donor = get(study, "donor");
-    val specimen = donor.get("specimen");
-    val sample = specimen.get("sample");
-    val files = sample.get("files");
-
-    donor.put("studyId", studyId);
-    donor.remove("specimen");
-    val donorId = entityService.saveDonor(studyId, donor);
-
-    val specimenId = entityService.saveSpecimen(studyId, donorId, specimen);
-
-    val sampleId = entityService.saveSample(studyId, specimenId, sample);
-
-    for (val file : files) {
-      val fileId = entityService.saveFile(studyId, sampleId, file);
-      fileIds.add(fileId);
-    }
-
-    return fileIds;
   }
 
   String createSequencingRead(String id, JsonNode node) {
@@ -189,7 +180,7 @@ public class AnalysisService {
       repository.updateState(id,"PUBLISHED");
       return JsonUtils.fromSingleQuoted(format("'status':'success','msg': 'Analysis %s' successfully published.'", id));
     }
-    return JsonUtils.fromSingleQuoted(format("'status': 'failure', 'msg': 'The following file ids must be published before analysis id %s can be published: %s',id, files"));
+    return JsonUtils.fromSingleQuoted(format("'status': 'failure', 'msg': 'The following file ids must be published before analysis analysisId %s can be published: %s',analysisId, files"));
   }
 
   public String suppress(String id) {

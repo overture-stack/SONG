@@ -33,9 +33,8 @@ public class DonorMapper implements ResultSetMapper<Donor> {
   @Override
   @SneakyThrows
   public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    val metadata = ""; // TODO: Fix this once we add the metadata fields to all the database tables
     return Donor.create(r.getString("id"), r.getString("submitter_id"), r.getString("study_id"),
-        r.getString("gender"), metadata);
+        r.getString("gender"), r.getString("info"));
   }
 
 }

@@ -72,9 +72,8 @@ public class EntityService {
     return sampleService.save(studyId, s);
   }
 
-  public String saveFile(String studyId, String sampleId, JsonNode file) {
+  public String saveFile(String studyId, JsonNode file) {
     val f = JsonUtils.convertValue(file, File.class);
-    f.setSampleId(sampleId);
     return fileService.save(studyId, f);
   }
 
