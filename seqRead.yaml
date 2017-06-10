@@ -1,0 +1,29 @@
+analysis_type: "sequencing read"
+study: ABC123
+experiment: 
+    library_strategy: WXS
+    paired_end: false
+    insert_size: 900
+    aligned: true
+    alignment_tool: MUSE variant call pipeline
+    reference_genome: hs37d5
+sample: 
+  - sample_submitter_id: internal_sample_98024759826836
+    sample_type: Total RNA
+    specimen:
+        specimen_submitter_id: internal_specimen_9b73gk8s02dk
+        specimen_class: Normal
+        specimen_type: Normal - solid tissue
+    donor:
+      donor_submitter_id: internal_donor_123456789-00
+      donor_gender: female
+file: 
+  - file_type: VCF
+    file_name: a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz
+    file_size: 376953
+    file_md5sum: 61a91c4bf04ac2bd3795254104f75ad3
+  - file_type: IDX
+    file_Name: a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx
+    file_size: 4840
+    file_md5sum: 29594b19b079ad5731577e0495ddba63
+
