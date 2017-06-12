@@ -54,7 +54,7 @@ public class DonorService {
     }
     d.getSpecimens().forEach(s -> specimenService.create(id, s));
 
-    return "ok:" + id;
+    return id;
   }
 
   public Donor read(String id) {

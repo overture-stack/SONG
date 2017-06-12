@@ -27,7 +27,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.SequencingRead;
+import org.icgc.dcc.song.server.model.analysis.VariantCall;
 import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.composites.AnalysisSample;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.utils.JsonUtils;
@@ -48,67 +52,56 @@ public class AnalysisService {
   @Autowired
   private final IdService idService;
   @Autowired
-  private final EntityService entityService;
+  private final AnalysisSampleService sampleService;
   @Autowired
   private final FileService fileService;
   @Autowired
   private final ExistenceService existence;
 
 
+//  @SneakyThrows
+//  public String getAnalysisType(String json) {
+//    return getAnalysisType(JsonUtils.readTree(json));
+//  }
+//
+//  public String getAnalysisType(JsonNode node) {
+//    val type = node.get("analysisType").asText();
+//    return type;
+//  }
+//
+//  public String createAnalysis(String id, String studyId) {
+//    repository.createAnalysis(id, studyId,"UNPUBLISHED");
+//    return id;
+//  }
+
   @SneakyThrows
-  public String getAnalysisType(String json) {
-    return getAnalysisType(JsonUtils.readTree(json));
-  }
-
-  public String getAnalysisType(JsonNode node) {
-    val type = node.get("analysisType").asText();
-    return type;
-  }
-
-  public String createAnalysis(String id, String studyId) {
-    repository.createAnalysis(id, studyId,"UNPUBLISHED");
-    return id;
-  }
-
-  @SneakyThrows
-  public String create(String studyId, String json) {
-    val node = JsonUtils.readTree(json);
-
+  public String create(String studyId, Analysis a) {
     val id = idService.generate(IdPrefix.Analysis);
-    val claimedStudyId = node.get("study").asText();
+    a.setAnalysisId(id);
+    a.setStudy(studyId);
 
-    if (!studyId.equals(claimedStudyId)) {
-      return "Study Id in JSON file does not match study Id in URL";
-    }
+    repository.createAnalysis(a);
 
-    createAnalysis(id, studyId);
+    saveSamples(studyId, id, a.getSample() );
+    saveFiles(id, studyId, a.getFile());
 
-    //TODO: Save the sample, and associate it with this analysis!
+    val experiment = a.getExperiment();
 
-    JsonNode fileNode = node.get("file");
-    String foo = JsonUtils.toJson(fileNode);
+   if (experiment instanceof SequencingRead) {
+     repository.createSequencingRead((SequencingRead) experiment) ;
+   } else if (experiment instanceof VariantCall) {
+     repository.createVariantCall((VariantCall) experiment);
+   } else {
+     return "Analysis failed: Unknown Analysis Type"; // shouldn't be possible if we validated our JSON first...
+   }
 
-    List<File> files = Arrays.asList(JsonUtils.fromJson(foo, File[].class));
-
-    saveFiles(id, studyId, files);
-    val experiment = node.get("experiment");
-    return saveExperiment(id, experiment);
+  return id;
   }
 
-  public String saveExperiment(String id, JsonNode analysis) {
-
-    if (analysis == null) {
-      return "Missing required analysis section 'experiment'";
-    }
-    val type = getAnalysisType(analysis);
-
-    switch (type) {
-      case "sequencingRead":
-        return createSequencingRead(id, analysis);
-      case "variantCall":
-        return createVariantCall(id, analysis);
-      default:
-        return "Upload Analysis failed: Unknown Analysis Type";
+  public void saveSamples(String studyId, String id, List<AnalysisSample> samples) {
+    for(val sample: samples) {
+      val sampleId = sampleService.save(studyId, sample);
+      repository.addSample(id, sampleId);
     }
   }
 
@@ -123,34 +116,77 @@ public class AnalysisService {
     repository.addFile(id, fileId);
   }
 
-  ObjectNode get(JsonNode root, String key) {
-    val node = root.get(key);
-    if (node.isObject()) {
-      return (ObjectNode) node;
-    }
-    throw new IllegalArgumentException(format("node '%s'{%s} is not an object node", node, key));
-  }
-
-  String createSequencingRead(String id, JsonNode node) {
-    val strategy = node.get("libraryStrategy").asText();
-    val isPaired = node.get("pairedEnd").asBoolean();
-    val size = node.get("insertSize").asLong();
-    val isAligned = node.get("aligned").asBoolean();
-    val tool = node.get("alignmentTool").asText();
-    val genome = node.get("referenceGenome").asText();
-
-    repository.createSequencingRead(id, strategy, isPaired, size, isAligned, tool, genome);
-
-    return id;
-  }
-
-  String createVariantCall(String id, JsonNode node) {
-    val tool = node.get("variantCallingTool").asText();
-    val tumorId = node.get("tumourSampleSubmitterId").asText();
-    val normalId = node.get("matchedNormalSampleSubmitterId").asText();
-    repository.createVariantCall(id, tool, tumorId, normalId);
-    return id;
-  }
+//  @SneakyThrows
+//  public String create(String studyId, String json) {
+//    val node = JsonUtils.readTree(json);
+//
+//    val id = idService.generate(IdPrefix.Analysis);
+//    val claimedStudyId = node.get("study").asText();
+//
+//    if (!studyId.equals(claimedStudyId)) {
+//      return "Study Id in JSON file does not match study Id in URL";
+//    }
+//
+//    createAnalysis(id, studyId);
+//
+//    //TODO: Save the sample, and associate it with this analysis!
+//
+//    JsonNode fileNode = node.get("file");
+//    String foo = JsonUtils.toJson(fileNode);
+//    List<File> files = Arrays.asList(JsonUtils.fromJson(foo, File[].class));
+//
+//    saveFiles(id, studyId, files);
+//    val experiment = node.get("experiment");
+//    return saveExperiment(id, experiment);
+//  }
+//
+//  public String saveExperiment(String id, JsonNode analysis) {
+//
+//    if (analysis == null) {
+//      return "Missing required analysis section 'experiment'";
+//    }
+//    val type = getAnalysisType(analysis);
+//
+//    switch (type) {
+//      case "sequencingRead":
+//        return createSequencingRead(id, analysis);
+//      case "variantCall":
+//        return createVariantCall(id, analysis);
+//      default:
+//        return "Upload Analysis failed: Unknown Analysis Type";
+//    }
+//  }
+//
+//
+//
+//  ObjectNode get(JsonNode root, String key) {
+//    val node = root.get(key);
+//    if (node.isObject()) {
+//      return (ObjectNode) node;
+//    }
+//    throw new IllegalArgumentException(format("node '%s'{%s} is not an object node", node, key));
+//  }
+//
+//  String createSequencingRead(String id, JsonNode node) {
+//    val strategy = node.get("libraryStrategy").asText();
+//    val isPaired = node.get("pairedEnd").asBoolean();
+//    val size = node.get("insertSize").asLong();
+//    val isAligned = node.get("aligned").asBoolean();
+//    val tool = node.get("alignmentTool").asText();
+//    val genome = node.get("referenceGenome").asText();
+//
+//    repository.createSequencingRead(id, strategy, isPaired, size, isAligned, tool, genome);
+//
+//    return id;
+//  }
+//
+//  String createVariantCall(String id, JsonNode node) {
+//    val tool = node.get("variantCallingTool").asText();
+//    val tumorId = node.get("tumourSampleSubmitterId").asText();
+//    val normalId = node.get("matchedNormalSampleSubmitterId").asText();
+//    repository.createVariantCall(id, tool, tumorId, normalId);
+//    return id;
+//  }
 
   public List<String> getAnalyses(Map<String, String> params) {
     // TODO Auto-generated method stub

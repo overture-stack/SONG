@@ -52,7 +52,7 @@ public class SampleService {
       return "error: Can't create" + s.toString();
     }
 
-    return "ok:" + id;
+    return id;
   }
 
   public Sample read(String id) {
@@ -107,5 +107,6 @@ public class SampleService {
     }
     return sampleId;
   }
+
 
 }

@@ -202,9 +202,8 @@ public class SerializationTest {
   }
 
   @Test
-  public void testAnalysisFromJson() throws IOException {
+  public void testSequencingReadAnalysisFromJson() throws IOException {
     val json = new String(Files.readAllBytes(new java.io.File("..","meta2.json").toPath()));
-
     val analysis = JsonUtils.fromJson(json, Analysis.class);
 
     System.out.printf("*** Analysis object='%s'\n",analysis);
@@ -223,6 +222,14 @@ public class SerializationTest {
     assertThat(r.getLibraryStrategy()).isEqualTo("WXS");
     assertThat(r.getInsertSize()).isEqualTo(900);
     assertThat(r.getAlignmentTool()).isEqualTo("MUSE variant call pipeline");
+  }
+
+  @Test
+  public void testVariantCallAnalysisFromJson() throws IOException {
+    val json = new String(Files.readAllBytes(new java.io.File("..","variantCall.json").toPath()));
+    val analysis = JsonUtils.fromJson(json, Analysis.class);
+
+    System.out.printf("*** Analysis object='%s'\n",analysis);
 
 
   }

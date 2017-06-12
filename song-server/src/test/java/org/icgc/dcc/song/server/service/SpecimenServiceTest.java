@@ -100,7 +100,7 @@ public class SpecimenServiceTest {
         val id = s.getSpecimenId();
 
         assertThat(id).startsWith("SP");
-        Assertions.assertThat(status).isEqualTo("ok:" + id);
+        Assertions.assertThat(status).isEqualTo(id);
 
         val check = specimenService.read(id);
         assertThat(s).isEqualToComparingFieldByField(check);

@@ -54,13 +54,16 @@ DROP TYPE IF EXISTS analysis_type;
 CREATE TYPE analysis_type as ENUM('sequencingRead','variantCall','MAF');
 
 CREATE TABLE Study(id VARCHAR(36) PRIMARY KEY, name TEXT, description TEXT, organization TEXT);
+
 CREATE TABLE Donor(id VARCHAR(16) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT, gender GENDER);
 CREATE TABLE Specimen(id VARCHAR(16) PRIMARY KEY, donor_id VARCHAR(16) references Donor, submitter_id TEXT, class SPECIMEN_CLASS, type SPECIMEN_TYPE);
 CREATE TABLE Sample(id VARCHAR(16) PRIMARY KEY, specimen_id VARCHAR(16) references Specimen, submitter_id TEXT, type SAMPLE_TYPE);
+
 CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, name TEXT, size BIGINT, md5 CHAR(32), type FILE_TYPE, info TEXT);
 
 CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, study_id VARCHAR(36) references Study, state ANALYSIS_STATE, fileset_id VARCHAR(16) references FileSet);
 CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File);
+CREATE TABLE AnalysisSampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);
 CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN, insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT);
 CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT);
 

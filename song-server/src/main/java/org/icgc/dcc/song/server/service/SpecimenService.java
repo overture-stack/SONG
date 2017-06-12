@@ -53,7 +53,7 @@ public class SpecimenService {
       return "error: Can't create" + specimen.toString();
     }
 
-    return "ok:" + id;
+    return id;
   }
 
   public String createWithSamples(String parentId, SpecimenSamples specimen) {

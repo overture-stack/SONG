@@ -38,6 +38,7 @@ public class SequencingRead extends Experiment {
   private int insertSize;
   private String libraryStrategy;
   private boolean pairedEnd;
+  private String referenceGenome;
 
   public static SequencingRead create(String id, boolean aligned, String tool, int size, String strategy,
                                boolean isPaired, String info) {

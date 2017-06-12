@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x 
-u=`sing upload -f metadata.json`
+uploadFile=${1:-metadata.json}
+u=`sing upload -f $uploadFile`
 echo "Got upload id '$u'"
 sing status -u $u | jq -C .state 
 sleep 1

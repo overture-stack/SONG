@@ -86,7 +86,7 @@ public class DonorServiceTest {
     val id = d.getDonorId();
 
     assertThat(id).startsWith("DO");
-    Assertions.assertThat(status).isEqualTo("ok:" + id);
+    Assertions.assertThat(status).isEqualTo(id);
 
     DonorSpecimens check = service.readWithSpecimens(id);
     assertThat(d).isEqualToComparingFieldByField(check);

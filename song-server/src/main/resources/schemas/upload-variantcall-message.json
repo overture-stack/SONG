@@ -2,17 +2,17 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://song.icgc.org/messages/uploadVariantCall",
   "type": "object",
-  "required": ["analysisType","study", "experiment","sample","file"],
+  "required": ["study", "experiment","sample","file"],
   "properties": {
-    "analysisType": {
-      "type": "string",
-      "enum": [
-        "variantCall"
-      ]
-    },
     "experiment": {
-      "required":[],
+      "required":["analysisType"],
       "properties": {
+        "analysisType": {
+          "type": "string",
+          "enum": [
+            "variantCall"
+          ]
+        },
         "matchedNormalSampleSubmitterId": {
           "type": "string"
         },

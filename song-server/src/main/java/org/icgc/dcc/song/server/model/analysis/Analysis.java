@@ -38,9 +38,9 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class Analysis extends Metadata {
 
-  String analysisId;
-  String study;
-  String analysisState;
+  String analysisId="";
+  String study="";
+  String analysisState="UNPUBLISHED";
 
   List<AnalysisSample> sample;
   Experiment experiment;

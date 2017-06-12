@@ -54,11 +54,22 @@ public class UploadServiceTest {
   @Autowired
   UploadService uploadService;
 
+  @Test
+  @SneakyThrows
+  public void testUploadSequencingRead() {
+    val json = new String(Files.readAllBytes(new File("..", "metadata.json").toPath()));
+    testUpload(json);
+  }
+
+  @Test
+  @SneakyThrows
+  public void testUploadVariantCall() {
+    val json = new String(Files.readAllBytes(new File("..", "variantCall.json").toPath()));
+    testUpload(json);
+  }
 
   @SneakyThrows
-  @Test
-  public void testUpload() {
-    val json = new String(Files.readAllBytes(new File("..", "metadata.json").toPath()));
+  public void testUpload(String json) {
     val uploadStatus=uploadService.upload("ABC123", json);
     assertThat(uploadStatus != null).isTrue();
     val uploadId=uploadStatus.getBody();
@@ -95,7 +106,6 @@ public class UploadServiceTest {
     assertThat(analysisResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     val analysisId = analysisResponse.getBody();
     assertThat(analysisId.toString().startsWith("AN")).isTrue();
-
   }
 
 

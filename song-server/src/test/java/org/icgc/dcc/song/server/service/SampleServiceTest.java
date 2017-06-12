@@ -64,7 +64,7 @@ public class SampleServiceTest {
     val id = s.getSampleId();
 
     assertThat(id).startsWith("SA");
-    assertThat(status).isEqualTo("ok:" + id);
+    assertThat(status).isEqualTo(id);
 
     Sample check = sampleService.read(id);
     assertThat(s).isEqualToComparingFieldByField(check);

@@ -1,7 +1,7 @@
 {
-  "analysisType": "sequencingRead",
   "study": "ABC123",
-  "labExperiment": {
+  "experiment": {
+    "analysisType": "sequencingRead",
     "libraryStrategy": "WXS",
     "pairedEnd": false,
     "insertSize": 900,

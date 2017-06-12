@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Upload;
+import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.icgc.dcc.song.server.utils.JsonUtils;
@@ -45,7 +46,7 @@ public class UploadService {
   private final ValidationService validator;
 
   @Autowired
-  private final AnalysisService analysis;
+  private final AnalysisService analysisService;
 
   @Autowired
   private final UploadRepository uploadRepository;
@@ -89,7 +90,8 @@ public class UploadService {
 
     updateAsSaved(uploadId);
     val json = s.getPayload();
-    return ok(analysis.create(studyId, json));
+    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    return ok(analysisService.create(studyId, analysis));
   }
 
   private void updateAsSaved(@NonNull String uploadId) {
