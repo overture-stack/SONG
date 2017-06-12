@@ -5,7 +5,7 @@ import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.listener.RetryListenerSupport;
 
-public class TestRetryListener extends RetryListenerSupport {
+public class CountingRetryListener extends RetryListenerSupport {
 
   @Getter
   private int errorCount = 0;

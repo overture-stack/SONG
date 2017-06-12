@@ -92,7 +92,7 @@ auth:
     # Max number of retries
     maxRetries: 5
 
-    # Initial timeout before the first retry. In milliseconds.
+    # Initial timeoutMs before the first retry. In milliseconds.
     initialBackoff: 15000
 
     # Multiplier that defines value of consequent timeouts before the next retry.

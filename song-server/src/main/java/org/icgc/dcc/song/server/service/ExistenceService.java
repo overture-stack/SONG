@@ -10,13 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import static java.lang.Boolean.parseBoolean;
@@ -37,13 +35,13 @@ public class ExistenceService {
   @NonNull private final String storageUrl;
 
   @Setter(PRIVATE)
-  private int timeout;
+  private int timeoutMs;
   private RestTemplate restTemplate = new RestTemplate();
 
   public ExistenceService(RetryTemplate retryTemplate, String storageUrl) {
     this.storageUrl = joinUrl(storageUrl, UPLOAD);
     this.retryTemplate = retryTemplate;
-    setTimeout(DEFAULT_TIMEOUT);
+    setTimeoutMs(DEFAULT_TIMEOUT);
   }
 
   @SneakyThrows
@@ -54,6 +52,9 @@ public class ExistenceService {
       val httpHeaders = new HttpHeaders();
       httpHeaders.set(AUTHORIZATION, accessToken);
       val req = new HttpEntity<>(httpHeaders);
+      val rf =(SimpleClientHttpRequestFactory)restTemplate.getRequestFactory();
+      rf.setConnectTimeout(timeoutMs);
+      rf.setReadTimeout(timeoutMs);
       val resp = restTemplate.exchange(url.toURI(), HttpMethod.GET, req, String.class);
       return parseBoolean(resp.getBody());
     });
@@ -62,17 +63,12 @@ public class ExistenceService {
 
   public static ExistenceService createExistenceService(RetryTemplate retryTemplate, String storageUrl, int timeout){
     val e = createExistenceService(retryTemplate, storageUrl);
-    e.setTimeout(timeout);
+    e.setTimeoutMs(timeout);
     return e;
   }
 
   public static ExistenceService createExistenceService(RetryTemplate retryTemplate,String baseUrl){
     return new ExistenceService(retryTemplate,baseUrl);
-  }
-
-  @SneakyThrows
-  private static BufferedReader getReader(HttpURLConnection con){
-    return new BufferedReader(new InputStreamReader(con.getInputStream()));
   }
 
   private static String joinUrl(String ... path){

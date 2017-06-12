@@ -848,7 +848,7 @@ waitforjavastartup() {
     getstatus
     eval echo $ECHOOPT `gettext 'Waiting for $APP_LONG_NAME...'`
     
-    # Wait until the timeout or we have something besides Unknown.
+    # Wait until the timeoutMs or we have something besides Unknown.
     counter=15
     while [ "$JAVASTATUS" = "Unknown" -a $counter -gt 0 -a -n "$JAVASTATUS" ] ; do
         echo $ECHOOPT"."

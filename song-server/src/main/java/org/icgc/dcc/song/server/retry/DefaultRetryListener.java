@@ -59,7 +59,7 @@ public class DefaultRetryListener extends RetryListenerSupport {
     }
 
     if (!(isConnectionTimeout(throwable) || isServiceUnavailable(throwable))) {
-      log.info("Detected a connection exception, but it's not the connection timeout or 503 Service Unavailabe. "
+      log.info("Detected a connection exception, but it's not the connection timeoutMs or 503 Service Unavailabe. "
           + "Do not retry.");
       context.setExhaustedOnly();
     }
