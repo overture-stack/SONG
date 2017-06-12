@@ -56,24 +56,6 @@ public class AnalysisServiceTest {
   @Autowired
   AnalysisService service;
 
-//  //<editor-fold desc="Description">
-//  @Test
-//  public void testGetAnalysisType_SequencingRead() {
-//    val node = JsonUtils.ObjectNode().put("analysisType","sequencingRead");
-//    val s = JsonUtils.nodeToJSON(node);
-//    val result = service.getAnalysisType(s);
-//    assertThat(result).isEqualTo("sequencingRead");
-//  }
-//
-//  @Test
-//  public void testGetAnalysisType_VariantCall() {
-//    val node = JsonUtils.ObjectNode().put("analysisType", "variantCall");
-//    val s = JsonUtils.nodeToJSON(node);
-//    val result = service.getAnalysisType(s);
-//    assertThat(result).isEqualTo("variantCall");
-//  }
-//  //</editor-fold>
-
   /***
    * Tell javac/Eclipse/IntelliJ, etc. that our code might throw an Exception.
    *
@@ -99,60 +81,6 @@ public class AnalysisServiceTest {
     assertThat(true); // we didn't crash
   }
 
-//  @Test
-//  public void testCreateAnalysis() {
-//    val id = "AN3";
-//    val studyId = "ABC123";
-//
-//    service.createAnalysis(id, studyId);
-//    // TODO: verify record was added to Analysis table
-//
-//    assertThat(true); // we didn't crash
-//  }
-//
-//  @SneakyThrows
-//  @Test
-//  public void testCreateSequencingRead() {
-//    val id = "AN3";
-//
-//    val node = JsonNodeFactory.instance.objectNode().put("libraryStrategy", "WXS").put("pairedEnd", false)
-//        .put("insertSize", 900L).put("aligned", true).put("alignmentTool", "Muse variant call pipeline")
-//        .put("referenceGenome", "hs37d5");
-//
-//    service.createSequencingRead(id, node);
-//    // TODO: Verify record was added to SequencingRead table
-//
-//    assertThat(true); // we didn't crash
-//  }
-//
-//  @SneakyThrows
-//  @Test
-//  public void testCreateVariantCall() {
-//    val id = "AN4";
-//    val studyId = "ABC123";
-//    val type = "variantCall";
-//
-//    val node = JsonNodeFactory.instance.objectNode().put("variantCallingTool", "silver bullet")
-//        .put("tumourSampleSubmitterId", "tumor1A").put("matchedNormalSampleSubmitterId", "reference2B");
-//
-//    service.createAnalysis(id, studyId);
-//    service.createVariantCall(id, node);
-//
-//    // TODO: Verify record was added to VariantCallTable
-//    assertThat(true); // no crash yet
-//  }
-//
-//  @SneakyThrows
-//  @Test
-//  public void testCreate() {
-//    val fileName = "documents/upload-sequencingread-valid.json";
-//    val studyId = "ABC123";
-//    String json = getJsonNodeFromClasspath(fileName);
-//    service.create(studyId, json);
-//    // TODO: Verify that the study AND the correct type of analysis was created
-//    assertThat(true); // no crashes yet
-//
-//  }
 
   public String getJsonNodeFromClasspath(String name) throws Exception {
     InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);

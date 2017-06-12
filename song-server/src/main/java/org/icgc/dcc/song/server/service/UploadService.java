@@ -88,10 +88,15 @@ public class UploadService {
           state);
     }
 
-    updateAsSaved(uploadId);
+
     val json = s.getPayload();
     val analysis = JsonUtils.fromJson(json, Analysis.class);
-    return ok(analysisService.create(studyId, analysis));
+    val id = analysisService.create(studyId, analysis);
+    if (id == null) {
+      return status(HttpStatus.EXPECTATION_FAILED,"Could not create id upload id '%id",uploadId);
+    }
+    updateAsSaved(uploadId);
+    return ok(id);
   }
 
   private void updateAsSaved(@NonNull String uploadId) {
