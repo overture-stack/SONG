@@ -58,7 +58,6 @@ public class RetryConfig {
 
     result.setRetryPolicy(new SimpleRetryPolicy(maxRetries, getRetryableExceptions(), true));
     result.registerListener(new DefaultRetryListener(clientRetryListener()));
-
     return result;
   }
 

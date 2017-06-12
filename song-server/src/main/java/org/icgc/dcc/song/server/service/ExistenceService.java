@@ -3,11 +3,16 @@ package org.icgc.dcc.song.server.service;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -16,8 +21,10 @@ import java.net.URL;
 
 import static java.lang.Boolean.parseBoolean;
 import static lombok.AccessLevel.PRIVATE;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
+@Slf4j
 public class ExistenceService {
 
   private static final String UPLOAD = "upload";
@@ -31,6 +38,7 @@ public class ExistenceService {
 
   @Setter(PRIVATE)
   private int timeout;
+  private RestTemplate restTemplate = new RestTemplate();
 
   public ExistenceService(RetryTemplate retryTemplate, String storageUrl) {
     this.storageUrl = joinUrl(storageUrl, UPLOAD);
@@ -43,15 +51,11 @@ public class ExistenceService {
     return retryTemplate.execute(retryContext -> {
       val endpointUrl = joinUrl(storageUrl, objectId);
       val url = new URL(endpointUrl);
-      val con = (HttpURLConnection)url.openConnection();
-      con.setRequestMethod("GET");
-      con.setRequestProperty("Authorization", accessToken);
-      con.setConnectTimeout(timeout);
-      con.setReadTimeout(timeout);
-      val opt = getReader(con)
-          .lines()
-          .findFirst();
-      return parseBoolean(opt.orElseThrow( () ->  new IllegalStateException("There was no response. Expecting a [true] or [false]")));
+      val httpHeaders = new HttpHeaders();
+      httpHeaders.set(AUTHORIZATION, accessToken);
+      val req = new HttpEntity<>(httpHeaders);
+      val resp = restTemplate.exchange(url.toURI(), HttpMethod.GET, req, String.class);
+      return parseBoolean(resp.getBody());
     });
   }
 
