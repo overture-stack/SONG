@@ -34,10 +34,6 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(FileMapper.class)
 public interface AnalysisRepository {
 
-  @SqlUpdate("INSERT INTO Analysis (id, study_id,state) VALUES (:analysisId, :studyId, :state)")
-  void createAnalysis(@Bind("analysisId") String id, @Bind("studyId") String studyId,
-                      @Bind("state") String state);
-
   @SqlUpdate("INSERT INTO Analysis (id, study_id,state) VALUES (:analysisId, :study, :analysisState)")
   void createAnalysis(@BindBean Analysis analysis );
 
@@ -51,20 +47,8 @@ public interface AnalysisRepository {
   void addSample(@Bind("analysisId") String id, @Bind("sampleId") String fileId);
 
   @SqlUpdate("INSERT INTO SequencingRead (id, library_strategy, paired_end, insert_size,aligned,alignment_tool, reference_genome) "
-      + "VALUES (:analysisId, :libraryStrategy, :pairedEnd, :insertSize, :aligned, :alignmentTool, :referenceGenome)")
-  void createSequencingRead(@Bind("analysisId") String id, @Bind("libraryStrategy") String libraryStrategy,
-      @Bind("pairedEnd") Boolean pairedEnd,
-      @Bind("insertSize") Long insertSize, @Bind("aligned") Boolean aligned,
-      @Bind("alignmentTool") String alignmentTool, @Bind("referenceGenome") String referenceGenome);
-
-  @SqlUpdate("INSERT INTO SequencingRead (id, library_strategy, paired_end, insert_size,aligned,alignment_tool, reference_genome) "
           + "VALUES (:analysisId, :libraryStrategy, :pairedEnd, :insertSize, :aligned, :alignmentTool, :referenceGenome)")
   void createSequencingRead(@BindBean SequencingRead s);
-
-
-  @SqlUpdate("INSERT INTO VariantCall (id, variant_calling_tool,tumour_sample_submitter_id, matched_normal_sample_submitter_id) values(:analysisId, :tool, :tumorId, :normalId)")
-  void createVariantCall(@Bind("analysisId") String id, @Bind("tool") String tool, @Bind("tumorId") String tumorId,
-      @Bind("normalId") String normalId);
 
   @SqlUpdate("INSERT INTO VariantCall (id, variant_calling_tool, matched_normal_sample_submitter_id) values(:analysisId, :tool, :normalId)")
   void createVariantCall(@BindBean VariantCall c);

@@ -51,7 +51,7 @@ public class FileService {
       return "error: Can't create" + f.toString();
     }
 
-    return "ok:" + id;
+    return id;
   }
 
   public File read(String id) {
