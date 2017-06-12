@@ -17,11 +17,13 @@
  *
  */
 package org.icgc.dcc.song.server.service;
-
 import static java.lang.String.format;
 import static org.springframework.http.ResponseEntity.ok;
-
 import lombok.SneakyThrows;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.UploadRepository;
@@ -32,11 +34,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
-
 @RequiredArgsConstructor
 @Service
 @Slf4j
@@ -46,6 +43,7 @@ public class UploadService {
   private final IdService id;
   @Autowired
   private final ValidationService validator;
+
   @Autowired
   private final AnalysisService analysis;
 
@@ -79,7 +77,7 @@ public class UploadService {
 
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId) {
     val s = read(uploadId);
-    if (s == null) {
+    if (s == null ){
       return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
     }
     val state = s.getState();

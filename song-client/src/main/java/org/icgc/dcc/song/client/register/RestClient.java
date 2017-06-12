@@ -84,4 +84,8 @@ public class RestClient {
     return status;
   }
 
+  public Status put(String url) {
+    return put(url,"");
+  }
+
 }
