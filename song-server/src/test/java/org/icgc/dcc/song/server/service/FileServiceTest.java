@@ -78,7 +78,7 @@ public class FileServiceTest {
     val id = f.getObjectId();
 
     assertThat(id).startsWith("FI");
-    assertThat(status).isEqualTo("ok:" + id);
+    assertThat(status).isEqualTo(id);
 
     File check = fileService.read(id);
     assertThat(f).isEqualToComparingFieldByField(check);

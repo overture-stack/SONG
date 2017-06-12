@@ -75,9 +75,11 @@ public class UploadServiceTest {
     val uploadId=uploadStatus.getBody();
     assertThat(uploadId != null).isTrue();
     System.out.printf("Got uploadId='%s",uploadId);
+
     Upload status = uploadService.read(uploadId.toString());
     assertThat(status != null).isTrue();
     assertThat(status.getState()).isEqualTo("CREATED");
+
     Thread.sleep(3500);
     status = uploadService.read(uploadId.toString());
     assertThat(status.getState()).isEqualTo("VALIDATED");
@@ -87,21 +89,36 @@ public class UploadServiceTest {
 
   @SneakyThrows
   @Test
-  public void testSave() {
-    val study="ABC123";
+  public void testSaveSequencingRead() {
     val json = new String(Files.readAllBytes(new File("..","metadata.json").toPath()));
+    testSave(json);
+  }
+
+  @SneakyThrows
+  @Test
+  public void testSaveVariantCall() {
+    val json = new String(Files.readAllBytes(new File("..", "variantCall.json").toPath()));
+    testSave(json);
+  }
+
+  @SneakyThrows
+  public void testSave(String json) {
+    val study="ABC123";
+
     val uploadStatus=uploadService.upload(study, json);
     assertThat(uploadStatus != null).isTrue();
     val uploadId=uploadStatus.getBody();
     assertThat(uploadId != null).isTrue();
-
     System.out.printf("Got uploadId='%s",uploadId);
+
     Upload status = uploadService.read(uploadId.toString());
     assertThat(status != null).isTrue();
     assertThat(status.getState()).isEqualTo("CREATED");
     Thread.sleep(3500);
+
     status = uploadService.read(uploadId.toString());
     assertThat(status.getState()).isEqualTo("VALIDATED");
+
     val analysisResponse = uploadService.save(study, uploadId.toString());
     assertThat(analysisResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     val analysisId = analysisResponse.getBody();

@@ -50,7 +50,8 @@ public interface AnalysisRepository {
           + "VALUES (:analysisId, :libraryStrategy, :pairedEnd, :insertSize, :aligned, :alignmentTool, :referenceGenome)")
   void createSequencingRead(@BindBean SequencingRead s);
 
-  @SqlUpdate("INSERT INTO VariantCall (id, variant_calling_tool, matched_normal_sample_submitter_id) values(:analysisId, :tool, :normalId)")
+  @SqlUpdate("INSERT INTO VariantCall (id, variant_calling_tool, matched_normal_sample_submitter_id) " +
+          "values(:analysisId, :variantCallingTool, :matchedNormalSampleSubmitterId)")
   void createVariantCall(@BindBean VariantCall c);
 
   @SqlQuery("SELECT f.id, f.name, f.study_id, f.size, f.type, f.md5, f.info "
