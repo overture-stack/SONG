@@ -5,11 +5,9 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,9 @@ import java.net.URL;
 
 import static java.lang.Boolean.parseBoolean;
 import static lombok.AccessLevel.PRIVATE;
+import static org.icgc.dcc.common.core.util.Joiners.SLASH;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.GET;
 
 @Service
 @Slf4j
@@ -47,15 +47,14 @@ public class ExistenceService {
   @SneakyThrows
   public boolean isObjectExist(@NonNull String accessToken, @NonNull String objectId) {
     return retryTemplate.execute(retryContext -> {
-      val endpointUrl = joinUrl(storageUrl, objectId);
-      val url = new URL(endpointUrl);
+      val url = new URL(joinUrl(storageUrl, objectId));
       val httpHeaders = new HttpHeaders();
       httpHeaders.set(AUTHORIZATION, accessToken);
       val req = new HttpEntity<>(httpHeaders);
       val rf =(SimpleClientHttpRequestFactory)restTemplate.getRequestFactory();
       rf.setConnectTimeout(timeoutMs);
       rf.setReadTimeout(timeoutMs);
-      val resp = restTemplate.exchange(url.toURI(), HttpMethod.GET, req, String.class);
+      val resp = restTemplate.exchange(url.toURI(), GET, req, String.class);
       return parseBoolean(resp.getBody());
     });
   }
@@ -72,7 +71,7 @@ public class ExistenceService {
   }
 
   private static String joinUrl(String ... path){
-    return Joiners.SLASH.join(path);
+    return SLASH.join(path);
   }
 
 }
