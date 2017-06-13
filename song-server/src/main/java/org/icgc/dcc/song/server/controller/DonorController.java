@@ -24,7 +24,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import java.util.List;
 
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.composites.DonorSpecimens;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.service.DonorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,7 +54,7 @@ public class DonorController {
   @PostMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(@RequestBody DonorSpecimens donor) {
+  public String create(@RequestBody DonorWithSpecimens donor) {
     return donorService.create(donor);
 
   }

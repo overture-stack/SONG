@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Value
-public class SpecimenSamples extends Specimen {
+public class SpecimenWithSamples extends Specimen {
     private List<Sample> samples = new ArrayList<>();
 
     public void setSpecimen(Specimen s) {

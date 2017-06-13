@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class StudyDonors extends Study {
-    List<DonorSpecimens> donors=new ArrayList<>();
+public class StudyWithDonors extends Study {
+    List<DonorWithSpecimens> donors=new ArrayList<>();
 
     @JsonIgnore
     public Study getStudy() {
@@ -25,11 +25,11 @@ public class StudyDonors extends Study {
         s.addInfo(s.getInfo());
     }
 
-    public void addDonor(DonorSpecimens d) {
+    public void addDonor(DonorWithSpecimens d) {
         donors.add(d);
     }
 
-    public void setDonors(List<DonorSpecimens> donors) {
+    public void setDonors(List<DonorWithSpecimens> donors) {
         donors.clear();
         donors.addAll(donors);
     }

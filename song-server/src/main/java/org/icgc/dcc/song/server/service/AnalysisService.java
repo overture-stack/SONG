@@ -19,17 +19,15 @@
 package org.icgc.dcc.song.server.service;
 
 import static java.lang.String.format;
-import java.util.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
-import org.icgc.dcc.song.server.model.analysis.SequencingRead;
-import org.icgc.dcc.song.server.model.analysis.VariantCall;
+import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
+import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.composites.AnalysisSample;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
@@ -69,14 +67,15 @@ public class AnalysisService {
     saveSamples(studyId, id, a.getSample() );
     saveFiles(id, studyId, a.getFile());
 
-    val experiment = a.getExperiment();
-
-   if (experiment instanceof SequencingRead) {
-     repository.createSequencingRead((SequencingRead) experiment) ;
-   } else if (experiment instanceof VariantCall) {
-     repository.createVariantCall((VariantCall) experiment);
+   if (a instanceof SequencingReadAnalysis) {
+     val experiment = ((SequencingReadAnalysis) a).getExperiment();
+     repository.createSequencingRead(experiment) ;
+   } else if (a instanceof VariantCallAnalysis) {
+     val experiment = ((VariantCallAnalysis) a).getExperiment();
+     repository.createVariantCall(experiment);
    } else {
-     return "Analysis failed: Unknown Analysis Type"; // shouldn't be possible if we validated our JSON first...
+     // shouldn't be possible if we validated our JSON first...
+     return "Analysis failed: Unknown Analysis Type";
    }
 
   return id;
@@ -106,9 +105,18 @@ public class AnalysisService {
     return null;
   }
 
-  public String getAnalysisById(String id) {
-    // TODO Auto-generated method stub
-    return null;
+  public Analysis read(String id) {
+    val analysis = repository.read(id);
+
+    analysis.setFile(readFiles(id));
+    analysis.setSample(readSamples(id));
+    if (analysis instanceof SequencingReadAnalysis) {
+      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(id));
+    } else if (analysis instanceof VariantCallAnalysis) {
+      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(id));
+    }
+
+    return analysis;
   }
 
   public String updateAnalysis(String studyId, String json) {
@@ -116,12 +124,20 @@ public class AnalysisService {
     return null;
   }
 
-  public List<File> readFilesByAnalysisId(String id) {
-    return repository.getFilesById(id);
+  public List<File> readFiles(String id) {
+    return repository.readFiles(id);
+  }
+
+  public List<AnalysisSample> readSamples(String id) {
+    val samples = new ArrayList<AnalysisSample>();
+    for(val sampleId: repository.findSampleIds(id)) {
+        samples.add(sampleService.read(sampleId));
+    }
+    return samples;
   }
 
   public String publish(@NonNull String accessToken, @NonNull String id) {
-    val files = readFilesByAnalysisId(id);
+    val files = readFiles(id);
     List<String> missingUploads=new ArrayList<>();
     for (val f: files) {
        if ( !confirmUploaded(accessToken,f.getObjectId()) ) {

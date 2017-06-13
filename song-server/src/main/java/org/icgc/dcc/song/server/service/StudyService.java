@@ -22,7 +22,7 @@ import java.util.List;
 
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
-import org.icgc.dcc.song.server.model.entity.composites.StudyDonors;
+import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
 import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,8 +48,8 @@ public class StudyService {
   }
 
   @SneakyThrows
-  public StudyDonors readWithChildren(String studyId) {
-    val study = new StudyDonors();
+  public StudyWithDonors readWithChildren(String studyId) {
+    val study = new StudyWithDonors();
     study.setStudy(read(studyId));
     study.setDonors(donorService.readByParentId(studyId));
     return study;

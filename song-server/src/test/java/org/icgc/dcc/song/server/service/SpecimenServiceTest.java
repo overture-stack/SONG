@@ -25,7 +25,6 @@ import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
-import org.icgc.dcc.song.server.model.entity.composites.SpecimenSamples;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

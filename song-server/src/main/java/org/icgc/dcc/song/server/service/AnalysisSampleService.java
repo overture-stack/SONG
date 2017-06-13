@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class AnalysisSampleService {
+
     @Autowired
     private final SampleService sampleService;
 
@@ -19,7 +20,6 @@ public class AnalysisSampleService {
 
     @Autowired
     private final DonorService donorService;
-
 
     public String save(String studyId, AnalysisSample s) {
         String id =sampleService.findByBusinessKey(studyId, s.getSampleSubmitterId());
@@ -48,4 +48,12 @@ public class AnalysisSampleService {
     private String getSpecimenParent(String studyId, AnalysisSample s) {
        return donorService.save(studyId, s.getDonor());
     }
+
+    public AnalysisSample read(String sampleId) {
+        val sample = AnalysisSample.create(sampleService.read(sampleId));
+        sample.setSpecimen(specimenService.read(sample.getSpecimenId()));
+        sample.setDonor(donorService.read(sample.getSpecimen().getDonorId()));
+        return sample;
+    }
+
 }

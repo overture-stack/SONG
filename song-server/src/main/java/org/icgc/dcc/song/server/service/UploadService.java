@@ -70,7 +70,7 @@ public class UploadService {
       throw new RepositoryException(jdbie.getCause());
     }
 
-    val analysisType = JsonUtils.readTree(payload).at("/experiment/analysisType").asText("");
+    val analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     validator.validate(uploadId, payload, analysisType); // Async operation.
 
     return ok(uploadId);

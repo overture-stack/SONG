@@ -16,7 +16,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.server.model.utils;
+package org.icgc.dcc.song.server.utils;
 
 import java.io.InputStream;
 
@@ -26,6 +26,7 @@ import com.networknt.schema.JsonSchemaFactory;
 
 import lombok.SneakyThrows;
 import lombok.val;
+import org.icgc.dcc.song.server.utils.JsonDocUtils;
 
 public class JsonSchemaUtils extends JsonDocUtils {
 

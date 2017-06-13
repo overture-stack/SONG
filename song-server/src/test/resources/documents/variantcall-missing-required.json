@@ -1,6 +1,5 @@
-{
+{ "analysisType": "variantCall",
   "experiment": {
-    "analysisType": "variantCall"
   },
   "sample": [
     {

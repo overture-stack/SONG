@@ -27,7 +27,6 @@ import org.assertj.core.api.Assertions;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +38,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import lombok.SneakyThrows;
 import lombok.val;
 
 @SpringBootTest
@@ -91,7 +88,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadFilesByAnalysisId() {
-    val files = service.readFilesByAnalysisId("AN1");
+    val files = service.readFiles("AN1");
     System.err.printf("Got files '%s'", files);
     val expectedFiles = new ArrayList<File>();
     expectedFiles.add(fileService.read("FI1"));

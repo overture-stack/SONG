@@ -25,7 +25,7 @@ import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.Specimen;
-import org.icgc.dcc.song.server.model.entity.composites.DonorSpecimens;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,7 +79,7 @@ public class DonorServiceTest {
     json.put("studyId", studyId);
     json.put("donorGender", "unspecified");
 
-    DonorSpecimens d = JsonUtils.mapper().convertValue(json, DonorSpecimens.class);
+    DonorWithSpecimens d = JsonUtils.mapper().convertValue(json, DonorWithSpecimens.class);
     assertThat(d.getDonorId()).isEqualTo("");
 
     val status = service.create(d);
@@ -88,7 +88,7 @@ public class DonorServiceTest {
     assertThat(id).startsWith("DO");
     Assertions.assertThat(status).isEqualTo(id);
 
-    DonorSpecimens check = service.readWithSpecimens(id);
+    DonorWithSpecimens check = service.readWithSpecimens(id);
     assertThat(d).isEqualToComparingFieldByField(check);
 
     service.delete("XYZ234", id);
@@ -100,7 +100,7 @@ public class DonorServiceTest {
   public void testUpdateDonor() {
     val studyId = "ABC123";
 
-    val d = new DonorSpecimens();
+    val d = new DonorWithSpecimens();
     d.setDonorId("");
     d.setDonorSubmitterId("Triangle-Arrow-S");
     d.setStudyId(studyId);

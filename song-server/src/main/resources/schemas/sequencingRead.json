@@ -1,25 +1,62 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://song.icgc.org/messages/uploadVariantCall",
+  "id": "http://song.icgc.org/messages/uploadSequencingRead",
   "type": "object",
-  "required": ["study", "experiment","sample","file"],
+  "required": ["study", "analysisType","experiment","sample","file"],
   "properties": {
+    "study": {
+      "type": "string"
+    },
+    "analysisType": {
+      "type": "string",
+      "enum": [
+        "sequencingRead"
+      ]
+    },
     "experiment": {
-      "required":["analysisType"],
+      "type": "object",
       "properties": {
-        "analysisType": {
+        "aligned": {
+          "type": "boolean"
+        },
+        "alignmentTool": {
+          "type": "string"
+        },
+        "insertSize": {
+          "type": "integer"
+        },
+        "libraryStrategy": {
           "type": "string",
           "enum": [
-            "variantCall"
+            "WGS",
+            "WXS",
+            "RNA-Seq",
+            "ChIP-Seq",
+            "miRNA-Seq",
+            "Bisulfite-Seq",
+            "Validation",
+            "Amplicon",
+            "Other"
           ]
         },
-        "matchedNormalSampleSubmitterId": {
+        "pairedEnd": {
+          "type": "boolean"
+        },
+        "referenceGenome": {
           "type": "string"
         },
-        "variantCallingTool": {
+        "info": {
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "aligned",
+        "alignmentTool",
+        "insertSize",
+        "libraryStrategy",
+        "pairedEnd",
+        "referenceGenome"
+      ]
     },
     "sample": {
       "type": "array",
@@ -90,7 +127,9 @@
                   "Cell line - derived from xenograft tumour"
                 ]
               },
-              "info": {}
+              "info": {
+                "type": "string"
+              }
             }
           },
           "donor": {
@@ -107,21 +146,22 @@
                   "unspecified"
                 ]
               },
-              "info": {}
+              "info": {
+                "type": "string"
+              }
             }
           },
-          "info": {}
+          "info": {
+            "type": "string"
+          }
         }
       }
     },
-    "file": {
+    "files": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "studyId": {
-            "type": "string"
-          },
           "fileName": {
             "type": "string"
           },
@@ -144,6 +184,9 @@
           },
           "fileMd5sum": {
             "type": "string"
+          },
+          "info": {
+            "type": "string"
           }
         },
         "required": [
@@ -155,6 +198,8 @@
       }
     },
     "info": {
+      "type": "string"
     }
   }
 }
+

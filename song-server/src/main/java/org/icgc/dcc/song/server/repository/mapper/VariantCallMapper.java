@@ -16,34 +16,28 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.server.model.analysis;
+package org.icgc.dcc.song.server.repository.mapper;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.val;
+import org.icgc.dcc.song.server.model.experiment.SequencingRead;
+import org.icgc.dcc.song.server.model.experiment.VariantCall;
+import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-@Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class VariantCall extends Experiment {
-  private String analysisId;
-  private String variantCallingTool;
-  private String matchedNormalSampleSubmitterId;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-  @JsonGetter
-  public String getAnalysisType() {
-    return "variantCall";
+public class VariantCallMapper implements ResultSetMapper<VariantCall> {
+
+  @Override
+  @SneakyThrows
+  public VariantCall map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+    val id = r.getString("id");
+    return VariantCall.create(r.getString("id"),
+                r.getString("variant_calling_tool"),
+                r.getString("matched_normal_sample_submitter_id"),
+                r.getString("info"));
   }
 
-  public static VariantCall create(String id, String tool, String submitterId, String info) {
-    val v = new VariantCall();
-    v.setAnalysisId(id);
-    v.setVariantCallingTool(tool);
-    v.setMatchedNormalSampleSubmitterId(submitterId);
-    v.addInfo(info);
-
-    return v;
-
-  }
 }

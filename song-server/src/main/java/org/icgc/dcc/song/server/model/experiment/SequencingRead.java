@@ -17,31 +17,30 @@
  *
  */
 
-package org.icgc.dcc.song.server.model.analysis;
+package org.icgc.dcc.song.server.model.experiment;
 
 import static org.icgc.dcc.song.server.model.enums.Constants.LIBRARY_STRATEGY;
 import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import lombok.val;
-@JsonPropertyOrder({ "analysisType", "analysisId", "aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "info" })
+@JsonPropertyOrder({ "analysisId", "aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "referenceGenome", "info" })
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @Data
 public class SequencingRead extends Experiment {
   private String analysisId;
   private boolean aligned;
   private String alignmentTool;
-  private int insertSize;
+  private Long insertSize;
   private String libraryStrategy;
   private boolean pairedEnd;
   private String referenceGenome;
 
-  public static SequencingRead create(String id, boolean aligned, String tool, int size, String strategy,
-                               boolean isPaired, String info) {
+  public static SequencingRead create(String id, boolean aligned, String tool, Long size, String strategy,
+                               boolean isPaired, String genome, String info) {
     val s = new SequencingRead();
     s.setAnalysisId(id);
     s.setAligned(aligned);
@@ -49,6 +48,7 @@ public class SequencingRead extends Experiment {
     s.setInsertSize(size);
     s.setLibraryStrategy(strategy);
     s.setPairedEnd(isPaired);
+    s.setReferenceGenome(genome);
     s.addInfo(info);
     return s;
   }
@@ -57,10 +57,5 @@ public class SequencingRead extends Experiment {
     validate(LIBRARY_STRATEGY, strategy);
     libraryStrategy = strategy;
   }
-
-  //@JsonGetter
-  //public String getAnalysisType() {
-   // return "sequencingRead";
-  //}
 
 }

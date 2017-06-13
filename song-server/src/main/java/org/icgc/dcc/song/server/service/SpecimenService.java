@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.icgc.dcc.song.server.model.entity.Specimen;
-import org.icgc.dcc.song.server.model.entity.composites.SpecimenSamples;
+import org.icgc.dcc.song.server.model.entity.composites.SpecimenWithSamples;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public class SpecimenService {
     return id;
   }
 
-  public String createWithSamples(String parentId, SpecimenSamples specimen) {
+  public String createWithSamples(String parentId, SpecimenWithSamples specimen) {
     val status = create(parentId, specimen.getSpecimen());
     if (status.startsWith("error")) {
       return status;
@@ -74,17 +74,17 @@ public class SpecimenService {
     return specimen;
   }
 
-  public SpecimenSamples readWithSamples(String id) {
+  public SpecimenWithSamples readWithSamples(String id) {
     val specimen = repository.read(id);
-    val s = new SpecimenSamples();
+    val s = new SpecimenWithSamples();
     s.setSpecimen(specimen);
     s.setSamples(sampleService.readByParentId(id));
     return s;
   }
 
-  public List<SpecimenSamples> readByParentId(String parentId) {
+  public List<SpecimenWithSamples> readByParentId(String parentId) {
     val ids = repository.findByParentId(parentId);
-    val specimens = new ArrayList<SpecimenSamples>();
+    val specimens = new ArrayList<SpecimenWithSamples>();
     ids.forEach(id -> specimens.add(readWithSamples(id)));
     return specimens;
   }

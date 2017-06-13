@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 @EqualsAndHashCode
 @Value
-public class DonorSpecimens extends Donor {
-    private List<SpecimenSamples> specimens = new ArrayList<>();
+public class DonorWithSpecimens extends Donor {
+    private List<SpecimenWithSamples> specimens = new ArrayList<>();
 
     @JsonIgnore
     public void setDonor(Donor d) {
@@ -27,11 +27,11 @@ public class DonorSpecimens extends Donor {
         return Donor.create(getDonorId(),getDonorSubmitterId(),getStudyId(), getDonorGender(), getInfo());
     }
 
-    public void addSpecimen(SpecimenSamples s) {
+    public void addSpecimen(SpecimenWithSamples s) {
         specimens.add(s);
     }
 
-    public void setSpecimens(List<SpecimenSamples> s) {
+    public void setSpecimens(List<SpecimenWithSamples> s) {
         specimens.clear();
         specimens.addAll(s);
     }

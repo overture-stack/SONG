@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.composites.DonorSpecimens;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ public class DonorService {
   @Autowired
   private final SpecimenService specimenService;
 
-  public String create(DonorSpecimens d) {
+  public String create(DonorWithSpecimens d) {
     val id = idService.generate(Donor);
     d.setDonorId(id);
 
@@ -61,16 +61,16 @@ public class DonorService {
     return donorRepository.read(id);
   }
 
-  public DonorSpecimens readWithSpecimens(String id) {
-    val donor = new DonorSpecimens();
+  public DonorWithSpecimens readWithSpecimens(String id) {
+    val donor = new DonorWithSpecimens();
     donor.setDonor(read(id));
 
     donor.setSpecimens(specimenService.readByParentId(id));
     return donor;
   }
 
-  public List<DonorSpecimens> readByParentId(String parentId) {
-    val donors = new ArrayList<DonorSpecimens>();
+  public List<DonorWithSpecimens> readByParentId(String parentId) {
+    val donors = new ArrayList<DonorWithSpecimens>();
     val ids = donorRepository.findByParentId(parentId);
     ids.forEach(id -> donors.add(readWithSpecimens(id)));
     return donors;
