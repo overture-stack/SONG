@@ -50,7 +50,7 @@ public class DonorController {
   @Autowired
   private final DonorService donorService;
 
-  @PostMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(value = "/donors", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String create(@RequestBody Donor donor) {
@@ -58,20 +58,21 @@ public class DonorController {
 
   }
 
-  @GetMapping(value = "/donor/{id}")
+  @GetMapping(value = "/donors/{id}")
   @ResponseBody
   public Donor read(@PathVariable("id") String id) {
     return donorService.read(id);
   }
 
-  @PutMapping(value = "/donor", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PutMapping(value = "/donors/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String update(@RequestBody Donor donor) {
+  public String update(@PathVariable("study") String studyId, @PathVariable("id") String id, @RequestBody Donor donor) {
+    // TODO: Add checkRequest between path ID and Entity's ID
     return donorService.update(donor);
   }
 
-  @DeleteMapping(value = "/donor/{ids}")
+  @DeleteMapping(value = "/donors/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(id -> donorService.delete(studyId, id));

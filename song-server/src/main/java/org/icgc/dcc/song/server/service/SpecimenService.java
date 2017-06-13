@@ -22,6 +22,7 @@ import static org.icgc.dcc.song.server.model.enums.IdPrefix.Specimen;
 
 import java.util.List;
 
+import lombok.NonNull;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
@@ -42,7 +43,7 @@ public class SpecimenService {
   @Autowired
   SampleService sampleService;
 
-  public String create(String parentId, Specimen specimen) {
+  public String create(@NonNull String parentId, @NonNull Specimen specimen) {
     val id = idService.generate(Specimen);
     specimen.setSpecimenId(id);
     specimen.setDonorId(parentId);
@@ -55,7 +56,7 @@ public class SpecimenService {
     return "ok:" + id;
   }
 
-  public Specimen read(String id) {
+  public Specimen read(@NonNull String id) {
     val specimen = repository.read(id);
     if (specimen == null) {
       return null;
@@ -64,37 +65,37 @@ public class SpecimenService {
     return specimen;
   }
 
-  public List<Specimen> readByParentId(String parentId) {
+  public List<Specimen> readByParentId(@NonNull String parentId) {
     val specimens = repository.readByParentId(parentId);
     specimens.forEach(s -> s.setSamples(sampleService.readByParentId(s.getSpecimenId())));
     return specimens;
   }
 
-  public String update(Specimen s) {
-    repository.update(s);
+  public String update(@NonNull Specimen specimen) {
+    repository.update(specimen);
     return "ok";
   }
 
-  public String delete(String id) {
+  public String delete(@NonNull String id) {
     sampleService.deleteByParentId(id);
     repository.delete(id);
     return "ok";
   }
 
-  public String deleteByParentId(String parentId) {
+  public String deleteByParentId(@NonNull String parentId) {
     repository.findByParentId(parentId).forEach(this::delete);
     return "ok";
   }
 
-  public List<String> findByParentId(String donorId) {
+  public List<String> findByParentId(@NonNull String donorId) {
     return repository.findByParentId(donorId);
   }
 
-  public String findByBusinessKey(String studyId, String submitterId) {
+  public String findByBusinessKey(@NonNull String studyId, @NonNull String submitterId) {
     return repository.findByBusinessKey(studyId, submitterId);
   }
 
-  public String save(String studyId, Specimen specimen) {
+  public String save(@NonNull String studyId, @NonNull Specimen specimen) {
     String specimenId = repository.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
     if (specimenId == null) {
       specimenId = idService.generate(IdPrefix.Specimen);
