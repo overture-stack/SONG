@@ -54,17 +54,22 @@ public class UploadServiceTest {
   @Autowired
   UploadService uploadService;
 
+  @SneakyThrows
+  private String readFile(String name) {
+    return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
+  }
+
   @Test
   @SneakyThrows
   public void testUploadSequencingRead() {
-    val json = new String(Files.readAllBytes(new File("..", "meta2.json").toPath()));
+    val json = readFile("sequencingRead.json");
     testUpload(json);
   }
 
   @Test
   @SneakyThrows
   public void testUploadVariantCall() {
-    val json = new String(Files.readAllBytes(new File("..", "variant2.json").toPath()));
+    val json = readFile("variantCall.json");
     testUpload(json);
   }
 
@@ -90,14 +95,14 @@ public class UploadServiceTest {
   @SneakyThrows
   @Test
   public void testSaveSequencingRead() {
-    val json = new String(Files.readAllBytes(new File("..","meta2.json").toPath()));
+    val json = readFile("sequencingRead.json");
     testSave(json);
   }
 
   @SneakyThrows
   @Test
   public void testSaveVariantCall() {
-    val json = new String(Files.readAllBytes(new File("..", "variant2.json").toPath()));
+    val json = readFile("variantCall.json");
     testSave(json);
   }
 

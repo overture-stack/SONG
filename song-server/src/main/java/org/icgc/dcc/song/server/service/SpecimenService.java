@@ -74,7 +74,7 @@ public class SpecimenService {
 
     return specimen;
   }
-  
+
   public SpecimenWithSamples readWithSamples(String id) {
     val specimen = repository.read(id);
     val s = new SpecimenWithSamples();

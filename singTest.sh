@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x 
-uploadFile=${1:-metadata.json}
+uploadFile=${1:-sequencingRead.json}
 u=`sing upload -f $uploadFile`
 echo "Got upload id '$u'"
 sing status -u $u | jq -C .state 

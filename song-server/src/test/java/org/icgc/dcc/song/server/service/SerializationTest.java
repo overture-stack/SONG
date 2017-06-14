@@ -209,7 +209,7 @@ public class SerializationTest {
 
   @Test
   public void testSequencingReadAnalysisFromJson() throws IOException {
-    val json = readFile("meta2.json");
+    val json = readFile("sequencingRead.json");
     val analysis = JsonUtils.fromJson(json, Analysis.class);
 
     System.out.printf("*** Analysis object='%s'\n",analysis);
@@ -228,7 +228,7 @@ public class SerializationTest {
 
   @Test
   public void testVariantCallAnalysisFromJson() throws IOException {
-    val json =readFile("variant2.json");
+    val json =readFile("variantCall.json");
     val analysis = JsonUtils.fromJson(json, Analysis.class);
     System.out.printf("*** Analysis object='%s'\n",analysis);
     assertThat(analysis.getAnalysisType()).isEqualTo("variantCall");
