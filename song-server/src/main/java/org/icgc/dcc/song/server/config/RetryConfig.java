@@ -24,7 +24,6 @@ import org.icgc.dcc.song.server.retry.DefaultRetryListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.backoff.BackOffPolicy;
@@ -38,7 +37,6 @@ import static org.icgc.dcc.song.server.retry.RetryPolicies.getRetryableException
 import static org.springframework.retry.backoff.ExponentialBackOffPolicy.DEFAULT_MULTIPLIER;
 
 @Configuration
-@Profile("secure")
 public class RetryConfig {
 
   private static final int DEFAULT_MAX_RETRIES = 5;

@@ -30,7 +30,7 @@ import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = RetryConfig.class)
-@ActiveProfiles({ "dev", "secure" })
+@ActiveProfiles("dev")
 public class ExistenceServiceTest {
 
   private static final int PORT = 8080;
