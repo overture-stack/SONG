@@ -50,7 +50,7 @@ public class AnalysisService {
   @Autowired
   private final IdService idService;
   @Autowired
-  private final CompositeEntity sampleService;
+  private final CompositeEntityService sampleService;
   @Autowired
   private final FileService fileService;
   @Autowired

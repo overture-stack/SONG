@@ -3,14 +3,14 @@ package org.icgc.dcc.song.server.service;
 import lombok.AllArgsConstructor;
 
 import lombok.val;
-import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 
+import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class CompositeEntity {
+public class CompositeEntityService {
 
     @Autowired
     private final SampleService sampleService;
