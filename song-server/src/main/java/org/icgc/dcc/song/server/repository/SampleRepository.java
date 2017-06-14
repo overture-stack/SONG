@@ -43,6 +43,9 @@ public interface SampleRepository {
   @SqlUpdate("UPDATE Sample SET submitter_id=:sampleSubmitterId, type=:sampleType where id=:sampleId")
   int update(@BindBean Sample sample);
 
+  @SqlUpdate("UPDATE Sample SET submitter_id=:sampleSubmitterId, type=:sampleType where id=:id")
+  int update(@Bind("id") String id, @BindBean Sample sample);
+
   @SqlUpdate("DELETE from Sample where id=:id")
   int delete(@Bind("id") String id);
 

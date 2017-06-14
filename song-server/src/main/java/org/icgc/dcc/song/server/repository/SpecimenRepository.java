@@ -40,6 +40,9 @@ public interface SpecimenRepository {
   @SqlUpdate("UPDATE Specimen SET submitter_id=:specimenSubmitterId, class=:specimenClass, type=:specimenType where id=:specimenId")
   int update(@BindBean Specimen specimen);
 
+  @SqlUpdate("UPDATE Specimen SET submitter_id=:specimenSubmitterId, class=:specimenClass, type=:specimenType where id=:id")
+  int update(@Bind("id") String id, @BindBean Specimen specimen);
+
   @SqlUpdate("DELETE from Specimen where id=:id")
   int delete(@Bind("id") String id);
 

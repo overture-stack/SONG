@@ -51,7 +51,7 @@ public class FileController {
   @Autowired
   private final FileService fileService;
 
-  @PostMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(value = "/files", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String create(@PathVariable("studyId") String studyId, @RequestBody File file) {
@@ -59,20 +59,21 @@ public class FileController {
     return fileService.create(sampleId, file);
   }
 
-  @GetMapping(value = "/file/{id}")
+  @GetMapping(value = "/files/{id}")
   @ResponseBody
   public File read(@PathVariable("id") String id) {
     return fileService.read(id);
   }
 
-  @PutMapping(value = "/file", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PutMapping(value = "/files/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String update(@PathVariable("studyId") String studyId, @RequestBody File file) {
+  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id, @RequestBody File file) {
+    // TODO: Add checkRequest between path ID and Entity's ID
     return fileService.update(file);
   }
 
-  @DeleteMapping(value = "/file/{ids}")
+  @DeleteMapping(value = "/files/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(fileService::delete);
