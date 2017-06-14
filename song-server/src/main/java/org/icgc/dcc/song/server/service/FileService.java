@@ -22,6 +22,7 @@ import static org.icgc.dcc.song.server.model.enums.IdPrefix.File;
 
 import java.util.List;
 
+import lombok.NonNull;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.FileRepository;
@@ -40,21 +41,21 @@ public class FileService {
   @Autowired
   IdService idService;
 
-  public String create(String parentId, File f) {
+  public String create(@NonNull String parentId, @NonNull File file) {
     val id = idService.generate(File);
-    f.setObjectId(id);
-    f.setSampleId(parentId);
+    file.setObjectId(id);
+    file.setSampleId(parentId);
 
-    int status = repository.create(f);
+    int status = repository.create(file);
 
     if (status != 1) {
-      return "error: Can't create" + f.toString();
+      return "error: Can't create" + file.toString();
     }
 
     return "ok:" + id;
   }
 
-  public File read(String id) {
+  public File read(@NonNull String id) {
     return repository.read(id);
   }
 
@@ -62,24 +63,24 @@ public class FileService {
     return repository.readByParentId(parentId);
   }
 
-  public String update(File f) {
-    repository.update(f);
+  public String update(@NonNull File file) {
+    repository.update(file);
     return "ok";
   }
 
-  public String delete(String id) {
+  public String delete(@NonNull String id) {
     repository.delete(id);
     return "ok";
   }
 
-  public String save(String studyId, File f) {
-    String fileId = repository.findByBusinessKey(studyId, f.getFileName());
+  public String save(@NonNull String studyId, @NonNull File file) {
+    String fileId = repository.findByBusinessKey(studyId, file.getFileName());
     if (fileId == null) {
       fileId = idService.generate(IdPrefix.File);
-      f.setObjectId(fileId);
-      repository.create(f);
+      file.setObjectId(fileId);
+      repository.create(file);
     } else {
-      repository.update(f);
+      repository.update(file);
     }
     return fileId;
   }
