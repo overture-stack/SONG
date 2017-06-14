@@ -17,6 +17,13 @@
 			<version>1.69</version>
 		</dependency>
 
+		<!-- JANSI colored output -->
+		<dependency>
+			<groupId>org.fusesource.jansi</groupId>
+			<artifactId>jansi</artifactId>
+			<version>1.16</version>
+		</dependency>
+
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
