@@ -51,7 +51,7 @@ public class SpecimenController {
   @Autowired
   private final SpecimenService specimenService;
 
-  @PostMapping(value = "/specimen", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(value = "/specimens", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String create(@PathVariable("studyId") String studyId, @RequestBody Specimen specimen) {
@@ -59,20 +59,22 @@ public class SpecimenController {
     return specimenService.create(donorId, specimen);
   }
 
-  @GetMapping(value = "/specimen/{id}")
+  @GetMapping(value = "/specimens/{id}")
   @ResponseBody
   public Specimen read(@PathVariable("id") String id) {
     return specimenService.read(id);
   }
 
-  @PutMapping(value = "/specimen", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PutMapping(value = "/specimens/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String update(@PathVariable("studyId") String studyId, @RequestBody Specimen specimen) {
+  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
+                       @RequestBody Specimen specimen) {
+    // TODO: Add checkRequest between path ID and Entity's ID
     return specimenService.update(specimen);
   }
 
-  @DeleteMapping(value = "/specimen/{ids}")
+  @DeleteMapping(value = "/specimens/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(specimenService::delete);

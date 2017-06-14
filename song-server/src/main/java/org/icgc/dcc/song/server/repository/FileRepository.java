@@ -41,6 +41,9 @@ public interface FileRepository {
   @SqlUpdate("UPDATE File SET name=:fileName, size=:fileSize, type=:fileType, md5=:fileMd5sum, info=:info where id=:objectId")
   int update(@BindBean File file);
 
+  @SqlUpdate("UPDATE File SET name=:fileName, size=:fileSize, type=:fileType, md5=:fileMd5, metadata_doc=:metadata where id=:id")
+  int update(@Bind("id") String id, @BindBean File file);
+
   @SqlUpdate("DELETE From File where id=:id")
   int delete(@Bind("id") String id);
 
