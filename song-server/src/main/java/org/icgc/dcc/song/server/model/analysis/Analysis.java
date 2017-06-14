@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.model.entity.composites.AnalysisSample;
+import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.Constants;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public abstract class Analysis extends Metadata {
     String study="";
     String analysisState="UNPUBLISHED";
 
-    List<AnalysisSample> sample;
+    List<CompositeEntity> sample;
     List<File> file;
 
     abstract public String getAnalysisType();

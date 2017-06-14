@@ -29,7 +29,7 @@ import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.model.entity.composites.AnalysisSample;
+import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.utils.JsonUtils;
@@ -50,7 +50,7 @@ public class AnalysisService {
   @Autowired
   private final IdService idService;
   @Autowired
-  private final AnalysisSampleService sampleService;
+  private final CompositeEntity sampleService;
   @Autowired
   private final FileService fileService;
   @Autowired
@@ -81,7 +81,7 @@ public class AnalysisService {
   return id;
   }
 
-  public void saveSamples(String studyId, String id, List<AnalysisSample> samples) {
+  public void saveSamples(String studyId, String id, List<CompositeEntity> samples) {
     for(val sample: samples) {
       val sampleId = sampleService.save(studyId, sample);
       repository.addSample(id, sampleId);
@@ -128,8 +128,8 @@ public class AnalysisService {
     return repository.readFiles(id);
   }
 
-  public List<AnalysisSample> readSamples(String id) {
-    val samples = new ArrayList<AnalysisSample>();
+  public List<CompositeEntity> readSamples(String id) {
+    val samples = new ArrayList<CompositeEntity>();
     for(val sampleId: repository.findSampleIds(id)) {
         samples.add(sampleService.read(sampleId));
     }

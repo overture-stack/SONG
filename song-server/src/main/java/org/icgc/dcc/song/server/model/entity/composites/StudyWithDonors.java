@@ -9,6 +9,7 @@ import java.util.List;
 
 @Data
 public class StudyWithDonors extends Study {
+
     List<DonorWithSpecimens> donors=new ArrayList<>();
 
     @JsonIgnore
@@ -33,4 +34,5 @@ public class StudyWithDonors extends Study {
         donors.clear();
         donors.addAll(donors);
     }
+
 }
