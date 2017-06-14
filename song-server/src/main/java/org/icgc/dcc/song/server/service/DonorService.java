@@ -102,7 +102,6 @@ public class DonorService {
     String donorId = donorRepository.findByBusinessKey(studyId, donor.getDonorSubmitterId());
     if (donorId == null) {
       donorId = idService.generate(IdPrefix.Donor);
-
       donor.setDonorId(donorId);
       System.err.printf("Creating new donor with id=%s,gender='%s'\n", donorId, donor.getDonorGender());
       donorRepository.create(donor);

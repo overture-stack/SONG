@@ -40,7 +40,7 @@ public class StudyScopeStrategy {
   protected String uploadScope;
 
   public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
-    log.info("Checking authorization with study analysisId {}", studyId);
+    log.info("Checking authorization with study id {}", studyId);
 
     // if not OAuth2, then no scopes available at all
     Set<String> grantedScopes = Collections.emptySet();

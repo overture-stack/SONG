@@ -61,13 +61,11 @@ public class SampleService {
     if (sample == null) {
       return null;
     }
-
     return sample;
   }
 
   public List<Sample> readByParentId(@NonNull String parentId) {
     val samples = repository.readByParentId(parentId);
-
     return samples;
   }
 
@@ -108,6 +106,5 @@ public class SampleService {
     }
     return sampleId;
   }
-
 
 }

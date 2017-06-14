@@ -52,8 +52,6 @@ public class JsonUtils {
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
     mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-
-    //mapper.enableDefaultTyping();
     mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
     return mapper;
   }
