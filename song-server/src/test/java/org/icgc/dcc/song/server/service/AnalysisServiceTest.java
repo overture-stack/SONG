@@ -18,11 +18,11 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import lombok.SneakyThrows;
+import lombok.val;
 import org.assertj.core.api.Assertions;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
@@ -38,14 +38,17 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.val;
+import java.io.InputStream;
+import java.util.ArrayList;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev", "secure"})
 public class AnalysisServiceTest {
 
   @Autowired

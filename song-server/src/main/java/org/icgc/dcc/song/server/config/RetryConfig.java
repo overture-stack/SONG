@@ -21,7 +21,6 @@ package org.icgc.dcc.song.server.config;
 import lombok.val;
 import org.icgc.dcc.song.server.retry.ClientRetryListener;
 import org.icgc.dcc.song.server.retry.DefaultRetryListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +38,7 @@ import static org.icgc.dcc.song.server.retry.RetryPolicies.getRetryableException
 import static org.springframework.retry.backoff.ExponentialBackOffPolicy.DEFAULT_MULTIPLIER;
 
 @Configuration
-@Profile("secure")
+//@Profile("secure")
 public class RetryConfig {
 
   private static final int DEFAULT_MAX_RETRIES = 5;
@@ -52,17 +51,13 @@ public class RetryConfig {
   @Value("${auth.connection.multiplier}")
   private double multiplier = DEFAULT_MULTIPLIER;
 
-  @Autowired
-  private ClientRetryListener clientRetryListener;
-
   @Bean
   public RetryTemplate retryTemplate() {
     val result = new RetryTemplate();
     result.setBackOffPolicy(defineBackOffPolicy());
 
     result.setRetryPolicy(new SimpleRetryPolicy(maxRetries, getRetryableExceptions(), true));
-    result.registerListener(new DefaultRetryListener(clientRetryListener));
-
+    result.registerListener(new DefaultRetryListener(clientRetryListener()));
     return result;
   }
 
