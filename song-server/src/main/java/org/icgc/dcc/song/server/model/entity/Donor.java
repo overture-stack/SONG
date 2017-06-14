@@ -22,9 +22,6 @@ package org.icgc.dcc.song.server.model.entity;
 import static org.icgc.dcc.song.server.model.enums.Constants.DONOR_GENDER;
 import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.icgc.dcc.song.server.model.Metadata;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -36,7 +33,7 @@ import lombok.val;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-@JsonPropertyOrder({ "donorId", "donorSubmitterId", "studyId", "donorGender", "specimens", "metadata" })
+@JsonPropertyOrder({ "donorId", "donorSubmitterId", "studyId", "donorGender", "specimens", "info" })
 @JsonInclude(JsonInclude.Include.ALWAYS)
 
 public class Donor extends Metadata {
@@ -45,7 +42,6 @@ public class Donor extends Metadata {
   private String donorSubmitterId = "";
   private String studyId = "";
   private String donorGender = "";
-  private final Collection<Specimen> specimens = new ArrayList<>();
 
   public static Donor create(String id, String submitterId, String studyId, String gender, String metadata) {
     val d = new Donor();
@@ -53,7 +49,7 @@ public class Donor extends Metadata {
     d.setStudyId(studyId);
     d.setDonorSubmitterId(submitterId);
     d.setDonorGender(gender);
-    d.addMetadata(metadata);
+    d.addInfo(metadata);
 
     return d;
   }
@@ -61,15 +57,6 @@ public class Donor extends Metadata {
   public void setDonorGender(String gender) {
     validate(DONOR_GENDER, gender);
     this.donorGender = gender;
-  }
-
-  public void addSpecimen(Specimen specimen) {
-    specimens.add(specimen);
-  }
-
-  public void setSpecimens(Collection<Specimen> specimens) {
-    this.specimens.clear();
-    this.specimens.addAll(specimens);
   }
 
 }

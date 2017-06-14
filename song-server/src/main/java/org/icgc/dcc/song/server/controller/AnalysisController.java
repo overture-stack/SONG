@@ -20,6 +20,7 @@ package org.icgc.dcc.song.server.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,18 +85,18 @@ public class AnalysisController {
    * @return A JSON object representing this analysis
    */
   @GetMapping(value = "/{id}")
-  public String getAnalysisyById(@PathVariable("id") String id) {
-    return analysisService.getAnalysisById(id);
+  public Analysis read(@PathVariable("id") String id) {
+    return analysisService.read(id);
   }
 
   /***
    * Return all of the files in the fileset for this analyis
    * @param id The analysis id
-   * @return A list of all the files in this analysis id's fileset.
+   * @return A list of all the files in this analysis analysisId's fileset.
    */
   @GetMapping(value = "/{id}/files")
   public List<File> getFilesById(@PathVariable("id") String id) {
-    return analysisService.readFilesByAnalysisId(id);
+    return analysisService.readFiles(id);
   }
 
   /***

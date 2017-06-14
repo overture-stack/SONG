@@ -16,21 +16,38 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.server.model.analysis;
+package org.icgc.dcc.song.server.repository.mapper;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
+import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
+import org.icgc.dcc.song.server.model.entity.Donor;
+import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import lombok.Data;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-@Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class VariantCall {
+public class AnalysisMapper implements ResultSetMapper<Analysis> {
 
-  private String analysisId;
-  private String variantCallingTool;
-  private String tumourSampleSubmitterId;
-  private String tumourSampleId;
-  private String matchedNormalSampleSubmitterId;
-  private String matchedNormalSampleId;
+  @Override
+  @SneakyThrows
+  public Analysis map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+    val id = r.getString("id");
+    val study = r.getString("study_id");
+    val type = r.getString("type");
+    val state = r.getString("state");
+
+    if (type.equals("sequencingRead")) {
+      return SequencingReadAnalysis.create(id, study, state);
+    }
+    if (type.equals("variantCall")) {
+      return VariantCallAnalysis.create(id, study, state);
+    }
+
+    return null;
+  }
 
 }

@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://song.icgc.org/messages/uploadVariantCall",
+  "type": "object",
+  "required": ["study", "analysisType","experiment","sample","file"],
+  "properties": {
+    "study": {"type": "string"},
+    "analysisType": {
+      "type": "string",
+      "enum": [
+        "variantCall"
+      ]
+    },
+    "experiment": {
+      "properties": {
+
+        "matchedNormalSampleSubmitterId": {
+          "type": "string"
+        },
+        "variantCallingTool": {
+          "type": "string"
+        }
+      }
+    },
+    "sample": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sampleSubmitterId"
+        ],
+        "properties": {
+          "sampleSubmitterId": {
+            "type": "string"
+          },
+          "sampleType": {
+            "type": "string",
+            "enum": [
+              "DNA",
+              "FFPE DNA",
+              "Amplified DNA",
+              "RNA",
+              "Total RNA",
+              "FFPE RNA"
+            ]
+          },
+          "specimen": {
+            "type": "object",
+            "properties": {
+              "specimenSubmitterId": {
+                "type": "string"
+              },
+              "specimenClass": {
+                "type": "string",
+                "enum": [
+                  "Normal",
+                  "Tumour",
+                  "Adjacent normal"
+                ]
+              },
+              "specimenType": {
+                "type": "string",
+                "enum": [
+                  "Normal - solid tissue",
+                  "Normal - blood derived",
+                  "Normal - bone marrow",
+                  "Normal - tissue adjacent to primary",
+                  "Normal - buccal cell",
+                  "Normal - EBV immortalized",
+                  "Normal - lymph node",
+                  "Normal - other",
+                  "Primary tumour - solid tissue",
+                  "Primary tumour - blood derived (peripheral blood)",
+                  "Primary tumour - blood derived (bone marrow)",
+                  "Primary tumour - additional new primary",
+                  "Primary tumour - other",
+                  "Recurrent tumour - solid tissue",
+                  "Recurrent tumour - blood derived (peripheral blood)",
+                  "Recurrent tumour - blood derived (bone marrow)",
+                  "Recurrent tumour - other",
+                  "Metastatic tumour - NOS",
+                  "Metastatic tumour - lymph node",
+                  "Metastatic tumour - metastasis local to lymph node",
+                  "Metastatic tumour - metastasis to distant location",
+                  "Metastatic tumour - additional metastatic",
+                  "Xenograft - derived from primary tumour",
+                  "Xenograft - derived from tumour cell line",
+                  "Cell line - derived from tumour",
+                  "Primary tumour - lymph node",
+                  "Metastatic tumour - other",
+                  "Cell line - derived from xenograft tumour"
+                ]
+              },
+              "info": {}
+            }
+          },
+          "donor": {
+            "type": "object",
+            "properties": {
+              "donorSubmitterId": {
+                "type": "string"
+              },
+              "donorGender": {
+                "type": "string",
+                "enum": [
+                  "male",
+                  "female",
+                  "unspecified"
+                ]
+              },
+              "info": {}
+            }
+          },
+          "info": {}
+        }
+      }
+    },
+    "file": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "studyId": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileSize": {
+            "type": "integer"
+          },
+          "fileType": {
+            "type": "string",
+            "enum": [
+              "FASTA",
+              "FAI",
+              "FASTQ",
+              "BAM",
+              "BAI",
+              "VCF",
+              "TBI",
+              "IDX",
+              "XML"
+            ]
+          },
+          "fileMd5sum": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fileName",
+          "fileSize",
+          "fileType",
+          "fileMd5sum"
+        ]
+      }
+    },
+    "info": {
+    }
+  }
+}

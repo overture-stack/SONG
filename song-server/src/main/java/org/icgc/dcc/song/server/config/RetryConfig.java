@@ -38,7 +38,7 @@ import static org.icgc.dcc.song.server.retry.RetryPolicies.getRetryableException
 import static org.springframework.retry.backoff.ExponentialBackOffPolicy.DEFAULT_MULTIPLIER;
 
 @Configuration
-@Profile("secure")
+//@Profile("secure")
 public class RetryConfig {
 
   private static final int DEFAULT_MAX_RETRIES = 5;

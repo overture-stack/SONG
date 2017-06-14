@@ -31,13 +31,13 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(SampleMapper.class)
 public interface SampleRepository {
 
-  @SqlUpdate("INSERT INTO Sample (id, submitter_id, specimen_id, type) VALUES (:sampleId, :sampleSubmitterId, :specimenId, :sampleType)")
+  @SqlUpdate("INSERT INTO Sample (id, submitter_id, specimen_id, type, info) VALUES (:sampleId, :sampleSubmitterId, :specimenId, :sampleType, :info)")
   int create(@BindBean Sample sample);
 
-  @SqlQuery("SELECT id, submitter_id, specimen_id, type FROM Sample WHERE id=:id")
+  @SqlQuery("SELECT id, submitter_id, specimen_id, type, info FROM Sample WHERE id=:id")
   Sample read(@Bind("id") String id);
 
-  @SqlQuery("SELECT id, submitter_id, specimen_id, type FROM Sample WHERE specimen_id=:specimen_id")
+  @SqlQuery("SELECT id, submitter_id, specimen_id, type, info FROM Sample WHERE specimen_id=:specimen_id")
   List<Sample> readByParentId(@Bind("specimen_id") String specimenId);
 
   @SqlUpdate("UPDATE Sample SET submitter_id=:sampleSubmitterId, type=:sampleType where id=:sampleId")

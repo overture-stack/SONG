@@ -20,10 +20,18 @@ package org.icgc.dcc.song.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+import org.icgc.dcc.song.server.model.analysis.*;
+import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.junit.Test;
 
@@ -44,7 +52,7 @@ public class SerializationTest {
 
   @Test
   @SneakyThrows
-  public void testDonor() {
+  public void testDonorSpecimens() {
     val donorId = "DO1234";
     val submitter = "1234";
     val study = "X2345-QRP";
@@ -56,13 +64,13 @@ public class SerializationTest {
         donorId, submitter, study, gender);
     val metadata = JsonUtils.fromSingleQuoted("{'roses':'red','violets':'blue'}");
     val json = JsonUtils.fromSingleQuoted(single);
-    val donor = JsonUtils.fromJson(json, Donor.class);
+    val donor = JsonUtils.fromJson(json, DonorWithSpecimens.class);
     assertThat(donor.getDonorId()).isEqualTo(donorId);
     assertThat(donor.getDonorSubmitterId()).isEqualTo(submitter);
     assertThat(donor.getStudyId()).isEqualTo(study);
     assertThat(donor.getDonorGender()).isEqualTo(gender);
     assertThat(donor.getSpecimens()).isEqualTo(Collections.emptyList());
-    assertThat(donor.getMetadata()).isEqualTo(metadata);
+    assertThat(donor.getInfo()).isEqualTo(metadata);
   }
 
   @Test
@@ -72,7 +80,7 @@ public class SerializationTest {
 
     val expected =
         "{'donorId':'','donorSubmitterId':'','studyId':'','donorGender':'',"
-            + "'specimens':[],'metadata':'{}'}";
+            + "'info':'{}'}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
   }
@@ -85,7 +93,7 @@ public class SerializationTest {
     System.err.printf("json='%s'\n", json);
     val expected =
         "{'donorId':null,'donorSubmitterId':'','studyId':'','donorGender':'',"
-            + "'specimens':[],'metadata':'{}'}";
+            + "'info':'{}'}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
   }
@@ -103,7 +111,7 @@ public class SerializationTest {
 
     val expected = String.format(
         "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
-            + "'specimens':[],'metadata':'{%s}'}",
+            + "'info':'{%s}'}",
         id, submitterId, studyId, gender, metadata);
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
@@ -127,4 +135,111 @@ public class SerializationTest {
     assertThat(failed).isTrue();
 
   }
+
+  @Test
+  public void testSequencingReadToJSON() {
+    val id="AN1";
+    val aligned=true;
+    val alignmentTool="BigWrench";
+    val insertSize=25L;
+    val libraryStrategy="Other";
+    val pairedEnd = false;
+    val genome="Castor Canadiansis";
+    //val metadata = JsonUtils.fromSingleQuoted("'sequencingTool': 'NanoporeSeq123'");
+    val metadata = "";
+
+    val sequencingRead = SequencingRead.create(id, aligned, alignmentTool, insertSize,
+            libraryStrategy, pairedEnd, genome, metadata);
+    val json = JsonUtils.toJson(sequencingRead);
+
+    val expected = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
+            "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s,'referenceGenome':'%s','info':'{%s}'}",
+            id, aligned, alignmentTool, insertSize, libraryStrategy, pairedEnd, genome, metadata);
+    val expectedJson = JsonUtils.fromSingleQuoted(expected);
+    assertThat(json).isEqualTo(expectedJson);
+  }
+
+  @Test
+  public void testSequencingReadFromJson() {
+    val id="AN1";
+    val aligned=true;
+    val alignmentTool="BigWrench";
+    val insertSize=25L;
+    val libraryStrategy="Other";
+    val genome="Castor Canadiansis";
+    val pairedEnd = false;
+
+    val metadata = "";
+
+    val sequencingRead1 = SequencingRead.create(id, aligned, alignmentTool, insertSize,
+            libraryStrategy, pairedEnd, genome, metadata);
+
+    val singleQuotedJson = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
+                    "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s, 'referenceGenome': '%s', 'info':'{%s}'}", id, aligned, alignmentTool,
+            insertSize, libraryStrategy, pairedEnd, genome, metadata);
+    val json = JsonUtils.fromSingleQuoted(singleQuotedJson);
+
+    val sequencingRead2 = JsonUtils.fromJson(json, SequencingRead.class);
+
+
+    assertThat(sequencingRead1).isEqualToComparingFieldByField(sequencingRead2);
+
+  }
+
+  @Test
+  public void testListFile() throws IOException {
+    val singleQuotedJson = "{'file':[ { 'objectId': 'FI12345', 'fileName':'dna3.bam', 'fileMd5':'A1B2C3D4E5F6'}," +
+            "{'objectId': 'FI34567', 'fileName': 'dna7.fasta', 'fileType':'BAM', 'fileSize':1234, 'fileMd5': 'F1E2D3'}]}";
+
+    val json = JsonUtils.fromSingleQuoted(singleQuotedJson);
+    val root=JsonUtils.readTree(json);
+    val files=root.get("file");
+    String fileJson=JsonUtils.toJson(files);
+
+    List<File> f = Arrays.asList(JsonUtils.fromJson(fileJson, File[].class));
+
+    assertThat(f.size()).isEqualTo(2);
+    assertThat(f.get(0).getFileName()).isEqualTo("dna3.bam");
+  }
+
+  @SneakyThrows
+  private String readFile(String name) {
+    return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
+  }
+
+  @Test
+  public void testSequencingReadAnalysisFromJson() throws IOException {
+    val json = readFile("sequencingRead.json");
+    val analysis = JsonUtils.fromJson(json, Analysis.class);
+
+    System.out.printf("*** Analysis object='%s'\n",analysis);
+    assertThat(analysis.getAnalysisType()).isEqualTo("sequencingRead");
+    assertThat(analysis.getStudy()).isEqualTo("ABC123");
+    assertThat(analysis.getFile().size()).isEqualTo(2);
+    assertThat(analysis.getSample().get(0).getDonor().getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00");
+
+    assertThat(analysis).isInstanceOf(SequencingReadAnalysis.class);
+    val r = ((SequencingReadAnalysis) analysis).getExperiment();
+
+    assertThat(r.getLibraryStrategy()).isEqualTo("WXS");
+    assertThat(r.getInsertSize()).isEqualTo(900);
+    assertThat(r.getAlignmentTool()).isEqualTo("MUSE variant call pipeline");
+  }
+
+  @Test
+  public void testVariantCallAnalysisFromJson() throws IOException {
+    val json =readFile("variantCall.json");
+    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    System.out.printf("*** Analysis object='%s'\n",analysis);
+    assertThat(analysis.getAnalysisType()).isEqualTo("variantCall");
+
+    assertThat(analysis).isInstanceOf(VariantCallAnalysis.class);
+    VariantCallAnalysis v = (VariantCallAnalysis) analysis;
+    System.out.printf("VariantCall object='%s'\n", v);
+
+    assertThat(analysis.getStudy()).isEqualTo("ABC123");
+    assertThat(analysis.getFile().size()).isEqualTo(2);
+    assertThat(analysis.getSample().get(0).getDonor().getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00");
+  }
+
 }

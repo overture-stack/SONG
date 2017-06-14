@@ -17,22 +17,23 @@
  *
  */
 package org.icgc.dcc.song.server.service;
-
+import static java.lang.String.format;
+import static org.springframework.http.ResponseEntity.ok;
+import lombok.SneakyThrows;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Upload;
+import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.UploadRepository;
+import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import static java.lang.String.format;
-import static org.springframework.http.ResponseEntity.ok;
 
 @RequiredArgsConstructor
 @Service
@@ -45,7 +46,7 @@ public class UploadService {
   private final ValidationService validator;
 
   @Autowired
-  private final AnalysisService analysis;
+  private final AnalysisService analysisService;
 
   @Autowired
   private final UploadRepository uploadRepository;
@@ -58,6 +59,7 @@ public class UploadService {
     uploadRepository.create(uploadId, studyId, Upload.CREATED, jsonPayload);
   }
 
+  @SneakyThrows
   public ResponseEntity<String> upload(String studyId, String payload) {
     val uploadId = id.generate(IdPrefix.Upload);
 
@@ -68,7 +70,7 @@ public class UploadService {
       throw new RepositoryException(jdbie.getCause());
     }
 
-    val analysisType = analysis.getAnalysisType(payload);
+    val analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     validator.validate(uploadId, payload, analysisType); // Async operation.
 
     return ok(uploadId);
@@ -86,9 +88,15 @@ public class UploadService {
           state);
     }
 
-    updateAsSaved(uploadId);
+
     val json = s.getPayload();
-    return ok(analysis.create(studyId, json));
+    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    val id = analysisService.create(studyId, analysis);
+    if (id == null) {
+      return status(HttpStatus.INTERNAL_SERVER_ERROR,"Could not create id upload id '%id",uploadId);
+    }
+    updateAsSaved(uploadId);
+    return ok(id);
   }
 
   private void updateAsSaved(@NonNull String uploadId) {

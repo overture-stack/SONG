@@ -62,7 +62,11 @@ public class Status {
   }
 
   public void output(String format, Object... args) {
-    output(String.format(format, args));
+    if (args.length == 0) {
+      outputs += format;
+    } else {
+      outputs += String.format(format, args);
+    }
   }
 
   public void reportErrors() {

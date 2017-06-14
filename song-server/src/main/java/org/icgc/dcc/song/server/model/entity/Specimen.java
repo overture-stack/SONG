@@ -23,9 +23,7 @@ import static org.icgc.dcc.song.server.model.enums.Constants.SPECIMEN_CLASS;
 import static org.icgc.dcc.song.server.model.enums.Constants.SPECIMEN_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
+import lombok.NonNull;
 import org.icgc.dcc.song.server.model.Metadata;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,21 +38,20 @@ import lombok.val;
 public class Specimen extends Metadata {
 
   private String specimenId = "";
+  private String donorId="";
   private String specimenSubmitterId = "";
-  private String donorId = "";
   private String specimenClass = "";
   private String specimenType = "";
 
-  private Collection<Sample> samples = new ArrayList<>();
-
-  public static Specimen create(String id, String submitter, String donor, String specimenClass, String type,
-      String metadata) {
+  public static Specimen create(String id,  @NonNull String submitterId, String donorId,String specimenClass, String type,
+                                String metadata) {
     val s = new Specimen();
     s.setSpecimenId(id);
-    s.setSpecimenSubmitterId(submitter);
-    s.setDonorId(donor);
+    s.setDonorId(donorId);
+    s.setSpecimenSubmitterId(submitterId);
     s.setSpecimenClass(specimenClass);
     s.setSpecimenType(type);
+    s.addInfo(metadata);
 
     return s;
   }
@@ -67,15 +64,6 @@ public class Specimen extends Metadata {
   public void setSpecimenType(String type) {
     validate(SPECIMEN_TYPE, type);
     specimenType = type;
-  }
-
-  public void setSamples(Collection<Sample> samples) {
-    this.samples.clear();
-    this.samples.addAll(samples);
-  }
-
-  public void addSample(Sample sample) {
-    samples.add(sample);
   }
 
 }

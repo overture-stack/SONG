@@ -18,27 +18,30 @@
  */
 package org.icgc.dcc.song.server.model.entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
 import lombok.NonNull;
+import lombok.val;
+import org.icgc.dcc.song.server.model.Metadata;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
-public class Study {
+public class Study extends Metadata {
 
-  @NonNull
-  private String studyId;
-  @NonNull
-  private String name;
-  @NonNull
-  private String organization;
-  @NonNull
-  private String description;
+  private String studyId="";
+  private String name="";
+  private String organization="";
+  private String description="";
 
-  private Collection<Donor> donors = new ArrayList<>();
+  public static Study create(@NonNull String id, String name, String org, String desc, String metadata) {
+      val s = new Study();
+      s.setStudyId(id);
+      s.setName(name);
+      s.setOrganization(org);
+      s.setDescription(desc);
+      s.addInfo(metadata);
+      return s;
+  }
 
 }

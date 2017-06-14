@@ -46,7 +46,7 @@ public class RestClient {
       if (response.getBody() == null) {
         status.err("Null response from server");
       } else {
-        status.output(response.getBody());
+        status.output(response.getBody().toString());
       }
     } else {
       status.err(response.toString());

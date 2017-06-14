@@ -93,7 +93,7 @@ public class ManifestCommand extends Command {
     val j = new JsonObject(node);
     val fileId = j.get("objectId");
     val fileName = j.get("fileName");
-    val fileMd5 = j.get("fileMd5");
+    val fileMd5 = j.get("fileMd5sum");
 
     return new ManifestEntry(fileId, fileName, fileMd5);
   }

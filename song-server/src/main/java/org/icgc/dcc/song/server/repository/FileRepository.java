@@ -31,14 +31,14 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(FileMapper.class)
 public interface FileRepository {
 
-  @SqlUpdate("INSERT INTO File (id,      name,      sample_id, size,      type,      md5,      metadata_doc) "
-      + "VALUES (:objectId, :fileName, :sampleId, :fileSize, :fileType, :fileMd5, :metadata)")
+  @SqlUpdate("INSERT INTO File (id,name, study_id, size, type, md5, info) "
+      + "VALUES (:objectId, :fileName, :studyId, :fileSize, :fileType, :fileMd5sum, :info)")
   int create(@BindBean File f);
 
-  @SqlQuery("SELECT id, name, sample_id, size, type, md5, metadata_doc FROM File WHERE id=:id")
+  @SqlQuery("SELECT id, name, study_id, size, type, md5, info FROM File WHERE id=:id")
   File read(@Bind("id") String id);
 
-  @SqlUpdate("UPDATE File SET name=:fileName, size=:fileSize, type=:fileType, md5=:fileMd5, metadata_doc=:metadata where id=:objectId")
+  @SqlUpdate("UPDATE File SET name=:fileName, size=:fileSize, type=:fileType, md5=:fileMd5sum, info=:info where id=:objectId")
   int update(@BindBean File file);
 
   @SqlUpdate("UPDATE File SET name=:fileName, size=:fileSize, type=:fileType, md5=:fileMd5, metadata_doc=:metadata where id=:id")
@@ -47,14 +47,11 @@ public interface FileRepository {
   @SqlUpdate("DELETE From File where id=:id")
   int delete(@Bind("id") String id);
 
-  @SqlQuery("SELECT id, name, sample_id, size, type, md5, metadata_doc FROM File WHERE sample_id=:sampleId")
-  List<File> readByParentId(@Bind("sampleId") String sample_id);
+  @SqlQuery("SELECT id, name, study_id, size, type, md5, info FROM File WHERE study_id=:studyId")
+  List<File> readByParentId(@Bind("studyId") String study_id);
 
-  @SqlQuery("SELECT f.id from File f, Sample s, Specimen sp, Donor d "
+  @SqlQuery("SELECT f.id from File f, study s, Specimen sp, Donor d "
       + "WHERE f.name=:fileName "
-      + "AND f.sample_id = s.id "
-      + "AND s.specimen_id = sp.id "
-      + "AND sp.donor_id = d.id "
-      + "AND d.study_id = :studyId")
+      + "AND f.study_id = :studyId")
   String findByBusinessKey(@Bind("studyId") String studyId, @Bind("fileName") String fileName);
 }

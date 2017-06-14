@@ -16,31 +16,28 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+package org.icgc.dcc.song.server.repository.mapper;
 
-package org.icgc.dcc.song.server.model.analysis;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.icgc.dcc.song.server.model.experiment.SequencingRead;
+import org.icgc.dcc.song.server.model.experiment.VariantCall;
+import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import static org.icgc.dcc.song.server.model.enums.Constants.LIBRARY_STRATEGY;
-import static org.icgc.dcc.song.server.model.enums.Constants.validate;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+public class VariantCallMapper implements ResultSetMapper<VariantCall> {
 
-import lombok.Data;
-
-@JsonInclude(JsonInclude.Include.NON_ABSENT)
-@Data
-public class SequencingRead {
-
-  private String analysisId;
-  private boolean aligned;
-  private String alignmentTool;
-  private int insertSize;
-  private String libraryStrategy;
-  private boolean pairedEnd;
-  private String referenceGenome;
-
-  public void setLibraryStrategy(String strategy) {
-    validate(LIBRARY_STRATEGY, strategy);
-    libraryStrategy = strategy;
+  @Override
+  @SneakyThrows
+  public VariantCall map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+    val id = r.getString("id");
+    return VariantCall.create(r.getString("id"),
+                r.getString("variant_calling_tool"),
+                r.getString("matched_normal_sample_submitter_id"),
+                r.getString("info"));
   }
 
 }

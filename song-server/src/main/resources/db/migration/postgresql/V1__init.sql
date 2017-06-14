@@ -53,29 +53,27 @@ CREATE TYPE library_strategy as ENUM('WGS','WXS','RNA-Seq','ChIP-Seq','miRNA-Seq
 DROP TYPE IF EXISTS analysis_type;
 CREATE TYPE analysis_type as ENUM('sequencingRead','variantCall','MAF');
 
-CREATE TABLE Study(id VARCHAR(36) PRIMARY KEY, name TEXT, description TEXT, organization TEXT);
-CREATE TABLE Donor(id VARCHAR(16) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT, gender GENDER);
-CREATE TABLE Specimen(id VARCHAR(16) PRIMARY KEY, donor_id VARCHAR(16) references Donor, submitter_id TEXT, class SPECIMEN_CLASS, type SPECIMEN_TYPE);
-CREATE TABLE Sample(id VARCHAR(16) PRIMARY KEY, specimen_id VARCHAR(16) references Specimen, submitter_id TEXT, type SAMPLE_TYPE);
-CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, sample_id VARCHAR(36) references Sample, name TEXT, size BIGINT, md5 CHAR(32), type FILE_TYPE, metadata_doc TEXT);
+CREATE TABLE Study(id VARCHAR(36) PRIMARY KEY, name TEXT, description TEXT, organization TEXT, info TEXT);
+
+CREATE TABLE Donor(id VARCHAR(16) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT,
+    gender GENDER, info TEXT);
+CREATE TABLE Specimen(id VARCHAR(16) PRIMARY KEY, donor_id VARCHAR(16) references Donor, submitter_id TEXT,
+    class SPECIMEN_CLASS, type SPECIMEN_TYPE, info TEXT);
+CREATE TABLE Sample(id VARCHAR(16) PRIMARY KEY, specimen_id VARCHAR(16) references Specimen, submitter_id TEXT,
+    type SAMPLE_TYPE, info TEXT);
+
+CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, name TEXT, size BIGINT,
+    md5 CHAR(32), type FILE_TYPE, info TEXT);
 
 CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, study_id VARCHAR(36) references Study, state ANALYSIS_STATE, fileset_id VARCHAR(16) references FileSet);
 CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File);
-CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN, insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT);
-CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT);
+CREATE TABLE AnalysisSampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);
+CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN,
+    insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT);
+CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT,
+    tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT);
 
-CREATE TABLE Upload(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now());
+CREATE TABLE Upload(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50), errors TEXT,
+    payload TEXT, created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now());
 
-CREATE VIEW details AS 
-    SELECT 
-        T.name as StudyName,
-        D.id as DonorId, D.submitter_id as SubmitterDonorId, D.gender as DonorGender,
-        P.id as SpecimenId, P.submitter_id as SubmitterSpecimenId, P.class as SpecimenClass, P.type as SpecimenType, 
-        A.id as SampleId, A.submitter_id as SubmitterSampleId,  A.type as SampleType,
-        F.id as FileId, F.name as FileName, F.type as FileType, F.size as FileSize 
-    FROM Study T, Donor D, Specimen P, Sample A, File F 
-    WHERE F.sample_id = A.id AND 
-          A.specimen_id=P.id AND 
-          P.donor_id = D.id AND
-          D.study_id = T.id
-   ORDER BY StudyName,DonorId,SpecimenId,SampleId,FileId;
