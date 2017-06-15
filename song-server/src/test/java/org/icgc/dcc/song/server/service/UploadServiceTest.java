@@ -54,82 +54,63 @@ public class UploadServiceTest {
   @Autowired
   UploadService uploadService;
 
-  @SneakyThrows
-  private String readFile(String name) {
-    return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
-  }
-
   @Test
   @SneakyThrows
   public void testUploadSequencingRead() {
-    val json = readFile("sequencingRead.json");
-    testUpload(json);
+    test("sequencingRead.json");
   }
 
   @Test
   @SneakyThrows
   public void testUploadVariantCall() {
-    val json = readFile("variantCall.json");
-    testUpload(json);
+    test("variantCall.json");
   }
 
   @SneakyThrows
-  public void testUpload(String json) {
-    val uploadStatus=uploadService.upload("ABC123", json);
-    assertThat(uploadStatus != null).isTrue();
-    val uploadId=uploadStatus.getBody();
-    assertThat(uploadId != null).isTrue();
-    System.out.printf("Got uploadId='%s",uploadId);
-
-    Upload status = uploadService.read(uploadId.toString());
-    assertThat(status != null).isTrue();
-    assertThat(status.getState()).isEqualTo("CREATED");
-
-    Thread.sleep(3500);
-    status = uploadService.read(uploadId.toString());
-    assertThat(status.getState()).isEqualTo("VALIDATED");
+  private String readFile(String name) {
+    return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
   }
 
+  public String read(String uploadId) {
+    Upload status = uploadService.read(uploadId);
+    return status.getState();
+  }
 
+  public String validate(String uploadId) throws InterruptedException {
+    String state=read(uploadId);
+    // wait for the server to finish
+    while(state.equals("CREATED")) {
+      Thread.sleep(50);
+      state=read(uploadId);
+    }
+    return state;
 
-  @SneakyThrows
-  @Test
-  public void testSaveSequencingRead() {
-    val json = readFile("sequencingRead.json");
-    testSave(json);
   }
 
   @SneakyThrows
-  @Test
-  public void testSaveVariantCall() {
-    val json = readFile("variantCall.json");
-    testSave(json);
-  }
-
-  @SneakyThrows
-  public void testSave(String json) {
+  public void test(String fileName) {
     val study="ABC123";
+    val json = readFile(fileName);
 
+    // test upload
     val uploadStatus=uploadService.upload(study, json);
-    assertThat(uploadStatus != null).isTrue();
-    val uploadId=uploadStatus.getBody();
-    assertThat(uploadId != null).isTrue();
-    System.out.printf("Got uploadId='%s",uploadId);
+    assertThat(uploadStatus.getStatusCode()).isEqualTo(HttpStatus.OK);
+    val uploadId=uploadStatus.getBody().toString();
+    assertThat(uploadId.startsWith("UP")).isTrue();
 
-    Upload status = uploadService.read(uploadId.toString());
-    assertThat(status != null).isTrue();
-    assertThat(status.getState()).isEqualTo("CREATED");
-    Thread.sleep(3500);
+    // test create
+    val initialState = read(uploadId);
+    assertThat(initialState).isEqualTo("CREATED");
 
-    status = uploadService.read(uploadId.toString());
-    assertThat(status.getState()).isEqualTo("VALIDATED");
+    // test validation
+    val finalState = validate(uploadId);
+    assertThat(finalState).isEqualTo("VALIDATED");
 
-    val analysisResponse = uploadService.save(study, uploadId.toString());
-    assertThat(analysisResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    val analysisId = analysisResponse.getBody();
-    assertThat(analysisId.toString().startsWith("AN")).isTrue();
+    // test save
+   val response = uploadService.save(study,uploadId);
+   assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+   val analysisId = response.getBody().toString();
+   assertThat(analysisId.startsWith("AN")).isTrue();
   }
-
-
 
 }
