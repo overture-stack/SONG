@@ -2,11 +2,13 @@ package org.icgc.dcc.song.server.model.entity.composites;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.icgc.dcc.song.server.model.entity.Study;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper=false)
 @Data
 public class StudyWithDonors extends Study {
 

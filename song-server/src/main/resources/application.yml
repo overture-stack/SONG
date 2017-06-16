@@ -56,8 +56,10 @@ auth:
 
 
 ---
+spring.profiles: dev
 spring:
-  profiles: dev
+  profiles:
+    include: [fastTest]
   h2:
     console:
       enabled: true
@@ -68,7 +70,7 @@ spring:
 auth:
   server:
     uploadScope: "upload"
-  
+
 # Datasource
 spring.datasource:
   driver-class-name: org.h2.Driver
@@ -98,6 +100,22 @@ auth:
     enableStrictSSL: false
     enableHttpLogging: false
     uploadScope: "upload"
+---
+
+spring:
+  profiles: fastTest
+
+auth:
+  connection:
+          # Max number of retries
+          maxRetries: 5
+
+          # Initial timeoutMs before the first retry. In milliseconds.
+          initialBackoff: 50
+
+          # Multiplier that defines value of consequent timeouts before the next retry.
+          # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
+          multiplier: 1.2
 
 ---
 

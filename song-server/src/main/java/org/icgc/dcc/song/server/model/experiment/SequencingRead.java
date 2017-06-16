@@ -26,7 +26,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.val;
+
+@EqualsAndHashCode(callSuper=false)
 @JsonPropertyOrder({ "analysisId", "aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "referenceGenome", "info" })
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @Data

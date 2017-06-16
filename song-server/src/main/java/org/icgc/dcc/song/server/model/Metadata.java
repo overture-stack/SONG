@@ -23,12 +23,15 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.icgc.dcc.song.server.utils.JsonUtils;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
 import lombok.val;
-
+@AllArgsConstructor
+@EqualsAndHashCode
 public class Metadata {
 
   private final Map<String, Object> info = new TreeMap<>();
