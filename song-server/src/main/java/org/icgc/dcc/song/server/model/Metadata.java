@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.icgc.dcc.song.server.utils.JsonUtils;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -30,15 +31,25 @@ import lombok.val;
 
 public class Metadata {
 
-  private final Map<String, Object> metadata = new TreeMap<>();
+  private final Map<String, Object> info = new TreeMap<>();
 
   @JsonAnySetter
-  public void setMetadata(String key, Object value) {
-    metadata.put(key, value);
+  public void setInfo(String key, Object value) {
+    info.put(key, value);
+  }
+
+  @JsonSetter
+  public void setInfo(String info) {
+      addInfo(info);
+  }
+
+  @JsonSetter
+  public String getInfo() {
+    return JsonUtils.toJson(info);
   }
 
   @SuppressWarnings("unchecked")
-  public void addMetadata(String json) {
+  public void addInfo(String json) {
     if (json == null || json.equals("")) {
       return;
     }
@@ -46,13 +57,11 @@ public class Metadata {
     try {
       m = JsonUtils.toMap(json);
     } catch (IllegalArgumentException | IOException e) {
-      val j = JsonUtils.ObjectNode().put("metadata", json);
+      val j = JsonUtils.ObjectNode().put("info", json);
       m = JsonUtils.convertValue(j, Map.class);
     }
-    metadata.putAll(m);
+   info.putAll(m);
   }
 
-  public String getMetadata() {
-    return JsonUtils.toJson(metadata);
-  }
+
 }

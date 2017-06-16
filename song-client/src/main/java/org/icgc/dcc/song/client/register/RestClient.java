@@ -28,7 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * 
+ *
  */
 public class RestClient {
 
@@ -54,7 +54,7 @@ public class RestClient {
           status.output(response.getBody());
         }
       } else {
-        status.err(response.toString());
+        status.output(response.getBody().toString());
       }
     } catch (Exception e){
       status.err(e.toString());

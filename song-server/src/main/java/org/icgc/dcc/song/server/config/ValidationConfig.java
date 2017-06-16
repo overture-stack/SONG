@@ -21,8 +21,8 @@ package org.icgc.dcc.song.server.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.icgc.dcc.song.server.model.utils.JsonDocUtils;
-import org.icgc.dcc.song.server.model.utils.JsonSchemaUtils;
+import org.icgc.dcc.song.server.utils.JsonDocUtils;
+import org.icgc.dcc.song.server.utils.JsonSchemaUtils;
 import org.icgc.dcc.song.server.validation.SchemaValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ValidationConfig {
 
   private static String[] schemaList =
-      { "schemas/create-entity-message.json", "schemas/create-study-message.json", "schemas/upload-sequencingread-message.json", "schemas/upload-variantcall-message.json", "schemas/update-entity-message.json", "schemas/update-sequencingread-message.json", "schemas/update-variantcall-message.json"
+      {"schemas/sequencingRead.json", "schemas/variantCall.json"
       };
 
   @Bean

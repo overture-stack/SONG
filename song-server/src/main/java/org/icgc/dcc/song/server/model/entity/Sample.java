@@ -19,9 +19,7 @@
 
 package org.icgc.dcc.song.server.model.entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
+import lombok.NonNull;
 import org.icgc.dcc.song.server.model.Metadata;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -37,18 +35,18 @@ import org.icgc.dcc.song.server.model.enums.Constants;
 public class Sample extends Metadata {
 
   private String sampleId = "";
+  private String specimenId="";
   private String sampleSubmitterId = "";
-  private String specimenId = "";
   private String sampleType = "";
-  private Collection<File> files = new ArrayList<>();
 
-  public static Sample create(String id, String submitter, String specimen, String type, String metadata) {
+  public static Sample create(String id, @NonNull String submitter, String specimenId, String type, String metadata) {
     val sample = new Sample();
     sample.setSampleId(id);
+    sample.setSpecimenId(specimenId);
     sample.setSampleSubmitterId(submitter);
-    sample.setSpecimenId(specimen);
+
     sample.setSampleType(type);
-    sample.addMetadata(metadata);
+    sample.addInfo(metadata);
     return sample;
   }
 
@@ -57,13 +55,5 @@ public class Sample extends Metadata {
     sampleType = type;
   }
 
-  public void setFiles(Collection<File> files) {
-    this.files.clear();
-    this.files.addAll(files);
-  }
-
-  public void addFile(File f) {
-    files.add(f);
-  }
 
 }

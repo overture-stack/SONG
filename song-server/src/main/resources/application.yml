@@ -56,7 +56,6 @@ auth:
     # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
     multiplier: 2.0
 
-
 ---
 spring:
   profiles: dev
@@ -100,7 +99,6 @@ auth:
     enableStrictSSL: false
     enableHttpLogging: false
     uploadScope: "upload"
-
 
 ---
 

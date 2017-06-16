@@ -29,11 +29,11 @@ import lombok.val;
 
 public class SpecimenMapper implements ResultSetMapper<Specimen> {
 
-  @Override
-  public Specimen map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    val metadata = ""; // TODO: Fix this once we modify the database tables in the next ticket
-    return Specimen.create(r.getString("id"), r.getString("submitter_id"), r.getString("donor_id"),
-        r.getString("class"), r.getString("type"), metadata);
-  }
+    @Override
+    public Specimen map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        return Specimen.create(r.getString("id"), r.getString("submitter_id"),
+                r.getString("donor_id"),
+                r.getString("class"), r.getString("type"), r.getString("info"));
+    }
 
 }

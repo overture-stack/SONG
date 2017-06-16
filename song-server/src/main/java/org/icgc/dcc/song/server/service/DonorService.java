@@ -20,10 +20,12 @@ package org.icgc.dcc.song.server.service;
 
 import static org.icgc.dcc.song.server.model.enums.IdPrefix.Donor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.NonNull;
 import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,37 +39,42 @@ import lombok.val;
 public class DonorService {
 
   @Autowired
-  DonorRepository donorRepository;
+  private final DonorRepository donorRepository;
   @Autowired
-  IdService idService;
+  private final IdService idService;
   @Autowired
-  SpecimenService specimenService;
+  private final SpecimenService specimenService;
 
-  public String create(@NonNull Donor donor) {
+  public String create(@NonNull DonorWithSpecimens d) {
     val id = idService.generate(Donor);
-    donor.setDonorId(id);
+    d.setDonorId(id);
 
-    int status = donorRepository.create(donor);
+    val status = donorRepository.create(d.getDonor());
     if (status != 1) {
-      return "error: Can't create" + donor.toString();
+      return "error: Can't create" + d.toString();
     }
-    donor.getSpecimens().forEach(s -> specimenService.create(id, s));
+    d.getSpecimens().forEach(s -> specimenService.create(id, s));
 
-    return "ok:" + id;
+    return id;
   }
 
   public Donor read(@NonNull String id) {
-    val donor = donorRepository.read(id);
-    if (donor == null) {
-      return null;
-    }
+    return donorRepository.read(id);
+  }
+
+  public DonorWithSpecimens readWithSpecimens(@NonNull String id) {
+    val donor = new DonorWithSpecimens();
+    donor.setDonor(read(id));
+
     donor.setSpecimens(specimenService.readByParentId(id));
     return donor;
   }
 
-  public List<Donor> readByParentId(@NonNull String parentId) {
-    val donors = donorRepository.readByParentId(parentId);
-    donors.forEach(d -> d.setSpecimens(specimenService.readByParentId(d.getDonorId())));
+  public List<DonorWithSpecimens> readByParentId(@NonNull String parentId) {
+    val donors = new ArrayList<DonorWithSpecimens>();
+    val ids = donorRepository.findByParentId(parentId);
+    ids.forEach(id -> donors.add(readWithSpecimens(id)));
+
     return donors;
   }
 
@@ -86,7 +93,6 @@ public class DonorService {
 
   public String deleteByParentId(@NonNull String studyId) {
     donorRepository.findByParentId(studyId).forEach(id -> delete(studyId, id));
-
     return "OK";
   }
 

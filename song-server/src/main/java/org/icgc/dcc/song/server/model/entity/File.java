@@ -35,22 +35,22 @@ public class File extends Metadata {
 
   private String objectId = "";
   private String fileName = "";
-  private String sampleId = "";
+  private String studyId = "";
   private Long fileSize = -1L;
   private String fileType = "";
-  private String fileMd5 = "";
+  private String fileMd5sum = "";
 
-  public static File create(String id, String name, String sample, Long size, String type, String md5,
+  public static File create(String id, String name, String study, Long size, String type, String md5,
       String metadata) {
     val f = new File();
     f.setObjectId(id);
     f.setFileName(name);
-    f.setSampleId(sample);
+    f.setStudyId(study);
     f.setFileSize(size);
     f.setFileType(type);
-    f.setFileMd5(md5);
+    f.setFileMd5sum(md5);
 
-    f.addMetadata(metadata);
+    f.addInfo(metadata);
     return f;
   }
 
