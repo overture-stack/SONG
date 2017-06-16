@@ -8,7 +8,6 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import java.io.IOException;
 
 import static org.icgc.dcc.song.client.errors.ServerErrors.TOKEN_UNAUTHORIZED;
-import static org.icgc.dcc.song.client.errors.ServerErrors.UNKOWN;
 
 /**
  * - testing client
@@ -27,9 +26,14 @@ public class ServerResponseErrorHandler extends DefaultResponseErrorHandler{
 
     switch(statusCode) {
     case UNAUTHORIZED:
-      throw serverExceptionBuilder.id(TOKEN_UNAUTHORIZED.getId()).message("The input token is not authorized, or not specified").build();
+      throw serverExceptionBuilder
+          .id(TOKEN_UNAUTHORIZED.getId())
+          .message("The input token is not authorized, or not specified")
+          .build();
     default:
-      throw serverExceptionBuilder.id(UNKOWN.getId()).message("Unknown error").build();
+      throw serverExceptionBuilder
+          .id(Integer.toString(clientHttpResponse.getStatusCode().value()))
+          .build();
     }
   }
 
