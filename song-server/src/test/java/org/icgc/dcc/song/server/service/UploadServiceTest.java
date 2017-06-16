@@ -18,9 +18,6 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.flywaydb.test.annotation.FlywayTest;
@@ -31,17 +28,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import java.io.File;
-
 import java.nio.file.*;
 
-
+import static org.springframework.http.HttpStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -56,13 +50,13 @@ public class UploadServiceTest {
 
   @Test
   @SneakyThrows
-  public void testUploadSequencingRead() {
+  public void testSequencingRead() {
     test("sequencingRead.json");
   }
 
   @Test
   @SneakyThrows
-  public void testUploadVariantCall() {
+  public void testVariantCall() {
     test("variantCall.json");
   }
 
@@ -94,7 +88,7 @@ public class UploadServiceTest {
 
     // test upload
     val uploadStatus=uploadService.upload(study, json);
-    assertThat(uploadStatus.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(uploadStatus.getStatusCode()).isEqualTo(OK);
     val uploadId=uploadStatus.getBody().toString();
     assertThat(uploadId.startsWith("UP")).isTrue();
 
@@ -108,7 +102,7 @@ public class UploadServiceTest {
 
     // test save
    val response = uploadService.save(study,uploadId);
-   assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+   assertThat(response.getStatusCode()).isEqualTo(OK);
    val analysisId = response.getBody().toString();
    assertThat(analysisId.startsWith("AN")).isTrue();
   }
