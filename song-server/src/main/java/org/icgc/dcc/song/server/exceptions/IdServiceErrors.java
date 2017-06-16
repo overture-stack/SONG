@@ -12,7 +12,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 public enum IdServiceErrors implements ServerError {
   GENERATOR_CLOCK_MOVED_BACKWARDS("generator.clock.moved.backwards", INTERNAL_SERVER_ERROR);
 
-  @NonNull private final String id;
+  @NonNull private final String errorId;
   @NonNull private final HttpStatus httpStatus;
 
 }

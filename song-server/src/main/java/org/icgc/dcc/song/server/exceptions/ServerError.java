@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public interface ServerError {
 
-  String getId();
+  String getErrorId();
 
   HttpStatus getHttpStatus();
 

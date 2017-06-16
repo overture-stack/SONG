@@ -17,13 +17,14 @@
  *
  */
 package org.icgc.dcc.song.server.service;
-import static java.lang.String.format;
-import static org.springframework.http.ResponseEntity.ok;
-import lombok.SneakyThrows;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.server.exceptions.ServerException;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
@@ -34,6 +35,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import static java.lang.String.format;
+import static org.icgc.dcc.song.server.exceptions.UploadServiceErrors.PAYLOAD_PARSING;
+import static org.icgc.dcc.song.server.exceptions.UploadServiceErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RequiredArgsConstructor
 @Service
@@ -62,17 +68,21 @@ public class UploadService {
   @SneakyThrows
   public ResponseEntity<String> upload(String studyId, String payload) {
     val uploadId = id.generate(IdPrefix.Upload);
-
+    String analysisType;
     try {
       create(studyId, uploadId, payload);
+      analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
-      throw new RepositoryException(jdbie.getCause());
+      throw new ServerException(UPLOAD_REPOSITORY_CREATE_RECORD,
+          "[UPLOAD_SERVICE] Unable to create record in upload repository", jdbie);
+    } catch (JsonProcessingException jpe){
+      log.error(jpe.getCause().getMessage());
+      throw new ServerException(PAYLOAD_PARSING,
+          "[UPLOAD_SERVICE]: Unable parse the input payload: "+payload, jpe);
     }
 
-    val analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     validator.validate(uploadId, payload, analysisType); // Async operation.
-
     return ok(uploadId);
   }
 

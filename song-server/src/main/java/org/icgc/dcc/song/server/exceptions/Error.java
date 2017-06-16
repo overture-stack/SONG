@@ -15,7 +15,7 @@ import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 @Data
 public class Error {
   private StackTraceElement[] stackTrace;
-  private String id;
+  private String errorId;
   private HttpStatus httpStatus;
   private String message;
   private String requestUrl;
@@ -26,7 +26,7 @@ public class Error {
     val date = new Date(timestamp);
     return object()
         .with("httpStatus", getHttpStatus().value())
-        .with("id", getId())
+        .with("errorId", getErrorId())
         .with("date", date.toString())
         .with("timestamp", timestamp)
         .with("message", getMessage())

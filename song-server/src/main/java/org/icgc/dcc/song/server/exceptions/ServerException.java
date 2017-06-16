@@ -52,7 +52,7 @@ public class ServerException extends RuntimeException {
     val error = new Error();
     error.setDebugMessage(getDebugMessage());
     error.setHttpStatus(getServerError().getHttpStatus());
-    error.setId(getServerError().getId());
+    error.setErrorId(getServerError().getErrorId());
     error.setMessage(getMessage());
     error.setStackTrace(getStackTrace());
     error.setTimestamp(timestamp);
