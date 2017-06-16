@@ -18,13 +18,15 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import static java.lang.String.format;
-
+import com.earnstone.id.Generator;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
+import org.icgc.dcc.song.server.repository.exceptions.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.earnstone.id.Generator;
+import static java.lang.String.format;
+import static org.icgc.dcc.song.server.repository.exceptions.IdServiceErrors.GENERATOR_CLOCK_MOVED_BACKWARDS;
+import static org.icgc.dcc.song.server.repository.exceptions.Services.ID;
 
 @Service
 public class IdService {
@@ -33,7 +35,13 @@ public class IdService {
   private Generator generator;
 
   protected String identifier() {
-    long id = generator.nextId();
+    long id;
+    try {
+      id = generator.nextId();
+    } catch (IllegalArgumentException e){
+      throw new ServiceException(ID,GENERATOR_CLOCK_MOVED_BACKWARDS, e,
+          "System clock was adjusted during run. Need to restart server");
+    }
     return Long.toString(id, 36).toUpperCase();
   }
 
