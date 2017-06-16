@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ServerErrors implements ServerError {
   TOKEN_UNAUTHORIZED("token.unauthorized"),
+  SAVE_CONFLICT("save.conflict"),
   UNKOWN("unknown");
 
   @NonNull private final String id;

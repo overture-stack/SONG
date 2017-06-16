@@ -7,6 +7,7 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 
 import java.io.IOException;
 
+import static org.icgc.dcc.song.client.errors.ServerErrors.SAVE_CONFLICT;
 import static org.icgc.dcc.song.client.errors.ServerErrors.TOKEN_UNAUTHORIZED;
 
 /**
@@ -22,13 +23,18 @@ public class ServerResponseErrorHandler extends DefaultResponseErrorHandler{
     val statusCode = clientHttpResponse.getStatusCode();
     val serverExceptionBuilder = ServerException.builder()
         .status(statusCode)
-        .message(clientHttpResponse.toString());
+        .message(clientHttpResponse.getStatusText());
 
     switch(statusCode) {
     case UNAUTHORIZED:
       throw serverExceptionBuilder
           .id(TOKEN_UNAUTHORIZED.getId())
           .message("The input token is not authorized, or not specified")
+          .build();
+    case CONFLICT:
+      throw serverExceptionBuilder
+          .id(SAVE_CONFLICT.getId())
+          .message("There was a conflict while saving")
           .build();
     default:
       throw serverExceptionBuilder
