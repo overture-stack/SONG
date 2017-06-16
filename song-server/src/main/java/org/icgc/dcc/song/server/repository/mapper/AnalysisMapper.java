@@ -39,12 +39,13 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
     val study = r.getString("study_id");
     val type = r.getString("type");
     val state = r.getString("state");
+    val info = r.getString("info");
 
     if (type.equals("sequencingRead")) {
-      return SequencingReadAnalysis.create(id, study, state);
+      return SequencingReadAnalysis.create(id, study, state, info);
     }
     if (type.equals("variantCall")) {
-      return VariantCallAnalysis.create(id, study, state);
+      return VariantCallAnalysis.create(id, study, state, info);
     }
 
     return null;

@@ -91,10 +91,13 @@ public class UploadService {
 
     val json = s.getPayload();
     val analysis = JsonUtils.fromJson(json, Analysis.class);
-    val id = analysisService.create(studyId, analysis);
-    if (id == null) {
+    String id=null;
+    try {
+      id = analysisService.create(studyId, analysis);
+    } catch(IllegalArgumentException e) {
       return status(HttpStatus.INTERNAL_SERVER_ERROR,"Could not create id upload id '%id",uploadId);
     }
+
     updateAsSaved(uploadId);
     return ok(id);
   }

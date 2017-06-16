@@ -37,8 +37,8 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(FileMapper.class)
 public interface AnalysisRepository {
 
-  @SqlUpdate("INSERT INTO Analysis (id, study_id, type, state) " +
-          "VALUES (:analysisId, :study, :analysisType, :analysisState)")
+  @SqlUpdate("INSERT INTO Analysis (id, study_id, type, state, info) " +
+          "VALUES (:analysisId, :study, :analysisType, :analysisState, :info)")
   void createAnalysis(@BindBean Analysis analysis );
 
   @SqlUpdate("Update Analysis set state=:state where id=:analysisId")
@@ -47,7 +47,7 @@ public interface AnalysisRepository {
   @SqlUpdate("INSERT INTO FileSet (analysis_id, file_id) values (:analysisId, :fileId)")
   void addFile(@Bind("analysisId") String id, @Bind("fileId") String fileId);
 
-  @SqlUpdate("INSERT INTO AnalysisSampleSet (analysis_id, sample_id) values (:analysisId, :sampleId)")
+  @SqlUpdate("INSERT INTO SampleSet (analysis_id, sample_id) values (:analysisId, :sampleId)")
   void addSample(@Bind("analysisId") String id, @Bind("sampleId") String fileId);
 
   @SqlUpdate("INSERT INTO SequencingRead (id, library_strategy, paired_end, insert_size,aligned,alignment_tool, reference_genome) "
@@ -59,7 +59,7 @@ public interface AnalysisRepository {
   void createVariantCall(@BindBean VariantCall c);
 
   @RegisterMapper(AnalysisMapper.class)
-  @SqlQuery("SELECT id, study_id, type, state FROM Analysis WHERE id=:id")
+  @SqlQuery("SELECT id, study_id, type, state, info FROM Analysis WHERE id=:id")
   Analysis read(@Bind("id") String id);
 
   @SqlQuery("SELECT f.id, f.name, f.study_id, f.size, f.type, f.md5, f.info "
@@ -68,18 +68,28 @@ public interface AnalysisRepository {
       + "  AND f.id = s.file_id")
   List<File> readFiles(@Bind("analysisId") String id);
 
-  @SqlQuery("SELECT sample_id FROM AnalysisSampleSet WHERE analysis_id=:id")
+  @SqlQuery("SELECT sample_id FROM SampleSet WHERE analysis_id=:id")
   List<String> findSampleIds(@Bind("id") String id);
 
+  @SqlQuery("Select analysis_id FROM SampleSet WHERE sample_id=:id")
+  List<String> findBySampleId(@Bind("id") String id);
+
   @RegisterMapper(SequencingReadMapper.class)
-  @SqlQuery("SELECT id, library_strategy, paired_end, insert_size,aligned,alignment_tool, reference_genome" +
+  @SqlQuery("SELECT id, library_strategy, paired_end, insert_size,aligned,alignment_tool, reference_genome, info " +
           "FROM SequencingRead where id=:id")
   SequencingRead readSequencingRead(@Bind("id") String id);
 
   @RegisterMapper(VariantCallMapper.class)
-  @SqlQuery("SELECT id, variant_calling_tool, matched_normal_sample_submitter_id" +
+  @SqlQuery("SELECT id, variant_calling_tool, matched_normal_sample_submitter_id, info " +
           "FROM VariantCall where id=:id")
   VariantCall readVariantCall(@Bind("id") String id);
 
-
+  @SqlQuery("SELECT DISTINCT A.id FROM SampleSet S, Sample M, Analysis A " +
+          "WHERE " +
+          "  S.analysis_id = A.id AND" +
+          "  A.study_id=:study AND" +
+          "  A.type=:type AND" +
+          "  S.sample_id=M.id AND" +
+          "  M.submitter_id=:submitter")
+  List<String> find(@Bind("study") String study, @Bind("type") String type, @Bind("submitter") String submitter);
 }

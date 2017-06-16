@@ -103,7 +103,6 @@ public class DonorService {
     if (donorId == null) {
       donorId = idService.generate(IdPrefix.Donor);
       donor.setDonorId(donorId);
-      System.err.printf("Creating new donor with id=%s,gender='%s'\n", donorId, donor.getDonorGender());
       donorRepository.create(donor);
     } else {
       donorRepository.update(donor);

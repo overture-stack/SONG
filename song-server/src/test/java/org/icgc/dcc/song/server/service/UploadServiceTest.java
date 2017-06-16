@@ -78,7 +78,6 @@ public class UploadServiceTest {
       state=read(uploadId);
     }
     return state;
-
   }
 
   @SneakyThrows
