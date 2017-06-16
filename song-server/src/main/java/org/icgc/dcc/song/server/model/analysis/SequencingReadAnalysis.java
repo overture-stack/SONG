@@ -3,9 +3,11 @@ package org.icgc.dcc.song.server.model.analysis;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 
+@EqualsAndHashCode(callSuper=false)
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SequencingReadAnalysis extends Analysis {

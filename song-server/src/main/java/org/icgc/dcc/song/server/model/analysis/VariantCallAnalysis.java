@@ -3,9 +3,10 @@ package org.icgc.dcc.song.server.model.analysis;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
-
+@EqualsAndHashCode(callSuper=false)
 @Data
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public class VariantCallAnalysis extends Analysis {
