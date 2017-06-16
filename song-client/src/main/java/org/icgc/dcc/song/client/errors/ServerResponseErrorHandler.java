@@ -5,10 +5,10 @@ import lombok.val;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-
-import static org.icgc.dcc.song.client.errors.ServerErrors.SAVE_CONFLICT;
-import static org.icgc.dcc.song.client.errors.ServerErrors.TOKEN_UNAUTHORIZED;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 /**
  * - testing client
@@ -23,24 +23,29 @@ public class ServerResponseErrorHandler extends DefaultResponseErrorHandler{
     val statusCode = clientHttpResponse.getStatusCode();
     val serverExceptionBuilder = ServerException.builder()
         .status(statusCode)
-        .message(clientHttpResponse.getStatusText());
+        .message(clientHttpResponse.getBody().toString());
 
-    switch(statusCode) {
-    case UNAUTHORIZED:
-      throw serverExceptionBuilder
-          .id(TOKEN_UNAUTHORIZED.getId())
-          .message("The input token is not authorized, or not specified")
-          .build();
-    case CONFLICT:
-      throw serverExceptionBuilder
-          .id(SAVE_CONFLICT.getId())
-          .message("There was a conflict while saving")
-          .build();
-    default:
-      throw serverExceptionBuilder
-          .id(Integer.toString(clientHttpResponse.getStatusCode().value()))
-          .build();
-    }
+    val br = new BufferedReader(new InputStreamReader(clientHttpResponse.getBody()));
+    val body = br.lines().collect(Collectors.joining("\n"));
+
+    System.out.println(body);
+
+//    switch(statusCode) {
+//    case UNAUTHORIZED:
+//      throw serverExceptionBuilder
+//          .id(TOKEN_UNAUTHORIZED.getId())
+//          .message("The input token is not authorized, or not specified")
+//          .build();
+//    case CONFLICT:
+//      throw serverExceptionBuilder
+//          .id(SAVE_CONFLICT.getId())
+//          .message("There was a conflict while saving")
+//          .build();
+//    default:
+//      throw serverExceptionBuilder
+//          .id(Integer.toString(clientHttpResponse.getStatusCode().value()))
+//          .build();
+//    }
   }
 
 }

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
 import static org.icgc.dcc.song.server.repository.exceptions.IdServiceErrors.GENERATOR_CLOCK_MOVED_BACKWARDS;
-import static org.icgc.dcc.song.server.repository.exceptions.Services.ID;
+import static org.icgc.dcc.song.server.repository.exceptions.Services.ID_SERVICE;
 
 @Service
 public class IdService {
@@ -39,7 +39,7 @@ public class IdService {
     try {
       id = generator.nextId();
     } catch (IllegalArgumentException e){
-      throw new ServiceException(ID,GENERATOR_CLOCK_MOVED_BACKWARDS, e,
+      throw new ServiceException(ID_SERVICE,GENERATOR_CLOCK_MOVED_BACKWARDS, e,
           "System clock was adjusted during run. Need to restart server");
     }
     return Long.toString(id, 36).toUpperCase();

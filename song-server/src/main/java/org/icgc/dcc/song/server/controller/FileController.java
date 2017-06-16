@@ -68,7 +68,7 @@ public class FileController {
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id, @RequestBody File file) {
-    // TODO: Add checkRequest between path ID and Entity's ID
+    // TODO: Add checkRequest between path ID_SERVICE and Entity's ID_SERVICE
     return fileService.update(file);
   }
 

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor public enum Services {
 
-  ID("Id");
+  ID_SERVICE("Id");
   @NonNull private final String name;
 
 }

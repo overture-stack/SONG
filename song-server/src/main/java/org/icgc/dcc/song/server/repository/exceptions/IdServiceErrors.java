@@ -5,11 +5,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-
 @Getter
 @RequiredArgsConstructor public enum IdServiceErrors implements ServerError {
-  GENERATOR_CLOCK_MOVED_BACKWARDS("generator.clock.moved.backwards", INTERNAL_SERVER_ERROR);
+  GENERATOR_CLOCK_MOVED_BACKWARDS("generator.clock.moved.backwards", HttpStatus.CONFLICT);
 
   @NonNull private final String id;
   @NonNull private final HttpStatus httpStatus;

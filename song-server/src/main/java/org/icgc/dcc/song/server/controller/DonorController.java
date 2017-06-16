@@ -69,7 +69,7 @@ public class DonorController {
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String update(@PathVariable("study") String studyId, @PathVariable("id") String id, @RequestBody Donor donor) {
-    // TODO: Add checkRequest between path ID and Entity's ID
+    // TODO: Add checkRequest between path ID_SERVICE and Entity's ID_SERVICE
     return donorService.update(donor);
   }
 

@@ -1,7 +1,6 @@
 package org.icgc.dcc.song.server.repository.exceptions;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.val;
 
 @Getter
@@ -10,15 +9,18 @@ public class ServerException extends RuntimeException {
   private static String DEFAULT_URL = "noUrl";
   private static String DEFAULT_DEBUG_MESSAGE = "";
 
-  @NonNull private final ServerError serverError;
-  @NonNull private final String debugMessage;
-  @NonNull private final String url;
+  private final ServerError serverError;
+  private final String debugMessage;
+  private final String url;
+  private final long timestamp;
+
 
   public ServerException(ServerError serverError, String message, String debugMessage, String url) {
     super(message);
     this.serverError = serverError;
     this.debugMessage = debugMessage;
     this.url = url;
+    this.timestamp = System.currentTimeMillis();
   }
 
   public ServerException(ServerError serverError, String message, Throwable cause,
@@ -27,6 +29,7 @@ public class ServerException extends RuntimeException {
     this.serverError = serverError;
     this.debugMessage = debugMessage;
     this.url = url;
+    this.timestamp = System.currentTimeMillis();
   }
 
   public ServerException(ServerError serverError, String message, String debugMessage) {
@@ -52,6 +55,7 @@ public class ServerException extends RuntimeException {
     error.setId(getServerError().getId());
     error.setMessage(getMessage());
     error.setStackTrace(getStackTrace());
+//    error.setTimestamp(timestamp);
     return error;
   }
 
