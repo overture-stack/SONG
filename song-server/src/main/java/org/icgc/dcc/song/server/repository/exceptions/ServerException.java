@@ -2,6 +2,7 @@ package org.icgc.dcc.song.server.repository.exceptions;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.val;
 
 @Getter
 public class ServerException extends RuntimeException {
@@ -43,5 +44,16 @@ public class ServerException extends RuntimeException {
   public ServerException(ServerError serverError, String message, Throwable cause) {
     this(serverError, message, cause, DEFAULT_DEBUG_MESSAGE,  DEFAULT_URL);
   }
+
+  public Error getError(){
+    val error = new Error();
+    error.setDebugMessage(getDebugMessage());
+    error.setHttpStatus(getServerError().getHttpStatus());
+    error.setId(getServerError().getId());
+    error.setMessage(getMessage());
+    error.setStackTrace(getStackTrace());
+    return error;
+  }
+
 
 }
