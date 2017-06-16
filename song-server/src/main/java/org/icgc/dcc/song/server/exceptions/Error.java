@@ -1,8 +1,11 @@
-package org.icgc.dcc.song.server.repository.exceptions;
+package org.icgc.dcc.song.server.exceptions;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
+import lombok.val;
 import org.springframework.http.HttpStatus;
+
+import java.util.Date;
 
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.array;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
@@ -15,24 +18,24 @@ public class Error {
   private String id;
   private HttpStatus httpStatus;
   private String message;
-  private String url;
+  private String requestUrl;
   private String debugMessage;
   private long timestamp;
 
   public ObjectNode toObjectNode(){
-//    val date = new Date(timestamp);
-//    val format = new SimpleDateFormat("yyyy-MM-ddTHH-mm-ss");
-//    format.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
-//    val dateString = format.format(date);
+    val date = new Date(timestamp);
     return object()
         .with("httpStatus", getHttpStatus().value())
         .with("id", getId())
-//        .with("date", dateString)
-//        .with("timestamp", timestamp)
+        .with("date", date.toString())
+        .with("timestamp", timestamp)
         .with("message", getMessage())
         .with("debugMessage", getDebugMessage())
-        .with("url", getUrl())
-        .with("stackTrace", array(stream(getStackTrace()).map(Object::toString).collect(toImmutableList())))
+        .with("requestUrl", getRequestUrl())
+        .with("stackTrace", array(
+            stream(getStackTrace())
+                .map(Object::toString)
+                .collect(toImmutableList())))
         .end();
   }
 

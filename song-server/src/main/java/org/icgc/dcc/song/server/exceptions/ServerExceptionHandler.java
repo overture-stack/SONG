@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.repository.exceptions;
+package org.icgc.dcc.song.server.exceptions;
 
 import lombok.val;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,11 +14,16 @@ public class ServerExceptionHandler {
   @ExceptionHandler(ServerException.class)
   @ResponseBody
   public String handleServerException(HttpServletRequest request, HttpServletResponse response, ServerException ex){
-    val url = request.getRequestURI();
+    val requestUrl = request.getRequestURL().toString();
     val error = ex.getError();
-    error.setUrl(url);
+    error.setRequestUrl(requestUrl);
     response.setStatus(error.getHttpStatus().value());
     return error.toObjectNode().toString();
+  }
+
+  private static String getServerUrl(HttpServletRequest request){
+    return "sdf";
+
   }
 
 }

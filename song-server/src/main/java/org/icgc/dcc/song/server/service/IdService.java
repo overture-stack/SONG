@@ -19,14 +19,14 @@
 package org.icgc.dcc.song.server.service;
 
 import com.earnstone.id.Generator;
+import org.icgc.dcc.song.server.exceptions.ServiceException;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
-import org.icgc.dcc.song.server.repository.exceptions.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.server.repository.exceptions.IdServiceErrors.GENERATOR_CLOCK_MOVED_BACKWARDS;
-import static org.icgc.dcc.song.server.repository.exceptions.Services.ID_SERVICE;
+import static org.icgc.dcc.song.server.exceptions.IdServiceErrors.GENERATOR_CLOCK_MOVED_BACKWARDS;
+import static org.icgc.dcc.song.server.exceptions.Services.ID_SERVICE;
 
 @Service
 public class IdService {

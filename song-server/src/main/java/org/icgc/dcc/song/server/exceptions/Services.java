@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.repository.exceptions;
+package org.icgc.dcc.song.server.exceptions;
 
 import lombok.Getter;
 import lombok.NonNull;

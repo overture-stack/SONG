@@ -21,7 +21,7 @@ package org.icgc.dcc.song.server.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.Upload;
-import org.icgc.dcc.song.server.repository.exceptions.ServiceException;
+import org.icgc.dcc.song.server.exceptions.ServiceException;
 import org.icgc.dcc.song.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-import static org.icgc.dcc.song.server.repository.exceptions.IdServiceErrors.GENERATOR_CLOCK_MOVED_BACKWARDS;
-import static org.icgc.dcc.song.server.repository.exceptions.Services.ID_SERVICE;
+import static org.icgc.dcc.song.server.exceptions.IdServiceErrors.GENERATOR_CLOCK_MOVED_BACKWARDS;
+import static org.icgc.dcc.song.server.exceptions.Services.ID_SERVICE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 

@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.repository.exceptions;
+package org.icgc.dcc.song.server.exceptions;
 
 import lombok.Getter;
 import lombok.val;
@@ -55,7 +55,7 @@ public class ServerException extends RuntimeException {
     error.setId(getServerError().getId());
     error.setMessage(getMessage());
     error.setStackTrace(getStackTrace());
-//    error.setTimestamp(timestamp);
+    error.setTimestamp(timestamp);
     return error;
   }
 
