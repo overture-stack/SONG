@@ -24,7 +24,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.exceptions.ServerException;
+import org.icgc.dcc.song.server.exceptions.Error;
+import org.icgc.dcc.song.server.exceptions.ServerError;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
@@ -37,8 +38,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.server.exceptions.UploadServiceErrors.PAYLOAD_PARSING;
-import static org.icgc.dcc.song.server.exceptions.UploadServiceErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
+import static java.lang.System.currentTimeMillis;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.song.server.exceptions.ServiceErrors.PAYLOAD_PARSING;
+import static org.icgc.dcc.song.server.exceptions.ServiceErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
+import static org.icgc.dcc.song.server.utils.Debug.streamCallingStackTrace;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RequiredArgsConstructor
@@ -74,12 +78,12 @@ public class UploadService {
       analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
-      throw new ServerException(UPLOAD_REPOSITORY_CREATE_RECORD,
-          "[UPLOAD_SERVICE] Unable to create record in upload repository", jdbie);
+      return error(UPLOAD_REPOSITORY_CREATE_RECORD, "[UPLOAD_SERVICE] Unable to create record in upload repository");
     } catch (JsonProcessingException jpe){
       log.error(jpe.getCause().getMessage());
-      throw new ServerException(PAYLOAD_PARSING,
-          "[UPLOAD_SERVICE]: Unable parse the input payload: "+payload, jpe);
+//      throw new ServerException(PAYLOAD_PARSING,
+//          "[UPLOAD_SERVICE]: Unable parse the input payload: "+payload, jpe);
+      return error(PAYLOAD_PARSING, "[UPLOAD_SERVICE]: Unable parse the input payload: %s ",payload);
     }
 
     validator.validate(uploadId, payload, analysisType); // Async operation.
@@ -114,7 +118,24 @@ public class UploadService {
   }
 
   private ResponseEntity<String> status(HttpStatus status, String format, Object... args) {
-    return ResponseEntity.status(status).body(format(format, args));
+    return ResponseEntity
+        .status(status)
+        .body(format(format, args));
+  }
+
+
+  private ResponseEntity<String> error(ServerError serverError, String format, Object... args){
+    val st = streamCallingStackTrace().skip(1).collect(toImmutableList());
+    val error = new Error();
+    error.setMessage(format(format,args));
+    error.setErrorId(serverError.getErrorId());
+    error.setHttpStatus(serverError.getHttpStatus());
+    error.setStackTrace(st);
+    error.setTimestamp(currentTimeMillis());
+    error.setRequestUrl("N/A");
+    error.setDebugMessage("N/A");
+    return  ResponseEntity.status(serverError.getHttpStatus()).body(error.toObjectNode().toString());
+
   }
 
 }

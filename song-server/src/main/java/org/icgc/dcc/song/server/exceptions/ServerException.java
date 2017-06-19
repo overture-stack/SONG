@@ -3,6 +3,9 @@ package org.icgc.dcc.song.server.exceptions;
 import lombok.Getter;
 import lombok.val;
 
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+
 @Getter
 public class ServerException extends RuntimeException {
 
@@ -54,7 +57,7 @@ public class ServerException extends RuntimeException {
     error.setHttpStatus(getServerError().getHttpStatus());
     error.setErrorId(getServerError().getErrorId());
     error.setMessage(getMessage());
-    error.setStackTrace(getStackTrace());
+    error.setStackTrace(stream(getStackTrace()).collect(toImmutableList()));
     error.setTimestamp(timestamp);
     return error;
   }
