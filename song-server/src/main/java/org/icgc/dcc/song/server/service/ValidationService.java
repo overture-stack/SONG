@@ -60,8 +60,8 @@ public class ValidationService {
 
   @Async
   public void validate(@NonNull String uploadId, @NonNull String payload, String analysisType) {
-    log.error("Validating payload for upload Id=" + uploadId + "payload=" + payload);
-    log.error(format("Analysis type='%s'",analysisType));
+    log.info("Validating payload for upload Id=" + uploadId + "payload=" + payload);
+    log.info(format("Analysis type='%s'",analysisType));
     try {
       val jsonNode = JsonUtils.readTree(payload);
 
