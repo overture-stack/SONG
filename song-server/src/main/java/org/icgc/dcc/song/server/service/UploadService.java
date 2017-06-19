@@ -24,8 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.exceptions.Error;
-import org.icgc.dcc.song.server.exceptions.ServerError;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
@@ -38,11 +36,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
-import static java.lang.System.currentTimeMillis;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.song.server.exceptions.ServiceErrors.PAYLOAD_PARSING;
-import static org.icgc.dcc.song.server.exceptions.ServiceErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
-import static org.icgc.dcc.song.server.utils.Debug.streamCallingStackTrace;
+import static org.icgc.dcc.song.server.exceptions.Error.error;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RequiredArgsConstructor
@@ -93,24 +92,23 @@ public class UploadService {
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId) {
     val s = read(uploadId);
     if (s == null ){
-      return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
+      return error(UPLOAD_ID_NOT_FOUND, "UploadId %s does not exist", uploadId);
     }
     val state = s.getState();
     if (!state.equals(Upload.VALIDATED)) {
-      return status(HttpStatus.CONFLICT,
-          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be saved.", uploadId,
-          state);
+      return error(UPLOAD_ID_NOT_VALIDATED,
+          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be saved.",
+          uploadId, state);
     }
-
 
     val json = s.getPayload();
     val analysis = JsonUtils.fromJson(json, Analysis.class);
-    val id = analysisService.create(studyId, analysis);
-    if (id == null) {
-      return status(HttpStatus.INTERNAL_SERVER_ERROR,"Could not create id upload id '%id",uploadId);
+    val analysisId = analysisService.create(studyId, analysis);
+    if (analysisId == null) {
+      return error(ANALYSIS_ID_NOT_CREATED,"Could not create analysisId for upload id '%s",uploadId);
     }
     updateAsSaved(uploadId);
-    return ok(id);
+    return ok(analysisId);
   }
 
   private void updateAsSaved(@NonNull String uploadId) {
@@ -124,18 +122,5 @@ public class UploadService {
   }
 
 
-  private ResponseEntity<String> error(ServerError serverError, String format, Object... args){
-    val st = streamCallingStackTrace().skip(1).collect(toImmutableList());
-    val error = new Error();
-    error.setMessage(format(format,args));
-    error.setErrorId(serverError.getErrorId());
-    error.setHttpStatus(serverError.getHttpStatus());
-    error.setStackTrace(st);
-    error.setTimestamp(currentTimeMillis());
-    error.setRequestUrl("N/A");
-    error.setDebugMessage("N/A");
-    return  ResponseEntity.status(serverError.getHttpStatus()).body(error.toObjectNode().toString());
-
-  }
 
 }

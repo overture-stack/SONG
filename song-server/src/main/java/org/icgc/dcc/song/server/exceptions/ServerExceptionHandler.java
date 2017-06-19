@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.server.exceptions.ServiceErrors.UNKNOWN_ERROR;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.UNKNOWN_ERROR;
 
 @ControllerAdvice
 public class ServerExceptionHandler {
