@@ -71,9 +71,7 @@ public class AnalysisService {
     String id = findByBusinessKey(studyId, analysis.getAnalysisType(), submitters);
 
     if (id == null) {
-      id = idService.generate(IdPrefix.Analysis);
-      analysis.setAnalysisId(id);
-      create(studyId, analysis);
+      id = create(studyId, analysis);
     } else {
       update(studyId, analysis);
     }
@@ -82,7 +80,8 @@ public class AnalysisService {
 
 
   public String create(String studyId, Analysis a) {
-    val id = a.getAnalysisId();
+    val id = idService.generate(IdPrefix.Analysis);
+    a.setAnalysisId(id);
     a.setStudy(studyId);
     repository.createAnalysis(a);
 
