@@ -32,6 +32,7 @@ import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import static org.springframework.http.HttpStatus.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -79,11 +80,11 @@ public class UploadService {
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId) {
     val s = read(uploadId);
     if (s == null ){
-      return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
+      return status(NOT_FOUND, "UploadId %s does not exist", uploadId);
     }
     val state = s.getState();
     if (!state.equals(Upload.VALIDATED)) {
-      return status(HttpStatus.CONFLICT,
+      return status(CONFLICT,
           "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be saved.", uploadId,
           state);
     }
@@ -95,7 +96,7 @@ public class UploadService {
     try {
       id = analysisService.create(studyId, analysis);
     } catch(IllegalArgumentException e) {
-      return status(HttpStatus.INTERNAL_SERVER_ERROR,"Could not create id upload id '%id",uploadId);
+      return status(INTERNAL_SERVER_ERROR,"Could not create id upload id '%id",uploadId);
     }
 
     updateAsSaved(uploadId);

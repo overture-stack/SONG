@@ -162,7 +162,6 @@ public class AnalysisServiceTest {
     assertThat(id.equals(list("AN2")));
   }
 
-
   @Ignore
   @Test
   public void testPublish() {
@@ -173,6 +172,14 @@ public class AnalysisServiceTest {
 
     val analysis = service.read(id);
     assertThat(analysis.getAnalysisState()).isEqualTo("PUBLISHED");
+  }
+
+  @Test
+  public void testUpdate() {
+    val id = "AN1";
+    val analysis = service.read(id);
+
+
   }
 
   @Test

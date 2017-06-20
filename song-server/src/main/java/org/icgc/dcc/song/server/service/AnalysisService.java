@@ -25,11 +25,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import static org.icgc.dcc.common.core.util.stream.Collectors.*;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-import org.icgc.dcc.song.server.model.entity.Donor;
+
 import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
@@ -61,13 +63,17 @@ public class AnalysisService {
   @SneakyThrows
   public String update(String studyId, Analysis a) {
     val id=a.getAnalysisId();
+
     System.err.printf("WARNING: NOT UPDATING analysis id '%s': code not finished", id);
     return id;
   }
 
   public String save(@NonNull String studyId, @NonNull Analysis analysis) {
-    val submitters = new ArrayList<String>();
-    analysis.getSample().forEach(s->submitters.add(s.getSampleSubmitterId()));
+    val submitters = analysis.getSample()
+            .stream()
+            .map(Sample::getSampleSubmitterId)
+            .collect(toImmutableList());
+
     String id = findByBusinessKey(studyId, analysis.getAnalysisType(), submitters);
 
     if (id == null) {
@@ -102,47 +108,46 @@ public class AnalysisService {
   }
 
   public String updateAnalysis(String studyId, Analysis a) {
+    // TODO: [DCC-5637]
     assert false; // not coded yet
     return "ok";
   }
 
-  void saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
-    for(val sample: samples) {
-      val sampleId = compositeEntityService.save(studyId, sample);
-      repository.addSample(id, sampleId);
-    }
+  void saveCompositeEntities(String studyId, String analysisId, List<CompositeEntity> samples) {
+    samples.stream()
+            .map(sample->compositeEntityService.save(studyId,sample))
+            .forEach(sampleId->repository.addSample(analysisId, sampleId));
   }
 
-  void saveFiles(String id, String studyId, List<File> files) {
-    for (val f : files) {
-      val fileId = fileService.save(studyId, f);
-      addFile(id, fileId);
-    }
+  void saveFiles(String analysisId, String studyId, List<File> files) {
+    files.stream()
+            .map(f->fileService.save(studyId, f))
+            .forEach(fileId->addFile(analysisId, fileId));
   }
 
-  void addFile(String id, String fileId) {
-    repository.addFile(id, fileId);
+  void addFile(String analysisId, String fileId) {
+    repository.addFile(analysisId, fileId);
   }
 
 
   public List<String> getAnalyses(Map<String, String> params) {
-    // TODO Auto-generated method stub
+    // TODO: Implement this once we have a spec for searches
     return null;
   }
 
-  public Analysis read(String id) {
-    val analysis = repository.read(id);
+  public Analysis read(String analysisId) {
+    val analysis = repository.read(analysisId);
     if (analysis == null) {
       return null;
     }
 
-    analysis.setFile(readFiles(id));
-    analysis.setSample(readSamples(id));
+    analysis.setFile(readFiles(analysisId));
+    analysis.setSample(readSamples(analysisId));
 
     if (analysis instanceof SequencingReadAnalysis) {
-      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(id));
+      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(analysisId));
     } else if (analysis instanceof VariantCallAnalysis) {
-      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(id));
+      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(analysisId));
     }
 
     return analysis;
