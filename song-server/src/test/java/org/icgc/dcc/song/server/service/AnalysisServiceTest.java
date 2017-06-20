@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
-@ActiveProfiles({"dev", "secure"})
+@ActiveProfiles("dev")
 public class AnalysisServiceTest {
 
   @Autowired

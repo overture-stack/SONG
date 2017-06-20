@@ -70,7 +70,7 @@ public class SpecimenController {
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
                        @RequestBody Specimen specimen) {
-    // TODO: Add checkRequest between path ID and Entity's ID
+    // TODO: Add checkRequest between path ID_SERVICE and Entity's ID_SERVICE
     return specimenService.update(specimen);
   }
 
