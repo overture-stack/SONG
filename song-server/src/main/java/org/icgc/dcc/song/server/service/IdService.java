@@ -18,13 +18,13 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import static java.lang.String.format;
-
+import com.earnstone.id.Generator;
+import lombok.val;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.earnstone.id.Generator;
+import static java.lang.String.format;
 
 @Service
 public class IdService {
@@ -33,7 +33,7 @@ public class IdService {
   private Generator generator;
 
   protected String identifier() {
-    long id = generator.nextId();
+    val id = generator.nextId();
     return Long.toString(id, 36).toUpperCase();
   }
 

@@ -18,11 +18,8 @@
  */
 package org.icgc.dcc.song.server.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.service.SampleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequiredArgsConstructor
@@ -70,7 +69,7 @@ public class SampleController {
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
                        @RequestBody Sample sample) {
-    // TODO: Add checkRequest between path ID and Entity's ID
+    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
     return sampleService.update(sample);
   }
 
