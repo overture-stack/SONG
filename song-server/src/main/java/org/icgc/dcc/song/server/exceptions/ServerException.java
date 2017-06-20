@@ -51,13 +51,13 @@ public class ServerException extends RuntimeException {
     this(serverError, message, cause, DEFAULT_DEBUG_MESSAGE,  DEFAULT_URL);
   }
 
-  public Error getError(){
-    val error = new Error();
+  public SongError getError(){
+    val error = new SongError();
     error.setDebugMessage(getDebugMessage());
     error.setHttpStatus(getServerError().getHttpStatus());
     error.setErrorId(getServerError().getErrorId());
     error.setMessage(getMessage());
-    error.setStackTrace(stream(getStackTrace()).collect(toImmutableList()));
+    error.setStackTraceElementList(stream(getStackTrace()).collect(toImmutableList()));
     error.setTimestamp(timestamp);
     return error;
   }

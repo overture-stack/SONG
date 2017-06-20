@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.server.exceptions.Error.error;
+import static org.icgc.dcc.song.server.exceptions.SongError.error;
 import static org.icgc.dcc.song.server.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.springframework.http.ResponseEntity.ok;
 

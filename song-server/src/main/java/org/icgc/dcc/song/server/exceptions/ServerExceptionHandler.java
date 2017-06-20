@@ -20,22 +20,22 @@ public class ServerExceptionHandler {
     val requestUrl = request.getRequestURL().toString();
     val error = ex.getError();
     error.setRequestUrl(requestUrl);
-    response.setStatus(error.getHttpStatus().value());
-    return error.toObjectNode().toString();
+    response.setStatus(error.getHttpStatusCode());
+    return error.toJson();
   }
 
   @ExceptionHandler(Throwable.class)
   @ResponseBody
   public ResponseEntity<String> handleThrowable(HttpServletRequest request, HttpServletResponse response, Throwable ex){
     val requestUrl = request.getRequestURL().toString();
-    val error = new Error();
+    val error = new SongError();
     error.setRequestUrl(requestUrl);
     error.setTimestamp(System.currentTimeMillis());
     error.setHttpStatus(UNKNOWN_ERROR.getHttpStatus());
     error.setErrorId(UNKNOWN_ERROR.getErrorId());
     error.setMessage(ex.getMessage());
-    error.setStackTrace(ex.getStackTrace());
-    return ResponseEntity.status(response.getStatus()).body(error.toObjectNode().toString());
+    error.setStackTraceElementArray(ex.getStackTrace());
+    return error.getResponseEntity();
   }
 
 

@@ -36,7 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.server.exceptions.Error.error;
+import static org.icgc.dcc.song.server.exceptions.SongError.error;
 import static org.icgc.dcc.song.server.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static org.icgc.dcc.song.server.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
