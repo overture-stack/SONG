@@ -18,9 +18,6 @@
  */
 package org.icgc.dcc.song.server.utils;
 
-import java.io.IOException;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,9 +26,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-
 import lombok.SneakyThrows;
 import lombok.val;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * Utility functions related to deal with JSON
@@ -72,6 +71,11 @@ public class JsonUtils {
   @SneakyThrows
   public static String toJson(Object o) {
     return mapper.writeValueAsString(o);
+  }
+
+  @SneakyThrows
+  public static String toPrettyJson(Object o) {
+    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
   @SneakyThrows

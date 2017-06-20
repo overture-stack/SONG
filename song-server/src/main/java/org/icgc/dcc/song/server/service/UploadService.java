@@ -17,11 +17,11 @@
  *
  */
 package org.icgc.dcc.song.server.service;
-import static java.lang.String.format;
-import static org.springframework.http.ResponseEntity.ok;
-import lombok.SneakyThrows;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Upload;
@@ -34,6 +34,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import static java.lang.String.format;
+import static org.icgc.dcc.song.server.exceptions.SongError.error;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
+import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RequiredArgsConstructor
 @Service
@@ -62,41 +71,44 @@ public class UploadService {
   @SneakyThrows
   public ResponseEntity<String> upload(String studyId, String payload) {
     val uploadId = id.generate(IdPrefix.Upload);
-
+    String analysisType;
     try {
       create(studyId, uploadId, payload);
+      analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
-      throw new RepositoryException(jdbie.getCause());
+      return error(UPLOAD_REPOSITORY_CREATE_RECORD, "[UPLOAD_SERVICE] Unable to create record in upload repository");
+    } catch (JsonProcessingException jpe){
+      log.error(jpe.getCause().getMessage());
+//      throw new ServerException(PAYLOAD_PARSING,
+//          "[UPLOAD_SERVICE]: Unable parse the input payload: "+payload, jpe);
+      return error(PAYLOAD_PARSING, "[UPLOAD_SERVICE]: Unable parse the input payload: %s ",payload);
     }
 
-    val analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     validator.validate(uploadId, payload, analysisType); // Async operation.
-
     return ok(uploadId);
   }
 
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId) {
     val s = read(uploadId);
     if (s == null ){
-      return status(HttpStatus.NOT_FOUND, "UploadId %s does not exist", uploadId);
+      return error(UPLOAD_ID_NOT_FOUND, "UploadId %s does not exist", uploadId);
     }
     val state = s.getState();
     if (!state.equals(Upload.VALIDATED)) {
-      return status(HttpStatus.CONFLICT,
-          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be saved.", uploadId,
-          state);
+      return error(UPLOAD_ID_NOT_VALIDATED,
+          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be saved.",
+          uploadId, state);
     }
-
 
     val json = s.getPayload();
     val analysis = JsonUtils.fromJson(json, Analysis.class);
-    val id = analysisService.create(studyId, analysis);
-    if (id == null) {
-      return status(HttpStatus.INTERNAL_SERVER_ERROR,"Could not create id upload id '%id",uploadId);
+    val analysisId = analysisService.create(studyId, analysis);
+    if (analysisId == null) {
+      return error(ANALYSIS_ID_NOT_CREATED,"Could not create analysisId for upload id '%s",uploadId);
     }
     updateAsSaved(uploadId);
-    return ok(id);
+    return ok(analysisId);
   }
 
   private void updateAsSaved(@NonNull String uploadId) {
@@ -104,7 +116,11 @@ public class UploadService {
   }
 
   private ResponseEntity<String> status(HttpStatus status, String format, Object... args) {
-    return ResponseEntity.status(status).body(format(format, args));
+    return ResponseEntity
+        .status(status)
+        .body(format(format, args));
   }
+
+
 
 }

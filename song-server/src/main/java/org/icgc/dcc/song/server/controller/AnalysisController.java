@@ -25,6 +25,7 @@ import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,10 +63,9 @@ public class AnalysisController {
   }
 
   @PutMapping(value="/publish/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String publishAnalysis(
+  public ResponseEntity<String> publishAnalysis(
       @RequestHeader(value = HttpHeaders.AUTHORIZATION) final String accessToken,
       @PathVariable("id") String id) {
     return analysisService.publish(accessToken,id);
