@@ -18,11 +18,7 @@
  */
 package org.icgc.dcc.song.server.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +33,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequiredArgsConstructor
@@ -68,7 +66,7 @@ public class FileController {
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id, @RequestBody File file) {
-    // TODO: Add checkRequest between path ID_SERVICE and Entity's ID_SERVICE
+    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
     return fileService.update(file);
   }
 

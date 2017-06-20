@@ -18,11 +18,7 @@
  */
 package org.icgc.dcc.song.server.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.service.DonorService;
@@ -38,7 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,7 +68,7 @@ public class DonorController {
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String update(@PathVariable("study") String studyId, @PathVariable("id") String id, @RequestBody Donor donor) {
-    // TODO: Add checkRequest between path ID_SERVICE and Entity's ID_SERVICE
+    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
     return donorService.update(donor);
   }
 
