@@ -3,7 +3,6 @@ package org.icgc.dcc.song.server.exceptions;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.Setter;
 import lombok.val;
@@ -11,7 +10,6 @@ import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -33,8 +31,6 @@ import static org.icgc.dcc.song.server.utils.Debug.streamCallingStackTrace;
 public class SongError {
 
   private static final String NOT_AVAILABLE = "N/A";
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-  private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:MM:ss.mmm");
   private static final DateTimeFormatter DATE_TIME_FORMATTER = ISO_ZONED_DATE_TIME;
   private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
