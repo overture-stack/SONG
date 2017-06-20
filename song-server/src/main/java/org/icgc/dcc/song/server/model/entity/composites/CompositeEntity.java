@@ -1,11 +1,13 @@
 package org.icgc.dcc.song.server.model.entity.composites;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 
+@EqualsAndHashCode(callSuper=false)
 @Data
 public class CompositeEntity extends Sample {
     private Specimen specimen;

@@ -2,6 +2,7 @@ package org.icgc.dcc.song.server.service.existence;
 
 import com.sun.net.httpserver.HttpServer;
 import lombok.SneakyThrows;
+import lombok.Synchronized;
 import lombok.val;
 import org.icgc.dcc.song.server.config.RetryConfig;
 import org.junit.Before;
@@ -32,15 +33,17 @@ import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 @ContextConfiguration(classes = RetryConfig.class)
 @ActiveProfiles("dev")
 public class ExistenceServiceTest {
-
-  private static final int PORT = 8080;
   private static final String HOSTNAME = "localhost";
-  private static final String MOCK_SERVER_URL = format("http://%s:%s", HOSTNAME, PORT);
   private static final String OBJECT_ID1 = "qwertyObjectId1";
   private static final String OBJECT_ID2 = "qwertyObjectId2";
   private static final String TOKEN = "12345678";
-  private static final int REQUEST_CON_TIMEOUT = 2000;
-  private static final long MS_UNTIL_ERROR =  REQUEST_CON_TIMEOUT + 1000L;
+  private static final int REQUEST_CON_TIMEOUT = 200;
+  private static final long MS_UNTIL_ERROR =  REQUEST_CON_TIMEOUT + 100L;
+
+  // We'll give each test it's own port number, in case they're running in parallel
+  private static int freePort=9876;
+
+  String mockServerUrl;
 
   @Autowired
   private RetryTemplate retryTemplate;
@@ -51,9 +54,18 @@ public class ExistenceServiceTest {
   @Before
   @SneakyThrows
   public void beforeTest() {
-    this.mockServer = HttpServer.create(new InetSocketAddress(PORT), 0);
+    val port = getPort();
+    mockServerUrl = format("http://%s:%s", HOSTNAME, port);
+    System.err.printf("Creating mock server on port %d\n", port);
+    this.mockServer = HttpServer.create(new InetSocketAddress(port), 0);
     this.countingRetryListener = new CountingRetryListener();
     this.retryTemplate.registerListener(countingRetryListener);
+  }
+
+  @Synchronized
+  public int getPort() {
+    freePort +=1;
+    return freePort;
   }
 
   @Test
@@ -63,7 +75,7 @@ public class ExistenceServiceTest {
     mockServer.createContext(format("/upload/%s", OBJECT_ID1), createNormalMockDccStorageHandler(true, TOKEN));
     mockServer.createContext(format("/upload/%s", OBJECT_ID2), createNormalMockDccStorageHandler(false, TOKEN));
     mockServer.start();
-    val exi = createExistenceService(retryTemplate, MOCK_SERVER_URL, REQUEST_CON_TIMEOUT);
+    val exi = createExistenceService(retryTemplate, mockServerUrl, REQUEST_CON_TIMEOUT);
     assertThat(exi.isObjectExist(TOKEN, OBJECT_ID1)).isTrue();
     assertThat(exi.isObjectExist(TOKEN, OBJECT_ID2)).isFalse();
     assertThat(countingRetryListener.getErrorCount()).isEqualTo(0);
@@ -113,7 +125,7 @@ public class ExistenceServiceTest {
     //Create HttpServer that mocks dcc-storage /upload endpoint
     mockServer.createContext(format("/upload/%s", OBJECT_ID1), handler);
     mockServer.start();
-    val exi = createExistenceService(retryTemplate, MOCK_SERVER_URL, REQUEST_CON_TIMEOUT);
+    val exi = createExistenceService(retryTemplate, mockServerUrl, REQUEST_CON_TIMEOUT);
     assertThat(exi.isObjectExist(TOKEN, OBJECT_ID1)).isTrue();
     val seconds = 1;
     mockServer.stop(seconds);

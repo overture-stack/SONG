@@ -21,14 +21,15 @@ package org.icgc.dcc.song.server.model.entity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
 
+@EqualsAndHashCode(callSuper=false)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
 public class Study extends Metadata {
-
   private String studyId="";
   private String name="";
   private String organization="";
