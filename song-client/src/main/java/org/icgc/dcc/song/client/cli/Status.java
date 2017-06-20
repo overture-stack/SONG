@@ -55,7 +55,10 @@ public class Status {
 
   public boolean isOk() {
     return errors.equals("");
+  }
 
+  public boolean hasOutputs() {
+    return !outputs.equals("");
   }
 
   public boolean hasErrors() {

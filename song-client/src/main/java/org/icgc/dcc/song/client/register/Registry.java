@@ -18,15 +18,13 @@
  */
 package org.icgc.dcc.song.client.register;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.SneakyThrows;
-import lombok.val;
 
 @Component
 public class Registry {
@@ -90,9 +88,17 @@ public class Registry {
     return rest.get(url);
   }
 
+  /**
+   * TODO: [DCC-5641] the ResponseEntity from AnalysisController is not returned, since RestTemplate.put is a void method.
+   * need to find RestTemplate implementation that returns a response
+   */
   public Status publish(String studyId, String analysisId ){
     val url = endpoint.publish(studyId, analysisId);
-    return rest.put(url);
+    val status = rest.put(url);
+    if (!status.hasErrors() && !status.hasOutputs()){
+      status.output("The analysisId '%s' was successfully published for the studyId '%s'", analysisId, studyId);
+    }
+    return status;
   }
 
 }
