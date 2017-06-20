@@ -32,6 +32,7 @@ import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import static org.springframework.http.HttpStatus.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -103,10 +104,12 @@ public class UploadService {
 
     val json = s.getPayload();
     val analysis = JsonUtils.fromJson(json, Analysis.class);
+
     val analysisId = analysisService.create(studyId, analysis);
     if (analysisId == null) {
       return error(ANALYSIS_ID_NOT_CREATED,"Could not create analysisId for upload id '%s",uploadId);
     }
+
     updateAsSaved(uploadId);
     return ok(analysisId);
   }

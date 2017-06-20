@@ -58,8 +58,8 @@ public class AnalysisController {
   @ResponseBody
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String modifyAnalysis(@PathVariable("studyId") String studyId, @RequestBody String json) {
-    return analysisService.updateAnalysis(studyId, json);
+  public String modifyAnalysis(@PathVariable("studyId") String studyId, @RequestBody Analysis analysis) {
+    return analysisService.updateAnalysis(studyId, analysis);
   }
 
   @PutMapping(value="/publish/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })

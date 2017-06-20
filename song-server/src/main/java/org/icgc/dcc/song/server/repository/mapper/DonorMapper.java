@@ -22,10 +22,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.icgc.dcc.song.server.model.entity.Donor;
+import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import lombok.SneakyThrows;
+
 import lombok.val;
 
 public class DonorMapper implements ResultSetMapper<Donor> {
@@ -33,8 +35,8 @@ public class DonorMapper implements ResultSetMapper<Donor> {
   @Override
   @SneakyThrows
   public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    return Donor.create(r.getString("id"), r.getString("submitter_id"), r.getString("study_id"),
-        r.getString("gender"), r.getString("info"));
+    return Donor.create(r.getString(ID), r.getString(SUBMITTER_ID), r.getString(STUDY_ID),
+        r.getString(GENDER), r.getString(INFO));
   }
 
 }

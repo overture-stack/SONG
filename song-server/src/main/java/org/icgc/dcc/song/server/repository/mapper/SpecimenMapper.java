@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.icgc.dcc.song.server.model.entity.Specimen;
+import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -31,9 +32,8 @@ public class SpecimenMapper implements ResultSetMapper<Specimen> {
 
     @Override
     public Specimen map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-        return Specimen.create(r.getString("id"), r.getString("submitter_id"),
-                r.getString("donor_id"),
-                r.getString("class"), r.getString("type"), r.getString("info"));
+        return Specimen.create(r.getString(ID), r.getString(SUBMITTER_ID), r.getString(DONOR_ID), r.getString(CLASS),
+                r.getString(TYPE), r.getString(INFO));
     }
 
 }

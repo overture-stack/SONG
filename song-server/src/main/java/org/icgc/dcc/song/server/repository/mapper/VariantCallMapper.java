@@ -22,6 +22,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
+import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -33,11 +34,10 @@ public class VariantCallMapper implements ResultSetMapper<VariantCall> {
   @Override
   @SneakyThrows
   public VariantCall map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    val id = r.getString("id");
-    return VariantCall.create(r.getString("id"),
-                r.getString("variant_calling_tool"),
-                r.getString("matched_normal_sample_submitter_id"),
-                r.getString("info"));
+    return VariantCall.create(r.getString(ID),
+                r.getString(VARIANT_CALLING_TOOL),
+                r.getString(MATCHED_NORMAL_SAMPLE_SUBMITTER_ID),
+                r.getString(INFO));
   }
 
 }

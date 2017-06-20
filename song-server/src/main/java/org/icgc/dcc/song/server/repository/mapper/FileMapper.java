@@ -22,16 +22,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.icgc.dcc.song.server.model.entity.File;
+import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
+
 
 public class FileMapper implements ResultSetMapper<File> {
 
   @Override
   public File map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    return File.create(r.getString("id"), r.getString("name"), r.getString("study_id"),
-        r.getLong("size"), r.getString("type"), r.getString("md5"),
-            r.getString("info"));
+    return File.create(r.getString(ID), r.getString(NAME), r.getString(STUDY_ID),
+        r.getLong(SIZE), r.getString(TYPE), r.getString(MD5),
+            r.getString(INFO));
   }
 
 }

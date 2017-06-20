@@ -17,11 +17,12 @@ public class VariantCallAnalysis extends Analysis {
         return "variantCall";
     }
 
-    public static VariantCallAnalysis create(String id, String study, String state) {
+    public static VariantCallAnalysis create(String id, String study, String state, String info) {
         val s = new VariantCallAnalysis();
         s.setAnalysisId(id);
         s.setStudy(study);
         s.setAnalysisState(state);
+        s.setInfo(info);
 
         return s;
     }

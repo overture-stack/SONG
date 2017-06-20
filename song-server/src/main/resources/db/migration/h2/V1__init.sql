@@ -69,13 +69,13 @@ CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references St
     md5 CHAR(32), type FILE_TYPE, info TEXT);
 
 CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, state ANALYSIS_STATE,
-    study_id VARCHAR(36) references Study);
+    study_id VARCHAR(36) references Study, info TEXT);
 CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File);
-CREATE TABLE AnalysisSampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);
+CREATE TABLE SampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);
 CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN,
-    insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT);
+    insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT, info TEXT);
 CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT,
-    tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT);
+    tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT, info TEXT);
 ;
 
 CREATE TABLE Upload(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50),

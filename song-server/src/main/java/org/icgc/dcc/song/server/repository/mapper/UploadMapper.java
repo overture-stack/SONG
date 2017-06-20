@@ -22,6 +22,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.icgc.dcc.song.server.model.Upload;
+import static
+        org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -29,13 +31,13 @@ public class UploadMapper implements ResultSetMapper<Upload> {
 
   @Override
   public Upload map(int index, ResultSet rs, StatementContext ctx) throws SQLException {
-    return Upload.create(rs.getString("id"),
-        rs.getString("study_id"),
-        rs.getString("state"),
-        rs.getString("errors"),
-        rs.getString("payload"),
-        rs.getTimestamp("created_at").toLocalDateTime(),
-        rs.getTimestamp("updated_at").toLocalDateTime());
+    return Upload.create(rs.getString(ID),
+        rs.getString(STUDY_ID),
+        rs.getString(STATE),
+        rs.getString(ERRORS),
+        rs.getString(PAYLOAD),
+        rs.getTimestamp(CREATED_AT).toLocalDateTime(),
+        rs.getTimestamp(UPDATED_AT).toLocalDateTime());
   }
 
 }

@@ -23,10 +23,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import static org.icgc.dcc.common.core.util.stream.Collectors.*;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
+
 import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
@@ -35,9 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.String.format;
 import static org.icgc.dcc.song.server.exceptions.SongError.error;
@@ -54,21 +55,47 @@ public class AnalysisService {
   @Autowired
   private final IdService idService;
   @Autowired
-  private final CompositeEntityService sampleService;
+  private final CompositeEntityService compositeEntityService;
+  @Autowired
+  private final SampleService sampleService;
+
   @Autowired
   private final FileService fileService;
   @Autowired
   private final ExistenceService existence;
 
   @SneakyThrows
+  public String update(String studyId, Analysis a) {
+    val id=a.getAnalysisId();
+
+    System.err.printf("WARNING: NOT UPDATING analysis id '%s': code not finished", id);
+    return id;
+  }
+
+  public String save(@NonNull String studyId, @NonNull Analysis analysis) {
+    val submitters = analysis.getSample()
+            .stream()
+            .map(Sample::getSampleSubmitterId)
+            .collect(toImmutableList());
+
+    String id = findByBusinessKey(studyId, analysis.getAnalysisType(), submitters);
+
+    if (id == null) {
+      id = create(studyId, analysis);
+    } else {
+      update(studyId, analysis);
+    }
+    return id;
+  }
+
+
   public String create(String studyId, Analysis a) {
     val id = idService.generate(IdPrefix.Analysis);
     a.setAnalysisId(id);
     a.setStudy(studyId);
-
     repository.createAnalysis(a);
 
-    saveSamples(studyId, id, a.getSample() );
+    saveCompositeEntities(studyId, id, a.getSample() );
     saveFiles(id, studyId, a.getFile());
 
    if (a instanceof SequencingReadAnalysis) {
@@ -79,63 +106,67 @@ public class AnalysisService {
      repository.createVariantCall(experiment);
    } else {
      // shouldn't be possible if we validated our JSON first...
-     return "Analysis failed: Unknown Analysis Type";
+     throw new IllegalArgumentException("Invalid analysis type");
    }
-
-  return id;
+   return id;
   }
 
-  public void saveSamples(String studyId, String id, List<CompositeEntity> samples) {
-    for(val sample: samples) {
-      val sampleId = sampleService.save(studyId, sample);
-      repository.addSample(id, sampleId);
-    }
+  public String updateAnalysis(String studyId, Analysis a) {
+    // TODO: [DCC-5637]
+    assert false; // not coded yet
+    return "ok";
   }
 
-  void saveFiles(String id, String studyId, List<File> files) {
-    for (val f : files) {
-      val fileId = fileService.save(studyId, f);
-      addFile(id, fileId);
-    }
+  void saveCompositeEntities(String studyId, String analysisId, List<CompositeEntity> samples) {
+    samples.stream()
+            .map(sample->compositeEntityService.save(studyId,sample))
+            .forEach(sampleId->repository.addSample(analysisId, sampleId));
   }
 
-  void addFile(String id, String fileId) {
-    repository.addFile(id, fileId);
+  void saveFiles(String analysisId, String studyId, List<File> files) {
+    files.stream()
+            .map(f->fileService.save(studyId, f))
+            .forEach(fileId->addFile(analysisId, fileId));
+  }
+
+  void addFile(String analysisId, String fileId) {
+    repository.addFile(analysisId, fileId);
   }
 
 
   public List<String> getAnalyses(Map<String, String> params) {
-    // TODO Auto-generated method stub
+    // TODO: Implement this once we have a spec for searches
     return null;
   }
 
-  public Analysis read(String id) {
-    val analysis = repository.read(id);
+  public Analysis read(String analysisId) {
+    val analysis = repository.read(analysisId);
+    if (analysis == null) {
+      return null;
+    }
 
-    analysis.setFile(readFiles(id));
-    analysis.setSample(readSamples(id));
+    analysis.setFile(readFiles(analysisId));
+    analysis.setSample(readSamples(analysisId));
+
     if (analysis instanceof SequencingReadAnalysis) {
-      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(id));
+      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(analysisId));
     } else if (analysis instanceof VariantCallAnalysis) {
-      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(id));
+      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(analysisId));
     }
 
     return analysis;
   }
 
-  public String updateAnalysis(String studyId, String json) {
-    // TODO Auto-generated method stub
-    return null;
-  }
+
 
   public List<File> readFiles(String id) {
     return repository.readFiles(id);
   }
 
-  public List<CompositeEntity> readSamples(String id) {
+   List<CompositeEntity> readSamples(String id) {
     val samples = new ArrayList<CompositeEntity>();
     for(val sampleId: repository.findSampleIds(id)) {
-        samples.add(sampleService.read(sampleId));
+        samples.add(compositeEntityService.read(sampleId));
     }
     return samples;
   }
@@ -162,8 +193,46 @@ public class AnalysisService {
     return JsonUtils.fromSingleQuoted(format("'status':'ok', 'msg': 'Analysis %s was suppressed'",id));
   }
 
-  public boolean confirmUploaded(String accessToken, String fileId) {
+  boolean confirmUploaded(String accessToken, String fileId) {
     return existence.isObjectExist(accessToken,fileId);
   }
 
+  public String findByBusinessKey(String study, String type, Collection<String> sample_submitter_ids) {
+    val ourSamples = new ArrayList<String>();
+    val analysisIds = new ArrayList<String>();
+
+    // look up the sample ids for our samples
+    for (val submitted: sample_submitter_ids) {
+      val id = sampleService.findByBusinessKey(study, submitted);
+      // if any of our business keys don't exist, neither does this analysis
+      if (id == null) {
+        return null;
+      }
+      ourSamples.add(id);
+    }
+
+    // if we don't have any business keys, this analysis shouldn't exist, because it's
+    // invalid.
+    if (ourSamples.isEmpty()) {
+      return null;
+    }
+
+    // First, find all the analysis ids that match at least one of our samples
+    val candidates = repository.findBySampleId(ourSamples.get(0));
+
+    // Next, for each candidate, if all of it's samples are the same as this one,
+    // then we've found an existing analysis to update
+    for (val id: candidates) {
+      val analysisSamples = repository.findSampleIds(id);
+      if (analysisSamples.equals(ourSamples)) {
+        val analysis = repository.read(id);
+        if (analysis.getAnalysisType().equals(type)) {
+          return id;
+        }
+      }
+    }
+
+    return null;
+
+  }
 }
