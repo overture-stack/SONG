@@ -22,17 +22,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.icgc.dcc.song.server.model.entity.Sample;
+import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import lombok.val;
+
 
 public class SampleMapper implements ResultSetMapper<Sample> {
 
   @Override
   public Sample map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    return Sample.create(r.getString("id"), r.getString("submitter_id"), r.getString("specimen_id"),
-        r.getString("type"), r.getString("info"));
+    return Sample.create(r.getString(ID), r.getString(SUBMITTER_ID), r.getString(SPECIMEN_ID),
+        r.getString(TYPE), r.getString(INFO));
   }
 
 }

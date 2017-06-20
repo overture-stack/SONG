@@ -24,7 +24,7 @@ import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
-
+//TODO: [DCC-5643] Cleanup SQLQueries to reference constants
 @RegisterMapper(UploadMapper.class)
 public interface UploadRepository {
 

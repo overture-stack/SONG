@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.icgc.dcc.song.server.model.entity.Study;
+import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -29,9 +30,8 @@ public class StudyMapper implements ResultSetMapper<Study> {
 
   @Override
   public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    return Study.create(r.getString("id"), r.getString("name"),
-            r.getString("organization"), r.getString("description"),
-            r.getString("info"));
+    return Study.create(r.getString(ID), r.getString(NAME), r.getString(ORGANIZATION), r.getString(DESCRIPTION),
+            r.getString(INFO));
   }
 
 }

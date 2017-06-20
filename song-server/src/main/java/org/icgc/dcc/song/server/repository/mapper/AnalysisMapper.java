@@ -23,7 +23,8 @@ import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-import org.icgc.dcc.song.server.model.entity.Donor;
+
+import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -35,11 +36,11 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
   @Override
   @SneakyThrows
   public Analysis map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    val id = r.getString("id");
-    val study = r.getString("study_id");
-    val type = r.getString("type");
-    val state = r.getString("state");
-    val info = r.getString("info");
+    val id = r.getString(ID);
+    val study = r.getString(STUDY_ID );
+    val type = r.getString(TYPE);
+    val state = r.getString(STATE);
+    val info = r.getString(INFO);
 
     if (type.equals("sequencingRead")) {
       return SequencingReadAnalysis.create(id, study, state, info);

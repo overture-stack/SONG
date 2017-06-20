@@ -24,6 +24,7 @@ import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
+import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -35,14 +36,14 @@ public class SequencingReadMapper implements ResultSetMapper<SequencingRead> {
   @Override
   @SneakyThrows
   public SequencingRead map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    return SequencingRead.create(r.getString("id"),
-            r.getBoolean("aligned"),
-            r.getString("alignment_tool"),
-            r.getLong("insert_size"),
-            r.getString("library_strategy"),
-            r.getBoolean("paired_end"),
-            r.getString("reference_genome"),
-            r.getString("info"));
+    return SequencingRead.create(r.getString(ID),
+            r.getBoolean(ALIGNED),
+            r.getString(ALIGNMENT_TOOL),
+            r.getLong(INSERT_SIZE),
+            r.getString(LIBRARY_STRATEGY),
+            r.getBoolean(PAIRED_END),
+            r.getString(REFERENCE_GENOME),
+            r.getString(INFO));
   }
 
 }
