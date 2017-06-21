@@ -14,14 +14,14 @@
 		<dependency>
 			<groupId>com.beust</groupId>
 			<artifactId>jcommander</artifactId>
-			<version>1.69</version>
+            <version>${jcommander.version}</version>
 		</dependency>
 
 		<!-- JANSI colored output -->
 		<dependency>
 			<groupId>org.fusesource.jansi</groupId>
 			<artifactId>jansi</artifactId>
-			<version>1.16</version>
+            <version>${jansi.version}</version>
 		</dependency>
 
 		<!-- Spring -->
@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>com.networknt</groupId>
 			<artifactId>json-schema-validator</artifactId>
-			<version>0.1.5</version>
+			<version>${networknt.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
@@ -92,7 +92,7 @@
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-guava</artifactId>
-			<version>1.3.1</version>
+			<version>${assertj-guava.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -141,6 +141,8 @@
 	<properties>
 		<!-- Spring Security oath2 -->
 		<spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
+        <jcommander.version>1.69</jcommander.version>
+        <jansi.version>1.16</jansi.version>
 	</properties>
 
 </project>

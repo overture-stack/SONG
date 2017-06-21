@@ -57,7 +57,7 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.4.1208-jdbc42-atlassian-hosted</version>
+            <version>${postgresql.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>org.flywaydb.flyway-test-extensions</groupId>
             <artifactId>flyway-spring-test</artifactId>
-            <version>4.1.0</version>
+            <version>${flyway-spring-test.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -80,7 +80,7 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi</artifactId>
-            <version>2.41</version>
+            <version>${jdbi.version}</version>
         </dependency>
 
         <!-- JSON -->
@@ -131,7 +131,6 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -147,12 +146,12 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>2.7.0</version>
+            <version>${springfox.version}</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>2.7.0</version>
+            <version>${springfox.version}</version>
         </dependency>
     </dependencies>
 
@@ -195,6 +194,9 @@
 
     <properties>
         <flywaydb.version>4.2.0</flywaydb.version>
+        <flyway-spring-test.version>4.1.0</flyway-spring-test.version>
+        <postgresql.version>9.4.1208-jdbc42-atlassian-hosted</postgresql.version>
+        <springfox.version>2.7.0</springfox.version>
 
         <!-- Spring Security oath2 -->
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>

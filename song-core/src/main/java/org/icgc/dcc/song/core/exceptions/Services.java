@@ -5,7 +5,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor public enum Services {
+@RequiredArgsConstructor
+public enum Services {
 
   ID_SERVICE("Id"),
   UPLOAD_SERVICE("Upload");
