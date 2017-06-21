@@ -10,7 +10,14 @@
 	<artifactId>song-client</artifactId>
 
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/com.beust/jcommander -->
+
+		<dependency>
+			<groupId>org.icgc.dcc</groupId>
+			<artifactId>song-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- jcommander -->
 		<dependency>
 			<groupId>com.beust</groupId>
 			<artifactId>jcommander</artifactId>

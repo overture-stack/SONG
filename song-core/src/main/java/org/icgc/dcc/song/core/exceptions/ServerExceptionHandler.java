@@ -18,10 +18,10 @@ public class ServerExceptionHandler {
   @ResponseBody
   public String handleServerException(HttpServletRequest request, HttpServletResponse response, ServerException ex){
     val requestUrl = request.getRequestURL().toString();
-    val error = ex.getError();
-    error.setRequestUrl(requestUrl);
-    response.setStatus(error.getHttpStatusCode());
-    return error.toJson();
+    val songError = ex.getSongError();
+    songError.setRequestUrl(requestUrl);
+    response.setStatus(songError.getHttpStatusCode());
+    return songError.toJson();
   }
 
   @ExceptionHandler(Throwable.class)

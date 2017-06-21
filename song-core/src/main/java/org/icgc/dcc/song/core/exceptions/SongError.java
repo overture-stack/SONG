@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import lombok.Setter;
 import lombok.val;
-import org.icgc.dcc.song.core.utils.Debug;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +16,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
@@ -24,6 +24,7 @@ import static lombok.AccessLevel.NONE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 import static org.icgc.dcc.song.core.utils.Debug.streamCallingStackTrace;
+import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({ "errorId", "httpStatusCode", "httpStatusName",
@@ -56,9 +57,19 @@ public class SongError {
     this.datetime = ZonedDateTime.ofInstant(instant, ZONE_ID).format(DATE_TIME_FORMATTER);
   }
 
+  @Override
+  public String toString(){
+    return format("SONG_SERVER_ERROR[%s @ %s]: %s", getErrorId(), getTimestamp(), getMessage());
+  }
+
   @JsonIgnore
   public String toJson(){
     return JsonUtils.toJson(this);
+  }
+
+  @JsonIgnore
+  public String toPrettyJson(){
+    return JsonUtils.toPrettyJson(this);
   }
 
   public void setStackTraceElementArray(StackTraceElement[] stackTrace){
@@ -87,6 +98,24 @@ public class SongError {
     error.setRequestUrl(NOT_AVAILABLE);
     error.setDebugMessage(NOT_AVAILABLE);
     return error.getResponseEntity();
+  }
+
+  public static SongError parseErrorResponse(int httpStatusCode, String body){
+    val httpStatus = HttpStatus.valueOf(httpStatusCode);
+    return parseErrorResponse(httpStatus, body);
+  }
+
+  public static SongError parseErrorResponse(HttpStatus httpStatus, String body){
+    checkState(httpStatus.is4xxClientError() || httpStatus.is5xxServerError(),
+        "Cannot create an error for [%s] since it is not a 400 series client error or a 500 series server error ",
+        httpStatus.toString() );
+    return fromJson(body,SongError.class);
+  }
+
+  public static SongError parseErrorResponse(ResponseEntity<String> responseEntity){
+    val httpStatus = responseEntity.getStatusCode();
+    val body = responseEntity.getBody();
+    return parseErrorResponse(httpStatus, body);
   }
 
 }
