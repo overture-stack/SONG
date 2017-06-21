@@ -10,6 +10,13 @@
     <artifactId>song-server</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.icgc.dcc</groupId>
+            <artifactId>song-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -80,7 +87,7 @@
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>0.1.5</version>
+            <version>${networknt.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -112,7 +119,7 @@
         <dependency>
             <groupId>org.icgc.dcc</groupId>
             <artifactId>dcc-common-core</artifactId>
-            <version>4.2.13</version>
+            <version>${dcc-common.version}</version>
         </dependency>
 
         <!-- Testing -->
@@ -187,8 +194,6 @@
     </build>
 
     <properties>
-        <!-- Versions - Spring Boot - Jackson -->
-        <jackson.version>2.8.8</jackson.version>
         <flywaydb.version>4.2.0</flywaydb.version>
 
         <!-- Spring Security oath2 -->
