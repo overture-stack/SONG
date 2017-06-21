@@ -20,7 +20,6 @@ package org.icgc.dcc.song.server.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.assertj.core.api.Assertions;
@@ -30,10 +29,6 @@ import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
-import static org.icgc.dcc.song.server.utils.JsonUtils.*;
-
-import static org.icgc.dcc.song.server.model.enums.Constants.*;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,13 +39,14 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import lombok.val;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
+import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
+import static org.icgc.dcc.song.server.model.enums.Constants.list;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)

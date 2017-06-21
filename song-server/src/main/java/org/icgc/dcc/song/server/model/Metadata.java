@@ -18,18 +18,17 @@
  */
 package org.icgc.dcc.song.server.model;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.val;
+import org.icgc.dcc.song.core.utils.JsonUtils;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import org.icgc.dcc.song.server.utils.JsonUtils;
-
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-
-import lombok.val;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class Metadata {
