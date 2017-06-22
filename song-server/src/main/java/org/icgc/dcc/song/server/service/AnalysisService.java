@@ -68,8 +68,8 @@ public class AnalysisService {
   @SneakyThrows
   public String update(String studyId, Analysis a) {
     val analysisId = a.getAnalysisId();
-
-    System.err.printf("WARNING: NOT UPDATING analysis id '%s': code not finished", analysisId);
+    // TODO: [DCC-5637]
+    log.warn( "NOT UPDATING analysis id '{}': code not implemented. Refer to DCC-5637", analysisId);
     return analysisId;
   }
 
