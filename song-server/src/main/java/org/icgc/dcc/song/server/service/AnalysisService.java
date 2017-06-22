@@ -91,13 +91,13 @@ public class AnalysisService {
 
 
   public String create(String studyId, Analysis a) {
-    val analysisId = idService.generate(IdPrefix.Analysis);
-    a.setAnalysisId(analysisId);
+    val id = idService.generate(IdPrefix.Analysis);
+    a.setAnalysisId(id);
     a.setStudy(studyId);
     repository.createAnalysis(a);
 
-    saveCompositeEntities(studyId, analysisId, a.getSample() );
-    saveFiles(analysisId, studyId, a.getFile());
+    saveCompositeEntities(studyId, id, a.getSample() );
+    saveFiles(id, studyId, a.getFile());
 
    if (a instanceof SequencingReadAnalysis) {
      val experiment = ((SequencingReadAnalysis) a).getExperiment();
@@ -109,7 +109,7 @@ public class AnalysisService {
      // shouldn't be possible if we validated our JSON first...
      throw new IllegalArgumentException("Invalid analysis type");
    }
-   return analysisId;
+   return id;
   }
 
   public ResponseEntity<String> updateAnalysis(String studyId, Analysis a) {
@@ -117,20 +117,20 @@ public class AnalysisService {
     return error(NOT_IMPLEMENTED_YET, "UpdateAnalysis not implemented yet. Refer to DCC-5637");
   }
 
-  void saveCompositeEntities(String studyId, String analysisId, List<CompositeEntity> samples) {
+  void saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
     samples.stream()
             .map(sample->compositeEntityService.save(studyId,sample))
-            .forEach(sampleId->repository.addSample(analysisId, sampleId));
+            .forEach(sampleId->repository.addSample(id, sampleId));
   }
 
-  void saveFiles(String analysisId, String studyId, List<File> files) {
+  void saveFiles(String id, String studyId, List<File> files) {
     files.stream()
             .map(f->fileService.save(studyId, f))
-            .forEach(fileId->addFile(analysisId, fileId));
+            .forEach(fileId->addFile(id, fileId));
   }
 
-  void addFile(String analysisId, String fileId) {
-    repository.addFile(analysisId, fileId);
+  void addFile(String id, String fileId) {
+    repository.addFile(id, fileId);
   }
 
 
@@ -139,19 +139,19 @@ public class AnalysisService {
     return null;
   }
 
-  public Analysis read(String analysisId) {
-    val analysis = repository.read(analysisId);
+  public Analysis read(String id) {
+    val analysis = repository.read(id);
     if (analysis == null) {
       return null;
     }
 
-    analysis.setFile(readFiles(analysisId));
-    analysis.setSample(readSamples(analysisId));
+    analysis.setFile(readFiles(id));
+    analysis.setSample(readSamples(id));
 
     if (analysis instanceof SequencingReadAnalysis) {
-      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(analysisId));
+      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(id));
     } else if (analysis instanceof VariantCallAnalysis) {
-      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(analysisId));
+      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(id));
     }
 
     return analysis;
@@ -159,20 +159,20 @@ public class AnalysisService {
 
 
 
-  public List<File> readFiles(String analysisId) {
-    return repository.readFiles(analysisId);
+  public List<File> readFiles(String id) {
+    return repository.readFiles(id);
   }
 
-   List<CompositeEntity> readSamples(String analysisId) {
+  List<CompositeEntity> readSamples(String id) {
     val samples = new ArrayList<CompositeEntity>();
-    for(val sampleId: repository.findSampleIds(analysisId)) {
-        samples.add(compositeEntityService.read(sampleId));
+    for(val sampleId: repository.findSampleIds(id)) {
+      samples.add(compositeEntityService.read(sampleId));
     }
     return samples;
   }
 
-  public ResponseEntity<String> publish(@NonNull String accessToken, @NonNull String analysisId) {
-    val files = readFiles(analysisId);
+  public ResponseEntity<String> publish(@NonNull String accessToken, @NonNull String id) {
+    val files = readFiles(id);
     List<String> missingUploads=new ArrayList<>();
     for (val f: files) {
        if ( !confirmUploaded(accessToken,f.getObjectId()) ) {
@@ -180,17 +180,17 @@ public class AnalysisService {
        }
     }
     if (missingUploads.isEmpty()) {
-      repository.updateState(analysisId,"PUBLISHED");
-      return ok("AnalysisId %s successfully published", analysisId);
+      repository.updateState(id,"PUBLISHED");
+      return ok("AnalysisId %s successfully published", id);
     }
     return error(UNPUBLISHED_FILE_IDS,
         "The following file ids must be published before analysisId %s can be published: %s",
-        analysisId, files);
+        id, files);
   }
 
-  public ResponseEntity<String> suppress(String analysisId) {
-    repository.updateState(analysisId, "SUPPRESSED");
-    return ok("Analysis %s was suppressed",analysisId);
+  public ResponseEntity<String> suppress(String id) {
+    repository.updateState(id, "SUPPRESSED");
+    return ok("AnalysisId %s was suppressed",id);
   }
 
   boolean confirmUploaded(String accessToken, String fileId) {
