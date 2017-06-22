@@ -18,26 +18,24 @@
  */
 package org.icgc.dcc.song.client.command;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.val;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.json.JsonObject;
 import org.icgc.dcc.song.client.model.Manifest;
 import org.icgc.dcc.song.client.model.ManifestEntry;
 import org.icgc.dcc.song.client.register.Registry;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.val;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor
 @Parameters(commandDescription = "Generate a manifest file for the analysis with the specified analysis id")
@@ -67,11 +65,13 @@ public class ManifestCommand extends Command {
 
     val m = createManifest(analysisId, status.getOutputs());
 
-    if (fileName == null) {
+    if(m.getEntries().size() == 0){
+      err("[SONG_CLIENT_ERROR]: the analysisId '%s' returned 0 files", analysisId);
+    } else if (fileName == null) {
       output(m.toString());
     } else {
       Files.write(Paths.get(fileName), m.toString().getBytes());
-      output("Wrote manifest file '%s' for uploadId '%s'", fileName, analysisId);
+      output("Wrote manifest file '%s' for analysisId '%s'", fileName, analysisId);
     }
   }
 

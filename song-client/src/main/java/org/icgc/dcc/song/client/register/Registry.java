@@ -19,6 +19,7 @@
 package org.icgc.dcc.song.client.register;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
@@ -29,16 +30,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class Registry {
 
-  private RestClient rest;
+  private static final boolean DEFAULT_DEBUG_ENABLE = false;
+
+  @Setter
+  private RestClient restClient;
+
   private ObjectMapper mapper;
   Endpoint endpoint;
 
   @Autowired
-  public Registry(Config config) {
+  public Registry(Config config, RestClient restClient) {
     this.mapper = new ObjectMapper();
-    this.rest = new RestClient();
+    this.restClient = restClient;
     this.endpoint = new Endpoint(config.getServerUrl());
   }
+
 
   @SneakyThrows
   String getAnalysisType(String json) {
@@ -56,6 +62,7 @@ public class Registry {
     return node.get("study").asText();
   }
 
+
   /**
    * Register an analysis with the song server.
    *
@@ -64,7 +71,7 @@ public class Registry {
    */
   public Status upload(String json) {
     val url = endpoint.upload(getStudyId(json));
-    return rest.post(url, json);
+    return restClient.post(url, json);
   }
 
   /***
@@ -75,17 +82,17 @@ public class Registry {
    */
   public Status getUploadStatus(String studyId, String uploadId) {
     val url = endpoint.status(studyId, uploadId);
-    return rest.get(url);
+    return restClient.get(url);
   }
 
   public Status save(String studyId, String uploadId) {
     val url = endpoint.saveById(studyId, uploadId);
-    return rest.post(url);
+    return restClient.post(url);
   }
 
   public Status getAnalysisFiles(String studyId, String analysisId) {
     val url = endpoint.getAnalysisFiles(studyId, analysisId);
-    return rest.get(url);
+    return restClient.get(url);
   }
 
   /**
@@ -94,7 +101,7 @@ public class Registry {
    */
   public Status publish(String studyId, String analysisId ){
     val url = endpoint.publish(studyId, analysisId);
-    val status = rest.put(url);
+    val status = restClient.put(url);
     if (!status.hasErrors() && !status.hasOutputs()){
       status.output("The analysisId '%s' was successfully published for the studyId '%s'", analysisId, studyId);
     }

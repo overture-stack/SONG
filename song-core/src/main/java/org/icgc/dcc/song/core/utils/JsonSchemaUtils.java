@@ -16,17 +16,15 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.server.utils;
-
-import java.io.InputStream;
+package org.icgc.dcc.song.core.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
-
 import lombok.SneakyThrows;
 import lombok.val;
-import org.icgc.dcc.song.server.utils.JsonDocUtils;
+
+import java.io.InputStream;
 
 public class JsonSchemaUtils extends JsonDocUtils {
 

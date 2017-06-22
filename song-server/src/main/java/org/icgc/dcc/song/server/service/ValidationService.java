@@ -18,26 +18,24 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import static java.lang.String.format;
-
-import org.icgc.dcc.song.server.model.Upload;
-import org.icgc.dcc.song.server.repository.UploadRepository;
-import org.icgc.dcc.song.server.utils.JsonUtils;
-import org.icgc.dcc.song.server.validation.SchemaValidator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.server.model.Upload;
+import org.icgc.dcc.song.server.repository.UploadRepository;
+import org.icgc.dcc.song.server.validation.SchemaValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import static java.lang.String.format;
 
 @Slf4j
 @Service

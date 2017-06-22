@@ -18,7 +18,17 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
+import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
+import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
+import org.icgc.dcc.song.server.model.experiment.SequencingRead;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,16 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.icgc.dcc.song.server.model.analysis.*;
-import org.icgc.dcc.song.server.model.experiment.SequencingRead;
-import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
-import org.icgc.dcc.song.server.utils.JsonUtils;
-import org.junit.Test;
-
-import lombok.SneakyThrows;
-import lombok.val;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SerializationTest {
 

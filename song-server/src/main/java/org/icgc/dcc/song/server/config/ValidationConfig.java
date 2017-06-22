@@ -18,22 +18,20 @@
  */
 package org.icgc.dcc.song.server.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.icgc.dcc.song.server.utils.JsonDocUtils;
-import org.icgc.dcc.song.server.utils.JsonSchemaUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.networknt.schema.JsonSchema;
+import lombok.Data;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.icgc.dcc.song.core.utils.JsonDocUtils;
+import org.icgc.dcc.song.core.utils.JsonSchemaUtils;
 import org.icgc.dcc.song.server.validation.SchemaValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.JsonSchema;
-
-import lombok.Data;
-import lombok.SneakyThrows;
-import lombok.val;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Configuration

@@ -18,11 +18,14 @@
  */
 package org.icgc.dcc.song.client.config;
 
+import lombok.Data;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import lombok.Data;
+import static java.lang.Boolean.parseBoolean;
+import static lombok.AccessLevel.NONE;
 
 /**
  * 
@@ -39,4 +42,11 @@ public class Config {
   @Value("client.programName")
   private String programName;
 
+  @Getter(NONE)
+  @Value("client.debug")
+  private String debug;
+
+  public boolean isDebug(){
+    return parseBoolean(debug);
+  }
 }

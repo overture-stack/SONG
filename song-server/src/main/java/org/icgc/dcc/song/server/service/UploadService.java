@@ -24,25 +24,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.UploadRepository;
-import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import static org.springframework.http.HttpStatus.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.server.exceptions.SongError.error;
-import static org.icgc.dcc.song.server.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
-import static org.icgc.dcc.song.server.exceptions.ServerErrors.PAYLOAD_PARSING;
-import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
-import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
-import static org.icgc.dcc.song.server.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
+import static org.icgc.dcc.song.core.exceptions.SongError.error;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RequiredArgsConstructor

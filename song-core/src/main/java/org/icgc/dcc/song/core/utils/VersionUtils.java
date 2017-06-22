@@ -16,16 +16,16 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.server.utils;
+package org.icgc.dcc.song.core.utils;
 
-import static com.google.common.base.Objects.firstNonNull;
-import static com.google.common.collect.Maps.fromProperties;
-import static lombok.AccessLevel.PRIVATE;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 import java.util.Properties;
 
-import lombok.NoArgsConstructor;
+import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.collect.Maps.fromProperties;
+import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class VersionUtils {

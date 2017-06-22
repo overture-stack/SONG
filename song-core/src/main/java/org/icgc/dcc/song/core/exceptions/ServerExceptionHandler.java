@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.exceptions;
+package org.icgc.dcc.song.core.exceptions;
 
 import lombok.val;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.icgc.dcc.song.server.exceptions.ServerErrors.UNKNOWN_ERROR;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 
 @ControllerAdvice
 public class ServerExceptionHandler {
@@ -18,10 +18,10 @@ public class ServerExceptionHandler {
   @ResponseBody
   public String handleServerException(HttpServletRequest request, HttpServletResponse response, ServerException ex){
     val requestUrl = request.getRequestURL().toString();
-    val error = ex.getError();
-    error.setRequestUrl(requestUrl);
-    response.setStatus(error.getHttpStatusCode());
-    return error.toJson();
+    val songError = ex.getSongError();
+    songError.setRequestUrl(requestUrl);
+    response.setStatus(songError.getHttpStatusCode());
+    return songError.toJson();
   }
 
   @ExceptionHandler(Throwable.class)

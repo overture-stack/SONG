@@ -18,17 +18,22 @@
  */
 package org.icgc.dcc.song.client.cli;
 
-import org.icgc.dcc.song.client.command.*;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.icgc.dcc.song.client.command.ConfigCommand;
+import org.icgc.dcc.song.client.command.ManifestCommand;
+import org.icgc.dcc.song.client.command.PublishCommand;
 import org.icgc.dcc.song.client.command.SaveCommand;
+import org.icgc.dcc.song.client.command.StatusCommand;
+import org.icgc.dcc.song.client.command.UploadCommand;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import lombok.val;
-
 @Component
+@Slf4j
 public class ClientMain implements CommandLineRunner {
 
   private CommandParser dispatcher;

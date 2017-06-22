@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.exceptions;
+package org.icgc.dcc.song.core.exceptions;
 
 import org.springframework.http.HttpStatus;
 

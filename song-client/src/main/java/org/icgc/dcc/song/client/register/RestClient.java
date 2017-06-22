@@ -20,46 +20,46 @@ package org.icgc.dcc.song.client.register;
 
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
+import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.errors.ServerResponseErrorHandler;
+import org.icgc.dcc.song.core.exceptions.ServerException;
+import org.icgc.dcc.song.core.exceptions.SongError;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.function.Function;
+
+import static java.lang.String.format;
+import static org.icgc.dcc.song.core.utils.Debug.generateHeader;
 
 /**
  *
  */
+@Component
 public class RestClient {
 
-  private RestTemplate rest;
+  private static final String SONG_SERVER_ERROR_TITLE = "SONG SERVER ERROR";
+  private static final int NUM_SYMBOLS = 60;
+  private static final String SING_SYMBOL = " 🎵 ";
+  private static final String HEADER_SYMBOL = "*";
+  private static final String SONG_SERVER_ERROR_HEADER = generateHeader(SONG_SERVER_ERROR_TITLE, NUM_SYMBOLS, HEADER_SYMBOL);
 
-  public RestClient(RestTemplate rest) {
-    this.rest = rest;
-  }
+  private RestTemplate restTemplate;
+  private boolean debug;
 
-  public RestClient() {
-    this(new RestTemplate());
-    this.rest.setErrorHandler(new ServerResponseErrorHandler());
+  public RestClient(Config config) {
+    this.restTemplate = new RestTemplate();
+    this.debug = config.isDebug();
+    this.restTemplate.setErrorHandler(new ServerResponseErrorHandler());
   }
 
   public Status get(String url) {
-    val status = new Status();
-    try{
-      val response = rest.getForEntity(url, String.class);
-      if (response.getStatusCode() == HttpStatus.OK) {
-        if (response.getBody() == null) {
-          status.err("Null response from server");
-        } else {
-          status.output(response.getBody());
-        }
-      } else {
-        status.output(response.getBody().toString());
-      }
-    } catch (Exception e){
-      status.err(e.toString());
-    }
-    return status;
+    return tryRequest(x -> x.getForEntity(url, String.class));
   }
 
   public Status post(String url) {
@@ -67,32 +67,43 @@ public class RestClient {
   }
 
   public Status post(String url, String json) {
-    Status status = new Status();
-
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
     HttpEntity<String> entity = new HttpEntity<String>(json, headers);
+    return tryRequest(x -> x.postForEntity(url, entity, String.class));
+  }
 
+  private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction){
+    Status status = new Status();
     try {
-      val response = rest.postForEntity(url, entity, String.class);
-      if (response.getStatusCode() == HttpStatus.OK && response.hasBody()) {
-        status.output(response.getBody());
+      val response = restTemplateFunction.apply(restTemplate);
+      if (response.getStatusCode() == HttpStatus.OK) {
+        if (response.getBody() == null) {
+          status.err("Null response from server: %s", response.toString());
+        } else {
+          status.output(response.getBody().toString());
+        }
       } else {
-        status.err(response.toString());
+        status.err("[%s]: %s",response.getStatusCode().value(),response.toString());
       }
-    } catch (Exception e){
-      status.err(e.toString());
+    } catch (ServerException e){
+      val songError = e.getSongError();
+      status.err(getSongErrorOutput(songError));
     }
-
     return status;
+  }
+
+  private String getSongErrorOutput(SongError songError){
+    return debug ? format("%s\n%s", SONG_SERVER_ERROR_HEADER,songError.toPrettyJson()) : songError.toString();
   }
 
   public Status put(String url, String json) {
     Status status = new Status();
     try {
-      rest.put(url, json);
-    } catch (Exception e) {
-      status.err(e.toString());
+      restTemplate.put(url, json);
+    } catch (ServerException e){
+      val songError = e.getSongError();
+      status.err(getSongErrorOutput(songError));
     }
     return status;
   }
@@ -100,5 +111,6 @@ public class RestClient {
   public Status put(String url) {
     return put(url,"");
   }
+
 
 }

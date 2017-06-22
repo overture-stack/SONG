@@ -16,9 +16,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.server.utils;
-
-import java.io.InputStream;
+package org.icgc.dcc.song.core.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,9 +24,10 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.google.common.base.Strings;
-
 import lombok.SneakyThrows;
 import lombok.val;
+
+import java.io.InputStream;
 
 public class JsonDocUtils {
 

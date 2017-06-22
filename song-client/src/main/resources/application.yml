@@ -20,7 +20,8 @@
 client:
   serverUrl: http://localhost:8080/
   studyId: ABC123
-  programName: sing 
+  programName: sing
+  debug: false
 logging.level.org.springframework: OFF
 
 

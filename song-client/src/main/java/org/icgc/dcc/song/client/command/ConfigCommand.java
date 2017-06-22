@@ -44,6 +44,10 @@ public class ConfigCommand extends Command {
     @NonNull
     val id = config.getStudyId();
     output("Study ID: %s\n", id);
+
+    @NonNull
+    val debugEnabled = config.isDebug();
+    output("Debug Enabled: %s\n", debugEnabled);
   }
 
 }

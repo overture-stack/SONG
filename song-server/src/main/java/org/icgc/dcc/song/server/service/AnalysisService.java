@@ -23,26 +23,28 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import static org.icgc.dcc.common.core.util.stream.Collectors.*;
+import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
-import org.icgc.dcc.song.server.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.server.exceptions.SongError.error;
-import static org.icgc.dcc.song.server.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
+import static org.icgc.dcc.song.core.exceptions.SongError.error;
 import static org.springframework.http.ResponseEntity.ok;
 
 @Slf4j
