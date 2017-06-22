@@ -6,7 +6,6 @@ import lombok.val;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
@@ -37,10 +36,11 @@ public class Debug {
     int leftTerm = c*(n-2);
     String adjustedTitle = title;
     boolean isLeftTermOdd = leftTerm%2==1;
+    boolean isRightTermOdd = t%2==1;
     int adjusted_t = t;
 
     //Odd - Odd = Even, so if title is even, add an extra whitespace so its odd
-    if (isLeftTermOdd){
+    if (isLeftTermOdd || isRightTermOdd){
       adjusted_t += 1;
       adjustedTitle += " ";
     }
