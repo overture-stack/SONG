@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
@@ -25,11 +26,13 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 import static org.icgc.dcc.song.core.utils.Debug.streamCallingStackTrace;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
+import static org.icgc.dcc.song.core.utils.Responses.contextMessage;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({ "errorId", "httpStatusCode", "httpStatusName",
     "requestUrl", "datetime", "timestamp",  "message", "debugMessage", "stackTrace" })
 @Data
+@NoArgsConstructor
 public class SongError {
 
   private static final String NOT_AVAILABLE = "N/A";
@@ -85,19 +88,41 @@ public class SongError {
     return ResponseEntity.status(httpStatusCode).body(toJson());
   }
 
-  public static ResponseEntity<String> error(ServerError serverError, String format, Object... args){
+  public static ResponseEntity<String> error(Class<?> clazz, ServerError serverError, String format, Object... args){
+    return error(clazz.getSimpleName(), serverError, format, args);
+  }
+
+  public static ResponseEntity<String> error(String context, ServerError serverError, String format, Object... args){
+    return error(serverError, contextMessage(context, format, args));
+  }
+
+  public static SongError createSongError(Class<?> clazz, ServerError serverError,
+      String formattedMessage, Object... args){
+    return createSongError(clazz.getSimpleName(),serverError, formattedMessage, args);
+  }
+
+  public static SongError createSongError(String context, ServerError serverError,
+      String formattedMessage, Object... args){
+    return createSongError(serverError, contextMessage( context, formattedMessage, args));
+  }
+
+  public static SongError createSongError(ServerError serverError, String formattedMessage, Object...args){
     val st = streamCallingStackTrace()
         .skip(1)
         .collect(toImmutableList());
     val error = new SongError();
-    error.setMessage(format(format,args));
+    error.setMessage(format(formattedMessage, args));
     error.setErrorId(serverError.getErrorId());
     error.setHttpStatus(serverError.getHttpStatus());
     error.setStackTraceElementList(st);
     error.setTimestamp(currentTimeMillis());
     error.setRequestUrl(NOT_AVAILABLE);
     error.setDebugMessage(NOT_AVAILABLE);
-    return error.getResponseEntity();
+    return error;
+  }
+
+  public static ResponseEntity<String> error(ServerError serverError, String formattedMessage, Object... args){
+    return createSongError(serverError, formattedMessage, args).getResponseEntity();
   }
 
   public static SongError parseErrorResponse(int httpStatusCode, String body){

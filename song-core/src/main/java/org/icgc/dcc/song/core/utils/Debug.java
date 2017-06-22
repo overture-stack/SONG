@@ -6,6 +6,7 @@ import lombok.val;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;

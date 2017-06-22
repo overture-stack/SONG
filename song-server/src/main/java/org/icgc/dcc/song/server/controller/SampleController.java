@@ -74,6 +74,7 @@ public class SampleController {
   }
 
   @DeleteMapping(value = "/samples/{ids}")
+  @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(sampleService::delete);

@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -55,10 +54,9 @@ public class AnalysisController {
   private final AnalysisService analysisService;
 
   @PutMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String modifyAnalysis(@PathVariable("studyId") String studyId, @RequestBody Analysis analysis) {
+  public ResponseEntity<String> modifyAnalysis(@PathVariable("studyId") String studyId, @RequestBody Analysis analysis) {
     return analysisService.updateAnalysis(studyId, analysis);
   }
 
@@ -71,12 +69,11 @@ public class AnalysisController {
     return analysisService.publish(accessToken,id);
   }
 
-  @PutMapping(value="/suppress/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
+  @PutMapping(value="/suppress/{analysisId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String suppressAnalysis(@PathVariable("id") String id) {
-    return analysisService.suppress(id);
+  public ResponseEntity<String> suppressAnalysis(@PathVariable("analysisId") String analysisId) {
+    return analysisService.suppress(analysisId);
   }
 
   /***

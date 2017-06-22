@@ -18,19 +18,17 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import static org.icgc.dcc.song.server.model.enums.IdPrefix.File;
-
-import java.util.List;
-
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.val;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.NoArgsConstructor;
-import lombok.val;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_RECORD_FAILED;
+import static org.icgc.dcc.song.core.utils.Responses.OK;
+import static org.icgc.dcc.song.server.model.enums.IdPrefix.File;
 
 @Service
 @NoArgsConstructor
@@ -50,6 +48,7 @@ public class FileService {
 
     if (status != 1) {
       return "error: Can't create" + file.toString();
+      throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
     }
 
     return id;
@@ -61,12 +60,12 @@ public class FileService {
 
   public String update(@NonNull File f) {
     repository.update(f);
-    return "ok";
+    return OK;
   }
 
   public String delete(@NonNull String id) {
     repository.delete(id);
-    return "ok";
+    return OK;
   }
 
   public String save(@NonNull String studyId, @NonNull File file) {
