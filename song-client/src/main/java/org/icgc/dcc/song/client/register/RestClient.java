@@ -79,7 +79,7 @@ public class RestClient {
       val response = restTemplateFunction.apply(restTemplate);
       if (response.getStatusCode() == HttpStatus.OK) {
         if (response.getBody() == null) {
-          status.err("Null response from server: %s", response.toString());
+          status.err("[SONG_CLIENT_ERROR]: Null response from server: %s", response.toString());
         } else {
           status.output(response.getBody().toString());
         }

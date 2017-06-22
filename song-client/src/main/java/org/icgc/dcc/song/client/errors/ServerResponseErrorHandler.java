@@ -9,8 +9,8 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.stream.Collectors;
 
+import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
 import static org.icgc.dcc.song.core.exceptions.SongError.parseErrorResponse;
 
 @Slf4j
@@ -20,7 +20,7 @@ public class ServerResponseErrorHandler extends DefaultResponseErrorHandler{
   public void handleError(ClientHttpResponse clientHttpResponse) throws IOException, ServerException {
     val httpStatusCode = clientHttpResponse.getStatusCode();
     val br = new BufferedReader(new InputStreamReader(clientHttpResponse.getBody()));
-    val body = br.lines().collect(Collectors.joining("\n"));
+    val body = NEWLINE.join(br.lines().iterator());
     val songError = parseErrorResponse(httpStatusCode,body);
     throw new ServerException(songError);
   }

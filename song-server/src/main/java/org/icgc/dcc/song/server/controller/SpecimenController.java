@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static org.icgc.dcc.song.core.utils.Responses.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -74,10 +75,11 @@ public class SpecimenController {
   }
 
   @DeleteMapping(value = "/specimens/{ids}")
+  @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(specimenService::delete);
-    return "OK";
+    return OK;
   }
 
 }

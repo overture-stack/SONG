@@ -12,7 +12,7 @@ public class Responses {
   }
 
   public static String contextMessage(String context, String formattedMessage, Object...args){
-    return format(format("[%s]: %s", context, formattedMessage), args);
+    return format(format("[%s] - %s", context, formattedMessage), args);
   }
 
   public static String contextMessage(Class<?> clazz, String formattedMessage, Object...args){
