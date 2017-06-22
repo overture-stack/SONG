@@ -2,13 +2,9 @@ package org.icgc.dcc.song.core.exceptions;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.val;
 import org.springframework.http.HttpStatus;
 
-import java.util.regex.Pattern;
-
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.regex.Pattern.compile;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -31,27 +27,21 @@ public enum ServerErrors implements ServerError {
   FILE_RECORD_FAILED(INTERNAL_SERVER_ERROR),
   UNKNOWN_ERROR(INTERNAL_SERVER_ERROR);
 
-  private static final Pattern PATTERN = compile("[A-Z0-9_]+");
+  private static final Character ERROR_ID_SEPARATOR = '.';
+  private static final String REGEX = "[A-Z0-9_]+";
 
-  private String errorId;
+  @NonNull private final String errorId;
   @NonNull private final HttpStatus httpStatus;
 
   ServerErrors(HttpStatus httpStatus){
     this.httpStatus = httpStatus;
-    this.errorId = null;
+    this.errorId = extractErrorId(this.name());
   }
 
-  public String getErrorId() {
-    if (errorId == null){
-      this.errorId = extractErrorId(name());
-    }
-    return errorId;
-  }
 
   public static String extractErrorId(String errorId){
-    val matcher = PATTERN.matcher(errorId);
-    checkArgument(matcher.matches(),
-        "The errorId [%s] must follow the regex: %s", errorId, PATTERN.pattern());
+    checkArgument(errorId.matches(REGEX),
+        "The errorId [%s] must follow the regex: %s", errorId, REGEX);
     return errorId.toLowerCase().replaceAll("_",".");
   }
 
