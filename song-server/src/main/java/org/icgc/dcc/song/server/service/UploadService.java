@@ -77,13 +77,13 @@ public class UploadService {
       analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
+
+      //TODO: Should we do this for all respository calls in the other services???
       return error(MESSAGE_CONTEXT, UPLOAD_REPOSITORY_CREATE_RECORD,
           "Unable to create record in upload repository");
 
     } catch (JsonProcessingException jpe){
       log.error(jpe.getCause().getMessage());
-//      throw new ServerException(PAYLOAD_PARSING,
-//          "[UPLOAD_SERVICE]: Unable parse the input payload: "+payload, jpe);
       return error(MESSAGE_CONTEXT, PAYLOAD_PARSING,
           "Unable parse the input payload: %s ",payload);
     }
@@ -101,8 +101,8 @@ public class UploadService {
     val state = s.getState();
     if (!state.equals(Upload.VALIDATED)) {
       return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_VALIDATED,
-          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be saved",
-          uploadId, state);
+          "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
+          uploadId, state, Upload.VALIDATED);
     }
 
     val json = s.getPayload();

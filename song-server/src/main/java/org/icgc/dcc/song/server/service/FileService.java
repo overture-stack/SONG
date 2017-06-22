@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_RECORD_FAILED;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 import static org.icgc.dcc.song.server.model.enums.IdPrefix.File;
 
@@ -47,8 +48,7 @@ public class FileService {
     val status = repository.create(file);
 
     if (status != 1) {
-      return "error: Can't create" + file.toString();
-      throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
+      throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create File: %s", file.toString());
     }
 
     return id;
@@ -76,7 +76,7 @@ public class FileService {
       file.setStudyId(studyId);
       val status=repository.create(file);
       if (status==-1) {
-        return null;
+        throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create File: %s", file.toString());
       }
     } else {
       repository.update(file);

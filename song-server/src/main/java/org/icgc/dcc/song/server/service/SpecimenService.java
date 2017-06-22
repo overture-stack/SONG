@@ -31,6 +31,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_RECORD_FAILED;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 import static org.icgc.dcc.song.server.model.enums.IdPrefix.Specimen;
 
@@ -51,7 +53,8 @@ public class SpecimenService {
     specimen.setDonorId(parentId);
     int status = repository.create(specimen);
     if (status != 1) {
-      return "error: Can't create" + specimen.toString();
+      throw buildServerException(this.getClass(), SPECIMEN_RECORD_FAILED,
+          "Cannot create Specimen: %s", specimen.toString());
     }
 
     return id;
