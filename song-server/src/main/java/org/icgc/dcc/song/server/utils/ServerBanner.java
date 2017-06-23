@@ -78,7 +78,7 @@ public class ServerBanner {
     for (val entry : convert(values).entrySet()) {
       val key = entry.getKey();
       val text = entry.getValue() == null ? null : entry.getValue().toString();
-      val value = firstNonNull(text, "").replaceAll("\n", " ");
+      val value = firstNonNull(text, "").toString().replaceAll("\n", " ");
 
       log.info("         {}: {}", padEnd(key, 24, ' '), value);
     }

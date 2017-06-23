@@ -18,12 +18,9 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import static org.icgc.dcc.song.server.model.enums.IdPrefix.Specimen;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.composites.SpecimenWithSamples;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
@@ -31,8 +28,13 @@ import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_RECORD_FAILED;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.utils.Responses.OK;
+import static org.icgc.dcc.song.server.model.enums.IdPrefix.Specimen;
 
 @RequiredArgsConstructor
 @Service
@@ -51,7 +53,8 @@ public class SpecimenService {
     specimen.setDonorId(parentId);
     int status = repository.create(specimen);
     if (status != 1) {
-      return "error: Can't create" + specimen.toString();
+      throw buildServerException(this.getClass(), SPECIMEN_RECORD_FAILED,
+          "Cannot create Specimen: %s", specimen.toString());
     }
 
     return id;
@@ -93,18 +96,18 @@ public class SpecimenService {
 
   public String update(@NonNull Specimen specimen) {
     repository.update(specimen);
-    return "ok";
+    return OK;
   }
 
   public String delete(@NonNull String id) {
     sampleService.deleteByParentId(id);
     repository.delete(id);
-    return "ok";
+    return OK;
   }
 
   public String deleteByParentId(@NonNull String parentId) {
     repository.findByParentId(parentId).forEach(this::delete);
-    return "ok";
+    return OK;
   }
 
   public List<String> findByParentId(@NonNull String donorId) {

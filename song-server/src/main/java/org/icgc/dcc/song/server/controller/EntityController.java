@@ -21,7 +21,6 @@ package org.icgc.dcc.song.server.controller;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.icgc.dcc.common.core.util.Joiners;
 
 import java.util.function.Supplier;
 
@@ -30,7 +29,7 @@ import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 @Slf4j
 public abstract class EntityController {
-  // TODO: Have Entity Controllers (not Upload) extend from this abstract class
+  // TODO: [DCC-5645] Have Entity Controllers (not Upload) extend from this abstract class
 
   protected static void checkRequest(boolean errorCondition, String formatTemplate, Object... args) {
     if (errorCondition) {

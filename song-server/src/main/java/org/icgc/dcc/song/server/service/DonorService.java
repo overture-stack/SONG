@@ -18,12 +18,9 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import static org.icgc.dcc.song.server.model.enums.IdPrefix.Donor;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
@@ -31,8 +28,13 @@ import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_RECORD_FAILED;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.utils.Responses.OK;
+import static org.icgc.dcc.song.server.model.enums.IdPrefix.Donor;
 
 @RequiredArgsConstructor
 @Service
@@ -51,7 +53,7 @@ public class DonorService {
 
     val status = donorRepository.create(d.getDonor());
     if (status != 1) {
-      return "error: Can't create" + d.toString();
+      throw buildServerException(this.getClass(), DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
     }
     d.getSpecimens().forEach(s -> specimenService.create(id, s));
 
@@ -82,18 +84,18 @@ public class DonorService {
     if (donorRepository.update(donor) == 1) {
       return "Updated";
     }
-    return "Failed";
+    return "Failed"; //TODO: [DCC-5644] need to properly handle this. Should an ServerException be thrown?
   }
 
   public String delete(@NonNull String studyId, @NonNull String id) {
     specimenService.deleteByParentId(id);
     donorRepository.delete(studyId, id);
-    return "OK";
+    return OK;
   }
 
   public String deleteByParentId(@NonNull String studyId) {
     donorRepository.findByParentId(studyId).forEach(id -> delete(studyId, id));
-    return "OK";
+    return OK;
   }
 
   public String save(@NonNull String studyId, @NonNull Donor donor) {

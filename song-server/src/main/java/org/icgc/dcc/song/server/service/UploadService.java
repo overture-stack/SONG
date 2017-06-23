@@ -31,11 +31,9 @@ import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import static java.lang.String.format;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
@@ -48,6 +46,8 @@ import static org.springframework.http.ResponseEntity.ok;
 @Service
 @Slf4j
 public class UploadService {
+
+  private static final String MESSAGE_CONTEXT = UploadService.class.getSimpleName();
 
   @Autowired
   private final IdService id;
@@ -77,12 +77,15 @@ public class UploadService {
       analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
-      return error(UPLOAD_REPOSITORY_CREATE_RECORD, "[UPLOAD_SERVICE] Unable to create record in upload repository");
+
+      //TODO: Should we do this for all respository calls in the other services???
+      return error(MESSAGE_CONTEXT, UPLOAD_REPOSITORY_CREATE_RECORD,
+          "Unable to create record in upload repository");
+
     } catch (JsonProcessingException jpe){
       log.error(jpe.getCause().getMessage());
-//      throw new ServerException(PAYLOAD_PARSING,
-//          "[UPLOAD_SERVICE]: Unable parse the input payload: "+payload, jpe);
-      return error(PAYLOAD_PARSING, "[UPLOAD_SERVICE]: Unable parse the input payload: %s ",payload);
+      return error(MESSAGE_CONTEXT, PAYLOAD_PARSING,
+          "Unable parse the input payload: %s ",payload);
     }
 
     validator.validate(uploadId, payload, analysisType); // Async operation.
@@ -92,13 +95,14 @@ public class UploadService {
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId) {
     val s = read(uploadId);
     if (s == null ){
-      return error(UPLOAD_ID_NOT_FOUND, "UploadId %s does not exist", uploadId);
+      return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_FOUND,
+          "UploadId %s does not exist", uploadId);
     }
     val state = s.getState();
     if (!state.equals(Upload.VALIDATED)) {
-      return error(UPLOAD_ID_NOT_VALIDATED,
-          "UploadId %s is in state '%s', but must be in state 'VALIDATED' before it can be saved.",
-          uploadId, state);
+      return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_VALIDATED,
+          "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
+          uploadId, state, Upload.VALIDATED);
     }
 
     val json = s.getPayload();
@@ -106,7 +110,8 @@ public class UploadService {
 
     val analysisId = analysisService.create(studyId, analysis);
     if (analysisId == null) {
-      return error(ANALYSIS_ID_NOT_CREATED,"Could not create analysisId for upload id '%s",uploadId);
+      return error(MESSAGE_CONTEXT, ANALYSIS_ID_NOT_CREATED,
+          "Could not create analysisId for upload id '%s",uploadId);
     }
 
     updateAsSaved(uploadId);
@@ -116,13 +121,5 @@ public class UploadService {
   private void updateAsSaved(@NonNull String uploadId) {
     uploadRepository.update(uploadId, Upload.SAVED, "");
   }
-
-  private ResponseEntity<String> status(HttpStatus status, String format, Object... args) {
-    return ResponseEntity
-        .status(status)
-        .body(format(format, args));
-  }
-
-
 
 }

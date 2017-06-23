@@ -18,7 +18,12 @@
  */
 package org.icgc.dcc.song.server.model;
 
-import static java.util.Arrays.asList;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import lombok.Data;
+import lombok.val;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,13 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonRawValue;
-
-import lombok.Data;
-import lombok.val;
+import static java.util.Arrays.asList;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({ "uploadId", "studyId", "state", "createdAt", "updatedAt", "errors", "payload"
@@ -42,6 +41,7 @@ import lombok.val;
 @Data
 public class Upload {
 
+  //TODO: [DCC-5649] Should be in UploadStates enum
   public final static String CREATED = "CREATED";
   public final static String VALIDATED = "VALIDATED";
   public final static String VALIDATION_ERROR = "VALIDATION_ERROR";
