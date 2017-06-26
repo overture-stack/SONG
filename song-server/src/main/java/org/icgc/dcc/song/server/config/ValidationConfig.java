@@ -29,6 +29,7 @@ import org.icgc.dcc.song.core.utils.JsonSchemaUtils;
 import org.icgc.dcc.song.server.validation.SchemaValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +46,12 @@ public class ValidationConfig {
   @Bean
   public SchemaValidator schemaValidator() {
     return new SchemaValidator();
+  }
+
+  @Bean
+  @Profile("test")
+  public Long validationDelayMs(){
+    return 500L;
   }
 
   @Bean

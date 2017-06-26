@@ -36,6 +36,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
+import static org.icgc.dcc.song.core.utils.Debug.sleepMs;
 
 @Slf4j
 @Service
@@ -44,6 +45,9 @@ public class ValidationService {
 
   @Autowired
   private SchemaValidator validator;
+
+  @Autowired(required = false)
+  private Long validationDelayMs = -1L;
 
   protected static final ObjectMapper mapper = new ObjectMapper().registerModule(new ParameterNamesModule())
       .registerModule(new Jdk8Module())
@@ -62,6 +66,7 @@ public class ValidationService {
   }
 
   public void syncValidate(@NonNull String uploadId, @NonNull String payload, String analysisType) {
+    debugDelay();
     log.info("Validating payload for upload Id=" + uploadId + "payload=" + payload);
     log.info(format("Analysis type='%s'",analysisType));
     try {
@@ -85,6 +90,18 @@ public class ValidationService {
     } catch (Exception e) {
       log.error(e.getMessage());
       updateAsInvalid(uploadId, format("Unknown processing problem: %s", e.getMessage()));
+    }
+
+  }
+
+  /**
+   * Creates an artificial delay for testing purposes.
+   * The validationDelayMs should be controlled through the Spring "test" profile
+   */
+  private void debugDelay(){
+    if (validationDelayMs > -1){
+      log.info("Sleeping for {} ms", validationDelayMs);
+      sleepMs(validationDelayMs);
     }
   }
 
