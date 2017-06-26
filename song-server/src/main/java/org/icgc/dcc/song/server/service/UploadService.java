@@ -34,6 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
@@ -62,6 +64,10 @@ public class UploadService {
 
   public Upload read(@NonNull String uploadId) {
     return uploadRepository.get(uploadId);
+  }
+
+  public List<Upload> readList(@NonNull List<String> uploadIds) {
+    return uploadRepository.getList(uploadIds);
   }
 
   private void create(@NonNull String studyId, @NonNull String uploadId, @NonNull String jsonPayload) {
