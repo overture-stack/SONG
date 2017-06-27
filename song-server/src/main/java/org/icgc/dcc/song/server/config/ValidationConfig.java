@@ -27,6 +27,7 @@ import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonDocUtils;
 import org.icgc.dcc.song.core.utils.JsonSchemaUtils;
 import org.icgc.dcc.song.server.validation.SchemaValidator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -40,8 +41,10 @@ import java.util.Map;
 public class ValidationConfig {
 
   private static String[] schemaList =
-      {"schemas/sequencingRead.json", "schemas/variantCall.json"
-      };
+      {"schemas/sequencingRead.json", "schemas/variantCall.json" };
+
+  @Value("${validation.delayMs:500}")
+  private long validationDelay;
 
   @Bean
   public SchemaValidator schemaValidator() {
@@ -51,7 +54,7 @@ public class ValidationConfig {
   @Bean
   @Profile("test")
   public Long validationDelayMs(){
-    return 500L;
+    return getValidationDelay();
   }
 
   @Bean
