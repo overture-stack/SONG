@@ -16,10 +16,11 @@
             <artifactId>song-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.antlr</groupId>
-            <artifactId>StringTemplate</artifactId>
-            <version>3.2.1</version>
+            <artifactId>stringtemplate</artifactId>
+            <version>${antlr.stringtemplate.version}</version>
         </dependency>
 
         <!-- Spring -->
@@ -202,6 +203,7 @@
         <flyway-spring-test.version>4.1.0</flyway-spring-test.version>
         <postgresql.version>9.4.1208-jdbc42-atlassian-hosted</postgresql.version>
         <springfox.version>2.7.0</springfox.version>
+        <antlr.stringtemplate.version>3.2</antlr.stringtemplate.version>
 
         <!-- Spring Security oath2 -->
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
