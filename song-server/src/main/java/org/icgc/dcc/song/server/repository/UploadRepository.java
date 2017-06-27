@@ -24,14 +24,9 @@ import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
-import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
-import org.skife.jdbi.v2.unstable.BindIn;
-
-import java.util.List;
 
 //TODO: [DCC-5643] Cleanup SQLQueries to reference constants
 @RegisterMapper(UploadMapper.class)
-@UseStringTemplate3StatementLocator
 public interface UploadRepository {
 
   @SqlUpdate("INSERT INTO upload (id, study_id, state, payload, updated_at) VALUES (:id, :studyId, :state, :payload, now())")
@@ -44,8 +39,5 @@ public interface UploadRepository {
 
   @SqlQuery("SELECT id, study_id, state, created_at, updated_at, errors, payload FROM upload WHERE id = :uploadId")
   Upload get(@Bind("uploadId") String id);
-
-  @SqlQuery("SELECT id, study_id, state, created_at, updated_at, errors, payload FROM upload WHERE id in (<uploadIdList>)")
-  List<Upload> getList(@BindIn("uploadIdList")  List<String> uploadIdList);
 
 }
