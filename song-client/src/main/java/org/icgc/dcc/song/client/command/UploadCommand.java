@@ -18,23 +18,24 @@
  */
 package org.icgc.dcc.song.client.command;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.icgc.dcc.song.client.register.Registry;
-
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-
 import lombok.val;
+import org.icgc.dcc.song.client.register.Registry;
+
+import java.io.File;
+import java.io.IOException;
 
 @Parameters(separators = "=", commandDescription = "Upload an analysis file, and get an upload id")
 public class UploadCommand extends Command {
 
   @Parameter(names = { "-f", "--file" }, required = true)
   String fileName;
+
+  @Parameter(names = { "-a", "--async" },description = "Enables asynchronous validation")
+  boolean isAsyncValidation = false;
 
   Registry registry;
 
@@ -52,8 +53,7 @@ public class UploadCommand extends Command {
       err("Error: Can't open file '%s'", file);
       return;
     }
-
-    val status = registry.upload(json);
+    val status = registry.upload(json, isAsyncValidation);
     save(status);
   }
 

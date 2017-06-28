@@ -69,8 +69,8 @@ public class Registry {
    * @param json
    * @return The analysisId that the server returned, or null if an error occurred.
    */
-  public Status upload(String json) {
-    val url = endpoint.upload(getStudyId(json));
+  public Status upload(String json, boolean isAsyncValidation) {
+    val url = endpoint.upload(getStudyId(json), isAsyncValidation);
     return restClient.post(url, json);
   }
 
