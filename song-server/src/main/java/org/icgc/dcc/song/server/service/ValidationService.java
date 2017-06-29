@@ -36,7 +36,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.core.utils.Debug.sleepMs;
 
 @Slf4j
 @Service
@@ -66,7 +65,6 @@ public class ValidationService {
   }
 
   public void syncValidate(@NonNull String uploadId, @NonNull String payload, String analysisType) {
-    debugDelay();
     log.info("Validating payload for upload Id=" + uploadId + "payload=" + payload);
     log.info(format("Analysis type='%s'",analysisType));
     try {
@@ -94,16 +92,6 @@ public class ValidationService {
 
   }
 
-  /**
-   * Creates an artificial delay for testing purposes.
-   * The validationDelayMs should be controlled through the Spring "test" profile
-   */
-  private void debugDelay(){
-    if (validationDelayMs > -1){
-      log.info("Sleeping for {} ms", validationDelayMs);
-      sleepMs(validationDelayMs);
-    }
-  }
 
   private void updateAsValid(@NonNull String uploadId) {
     uploadRepository.update(uploadId, Upload.VALIDATED, "");

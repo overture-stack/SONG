@@ -146,7 +146,7 @@ public class UploadServiceTest {
       // test create for Asynchronous case
       assertThat(initialState).isEqualTo("CREATED");
     } else {
-      assertThat(initialState).isEqualTo("VALIDATED"); //Syncronous should always return VALIDATED
+      assertThat(initialState).isEqualTo("VALIDATED"); //Synchronous should always return VALIDATED
     }
 
     // test validation

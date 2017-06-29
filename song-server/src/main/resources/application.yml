@@ -42,7 +42,7 @@ validation:
 flyway:
   baselineOnMigrate: true
 
-validation.delayMs: 600
+validation.delayMs: 3000
 
 auth:
   # Connection retries in case of connection failure
