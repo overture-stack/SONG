@@ -30,6 +30,7 @@ import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
+import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -65,30 +66,19 @@ public class AnalysisService {
   @Autowired
   private final ExistenceService existence;
 
-  @SneakyThrows
-  public String update(String studyId, Analysis a) {
-    val analysisId = a.getAnalysisId();
-    // TODO: [DCC-5637]
-    log.warn( "NOT UPDATING analysis id '{}': code not implemented. Refer to DCC-5637", analysisId);
-    return analysisId;
-  }
+  public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
+    repository.deleteCompositeEntities(analysis.getAnalysisId());
+    saveCompositeEntities(studyId, analysis.getAnalysisId(), analysis.getSample());
+    repository.deleteFiles(analysis.getAnalysisId());
+    saveFiles(analysis.getAnalysisId(), studyId, analysis.getFile());
 
-  public String save(@NonNull String studyId, @NonNull Analysis analysis) {
-    val submitters = analysis.getSample()
-            .stream()
-            .map(Sample::getSampleSubmitterId)
-            .collect(toImmutableList());
-
-    String analysisId = findByBusinessKey(studyId, analysis.getAnalysisType(), submitters);
-
-    if (analysisId == null) {
-      analysisId = create(studyId, analysis);
-    } else {
-      update(studyId, analysis);
+    if (analysis instanceof SequencingReadAnalysis ) {
+      repository.updateSequencingRead(((SequencingReadAnalysis) analysis).getExperiment() );
+    } else if (analysis instanceof VariantCallAnalysis) {
+      repository.updateVariantCall(((VariantCallAnalysis) analysis).getExperiment());
     }
-    return analysisId;
+    return ok("AnalysisId %s was updated successfully", analysis.getAnalysisId());
   }
-
 
   public String create(String studyId, Analysis a) {
     val id = idService.generate(IdPrefix.Analysis);
@@ -101,20 +91,17 @@ public class AnalysisService {
 
    if (a instanceof SequencingReadAnalysis) {
      val experiment = ((SequencingReadAnalysis) a).getExperiment();
+     experiment.setAnalysisId(id);
      repository.createSequencingRead(experiment) ;
    } else if (a instanceof VariantCallAnalysis) {
      val experiment = ((VariantCallAnalysis) a).getExperiment();
+     experiment.setAnalysisId(id);
      repository.createVariantCall(experiment);
    } else {
      // shouldn't be possible if we validated our JSON first...
      throw new IllegalArgumentException("Invalid analysis type");
    }
    return id;
-  }
-
-  public ResponseEntity<String> updateAnalysis(String studyId, Analysis a) {
-    // TODO: [DCC-5637]
-    return error(NOT_IMPLEMENTED_YET, "UpdateAnalysis not implemented yet. Refer to DCC-5637");
   }
 
   void saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
@@ -149,15 +136,15 @@ public class AnalysisService {
     analysis.setSample(readSamples(id));
 
     if (analysis instanceof SequencingReadAnalysis) {
-      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(id));
+      val experiment = repository.readSequencingRead(id);
+      ((SequencingReadAnalysis) analysis).setExperiment(experiment);
     } else if (analysis instanceof VariantCallAnalysis) {
-      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(id));
+      val experiment = repository.readVariantCall(id);
+      ((VariantCallAnalysis) analysis).setExperiment(experiment);
     }
 
     return analysis;
   }
-
-
 
   public List<File> readFiles(String id) {
     return repository.readFiles(id);
@@ -195,44 +182,5 @@ public class AnalysisService {
 
   boolean confirmUploaded(String accessToken, String fileId) {
     return existence.isObjectExist(accessToken,fileId);
-  }
-
-  public String findByBusinessKey(String study, String type, Collection<String> sample_submitter_ids) {
-    val ourSamples = new ArrayList<String>();
-    val analysisIds = new ArrayList<String>();
-
-    // look up the sample ids for our samples
-    for (val submitted: sample_submitter_ids) {
-      val sampleId = sampleService.findByBusinessKey(study, submitted);
-      // if any of our business keys don't exist, neither does this analysis
-      if (sampleId == null) {
-        return null;
-      }
-      ourSamples.add(sampleId);
-    }
-
-    // if we don't have any business keys, this analysis shouldn't exist, because it's
-    // invalid.
-    if (ourSamples.isEmpty()) {
-      return null;
-    }
-
-    // First, find all the analysis ids that match at least one of our samples
-    val candidateAnalysisIds = repository.findBySampleId(ourSamples.get(0));
-
-    // Next, for each candidate, if all of it's samples are the same as this one,
-    // then we've found an existing analysis to update
-    for (val analysisId: candidateAnalysisIds) {
-      val analysisSamples = repository.findSampleIds(analysisId);
-      if (analysisSamples.equals(ourSamples)) {
-        val analysis = repository.read(analysisId);
-        if (analysis.getAnalysisType().equals(type)) {
-          return analysisId;
-        }
-      }
-    }
-
-    return null;
-
   }
 }
