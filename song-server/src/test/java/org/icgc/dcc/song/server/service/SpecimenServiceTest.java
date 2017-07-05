@@ -91,10 +91,10 @@ public class SpecimenServiceTest {
 
     @Test
     public void testCreateAndDeleteSpecimen() {
-        val donorId = "";
+        val donorId = "DO2";
         Specimen s = createSpecimen("", "Specimen 101 Ipsilon Prime", donorId, "Tumour", "Cell line - derived from tumour");
 
-        val status = specimenService.create("DO2", s);
+        val status = specimenService.create("Study123", s);
         val id = s.getSpecimenId();
 
         assertThat(id).startsWith("SP");
@@ -110,11 +110,11 @@ public class SpecimenServiceTest {
 
     @Test
     public void testUpdateSpecimen() {
-        val donorId = "";
+        val donorId = "DO2";
         val s = createSpecimen("", "Specimen 102 Chiron-Beta Prime", donorId, "Tumour",
                 "Metastatic tumour - additional metastatic");
 
-        specimenService.create("DO2", s);
+        specimenService.create("Study123", s);
 
         val id = s.getSpecimenId();
 

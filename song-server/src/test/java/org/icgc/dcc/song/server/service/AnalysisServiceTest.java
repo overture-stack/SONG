@@ -42,6 +42,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
@@ -105,7 +106,7 @@ public class AnalysisServiceTest {
 
     val analysisId1=service.save(study, analysis);
     val analysisId2=service.save(study, analysis);
-    assertThat(analysisId1).startsWith("AN");
+
     assertThat(analysisId1).isEqualTo(analysisId2);
   }
 

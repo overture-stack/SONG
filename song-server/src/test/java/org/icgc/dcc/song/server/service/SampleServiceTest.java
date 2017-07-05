@@ -55,11 +55,11 @@ public class SampleServiceTest {
 
   @Test
   public void testCreateAndDeleteSample() {
-    val specimenId = "";
+    val specimenId = "SP2";
     val metadata = "";
     val s = Sample.create("", "101-IP-A", specimenId, "Amplified DNA", metadata);
 
-    val status = sampleService.create("SP2", s);
+    val status = sampleService.create("Study123", s);
     val id = s.getSampleId();
 
     assertThat(id).startsWith("SA");
@@ -76,10 +76,10 @@ public class SampleServiceTest {
   @Test
   public void testUpdateSample() {
     val metadata = "";
-    val specimenId = "";
+    val specimenId = "SP2";
     val s = Sample.create("", "102-CBP-A", specimenId, "RNA", metadata);
 
-    sampleService.create("SP2", s);
+    sampleService.create("Study123", s);
 
     val id = s.getSampleId();
 

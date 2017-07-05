@@ -153,6 +153,13 @@
             <artifactId>springfox-swagger2</artifactId>
             <version>${springfox.version}</version>
         </dependency>
+
+        <!-- DCC - ID -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dcc-id-client</artifactId>
+            <version>${dcc-id.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -200,6 +207,7 @@
 
         <!-- Spring Security oath2 -->
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
+        <dcc-id.version>5.1.1</dcc-id.version>
     </properties>
 
 </project>

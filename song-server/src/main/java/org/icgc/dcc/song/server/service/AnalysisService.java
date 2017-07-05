@@ -91,7 +91,7 @@ public class AnalysisService {
 
 
   public String create(String studyId, Analysis a) {
-    val id = idService.generate(IdPrefix.Analysis);
+    val id = idService.generateAnalysisId();
     a.setAnalysisId(id);
     a.setStudy(studyId);
     repository.createAnalysis(a);
@@ -125,7 +125,7 @@ public class AnalysisService {
 
   void saveFiles(String id, String studyId, List<File> files) {
     files.stream()
-            .map(f->fileService.save(studyId, f))
+            .map(f->fileService.save(id, studyId, f))
             .forEach(fileId->addFile(id, fileId));
   }
 

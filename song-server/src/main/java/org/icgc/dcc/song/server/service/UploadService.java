@@ -53,10 +53,8 @@ public class UploadService {
   private final IdService id;
   @Autowired
   private final ValidationService validator;
-
   @Autowired
   private final AnalysisService analysisService;
-
   @Autowired
   private final UploadRepository uploadRepository;
 
@@ -69,7 +67,7 @@ public class UploadService {
   }
 
   @SneakyThrows
-  public ResponseEntity<String> upload(String studyId, String payload, boolean isAsyncValidation) {
+  public ResponseEntity<String> upload(@NonNull String studyId, @NonNull String payload, boolean isAsyncValidation) {
     val uploadId = id.generate(IdPrefix.Upload);
     String analysisType;
     try {

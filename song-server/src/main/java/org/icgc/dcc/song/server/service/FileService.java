@@ -40,8 +40,8 @@ public class FileService {
   @Autowired
   IdService idService;
 
-  public String create(@NonNull String studyId, @NonNull File file) {
-    val id = idService.generate(File);
+  public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
+    val id = idService.generateFileId(analysisId, file.getFileName());
     file.setObjectId(id);
     file.setStudyId(studyId);
 
@@ -68,10 +68,10 @@ public class FileService {
     return OK;
   }
 
-  public String save(@NonNull String studyId, @NonNull File file) {
-    String fileId = repository.findByBusinessKey(studyId, file.getFileName());
+  public String save(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
+    String fileId = repository.findByBusinessKey(analysisId, file.getFileName());
     if (fileId == null) {
-      fileId = idService.generate(File);
+      fileId = idService.generateFileId(analysisId, file.getFileName());
       file.setObjectId(fileId);
       file.setStudyId(studyId);
       val status=repository.create(file);

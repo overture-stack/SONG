@@ -50,13 +50,6 @@ public class FileController {
   @Autowired
   private final FileService fileService;
 
-  @PostMapping(value = "/files", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(@PathVariable("studyId") String studyId, @RequestBody File file) {
-    return fileService.create(studyId, file);
-  }
-
   @GetMapping(value = "/files/{id}")
   @ResponseBody
   public File read(@PathVariable("id") String id) {

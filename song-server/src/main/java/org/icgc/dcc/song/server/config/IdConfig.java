@@ -18,6 +18,10 @@
  */
 package org.icgc.dcc.song.server.config;
 
+import org.icgc.dcc.id.client.core.IdClient;
+import org.icgc.dcc.id.client.http.HttpIdClient;
+import org.icgc.dcc.id.client.util.CachingIdClient;
+import org.icgc.dcc.id.client.util.HashIdClient;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,12 +35,13 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "id")
 public class IdConfig {
 
-  private long serverInstance;
-  private long workerInstance;
+  private String idUrl;
+  private String authToken;
+  private boolean realIds;
 
   @Bean
-  public Generator idGenerator() {
-    return new Generator(serverInstance, workerInstance);
+  public IdClient createIdClient() {
+    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new HashIdClient();
   }
 
 }

@@ -38,6 +38,10 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
             <url>https://artifacts.oicr.on.ca/artifactory/dcc-release</url>
         </repository>
         <repository>
+            <id>dcc-snapshot</id>
+            <url>https://artifacts.oicr.on.ca/artifactory/dcc-snapshot</url>
+        </repository>
+        <repository>
           <id>Atlassian 3rd Party</id>
           <url>https://maven.atlassian.com/3rdparty/</url>
         </repository>

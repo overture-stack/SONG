@@ -59,11 +59,11 @@ CREATE DOMAIN analysis_state as TEXT CHECK(VALUE IN('PUBLISHED', 'UNPUBLISHED', 
 DROP TABLE IF EXISTS Study,Donor,Specimen,Sample,File,Analysis,VariantCallAnalysis,Submission;
  
 CREATE TABLE Study(id VARCHAR(36) PRIMARY KEY, name TEXT, description TEXT, organization TEXT, info TEXT);
-CREATE TABLE Donor(id VARCHAR(16) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT,
+CREATE TABLE Donor(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT,
     gender GENDER, info TEXT);
-CREATE TABLE Specimen(id VARCHAR(16) PRIMARY KEY, donor_id VARCHAR(16) references Donor, submitter_id TEXT,
+CREATE TABLE Specimen(id VARCHAR(36) PRIMARY KEY, donor_id VARCHAR(36) references Donor, submitter_id TEXT,
     class SPECIMEN_CLASS, type SPECIMEN_TYPE, info TEXT);
-CREATE TABLE Sample(id VARCHAR(16) PRIMARY KEY, specimen_id VARCHAR(16) references Specimen, submitter_id TEXT,
+CREATE TABLE Sample(id VARCHAR(36) PRIMARY KEY, specimen_id VARCHAR(36) references Specimen, submitter_id TEXT,
     type SAMPLE_TYPE, info TEXT);
 CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, name TEXT, size BIGINT,
     md5 CHAR(32), type FILE_TYPE, info TEXT);
@@ -78,6 +78,6 @@ CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_too
     tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT, info TEXT);
 ;
 
-CREATE TABLE Upload(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50),
+CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50),
     errors TEXT, payload TEXT, created_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now());

@@ -47,10 +47,9 @@ public class SpecimenService {
   @Autowired
   private final SampleService sampleService;
 
-  public String create(@NonNull String parentId, @NonNull Specimen specimen) {
-    val id = idService.generate(Specimen);
+  public String create(@NonNull String studyId, @NonNull Specimen specimen) {
+    val id = idService.generateSpecimenId(studyId, specimen.getSpecimenSubmitterId());
     specimen.setSpecimenId(id);
-    specimen.setDonorId(parentId);
     int status = repository.create(specimen);
     if (status != 1) {
       throw buildServerException(this.getClass(), SPECIMEN_RECORD_FAILED,
@@ -58,15 +57,6 @@ public class SpecimenService {
     }
 
     return id;
-  }
-
-  public String createWithSamples(String parentId, SpecimenWithSamples specimen) {
-    val status = create(parentId, specimen.getSpecimen());
-    if (status.startsWith("error")) {
-      return status;
-    }
-    specimen.getSamples().forEach(s -> sampleService.create(parentId, s));
-    return status;
   }
 
   public Specimen read(@NonNull String id) {
