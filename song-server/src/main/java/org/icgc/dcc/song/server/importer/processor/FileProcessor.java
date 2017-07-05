@@ -1,8 +1,6 @@
 package org.icgc.dcc.song.server.importer.processor;
 
-import com.google.common.collect.Maps;
 import lombok.val;
-import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.server.importer.model.SampleEntry;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
@@ -13,10 +11,8 @@ import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.server.importer.convert.Converters.convertToAnalysis;
@@ -28,17 +24,14 @@ import static org.icgc.dcc.song.server.importer.convert.Converters.convertToVari
 public class FileProcessor implements Runnable {
 
   private final List<PortalFileMetadata> portalFileMetadatas;
-  private final Map<String, PortalDonorMetadata> donorMap;
   @Autowired private AnalysisRepository analysisRepository;
   @Autowired private FileRepository fileRepository;
   @Autowired private UploadRepository uploadRepository;
 
   private final Set<SampleEntry> sampleEntrySet = newHashSet();
 
-  private FileProcessor(List<PortalFileMetadata> portalFileMetadatas,
-      Map<String, PortalDonorMetadata> donorMap) {
+  private FileProcessor(List<PortalFileMetadata> portalFileMetadatas){
     this.portalFileMetadatas = portalFileMetadatas;
-    this.donorMap = donorMap;
   }
 
   @Override
@@ -96,24 +89,8 @@ public class FileProcessor implements Runnable {
     return file;
   }
 
-  public static FileProcessor createFileProcessor(List<PortalFileMetadata> portalFileMetadatas,
-      Map<String, PortalDonorMetadata> donorMap) {
-    return new FileProcessor(portalFileMetadatas, donorMap);
-  }
-
-  public static FileProcessor createFileProcessor(List<PortalFileMetadata> portalFileMetadatas,
-      List<PortalDonorMetadata> portalDonorMetadatas) {
-    return createFileProcessor(portalFileMetadatas, createDonorMap(portalDonorMetadatas));
-  }
-
-  private static Map<String , PortalDonorMetadata> createDonorMap(List<PortalDonorMetadata> portalDonorMetadatas){
-    val map = Maps.<String, PortalDonorMetadata>newHashMap();
-    for (val donor : portalDonorMetadatas){
-      checkState(map.containsKey(donor.getId()), "The donorId [%s] already exists. The input PortaldonorMetadatalist "
-          + "should have unique entries", donor.getId());
-      map.put(donor.getId(), donor);
-    }
-    return map;
+  public static FileProcessor createFileProcessor(List<PortalFileMetadata> portalFileMetadatas){
+    return new FileProcessor(portalFileMetadatas);
   }
 
   private static List<SampleEntry> extractSampleEntries(PortalFileMetadata portalFileMetadata){
