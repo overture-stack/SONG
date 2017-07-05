@@ -18,7 +18,6 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import com.earnstone.id.Generator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
