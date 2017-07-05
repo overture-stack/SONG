@@ -48,7 +48,7 @@ public class Endpoint {
   }
 
   public String getAnalysisFiles(String studyId, String analysisId) {
-    return format("%s/studies/%s/analysis/%s/files", serverUrl, studyId, analysisId);
+    return format("%s/studies/%s/analysis/%s/file", serverUrl, studyId, analysisId);
   }
 
   public String publish(String studyId, String analysisId) {

@@ -36,13 +36,14 @@ public class PortalDownloadIterator implements Iterator<List<ObjectNode>>, Itera
   private boolean first = true;
   private int prevHitsSize = -1;
 
-  public List<ObjectNode> getFileMetas(UrlGenerator urlGenerator){
+  public List<ObjectNode> getFileMetas(){
     return stream((Iterator<List<ObjectNode>>)this)
         .flatMap(Collection::stream)
         .collect(toImmutableList());
   }
 
-  @Override public Iterator<List<ObjectNode>> iterator() {
+  @Override
+  public Iterator<List<ObjectNode>> iterator() {
     return this;
   }
 

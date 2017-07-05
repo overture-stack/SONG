@@ -17,12 +17,8 @@
  */
 package org.icgc.dcc.song.server.importer;
 
-import static java.lang.System.getProperty;
-
 public class Config {
 
-  public static final String TOKEN = getProperty("token");
-  public static final String STORAGE_API = "https://storage.cancercollaboratory.org";
   public static final String PORTAL_API = "https://dcc.icgc.org";
 
 }

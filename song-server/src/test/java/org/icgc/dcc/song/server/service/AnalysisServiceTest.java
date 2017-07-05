@@ -209,7 +209,7 @@ public class AnalysisServiceTest {
   @Test
   public void testReadFiles() {
     val files = service.readFiles("AN1");
-    System.err.printf("Got files '%s'", files);
+    System.err.printf("Got file '%s'", files);
     val expectedFiles = new ArrayList<File>();
     expectedFiles.add(fileService.read("FI1"));
     expectedFiles.add(fileService.read("FI2"));

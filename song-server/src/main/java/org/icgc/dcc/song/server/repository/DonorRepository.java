@@ -34,7 +34,7 @@ public interface DonorRepository {
   @SqlUpdate("INSERT INTO Donor (id, submitter_id, study_id, gender, info) VALUES (:donorId, :donorSubmitterId, :studyId, :donorGender, :info)")
   int create(@BindBean Donor donor);
 
-  @SqlQuery("SELECT id, submitter_id, study_id, gender, info FROM donor WHERE id=:id")
+  @SqlQuery("SELECT id, submitter_id, study_id, gender, info FROM dao WHERE id=:id")
   Donor read(@Bind("id") String donorId);
 
   @SqlUpdate("UPDATE Donor SET submitter_id=:donorSubmitterId, gender=:donorGender WHERE id=:donorId")
@@ -43,16 +43,16 @@ public interface DonorRepository {
   @SqlUpdate("UPDATE Donor SET submitter_id=:donorSubmitterId, gender=:donorGender WHERE id=:id")
   int update(@Bind("id") String id, @BindBean Donor donor);
 
-  @SqlQuery("SELECT id, submitter_id, study_id, gender,info FROM donor WHERE study_id=:study_id")
+  @SqlQuery("SELECT id, submitter_id, study_id, gender,info FROM dao WHERE study_id=:study_id")
   List<Donor> readByParentId(@Bind("study_id") String study_id);
 
-  @SqlUpdate("DELETE from donor where id=:id AND study_id=:studyId")
+  @SqlUpdate("DELETE from dao where id=:id AND study_id=:studyId")
   int delete(@Bind("studyId") String studyId, @Bind("id") String id);
 
 
-  @SqlQuery("SELECT id from donor where study_id=:studyId")
+  @SqlQuery("SELECT id from dao where study_id=:studyId")
   List<String> findByParentId(@Bind("studyId") String parentId);
 
-  @SqlQuery("SELECT id from donor where study_id=:studyId AND submitter_id=:key")
+  @SqlQuery("SELECT id from dao where study_id=:studyId AND submitter_id=:key")
   String findByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
 }

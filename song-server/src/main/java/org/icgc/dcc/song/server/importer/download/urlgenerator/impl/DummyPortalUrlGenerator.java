@@ -17,7 +17,7 @@ import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 @RequiredArgsConstructor
 public class DummyPortalUrlGenerator implements UrlGenerator {
 
-  private static final String REPOSITORY_FILES_ENDPOINT = "/api/v1/repository/files";
+  private static final String REPOSITORY_FILES_ENDPOINT = "/api/v1/repository/file";
   private static final String INCLUDE_PARAM = "include=facets";
   private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
 
