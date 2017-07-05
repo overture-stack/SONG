@@ -21,6 +21,7 @@ package org.icgc.dcc.song.server.repository;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.repository.mapper.UploadMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
@@ -32,6 +33,9 @@ public interface UploadRepository {
   @SqlUpdate("INSERT INTO upload (id, study_id, state, payload, updated_at) VALUES (:id, :studyId, :state, :payload, now())")
   int create(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("state") String state,
       @Bind("payload") String jsonPayload);
+
+  @SqlUpdate("INSERT INTO upload (id, study_id, state, payload, updated_at) VALUES (:id, :studyId, :state, :payload, now())")
+  int create(@BindBean Upload upload);
 
   // note: avoiding handling datetime's in application; keeping it all in the SQL (also, see schema)
   @SqlUpdate("UPDATE upload SET state = :state, errors = :errors, updated_at = now() WHERE id = :id")

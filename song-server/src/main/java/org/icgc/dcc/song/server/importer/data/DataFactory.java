@@ -1,9 +1,6 @@
 package org.icgc.dcc.song.server.importer.data;
 
 public class DataFactory {
-
-  public DonorDao build(){
-    return null;
-  }
+  //should have persistance to know when should download and when should deserialize from file
 
 }

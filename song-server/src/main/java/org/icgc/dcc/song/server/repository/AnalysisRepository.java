@@ -18,12 +18,10 @@
  */
 package org.icgc.dcc.song.server.repository;
 
-import java.util.List;
-
 import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
-import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.repository.mapper.AnalysisMapper;
 import org.icgc.dcc.song.server.repository.mapper.FileMapper;
 import org.icgc.dcc.song.server.repository.mapper.SequencingReadMapper;
@@ -33,6 +31,8 @@ import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+
+import java.util.List;
 
 @RegisterMapper(FileMapper.class)
 public interface AnalysisRepository {
@@ -48,7 +48,7 @@ public interface AnalysisRepository {
   void addFile(@Bind("analysisId") String id, @Bind("fileId") String fileId);
 
   @SqlUpdate("INSERT INTO SampleSet (analysis_id, sample_id) values (:analysisId, :sampleId)")
-  void addSample(@Bind("analysisId") String id, @Bind("sampleId") String fileId);
+  void addSample(@Bind("analysisId") String id, @Bind("sampleId") String sampleId);
 
   @SqlUpdate("INSERT INTO SequencingRead (id, library_strategy, paired_end, insert_size,aligned,alignment_tool, reference_genome) "
           + "VALUES (:analysisId, :libraryStrategy, :pairedEnd, :insertSize, :aligned, :alignmentTool, :referenceGenome)")
