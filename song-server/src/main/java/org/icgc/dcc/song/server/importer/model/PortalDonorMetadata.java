@@ -2,6 +2,7 @@ package org.icgc.dcc.song.server.importer.model;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.Singular;
 import lombok.Value;
 
 import java.util.List;
@@ -16,9 +17,9 @@ public class PortalDonorMetadata {
   @NonNull private final String projectName;
   @NonNull private final String gender;
   @NonNull private final String submitterDonorId;
-  @NonNull private final List<PortalSpecimenData> specimens;
+  @NonNull @Singular private final List<PortalSpecimenMetadata> specimens;
 
-  public Optional<PortalSpecimenData> getSpecimen(String specimenId){
+  public Optional<PortalSpecimenMetadata> getSpecimen(String specimenId){
     return specimens.stream()
         .filter(x -> x.getId().equals(specimenId))
         .findFirst();
