@@ -73,7 +73,7 @@ public final class PortalFileMetadataParser {
   }
 
   public static String getProjectCode(@NonNull ObjectNode file) {
-    return getFirstDonor(file).path(FieldNames.PROJECT_CODE).get(0).textValue();
+    return getFirstDonor(file).path(FieldNames.PROJECT_CODE).textValue();
   }
 
   public static String getDonorId(@NonNull ObjectNode file) {
@@ -92,8 +92,8 @@ public final class PortalFileMetadataParser {
     return file.path(FieldNames.REFERENCE_GENOME);
   }
 
-  public static String getDataBundleId(@NonNull ObjectNode file){
-    return file.path(FieldNames.DATA_BUNDLE).path(FieldNames.DATA_BUNDLE_ID).textValue();
+  public static String getRepoDataBundleId(@NonNull ObjectNode file){
+    return getFirstFileCopy(file).path(FieldNames.REPO_DATA_BUNDLE_ID).textValue();
   }
 
   public static String getIndexFileId(@NonNull ObjectNode file){
@@ -152,7 +152,7 @@ public final class PortalFileMetadataParser {
   }
 
   private static JsonNode getIndexFile(@NonNull ObjectNode file){
-    return file.path(FieldNames.INDEX_FILE);
+    return getFirstFileCopy(file).path(FieldNames.INDEX_FILE);
   }
 
   private static JsonNode getAnalysisMethod(@NonNull ObjectNode file){

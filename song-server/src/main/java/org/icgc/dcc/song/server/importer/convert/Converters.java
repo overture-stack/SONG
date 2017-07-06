@@ -7,10 +7,11 @@ import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalSampleMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalSpecimenMetadata;
+import org.icgc.dcc.song.server.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.server.importer.resolvers.SampleTypes;
 import org.icgc.dcc.song.server.importer.resolvers.SpecimenClasses;
 import org.icgc.dcc.song.server.model.Upload;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.Sample;
@@ -19,8 +20,11 @@ import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getGender;
 import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getId;
 import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getNumSamples;
@@ -36,7 +40,7 @@ import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParse
 import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getSpecimenType;
 import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getSubmitterDonorId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getAccess;
-import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getDataBundleId;
+import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getRepoDataBundleId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getDataType;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getDonorId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getExperimentalStrategy;
@@ -57,9 +61,13 @@ import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getProjectCode;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getSampleIds;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getSoftware;
+import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
 
 public class Converters {
   private static final String NA = "";
+  private static final String ALIGNED_READS = "Aligned Reads";
+  private static final long NULL_INSERT_SIZE = -1;
+  private static final boolean IS_PAIRED = true;
 
   public static Donor convertToDonor(PortalDonorMetadata portalDonorMetadata){
     return Donor.create(portalDonorMetadata.getId(),
@@ -93,6 +101,12 @@ public class Converters {
     return SampleTypes.resolve(portalSampleMetadata).getDisplayName();
   }
 
+  public static Stream<Sample> streamToSamples(PortalDonorMetadata portalDonorMetadata){
+    return portalDonorMetadata.getSpecimens().stream()
+        .map(Converters::convertToSamples)
+        .flatMap(Collection::stream);
+  }
+
   public static List<Sample> convertToSamples(PortalSpecimenMetadata portalSpecimenMetadata){
     val specimenId = portalSpecimenMetadata.getId();
     val samples = ImmutableList.<Sample>builder();
@@ -109,27 +123,64 @@ public class Converters {
   }
 
   public static File convertToFile(PortalFileMetadata portalFileMetadata){
+    return File.create(
+        portalFileMetadata.getFileId(),
+        portalFileMetadata.getFileName(),
+        portalFileMetadata.getProjectCode(),
+        portalFileMetadata.getFileSize(),
+        portalFileMetadata.getFileFormat(),
+        portalFileMetadata.getFileMd5sum(),
+        NA);
   }
 
-  public static Analysis convertToAnalysis(PortalFileMetadata portalFileMetadata){
+
+  private static Boolean isAligned(String dataType){
+    return dataType.equals(ALIGNED_READS);
   }
 
   public static SequencingRead convertToSequencingRead(PortalFileMetadata portalFileMetadata){
+    throw new IllegalStateException("not implemented");
+  }
+
+  public static SequencingReadAnalysis convertToSequencingReadAnalysis(PortalFileMetadata portalFileMetadata){
+    val fileType = FileTypes.resolve(portalFileMetadata);
+    checkState(fileType == BAM, "The input PortalFileMetadata %s is NOT of fileType [%s]", portalFileMetadata.toString(), BAM.getFileTypeName());
+    val dataBundleId = portalFileMetadata.getRepoDataBundleId();
+    val sequencingReadAnalysis = SequencingReadAnalysis.create(
+        dataBundleId,
+        portalFileMetadata.getProjectCode(),
+        Upload.PUBLISHED,
+        NA);
+
+    val sequencingReadExperiment = SequencingRead.create(
+        dataBundleId,
+        isAligned(portalFileMetadata.getDataType()),
+        portalFileMetadata.getSoftware(),
+        NULL_INSERT_SIZE,
+        portalFileMetadata.getExperimentalStrategy(),
+        IS_PAIRED,
+        portalFileMetadata.getGenomeBuild(),
+        NA);
+    sequencingReadAnalysis.setExperiment(sequencingReadExperiment);
+    return sequencingReadAnalysis;
   }
 
   public static VariantCall convertToVariantCall(PortalFileMetadata portalFileMetadata){
+    throw new IllegalStateException("not implemented");
   }
 
   public static Upload convertToUpload(PortalFileMetadata portalFileMetadata){
+    throw new IllegalStateException("not implemented");
   }
 
   public static Study convertToStudy(PortalDonorMetadata portalDonorMetadata){
+    throw new IllegalStateException("not implemented");
   }
 
   public static PortalFileMetadata convertToPortalFileMetadata(ObjectNode o){
     return PortalFileMetadata.builder()
         .access              (getAccess(o))
-        .dataBundleId        (getDataBundleId(o))
+        .repoDataBundleId    (getRepoDataBundleId(o))
         .dataType            (getDataType(o))
         .donorId             (getDonorId(o))
         .experimentalStrategy(getExperimentalStrategy(o))

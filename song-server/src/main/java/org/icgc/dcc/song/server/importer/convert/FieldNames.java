@@ -47,4 +47,5 @@ public class FieldNames {
   public static final String STUDY = "study";
   public static final String AVAILABLE_RAW_SEQUENCE_DATA = "availableRawSequenceData";
   public static final String LIBRARY_STRATEGY= "libraryStrategy";
+  public static final String REPO_DATA_BUNDLE_ID = "repoDataBundleId";
 }

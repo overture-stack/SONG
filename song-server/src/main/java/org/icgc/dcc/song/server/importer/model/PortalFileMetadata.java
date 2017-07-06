@@ -11,7 +11,7 @@ import java.util.List;
 public class PortalFileMetadata {
 
   @NonNull private final String access;
-  @NonNull private final String dataBundleId;
+  @NonNull private final String repoDataBundleId;
   @NonNull private final String dataType;
   @NonNull private final String donorId;
   @NonNull private final String experimentalStrategy;
