@@ -18,16 +18,14 @@
  */
 package org.icgc.dcc.song.server.validation;
 
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
-
 import lombok.SneakyThrows;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
 
 /**
  * Potentially extract a Validator interface if we want to pursue a Strategy pattern of multiple validation rules or
@@ -40,6 +38,9 @@ public class SchemaValidator {
   @Autowired
   private Map<String, JsonSchema> schemaCache;
 
+  @Autowired(required = false)
+  private Long validationDelayMs = -1L;
+
   @SneakyThrows
   public ValidationResponse validate(String schemaId, JsonNode payloadRoot) {
     if (schemaCache.containsKey(schemaId)) {
@@ -48,7 +49,7 @@ public class SchemaValidator {
       val response = new ValidationResponse(results);
       log.info(response.getValidationErrors());
 
-      Thread.sleep(2500);
+      debugDelay();
 
       return response;
     } else {
@@ -57,4 +58,15 @@ public class SchemaValidator {
     }
   }
 
+  /**
+   * Creates an artificial delay for testing purposes.
+   * The validationDelayMs should be controlled through the Spring "test" profile
+   */
+  @SneakyThrows
+  private void debugDelay(){
+    if (validationDelayMs > -1){
+      log.info("Sleeping for {} ms", validationDelayMs);
+      Thread.sleep(validationDelayMs);
+    }
+  }
 }
