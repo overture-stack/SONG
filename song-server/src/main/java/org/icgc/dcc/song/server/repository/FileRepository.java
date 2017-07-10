@@ -50,6 +50,9 @@ public interface FileRepository {
   @SqlQuery("SELECT id, name, study_id, size, type, md5, info FROM File WHERE study_id=:studyId")
   List<File> readByParentId(@Bind("studyId") String study_id);
 
+  @SqlQuery("SELECT f.* from File f, FileSet fs WHERE fs.analysis_id=:analysisId AND f.id=fs.file_id")
+  List<File> findByAnalysis(@Bind("analysisId") String analysisId);
+
   @SqlQuery("SELECT f.id from File f, FileSet fs WHERE f.name=:fileName AND fs.analysis_id=:analysisId AND f.id=fs.file_id")
   String findByBusinessKey(@Bind("analysisId") String analysisId, @Bind("fileName") String fileName);
 }

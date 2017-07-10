@@ -134,9 +134,15 @@ public class AnalysisService {
   }
 
 
-  public List<String> getAnalyses(Map<String, String> params) {
-    // TODO: Implement this once we have a spec for searches
-    return null;
+  public List<Analysis> getAnalysis(@NonNull String studyId) {
+    val analysisList = repository.find(studyId);
+    analysisList.forEach(a -> {
+          if (a != null) {
+            List<File> files = fileService.getByAnalysis(a.getAnalysisId());
+            if (files != null) a.setFile(files);
+          }
+        });
+    return analysisList;
   }
 
   public Analysis read(String id) {
