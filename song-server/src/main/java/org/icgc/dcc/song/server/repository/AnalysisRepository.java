@@ -85,6 +85,6 @@ public interface AnalysisRepository {
   VariantCall readVariantCall(@Bind("id") String id);
 
   @RegisterMapper(AnalysisMapper.class)
-  @SqlQuery("queries/analysis/find.sql")
+  @SqlQuery("queries/analysis/findByStudyId.sql")
   List<Analysis> find(@Bind("studyId") String studyId);
 }
