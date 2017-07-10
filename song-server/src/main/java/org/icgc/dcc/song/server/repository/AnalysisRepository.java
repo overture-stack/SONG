@@ -68,6 +68,12 @@ public interface AnalysisRepository {
       + "  AND f.id = s.file_id")
   List<File> readFiles(@Bind("analysisId") String id);
 
+  @SqlUpdate("DELETE FROM file f WHERE f.id IN (SELECT fs.file_id FROM fileset fs WHERE fs.analysis_id=:id)")
+  void deleteFiles(@Bind("id") String analysisId);
+
+  @SqlUpdate("DELETE FROM SampleSet WHERE analysis_id=:id")
+  void deleteCompositeEntities(@Bind("id") String analysisId);
+
   @SqlQuery("SELECT sample_id FROM SampleSet WHERE analysis_id=:id")
   List<String> findSampleIds(@Bind("id") String id);
 
@@ -75,14 +81,23 @@ public interface AnalysisRepository {
   List<String> findBySampleId(@Bind("id") String id);
 
   @RegisterMapper(SequencingReadMapper.class)
-  @SqlQuery("SELECT id, library_strategy, paired_end, insert_size,aligned,alignment_tool, reference_genome, info " +
+  @SqlQuery("SELECT id, library_strategy, paired_end, insert_size,aligned,alignment_tool,reference_genome, info " +
           "FROM SequencingRead where id=:id")
   SequencingRead readSequencingRead(@Bind("id") String id);
+
+  @SqlUpdate("UPDATE SequencingRead SET library_strategy=:libraryStrategy, paired_end=:pairedEnd, " +
+          "insert_size=:insertSize, aligned=:aligned, alignment_tool=:alignmentTool, reference_genome=:referenceGenome," +
+          "info=:info WHERE id=:analysisId")
+  void updateSequencingRead(@BindBean SequencingRead sequencingRead);
 
   @RegisterMapper(VariantCallMapper.class)
   @SqlQuery("SELECT id, variant_calling_tool, matched_normal_sample_submitter_id, info " +
           "FROM VariantCall where id=:id")
   VariantCall readVariantCall(@Bind("id") String id);
+
+  @SqlUpdate("UPDATE VariantCall SET variant_calling_tool=:variantCallingTool, " +
+          "matched_normal_sample_submitter_id=:matchedNormalSampleSubmitterId, info=:info WHERE id=:analysisId")
+  void updateVariantCall(@BindBean VariantCall variantCall);
 
   @RegisterMapper(AnalysisMapper.class)
   @SqlQuery("queries/analysis/findByStudyId.sql")

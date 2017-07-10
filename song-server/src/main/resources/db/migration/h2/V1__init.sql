@@ -70,7 +70,7 @@ CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references St
 
 CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, state ANALYSIS_STATE,
     study_id VARCHAR(36) references Study, info TEXT);
-CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File);
+CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File ON DELETE CASCADE);
 CREATE TABLE SampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);
 CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN,
     insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT, info TEXT);
