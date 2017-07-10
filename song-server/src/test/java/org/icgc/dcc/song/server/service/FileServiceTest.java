@@ -32,6 +32,8 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -73,10 +75,9 @@ public class FileServiceTest {
     f.setFileType("FAI");
     f.setFileMd5sum("md5abcdefg");
 
-    val status = fileService.create(studyId, f);
+    val status = fileService.create("Analysis123",  studyId, f);
     val id = f.getObjectId();
 
-    assertThat(id).startsWith("FI");
     assertThat(status).isEqualTo(id);
 
     File check = fileService.read(id);
@@ -101,7 +102,7 @@ public class FileServiceTest {
 
     val s = File.create(id, name, sampleId, size, type, md5, metadata);
 
-    fileService.create(study, s);
+    fileService.create("Analysis123", study, s);
     val id2 = s.getObjectId();
 
     val s2 = File.create(id2, "File 102.fai", study, 123456789L, "FAI", "md5magical", "");

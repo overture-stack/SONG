@@ -45,6 +45,9 @@ public class ValidationService {
   @Autowired
   private SchemaValidator validator;
 
+  @Autowired(required = false)
+  private Long validationDelayMs = -1L;
+
   protected static final ObjectMapper mapper = new ObjectMapper().registerModule(new ParameterNamesModule())
       .registerModule(new Jdk8Module())
       .registerModule(new JavaTimeModule());
@@ -57,7 +60,11 @@ public class ValidationService {
   }
 
   @Async
-  public void validate(@NonNull String uploadId, @NonNull String payload, String analysisType) {
+  public void asyncValidate(@NonNull String uploadId, @NonNull String payload, String analysisType) {
+    syncValidate(uploadId, payload, analysisType);
+  }
+
+  public void syncValidate(@NonNull String uploadId, @NonNull String payload, String analysisType) {
     log.info("Validating payload for upload Id=" + uploadId + "payload=" + payload);
     log.info(format("Analysis type='%s'",analysisType));
     try {
@@ -82,7 +89,9 @@ public class ValidationService {
       log.error(e.getMessage());
       updateAsInvalid(uploadId, format("Unknown processing problem: %s", e.getMessage()));
     }
+
   }
+
 
   private void updateAsValid(@NonNull String uploadId) {
     uploadRepository.update(uploadId, Upload.VALIDATED, "");

@@ -29,6 +29,14 @@ public class Debug {
         .skip(2);
   }
 
+  public static void sleepMs(long timeMs){
+    try {
+      Thread.sleep(timeMs);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
   public static String generateHeader(String title, int lengthOfHeader, String symbol){
     int t = title.length();
     int n = Math.max(t+2, lengthOfHeader);

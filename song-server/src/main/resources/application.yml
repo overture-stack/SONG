@@ -29,8 +29,9 @@ management:
   port: 8081
 
 id:
-  server-instance: 0
-  worker-instance: 0
+  idUrl: "http://localhost:9090"
+  authToken: "idToken"
+  realIds: false
 
 validation:
   threads:
@@ -41,6 +42,8 @@ validation:
 
 flyway:
   baselineOnMigrate: true
+
+validation.delayMs: 3000
 
 auth:
   # Connection retries in case of connection failure

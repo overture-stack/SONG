@@ -19,10 +19,10 @@
 package org.icgc.dcc.song.server.service;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
-
 import org.icgc.dcc.song.server.model.Upload;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,31 +33,83 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import java.nio.file.*;
+import java.nio.file.Files;
 
-import static org.springframework.http.HttpStatus.*;
+import static java.lang.System.out;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.OK;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @FlywayTest
-@ActiveProfiles({"dev", "secure"})
+@ActiveProfiles({"dev", "secure", "test"})
 public class UploadServiceTest {
 
   @Autowired
   UploadService uploadService;
 
   @Test
-  @SneakyThrows
-  public void testSequencingRead() {
-    test("sequencingRead.json");
+  public void testAsyncSequencingRead(){
+    testSequencingRead(true);
   }
 
   @Test
+  public void testSyncSequencingRead(){
+    testSequencingRead(false);
+  }
+
+  @Test
+  public void testAsyncVariantCall(){
+    testVariantCall(true);
+  }
+
+  @Test
+  public void testSyncVariantCall(){
+    testVariantCall(false);
+  }
+
+  @Test
+  public void testSyncUploadNoCreated(){
+    val fileName = "sequencingRead.json";
+    val study="ABC123";
+    val json = readFile(fileName);
+    val uploadStatus = uploadService.upload(study, json, false );
+    val uploadId = uploadStatus.getBody().toString();
+    val upload = uploadService.read(uploadId);
+    assertThat(upload.getState()).isNotEqualTo("CREATED"); //Since validation done synchronously, validation cannot ever return with the CREATED state
+  }
+
+  @Test
+  public void testSyncUpload(){
+    val fileName = "sequencingRead.json";
+    val study="ABC123";
+    val json = readFile(fileName);
+    val uploadStatus = uploadService.upload(study, json, false );
+    val uploadId = uploadStatus.getBody().toString();
+    val upload = uploadService.read(uploadId);
+    assertThat(upload.getState()).isEqualTo("VALIDATED");
+  }
+
+  @Test
+  public void testASyncUpload(){
+    val fileName = "sequencingRead.json";
+    val study="ABC123";
+    val json = readFile(fileName);
+    val uploadStatus = uploadService.upload(study, json, true );
+    val uploadId = uploadStatus.getBody().toString();
+    val upload = uploadService.read(uploadId);
+    assertThat(upload.getState()).isEqualTo("CREATED");
+  }
+
   @SneakyThrows
-  public void testVariantCall() {
-    test("variantCall.json");
+  private void testSequencingRead(final boolean isAsyncValidation) {
+    test("sequencingRead.json", isAsyncValidation);
+  }
+
+  @SneakyThrows
+  private void testVariantCall(final boolean isAsyncValidation) {
+    test("variantCall.json", isAsyncValidation);
   }
 
   @SneakyThrows
@@ -65,12 +117,12 @@ public class UploadServiceTest {
     return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
   }
 
-  public String read(String uploadId) {
+  private String read(String uploadId) {
     Upload status = uploadService.read(uploadId);
     return status.getState();
   }
 
-  public String validate(String uploadId) throws InterruptedException {
+  private String validate(String uploadId) throws InterruptedException {
     String state=read(uploadId);
     // wait for the server to finish
     while(state.equals("CREATED")) {
@@ -81,19 +133,23 @@ public class UploadServiceTest {
   }
 
   @SneakyThrows
-  public void test(String fileName) {
+  private void test(String fileName, boolean isAsyncValidation) {
     val study="ABC123";
     val json = readFile(fileName);
 
     // test upload
-    val uploadStatus=uploadService.upload(study, json);
+    val uploadStatus=uploadService.upload(study, json, isAsyncValidation);
     assertThat(uploadStatus.getStatusCode()).isEqualTo(OK);
     val uploadId=uploadStatus.getBody().toString();
     assertThat(uploadId.startsWith("UP")).isTrue();
 
-    // test create
     val initialState = read(uploadId);
-    assertThat(initialState).isEqualTo("CREATED");
+    if (isAsyncValidation){
+      // test create for Asynchronous case
+      assertThat(initialState).isEqualTo("CREATED");
+    } else {
+      assertThat(initialState).isEqualTo("VALIDATED"); //Synchronous should always return VALIDATED
+    }
 
     // test validation
     val finalState = validate(uploadId);
@@ -102,8 +158,6 @@ public class UploadServiceTest {
     // test save
    val response = uploadService.save(study,uploadId);
    assertThat(response.getStatusCode()).isEqualTo(OK);
-   val analysisId = response.getBody().toString();
-   assertThat(analysisId.startsWith("AN")).isTrue();
   }
 
 }

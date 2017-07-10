@@ -20,6 +20,7 @@
 package org.icgc.dcc.song.server.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ import javax.validation.Valid;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "/upload")
 @RequiredArgsConstructor
@@ -51,10 +53,18 @@ public class UploadController {
 
   @PostMapping(value = "/{studyId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> upload(
+  public ResponseEntity<String> syncUpload(
       @PathVariable("studyId") String studyId,
-      @RequestBody @Valid String payload) {
-    return uploadService.upload(studyId, payload);
+      @RequestBody @Valid String payload ) {
+    return uploadService.upload(studyId, payload, false);
+  }
+
+  @PostMapping(value = "/{studyId}/async", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public ResponseEntity<String> asyncUpload(
+      @PathVariable("studyId") String studyId,
+      @RequestBody @Valid String payload ) {
+    return uploadService.upload(studyId, payload, true);
   }
 
   @GetMapping(value = "/{studyId}/status/{uploadId}")

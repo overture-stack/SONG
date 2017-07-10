@@ -68,7 +68,7 @@ public interface AnalysisRepository {
       + "  AND f.id = s.file_id")
   List<File> readFiles(@Bind("analysisId") String id);
 
-  @SqlUpdate("DELETE FROM FileSet WHERE analysis_id=:id")
+  @SqlUpdate("DELETE FROM file f WHERE f.id IN (SELECT fs.file_id FROM fileset fs WHERE fs.analysis_id=:id)")
   void deleteFiles(@Bind("id") String analysisId);
 
   @SqlUpdate("DELETE FROM SampleSet WHERE analysis_id=:id")
@@ -99,12 +99,7 @@ public interface AnalysisRepository {
           "matched_normal_sample_submitter_id=:matchedNormalSampleSubmitterId, info=:info WHERE id=:analysisId")
   void updateVariantCall(@BindBean VariantCall variantCall);
 
-  @SqlQuery("SELECT DISTINCT A.id FROM SampleSet S, Sample M, Analysis A " +
-          "WHERE " +
-          "  S.analysis_id = A.id AND" +
-          "  A.study_id=:study AND" +
-          "  A.type=:type AND" +
-          "  S.sample_id=M.id AND" +
-          "  M.submitter_id=:submitter")
-  List<String> find(@Bind("study") String study, @Bind("type") String type, @Bind("submitter") String submitter);
+  @RegisterMapper(AnalysisMapper.class)
+  @SqlQuery("queries/analysis/findByStudyId.sql")
+  List<Analysis> find(@Bind("studyId") String studyId);
 }

@@ -53,10 +53,8 @@ public class UploadService {
   private final IdService id;
   @Autowired
   private final ValidationService validator;
-
   @Autowired
   private final AnalysisService analysisService;
-
   @Autowired
   private final UploadRepository uploadRepository;
 
@@ -69,7 +67,7 @@ public class UploadService {
   }
 
   @SneakyThrows
-  public ResponseEntity<String> upload(String studyId, String payload) {
+  public ResponseEntity<String> upload(@NonNull String studyId, @NonNull String payload, boolean isAsyncValidation) {
     val uploadId = id.generate(IdPrefix.Upload);
     String analysisType;
     try {
@@ -88,7 +86,11 @@ public class UploadService {
           "Unable parse the input payload: %s ",payload);
     }
 
-    validator.validate(uploadId, payload, analysisType); // Async operation.
+    if (isAsyncValidation){
+      validator.asyncValidate(uploadId, payload, analysisType); // Asynchronous operation.
+    } else {
+      validator.syncValidate(uploadId, payload, analysisType); // Synchronous operation
+    }
     return ok(uploadId);
   }
 

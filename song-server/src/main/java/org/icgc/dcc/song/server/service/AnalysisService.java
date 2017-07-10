@@ -20,29 +20,21 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
-import org.icgc.dcc.song.server.model.enums.IdPrefix;
-import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.NOT_IMPLEMENTED_YET;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.SongError.error;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
@@ -58,8 +50,6 @@ public class AnalysisService {
   private final IdService idService;
   @Autowired
   private final CompositeEntityService compositeEntityService;
-  @Autowired
-  private final SampleService sampleService;
 
   @Autowired
   private final FileService fileService;
@@ -81,7 +71,7 @@ public class AnalysisService {
   }
 
   public String create(String studyId, Analysis a) {
-    val id = idService.generate(IdPrefix.Analysis);
+    val id = idService.generateAnalysisId();
     a.setAnalysisId(id);
     a.setStudy(studyId);
     repository.createAnalysis(a);
@@ -112,7 +102,7 @@ public class AnalysisService {
 
   void saveFiles(String id, String studyId, List<File> files) {
     files.stream()
-            .map(f->fileService.save(studyId, f))
+            .map(f->fileService.save(id, studyId, f))
             .forEach(fileId->addFile(id, fileId));
   }
 
@@ -121,9 +111,27 @@ public class AnalysisService {
   }
 
 
-  public List<String> getAnalyses(Map<String, String> params) {
-    // TODO: Implement this once we have a spec for searches
-    return null;
+  /**
+   * Gets all analysis for a given study.
+   * This method should be watched in case performance becomes a problem.
+   * @param studyId the study ID
+   * @return returns a List of analysis with the child entities.
+   */
+  public List<Analysis> getAnalysis(@NonNull String studyId) {
+    val analysisList = repository.find(studyId);
+    analysisList.forEach(a -> {
+          if (a != null) {
+            String id = a.getAnalysisId();
+            a.setFile(readFiles(id));
+            a.setSample(readSamples(id));
+            if (a instanceof SequencingReadAnalysis) {
+              ((SequencingReadAnalysis) a).setExperiment(repository.readSequencingRead(id));
+            } else if (a instanceof VariantCallAnalysis) {
+              ((VariantCallAnalysis) a).setExperiment(repository.readVariantCall(id));
+            }
+          }
+        });
+    return analysisList;
   }
 
   public Analysis read(String id) {

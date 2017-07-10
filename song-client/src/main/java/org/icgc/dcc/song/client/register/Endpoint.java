@@ -31,8 +31,12 @@ public class Endpoint {
     this.serverUrl = serverUrl;
   }
 
-  String upload(String studyId) {
-    return format("%s/upload/%s", serverUrl, studyId);
+  String upload(String studyId, boolean isAsyncValidation) {
+    if (isAsyncValidation){
+      return format("%s/upload/%s/async", serverUrl, studyId);
+    } else {
+      return format("%s/upload/%s", serverUrl, studyId);
+    }
   }
 
   public String saveById(String studyId, String uploadId) {
