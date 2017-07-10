@@ -175,8 +175,7 @@ public class AnalysisServiceTest {
   public void testUpdate() {
     val id = "AN1";
     val analysis = service.read(id);
-
-
+    // FIXME: implement this...
   }
 
   @Test
@@ -187,18 +186,6 @@ public class AnalysisServiceTest {
     val analysis = service.read(id);
     assertThat(analysis.getAnalysisState()).isEqualTo("SUPPRESSED");
   }
-
-
-  @Test
-  public void testAddFile() {
-    val id = "MU1";
-    val fileId = "FI3";
-
-    service.addFile(id, fileId);
-    // TODO: verify record was added to FileSet table
-    assertThat(true); // we didn't crash
-  }
-
 
   public String getJsonNodeFromClasspath(String name) throws Exception {
     InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);

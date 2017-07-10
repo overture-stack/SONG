@@ -26,10 +26,11 @@ import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_RECORD_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
-import static org.icgc.dcc.song.server.model.enums.IdPrefix.File;
 
 @Service
 @NoArgsConstructor
