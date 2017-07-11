@@ -3,18 +3,44 @@ package org.icgc.dcc.song.server.importer.persitance.filerestorer;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public interface FileRestorer<T, P> {
+public interface FileRestorer<T, I> {
 
-  @SuppressWarnings("unchecked") T restore(P p) throws IOException, ClassNotFoundException;
+  /**
+   * Restores the object T from the path or identifier I
+   * @param i identifier
+   * @return object
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
+  @SuppressWarnings("unchecked") T restore(I i) throws IOException, ClassNotFoundException;
 
-  void store(T t, P p) throws IOException;
+  /**
+   * Stores the object T to the path or identifier I
+   * @param t object
+   * @param i identifier
+   * @throws IOException
+   */
+  void store(T t, I i) throws IOException;
 
-//  void store(List<T> iterable, P p) throws IOException;
+  /**
+   * Cleans any objects linked to the identifier i
+   * @param i
+   * @throws IOException
+   */
+  void clean(I i) throws IOException;
 
-  void clean(P p) throws IOException;
+  /**
+   * Checks if the object linked to the identifier i is persisted
+   * @param i
+   * @return
+   */
+  boolean isPersisted(I i);
 
-  boolean isPersisted(P p);
-
-  Path getPersistedPath(P p);
+  /**
+   * get the persisted Path from the identifier i
+   * @param i
+   * @return
+   */
+  Path getPersistedPath(I i);
 
 }

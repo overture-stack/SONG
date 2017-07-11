@@ -15,6 +15,12 @@ public class PersistenceFactory<T,P> {
   private final FileRestorer<T, P> fileRestorer;
   private final Supplier<T> supplier;
 
+  /**
+   * Persists an object if it was stored previously, otherwise
+   * runs the Supplier method or function which generates the data
+   * @param p path or identifier
+   * @return the persisted object
+   */
   @SneakyThrows
   public T getObject(P p){
     val path = fileRestorer.getPersistedPath(p);
