@@ -1,10 +1,10 @@
-package org.icgc.dcc.song.server.importer.persitance;
+package org.icgc.dcc.song.server.importer.persistence;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.importer.persitance.filerestorer.FileRestorer;
+import org.icgc.dcc.song.server.importer.persistence.filerestorer.FileRestorer;
 
 import java.util.function.Supplier;
 

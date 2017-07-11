@@ -6,8 +6,8 @@ import org.icgc.dcc.common.core.util.stream.Streams;
 import org.icgc.dcc.song.server.importer.convert.Converters;
 import org.icgc.dcc.song.server.importer.download.PortalDownloadIterator;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
-import org.icgc.dcc.song.server.importer.persitance.PersistenceFactory;
-import org.icgc.dcc.song.server.importer.persitance.filerestorer.impl.ObjectFileRestorer;
+import org.icgc.dcc.song.server.importer.persistence.PersistenceFactory;
+import org.icgc.dcc.song.server.importer.persistence.filerestorer.impl.ObjectFileRestorer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,8 +20,8 @@ import static org.icgc.dcc.song.server.importer.Config.PERSISTED_DIR_PATH;
 import static org.icgc.dcc.song.server.importer.Config.PORTAL_API;
 import static org.icgc.dcc.song.server.importer.download.PortalDownloadIterator.createDefaultPortalDownloadIterator;
 import static org.icgc.dcc.song.server.importer.download.urlgenerator.impl.FilePortalUrlGenerator.createFilePortalUrlGenerator;
-import static org.icgc.dcc.song.server.importer.persitance.PersistenceFactory.createPersistenceFactory;
-import static org.icgc.dcc.song.server.importer.persitance.filerestorer.impl.ObjectFileRestorer.createObjectFileRestorer;
+import static org.icgc.dcc.song.server.importer.persistence.PersistenceFactory.createPersistenceFactory;
+import static org.icgc.dcc.song.server.importer.persistence.filerestorer.impl.ObjectFileRestorer.createObjectFileRestorer;
 
 public class Factory {
 

@@ -1,5 +1,5 @@
 
-package org.icgc.dcc.song.server.importer.persitance;
+package org.icgc.dcc.song.server.importer.persistence;
 
 import lombok.Cleanup;
 import lombok.NoArgsConstructor;

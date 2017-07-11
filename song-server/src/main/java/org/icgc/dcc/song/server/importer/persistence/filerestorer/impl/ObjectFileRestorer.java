@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.importer.persitance.filerestorer.impl;
+package org.icgc.dcc.song.server.importer.persistence.filerestorer.impl;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.importer.persitance.ObjectPersistance;
-import org.icgc.dcc.song.server.importer.persitance.filerestorer.FileRestorer;
+import org.icgc.dcc.song.server.importer.persistence.ObjectPersistance;
+import org.icgc.dcc.song.server.importer.persistence.filerestorer.FileRestorer;
 
 import java.io.IOException;
 import java.io.ObjectStreamClass;

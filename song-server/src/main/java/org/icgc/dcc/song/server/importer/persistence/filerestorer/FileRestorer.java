@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.importer.persitance.filerestorer;
+package org.icgc.dcc.song.server.importer.persistence.filerestorer;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -1,9 +1,9 @@
-package org.icgc.dcc.song.server.importer.persitance.filerestorer.impl;
+package org.icgc.dcc.song.server.importer.persistence.filerestorer.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.RequiredArgsConstructor;
-import org.icgc.dcc.song.server.importer.persitance.filerestorer.FileRestorer;
+import org.icgc.dcc.song.server.importer.persistence.filerestorer.FileRestorer;
 
 import java.io.IOException;
 import java.nio.file.Files;
