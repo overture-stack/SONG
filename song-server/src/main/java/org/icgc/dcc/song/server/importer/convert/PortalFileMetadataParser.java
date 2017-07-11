@@ -24,6 +24,8 @@ import lombok.NonNull;
 import lombok.val;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
@@ -96,28 +98,29 @@ public final class PortalFileMetadataParser {
     return getFirstFileCopy(file).path(FieldNames.REPO_DATA_BUNDLE_ID).textValue();
   }
 
-  public static String getIndexFileId(@NonNull ObjectNode file){
-    return getIndexFile(file).path(FieldNames.ID).textValue();
+  public static Optional<String> getIndexFileId(@NonNull ObjectNode file){
+    return getIndexFile(file, x -> x.path(FieldNames.ID).textValue());
   }
 
-  public static String getIndexFileObjectId(@NonNull ObjectNode file){
-    return getIndexFile(file).path(FieldNames.OBJECT_ID).textValue();
+
+  public static Optional<String> getIndexFileObjectId(@NonNull ObjectNode file){
+    return getIndexFile(file, x -> x.path(FieldNames.OBJECT_ID).textValue());
   }
 
-  public static String getIndexFileFileName(@NonNull ObjectNode file){
-    return getIndexFile(file).path(FieldNames.FILE_NAME).textValue();
+  public static Optional<String> getIndexFileFileName(@NonNull ObjectNode file){
+    return getIndexFile(file, x -> x.path(FieldNames.FILE_NAME).textValue());
   }
 
-  public static String getIndexFileFileFormat(@NonNull ObjectNode file){
-    return getIndexFile(file).path(FieldNames.FILE_FORMAT).textValue();
+  public static Optional<String> getIndexFileFileFormat(@NonNull ObjectNode file){
+    return getIndexFile(file, x -> x.path(FieldNames.FILE_FORMAT).textValue());
   }
 
-  public static String getIndexFileFileMd5sum(@NonNull ObjectNode file){
-    return getIndexFile(file).path(FieldNames.FILE_MD5SUM).textValue();
+  public static Optional<String> getIndexFileFileMd5sum(@NonNull ObjectNode file){
+    return getIndexFile(file, x -> x.path(FieldNames.FILE_MD5SUM).textValue());
   }
 
-  public static long getIndexFileFileSize(@NonNull ObjectNode file){
-    return getIndexFile(file).path(FieldNames.FILE_MD5SUM).asLong(-1);
+  public static Optional<Long> getIndexFileFileSize(@NonNull ObjectNode file){
+    return getIndexFile(file, x -> x.path(FieldNames.FILE_MD5SUM).asLong(-1));
   }
 
   public static String getSoftware(@NonNull ObjectNode file){
@@ -151,8 +154,9 @@ public final class PortalFileMetadataParser {
     return file.path(FieldNames.DONORS);
   }
 
-  private static JsonNode getIndexFile(@NonNull ObjectNode file){
-    return getFirstFileCopy(file).path(FieldNames.INDEX_FILE);
+  private static <T> Optional<T> getIndexFile(@NonNull ObjectNode file, Function<JsonNode, T> extractFunction){
+    val opt = Optional.ofNullable(getFirstFileCopy(file).path(FieldNames.INDEX_FILE));
+    return opt.map(extractFunction);
   }
 
   private static JsonNode getAnalysisMethod(@NonNull ObjectNode file){

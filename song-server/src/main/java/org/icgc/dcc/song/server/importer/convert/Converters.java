@@ -2,7 +2,10 @@ package org.icgc.dcc.song.server.importer.convert;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
+import lombok.Lombok;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalSampleMetadata;
@@ -40,7 +43,6 @@ import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParse
 import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getSpecimenType;
 import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getSubmitterDonorId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getAccess;
-import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getRepoDataBundleId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getDataType;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getDonorId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getExperimentalStrategy;
@@ -59,21 +61,25 @@ import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getIndexFileObjectId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getObjectId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getProjectCode;
+import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getRepoDataBundleId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getSampleIds;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getSoftware;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
 
+@Slf4j
 public class Converters {
   private static final String NA = "";
   private static final String ALIGNED_READS = "Aligned Reads";
   private static final long NULL_INSERT_SIZE = -1;
   private static final boolean IS_PAIRED = true;
+  private static final String DONOR_GENDER_DEFAULT = "unspecified";
+  private static final String EMPTY_STRING = "";
 
   public static Donor convertToDonor(PortalDonorMetadata portalDonorMetadata){
     return Donor.create(portalDonorMetadata.getId(),
-        portalDonorMetadata.getSubmitterDonorId(),
+        portalDonorMetadata.getSubmitterDonorId().orElse(EMPTY_STRING),
         portalDonorMetadata.getProjectId(),
-        portalDonorMetadata.getGender(),
+        portalDonorMetadata.getGender().orElse(DONOR_GENDER_DEFAULT),
         NA);
   }
 
@@ -178,6 +184,8 @@ public class Converters {
   }
 
   public static PortalFileMetadata convertToPortalFileMetadata(ObjectNode o){
+    try {
+
     return PortalFileMetadata.builder()
         .access              (getAccess(o))
         .repoDataBundleId    (getRepoDataBundleId(o))
@@ -191,20 +199,26 @@ public class Converters {
         .fileName            (getFileName(o))
         .fileSize            (getFileSize(o))
         .genomeBuild         (getGenomeBuild(o))
-        .indexFileFileFormat (getIndexFileFileFormat(o))
-        .indexFileFileMd5sum (getIndexFileFileMd5sum(o))
-        .indexFileFileName   (getIndexFileFileName(o))
-        .indexFileFileSize   (getIndexFileFileSize(o))
-        .indexFileId         (getIndexFileId(o))
-        .indexFileObjectId   (getIndexFileObjectId(o))
+        .indexFileFileFormat (getIndexFileFileFormat(o).orElse(null))
+        .indexFileFileMd5sum (getIndexFileFileMd5sum(o).orElse(null))
+        .indexFileFileName   (getIndexFileFileName(o).orElse(null))
+        .indexFileFileSize   (getIndexFileFileSize(o).orElse(null))
+        .indexFileId         (getIndexFileId(o).orElse(null))
+        .indexFileObjectId   (getIndexFileObjectId(o).orElse(null))
         .objectId            (getObjectId(o))
         .projectCode         (getProjectCode(o))
         .sampleIds           (getSampleIds(o))
         .software            (getSoftware(o))
         .build();
+    } catch (Throwable t){
+      log.error("OBJECT_DATA:\n{}",JsonUtils.toPrettyJson(o));
+      throw Lombok.sneakyThrow(t);
+    }
   }
 
   public static PortalDonorMetadata convertToPortalDonorMetadata(ObjectNode donor){
+    try{
+
     val donorBuilder = PortalDonorMetadata.builder()
         .gender(getGender(donor))
         .id(getId(donor))
@@ -232,6 +246,10 @@ public class Converters {
       donorBuilder.specimen(specimenBuilder.build());
     }
     return donorBuilder.build();
+    } catch(Throwable t){
+      log.info("OBJECT_DATA_DUMP:\n{}", JsonUtils.toPrettyJson(donor));
+      throw Lombok.sneakyThrow(t);
+    }
   }
 
 }

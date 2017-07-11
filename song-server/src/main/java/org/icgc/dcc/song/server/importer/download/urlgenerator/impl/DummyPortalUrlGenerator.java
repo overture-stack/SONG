@@ -4,15 +4,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.icgc.dcc.common.core.json.JsonNodeBuilders;
 import org.icgc.dcc.song.server.importer.download.urlgenerator.UrlGenerator;
 
 import java.net.URL;
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.icgc.dcc.common.core.json.JsonNodeBuilders.array;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.icgc.dcc.song.server.importer.download.urlgenerator.UrlGenerator.createIs;
 
 @RequiredArgsConstructor
 public class DummyPortalUrlGenerator implements UrlGenerator {
@@ -36,9 +35,6 @@ public class DummyPortalUrlGenerator implements UrlGenerator {
   }
 
 
-  private static String getFiltersParam(){
-    return "filters="+encodeFilter();
-  }
 
   private static String getSizeParam(int size){
     return "size="+size;
@@ -51,15 +47,9 @@ public class DummyPortalUrlGenerator implements UrlGenerator {
     return new DummyPortalUrlGenerator(serverUrl);
   }
 
-  public static ObjectNode createIs(String ... values){
-    return JsonNodeBuilders.object()
-        .with("is",
-            array()
-                .with(values)
-                .end())
-        .end();
+  private static String getFiltersParam(){
+    return "filters="+encodeFilter();
   }
-
   @SneakyThrows
   private static String encodeFilter(){
     return encode(createFilter().toString(), UTF_8.name());

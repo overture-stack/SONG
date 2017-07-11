@@ -5,12 +5,15 @@ import lombok.NonNull;
 import lombok.Singular;
 import lombok.Value;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
 @Value
 @Builder
-public class PortalSpecimenMetadata {
+public class PortalSpecimenMetadata implements Serializable{
+
+  public static final long serialVersionUID = 1499437056L;
 
   @NonNull private final String id;
   @NonNull private final String submittedId;

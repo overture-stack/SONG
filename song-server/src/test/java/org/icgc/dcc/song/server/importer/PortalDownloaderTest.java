@@ -1,42 +1,53 @@
 package org.icgc.dcc.song.server.importer;
 
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.importer.convert.Converters;
-import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
+import org.icgc.dcc.song.server.importer.download.PortalDownloadIterator;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 import static org.icgc.dcc.song.server.importer.Config.PORTAL_API;
-import static org.icgc.dcc.song.server.importer.download.PortalDownloadIterator.createDefaultPortalDownloadIterator;
-import static org.icgc.dcc.song.server.importer.download.urlgenerator.impl.DummyPortalUrlGenerator.createDummyPortalUrlGenerator;
+import static org.icgc.dcc.song.server.importer.download.urlgenerator.impl.TotalFilesPortalUrlGenerator.createTotalFilesPortalUrlGenerator;
 
 @Slf4j
 public class PortalDownloaderTest {
+  public static final Path PERSISTENCE_DIR_PATH = Paths.get("persistence");
+
 
   @Test
+  @SneakyThrows
   public void testFileDownload(){
-    val urlGenerator = createDummyPortalUrlGenerator(PORTAL_API);
-    int size = 0;
-    int count = 0;
-    for (val fileMetas : createDefaultPortalDownloadIterator(urlGenerator)){
-      size+=fileMetas.size();
-      log.info("Count: {}", ++count);
+    val totalFilesUrlGenerator= createTotalFilesPortalUrlGenerator(PORTAL_API);
+    val resp = PortalDownloadIterator.read(totalFilesUrlGenerator.getUrl(1,1));
+
+    val fileCount =  resp.path("fileCount").asInt();
+    val donorCount =  resp.path("donorCount").asInt();
+    val fileFactory = Factory.fileDataFactory();
+    val portalFileMetadatas = fileFactory.getObject("portalFileMetadatas.dat");
+    log.info("Size: {}", portalFileMetadatas.size());
+
+
+
+
+
+  }
+
+  @RequiredArgsConstructor
+  public static class Sleeper implements Runnable{
+
+    private final String name;
+    private final long msDelay;
+
+    @SneakyThrows
+    @Override public void run() {
+      log.info("Waiting {} ms for {}", msDelay, name);
+      Thread.sleep(msDelay);
+      log.info("Done waiting for {}", name);
     }
-    log.info("Size: {}", size);
-    val portalFileMetadatas = stream(createDefaultPortalDownloadIterator(urlGenerator).iterator())
-        .flatMap(Collection::stream)
-        .map(Converters::convertToPortalFileMetadata)
-        .collect(toImmutableList());
-    val map = portalFileMetadatas.stream()
-        .collect(Collectors.groupingBy(PortalFileMetadata::getRepoDataBundleId));
-    log.info("done");
-
-
 
   }
 

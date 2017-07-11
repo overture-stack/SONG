@@ -3,18 +3,21 @@ package org.icgc.dcc.song.server.importer.download.urlgenerator.impl;
 import com.google.common.base.Joiner;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.icgc.dcc.song.server.importer.download.urlgenerator.UrlGenerator;
 
 import java.net.URL;
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.icgc.dcc.song.server.importer.download.PortalFilterQuerys.COLLAB_FILTER;
 
+@Slf4j
 @RequiredArgsConstructor
-public class FilePortalUrlGenerator implements UrlGenerator {
+public class AllDonorPortalUrlGenerator implements UrlGenerator {
 
-  private static final String REPOSITORY_FILES_ENDPOINT = "/api/v1/repository/files";
+  private static final String REPOSITORY_DONORS_ENDPOINT = "/api/v1/donors";
+  private static final String FACETS_ONLY_PARAM = "facetsOnly=true" ;
   private static final String INCLUDE_PARAM = "include=facets";
   private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
 
@@ -23,17 +26,24 @@ public class FilePortalUrlGenerator implements UrlGenerator {
   @Override
   @SneakyThrows
   public URL getUrl(int size, int from) {
-    return new URL(
+    val url = new URL(
         AMPERSAND_JOINER.join(
-            serverUrl+ REPOSITORY_FILES_ENDPOINT +"?",
-            getFiltersParam(),
+            serverUrl+ REPOSITORY_DONORS_ENDPOINT +"?",
+            getFiltersParam(size, from),
             getFromParam(from),
             INCLUDE_PARAM,
             getSizeParam(size)));
+//    log.info("{}: {}",getClass().getSimpleName(),url.toString());
+    return url;
   }
 
-  public static FilePortalUrlGenerator createFilePortalUrlGenerator(String serverUrl){
-    return new FilePortalUrlGenerator(serverUrl);
+  private static String getFiltersParam(int size, int from){
+    return "filters="+encodeFilter(size,from);
+  }
+
+  @SneakyThrows
+  private static String encodeFilter(int size, int from){
+    return encode("{}", UTF_8.name());
   }
 
   private static String getSizeParam(int size){
@@ -43,14 +53,8 @@ public class FilePortalUrlGenerator implements UrlGenerator {
     return "from="+from;
   }
 
-  private static String getFiltersParam(){
-    return "filters="+encodeFilter();
+  public static AllDonorPortalUrlGenerator createAllDonorPortalUrlGenerator(String serverUrl){
+    return new AllDonorPortalUrlGenerator(serverUrl);
   }
-
-  @SneakyThrows
-  private static String encodeFilter(){
-    return encode(COLLAB_FILTER.toString(), UTF_8.name());
-  }
-
 
 }

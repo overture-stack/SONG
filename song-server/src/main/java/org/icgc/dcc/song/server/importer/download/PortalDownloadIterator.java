@@ -35,6 +35,9 @@ public class PortalDownloadIterator implements Iterator<List<ObjectNode>>, Itera
   private int from = 1;
   private boolean first = true;
   private int prevHitsSize = -1;
+  private int iterationCount = 0;
+  private int totalHitCount = 0;
+
 
   public List<ObjectNode> getFileMetas(){
     return stream((Iterator<List<ObjectNode>>)this)
@@ -44,7 +47,7 @@ public class PortalDownloadIterator implements Iterator<List<ObjectNode>>, Itera
 
   @Override
   public Iterator<List<ObjectNode>> iterator() {
-    return this;
+    return createPortalDownloadIterator(urlGenerator, portalFetchSize);
   }
 
   @Override
@@ -69,16 +72,19 @@ public class PortalDownloadIterator implements Iterator<List<ObjectNode>>, Itera
     }
 
     prevHitsSize = hits.size();
+    totalHitCount += hits.size();
     from += portalFetchSize;
+    log.info("NextFrom: {}  Size: {}  Iteration {}: {} hits", from,prevHitsSize,++iterationCount, totalHitCount);
     return fileMetas.build();
   }
 
-  private static JsonNode getHits(JsonNode result) {
+
+  private synchronized static JsonNode getHits(JsonNode result) {
     return result.get(HITS);
   }
 
   @SneakyThrows
-  private static JsonNode read(URL url) {
+  public synchronized static JsonNode read(URL url) {
     return DEFAULT_MAPPER.readTree(url);
   }
 

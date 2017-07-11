@@ -17,8 +17,12 @@
  */
 package org.icgc.dcc.song.server.importer;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class Config {
 
   public static final String PORTAL_API = "https://dcc.icgc.org";
+  public static final Path PERSISTED_DIR_PATH = Paths.get("persisted");
 
 }
