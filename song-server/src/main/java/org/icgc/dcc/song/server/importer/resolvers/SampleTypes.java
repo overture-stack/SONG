@@ -32,7 +32,7 @@ public enum SampleTypes {
   @Getter private final String regex;
 
   public static SampleTypes resolve(PortalSampleMetadata portalSampleMetadata){
-    val libraryStrategy = portalSampleMetadata.getLibraryStrategy().trim();
+    val libraryStrategy = portalSampleMetadata.getLibraryStrategy().orElse("").trim();
     for (val sampleTypes : values()){
       val pattern = map.get(sampleTypes);
       val matcher = pattern.matcher(libraryStrategy);

@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.Value;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 @Value
 @Builder
@@ -15,7 +16,11 @@ public class PortalSampleMetadata implements Serializable{
   @NonNull private final String id;
   @NonNull private final String analyzedId;
   @NonNull private final String study;
-  @NonNull private final String libraryStrategy;
+  private final String libraryStrategy;
+
+  public Optional<String> getLibraryStrategy(){
+    return Optional.of(libraryStrategy);
+  }
 
 
 }

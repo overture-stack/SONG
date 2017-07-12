@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.server.importer.convert;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import lombok.Lombok;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
+import org.icgc.dcc.song.server.importer.model.PortalDonorMetadataOLD;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalSampleMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalSpecimenMetadata;
@@ -64,6 +66,7 @@ import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getRepoDataBundleId;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getSampleIds;
 import static org.icgc.dcc.song.server.importer.convert.PortalFileMetadataParser.getSoftware;
+import static org.icgc.dcc.song.server.importer.model.PortalDonorMetadata.createPortalDonorMetadata;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
 
 @Slf4j
@@ -75,7 +78,7 @@ public class Converters {
   private static final String DONOR_GENDER_DEFAULT = "unspecified";
   private static final String EMPTY_STRING = "";
 
-  public static Donor convertToDonor(PortalDonorMetadata portalDonorMetadata){
+  public static Donor convertToDonor(PortalDonorMetadataOLD portalDonorMetadata){
     return Donor.create(portalDonorMetadata.getId(),
         portalDonorMetadata.getSubmitterDonorId().orElse(EMPTY_STRING),
         portalDonorMetadata.getProjectId(),
@@ -83,7 +86,7 @@ public class Converters {
         NA);
   }
 
-  public static List<Specimen> convertToSpecimens(PortalDonorMetadata portalDonorMetadata){
+  public static List<Specimen> convertToSpecimens(PortalDonorMetadataOLD portalDonorMetadata){
     val donorId = portalDonorMetadata.getId();
     val specimens = ImmutableList.<Specimen>builder();
     for (val portalSpecimentMetadata : portalDonorMetadata.getSpecimens()){
@@ -107,7 +110,7 @@ public class Converters {
     return SampleTypes.resolve(portalSampleMetadata).getDisplayName();
   }
 
-  public static Stream<Sample> streamToSamples(PortalDonorMetadata portalDonorMetadata){
+  public static Stream<Sample> streamToSamples(PortalDonorMetadataOLD portalDonorMetadata){
     return portalDonorMetadata.getSpecimens().stream()
         .map(Converters::convertToSamples)
         .flatMap(Collection::stream);
@@ -179,7 +182,7 @@ public class Converters {
     throw new IllegalStateException("not implemented");
   }
 
-  public static Study convertToStudy(PortalDonorMetadata portalDonorMetadata){
+  public static Study convertToStudy(PortalDonorMetadataOLD portalDonorMetadata){
     throw new IllegalStateException("not implemented");
   }
 
@@ -216,10 +219,21 @@ public class Converters {
     }
   }
 
-  public static PortalDonorMetadata convertToPortalDonorMetadata(ObjectNode donor){
+  public static PortalDonorMetadata convertToPortalDonorMetadata(JsonNode donor){
+    try{
+      val projectName = getProjectName(donor);
+      val gender = getGender(donor);
+      return createPortalDonorMetadata(projectName,gender);
+    } catch(Throwable t){
+      log.info("OBJECT_DATA_DUMP:\n{}", JsonUtils.toPrettyJson(donor));
+      throw Lombok.sneakyThrow(t);
+    }
+  }
+
+  public static PortalDonorMetadataOLD convertToPortalDonorMetadataOLD(ObjectNode donor){
     try{
 
-    val donorBuilder = PortalDonorMetadata.builder()
+    val donorBuilder = PortalDonorMetadataOLD.builder()
         .gender(getGender(donor))
         .id(getId(donor))
         .projectId(getProjectId(donor))

@@ -2,7 +2,7 @@ package org.icgc.dcc.song.server.importer.processor;
 
 import lombok.NonNull;
 import lombok.val;
-import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
+import org.icgc.dcc.song.server.importer.model.PortalDonorMetadataOLD;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.icgc.dcc.song.server.repository.SampleRepository;
@@ -21,7 +21,7 @@ import static org.icgc.dcc.song.server.importer.convert.Converters.streamToSampl
 
 public class DonorProcessor implements Runnable {
 
-  @NonNull private final List<PortalDonorMetadata> donors;
+  @NonNull private final List<PortalDonorMetadataOLD> donors;
   @Autowired DonorRepository donorRepository;
   @Autowired SpecimenRepository specimenRepository;
   @Autowired SampleRepository sampleRepository;
@@ -32,7 +32,7 @@ public class DonorProcessor implements Runnable {
    */
   private Set<Study> studySet = newHashSet();
 
-  private DonorProcessor(List<PortalDonorMetadata> donors) {
+  private DonorProcessor(List<PortalDonorMetadataOLD> donors) {
     this.donors = donors;
   }
 
@@ -47,7 +47,7 @@ public class DonorProcessor implements Runnable {
     }
   }
 
-  private void updateStudy(PortalDonorMetadata donorMetadata){
+  private void updateStudy(PortalDonorMetadataOLD donorMetadata){
     val study = convertToStudy(donorMetadata);
     if (!studySet.contains(study)){
       studySet.add(study);
@@ -56,7 +56,7 @@ public class DonorProcessor implements Runnable {
     }
   }
 
-  public static DonorProcessor createDonorProcessor(List<PortalDonorMetadata> donors) {
+  public static DonorProcessor createDonorProcessor(List<PortalDonorMetadataOLD> donors) {
     return new DonorProcessor(donors);
   }
 

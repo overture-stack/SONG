@@ -36,11 +36,11 @@ public final class PortalDonorMetadataParser {
     return donor.path(FieldNames.PROJECT_ID).textValue();
   }
 
-  public static String getProjectName(@NonNull ObjectNode donor){
+  public static String getProjectName(@NonNull JsonNode donor){
     return donor.path(FieldNames.PROJECT_NAME).textValue();
   }
 
-  public static String getGender(@NonNull ObjectNode donor){
+  public static String getGender(@NonNull JsonNode donor){
     return donor.path(FieldNames.GENDER).textValue();
   }
 

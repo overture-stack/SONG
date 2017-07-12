@@ -5,22 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.common.core.util.stream.Streams;
 import org.icgc.dcc.song.server.importer.download.urlgenerator.UrlGenerator;
 
-import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+import static org.icgc.dcc.song.core.utils.JsonUtils.read;
 
 @Slf4j
 @RequiredArgsConstructor
-public class PortalDownloadIterator implements Iterator<List<ObjectNode>>, Iterable<List<ObjectNode>>{
+public class PortalDownloadIterator implements Iterator<List<ObjectNode>>{
 
   private static final int PORTAL_FETCH_CLAMP_SIZE = 100;
   private static final ObjectMapper DEFAULT_MAPPER = new ObjectMapper();
@@ -38,16 +37,9 @@ public class PortalDownloadIterator implements Iterator<List<ObjectNode>>, Itera
   private int iterationCount = 0;
   private int totalHitCount = 0;
 
-
-  public List<ObjectNode> getFileMetas(){
-    return stream((Iterator<List<ObjectNode>>)this)
-        .flatMap(Collection::stream)
-        .collect(toImmutableList());
-  }
-
-  @Override
-  public Iterator<List<ObjectNode>> iterator() {
-    return createPortalDownloadIterator(urlGenerator, portalFetchSize);
+  public Stream<ObjectNode> stream(){
+    return Streams.stream(this)
+        .flatMap(Collection::stream);
   }
 
   @Override
@@ -63,6 +55,7 @@ public class PortalDownloadIterator implements Iterator<List<ObjectNode>>, Itera
     first = false;
     val fileMetas = ImmutableList.<ObjectNode>builder();
     val url = urlGenerator.getUrl(portalFetchSize, from);
+    log.info("URL: {}", url.toString());
     val result = read(url);
     val hits = getHits(result);
 
@@ -81,11 +74,6 @@ public class PortalDownloadIterator implements Iterator<List<ObjectNode>>, Itera
 
   private synchronized static JsonNode getHits(JsonNode result) {
     return result.get(HITS);
-  }
-
-  @SneakyThrows
-  public synchronized static JsonNode read(URL url) {
-    return DEFAULT_MAPPER.readTree(url);
   }
 
   public static PortalDownloadIterator createPortalDownloadIterator(UrlGenerator urlGenerator, int portalFetchSize) {
