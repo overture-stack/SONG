@@ -12,7 +12,7 @@ import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
 import java.util.ArrayList;
 
 import static java.util.stream.Collectors.toSet;
-import static org.icgc.dcc.song.server.importer.convert.DonorConverter.getDonorId;
+import static org.icgc.dcc.song.server.importer.convert.FileConverter.getDonorId;
 import static org.icgc.dcc.song.server.importer.model.DataContainer.createDataContainer;
 
 @Slf4j
@@ -25,7 +25,7 @@ public class DataFetcher {
   @SneakyThrows
   public DataContainer fetchData() {
     val portalFileMetadataListCandidate = fileFetcher.fetchPortalFileMetadatas();
-    val portalDonorMetadatas = donorFetcher.fetchPortalDonorMetadataList(portalFileMetadataListCandidate);
+    val portalDonorMetadatas = donorFetcher.fetchPortalDonorMetadataSet(portalFileMetadataListCandidate);
     val goodDonorIdSet = portalDonorMetadatas
         .stream()
         .map(PortalDonorMetadata::getDonorId)

@@ -5,6 +5,7 @@ import lombok.Value;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -15,9 +16,9 @@ public class DataContainer implements Serializable {
   private final ArrayList<PortalFileMetadata> portalFileMetadataList;
 
   public static DataContainer createDataContainer(
-      List<PortalDonorMetadata> portalDonorMetadataList,
+      Set<PortalDonorMetadata> portalDonorMetadataSet,
       List<PortalFileMetadata> portalFileMetadataList) {
-    return new DataContainer(newArrayList(portalDonorMetadataList), newArrayList(portalFileMetadataList));
+    return new DataContainer(newArrayList(portalDonorMetadataSet), newArrayList(portalFileMetadataList));
   }
 
 }

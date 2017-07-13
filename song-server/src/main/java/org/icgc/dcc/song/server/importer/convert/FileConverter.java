@@ -34,6 +34,10 @@ public class FileConverter {
     );
   }
 
+  public static String getDonorId(PortalFileMetadata portalFileMetadata){
+    return portalFileMetadata.getDonorId();
+  }
+
   public static String getFileId(PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getObjectId();
   }

@@ -12,6 +12,8 @@ import java.util.Optional;
 public class PortalDonorMetadata implements Serializable{
 
   @NonNull private final String donorId;
+  @NonNull private final String projectId;
+  @NonNull private final String submittedDonorId;
   private final String projectName;
   private final String gender;
   @NonNull private final String normalSpecimenId; //Assume that every donor has one donor
@@ -26,14 +28,6 @@ public class PortalDonorMetadata implements Serializable{
 
   public Optional<String> getProjectName(){
     return Optional.of(projectName);
-  }
-
-  public static PortalDonorMetadata createPortalDonorMetadata(String donorId, String projectName, String gender,
-      String normalSpecimenId,
-      String normalSubmittedSpecimenId, String normalSpecimenType, String normalSampleId,
-      String normalAnalyzedId) {
-    return new PortalDonorMetadata(donorId,projectName, gender, normalSpecimenId, normalSubmittedSpecimenId, normalSpecimenType,
-        normalSampleId, normalAnalyzedId);
   }
 
 }

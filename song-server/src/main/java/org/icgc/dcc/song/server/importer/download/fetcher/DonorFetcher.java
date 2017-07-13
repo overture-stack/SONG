@@ -1,6 +1,5 @@
 package org.icgc.dcc.song.server.importer.download.fetcher;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -24,22 +23,22 @@ public class DonorFetcher {
   private final PortalDonorIdFetcher portalDonorIdFetcher;
 
 
-  public List<PortalDonorMetadata> fetchPortalDonorMetadataList(List<PortalFileMetadata> portalFileMetadataList){
+  public Set<PortalDonorMetadata> fetchPortalDonorMetadataSet(List<PortalFileMetadata> portalFileMetadataList){
     val donorIds = portalFileMetadataList.stream()
         .map(PortalFileMetadata::getDonorId)
         .collect(toSet());
-    val list = ImmutableList.<PortalDonorMetadata>builder();
+    val set = ImmutableSet.<PortalDonorMetadata>builder();
     int numErrorDonorIds = 0;
     for (val donorId : donorIds){
       try {
         val portalDonorMetadata = fetchPortalDonorMetadata(donorId);
-        list.add(portalDonorMetadata);
+        set.add(portalDonorMetadata);
       } catch(Throwable t){
         log.error("DONOR_FETCH_ERROR[{}]: donorId [{}] data is malformed. Error recorded",
             ++numErrorDonorIds, donorId );
       }
     }
-    return list.build();
+    return set.build();
   }
 
   public PortalDonorMetadata fetchPortalDonorMetadata(String donorId){
