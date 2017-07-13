@@ -13,14 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.groupingBy;
-import static org.icgc.dcc.song.server.importer.convert.Converters.convertToFile;
 import static org.icgc.dcc.song.server.importer.convert.Converters.convertToSequencingReadAnalysis;
 import static org.icgc.dcc.song.server.importer.convert.Converters.convertToUpload;
-import static org.icgc.dcc.song.server.importer.convert.Converters.convertToVariantCall;
+import static org.icgc.dcc.song.server.importer.convert.Converters.convertToVariantCallAnalysis;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.VCF;
 
@@ -65,21 +66,27 @@ public class FileProcessor implements Runnable {
     uploadRepository.create(upload);
   }
 
-  private void updateVariantCall(PortalFileMetadata portalFileMetadata){
+  private Optional<Analysis> updateVariantCall(PortalFileMetadata portalFileMetadata){
     val fileType = FileTypes.resolve(portalFileMetadata);
     if (fileType == VCF) {
-      val variantCall = convertToVariantCall(portalFileMetadata);
-      analysisRepository.createVariantCall(variantCall);
+      val variantCallAnalysis = convertToVariantCallAnalysis(portalFileMetadata);
+      analysisRepository.createVariantCall(variantCallAnalysis.getExperiment());
+      analysisRepository.createAnalysis(variantCallAnalysis);
+      return Optional.of(variantCallAnalysis);
     }
+    return Optional.empty();
+
   }
 
-  private void updateSequencingRead(PortalFileMetadata portalFileMetadata){
+  private Optional<Analysis> updateSequencingReadAnalysis(PortalFileMetadata portalFileMetadata){
     val fileType = FileTypes.resolve(portalFileMetadata);
     if (fileType == BAM){
       val sequencingReadAnalysis = convertToSequencingReadAnalysis(portalFileMetadata);
       analysisRepository.createSequencingRead(sequencingReadAnalysis.getExperiment());
       analysisRepository.createAnalysis(sequencingReadAnalysis);
+      return Optional.of(sequencingReadAnalysis);
     }
+    return Optional.empty();
   }
 
   private void updateSampleSetTable(PortalFileMetadata portalFileMetadata){
@@ -96,16 +103,18 @@ public class FileProcessor implements Runnable {
   }
 
   private Analysis updateAnalysis(PortalFileMetadata portalFileMetadata){
-//    val analysis = convertToAnalysis(portalFileMetadata);
-//    analysisRepository.createAnalysis(analysis);
-//    return analysis;
-    return null; //TODO: rtismaHACK
+    val optSeq = updateSequencingReadAnalysis(portalFileMetadata);
+    val optVar = updateVariantCall(portalFileMetadata);
+    val presenceMutuallyExcl = optSeq.isPresent() == !optVar.isPresent();
+    checkState(presenceMutuallyExcl, "Cannot have a SequencingRead and VariantRead preset at the same time");
+    return optSeq.orElseGet(optVar::get);
   }
 
   private File updateFile(PortalFileMetadata portalFileMetadata){
-    val file = convertToFile(portalFileMetadata);
-    fileRepository.create(file);
-    return file;
+//    val file = convertToFile(portalFileMetadata);
+//    fileRepository.create(file);
+//    return file;
+    return null;
   }
 
   public static FileProcessor createFileProcessor(List<PortalFileMetadata> portalFileMetadatas){

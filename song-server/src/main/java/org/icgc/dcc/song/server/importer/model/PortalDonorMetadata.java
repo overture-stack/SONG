@@ -1,14 +1,24 @@
 package org.icgc.dcc.song.server.importer.model;
 
+import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 @Value
-public class PortalDonorMetadata {
+@Builder
+public class PortalDonorMetadata implements Serializable{
 
+  @NonNull private final String donorId;
   private final String projectName;
   private final String gender;
+  @NonNull private final String normalSpecimenId; //Assume that every donor has one donor
+  @NonNull private final String normalSubmittedSpecimenId;
+  @NonNull private final String normalSpecimenType;
+  @NonNull private final String normalSampleId; //Assume theres only one sample
+  @NonNull private final String normalAnalyzedId; //Assume theres only one sample
 
   public Optional<String> getGender() {
     return Optional.of(gender);
@@ -18,8 +28,12 @@ public class PortalDonorMetadata {
     return Optional.of(projectName);
   }
 
-  public static PortalDonorMetadata createPortalDonorMetadata(String projectName, String gender) {
-    return new PortalDonorMetadata(projectName, gender);
+  public static PortalDonorMetadata createPortalDonorMetadata(String donorId, String projectName, String gender,
+      String normalSpecimenId,
+      String normalSubmittedSpecimenId, String normalSpecimenType, String normalSampleId,
+      String normalAnalyzedId) {
+    return new PortalDonorMetadata(donorId,projectName, gender, normalSpecimenId, normalSubmittedSpecimenId, normalSpecimenType,
+        normalSampleId, normalAnalyzedId);
   }
 
 }

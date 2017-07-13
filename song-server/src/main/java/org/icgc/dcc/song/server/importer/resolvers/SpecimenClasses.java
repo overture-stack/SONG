@@ -33,18 +33,21 @@ public enum SpecimenClasses {
   @Getter private final String displayName;
   @Getter private final String regex;
 
-  public static SpecimenClasses resolve(PortalSpecimenMetadata portalSpecimenMetadata){
-    val type = portalSpecimenMetadata.getType().trim();
+  public static SpecimenClasses resolve(PortalSpecimenMetadata portalSpecimenMetadata) {
+    return resolve(portalSpecimenMetadata.getType());
+  }
+
+  public static SpecimenClasses resolve(String specimenType){
     for (val specimenClass : values()){
       val pattern = map.get(specimenClass);
-      val matcher = pattern.matcher(type);
+      val matcher = pattern.matcher(specimenType);
       if (matcher.matches()){
         return specimenClass;
       }
     }
     throw new IllegalStateException(format(
         "The portalSpecimenMetadata.type [%s] does not match the case insensitive regex for any of the following: %s",
-        type,
+        specimenType,
         stream(values())
             .map(SpecimenClasses::getRegex)
             .collect(joining(","))));

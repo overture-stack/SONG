@@ -18,85 +18,37 @@
 package org.icgc.dcc.song.server.importer.convert;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import static lombok.AccessLevel.PRIVATE;
+import static org.icgc.dcc.song.server.importer.convert.FieldNames.GENDER;
 import static org.icgc.dcc.song.server.importer.convert.FieldNames.ID;
+import static org.icgc.dcc.song.server.importer.convert.FieldNames.PROJECT_NAME;
+import static org.icgc.dcc.song.server.importer.convert.FieldNames.SPECIMEN;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class PortalDonorMetadataParser {
 
-  public static String getId(@NonNull ObjectNode donor){
+  public static String getProjectName(@NonNull JsonNode donor){
+    return donor.path(PROJECT_NAME).textValue();
+  }
+
+  public static String getDonorId(@NonNull JsonNode donor){
     return donor.path(ID).textValue();
   }
 
-  public static String getProjectId(@NonNull ObjectNode donor){
-    return donor.path(FieldNames.PROJECT_ID).textValue();
-  }
-
-  public static String getProjectName(@NonNull JsonNode donor){
-    return donor.path(FieldNames.PROJECT_NAME).textValue();
-  }
-
   public static String getGender(@NonNull JsonNode donor){
-    return donor.path(FieldNames.GENDER).textValue();
+    return donor.path(GENDER).textValue();
   }
 
-  public static String getSubmitterDonorId(@NonNull ObjectNode donor){
-    return donor.path(FieldNames.SUBMITTED_DONOR_ID).textValue();
-  }
-
-  public static int getNumSpecimens(@NonNull ObjectNode donor){
-    return donor.path(FieldNames.SPECIMEN).size();
-  }
-
-  public static int getNumSamples(@NonNull ObjectNode donor, int specimenIdx){
-    return getSpecimen(donor, specimenIdx).path(FieldNames.SAMPLES).size();
-  }
-
-  public static String getSpecimenId(@NonNull ObjectNode donor, int specimenIdx){
-    return getSpecimen(donor, specimenIdx).path(ID).textValue();
-  }
-
-  public static String getSpecimenSubmittedId(@NonNull ObjectNode donor, int specimenIdx){
-    return getSpecimen(donor, specimenIdx).path(FieldNames.SUBMITTED_ID).textValue();
-  }
-
-  public static String getSpecimenType(@NonNull ObjectNode donor, int specimenIdx){
-    return getSpecimen(donor, specimenIdx).path(FieldNames.TYPE).textValue();
-  }
-
-  public static String getSampleId(@NonNull ObjectNode donor, int specimenIdx, int sampleIdx){
-    return getSample(donor, specimenIdx, sampleIdx).path(ID).textValue();
-  }
-
-  public static String getSampleAnalyzedId(@NonNull ObjectNode donor, int specimenIdx, int sampleIdx){
-    return getSample(donor, specimenIdx, sampleIdx).path(FieldNames.ANALYZED_ID).textValue();
-  }
-
-  public static String getSampleStudy(@NonNull ObjectNode donor, int specimenIdx, int sampleIdx){
-    return getSample(donor, specimenIdx, sampleIdx).path(FieldNames.STUDY).textValue();
-  }
-
-  public static String getSampleLibraryStrategy(@NonNull ObjectNode donor, int specimenIdx, int sampleIdx){
-    return getFirstSampleAvailableRawSequenceData(donor, specimenIdx, sampleIdx).path(FieldNames.LIBRARY_STRATEGY).textValue();
-  }
-  private static JsonNode getFirstSampleAvailableRawSequenceData(@NonNull ObjectNode donor, int specimenIdx, int
-      sampleIdx){
-    return getSample(donor, specimenIdx, sampleIdx).path(FieldNames.AVAILABLE_RAW_SEQUENCE_DATA);
+  public static int getNumSpecimens(@NonNull JsonNode donor){
+    return donor.path(SPECIMEN).size();
   }
 
 
-  private static JsonNode getSpecimen(@NonNull ObjectNode donor, int specimenIdx){
-    return donor.path(FieldNames.SPECIMEN).get(specimenIdx);
+  public static JsonNode getSpecimen(@NonNull JsonNode donor, int specimenIdx){
+    return donor.path(SPECIMEN).get(specimenIdx);
   }
-
-  private static JsonNode getSample(@NonNull ObjectNode donor, int specimenIdx, int sampleIdx){
-    return getSpecimen(donor, specimenIdx).path(FieldNames.SAMPLES).get(sampleIdx);
-  }
-
-
 
 }

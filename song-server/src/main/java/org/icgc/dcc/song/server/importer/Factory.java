@@ -2,10 +2,12 @@ package org.icgc.dcc.song.server.importer;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.val;
-import org.icgc.dcc.song.server.importer.convert.Converters;
 import org.icgc.dcc.song.server.importer.download.PortalDownloadIterator;
+import org.icgc.dcc.song.server.importer.download.fetcher.DataFetcher;
+import org.icgc.dcc.song.server.importer.download.fetcher.DonorFetcher;
+import org.icgc.dcc.song.server.importer.download.fetcher.FileFetcher;
+import org.icgc.dcc.song.server.importer.model.DataContainer;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
-import org.icgc.dcc.song.server.importer.persistence.PersistenceFactory;
 import org.icgc.dcc.song.server.importer.persistence.filerestorer.impl.ObjectFileRestorer;
 
 import java.util.ArrayList;
@@ -14,16 +16,18 @@ import java.util.function.Function;
 import static java.util.stream.Collectors.toList;
 import static org.icgc.dcc.song.server.importer.Config.PERSISTED_DIR_PATH;
 import static org.icgc.dcc.song.server.importer.Config.PORTAL_API;
+import static org.icgc.dcc.song.server.importer.download.PortalDonorIdFetcher.createPortalDonorIdFetcher;
 import static org.icgc.dcc.song.server.importer.download.PortalDownloadIterator.createDefaultPortalDownloadIterator;
+import static org.icgc.dcc.song.server.importer.download.fetcher.DataFetcher.createDataFetcher;
+import static org.icgc.dcc.song.server.importer.download.fetcher.DonorFetcher.createDonorFetcher;
+import static org.icgc.dcc.song.server.importer.download.fetcher.FileFetcher.createFileFetcher;
 import static org.icgc.dcc.song.server.importer.download.urlgenerator.impl.FilePortalUrlGenerator.createFilePortalUrlGenerator;
-import static org.icgc.dcc.song.server.importer.persistence.PersistenceFactory.createPersistenceFactory;
 import static org.icgc.dcc.song.server.importer.persistence.filerestorer.impl.ObjectFileRestorer.createObjectFileRestorer;
 
 public class Factory {
 
-  private static final Class<ArrayList<PortalFileMetadata>> CLAZZ = (Class)ArrayList.class;
-  private static final ObjectFileRestorer<ArrayList<PortalFileMetadata>> OBJECT_FILE_RESTORER =
-      createObjectFileRestorer (PERSISTED_DIR_PATH, CLAZZ);
+  public static final ObjectFileRestorer<DataContainer> DATA_CONTAINER_FILE_RESTORER =
+      createObjectFileRestorer (PERSISTED_DIR_PATH, DataContainer.class);
 
   private static PortalDownloadIterator buildFilePortalDownloader(){
     val urlGen = createFilePortalUrlGenerator(PORTAL_API);
@@ -33,7 +37,7 @@ public class Factory {
   private static ArrayList<PortalFileMetadata> downloadAndConvertPortalFiles(){
     val downloader = buildFilePortalDownloader();
     return (ArrayList<PortalFileMetadata>) downloader.stream()
-        .map(Converters::convertToPortalFileMetadata)
+        .map(FileFetcher::convertToPortalFileMetadata)
         .collect(toList());
   }
 
@@ -44,9 +48,22 @@ public class Factory {
         .collect(toList());
   }
 
-  public static PersistenceFactory<ArrayList<PortalFileMetadata>, String> fileDataFactory(){
-    return createPersistenceFactory(OBJECT_FILE_RESTORER, Factory::downloadAndConvertPortalFiles);
+
+  public static FileFetcher buildFileFetcher(){
+    val urlGenerator = createFilePortalUrlGenerator(PORTAL_API);
+    val portalDownloadIterator = createDefaultPortalDownloadIterator(urlGenerator);
+    return createFileFetcher(portalDownloadIterator);
   }
 
+  public static DonorFetcher buildDonorFetcher(){
+    val portalDonorIdFetcher = createPortalDonorIdFetcher(PORTAL_API);
+    return createDonorFetcher(portalDonorIdFetcher);
+  }
+
+  public static DataFetcher buildDataFetcher(){
+    val fileFetcher = buildFileFetcher();
+    val donorFetcher = buildDonorFetcher();
+    return createDataFetcher(fileFetcher,donorFetcher);
+  }
 
 }

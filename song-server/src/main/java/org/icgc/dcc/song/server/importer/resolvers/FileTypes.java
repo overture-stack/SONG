@@ -11,19 +11,23 @@ import static java.util.stream.Collectors.joining;
 
 @RequiredArgsConstructor
 public enum FileTypes {
-  FASTA("FASTA"),
-  FAI("FAI"),
-  FASTQ("FASTQ"),
+//  FASTA("FASTA"),
+//  FAI("FAI"),
+//  FASTQ("FASTQ"),
   BAM("BAM"),
-  BAI("BAI"),
-  VCF("VCF"),
-  TBI("TBI"),
-  IDX("IDX");
+//  BAI("BAI"),
+  VCF("VCF");
+//  TBI("TBI"),
+//  IDX("IDX");
 
   @Getter private final String fileTypeName;
 
   public static FileTypes resolve(PortalFileMetadata portalFileMetadata){
     val fileFormat = portalFileMetadata.getFileFormat();
+    return resolve(fileFormat);
+  }
+
+  public static FileTypes resolve(String fileFormat){
     for (val fileType : values()){
       if(fileType.getFileTypeName().equals(fileFormat)){
         return fileType;

@@ -35,6 +35,7 @@ public abstract class Analysis extends Metadata {
     List<File> file;
 
     abstract public String getAnalysisType();
+
     public void setAnalysisState(String state) {
         Constants.validate(Constants.ANALYSIS_STATE, state);
         this.analysisState=state;

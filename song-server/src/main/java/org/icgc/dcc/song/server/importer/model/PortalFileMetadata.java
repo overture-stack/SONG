@@ -12,8 +12,6 @@ import java.util.Optional;
 @Builder
 public class PortalFileMetadata implements Serializable {
 
-//  public static final long serialVersionUID = 1499437060L;
-
   @NonNull private final String access;
   @NonNull private final String repoDataBundleId;
   @NonNull private final String dataType;
@@ -35,6 +33,11 @@ public class PortalFileMetadata implements Serializable {
   @NonNull private final String objectId;
   @NonNull private final String projectCode;
   @NonNull private final List<String> sampleIds;
+  @NonNull private final List<String> specimenIds;
+  @NonNull private final List<String> specimenTypes;
+  @NonNull private final String submittedDonorId;
+  @NonNull private final List<String> submittedSampleIds;
+  @NonNull private final List<String> submittedSpecimenIds;
   @NonNull private final String software;
 
   public Optional<String> getIndexFileFileFormat(){

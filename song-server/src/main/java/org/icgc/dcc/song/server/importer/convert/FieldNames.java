@@ -12,6 +12,8 @@ public class FieldNames {
   public static final String DONOR_ID = "donorId";
   public static final String DONORS = "donors";
   public static final String SAMPLE_ID = "sampleId";
+  public static final String SPECIMEN_ID = "specimenId";
+  public static final String SPECIMEN_TYPE = "specimenType";
   public static final String ID = "id";
   public static final String DATA_TYPE = "dataType";
   public static final String DATA_CATEGORIZATION = "dataCategorization";
@@ -25,7 +27,6 @@ public class FieldNames {
   public static final String FILE_SIZE = "fileSize";
   public static final String FILE_FORMAT = "fileFormat";
   public static final String FILE_MD5SUM = "fileMd5sum";
-  public static final String SUBMITTED_SAMPLE_ID= "submittedSampleId";
   public static final String OTHER_IDENTIFIERS = "otherIdentifiers";
   public static final String TCGA_SAMPLE_BARCODE = "tcgaSampleBarcode";
   public static final String TCGA_ALIQUOT_BARCODE= "tcgaAliquotBarcode";
@@ -39,6 +40,8 @@ public class FieldNames {
   public static final String PROJECT_NAME = "projectName";
   public static final String GENDER = "gender";
   public static final String SUBMITTED_DONOR_ID = "submittedDonorId";
+  public static final String SUBMITTED_SAMPLE_ID = "submittedSampleId";
+  public static final String SUBMITTED_SPECIMEN_ID = "submittedSpecimenId";
   public static final String SPECIMEN = "specimen";
   public static final String SUBMITTED_ID = "submittedId";
   public static final String TYPE = "type";

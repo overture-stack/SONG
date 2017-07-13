@@ -3,6 +3,7 @@ package org.icgc.dcc.song.server.importer.resolvers;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalSampleMetadata;
 
 import java.util.Arrays;
@@ -28,11 +29,18 @@ public enum SampleTypes {
     }
   }
 
-  @Getter private final String displayName;
+  @Getter private final String sampleTypeName;
   @Getter private final String regex;
 
   public static SampleTypes resolve(PortalSampleMetadata portalSampleMetadata){
-    val libraryStrategy = portalSampleMetadata.getLibraryStrategy().orElse("").trim();
+    return resolve(portalSampleMetadata.getLibraryStrategy().orElse("").trim());
+  }
+
+  public static SampleTypes resolve(PortalFileMetadata portalFileMetadata){
+    return resolve(portalFileMetadata.getExperimentalStrategy());
+  }
+
+  public static SampleTypes resolve(String libraryStrategy){
     for (val sampleTypes : values()){
       val pattern = map.get(sampleTypes);
       val matcher = pattern.matcher(libraryStrategy);

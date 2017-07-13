@@ -14,10 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.icgc.dcc.song.server.importer.convert.Converters.convertToDonor;
-import static org.icgc.dcc.song.server.importer.convert.Converters.convertToSpecimens;
 import static org.icgc.dcc.song.server.importer.convert.Converters.convertToStudy;
-import static org.icgc.dcc.song.server.importer.convert.Converters.streamToSamples;
 
 public class DonorProcessor implements Runnable {
 
@@ -40,10 +37,10 @@ public class DonorProcessor implements Runnable {
   public void run() {
     for (val donorMetadata : donors){
       updateStudy(donorMetadata);
-      val donor = convertToDonor(donorMetadata);
-      donorRepository.create(donor);
-      convertToSpecimens(donorMetadata).forEach(specimenRepository::create);
-      streamToSamples(donorMetadata).forEach(sampleRepository::create);
+//      val donor = convertToDonor(donorMetadata);
+//      donorRepository.create(donor);
+//      convertToSpecimens(donorMetadata).forEach(specimenRepository::create);
+//      streamToSamples(donorMetadata).forEach(sampleRepository::create);
     }
   }
 

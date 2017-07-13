@@ -1,24 +1,26 @@
 package org.icgc.dcc.song.server.importer.dao;
 
 import lombok.RequiredArgsConstructor;
-import lombok.val;
-import org.icgc.dcc.song.server.importer.download.PortalDonorIdFetcher;
 import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
 
-import static org.icgc.dcc.song.server.importer.convert.Converters.convertToPortalDonorMetadata;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @RequiredArgsConstructor
-public class DonorDao {
+public class DonorDao  {
 
-  private final PortalDonorIdFetcher portalDonorIdFetcher;
+  private final Map<String,PortalDonorMetadata> portalDonorMetadataMap;
 
   public PortalDonorMetadata getPortalDonorMetadata(String donorId){
-    val donorMetadata = portalDonorIdFetcher.getDonorMetadata(donorId);
-    return convertToPortalDonorMetadata(donorMetadata);
+    checkArgument(portalDonorMetadataMap.containsKey(donorId),
+        "The donorId [%s] DNE", donorId);
+    return portalDonorMetadataMap.get(donorId);
   }
 
-  public static DonorDao createDonorDao(PortalDonorIdFetcher portalDonorIdFetcher) {
-    return new DonorDao(portalDonorIdFetcher);
+  public static DonorDao createDonorDao(
+      Map<String, PortalDonorMetadata> portalDonorMetadataMap) {
+    return new DonorDao(portalDonorMetadataMap);
   }
 
 }
