@@ -68,7 +68,7 @@ CREATE TABLE Sample(id VARCHAR(36) PRIMARY KEY, specimen_id VARCHAR(36) referenc
 CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, name TEXT, size BIGINT,
     md5 CHAR(32), type FILE_TYPE, info TEXT);
 
-CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, state ANALYSIS_STATE,
+CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, submitter_id TEXT, type ANALYSIS_TYPE, state ANALYSIS_STATE,
     study_id VARCHAR(36) references Study, info TEXT);
 CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File ON DELETE CASCADE);
 CREATE TABLE SampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);

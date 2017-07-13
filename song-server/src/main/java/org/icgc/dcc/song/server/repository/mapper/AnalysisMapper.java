@@ -37,16 +37,17 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
   @SneakyThrows
   public Analysis map(int index, ResultSet r, StatementContext ctx) throws SQLException {
     val id = r.getString(ID);
+    val submitter_id = r.getString(SUBMITTER_ID);
     val study = r.getString(STUDY_ID );
     val type = r.getString(TYPE);
     val state = r.getString(STATE);
     val info = r.getString(INFO);
 
     if (type.equals("sequencingRead")) {
-      return SequencingReadAnalysis.create(id, study, state, info);
+      return SequencingReadAnalysis.create(id, study, submitter_id, state, info);
     }
     if (type.equals("variantCall")) {
-      return VariantCallAnalysis.create(id, study, state, info);
+      return VariantCallAnalysis.create(id, study, submitter_id, state, info);
     }
 
     return null;

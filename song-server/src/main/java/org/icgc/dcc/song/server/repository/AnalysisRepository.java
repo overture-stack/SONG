@@ -37,8 +37,8 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(FileMapper.class)
 public interface AnalysisRepository {
 
-  @SqlUpdate("INSERT INTO Analysis (id, study_id, type, state, info) " +
-          "VALUES (:analysisId, :study, :analysisType, :analysisState, :info)")
+  @SqlUpdate("INSERT INTO Analysis (id, study_id, submitter_id, type, state, info) " +
+          "VALUES (:analysisId, :study, :analysisSubmitterId, :analysisType, :analysisState, :info)")
   void createAnalysis(@BindBean Analysis analysis );
 
   @SqlUpdate("Update Analysis set state=:state where id=:analysisId")
@@ -59,7 +59,7 @@ public interface AnalysisRepository {
   void createVariantCall(@BindBean VariantCall c);
 
   @RegisterMapper(AnalysisMapper.class)
-  @SqlQuery("SELECT id, study_id, type, state, info FROM Analysis WHERE id=:id")
+  @SqlQuery("SELECT id, study_id, submitter_id, type, state, info FROM Analysis WHERE id=:id")
   Analysis read(@Bind("id") String id);
 
   @SqlQuery("SELECT f.id, f.name, f.study_id, f.size, f.type, f.md5, f.info "
@@ -98,6 +98,9 @@ public interface AnalysisRepository {
   @SqlUpdate("UPDATE VariantCall SET variant_calling_tool=:variantCallingTool, " +
           "matched_normal_sample_submitter_id=:matchedNormalSampleSubmitterId, info=:info WHERE id=:analysisId")
   void updateVariantCall(@BindBean VariantCall variantCall);
+
+  @SqlQuery("SELECT id from Analysis where study_id=:studyId AND submitter_id=:key")
+  String findByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
 
   @RegisterMapper(AnalysisMapper.class)
   @SqlQuery("queries/analysis/findByStudyId.sql")
