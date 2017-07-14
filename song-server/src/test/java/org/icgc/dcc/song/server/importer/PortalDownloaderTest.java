@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.importer.convert.SpecimenSampleConverter;
+import org.icgc.dcc.song.server.importer.convert.SpecimenSampleConverter.SpecimenSampleTuple;
 import org.icgc.dcc.song.server.importer.dao.DonorDao;
 import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.server.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.junit.Test;
 
@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.icgc.dcc.song.server.importer.Config.PORTAL_API;
 import static org.icgc.dcc.song.server.importer.Factory.DATA_CONTAINER_FILE_RESTORER;
 import static org.icgc.dcc.song.server.importer.Factory.DONOR_CONVERTER;
 import static org.icgc.dcc.song.server.importer.Factory.FILE_CONVERTER;
@@ -32,7 +31,6 @@ import static org.icgc.dcc.song.server.importer.Factory.SPECIMEN_SAMPLE_CONVERTE
 import static org.icgc.dcc.song.server.importer.Factory.STUDY_CONVERTER;
 import static org.icgc.dcc.song.server.importer.Factory.buildDataFetcher;
 import static org.icgc.dcc.song.server.importer.convert.AnalysisConverter.createAnalysisConverter;
-import static org.icgc.dcc.song.server.importer.download.urlgenerator.impl.TotalFilesPortalUrlGenerator.createTotalFilesPortalUrlGenerator;
 import static org.icgc.dcc.song.server.importer.persistence.PersistenceFactory.createPersistenceFactory;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.VCF;
@@ -44,11 +42,11 @@ public class PortalDownloaderTest {
   @Test
   @SneakyThrows
   public void testFileDownload(){
-    val totalFilesUrlGenerator= createTotalFilesPortalUrlGenerator(PORTAL_API);
-    val resp = JsonUtils.read(totalFilesUrlGenerator.getUrl(1,1));
-
-    val fileCount =  resp.path("fileCount").asInt();
-    val donorCount =  resp.path("donorCount").asInt();
+//    val totalFilesUrlGenerator= createTotalFilesPortalUrlGenerator(PORTAL_API);
+//    val resp = JsonUtils.read(totalFilesUrlGenerator.getUrl(1,1));
+//
+//    val fileCount =  resp.path("fileCount").asInt();
+//    val donorCount =  resp.path("donorCount").asInt();
 
     log.info("Persisting or fetching data...");
     val dataFetcher = buildDataFetcher();
@@ -133,16 +131,28 @@ public class PortalDownloaderTest {
         .flatMap(Collection::stream)
         .collect(toSet())
         .size();
-    val actualSpecimens = specimenSampleTuples.size();
-//    assertThat(actualSpecimens).isEqualTo(expectedNumSpecimens);
-
-    // Assert SpecimenSample uniquness by specimen id
-    val expectedSpecimenTupes = specimenSampleTuples
-        .stream()
-        .map(SpecimenSampleConverter.SpecimenSampleTuple::getSpecimen)
+    val actualSpecimens = specimenSampleTuples.stream()
+        .map(SpecimenSampleTuple::getSpecimen)
         .map(Specimen::getSpecimenId)
         .collect(toSet())
         .size();
+    assertThat(actualSpecimens).isEqualTo(expectedNumSpecimens);
+
+    // Assert number of specimens
+    val expectedNumSamples= portalFileMetadataList.stream()
+        .map(PortalFileMetadata::getSampleIds)
+        .flatMap(Collection::stream)
+        .collect(toSet())
+        .size();
+    val actualSamples = specimenSampleTuples.stream()
+        .map(SpecimenSampleTuple::getSample)
+        .map(Sample::getSampleId)
+        .collect(toSet())
+        .size();
+    assertThat(actualSamples).isEqualTo(expectedNumSamples);
+
+
+
 
 
 
