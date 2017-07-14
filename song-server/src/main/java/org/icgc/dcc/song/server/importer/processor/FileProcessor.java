@@ -111,7 +111,7 @@ public class FileProcessor implements Runnable {
   }
 
   private File updateFile(PortalFileMetadata portalFileMetadata){
-//    val file = convertToFile(portalFileMetadata);
+//    val file = convertToSpecimenSampleTuple(portalFileMetadata);
 //    fileRepository.create(file);
 //    return file;
     return null;

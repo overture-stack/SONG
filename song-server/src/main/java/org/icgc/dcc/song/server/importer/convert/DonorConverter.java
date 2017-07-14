@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.server.importer.convert;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
@@ -16,13 +17,13 @@ public class DonorConverter {
 
   private static final String DONOR_GENDER_DEFAULT = "unspecified";
 
-  public Set<Donor> convertDonors(Set<PortalDonorMetadata> portalDonorMetadataSet){
+  public Set<Donor> convertDonors(@NonNull Set<PortalDonorMetadata> portalDonorMetadataSet){
     return portalDonorMetadataSet.stream()
         .map(DonorConverter::convertToDonor)
         .collect(toImmutableSet());
   }
 
-  public static Donor convertToDonor(PortalDonorMetadata portalDonorMetadata){
+  public static Donor convertToDonor(@NonNull PortalDonorMetadata portalDonorMetadata){
     return Donor.create(
         getDonorId(portalDonorMetadata),
         getDonorSubmitterId(portalDonorMetadata),
@@ -31,23 +32,24 @@ public class DonorConverter {
         NA);
   }
 
-  public static String getDonorId(PortalDonorMetadata portalDonorMetadata){
+  public static String getDonorId(@NonNull PortalDonorMetadata portalDonorMetadata){
     return portalDonorMetadata.getDonorId();
   }
 
-  public static String getDonorSubmitterId(PortalDonorMetadata portalDonorMetadata){
+  public static String getDonorSubmitterId(@NonNull PortalDonorMetadata portalDonorMetadata){
     return portalDonorMetadata.getSubmittedDonorId();
   }
 
-  public static String getGender(PortalDonorMetadata portalDonorMetadata){
+  public static String getGender(@NonNull PortalDonorMetadata portalDonorMetadata){
     return portalDonorMetadata.getGender().orElse(DONOR_GENDER_DEFAULT);
+  }
+
+  public static String getDonorId(@NonNull PortalFileMetadata portalFileMetadata){
+    return portalFileMetadata.getDonorId();
   }
 
   public static DonorConverter createDonorConverter() {
     return new DonorConverter();
   }
 
-  public static String getDonorId(PortalFileMetadata portalFileMetadata){
-    return portalFileMetadata.getDonorId();
-  }
 }

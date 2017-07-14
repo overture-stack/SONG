@@ -30,7 +30,7 @@ public enum SpecimenClasses {
     }
   }
 
-  @Getter private final String displayName;
+  @Getter private final String specimenClassName;
   @Getter private final String regex;
 
   public static SpecimenClasses resolve(PortalSpecimenMetadata portalSpecimenMetadata) {

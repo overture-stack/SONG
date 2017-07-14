@@ -2,7 +2,6 @@ package org.icgc.dcc.song.server.importer.convert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
-import lombok.Lombok;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
@@ -29,10 +28,11 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.icgc.dcc.song.server.importer.parser.NormalSpecimenParser.createNormalSpecimenParser;
+import static lombok.Lombok.sneakyThrow;
 import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getDonorId;
 import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getGender;
 import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getProjectName;
+import static org.icgc.dcc.song.server.importer.parser.NormalSpecimenParser.createNormalSpecimenParser;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.VCF;
 import static org.icgc.dcc.song.server.model.Upload.PUBLISHED;
@@ -207,7 +207,7 @@ public class Converters {
           .build();
     } catch(Throwable t){
       log.info("OBJECT_DATA_DUMP:\n{}", JsonUtils.toPrettyJson(donor));
-      throw Lombok.sneakyThrow(t);
+      throw sneakyThrow(t);
     }
   }
 

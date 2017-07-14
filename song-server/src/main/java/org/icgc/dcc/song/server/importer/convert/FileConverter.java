@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.server.importer.convert;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.server.importer.resolvers.FileTypes;
@@ -15,7 +16,7 @@ import static org.icgc.dcc.song.server.importer.convert.StudyConverter.getStudyI
 @RequiredArgsConstructor
 public class FileConverter {
 
-  public Set<File> convertFiles(List<PortalFileMetadata> portalFileMetadatas){
+  public Set<File> convertFiles(@NonNull List<PortalFileMetadata> portalFileMetadatas){
     return portalFileMetadatas.stream()
         .map(FileConverter::convertToFile)
         .collect(toImmutableSet());
@@ -33,23 +34,23 @@ public class FileConverter {
     );
   }
 
-  public static String getFileId(PortalFileMetadata portalFileMetadata){
+  public static String getFileId(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getObjectId();
   }
 
-  public static String getFileName(PortalFileMetadata portalFileMetadata){
+  public static String getFileName(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getFileName();
   }
 
-  public static long getFileSize(PortalFileMetadata portalFileMetadata){
+  public static long getFileSize(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getFileSize();
   }
 
-  public static String getFileType(PortalFileMetadata portalFileMetadata){
+  public static String getFileType(@NonNull PortalFileMetadata portalFileMetadata){
     return FileTypes.resolve(portalFileMetadata).getFileTypeName();
   }
 
-  public static String getFileMd5sum(PortalFileMetadata portalFileMetadata){
+  public static String getFileMd5sum(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getFileMd5sum();
   }
 

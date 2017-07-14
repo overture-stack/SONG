@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.server.importer.convert;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
@@ -15,13 +16,13 @@ public class StudyConverter {
   private static final String DEFAULT_PROJECT_NAME = "";
   private static final String DEFAULT_STUDY_ORGANIZATION = "ICGC";
 
-  public Set<Study> convertStudies(Set<PortalDonorMetadata> portalDonorMetadataSet){
+  public Set<Study> convertStudies(@NonNull Set<PortalDonorMetadata> portalDonorMetadataSet){
     return portalDonorMetadataSet.stream()
         .map(StudyConverter::convertToStudy)
         .collect(toImmutableSet());
   }
 
-  public static Study convertToStudy(PortalDonorMetadata portalDonorMetadata){
+  public static Study convertToStudy(@NonNull PortalDonorMetadata portalDonorMetadata){
     return Study.create(
         getStudyId(portalDonorMetadata),
         getStudyName(portalDonorMetadata),
@@ -31,15 +32,15 @@ public class StudyConverter {
     );
   }
 
-  public static String getStudyId(PortalDonorMetadata portalDonorMetadata){
+  public static String getStudyId(@NonNull PortalDonorMetadata portalDonorMetadata){
     return portalDonorMetadata.getProjectId();
   }
 
-  public static String getStudyId(PortalFileMetadata portalFileMetadata){
+  public static String getStudyId(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getProjectCode();
   }
 
-  public static String getStudyName(PortalDonorMetadata portalDonorMetadata){
+  public static String getStudyName(@NonNull PortalDonorMetadata portalDonorMetadata){
     return portalDonorMetadata.getProjectName().orElse(DEFAULT_PROJECT_NAME);
   }
 

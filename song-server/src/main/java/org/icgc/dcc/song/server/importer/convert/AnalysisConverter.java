@@ -36,7 +36,7 @@ public class AnalysisConverter {
 
   private final DonorDao donorDao;
 
-  public List<SequencingReadAnalysis> convertSequencingReads(List<PortalFileMetadata> portalFileMetadatas){
+  public List<SequencingReadAnalysis> convertSequencingReads(@NonNull List<PortalFileMetadata> portalFileMetadatas){
     val aggSet = portalFileMetadatas.stream()
         .map(this::buildSeqReadAggregate)
         .collect(toImmutableSet());
@@ -45,7 +45,7 @@ public class AnalysisConverter {
         .collect(toImmutableList());
   }
 
-  public List<VariantCallAnalysis> convertVariantCalls(List<PortalFileMetadata> portalFileMetadatas){
+  public List<VariantCallAnalysis> convertVariantCalls(@NonNull List<PortalFileMetadata> portalFileMetadatas){
     val aggSet = portalFileMetadatas.stream()
         .map(this::buildVariantCallAggregate)
         .collect(toImmutableSet());
@@ -134,35 +134,35 @@ public class AnalysisConverter {
   }
 
 
-  public static Boolean isAligned(PortalFileMetadata portalFileMetadata){
+  public static Boolean isAligned(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getDataType().equals(ALIGNED_READS);
   }
 
-  public static String getAnalysisId(PortalFileMetadata portalFileMetadata){
+  public static String getAnalysisId(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getRepoDataBundleId();
   }
 
-  public static String getAnalysisType(PortalFileMetadata portalFileMetadata){
+  public static String getAnalysisType(@NonNull PortalFileMetadata portalFileMetadata){
     return AnalysisTypes.resolve(FileTypes.resolve(portalFileMetadata)).getAnalysisTypeName();
   }
 
-  public static String getReferenceGenome(PortalFileMetadata portalFileMetadata){
+  public static String getReferenceGenome(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getGenomeBuild();
   }
 
-  public static String getLibraryStrategy(PortalFileMetadata portalFileMetadata){
+  public static String getLibraryStrategy(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getExperimentalStrategy();
   }
 
-  public static String getAlignmentTool(PortalFileMetadata portalFileMetadata){
+  public static String getAlignmentTool(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getSoftware();
   }
 
-  public static String getVariantCallingTool(PortalFileMetadata portalFileMetadata){
+  public static String getVariantCallingTool(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getSoftware();
   }
 
-  public static String getMatchedNormalSampleSubmitterId(PortalDonorMetadata portalDonorMetadata){
+  public static String getMatchedNormalSampleSubmitterId(@NonNull PortalDonorMetadata portalDonorMetadata){
     return portalDonorMetadata.getNormalAnalyzedId();
   }
 
