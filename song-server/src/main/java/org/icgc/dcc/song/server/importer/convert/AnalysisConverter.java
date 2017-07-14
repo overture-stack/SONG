@@ -1,6 +1,9 @@
 package org.icgc.dcc.song.server.importer.convert;
 
+import lombok.Builder;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.val;
 import org.icgc.dcc.song.server.importer.dao.DonorDao;
 import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
@@ -165,6 +168,32 @@ public class AnalysisConverter {
 
   public static AnalysisConverter createAnalysisConverter(DonorDao donorDao) {
     return new AnalysisConverter(donorDao);
+  }
+
+  @Builder
+  @Value
+  public static class VariantCallAggregate {
+
+    @NonNull private final String analysisId;
+    @NonNull private final String variantCallingTool;
+    @NonNull private final String matchedNormalSampleSubmitterId;
+    @NonNull private final String studyId;
+    @NonNull private final String type;
+
+  }
+
+  @Builder
+  @Value
+  public static class SeqReadAggregate {
+
+    @NonNull private final String analysisId;
+    @NonNull private final String libraryStrategy;
+    @NonNull private final String alignmentTool;
+    @NonNull private final String referenceGenome;
+    @NonNull private final String studyId;
+    @NonNull private final String type;
+    private final boolean aligned;
+
   }
 
 }

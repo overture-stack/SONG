@@ -10,6 +10,7 @@ import java.util.Set;
 
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.server.importer.convert.Converters.NA;
+import static org.icgc.dcc.song.server.importer.convert.StudyConverter.getStudyId;
 
 @RequiredArgsConstructor
 public class FileConverter {
@@ -32,20 +33,12 @@ public class FileConverter {
     );
   }
 
-  public static String getDonorId(PortalFileMetadata portalFileMetadata){
-    return portalFileMetadata.getDonorId();
-  }
-
   public static String getFileId(PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getObjectId();
   }
 
   public static String getFileName(PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getFileName();
-  }
-
-  public static String getStudyId(PortalFileMetadata portalFileMetadata){
-    return portalFileMetadata.getProjectCode();
   }
 
   public static long getFileSize(PortalFileMetadata portalFileMetadata){
