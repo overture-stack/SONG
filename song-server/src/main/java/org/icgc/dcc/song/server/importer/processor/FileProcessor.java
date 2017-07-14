@@ -2,7 +2,7 @@ package org.icgc.dcc.song.server.importer.processor;
 
 import lombok.val;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
-import org.icgc.dcc.song.server.importer.model.SampleEntry;
+import org.icgc.dcc.song.server.importer.model.SampleSet;
 import org.icgc.dcc.song.server.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.entity.File;
@@ -32,7 +32,7 @@ public class FileProcessor implements Runnable {
   @Autowired private FileRepository fileRepository;
   @Autowired private UploadRepository uploadRepository;
 
-  private final Set<SampleEntry> sampleEntrySet = newHashSet();
+  private final Set<SampleSet> sampleSetSet = newHashSet();
   private final Map<String, List<PortalFileMetadata>> dataBundleIdMap;
 
   private FileProcessor(List<PortalFileMetadata> portalFileMetadatas){
@@ -91,9 +91,9 @@ public class FileProcessor implements Runnable {
 
   private void updateSampleSetTable(PortalFileMetadata portalFileMetadata){
     for (val sampleEntry : extractSampleEntries(portalFileMetadata)){
-      if (!sampleEntrySet.contains(sampleEntry)){
+      if (!sampleSetSet.contains(sampleEntry)){
         analysisRepository.addSample(sampleEntry.getAnalysisId(), sampleEntry.getSampleId());
-        sampleEntrySet.add(sampleEntry);
+        sampleSetSet.add(sampleEntry);
       }
     }
   }
@@ -121,11 +121,11 @@ public class FileProcessor implements Runnable {
     return new FileProcessor(portalFileMetadatas);
   }
 
-  private static List<SampleEntry> extractSampleEntries(PortalFileMetadata portalFileMetadata){
+  private static List<SampleSet> extractSampleEntries(PortalFileMetadata portalFileMetadata){
 //    val analysis = convertToAnalysis(portalFileMetadata);
 //    val analysisId = analysis.getAnalysisId();
 //    return portalFileMetadata.getSampleIds().stream()
-//        .map(x -> SampleEntry.createSampleEntry(analysisId, x))
+//        .map(x -> SampleSet.createSampleEntry(analysisId, x))
 //        .collect(toImmutableList());
     return null; //TODO: rtismaHACK
   }
