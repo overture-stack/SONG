@@ -8,6 +8,7 @@ import lombok.val;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.VCF;
 
@@ -26,6 +27,15 @@ public enum AnalysisTypes {
 
   @Getter private final String analysisTypeName;
   @Getter private final FileTypes fileType;
+
+  public static AnalysisTypes resolve(String analysisTypeName){
+    for(val type : values()){
+      if (type.getAnalysisTypeName().equals(analysisTypeName)){
+        return type;
+      }
+    }
+    throw new IllegalStateException(format("Could not resolve analysisTypeName [%s]",analysisTypeName));
+  }
 
   public static AnalysisTypes resolve(FileTypes fileType){
     checkArgument(map.containsKey(fileType),

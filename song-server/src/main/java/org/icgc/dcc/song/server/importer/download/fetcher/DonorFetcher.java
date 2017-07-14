@@ -1,10 +1,12 @@
 package org.icgc.dcc.song.server.importer.download.fetcher;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.importer.download.PortalDonorIdFetcher;
 import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
@@ -14,7 +16,13 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
-import static org.icgc.dcc.song.server.importer.convert.Converters.convertToPortalDonorMetadata;
+import static lombok.Lombok.sneakyThrow;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getDonorId;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getGender;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getProjectId;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getProjectName;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getSubmittedDonorId;
+import static org.icgc.dcc.song.server.importer.parser.NormalSpecimenParser.createNormalSpecimenParser;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,6 +56,27 @@ public class DonorFetcher {
 
   public static DonorFetcher createDonorFetcher(PortalDonorIdFetcher portalDonorIdFetcher){
     return new DonorFetcher(portalDonorIdFetcher);
+  }
+
+  public static PortalDonorMetadata convertToPortalDonorMetadata(JsonNode donor){
+    try{
+      val parser = createNormalSpecimenParser(donor);
+      return PortalDonorMetadata.builder()
+          .donorId(getDonorId(donor))
+          .projectId(getProjectId(donor))
+          .projectName(getProjectName(donor))
+          .submittedDonorId(getSubmittedDonorId(donor))
+          .gender(getGender(donor))
+          .normalAnalyzedId(parser.getNormalAnalyzedId())
+          .normalSampleId(parser.getNormalSampleId())
+          .normalSpecimenId(parser.getNormalSpecimenId())
+          .normalSpecimenType(parser.getNormalSpecimenType())
+          .normalSubmittedSpecimenId(parser.getNormalSubmittedSpecimenId())
+          .build();
+    } catch(Throwable t){
+      log.info("Error: {}\nOBJECT_DATA_DUMP:\n{}", t.getMessage(), JsonUtils.toPrettyJson(donor));
+      throw sneakyThrow(t);
+    }
   }
 
   @Value

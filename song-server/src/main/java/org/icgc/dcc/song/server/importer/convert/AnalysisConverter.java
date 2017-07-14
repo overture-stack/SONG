@@ -21,7 +21,10 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkState;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.icgc.dcc.song.server.importer.convert.FileConverter.getFileTypes;
 import static org.icgc.dcc.song.server.importer.convert.StudyConverter.getStudyId;
+import static org.icgc.dcc.song.server.importer.resolvers.AnalysisTypes.SEQUENCING_READ;
+import static org.icgc.dcc.song.server.importer.resolvers.AnalysisTypes.VARIANT_CALL;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.VCF;
 import static org.icgc.dcc.song.server.model.Upload.PUBLISHED;
@@ -38,6 +41,7 @@ public class AnalysisConverter {
 
   public List<SequencingReadAnalysis> convertSequencingReads(@NonNull List<PortalFileMetadata> portalFileMetadatas){
     val aggSet = portalFileMetadatas.stream()
+        .filter(x -> getFileTypes(x) == BAM)
         .map(this::buildSeqReadAggregate)
         .collect(toImmutableSet());
     return aggSet.stream()
@@ -45,8 +49,10 @@ public class AnalysisConverter {
         .collect(toImmutableList());
   }
 
+
   public List<VariantCallAnalysis> convertVariantCalls(@NonNull List<PortalFileMetadata> portalFileMetadatas){
     val aggSet = portalFileMetadatas.stream()
+        .filter(x -> getFileTypes(x) == VCF)
         .map(this::buildVariantCallAggregate)
         .collect(toImmutableSet());
     return aggSet.stream()
@@ -57,8 +63,10 @@ public class AnalysisConverter {
   private VariantCallAggregate buildVariantCallAggregate(PortalFileMetadata portalFileMetadata){
     val portalDonorMetadata = donorDao.getPortalDonorMetadata(portalFileMetadata.getDonorId());
     return VariantCallAggregate.builder()
+        .studyId(getStudyId(portalFileMetadata))
         .analysisId(getAnalysisId(portalFileMetadata))
         .variantCallingTool(getVariantCallingTool(portalFileMetadata))
+        .type(getAnalysisType(portalFileMetadata))
         .matchedNormalSampleSubmitterId(getMatchedNormalSampleSubmitterId(portalDonorMetadata))
         .build();
   }
@@ -77,10 +85,10 @@ public class AnalysisConverter {
 
   private static VariantCallAnalysis buildVariantCallAnalysis(VariantCallAggregate variantCallAggregate) {
 
-    val fileType = FileTypes.resolve(variantCallAggregate.getType());
-    checkState(fileType == VCF,
-        "The input VariantCallAggregate %s is NOT of fileType [%s]",
-        variantCallAggregate.toString(), VCF.getFileTypeName());
+    val analysisType = AnalysisTypes.resolve(variantCallAggregate.getType());
+    checkState(analysisType == VARIANT_CALL,
+        "The input VariantCallAggregate [%s] is NOT of analysisType [%s]",
+        variantCallAggregate, VARIANT_CALL.getAnalysisTypeName());
 
     val variantCallAnalysis = new VariantCallAnalysis();
     updateAnalysis(variantCallAnalysis, variantCallAggregate);
@@ -95,11 +103,11 @@ public class AnalysisConverter {
   }
 
   private static SequencingReadAnalysis buildSequencingReadAnalysis(SeqReadAggregate seqReadAggregate) {
-    val fileType = FileTypes.resolve(seqReadAggregate.getType());
 
-    checkState(fileType == BAM,
-        "The input SeqReadAggregate %s is NOT of fileType [%s]",
-        seqReadAggregate.toString(), BAM.getFileTypeName());
+    val analysisType = AnalysisTypes.resolve(seqReadAggregate.getType());
+    checkState(analysisType == SEQUENCING_READ,
+        "The input SeqReadAggregate[%s] is NOT of analysisType [%s]",
+        seqReadAggregate, SEQUENCING_READ.getAnalysisTypeName());
 
     val sequencingReadAnalysis = new SequencingReadAnalysis();
     updateAnalysis(sequencingReadAnalysis, seqReadAggregate);

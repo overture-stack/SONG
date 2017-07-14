@@ -47,7 +47,12 @@ public class FileConverter {
   }
 
   public static String getFileType(@NonNull PortalFileMetadata portalFileMetadata){
-    return FileTypes.resolve(portalFileMetadata).getFileTypeName();
+    return getFileTypes(portalFileMetadata).getFileTypeName();
+  }
+
+  public static FileTypes getFileTypes(@NonNull PortalFileMetadata portalFileMetadata){
+    return FileTypes.resolve(portalFileMetadata);
+
   }
 
   public static String getFileMd5sum(@NonNull PortalFileMetadata portalFileMetadata){

@@ -5,15 +5,37 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.server.importer.convert.SpecimenSampleConverter;
+import org.icgc.dcc.song.server.importer.dao.DonorDao;
+import org.icgc.dcc.song.server.importer.model.PortalDonorMetadata;
+import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
+import org.icgc.dcc.song.server.importer.resolvers.FileTypes;
+import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.server.importer.Config.PORTAL_API;
 import static org.icgc.dcc.song.server.importer.Factory.DATA_CONTAINER_FILE_RESTORER;
+import static org.icgc.dcc.song.server.importer.Factory.DONOR_CONVERTER;
+import static org.icgc.dcc.song.server.importer.Factory.FILE_CONVERTER;
+import static org.icgc.dcc.song.server.importer.Factory.FILE_SET_CONVERTER;
+import static org.icgc.dcc.song.server.importer.Factory.SAMPLE_SET_CONVERTER;
+import static org.icgc.dcc.song.server.importer.Factory.SPECIMEN_SAMPLE_CONVERTER;
+import static org.icgc.dcc.song.server.importer.Factory.STUDY_CONVERTER;
+import static org.icgc.dcc.song.server.importer.Factory.buildDataFetcher;
+import static org.icgc.dcc.song.server.importer.convert.AnalysisConverter.createAnalysisConverter;
 import static org.icgc.dcc.song.server.importer.download.urlgenerator.impl.TotalFilesPortalUrlGenerator.createTotalFilesPortalUrlGenerator;
 import static org.icgc.dcc.song.server.importer.persistence.PersistenceFactory.createPersistenceFactory;
+import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
+import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.VCF;
 
 @Slf4j
 public class PortalDownloaderTest {
@@ -28,32 +50,117 @@ public class PortalDownloaderTest {
     val fileCount =  resp.path("fileCount").asInt();
     val donorCount =  resp.path("donorCount").asInt();
 
-    val dataFetcher = Factory.buildDataFetcher();
+    log.info("Persisting or fetching data...");
+    val dataFetcher = buildDataFetcher();
     val persistenceFactory = createPersistenceFactory(DATA_CONTAINER_FILE_RESTORER, dataFetcher::fetchData);
     val dataContainer = persistenceFactory.getObject("dataContainer.dat");
-    log.info("doneeee");
+    val donorDao = DonorDao.createDonorDao(dataContainer.getPortalDonorMetadataList());
+    val analysisConverter = createAnalysisConverter(donorDao);
 
+    log.info("Converting donors...");
+    val donors = DONOR_CONVERTER.convertDonors(dataContainer.getPortalDonorMetadataSet());
+
+    log.info("Converting SequencingReads...");
+    val seqReadAnalysisList = analysisConverter.convertSequencingReads(dataContainer.getPortalFileMetadataList());
+
+    log.info("Converting VariantCalls...");
+    val variantCallList = analysisConverter.convertVariantCalls(dataContainer.getPortalFileMetadataList());
+
+    log.info("Converting Specimen and Samples...");
+    val specimenSampleTuples = SPECIMEN_SAMPLE_CONVERTER.convertSpecimenSampleTuples(dataContainer.getPortalFileMetadataList());
+
+    log.info("Converting Studies...");
+    val studies = STUDY_CONVERTER.convertStudies(dataContainer.getPortalDonorMetadataSet());
+
+    log.info("Converting Files...");
+    val files = FILE_CONVERTER.convertFiles(dataContainer.getPortalFileMetadataList());
+
+    log.info("Converting FileSets...");
+    val fileSets = FILE_SET_CONVERTER.convertFileSets(dataContainer.getPortalFileMetadataList());
+
+    log.info("Converting SampleSets...");
+    val sampleSets = SAMPLE_SET_CONVERTER.convertSampleSets(dataContainer.getPortalFileMetadataList());
+
+    log.info("sdf");
+
+    val portalDonorMetadataList = dataContainer.getPortalDonorMetadataList();
+    val portalDonorMetadataSet = dataContainer.getPortalDonorMetadataSet();
+    val portalFileMetadataList = dataContainer.getPortalFileMetadataList();
+    val portalFileMetadataSet = dataContainer.getPortalFileMetadataSet();
+
+    //Assert that the portalDonorMetadata set has unique donors
+    assertThat(portalDonorMetadataSet.stream().map(PortalDonorMetadata::getDonorId).collect(toSet()).size()).isEqualTo(dataContainer
+        .getPortalDonorMetadataSet().size());
+    assertThat(portalDonorMetadataList.stream().map(PortalDonorMetadata::getDonorId).collect(toSet()).size()).isEqualTo
+        (dataContainer.getPortalDonorMetadataList().size());
+
+    //Assert that the portalFileMetadata has unique files
+    assertThat(portalFileMetadataSet.stream().map(PortalFileMetadata::getDonorId).collect(toSet()).size())
+        .isEqualTo(portalDonorMetadataSet.size());
+    assertThat(portalFileMetadataList.stream().map(PortalFileMetadata::getDonorId).collect(toSet()).size())
+        .isEqualTo(portalDonorMetadataList.size());
+
+
+
+    //Assert Donor set is unique
+    assertThat(donors.size()).isEqualTo(donors.stream().map(Donor::getDonorId).collect(toSet()).size());
+
+
+    // Assert that the total number of provided donors (provided becuase there were some donors that were
+    // rejected) is that same a the number of uniqe donor ids taken from:
+    // 1. collection of PortalDonorMetadatas
+    // 2. collection of converterd Donor entities
+    val expectedNumDonors = dataContainer.getPortalDonorMetadataList().stream()
+        .map(PortalDonorMetadata::getDonorId).collect(toSet()).size();
+    val actualNumPortalDonorsSet = dataContainer.getPortalDonorMetadataSet().size();
+    val actualNumUniquePortalDonorsList = dataContainer.getPortalDonorMetadataList().stream()
+        .map(PortalDonorMetadata::getDonorId).collect(toSet()).size();
+    val actualNumConvertedDonors = donors.size();
+
+    assertThat(actualNumPortalDonorsSet).isEqualTo(expectedNumDonors);
+    assertThat(actualNumUniquePortalDonorsList).isEqualTo(expectedNumDonors);
+    assertThat(actualNumConvertedDonors).isEqualTo(expectedNumDonors);
+
+
+    // Assert number of files
+    val expectedNumFiles  = portalFileMetadataSet.size();
+    assertThat(files.size()).isEqualTo(expectedNumFiles);
+    assertThat(fileSets.size()).isEqualTo(expectedNumFiles);
+
+    // Assert number of specimens
+    val expectedNumSpecimens = portalFileMetadataList.stream()
+        .map(PortalFileMetadata::getSpecimenIds)
+        .flatMap(Collection::stream)
+        .collect(toSet())
+        .size();
+    val actualSpecimens = specimenSampleTuples.size();
+//    assertThat(actualSpecimens).isEqualTo(expectedNumSpecimens);
+
+    // Assert SpecimenSample uniquness by specimen id
+    val expectedSpecimenTupes = specimenSampleTuples
+        .stream()
+        .map(SpecimenSampleConverter.SpecimenSampleTuple::getSpecimen)
+        .map(Specimen::getSpecimenId)
+        .collect(toSet())
+        .size();
 
 
 
     //Assert that the dataBundleId for Collab is the same as the repoDataBundleId
 
+
     //Assert there are only bams and VCFs (will throw exxception if something DNE
-    /*
-    val numNonBamOrVcfs = portalFileMetadatas.stream()
+    val numNonBamOrVcfs = dataContainer.getPortalFileMetadataList().stream()
         .map(FileTypes::resolve)
         .filter(x -> (x != BAM) && (x != VCF))
         .count();
     assertThat(numNonBamOrVcfs).isEqualTo(0);
-    */
 
 
 
     // Assert that a file response NEVER has more than one
     // sampleId, specimenId, submittedSampleId, and submittedSpecimenId
-    /*
-    val portalDonorIdFetcher = createPortalDonorIdFetcher(PORTAL_API);
-    val donorDao = createDonorDao(portalDonorIdFetcher);
+    val portalFileMetadatas = dataContainer.getPortalFileMetadataList();
     val moreThan1SampleId = portalFileMetadatas.stream()
         .filter(x -> x.getSampleIds().size() != 1)
         .collect(toList());
@@ -70,10 +177,8 @@ public class PortalDownloaderTest {
     assertThat(moreThan1SubmittedSampleId).isEmpty();
     assertThat(moreThan1SpecimenId).isEmpty();
     assertThat(moreThan1SubmittedSpecimenId).isEmpty();
-    */
 
     //Assert that for each LibraryStrategy, every specimenId:sampleId is 1:1
-    /*
     val d = portalFileMetadatas.stream().collect(Collectors.groupingBy(x -> x.getSpecimenIds().get(0)));
     for (val entry : d.entrySet()){
       val specimenId = entry.getKey();
@@ -84,7 +189,6 @@ public class PortalDownloaderTest {
         assertThat(sampleIds.size()).withFailMessage("SpecimenId: %s, LibraryStrategy: %s,  SampleIds: %s", specimenId, libraryStrategy, sampleIds).isEqualTo(1);
       }
     }
-    */
 
     // Add realtime assertion that for each file, there is one donor, one specimen and one sample. This is only valid
     // for collab

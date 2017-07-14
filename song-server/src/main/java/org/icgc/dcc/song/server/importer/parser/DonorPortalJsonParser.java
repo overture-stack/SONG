@@ -24,8 +24,10 @@ import lombok.NonNull;
 import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.song.server.importer.parser.FieldNames.GENDER;
 import static org.icgc.dcc.song.server.importer.parser.FieldNames.ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.PROJECT_ID;
 import static org.icgc.dcc.song.server.importer.parser.FieldNames.PROJECT_NAME;
 import static org.icgc.dcc.song.server.importer.parser.FieldNames.SPECIMEN;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SUBMITTED_DONOR_ID;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class DonorPortalJsonParser {
@@ -46,9 +48,16 @@ public final class DonorPortalJsonParser {
     return donor.path(SPECIMEN).size();
   }
 
-
   public static JsonNode getSpecimen(@NonNull JsonNode donor, int specimenIdx){
     return donor.path(SPECIMEN).get(specimenIdx);
+  }
+
+  public static String getProjectId(@NonNull JsonNode donor){
+    return donor.path(PROJECT_ID).textValue();
+  }
+
+  public static String getSubmittedDonorId(@NonNull JsonNode donor){
+    return donor.path(SUBMITTED_DONOR_ID).textValue();
   }
 
 }

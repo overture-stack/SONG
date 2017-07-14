@@ -73,7 +73,7 @@ public class Converters {
   }
 
   private static String resolveSpecimenClass(PortalSpecimenMetadata portalSpecimenMetadata){
-    return SpecimenClasses.resolve(portalSpecimenMetadata).getDisplayName();
+    return SpecimenClasses.resolve(portalSpecimenMetadata).getSpecimenClassName();
   }
 
   private static String resolveSampleType(PortalSampleMetadata portalSampleMetadata){
@@ -190,25 +190,6 @@ public class Converters {
 
   public static Study convertToStudy(PortalDonorMetadataOLD portalDonorMetadata){
     throw new IllegalStateException("not implemented");
-  }
-
-  public static PortalDonorMetadata convertToPortalDonorMetadata(JsonNode donor){
-    try{
-      val parser = createNormalSpecimenParser(donor);
-      return PortalDonorMetadata.builder()
-          .donorId(getDonorId(donor))
-          .projectName(getProjectName(donor))
-          .gender(getGender(donor))
-          .normalAnalyzedId(parser.getNormalAnalyzedId())
-          .normalSampleId(parser.getNormalSampleId())
-          .normalSpecimenId(parser.getNormalSpecimenId())
-          .normalSpecimenType(parser.getNormalSpecimenType())
-          .normalSubmittedSpecimenId(parser.getNormalSubmittedSpecimenId())
-          .build();
-    } catch(Throwable t){
-      log.info("OBJECT_DATA_DUMP:\n{}", JsonUtils.toPrettyJson(donor));
-      throw sneakyThrow(t);
-    }
   }
 
 }

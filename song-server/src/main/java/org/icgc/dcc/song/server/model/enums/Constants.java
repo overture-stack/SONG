@@ -38,6 +38,7 @@ public class Constants {
   public static final Collection<String> SPECIMEN_TYPE = list("Normal - solid tissue", "Normal - blood derived",
       "Normal - bone marrow", "Normal - tissue adjacent to primary", "Normal - buccal cell",
       "Normal - EBV immortalized", "Normal - lymph node", "Normal - other", "Primary tumour - solid tissue",
+      "Primary tumour",
       "Primary tumour - blood derived (peripheral blood)", "Primary tumour - blood derived (bone marrow)",
       "Primary tumour - additional new primary", "Primary tumour - other", "Recurrent tumour - solid tissue",
       "Recurrent tumour - blood derived (peripheral blood)", "Recurrent tumour - blood derived (bone marrow)",

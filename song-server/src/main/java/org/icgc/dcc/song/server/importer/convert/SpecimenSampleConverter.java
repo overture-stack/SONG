@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.server.importer.resolvers.SampleTypes;
@@ -16,11 +17,13 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
+import static lombok.Lombok.sneakyThrow;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.server.importer.convert.Converters.NA;
 import static org.icgc.dcc.song.server.importer.convert.DonorConverter.getDonorId;
 import static org.icgc.dcc.song.server.importer.convert.SpecimenSampleConverter.SpecimenSampleTuple.createSpecimenSampleContainer;
 
+@Slf4j
 @RequiredArgsConstructor
 public class SpecimenSampleConverter {
 
@@ -51,31 +54,36 @@ public class SpecimenSampleConverter {
 
     val numSamples = sampleIds.size();
     val list = ImmutableList.<SpecimenSampleTuple>builder();
-    for (int i = 0; i< numSamples; i++){
-      val specimenType = specimenTypes.get(i);
-      val sampleId = sampleIds.get(i);
-      val submittedSampleId = submittedSampleIds.get(i);
-      val specimenId = specimenIds.get(i);
-      val submittedSpecimenId = submittedSpecimenIds.get(i);
+    try {
+      for (int i = 0; i< numSamples; i++){
+        val specimenType = specimenTypes.get(i);
+        val sampleId = sampleIds.get(i);
+        val submittedSampleId = submittedSampleIds.get(i);
+        val specimenId = specimenIds.get(i);
+        val submittedSpecimenId = submittedSpecimenIds.get(i);
 
-      val sampleEntity = Sample.create(
-          sampleId,
-          submittedSampleId,
-          specimenId,
-          getSampleType(portalFileMetadata),
-          getSampleInfo()
-      );
+        val sampleEntity = Sample.create(
+            sampleId,
+            submittedSampleId,
+            specimenId,
+            getSampleType(portalFileMetadata),
+            getSampleInfo()
+        );
 
-      val specimenEntity = Specimen.create(
-          specimenId,
-          submittedSpecimenId,
-          donorId,
-          resolveSpecimenClass(specimenType),
-          specimenType,
-          getSpecimenInfo()
-      );
-      list.add(createSpecimenSampleContainer(specimenEntity, sampleEntity));
+        val specimenEntity = Specimen.create(
+            specimenId,
+            submittedSpecimenId,
+            donorId,
+            resolveSpecimenClass(specimenType),
+            specimenType,
+            getSpecimenInfo()
+        );
+        list.add(createSpecimenSampleContainer(specimenEntity, sampleEntity));
 
+      }
+    } catch (Throwable t){
+      log.error("Could not process for File [{}]:  {}", portalFileMetadata.getFileId(), t.getMessage());
+      throw sneakyThrow(t);
     }
     return list.build();
   }
