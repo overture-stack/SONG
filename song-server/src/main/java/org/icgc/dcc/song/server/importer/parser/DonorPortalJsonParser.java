@@ -15,20 +15,20 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.song.server.importer.convert;
+package org.icgc.dcc.song.server.importer.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import static lombok.AccessLevel.PRIVATE;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.GENDER;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.PROJECT_NAME;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SPECIMEN;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.GENDER;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.PROJECT_NAME;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SPECIMEN;
 
 @NoArgsConstructor(access = PRIVATE)
-public final class PortalDonorMetadataParser {
+public final class DonorPortalJsonParser {
 
   public static String getProjectName(@NonNull JsonNode donor){
     return donor.path(PROJECT_NAME).textValue();

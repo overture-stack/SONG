@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.importer.convert;
+package org.icgc.dcc.song.server.importer.parser;
 
 import lombok.NoArgsConstructor;
 

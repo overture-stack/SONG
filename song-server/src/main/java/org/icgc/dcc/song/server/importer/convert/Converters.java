@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.icgc.dcc.song.server.importer.convert.NormalSpecimenParser.createNormalSpecimenParser;
-import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getDonorId;
-import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getGender;
-import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getProjectName;
+import static org.icgc.dcc.song.server.importer.parser.NormalSpecimenParser.createNormalSpecimenParser;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getDonorId;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getGender;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getProjectName;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.server.importer.resolvers.FileTypes.VCF;
 import static org.icgc.dcc.song.server.model.Upload.PUBLISHED;

@@ -14,9 +14,7 @@ import static org.icgc.dcc.song.server.importer.convert.Converters.NA;
 @RequiredArgsConstructor
 public class FileConverter {
 
-  private final List<PortalFileMetadata> portalFileMetadatas;
-
-  public Set<File> convertFiles(){
+  public Set<File> convertFiles(List<PortalFileMetadata> portalFileMetadatas){
     return portalFileMetadatas.stream()
         .map(FileConverter::convertToFile)
         .collect(toImmutableSet());
@@ -64,6 +62,10 @@ public class FileConverter {
 
   public static String getFileInfo(){
     return NA;
+  }
+
+  public static FileConverter createFileConverter() {
+    return new FileConverter();
   }
 
 }

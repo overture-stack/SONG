@@ -1,6 +1,7 @@
 package org.icgc.dcc.song.server.importer.convert;
 
 import com.google.common.collect.ImmutableList;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.icgc.dcc.song.server.importer.model.PortalFileMetadata;
@@ -18,9 +19,7 @@ import static org.icgc.dcc.song.server.importer.convert.Converters.NA;
 @RequiredArgsConstructor
 public class SampleConverter {
 
-  private final List<PortalFileMetadata> portalFileMetadatas;
-
-  public Set<Sample> convertSamples(){
+  public Set<Sample> convertSamples(@NonNull List<PortalFileMetadata> portalFileMetadatas){
     return portalFileMetadatas.stream()
         .map(SampleConverter::convertToFile)
         .flatMap(Collection::stream)
@@ -60,6 +59,10 @@ public class SampleConverter {
 
   public static String getSampleType(PortalFileMetadata portalFileMetadata){
     return SampleTypes.resolve(portalFileMetadata).getSampleTypeName();
+  }
+
+  public static SampleConverter createSampleConverter() {
+    return new SampleConverter();
   }
 
 }

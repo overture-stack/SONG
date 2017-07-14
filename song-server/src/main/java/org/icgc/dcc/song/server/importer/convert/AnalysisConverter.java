@@ -31,10 +31,9 @@ public class AnalysisConverter {
   private static final long NULL_INSERT_SIZE = -1;
   private static final boolean DEFAULT_SEQUENCING_READ_IS_PAIRED = false;
 
-  private final List<PortalFileMetadata> portalFileMetadatas;
   private final DonorDao donorDao;
 
-  public List<SequencingReadAnalysis> convertSequencingReads(){
+  public List<SequencingReadAnalysis> convertSequencingReads(List<PortalFileMetadata> portalFileMetadatas){
     val aggSet = portalFileMetadatas.stream()
         .map(this::buildSeqReadAggregate)
         .collect(toImmutableSet());
@@ -43,7 +42,7 @@ public class AnalysisConverter {
         .collect(toImmutableList());
   }
 
-  public List<VariantCallAnalysis> convertVariantCalls(){
+  public List<VariantCallAnalysis> convertVariantCalls(List<PortalFileMetadata> portalFileMetadatas){
     val aggSet = portalFileMetadatas.stream()
         .map(this::buildVariantCallAggregate)
         .collect(toImmutableSet());
@@ -162,6 +161,10 @@ public class AnalysisConverter {
 
   public static String getMatchedNormalSampleSubmitterId(PortalDonorMetadata portalDonorMetadata){
     return portalDonorMetadata.getNormalAnalyzedId();
+  }
+
+  public static AnalysisConverter createAnalysisConverter(DonorDao donorDao) {
+    return new AnalysisConverter(donorDao);
   }
 
 }

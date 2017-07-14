@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.importer.convert;
+package org.icgc.dcc.song.server.importer.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
@@ -6,13 +6,13 @@ import lombok.val;
 import org.icgc.dcc.song.server.importer.resolvers.SpecimenClasses;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.ANALYZED_ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SAMPLES;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SUBMITTED_ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.TYPE;
-import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getNumSpecimens;
-import static org.icgc.dcc.song.server.importer.convert.PortalDonorMetadataParser.getSpecimen;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.ANALYZED_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SAMPLES;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SUBMITTED_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.TYPE;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getNumSpecimens;
+import static org.icgc.dcc.song.server.importer.parser.DonorPortalJsonParser.getSpecimen;
 import static org.icgc.dcc.song.server.importer.resolvers.SpecimenClasses.NORMAL;
 
 public class NormalSpecimenParser {

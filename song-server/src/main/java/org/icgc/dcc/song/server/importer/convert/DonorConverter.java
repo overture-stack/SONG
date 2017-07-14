@@ -14,9 +14,7 @@ public class DonorConverter {
 
   private static final String DONOR_GENDER_DEFAULT = "unspecified";
 
-  private final Set<PortalDonorMetadata> portalDonorMetadataSet;
-
-  public Set<Donor> convertDonors(){
+  public Set<Donor> convertDonors(Set<PortalDonorMetadata> portalDonorMetadataSet){
     return portalDonorMetadataSet.stream()
         .map(DonorConverter::convertToDonor)
         .collect(toImmutableSet());
@@ -47,8 +45,7 @@ public class DonorConverter {
     return portalDonorMetadata.getGender().orElse(DONOR_GENDER_DEFAULT);
   }
 
-  public static DonorConverter createDonorConverter(Set<PortalDonorMetadata> portalDonorMetadataSet) {
-    return new DonorConverter(portalDonorMetadataSet);
+  public static DonorConverter createDonorConverter() {
+    return new DonorConverter();
   }
-
 }

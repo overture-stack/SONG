@@ -15,7 +15,7 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.icgc.dcc.song.server.importer.convert;
+package org.icgc.dcc.song.server.importer.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -30,37 +30,37 @@ import java.util.function.Function;
 import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.ACCESS;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.ANALYSIS_METHOD;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.DATA_CATEGORIZATION;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.DATA_TYPE;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.DONORS;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.DONOR_ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.EXPERIMENTAL_STRATEGY;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.FILE_COPIES;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.FILE_FORMAT;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.FILE_MD5SUM;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.FILE_NAME;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.FILE_SIZE;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.GENOME_BUILD;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.INDEX_FILE;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.LAST_MODIFIED;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.OBJECT_ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.PROJECT_CODE;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.REFERENCE_GENOME;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.REFERENCE_NAME;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.REPO_DATA_BUNDLE_ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SAMPLE_ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SOFTWARE;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SPECIMEN_ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SPECIMEN_TYPE;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SUBMITTED_DONOR_ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SUBMITTED_SAMPLE_ID;
-import static org.icgc.dcc.song.server.importer.convert.FieldNames.SUBMITTED_SPECIMEN_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.ACCESS;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.ANALYSIS_METHOD;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.DATA_CATEGORIZATION;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.DATA_TYPE;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.DONORS;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.DONOR_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.EXPERIMENTAL_STRATEGY;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.FILE_COPIES;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.FILE_FORMAT;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.FILE_MD5SUM;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.FILE_NAME;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.FILE_SIZE;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.GENOME_BUILD;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.INDEX_FILE;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.LAST_MODIFIED;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.OBJECT_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.PROJECT_CODE;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.REFERENCE_GENOME;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.REFERENCE_NAME;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.REPO_DATA_BUNDLE_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SAMPLE_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SOFTWARE;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SPECIMEN_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SPECIMEN_TYPE;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SUBMITTED_DONOR_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SUBMITTED_SAMPLE_ID;
+import static org.icgc.dcc.song.server.importer.parser.FieldNames.SUBMITTED_SPECIMEN_ID;
 
 @NoArgsConstructor(access = PRIVATE)
-public final class PortalFileJsonParser {
+public final class FilePortalJsonParser {
 
   public static String getAccess(@NonNull ObjectNode file){
     return file.path(ACCESS).textValue();
