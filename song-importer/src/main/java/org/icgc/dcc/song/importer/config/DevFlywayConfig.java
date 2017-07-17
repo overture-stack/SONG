@@ -14,24 +14,31 @@
  * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-package org.icgc.dcc.song.importer;
+package org.icgc.dcc.song.importer.config;
 
-import org.postgresql.jdbc3.Jdbc3SimpleDataSource;
+import lombok.extern.slf4j.Slf4j;
+import org.flywaydb.core.Flyway;
+import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 
-import javax.sql.DataSource;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-public class Config {
-
-  public static final String PORTAL_API = "https://dcc.icgc.org";
-  public static final Path PERSISTED_DIR_PATH = Paths.get("persisted");
+@Slf4j
+public class DevFlywayConfig {
 
   @Bean
-  public DataSource dataSource(){
-    return new Jdbc3SimpleDataSource();
-  }
+  @Profile("dev")
+  public FlywayMigrationStrategy cleanMigrateStrategy() {
+      FlywayMigrationStrategy strategy = new FlywayMigrationStrategy() {
+          @Override
+          public void migrate(Flyway flyway) {
+              flyway.clean();
+              flyway.migrate();
+              log.info("Executed the clean");
+          }
+      };
 
+      return strategy;
+  }
 }

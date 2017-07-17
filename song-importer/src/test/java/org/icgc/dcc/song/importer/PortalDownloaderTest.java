@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.flywaydb.test.annotation.FlywayTest;
+import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.SpecimenSampleTuple;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
@@ -11,16 +13,31 @@ import org.icgc.dcc.song.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
+import org.icgc.dcc.song.server.model.entity.Study;
+import org.icgc.dcc.song.server.repository.AnalysisRepository;
+import org.icgc.dcc.song.server.repository.DonorRepository;
+import org.icgc.dcc.song.server.repository.FileRepository;
+import org.icgc.dcc.song.server.repository.SampleRepository;
+import org.icgc.dcc.song.server.repository.SpecimenRepository;
+import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.importer.Factory.DATA_CONTAINER_FILE_RESTORER;
 import static org.icgc.dcc.song.importer.Factory.DONOR_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.FILE_CONVERTER;
@@ -36,8 +53,20 @@ import static org.icgc.dcc.song.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.importer.resolvers.FileTypes.VCF;
 
 @Slf4j
+@SpringBootTest
+@RunWith(SpringRunner.class)
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+@FlywayTest
+@ActiveProfiles("dev")
 public class PortalDownloaderTest {
   public static final Path PERSISTENCE_DIR_PATH = Paths.get("persistence");
+
+  @Autowired private StudyRepository studyRepository;
+  @Autowired private DonorRepository donorRepository;
+  @Autowired private SpecimenRepository specimenRepository;
+  @Autowired private SampleRepository sampleRepository;
+  @Autowired private FileRepository fileRepository;
+  @Autowired private AnalysisRepository analysisRepository;
 
   @Test
   @SneakyThrows
@@ -189,10 +218,10 @@ public class PortalDownloaderTest {
     assertThat(moreThan1SubmittedSpecimenId).isEmpty();
 
     //Assert that for each LibraryStrategy, every specimenId:sampleId is 1:1
-    val d = portalFileMetadatas.stream().collect(Collectors.groupingBy(x -> x.getSpecimenIds().get(0)));
+    val d = portalFileMetadatas.stream().collect(groupingBy(x -> x.getSpecimenIds().get(0)));
     for (val entry : d.entrySet()){
       val specimenId = entry.getKey();
-      val analysisMap = entry.getValue().stream().collect(Collectors.groupingBy(x -> x.getExperimentalStrategy()));
+      val analysisMap = entry.getValue().stream().collect(groupingBy(x -> x.getExperimentalStrategy()));
       for (val analysisEntry : analysisMap.entrySet()){
         val libraryStrategy = analysisEntry.getKey();
         val sampleIds = analysisEntry.getValue().stream().map(x -> x.getSampleIds().get(0)).collect(toSet());
@@ -211,8 +240,47 @@ public class PortalDownloaderTest {
     //   - more than 1 sampleId (same for submittedSampleId)
     //   - more than 1 specimenType
 
+    studies.forEach(this::createStudy);
+    donors.forEach(donorRepository::create);
+    val specimens = specimenSampleTuples.stream()
+        .collect(
+            groupingBy(x -> x.getSpecimen().getSpecimenId()))
+        .entrySet()
+        .stream()
+        .map(x -> x.getValue().get(0).getSpecimen())
+        .collect(toImmutableSet());
+
+    specimens.forEach(specimenRepository::create);
+
+    val samples = specimenSampleTuples.stream()
+        .collect(
+            groupingBy(x -> x.getSample().getSampleId()))
+        .entrySet()
+        .stream()
+        .map(x -> x.getValue().get(0).getSample())
+        .collect(toImmutableSet());
+    samples.forEach(sampleRepository::create);
+    files.forEach(fileRepository::create);
+    seqReadAnalysisList.forEach(x -> {
+      analysisRepository.createAnalysis(x);
+      analysisRepository.createSequencingRead(x.getExperiment());
+    });
+    variantCallList.forEach(x -> {
+      analysisRepository.createAnalysis(x);
+      analysisRepository.createVariantCall(x.getExperiment());
+    });
+
+    fileSets.forEach(x -> analysisRepository.addFile(x.getAnalysisId(), x.getFileId()));
+    sampleSets.forEach(x -> analysisRepository.addFile(x.getAnalysisId(), x.getSampleId()));
+
+
+
     log.info("sdf");
 
+  }
+
+  private void createStudy(Study study){
+    studyRepository.create(study.getStudyId(),study.getName(),study.getOrganization(),study.getDescription());
   }
 
   @RequiredArgsConstructor

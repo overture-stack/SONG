@@ -20,13 +20,11 @@ package org.icgc.dcc.song.importer;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.importer.config.ApplicationConfig;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.actuate.autoconfigure.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
 
@@ -35,7 +33,6 @@ import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
  */
 @Slf4j
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
-@EnableConfigurationProperties(ApplicationConfig.class)
 public class ClientMain implements CommandLineRunner {
 
   @Override public void run(String... strings) throws Exception {
