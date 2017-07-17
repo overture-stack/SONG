@@ -24,6 +24,7 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
         <module>song-core</module>
         <module>song-server</module>
         <module>song-client</module>
+        <module>song-importer</module>
     </modules>
 
     <parent>
