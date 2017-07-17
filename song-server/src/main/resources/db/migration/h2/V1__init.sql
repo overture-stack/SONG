@@ -78,6 +78,7 @@ CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_too
     tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT, info TEXT);
 ;
 
-CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50),
+CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study,
+    analysis_submitter_id TEXT, state VARCHAR(50),
     errors TEXT, payload TEXT, created_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now());
