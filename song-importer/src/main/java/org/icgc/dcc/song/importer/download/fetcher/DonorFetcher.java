@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
@@ -14,7 +13,6 @@ import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.parser.DonorPortalJsonParser;
 import org.icgc.dcc.song.importer.parser.NormalSpecimenParser;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -79,26 +77,5 @@ public class DonorFetcher {
     }
   }
 
-  @Value
-  public static class DonorFetcherStatus {
-
-    private final HashMap<String, PortalDonorMetadata> map;
-    private final Set<String> erroredDonorIds;
-
-    public Set<String> getErroredDonorIds(){
-      return ImmutableSet.copyOf(erroredDonorIds);
-    }
-
-    public boolean hasErroredDonorIds(){
-      return !erroredDonorIds.isEmpty();
-    }
-
-
-    public static DonorFetcherStatus createDataFetcherStatus(
-        HashMap<String, PortalDonorMetadata> map, Set<String> erroredDonorIds) {
-      return new DonorFetcherStatus(map, erroredDonorIds);
-    }
-
-  }
 
 }

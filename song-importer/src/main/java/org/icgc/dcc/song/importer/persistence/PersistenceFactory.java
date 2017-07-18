@@ -10,27 +10,27 @@ import java.util.function.Supplier;
 
 @Slf4j
 @RequiredArgsConstructor
-public class PersistenceFactory<T,P> {
+public class PersistenceFactory<T, I> {
 
-  private final FileRestorer<T, P> fileRestorer;
+  private final FileRestorer<T, I> fileRestorer;
   private final Supplier<T> supplier;
 
   /**
    * Persists an object if it was stored previously, otherwise
    * runs the Supplier method or function which generates the data
-   * @param p path or identifier
+   * @param identifier i
    * @return the persisted object
    */
   @SneakyThrows
-  public T getObject(P p){
-    val path = fileRestorer.getPersistedPath(p);
-    if (fileRestorer.isPersisted(p)){
+  public T getObject(I identifier){
+    val path = fileRestorer.getPersistedPath(identifier);
+    if (fileRestorer.isPersisted(identifier)){
       log.info("Restoring {}", path);
-      return fileRestorer.restore(p);
+      return fileRestorer.restore(identifier);
     } else {
       val object = supplier.get();
       log.info("Storing {} ...", path);
-      fileRestorer.store(object, p);
+      fileRestorer.store(object, identifier);
       return object;
     }
   }
