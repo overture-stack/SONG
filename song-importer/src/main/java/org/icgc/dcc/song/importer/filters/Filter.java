@@ -12,17 +12,34 @@ public interface Filter<T> {
 
   boolean isPass(T t);
 
-  default List<T> filterToList(Collection<T> collection){
-    return filterStream(collection).collect(toImmutableList());
+  default boolean isFail(T t){
+    return !isPass(t);
   }
 
-  default Set<T> filterToSet(Collection<T> collection){
-    return filterStream(collection).collect(toImmutableSet());
+  default List<T> passList(Collection<T> collection){
+    return passStream(collection).collect(toImmutableList());
   }
 
-  default Stream<T> filterStream(Collection<T> collection){
+  default Set<T> passSet(Collection<T> collection){
+    return passStream(collection).collect(toImmutableSet());
+  }
+
+  default List<T> failList(Collection<T> collection){
+    return failStream(collection).collect(toImmutableList());
+  }
+
+  default Set<T> failSet(Collection<T> collection){
+    return failStream(collection).collect(toImmutableSet());
+  }
+
+  default Stream<T> passStream(Collection<T> collection){
     return collection.stream()
         .filter(this::isPass);
+  }
+
+  default Stream<T> failStream(Collection<T> collection){
+    return collection.stream()
+        .filter(this::isFail);
   }
 
 }

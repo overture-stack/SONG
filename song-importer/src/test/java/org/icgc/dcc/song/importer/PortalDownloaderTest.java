@@ -102,7 +102,7 @@ public class PortalDownloaderTest {
     val dataFetcher = buildDataFetcher();
     val persistenceFactory = createPersistenceFactory(DATA_CONTAINER_FILE_RESTORER, dataFetcher::fetchData);
     val dataContainer = persistenceFactory.getObject("dataContainer.dat");
-    val filteredPortalFileMetadataList = fileFilter.filterToList(dataContainer.getPortalFileMetadataList());
+    val filteredPortalFileMetadataList = fileFilter.passList(dataContainer.getPortalFileMetadataList());
     val filteredPortalFileMetadataSet = newHashSet(filteredPortalFileMetadataList);
     val filteredPortalDonorMetadataList = dataContainer.getPortalDonorMetadataList();
     val filteredPortalDonorMetadataSet = dataContainer.getPortalDonorMetadataSet();
