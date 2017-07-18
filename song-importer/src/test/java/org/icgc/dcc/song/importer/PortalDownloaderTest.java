@@ -298,7 +298,6 @@ public class PortalDownloaderTest {
       analysisRepository.createVariantCall(x.getExperiment());
     });
 
-    //SA542735
     fileSets.forEach(x -> analysisRepository.addFile(x.getAnalysisId(), x.getFileId()));
     sampleSets.forEach(x -> analysisRepository.addSample(x.getAnalysisId(), x.getSampleId()));
 

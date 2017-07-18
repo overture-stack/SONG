@@ -82,7 +82,7 @@ public class Factory {
   }
 
   public static FileFilter buildFileFilter(){
-    val specimenIdFilter = createIdFilter(PROBLEMATIC_SPECIMEN_IDS);
+    val specimenIdFilter = createIdFilter(PROBLEMATIC_SPECIMEN_IDS, false);
     return createFileFilter(specimenIdFilter);
   }
 
