@@ -19,10 +19,10 @@ public class PortalFileMetadata implements Serializable {
   @NonNull private final String experimentalStrategy;
   @NonNull private final String fileFormat;
   @NonNull private final String fileId;
-  @NonNull private final long fileLastModified;
+  private final long fileLastModified;
   @NonNull private final String fileMd5sum;
   @NonNull private final String fileName;
-  @NonNull private final long fileSize;
+  private final long fileSize;
   @NonNull private final String genomeBuild;
   private final String indexFileFileFormat;
   private final String indexFileFileMd5sum;

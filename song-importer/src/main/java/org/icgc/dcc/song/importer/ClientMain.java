@@ -18,28 +18,34 @@
  */
 package org.icgc.dcc.song.importer;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.actuate.autoconfigure.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.stereotype.Component;
 
 import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
+import static org.springframework.boot.Banner.Mode.CONSOLE;
 
 /**
  * Application entry point.
  */
 @Slf4j
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
+@SpringBootApplication
+@Component
+@RequiredArgsConstructor
 public class ClientMain implements CommandLineRunner {
 
+  @Autowired private Importer importer;
+
   @Override public void run(String... strings) throws Exception {
-    val importer = new Importer();
     try{
+      log.info("Importer Started");
       importer.run();
-      log.info("Imported finished");
+      log.info("Importer finished");
     } catch (Throwable e){
       log.error("Failed to run Importer with exception [{}] : [Message] -- {}:\n{} ",
           e.getClass().getSimpleName(), e.getMessage(), NEWLINE.join(e.getStackTrace()));
@@ -47,9 +53,16 @@ public class ClientMain implements CommandLineRunner {
   }
 
   public static void main(String... args) {
-    new SpringApplicationBuilder(ClientMain.class)
+    val app = new SpringApplicationBuilder(ClientMain.class)
+        .bannerMode(CONSOLE)
+        .web(false)
+        .logStartupInfo(false)
+        .registerShutdownHook(true)
         .addCommandLineProperties(true)
-        .run(args);
+        .build();
+    app.run(args);
+
+
   }
 
 }
