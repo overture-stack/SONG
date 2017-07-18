@@ -13,6 +13,7 @@ import org.icgc.dcc.song.importer.download.fetcher.DataFetcher;
 import org.icgc.dcc.song.importer.download.fetcher.DonorFetcher;
 import org.icgc.dcc.song.importer.download.fetcher.FileFetcher;
 import org.icgc.dcc.song.importer.download.urlgenerator.impl.FilePortalUrlGenerator;
+import org.icgc.dcc.song.importer.filters.FileFilter;
 import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.persistence.filerestorer.impl.ObjectFileRestorer;
@@ -23,9 +24,12 @@ import java.util.function.Function;
 import static java.util.stream.Collectors.toList;
 import static org.icgc.dcc.song.importer.Config.PERSISTED_DIR_PATH;
 import static org.icgc.dcc.song.importer.Config.PORTAL_API;
+import static org.icgc.dcc.song.importer.Config.PROBLEMATIC_SPECIMEN_IDS;
 import static org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.createSpecimenSampleConverter;
 import static org.icgc.dcc.song.importer.download.PortalDonorIdFetcher.createPortalDonorIdFetcher;
 import static org.icgc.dcc.song.importer.download.PortalDownloadIterator.createDefaultPortalDownloadIterator;
+import static org.icgc.dcc.song.importer.filters.FileFilter.createFileFilter;
+import static org.icgc.dcc.song.importer.filters.IdFilter.createIdFilter;
 import static org.icgc.dcc.song.importer.persistence.filerestorer.impl.ObjectFileRestorer.createObjectFileRestorer;
 
 public class Factory {
@@ -75,6 +79,11 @@ public class Factory {
     val fileFetcher = buildFileFetcher();
     val donorFetcher = buildDonorFetcher();
     return DataFetcher.createDataFetcher(fileFetcher,donorFetcher);
+  }
+
+  public static FileFilter buildFileFilter(){
+    val specimenIdFilter = createIdFilter(PROBLEMATIC_SPECIMEN_IDS);
+    return createFileFilter(specimenIdFilter);
   }
 
 }

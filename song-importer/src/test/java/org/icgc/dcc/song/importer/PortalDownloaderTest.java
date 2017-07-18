@@ -32,12 +32,15 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Set;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.icgc.dcc.song.importer.Config.PROBLEMATIC_SPECIMEN_IDS;
 import static org.icgc.dcc.song.importer.Factory.DATA_CONTAINER_FILE_RESTORER;
 import static org.icgc.dcc.song.importer.Factory.DONOR_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.FILE_CONVERTER;
@@ -46,6 +49,7 @@ import static org.icgc.dcc.song.importer.Factory.SAMPLE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SPECIMEN_SAMPLE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.STUDY_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.buildDataFetcher;
+import static org.icgc.dcc.song.importer.Factory.buildFileFilter;
 import static org.icgc.dcc.song.importer.convert.AnalysisConverter.createAnalysisConverter;
 import static org.icgc.dcc.song.importer.dao.DonorDao.createDonorDao;
 import static org.icgc.dcc.song.importer.persistence.PersistenceFactory.createPersistenceFactory;
@@ -68,8 +72,24 @@ public class PortalDownloaderTest {
   @Autowired private FileRepository fileRepository;
   @Autowired private AnalysisRepository analysisRepository;
 
-  @Test
+  public static <T> Set<T> getSetDifference(Iterable<T> left, Iterable<T> right){
+    val leftSet = newHashSet(left);
+    val rightSet = newHashSet(right);
+    leftSet.removeAll(rightSet);
+    return leftSet;
+  }
+
+  public static <T> boolean setsHaveDifference(Iterable<T> left, Iterable<T> right){
+    val leftSet = newHashSet(left);
+    val rightSet = newHashSet(right);
+    val leftContainsAll = leftSet.containsAll(rightSet);
+    val rightContainsAll = rightSet.containsAll(leftSet);
+    val isSame = leftContainsAll && rightContainsAll;
+    return !isSame;
+  }
+
   @SneakyThrows
+  @Test
   public void testFileDownload(){
 //    val totalFilesUrlGenerator= createTotalFilesPortalUrlGenerator(PORTAL_API);
 //    val resp = JsonUtils.read(totalFilesUrlGenerator.getUrl(1,1));
@@ -77,55 +97,67 @@ public class PortalDownloaderTest {
 //    val fileCount =  resp.path("fileCount").asInt();
 //    val donorCount =  resp.path("donorCount").asInt();
 
+    val fileFilter = buildFileFilter();
     log.info("Persisting or fetching data...");
     val dataFetcher = buildDataFetcher();
     val persistenceFactory = createPersistenceFactory(DATA_CONTAINER_FILE_RESTORER, dataFetcher::fetchData);
     val dataContainer = persistenceFactory.getObject("dataContainer.dat");
-    val donorDao = createDonorDao(dataContainer.getPortalDonorMetadataList());
+    val filteredPortalFileMetadataList = fileFilter.filterToList(dataContainer.getPortalFileMetadataList());
+    val filteredPortalFileMetadataSet = newHashSet(filteredPortalFileMetadataList);
+    val filteredPortalDonorMetadataList = dataContainer.getPortalDonorMetadataList();
+    val filteredPortalDonorMetadataSet = dataContainer.getPortalDonorMetadataSet();
+    val difference = getSetDifference(dataContainer.getPortalFileMetadataList(), filteredPortalFileMetadataList);
+
+    val differentSpecimenIds = difference
+        .stream()
+        .map(PortalFileMetadata::getSpecimenIds)
+        .flatMap(Collection::stream)
+        .collect(toSet());
+    assertThat(setsHaveDifference(differentSpecimenIds, PROBLEMATIC_SPECIMEN_IDS)).isFalse();
+
+
+
+    val donorDao = createDonorDao(filteredPortalDonorMetadataList);
     val analysisConverter = createAnalysisConverter(donorDao);
 
     log.info("Converting donors...");
-    val donors = DONOR_CONVERTER.convertDonors(dataContainer.getPortalDonorMetadataSet());
+    val donors = DONOR_CONVERTER.convertDonors(filteredPortalDonorMetadataSet);
 
     log.info("Converting SequencingReads...");
-    val seqReadAnalysisList = analysisConverter.convertSequencingReads(dataContainer.getPortalFileMetadataList());
+    val seqReadAnalysisList = analysisConverter.convertSequencingReads(filteredPortalFileMetadataList);
 
     log.info("Converting VariantCalls...");
-    val variantCallList = analysisConverter.convertVariantCalls(dataContainer.getPortalFileMetadataList());
+    val variantCallList = analysisConverter.convertVariantCalls(filteredPortalFileMetadataList);
 
     log.info("Converting Specimen and Samples...");
-    val specimenSampleTuples = SPECIMEN_SAMPLE_CONVERTER.convertSpecimenSampleTuples(dataContainer.getPortalFileMetadataList());
+    val specimenSampleTuples = SPECIMEN_SAMPLE_CONVERTER.convertSpecimenSampleTuples(filteredPortalFileMetadataList);
 
     log.info("Converting Studies...");
-    val studies = STUDY_CONVERTER.convertStudies(dataContainer.getPortalDonorMetadataSet());
+    val studies = STUDY_CONVERTER.convertStudies(filteredPortalDonorMetadataSet);
 
     log.info("Converting Files...");
-    val files = FILE_CONVERTER.convertFiles(dataContainer.getPortalFileMetadataList());
+    val files = FILE_CONVERTER.convertFiles(filteredPortalFileMetadataList);
 
     log.info("Converting FileSets...");
-    val fileSets = FILE_SET_CONVERTER.convertFileSets(dataContainer.getPortalFileMetadataList());
+    val fileSets = FILE_SET_CONVERTER.convertFileSets(filteredPortalFileMetadataList);
 
     log.info("Converting SampleSets...");
-    val sampleSets = SAMPLE_SET_CONVERTER.convertSampleSets(dataContainer.getPortalFileMetadataList());
+    val sampleSets = SAMPLE_SET_CONVERTER.convertSampleSets(filteredPortalFileMetadataList);
 
     log.info("sdf");
 
-    val portalDonorMetadataList = dataContainer.getPortalDonorMetadataList();
-    val portalDonorMetadataSet = dataContainer.getPortalDonorMetadataSet();
-    val portalFileMetadataList = dataContainer.getPortalFileMetadataList();
-    val portalFileMetadataSet = dataContainer.getPortalFileMetadataSet();
 
     //Assert that the portalDonorMetadata set has unique donors
-    assertThat(portalDonorMetadataSet.stream().map(PortalDonorMetadata::getDonorId).collect(toSet()).size()).isEqualTo(dataContainer
-        .getPortalDonorMetadataSet().size());
-    assertThat(portalDonorMetadataList.stream().map(PortalDonorMetadata::getDonorId).collect(toSet()).size()).isEqualTo
-        (dataContainer.getPortalDonorMetadataList().size());
+    assertThat(filteredPortalDonorMetadataSet.stream().map(PortalDonorMetadata::getDonorId).collect(toSet()).size())
+        .isEqualTo(filteredPortalDonorMetadataSet.size());
+    assertThat(filteredPortalDonorMetadataList.stream().map(PortalDonorMetadata::getDonorId).collect(toSet()).size())
+        .isEqualTo(filteredPortalDonorMetadataList.size());
 
     //Assert that the portalFileMetadata has unique files
-    assertThat(portalFileMetadataSet.stream().map(PortalFileMetadata::getDonorId).collect(toSet()).size())
-        .isEqualTo(portalDonorMetadataSet.size());
-    assertThat(portalFileMetadataList.stream().map(PortalFileMetadata::getDonorId).collect(toSet()).size())
-        .isEqualTo(portalDonorMetadataList.size());
+    assertThat(filteredPortalFileMetadataSet.stream().map(PortalFileMetadata::getDonorId).collect(toSet()).size())
+        .isEqualTo(filteredPortalDonorMetadataSet.size());
+    assertThat(filteredPortalFileMetadataList.stream().map(PortalFileMetadata::getDonorId).collect(toSet()).size())
+        .isEqualTo(filteredPortalDonorMetadataList.size());
 
 
 
@@ -137,10 +169,10 @@ public class PortalDownloaderTest {
     // rejected) is that same a the number of uniqe donor ids taken from:
     // 1. collection of PortalDonorMetadatas
     // 2. collection of converterd Donor entities
-    val expectedNumDonors = dataContainer.getPortalDonorMetadataList().stream()
+    val expectedNumDonors = filteredPortalDonorMetadataList.stream()
         .map(PortalDonorMetadata::getDonorId).collect(toSet()).size();
-    val actualNumPortalDonorsSet = dataContainer.getPortalDonorMetadataSet().size();
-    val actualNumUniquePortalDonorsList = dataContainer.getPortalDonorMetadataList().stream()
+    val actualNumPortalDonorsSet = filteredPortalDonorMetadataSet.size();
+    val actualNumUniquePortalDonorsList = filteredPortalDonorMetadataList.stream()
         .map(PortalDonorMetadata::getDonorId).collect(toSet()).size();
     val actualNumConvertedDonors = donors.size();
 
@@ -150,12 +182,12 @@ public class PortalDownloaderTest {
 
 
     // Assert number of files
-    val expectedNumFiles  = portalFileMetadataSet.size();
+    val expectedNumFiles  = filteredPortalFileMetadataSet.size();
     assertThat(files.size()).isEqualTo(expectedNumFiles);
     assertThat(fileSets.size()).isEqualTo(expectedNumFiles);
 
     // Assert number of specimens
-    val expectedNumSpecimens = portalFileMetadataList.stream()
+    val expectedNumSpecimens = filteredPortalFileMetadataList.stream()
         .map(PortalFileMetadata::getSpecimenIds)
         .flatMap(Collection::stream)
         .collect(toSet())
@@ -168,7 +200,7 @@ public class PortalDownloaderTest {
     assertThat(actualSpecimens).isEqualTo(expectedNumSpecimens);
 
     // Assert number of specimens
-    val expectedNumSamples= portalFileMetadataList.stream()
+    val expectedNumSamples= filteredPortalFileMetadataList.stream()
         .map(PortalFileMetadata::getSampleIds)
         .flatMap(Collection::stream)
         .collect(toSet())
@@ -189,7 +221,7 @@ public class PortalDownloaderTest {
 
 
     //Assert there are only bams and VCFs (will throw exxception if something DNE
-    val numNonBamOrVcfs = dataContainer.getPortalFileMetadataList().stream()
+    val numNonBamOrVcfs = filteredPortalFileMetadataList.stream()
         .map(FileTypes::resolve)
         .filter(x -> (x != BAM) && (x != VCF))
         .count();
@@ -199,17 +231,16 @@ public class PortalDownloaderTest {
 
     // Assert that a file response NEVER has more than one
     // sampleId, specimenId, submittedSampleId, and submittedSpecimenId
-    val portalFileMetadatas = dataContainer.getPortalFileMetadataList();
-    val moreThan1SampleId = portalFileMetadatas.stream()
+    val moreThan1SampleId = filteredPortalFileMetadataList.stream()
         .filter(x -> x.getSampleIds().size() != 1)
         .collect(toList());
-    val moreThan1SpecimenId = portalFileMetadatas.stream()
+    val moreThan1SpecimenId = filteredPortalFileMetadataList.stream()
         .filter(x -> x.getSpecimenIds().size() != 1)
         .collect(toList());
-    val moreThan1SubmittedSampleId = portalFileMetadatas.stream()
+    val moreThan1SubmittedSampleId = filteredPortalFileMetadataList.stream()
         .filter(x -> x.getSubmittedSampleIds().size() != 1)
         .collect(toList());
-    val moreThan1SubmittedSpecimenId = portalFileMetadatas.stream()
+    val moreThan1SubmittedSpecimenId = filteredPortalFileMetadataList.stream()
         .filter(x -> x.getSubmittedSpecimenIds().size() != 1)
         .collect(toList());
     assertThat(moreThan1SampleId).isEmpty();
@@ -218,7 +249,7 @@ public class PortalDownloaderTest {
     assertThat(moreThan1SubmittedSpecimenId).isEmpty();
 
     //Assert that for each LibraryStrategy, every specimenId:sampleId is 1:1
-    val d = portalFileMetadatas.stream().collect(groupingBy(x -> x.getSpecimenIds().get(0)));
+    val d = filteredPortalFileMetadataList.stream().collect(groupingBy(x -> x.getSpecimenIds().get(0)));
     for (val entry : d.entrySet()){
       val specimenId = entry.getKey();
       val analysisMap = entry.getValue().stream().collect(groupingBy(x -> x.getExperimentalStrategy()));
@@ -244,11 +275,8 @@ public class PortalDownloaderTest {
     donors.forEach(donorRepository::create);
     val specimens = specimenSampleTuples.stream()
         .collect(
-            groupingBy(x -> x.getSpecimen().getSpecimenId()))
-        .entrySet()
-        .stream()
-        .map(x -> x.getValue().get(0).getSpecimen())
-        .collect(toImmutableSet());
+            groupingBy(SpecimenSampleTuple::getSpecimen))
+        .keySet();
 
     specimens.forEach(specimenRepository::create);
 
@@ -270,8 +298,9 @@ public class PortalDownloaderTest {
       analysisRepository.createVariantCall(x.getExperiment());
     });
 
+    //SA542735
     fileSets.forEach(x -> analysisRepository.addFile(x.getAnalysisId(), x.getFileId()));
-    sampleSets.forEach(x -> analysisRepository.addFile(x.getAnalysisId(), x.getSampleId()));
+    sampleSets.forEach(x -> analysisRepository.addSample(x.getAnalysisId(), x.getSampleId()));
 
 
 

@@ -23,11 +23,15 @@ import org.springframework.context.annotation.Bean;
 import javax.sql.DataSource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 public class Config {
 
   public static final String PORTAL_API = "https://dcc.icgc.org";
   public static final Path PERSISTED_DIR_PATH = Paths.get("persisted");
+  public static final Set<String> PROBLEMATIC_SPECIMEN_IDS = newHashSet("SP99323", "SP99331", "SP99319");
 
   @Bean
   public DataSource dataSource(){
