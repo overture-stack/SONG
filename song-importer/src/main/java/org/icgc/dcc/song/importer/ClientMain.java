@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
 import static org.springframework.boot.Banner.Mode.CONSOLE;
@@ -35,7 +35,8 @@ import static org.springframework.boot.Banner.Mode.CONSOLE;
  */
 @Slf4j
 @SpringBootApplication
-@Component
+//@Component
+@Configuration
 @RequiredArgsConstructor
 public class ClientMain implements CommandLineRunner {
 

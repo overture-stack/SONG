@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.flywaydb.test.annotation.FlywayTest;
-import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.SpecimenSampleTuple;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
@@ -21,13 +19,7 @@ import org.icgc.dcc.song.server.repository.SampleRepository;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,11 +49,11 @@ import static org.icgc.dcc.song.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.importer.resolvers.FileTypes.VCF;
 
 @Slf4j
-@SpringBootTest
-@RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@FlywayTest
-@ActiveProfiles("dev")
+//@SpringBootTest
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+//@FlywayTest
+//@ActiveProfiles("dev")
 public class PortalDownloaderTest {
   public static final Path PERSISTENCE_DIR_PATH = Paths.get("persistence");
 
@@ -88,9 +80,12 @@ public class PortalDownloaderTest {
     return !isSame;
   }
 
+  @Test
+  public void testTest(){
+
+  }
 
   @SneakyThrows
-  @Test
   public void testFileDownload(){
 //    val totalFilesUrlGenerator= createTotalFilesPortalUrlGenerator(PORTAL_API);
 //    val resp = JsonUtils.read(totalFilesUrlGenerator.getUrl(1,1));

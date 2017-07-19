@@ -16,12 +16,13 @@
         <dependency>
             <groupId>org.icgc.dcc</groupId>
             <artifactId>song-core</artifactId>
-            <version>0.1.2-SNAPSHOT</version>
+            <version>${song.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.icgc.dcc</groupId>
             <artifactId>song-server</artifactId>
-            <version>0.1.2-SNAPSHOT</version>
+            <version>${song.version}</version>
         </dependency>
 
         <!-- Spring -->
@@ -153,6 +154,10 @@
     </build>
 
     <properties>
+		<main.class>org.icgc.dcc.song.importer.ClientMain</main.class>
+		<start-class>${main.class}</start-class>
+        <song.version>0.1.2-SNAPSHOT</song.version>
+        <!--<project.version>0.1.2-SNAPSHOT</project.version>-->
         <flywaydb.version>4.2.0</flywaydb.version>
         <flyway-spring-test.version>4.1.0</flyway-spring-test.version>
         <postgresql.version>9.4.1208-jdbc42-atlassian-hosted</postgresql.version>
