@@ -82,6 +82,8 @@ public class Importer implements  Runnable {
   private void processStudies( Set<PortalDonorMetadata> portalDonorMetadataSet){
     log.info("Converting Studies...");
     val studies = STUDY_CONVERTER.convertStudies(portalDonorMetadataSet);
+
+    log.info("Updating StudyRepository with {} studies", studies.size());
     studies.forEach(this::createStudy);
   }
 
@@ -92,6 +94,8 @@ public class Importer implements  Runnable {
   private void processDonors(Set<PortalDonorMetadata> portalDonorMetadataSet){
     log.info("Converting donors...");
     val donors = DONOR_CONVERTER.convertDonors(portalDonorMetadataSet);
+
+    log.info("Updating DonorRepository with {} donors", donors.size());
     donors.forEach(donorRepository::create);
   }
 
