@@ -1,0 +1,17 @@
+version: '3.2'
+services:
+  song:
+    build: ./song
+    depends_on:
+      - db 
+      - id
+    ports:
+      - "8080:8080"
+  db:
+    build: ./song-db
+  id:
+    build: ./id
+    depends_on:
+      - id-db
+  id-db:
+    build: ./id-db
