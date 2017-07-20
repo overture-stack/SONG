@@ -22,8 +22,6 @@ insert into Analysis(id, study_id, state, type) values ('AN2','ABC123', 'UNPUBLI
 insert into SequencingRead (id, library_strategy, paired_end, insert_size, aligned, alignment_tool, reference_genome) values ('AN2','Other', TRUE, 12345, TRUE, 'BigWrench', 'hg19');
 insert into FileSet(analysis_id, file_id) values ('AN2', 'FI1'),('AN2','FI3');
 
-insert into Analysis(id, study_id, state, type) values ('MU1', 'ABC123', 'SUPPRESSED', 'MAF');
 insert into SampleSet(analysis_id, sample_id) values ('AN2','SA1');
 insert into SampleSet(analysis_id, sample_id) values ('AN1', 'SA11');
 insert into SampleSet(analysis_id, sample_id) values ('AN1', 'SA21');
-insert into FileSet(analysis_id, file_id) values ('MU1','FI1'),('MU1','FI2'),('MU1','FI3');

@@ -51,6 +51,8 @@ public class Importer implements  Runnable {
   @Autowired private AnalysisRepository analysisRepository;
 
 
+
+
   @Override
   public void run() {
     log.info("Building FileFilter...");
