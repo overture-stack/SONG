@@ -46,6 +46,7 @@ public class Upload {
   public final static String VALIDATED = "VALIDATED";
   public final static String VALIDATION_ERROR = "VALIDATION_ERROR";
   public final static String UPLOADED = "UPLOADED";
+  public final static String UPDATED="UPDATED";
   public final static String SAVED = "SAVED";
   public final static String PUBLISHED = "PUBLISHED";
   public final static String SUPPRESSED = "SUPPRESSED";

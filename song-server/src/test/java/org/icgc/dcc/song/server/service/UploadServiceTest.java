@@ -91,6 +91,7 @@ public class UploadServiceTest {
     assertThat(upload.getState()).isEqualTo("VALIDATED");
   }
 
+
   @Test
   public void testASyncUpload(){
     val fileName = "sequencingRead.json";
@@ -100,6 +101,56 @@ public class UploadServiceTest {
     val uploadId = uploadStatus.getBody().toString();
     val upload = uploadService.read(uploadId);
     assertThat(upload.getState()).isEqualTo("CREATED");
+  }
+
+  @SneakyThrows
+  @Test public void testAsyncUpdate() {
+    val fileName="updateAnalysisTest.json";
+    val study="ABC123";
+    val json = readFile(fileName);
+    val uploadStatus = uploadService.upload(study, json, false );
+    val uploadId = uploadStatus.getBody().toString();
+
+    val json2 = json.replace("MUSE variant call pipeline","Muslix popcorn");
+    assertThat(json).isNotEqualTo(json2);
+    val uploadStatus2 = uploadService.upload(study, json2, true);
+    val uploadId2 = uploadStatus.getBody().toString();
+
+    assertThat(uploadId).isEqualTo(uploadId2);
+    val upload = uploadService.read(uploadId2);
+    assertThat(upload.getPayload()).isEqualTo(json2);
+    assertThat(upload.getState()).isEqualTo("UPDATED");
+
+    // test validation
+    val finalState = validate(uploadId);
+    assertThat(finalState).isEqualTo("VALIDATED");
+
+    // test save
+    val response = uploadService.save(study,uploadId);
+    assertThat(response.getStatusCode()).isEqualTo(OK);
+  }
+
+  @SneakyThrows
+  @Test public void testSyncUpdate() {
+    val fileName="updateAnalysisTest.json";
+    val study="ABC123";
+    val json = readFile(fileName);
+    val uploadStatus = uploadService.upload(study, json, false );
+    val uploadId = uploadStatus.getBody().toString();
+
+    val json2 = json.replace("MUSE variant call pipeline","Muslix popcorn");
+    assertThat(json).isNotEqualTo(json2);
+    val uploadStatus2 = uploadService.upload(study, json2, false);
+    val uploadId2 = uploadStatus.getBody().toString();
+
+    assertThat(uploadId).isEqualTo(uploadId2);
+    val upload = uploadService.read(uploadId2);
+    assertThat(upload.getPayload()).isEqualTo(json2);
+    assertThat(upload.getState()).isEqualTo("VALIDATED");
+
+    // test save
+    val response = uploadService.save(study,uploadId);
+    assertThat(response.getStatusCode()).isEqualTo(OK);
   }
 
   @SneakyThrows
@@ -122,10 +173,11 @@ public class UploadServiceTest {
     return status.getState();
   }
 
+
   private String validate(String uploadId) throws InterruptedException {
     String state=read(uploadId);
     // wait for the server to finish
-    while(state.equals("CREATED")) {
+    while(state.equals("CREATED") || state.equals("UPDATED")) {
       Thread.sleep(50);
       state=read(uploadId);
     }

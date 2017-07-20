@@ -68,7 +68,7 @@ CREATE TABLE Sample(id VARCHAR(36) PRIMARY KEY, specimen_id VARCHAR(36) referenc
 CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, name TEXT, size BIGINT,
     md5 CHAR(32), type FILE_TYPE, info TEXT);
 
-CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, state ANALYSIS_STATE,
+CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, submitter_id TEXT, type ANALYSIS_TYPE, state ANALYSIS_STATE,
     study_id VARCHAR(36) references Study, info TEXT);
 CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File ON DELETE CASCADE);
 CREATE TABLE SampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);
@@ -78,6 +78,7 @@ CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_too
     tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT, info TEXT);
 ;
 
-CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50),
+CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study,
+    analysis_submitter_id TEXT, state VARCHAR(50),
     errors TEXT, payload TEXT, created_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIMEZONE NOT NULL DEFAULT now());
