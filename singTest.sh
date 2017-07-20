@@ -17,35 +17,34 @@ function header {
     echo "$topLine"
 }
 
-header "Uploading File"
+header "Uploading file"
 uploadFile=${1:-sequencingRead.json}
 set -x 
-u=`$SING_EXE upload -f $uploadFile`
+u=`cat $uploadFile | $SING_EXE upload`
 set +x 
 
-header "Checking Status of upload id '$u'"
+header "Checking Status of upload"
 set -x 
 echo $u | ${SING_EXE} status | jq -C .state 
 set +x 
 
-header "Sleeping for 1 sec, then checking upload status "
+header "Sleeping for 1 sec, then checking upload status again"
 sleep 1
 set -x 
 echo $u | ${SING_EXE} status | jq -C .state 
 set +x 
 
-header "Saving upload id to get analysis id"
+header "Saving uploaded analysis data"
 set -x 
 a=`echo $u | $SING_EXE save`
 set +x 
-echo "Got analysis id '$a'"
 
-header "Checking status of upload id"
+header "Checking status of upload"
 set -x 
 echo $u | ${SING_EXE} status | jq -C .state 
 set +x 
 
-header "Uploading manifest using analysis id $a"
+header "Fetching manifest for our analysis" 
 set -x 
 echo $a | ${SING_EXE} manifest -f manifest.txt
 set +x 
