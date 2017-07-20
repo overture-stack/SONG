@@ -22,6 +22,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
@@ -30,7 +31,7 @@ import org.icgc.dcc.song.client.register.Registry;
 @Parameters(separators = "=", commandDescription = "Publish an analysis id" )
 public class PublishCommand extends Command {
 
-  @Parameter(names = { "-p", "--publish-id" }, required = true)
+  @Parameter(names = { "-p", "--publish-id" }, required = false)
   private String publishId;
 
   @NonNull
@@ -41,8 +42,11 @@ public class PublishCommand extends Command {
 
   @Override
   public void run() {
-    Status status;
-    status = registry.publish(config.getStudyId(),publishId);
+    if (publishId == null) {
+      publishId = getJson().at("/analysisId").asText("");
+    }
+
+    val status = registry.publish(config.getStudyId(),publishId);
     save(status);
   }
 

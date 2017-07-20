@@ -41,7 +41,7 @@ import java.util.stream.StreamSupport;
 @Parameters(commandDescription = "Generate a manifest file for the analysis with the specified analysis id")
 public class ManifestCommand extends Command {
 
-  @Parameter(names = { "-a", "--analysis-id" }, required = true)
+  @Parameter(names = { "-a", "--analysis-id" })
   String analysisId;
 
   @Parameter(names = { "--file", "-f" }, description = "Filename to save file in (if not set, displays manifest on standard output")
@@ -56,6 +56,10 @@ public class ManifestCommand extends Command {
   @Override
   @SneakyThrows
   public void run() {
+    if (analysisId == null) {
+      analysisId = getJson().at("/analysisId").asText("");
+    }
+
     val status = registry.getAnalysisFiles(config.getStudyId(), analysisId);
 
     if (status.hasErrors()) {
