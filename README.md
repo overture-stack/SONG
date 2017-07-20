@@ -17,7 +17,7 @@ $ mvn clean package
 
 #### Command-line
 
-The source can be built and ran using maven.
+The source can be built and run using maven.
 
 ```bash
 $ git clone git@github.com:icgc-dcc/SONG.git
