@@ -26,10 +26,11 @@ import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_RECORD_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
-import static org.icgc.dcc.song.server.model.enums.IdPrefix.File;
 
 @Service
 @NoArgsConstructor
@@ -40,8 +41,8 @@ public class FileService {
   @Autowired
   IdService idService;
 
-  public String create(@NonNull String studyId, @NonNull File file) {
-    val id = idService.generate(File);
+  public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
+    val id = idService.generateFileId(analysisId, file.getFileName());
     file.setObjectId(id);
     file.setStudyId(studyId);
 
@@ -68,10 +69,10 @@ public class FileService {
     return OK;
   }
 
-  public String save(@NonNull String studyId, @NonNull File file) {
-    String fileId = repository.findByBusinessKey(studyId, file.getFileName());
+  public String save(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
+    String fileId = repository.findByBusinessKey(analysisId, file.getFileName());
     if (fileId == null) {
-      fileId = idService.generate(File);
+      fileId = idService.generateFileId(analysisId, file.getFileName());
       file.setObjectId(fileId);
       file.setStudyId(studyId);
       val status=repository.create(file);

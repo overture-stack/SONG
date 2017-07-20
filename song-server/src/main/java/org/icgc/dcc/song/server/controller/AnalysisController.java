@@ -53,6 +53,12 @@ public class AnalysisController {
   @Autowired
   private final AnalysisService analysisService;
 
+  @GetMapping(value = "")
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public List<Analysis> getAnalysis(@PathVariable("studyId") String studyId) {
+    return analysisService.getAnalysis(studyId);
+  }
+
   @PutMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -94,16 +100,6 @@ public class AnalysisController {
   @GetMapping(value = "/{id}/files")
   public List<File> getFilesById(@PathVariable("id") String id) {
     return analysisService.readFiles(id);
-  }
-
-  /***
-   * Return all the analysis ids for this study matching the given parameters
-   * @param params A set of command line parameters to search against
-   * @return A list of analysis ids
-   */
-  @GetMapping(value = "")
-  public List<String> getAnalyses(@RequestParam Map<String, String> params) {
-    return analysisService.getAnalyses(params);
   }
 
 }

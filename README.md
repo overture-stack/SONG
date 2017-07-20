@@ -6,8 +6,6 @@ SONG - Metadata and Validation system
 Project containing both the SONG microservice and CLI client. 
 Both are written using JAVA 8 and Spring Boot. 
 
-Contains code adapted from Corey Hulen https://github.com/coreyhulen/earnstone-id
-Licensed under Apache License 2.0
 ## Build
 
 ```bash

@@ -48,14 +48,14 @@ public class DonorService {
   private final SpecimenService specimenService;
 
   public String create(@NonNull DonorWithSpecimens d) {
-    val id = idService.generate(Donor);
+    val id = idService.generateDonorId(d.getDonorSubmitterId(), d.getStudyId());
     d.setDonorId(id);
 
     val status = donorRepository.create(d.getDonor());
     if (status != 1) {
       throw buildServerException(this.getClass(), DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
     }
-    d.getSpecimens().forEach(s -> specimenService.create(id, s));
+    d.getSpecimens().forEach(s -> specimenService.create(d.getStudyId(), s));
 
     return id;
   }
@@ -103,7 +103,7 @@ public class DonorService {
 
     String donorId = donorRepository.findByBusinessKey(studyId, donor.getDonorSubmitterId());
     if (donorId == null) {
-      donorId = idService.generate(IdPrefix.Donor);
+      donorId = idService.generateDonorId(donor.getDonorSubmitterId(), studyId);
       donor.setDonorId(donorId);
       donorRepository.create(donor);
     } else {

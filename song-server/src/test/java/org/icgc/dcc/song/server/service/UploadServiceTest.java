@@ -19,6 +19,7 @@
 package org.icgc.dcc.song.server.service;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
@@ -34,6 +35,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 import java.nio.file.Files;
 
+import static java.lang.System.out;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -146,7 +148,7 @@ public class UploadServiceTest {
       // test create for Asynchronous case
       assertThat(initialState).isEqualTo("CREATED");
     } else {
-      assertThat(initialState).isEqualTo("VALIDATED"); //Syncronous should always return VALIDATED
+      assertThat(initialState).isEqualTo("VALIDATED"); //Synchronous should always return VALIDATED
     }
 
     // test validation
@@ -156,8 +158,6 @@ public class UploadServiceTest {
     // test save
    val response = uploadService.save(study,uploadId);
    assertThat(response.getStatusCode()).isEqualTo(OK);
-   val analysisId = response.getBody().toString();
-   assertThat(analysisId.startsWith("AN")).isTrue();
   }
 
 }

@@ -43,13 +43,11 @@ public class SampleService {
   SampleRepository repository;
   @Autowired
   IdService idService;
-  @Autowired
-  FileService fileService;
 
-  public String create(@NonNull String parentId, @NonNull Sample sample) {
-    val id = idService.generate(Sample);
+  public String create(@NonNull String studyId, @NonNull Sample sample) {
+    val id = idService.generateSampleId(sample.getSampleSubmitterId(), studyId);
     sample.setSampleId(id);
-    sample.setSpecimenId(parentId);
+    sample.setSpecimenId(sample.getSpecimenId());
     int status = repository.create(sample);
 
     if (status != 1) {
@@ -100,7 +98,7 @@ public class SampleService {
   public String save(@NonNull String studyId, @NonNull Sample sample) {
     String sampleId = repository.findByBusinessKey(studyId, sample.getSampleSubmitterId());
     if (sampleId == null) {
-      sampleId = idService.generate(IdPrefix.Sample);
+      sampleId = idService.generateSampleId(sample.getSampleSubmitterId(), studyId);
       sample.setSampleId(sampleId);
       repository.create(sample);
     } else {

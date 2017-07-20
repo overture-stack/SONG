@@ -18,27 +18,60 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import com.earnstone.id.Generator;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.icgc.dcc.id.client.core.IdClient;
 import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 import static java.lang.String.format;
 
 @Service
+@RequiredArgsConstructor
 public class IdService {
 
+  /**
+   * Dependencies.
+   */
   @Autowired
-  private Generator generator;
+  private final IdClient idClient;
 
-  protected String identifier() {
-    val id = generator.nextId();
-    return Long.toString(id, 36).toUpperCase();
+  public String generateDonorId(@NonNull String submittedDonorId, @NonNull String study) {
+    return idClient.createDonorId(submittedDonorId, study);
+  }
+
+  public String generateSpecimenId(@NonNull String submittedSpecimenId, @NonNull String study) {
+    return idClient.createSpecimenId(submittedSpecimenId, study);
+  }
+
+  public String generateSampleId(@NonNull String submittedSampleId, @NonNull String study) {
+    return idClient.createSampleId(submittedSampleId, study);
+  }
+
+  public String generateFileId(@NonNull String analysisId, @NonNull String fileName) {
+    val opt = idClient.getObjectId(analysisId, fileName);
+    if (opt.isPresent()) {
+      return opt.get();
+    } else {
+      throw new IllegalStateException("Generating objectId should not yield missing value.");
+    }
+  }
+
+  public String generateAnalysisId() {
+    val opt = idClient.getAnalysisId();
+    if (opt.isPresent()) {
+      return opt.get();
+    } else {
+      throw new IllegalStateException("Generating AnalysisId should not yield missing value.");
+    }
   }
 
   public String generate(IdPrefix prefix) {
-    return format("%s%s", prefix.toString(), identifier());
+    return format("%s-%s", prefix.toString(), UUID.randomUUID());
   }
 
 }

@@ -21,6 +21,7 @@ package org.icgc.dcc.song.server.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
 import org.flywaydb.test.annotation.FlywayTest;
@@ -42,12 +43,15 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.server.model.enums.Constants.list;
+import static java.lang.String.format;
 
+@Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
@@ -60,28 +64,13 @@ public class AnalysisServiceTest {
   @Autowired
   AnalysisService service;
 
-  /***
-   * Tell javac/Eclipse/IntelliJ, etc. that our code might throw an Exception.
-   *
-   * When we put code that throws exceptions with @SneakyThrows
-   * inside a try/catch block with sneakyCatch(), we can catch
-   * Sneaky exceptions.
-   *
-   * @throws Exception
-   */
-  private void sneakyCatch() throws Exception {
-      if (false) {
-        throw new Exception();
-      }
-  }
-
   @SneakyThrows
   private String readFile(String name) {
     return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
   }
 
   @Test
-  public void testCreate() {
+  public void testCreateAndUpdate() {
     val study="ABC123";
     val json = readFile("sequencingRead.json");
     val analysis = fromJson(json, Analysis.class);
@@ -93,21 +82,49 @@ public class AnalysisServiceTest {
     assertThat(created.getAnalysisType()).isEqualTo("sequencingRead");
     assertThat(created.getSample().size()).isEqualTo(1);
     val sample = created.getSample().get(0);
+    val experiment = ((SequencingReadAnalysis) created).getExperiment();
+    assertThat(experiment).isNotNull();
+    assertThat(experiment.getAlignmentTool().equals("BigWrench"));
 
-    System.err.printf("Created '%s'",toJson(created));
+    // test update
+    val change="ModifiedToolName";
+    experiment.setAlignmentTool(change);
+    service.updateAnalysis(study, created);
+    val gotBack = service.read(analysisId);
+    val experiment2 =((SequencingReadAnalysis)gotBack).getExperiment();
+    assertThat(experiment2.getAlignmentTool() ).isEqualTo(change);
+
+    log.info(format("Created '%s'",toJson(created)));
   }
 
   @Test
-  public void testIdentifyDuplicateSubmissions() {
+  public void testCreateAndUpdateVariantCall() {
     val study="ABC123";
-    val json = readFile("sequencingRead.json");
+    val json = readFile("variantCall.json");
     val analysis = fromJson(json, Analysis.class);
+    val analysisId=service.create(study, analysis);
 
-    val analysisId1=service.save(study, analysis);
-    val analysisId2=service.save(study, analysis);
-    assertThat(analysisId1).startsWith("AN");
-    assertThat(analysisId1).isEqualTo(analysisId2);
+    val created = service.read(analysisId);
+    assertThat(created.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(created.getAnalysisState()).isEqualTo(analysis.getAnalysisState());
+    assertThat(created.getAnalysisType()).isEqualTo("variantCall");
+    assertThat(created.getSample().size()).isEqualTo(1);
+    val sample = created.getSample().get(0);
+    val experiment = ((VariantCallAnalysis) created).getExperiment();
+    assertThat(experiment).isNotNull();
+    assertThat(experiment.getVariantCallingTool()).isEqualTo("silver bullet");
+
+    // test update
+    val change="GoldenHammer";
+    experiment.setVariantCallingTool(change) ;
+    service.updateAnalysis(study, created);
+    val gotBack = service.read(analysisId);
+    val experiment2 =((VariantCallAnalysis)gotBack).getExperiment();
+    assertThat(experiment2.getVariantCallingTool()).isEqualTo(change);
+
+    log.info(format("Created '%s'",toJson(created)));
   }
+
 
   @Test
   public void testRead() {
@@ -149,14 +166,6 @@ public class AnalysisServiceTest {
     assertThat(analysis3).isNull();
   }
 
-  @Test
-  public void testFindAnalysis() {
-    val study = "ABC123";
-    val type = "sequencingRead";
-    val sample_submitter_ids = list("T285-G7-A5");
-    val id = service.findByBusinessKey(study, type, sample_submitter_ids);
-    assertThat(id.equals(list("AN2")));
-  }
 
   @Ignore
   @Test
@@ -174,8 +183,7 @@ public class AnalysisServiceTest {
   public void testUpdate() {
     val id = "AN1";
     val analysis = service.read(id);
-
-
+    // FIXME: implement this...
   }
 
   @Test
@@ -186,18 +194,6 @@ public class AnalysisServiceTest {
     val analysis = service.read(id);
     assertThat(analysis.getAnalysisState()).isEqualTo("SUPPRESSED");
   }
-
-
-  @Test
-  public void testAddFile() {
-    val id = "MU1";
-    val fileId = "FI3";
-
-    service.addFile(id, fileId);
-    // TODO: verify record was added to FileSet table
-    assertThat(true); // we didn't crash
-  }
-
 
   public String getJsonNodeFromClasspath(String name) throws Exception {
     InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
