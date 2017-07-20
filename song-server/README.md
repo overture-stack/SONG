@@ -21,3 +21,5 @@ This will eventually be taken care of in the startup bash scripts.
 ```bash
 mvn clean package
 ```
+
+Note: inorder to prevent the spring-boot-maven-plugin from overwriting the original jar with the uberjar, the `<classifier>exec</classifier>` attribute was added to the configuration to suffix the uberjar with __exec__
