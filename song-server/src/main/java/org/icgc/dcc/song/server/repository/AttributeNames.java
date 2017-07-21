@@ -26,6 +26,8 @@ public class AttributeNames {
     public static final String DONOR_ID="donor_id";
     public static final String CLASS="class";
 
+    public static final String ANALYSIS_ID="analysis_id";
+
     public static final String ORGANIZATION="organization";
     public static final String DESCRIPTION="description";
 

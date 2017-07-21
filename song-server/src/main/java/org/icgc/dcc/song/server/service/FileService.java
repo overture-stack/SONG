@@ -45,6 +45,7 @@ public class FileService {
     val id = idService.generateFileId(analysisId, file.getFileName());
     file.setObjectId(id);
     file.setStudyId(studyId);
+    file.setAnalysisId(analysisId);
 
     val status = repository.create(file);
 
@@ -75,6 +76,7 @@ public class FileService {
       fileId = idService.generateFileId(analysisId, file.getFileName());
       file.setObjectId(fileId);
       file.setStudyId(studyId);
+      file.setAnalysisId(analysisId);
       val status=repository.create(file);
       if (status==-1) {
         throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create File: %s", file.toString());

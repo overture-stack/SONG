@@ -31,25 +31,25 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(FileMapper.class)
 public interface FileRepository {
 
-  @SqlUpdate("INSERT INTO File (id,name, study_id, size, type, md5, info) "
-      + "VALUES (:objectId, :fileName, :studyId, :fileSize, :fileType, :fileMd5sum, :info)")
+  @SqlUpdate("INSERT INTO File (id, analysis_id, name, study_id, size, type, md5, info) "
+      + "VALUES (:objectId, :analysisId,:fileName,  :studyId, :fileSize, :fileType, :fileMd5sum, :info)")
   int create(@BindBean File f);
 
-  @SqlQuery("SELECT id, name, study_id, size, type, md5, info FROM File WHERE id=:id")
+  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5, info FROM File WHERE id=:id")
   File read(@Bind("id") String id);
 
-  @SqlUpdate("UPDATE File SET name=:fileName, size=:fileSize, type=:fileType, md5=:fileMd5sum, info=:info where id=:objectId")
+  @SqlUpdate("UPDATE File SET name=:fileName, analysis_id=:analysisId, size=:fileSize, type=:fileType, md5=:fileMd5sum, info=:info where id=:objectId")
   int update(@BindBean File file);
 
-  @SqlUpdate("UPDATE File SET name=:fileName, size=:fileSize, type=:fileType, md5=:fileMd5, metadata_doc=:metadata where id=:id")
+  @SqlUpdate("UPDATE File SET name=:fileName, analysis_id=:analysisId,size=:fileSize, type=:fileType, md5=:fileMd5, metadata_doc=:metadata where id=:id")
   int update(@Bind("id") String id, @BindBean File file);
 
   @SqlUpdate("DELETE From File where id=:id")
   int delete(@Bind("id") String id);
 
-  @SqlQuery("SELECT id, name, study_id, size, type, md5, info FROM File WHERE study_id=:studyId")
+  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5, info FROM File WHERE study_id=:studyId")
   List<File> readByParentId(@Bind("studyId") String study_id);
 
-  @SqlQuery("SELECT f.id from File f, FileSet fs WHERE f.name=:fileName AND fs.analysis_id=:analysisId AND f.id=fs.file_id")
+  @SqlQuery("SELECT f.id from File f WHERE f.name=:fileName AND f.analysis_id=:analysisId")
   String findByBusinessKey(@Bind("analysisId") String analysisId, @Bind("fileName") String fileName);
 }

@@ -62,13 +62,10 @@ public interface AnalysisRepository {
   @SqlQuery("SELECT id, study_id, submitter_id, type, state, info FROM Analysis WHERE id=:id")
   Analysis read(@Bind("id") String id);
 
-  @SqlQuery("SELECT f.id, f.name, f.study_id, f.size, f.type, f.md5, f.info "
-      + "FROM File f, FileSet s "
-      + "WHERE s.analysis_id=:analysisId "
-      + "  AND f.id = s.file_id")
-  List<File> readFiles(@Bind("analysisId") String id);
+  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5, info  FROM File WHERE analysis_id=:id ")
+  List<File> readFiles(@Bind("id") String id);
 
-  @SqlUpdate("DELETE FROM file f WHERE f.id IN (SELECT fs.file_id FROM fileset fs WHERE fs.analysis_id=:id)")
+  @SqlUpdate("DELETE FROM File WHERE analysis_id=:id")
   void deleteFiles(@Bind("id") String analysisId);
 
   @SqlUpdate("DELETE FROM SampleSet WHERE analysis_id=:id")
