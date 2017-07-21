@@ -50,7 +50,7 @@ public class FileServiceTest {
   public void testReadFile() {
     val id = "FI1";
     val name = "ABC-TC285G7-A5-ae3458712345.bam";
-    val analysis_id="AN1";
+    val analysisId="AN1";
     val study = "ABC123";
     val type = "BAM";
     val size = 122333444455555L;
@@ -58,7 +58,7 @@ public class FileServiceTest {
     val metadata = JsonUtils.fromSingleQuoted("{'info':'<XML>Not even well-formed <XML></XML>'}");
     val file = fileService.read(id);
 
-    val expected = File.create(id, analysis_id, name, study, size, type, md5, metadata);
+    val expected = File.create(id, analysisId, name, study, size, type, md5, metadata);
     assertThat(file).isEqualToComparingFieldByField(expected);
   }
 
@@ -95,7 +95,7 @@ public class FileServiceTest {
 
     val study="ABC123";
     val id = "";
-    val analysis_id="AN1";
+    val analysisId="AN1";
     val name = "file123.fasta";
     val sampleId = "";
     val size = 12345L;
@@ -103,12 +103,12 @@ public class FileServiceTest {
     val md5 = "md5sumaebcefghadwa";
     val metadata = "";
 
-    val s = File.create(id, analysis_id,name, sampleId, size, type, md5, metadata);
+    val s = File.create(id, analysisId,name, sampleId, size, type, md5, metadata);
 
     fileService.create("AN1", study, s);
     val id2 = s.getObjectId();
 
-    val s2 = File.create(id2,  analysis_id,"File 102.fai", study, 123456789L, "FAI", "md5magical", "");
+    val s2 = File.create(id2,  analysisId,"File 102.fai", study, 123456789L, "FAI", "md5magical", "");
     fileService.update(s2);
 
     val s3 = fileService.read(id2);
