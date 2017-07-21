@@ -31,7 +31,7 @@ import java.io.IOException;
 @Parameters(separators = "=", commandDescription = "Upload an analysis file, and get an upload id")
 public class UploadCommand extends Command {
 
-  @Parameter(names = { "-f", "--file" }, required = true)
+  @Parameter(names = { "-f", "--file" })
   String fileName;
 
   @Parameter(names = { "-a", "--async" },description = "Enables asynchronous validation")
@@ -45,16 +45,26 @@ public class UploadCommand extends Command {
 
   @Override
   public void run() {
-    val file = new File(fileName);
+
     String json;
     try {
-      json = Files.toString(file, Charsets.UTF_8);
+      json = readUploadContent();
     } catch (IOException e) {
-      err("Error: Can't open file '%s'", file);
+      err("Error: Input/Output Error '%s'", e.getMessage());
       return;
     }
     val status = registry.upload(json, isAsyncValidation);
     save(status);
+  }
+
+  String readUploadContent() throws IOException {
+    if (fileName == null) {
+      val json=getJson();
+      return json.toString();
+    }
+
+    val file = new File(fileName);
+    return Files.toString(file, Charsets.UTF_8);
   }
 
 }

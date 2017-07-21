@@ -18,9 +18,16 @@
  */
 package org.icgc.dcc.song.client.command;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import lombok.val;
+
 import org.icgc.dcc.song.client.cli.Status;
 
 import lombok.Data;
+
+import java.io.IOException;
 
 /**
  * Abstract parent class for Command objects.
@@ -67,5 +74,15 @@ public abstract class Command {
    * Require all of our children to define a "run" method.
    */
   public abstract void run();
+
+  @SneakyThrows
+  public JsonNode getJson() {
+    val mapper = new ObjectMapper();
+
+    val json = mapper.readTree(System.in);
+
+    return json;
+  }
+
 
 }

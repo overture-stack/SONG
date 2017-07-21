@@ -18,6 +18,7 @@
  */
 package org.icgc.dcc.song.client.command;
 
+import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
@@ -32,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 @Parameters(separators = "=", commandDescription = "Save an uploaded analysis by it's upload id, and get the permanent analysis id")
 public class SaveCommand extends Command {
 
-  @Parameter(names = { "-u", "--upload-id" }, required = true)
+  @Parameter(names = { "-u", "--upload-id" })
   private String uploadId;
 
   @NonNull
@@ -42,8 +43,10 @@ public class SaveCommand extends Command {
 
   @Override
   public void run() {
-    Status status;
-    status = registry.save(config.getStudyId(), uploadId);
+    if (uploadId == null) {
+      uploadId = getJson().at("/uploadId").asText("");
+    }
+    val status = registry.save(config.getStudyId(), uploadId);
     save(status);
   }
 

@@ -17,59 +17,51 @@ function header {
     echo "$topLine"
 }
 
-header "Uploading File"
+header "Uploading file"
 uploadFile=${1:-sequencingRead.json}
 set -x 
-u=`$SING_EXE upload -f $uploadFile`
+u=`cat $uploadFile | $SING_EXE upload`
 set +x 
 
-header "Checking Status of upload id '$u'"
+header "Checking Status of upload"
 set -x 
-${SING_EXE} status -u $u | jq -C .state 
+echo $u | ${SING_EXE} status | jq -C .state 
 set +x 
 
-
-header "Sleeping for 1 sec, then checking upload status "
+header "Sleeping for 1 sec, then checking upload status again"
 sleep 1
 set -x 
-${SING_EXE} status -u $u | jq -C .state 
+echo $u | ${SING_EXE} status | jq -C .state 
 set +x 
 
-
-header "Saving upload id to get analysis id"
+header "Saving uploaded analysis data"
 set -x 
-a=`$SING_EXE save -u $u`
-set +x 
-echo "Got analysis id '$a'"
-
-
-header "Checking status if upload id"
-set -x 
-${SING_EXE} status -u $u | jq -C .state 
+a=`echo $u | $SING_EXE save`
 set +x 
 
-
-header "Uploading manifest using analysis id $a"
+header "Checking status of upload"
 set -x 
-${SING_EXE} manifest -a $a -f manifest.txt
+echo $u | ${SING_EXE} status | jq -C .state 
+set +x 
+
+header "Fetching manifest for our analysis" 
+set -x 
+echo $a | ${SING_EXE} manifest -f manifest.txt
 set +x 
 cat manifest.txt
 
-
-non_existant_upload_id="fake$u"
+non_existant_upload_id="fake_uploadId"
 header "[ERROR_TEST] Checking status of non-existant uploadId $non_existant_upload_id"
 set -x 
 ${SING_EXE} status -u $non_existant_upload_id | jq -C .state 
 set +x 
-
 
 header "[ERROR_TEST] Saving non-existant uploadId $non_existant_upload_id"
 set -x 
 bad_a=`$SING_EXE save -u $non_existant_upload_id`
 set +x 
 
-
-non_existant_analysis_id="fake$a"
+non_existant_analysis_id="fake_analysisId"
 header "[ERROR_TEST] Uploading manifect for non-existant analysisId $non_existant_analysis_id"
 set -x 
 ${SING_EXE} manifest -a $non_existant_analysis_id -f manifest.txt

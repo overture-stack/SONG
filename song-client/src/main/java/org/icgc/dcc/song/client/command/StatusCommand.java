@@ -32,7 +32,7 @@ import lombok.val;
 @Parameters(separators = "=", commandDescription = "Get the status of an upload from it's upload id.")
 public class StatusCommand extends Command {
 
-  @Parameter(names = { "-u", "--upload-id" }, required = true)
+  @Parameter(names = { "-u", "--upload-id" }, required = false)
   private String uploadId;
 
   @NonNull
@@ -42,6 +42,9 @@ public class StatusCommand extends Command {
 
   @Override
   public void run() {
+    if (uploadId == null) {
+      uploadId = getJson().at("/uploadId").asText("");
+    }
     val status = registry.getUploadStatus(config.getStudyId(), uploadId);
     save(status);
   }
