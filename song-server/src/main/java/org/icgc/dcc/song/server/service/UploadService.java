@@ -86,7 +86,6 @@ public class UploadService {
       val analysisSubmitterId=JsonUtils.readTree(payload).at("/analysisSubmitterId").asText();
       List<String> ids;
 
-
       if (analysisSubmitterId.equals("")) {
         // Our business rules say that we always want to create a new record if no analysisSubmitterId is set,
         // even if the rest of the content is duplicated.
@@ -95,7 +94,7 @@ public class UploadService {
         ids = uploadRepository.findByBusinessKey(studyId, analysisSubmitterId);
       }
 
-      if (ids.isEmpty()) {
+      if (ids == null || ids.isEmpty()) {
         uploadId = id.generate(IdPrefix.Upload);
         create(studyId, analysisSubmitterId, uploadId, payload);
       } else if (ids.size() == 1) {
