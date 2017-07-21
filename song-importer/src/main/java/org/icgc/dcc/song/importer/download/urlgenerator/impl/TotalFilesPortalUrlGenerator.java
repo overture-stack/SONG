@@ -3,13 +3,13 @@ package org.icgc.dcc.song.importer.download.urlgenerator.impl;
 import com.google.common.base.Joiner;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.icgc.dcc.song.importer.download.PortalFilterQuerys;
 import org.icgc.dcc.song.importer.download.urlgenerator.UrlGenerator;
 
 import java.net.URL;
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.icgc.dcc.song.importer.download.PortalFilterQuerys.COLLAB_FILTER;
 
 @RequiredArgsConstructor
 public class TotalFilesPortalUrlGenerator implements UrlGenerator {
@@ -40,7 +40,7 @@ public class TotalFilesPortalUrlGenerator implements UrlGenerator {
 
   @SneakyThrows
   private static String encodeFilter(){
-    return encode(PortalFilterQuerys.COLLAB_FILTER.toString(), UTF_8.name());
+    return encode(COLLAB_FILTER.toString(), UTF_8.name());
   }
 
 }

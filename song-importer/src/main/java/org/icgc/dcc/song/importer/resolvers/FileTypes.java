@@ -11,14 +11,8 @@ import static java.util.stream.Collectors.joining;
 
 @RequiredArgsConstructor
 public enum FileTypes {
-//  FASTA("FASTA"),
-//  FAI("FAI"),
-//  FASTQ("FASTQ"),
   BAM("BAM"),
-//  BAI("BAI"),
   VCF("VCF");
-//  TBI("TBI"),
-//  IDX("IDX");
 
   @Getter private final String fileTypeName;
 

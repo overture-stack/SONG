@@ -7,8 +7,8 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
-import org.icgc.dcc.song.importer.resolvers.SpecimenClasses;
 import org.icgc.dcc.song.importer.resolvers.SampleTypes;
+import org.icgc.dcc.song.importer.resolvers.SpecimenClasses;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 
@@ -19,7 +19,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkState;
 import static lombok.Lombok.sneakyThrow;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.icgc.dcc.song.importer.convert.DonorConverter.getDonorId;
+import static org.icgc.dcc.song.importer.convert.Converters.NA;
 import static org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.SpecimenSampleTuple.createSpecimenSampleContainer;
 
 @Slf4j
@@ -88,11 +88,11 @@ public class SpecimenSampleConverter {
   }
 
   public static String getSpecimenInfo(){
-    return Converters.NA;
+    return NA;
   }
 
   public static String getSampleInfo(){
-    return Converters.NA;
+    return NA;
   }
 
   public static String getSampleType(@NonNull PortalFileMetadata portalFileMetadata){

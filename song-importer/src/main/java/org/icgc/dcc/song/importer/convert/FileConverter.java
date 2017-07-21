@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.icgc.dcc.song.importer.convert.StudyConverter.getStudyId;
+import static org.icgc.dcc.song.importer.convert.Converters.NA;
 
 @RequiredArgsConstructor
 public class FileConverter {
@@ -59,7 +59,7 @@ public class FileConverter {
   }
 
   public static String getFileInfo(){
-    return Converters.NA;
+    return NA;
   }
 
   public static FileConverter createFileConverter() {

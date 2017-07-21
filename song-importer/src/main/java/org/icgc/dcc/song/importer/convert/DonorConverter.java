@@ -9,7 +9,7 @@ import org.icgc.dcc.song.server.model.entity.Donor;
 import java.util.Set;
 
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.icgc.dcc.song.importer.convert.StudyConverter.getStudyId;
+import static org.icgc.dcc.song.importer.convert.Converters.NA;
 
 @RequiredArgsConstructor
 public class DonorConverter {
@@ -28,7 +28,7 @@ public class DonorConverter {
         getDonorSubmitterId(portalDonorMetadata),
         StudyConverter.getStudyId(portalDonorMetadata),
         getGender(portalDonorMetadata),
-        Converters.NA);
+        NA);
   }
 
   public static String getDonorId(@NonNull PortalDonorMetadata portalDonorMetadata){

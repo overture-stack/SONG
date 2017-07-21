@@ -30,129 +30,130 @@ import java.util.function.Function;
 import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+import static org.icgc.dcc.song.importer.parser.FieldNames.*;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class FilePortalJsonParser {
 
   public static String getAccess(@NonNull ObjectNode file){
-    return file.path(FieldNames.ACCESS).textValue();
+    return file.path(ACCESS).textValue();
   }
 
   public static String getObjectId(@NonNull ObjectNode file) {
-    return file.path(FieldNames.OBJECT_ID).textValue();
+    return file.path(OBJECT_ID).textValue();
   }
 
   public static String getDataType(@NonNull ObjectNode file) {
-    return getDataCategorization(file).path(FieldNames.DATA_TYPE).textValue();
+    return getDataCategorization(file).path(DATA_TYPE).textValue();
   }
 
   public static String getExperimentalStrategy(@NonNull ObjectNode file) {
-    return getDataCategorization(file).path(FieldNames.EXPERIMENTAL_STRATEGY).textValue();
+    return getDataCategorization(file).path(EXPERIMENTAL_STRATEGY).textValue();
   }
 
   public static String getFileId(@NonNull ObjectNode file) {
-    return file.path(FieldNames.ID).textValue();
+    return file.path(ID).textValue();
   }
 
   public static String getFileName(@NonNull ObjectNode file) {
-    return getFirstFileCopy(file).path(FieldNames.FILE_NAME).textValue();
+    return getFirstFileCopy(file).path(FILE_NAME).textValue();
   }
 
   public static String getFileFormat(@NonNull ObjectNode file) {
-    return getFirstFileCopy(file).path(FieldNames.FILE_FORMAT).textValue();
+    return getFirstFileCopy(file).path(FILE_FORMAT).textValue();
   }
 
   public static long getFileSize(@NonNull ObjectNode file) {
-    return getFirstFileCopy(file).path(FieldNames.FILE_SIZE).asLong(-1);
+    return getFirstFileCopy(file).path(FILE_SIZE).asLong(-1);
   }
 
   public static long getFileLastModified(@NonNull ObjectNode file) {
-    return getFirstFileCopy(file).path(FieldNames.LAST_MODIFIED).asLong(-1);
+    return getFirstFileCopy(file).path(LAST_MODIFIED).asLong(-1);
   }
 
   public static String getFileMd5sum(@NonNull ObjectNode file) {
-    return getFirstFileCopy(file).path(FieldNames.FILE_MD5SUM).textValue();
+    return getFirstFileCopy(file).path(FILE_MD5SUM).textValue();
   }
 
   public static String getProjectCode(@NonNull ObjectNode file) {
-    return getFirstDonor(file).path(FieldNames.PROJECT_CODE).textValue();
+    return getFirstDonor(file).path(PROJECT_CODE).textValue();
   }
 
   public static String getDonorId(@NonNull ObjectNode file) {
-    return getFirstDonor(file).path(FieldNames.DONOR_ID).textValue();
+    return getFirstDonor(file).path(DONOR_ID).textValue();
   }
 
   public static String getSubmittedDonorId(@NonNull ObjectNode file) {
-    return getFirstDonor(file).path(FieldNames.SUBMITTED_DONOR_ID).textValue();
+    return getFirstDonor(file).path(SUBMITTED_DONOR_ID).textValue();
   }
 
   public static String getReferenceName(@NonNull ObjectNode file) {
-    return getReferenceGenome(file).path(FieldNames.REFERENCE_NAME).textValue();
+    return getReferenceGenome(file).path(REFERENCE_NAME).textValue();
   }
 
   public static String getGenomeBuild(@NonNull ObjectNode file) {
-    return getReferenceGenome(file).path(FieldNames.GENOME_BUILD).textValue();
+    return getReferenceGenome(file).path(GENOME_BUILD).textValue();
   }
 
   private static JsonNode getReferenceGenome(@NonNull ObjectNode file) {
-    return file.path(FieldNames.REFERENCE_GENOME);
+    return file.path(REFERENCE_GENOME);
   }
 
   public static String getRepoDataBundleId(@NonNull ObjectNode file){
-    return getFirstFileCopy(file).path(FieldNames.REPO_DATA_BUNDLE_ID).textValue();
+    return getFirstFileCopy(file).path(REPO_DATA_BUNDLE_ID).textValue();
   }
 
   public static Optional<String> getIndexFileId(@NonNull ObjectNode file){
-    return getIndexFile(file, x -> x.path(FieldNames.ID).textValue());
+    return getIndexFile(file, x -> x.path(ID).textValue());
   }
 
 
   public static Optional<String> getIndexFileObjectId(@NonNull ObjectNode file){
-    return getIndexFile(file, x -> x.path(FieldNames.OBJECT_ID).textValue());
+    return getIndexFile(file, x -> x.path(OBJECT_ID).textValue());
   }
 
   public static Optional<String> getIndexFileFileName(@NonNull ObjectNode file){
-    return getIndexFile(file, x -> x.path(FieldNames.FILE_NAME).textValue());
+    return getIndexFile(file, x -> x.path(FILE_NAME).textValue());
   }
 
   public static Optional<String> getIndexFileFileFormat(@NonNull ObjectNode file){
-    return getIndexFile(file, x -> x.path(FieldNames.FILE_FORMAT).textValue());
+    return getIndexFile(file, x -> x.path(FILE_FORMAT).textValue());
   }
 
   public static Optional<String> getIndexFileFileMd5sum(@NonNull ObjectNode file){
-    return getIndexFile(file, x -> x.path(FieldNames.FILE_MD5SUM).textValue());
+    return getIndexFile(file, x -> x.path(FILE_MD5SUM).textValue());
   }
 
   public static Optional<Long> getIndexFileFileSize(@NonNull ObjectNode file){
-    return getIndexFile(file, x -> x.path(FieldNames.FILE_MD5SUM).asLong(-1));
+    return getIndexFile(file, x -> x.path(FILE_MD5SUM).asLong(-1));
   }
 
   public static String getSoftware(@NonNull ObjectNode file){
-    return getAnalysisMethod(file).path(FieldNames.SOFTWARE).textValue();
+    return getAnalysisMethod(file).path(SOFTWARE).textValue();
   }
 
   public static List<String> getSampleIds(@NonNull ObjectNode file) {
-    val sampleIdNode = getFirstDonor(file).path(FieldNames.SAMPLE_ID);
+    val sampleIdNode = getFirstDonor(file).path(SAMPLE_ID);
     return getFirstLevelList(sampleIdNode);
   }
 
   public static List<String> getSubmittedSampleIds(@NonNull ObjectNode file) {
-    val submittedSampleIdNode = getFirstDonor(file).path(FieldNames.SUBMITTED_SAMPLE_ID);
+    val submittedSampleIdNode = getFirstDonor(file).path(SUBMITTED_SAMPLE_ID);
     return getFirstLevelList(submittedSampleIdNode);
   }
 
   public static List<String> getSpecimenIds(@NonNull ObjectNode file) {
-    val specimenIdNode = getFirstDonor(file).path(FieldNames.SPECIMEN_ID);
+    val specimenIdNode = getFirstDonor(file).path(SPECIMEN_ID);
     return getFirstLevelList(specimenIdNode);
   }
 
   public static List<String> getSpecimenTypes(@NonNull ObjectNode file) {
-    val specimenIdNode = getFirstDonor(file).path(FieldNames.SPECIMEN_TYPE);
+    val specimenIdNode = getFirstDonor(file).path(SPECIMEN_TYPE);
     return getFirstLevelList(specimenIdNode);
   }
 
   public static List<String> getSubmittedSpecimenIds(@NonNull ObjectNode file) {
-    val submittedSpecimenIdNode = getFirstDonor(file).path(FieldNames.SUBMITTED_SPECIMEN_ID);
+    val submittedSpecimenIdNode = getFirstDonor(file).path(SUBMITTED_SPECIMEN_ID);
     return getFirstLevelList(submittedSpecimenIdNode);
   }
 
@@ -171,23 +172,23 @@ public final class FilePortalJsonParser {
   }
 
   private static JsonNode getDataCategorization(@NonNull ObjectNode file) {
-    return file.path(FieldNames.DATA_CATEGORIZATION);
+    return file.path(DATA_CATEGORIZATION);
   }
 
   private static JsonNode getFileCopies(@NonNull ObjectNode file) {
-    return file.path(FieldNames.FILE_COPIES);
+    return file.path(FILE_COPIES);
   }
 
   public static JsonNode getDonors(@NonNull ObjectNode file) {
-    return file.path(FieldNames.DONORS);
+    return file.path(DONORS);
   }
 
   private static <T> Optional<T> getIndexFile(@NonNull ObjectNode file, Function<JsonNode, T> extractFunction){
-    val opt = Optional.ofNullable(getFirstFileCopy(file).path(FieldNames.INDEX_FILE));
+    val opt = Optional.ofNullable(getFirstFileCopy(file).path(INDEX_FILE));
     return opt.map(extractFunction);
   }
 
   private static JsonNode getAnalysisMethod(@NonNull ObjectNode file){
-    return file.path(FieldNames.ANALYSIS_METHOD);
+    return file.path(ANALYSIS_METHOD);
   }
 }

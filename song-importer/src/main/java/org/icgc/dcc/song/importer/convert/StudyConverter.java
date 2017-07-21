@@ -9,6 +9,7 @@ import org.icgc.dcc.song.server.model.entity.Study;
 import java.util.Set;
 
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.icgc.dcc.song.importer.convert.Converters.NA;
 
 @RequiredArgsConstructor
 public class StudyConverter {
@@ -44,11 +45,11 @@ public class StudyConverter {
   }
 
   public static String getStudyDescription(){
-    return Converters.NA;
+    return NA;
   }
 
   public static String getStudyInfo(){
-    return Converters.NA;
+    return NA;
   }
 
   public static String getStudyOrganization(){

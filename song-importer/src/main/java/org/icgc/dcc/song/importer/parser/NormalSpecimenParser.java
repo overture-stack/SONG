@@ -5,7 +5,12 @@ import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.importer.resolvers.SpecimenClasses;
 
-import static java.lang.String.format;
+import static org.icgc.dcc.song.importer.parser.FieldNames.ANALYZED_ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.SAMPLES;
+import static org.icgc.dcc.song.importer.parser.FieldNames.SUBMITTED_ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.TYPE;
+import static org.icgc.dcc.song.importer.resolvers.SpecimenClasses.NORMAL;
 
 public class NormalSpecimenParser {
 
@@ -16,41 +21,41 @@ public class NormalSpecimenParser {
   }
 
   public String getNormalSpecimenId() {
-    return normalSpecimen.path(FieldNames.ID).textValue();
+    return normalSpecimen.path(ID).textValue();
   }
 
   public String getNormalSubmittedSpecimenId() {
-    return normalSpecimen.path(FieldNames.SUBMITTED_ID).textValue();
+    return normalSpecimen.path(SUBMITTED_ID).textValue();
   }
 
   public String getNormalSpecimenType() {
-    return normalSpecimen.path(FieldNames.TYPE).textValue();
+    return normalSpecimen.path(TYPE).textValue();
   }
 
   public String getNormalSampleId() {
-    return getFirstSample(normalSpecimen).path(FieldNames.ID).textValue();
+    return getFirstSample(normalSpecimen).path(ID).textValue();
   }
 
   public String getNormalAnalyzedId() {
-    return getFirstSample(normalSpecimen).path(FieldNames.ANALYZED_ID).textValue();
+    return getFirstSample(normalSpecimen).path(ANALYZED_ID).textValue();
   }
 
   private static JsonNode getFirstSample(@NonNull JsonNode normalSpecimen) {
-    return normalSpecimen.path(FieldNames.SAMPLES).get(0);
+    return normalSpecimen.path(SAMPLES).get(0);
   }
 
   private static JsonNode findNormalSpecimen(@NonNull JsonNode donor) {
     for (int i = 0; i < DonorPortalJsonParser.getNumSpecimens(donor); i++) {
       val specimenJsonNode = DonorPortalJsonParser.getSpecimen(donor, i);
-      val specimenType = specimenJsonNode.path(FieldNames.TYPE).textValue();
+      val specimenType = specimenJsonNode.path(TYPE).textValue();
       val specimenClass = SpecimenClasses.resolve(specimenType);
-      if (specimenClass == SpecimenClasses.NORMAL) {
+      if (specimenClass == NORMAL) {
         return specimenJsonNode;
       }
     }
     throw new IllegalStateException(
         String.format("Could not find specimenType matching SpecimenClass: [%s]",
-            SpecimenClasses.NORMAL.name()));
+            NORMAL.name()));
   }
 
   public static NormalSpecimenParser createNormalSpecimenParser(@NonNull JsonNode donor) {

@@ -33,7 +33,6 @@ public class AllDonorPortalUrlGenerator implements UrlGenerator {
             getFromParam(from),
             INCLUDE_PARAM,
             getSizeParam(size)));
-//    log.info("{}: {}",getClass().getSimpleName(),url.toString());
     return url;
   }
 

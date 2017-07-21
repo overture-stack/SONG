@@ -9,12 +9,14 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.icgc.dcc.song.importer.resolvers.FileTypes.BAM;
+import static org.icgc.dcc.song.importer.resolvers.FileTypes.VCF;
 
 @RequiredArgsConstructor
 public enum AnalysisTypes {
 
-  SEQUENCING_READ("sequencingRead", FileTypes.BAM ),
-  VARIANT_CALL("variantCall", FileTypes.VCF);
+  SEQUENCING_READ("sequencingRead", BAM ),
+  VARIANT_CALL("variantCall", VCF);
 
   private static Map<FileTypes, AnalysisTypes> map = Maps.newEnumMap(FileTypes.class);
   static {

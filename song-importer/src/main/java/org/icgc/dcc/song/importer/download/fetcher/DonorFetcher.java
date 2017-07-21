@@ -6,17 +6,21 @@ import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.importer.download.PortalDonorIdFetcher;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
-import org.icgc.dcc.song.importer.parser.DonorPortalJsonParser;
-import org.icgc.dcc.song.importer.parser.NormalSpecimenParser;
 
 import java.util.List;
 import java.util.Set;
 
 import static lombok.Lombok.sneakyThrow;
+import static org.icgc.dcc.song.core.utils.JsonUtils.toPrettyJson;
+import static org.icgc.dcc.song.importer.parser.DonorPortalJsonParser.getDonorId;
+import static org.icgc.dcc.song.importer.parser.DonorPortalJsonParser.getGender;
+import static org.icgc.dcc.song.importer.parser.DonorPortalJsonParser.getProjectId;
+import static org.icgc.dcc.song.importer.parser.DonorPortalJsonParser.getProjectName;
+import static org.icgc.dcc.song.importer.parser.DonorPortalJsonParser.getSubmittedDonorId;
+import static org.icgc.dcc.song.importer.parser.NormalSpecimenParser.createNormalSpecimenParser;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -58,13 +62,13 @@ public class DonorFetcher {
 
   public static PortalDonorMetadata convertToPortalDonorMetadata(JsonNode donor){
     try{
-      val parser = NormalSpecimenParser.createNormalSpecimenParser(donor);
+      val parser = createNormalSpecimenParser(donor);
       return PortalDonorMetadata.builder()
-          .donorId(DonorPortalJsonParser.getDonorId(donor))
-          .projectId(DonorPortalJsonParser.getProjectId(donor))
-          .projectName(DonorPortalJsonParser.getProjectName(donor))
-          .submittedDonorId(DonorPortalJsonParser.getSubmittedDonorId(donor))
-          .gender(DonorPortalJsonParser.getGender(donor))
+          .donorId(getDonorId(donor))
+          .projectId(getProjectId(donor))
+          .projectName(getProjectName(donor))
+          .submittedDonorId(getSubmittedDonorId(donor))
+          .gender(getGender(donor))
           .normalAnalyzedId(parser.getNormalAnalyzedId())
           .normalSampleId(parser.getNormalSampleId())
           .normalSpecimenId(parser.getNormalSpecimenId())
@@ -72,7 +76,7 @@ public class DonorFetcher {
           .normalSubmittedSpecimenId(parser.getNormalSubmittedSpecimenId())
           .build();
     } catch(Throwable t){
-      log.info("Error: {}\nOBJECT_DATA_DUMP:\n{}", t.getMessage(), JsonUtils.toPrettyJson(donor));
+      log.info("Error: {}\nOBJECT_DATA_DUMP:\n{}", t.getMessage(), toPrettyJson(donor));
       throw sneakyThrow(t);
     }
   }
