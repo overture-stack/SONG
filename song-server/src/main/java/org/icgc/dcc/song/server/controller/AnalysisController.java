@@ -33,11 +33,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -93,9 +91,9 @@ public class AnalysisController {
   }
 
   /***
-   * Return all of the file in the fileset for this analyis
+   * Return all of the files in the fileset for this analyis
    * @param id The analysis id
-   * @return A list of all the file in this analysis analysisId's fileset.
+   * @return A list of all the files in this analysis analysisId's fileset.
    */
   @GetMapping(value = "/{id}/files")
   public List<File> getFilesById(@PathVariable("id") String id) {

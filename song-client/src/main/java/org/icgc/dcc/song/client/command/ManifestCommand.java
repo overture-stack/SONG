@@ -66,7 +66,7 @@ public class ManifestCommand extends Command {
     val m = createManifest(analysisId, status.getOutputs());
 
     if(m.getEntries().size() == 0){
-      err("[SONG_CLIENT_ERROR]: the analysisId '%s' returned 0 file", analysisId);
+      err("[SONG_CLIENT_ERROR]: the analysisId '%s' returned 0 files", analysisId);
     } else if (fileName == null) {
       output(m.toString());
     } else {

@@ -129,7 +129,7 @@ spring:
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost/song
+  url: jdbc:postgresql://localhost/song?stringtype=unspecified
 
   username:
   password:
