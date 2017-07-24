@@ -23,13 +23,18 @@ import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-
-import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
+import static org.icgc.dcc.song.server.repository.AttributeNames.INFO;
+import static org.icgc.dcc.song.server.repository.AttributeNames.STATE;
+import static org.icgc.dcc.song.server.repository.AttributeNames.STUDY_ID;
+import static org.icgc.dcc.song.server.repository.AttributeNames.SUBMITTER_ID;
+import static org.icgc.dcc.song.server.repository.AttributeNames.TYPE;
 
 public class AnalysisMapper implements ResultSetMapper<Analysis> {
 
@@ -37,7 +42,7 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
   @SneakyThrows
   public Analysis map(int index, ResultSet r, StatementContext ctx) throws SQLException {
     val id = r.getString(ID);
-//    val submitter_id = r.getString(SUBMITTER_ID);
+    val submitter_id = r.getString(SUBMITTER_ID);
     val study = r.getString(STUDY_ID );
     val type = r.getString(TYPE);
     val state = r.getString(STATE);
