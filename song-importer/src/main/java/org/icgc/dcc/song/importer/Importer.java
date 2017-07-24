@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.importer;
 
+import lombok.Lombok;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.importer.Factory.DONOR_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.FILE_CONVERTER;
-import static org.icgc.dcc.song.importer.Factory.FILE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SAMPLE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SPECIMEN_SAMPLE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.STUDY_CONVERTER;
@@ -77,8 +77,8 @@ public class Importer implements  Runnable {
     processStudies(filteredDataContainer.getPortalDonorMetadataSet());
     processDonors(filteredDataContainer.getPortalDonorMetadataSet());
     processSpecimensAndSamples(filteredDataContainer.getPortalFileMetadataList());
-    processFiles(filteredDataContainer.getPortalFileMetadataList());
     processAnalysis(filteredDataContainer);
+    processFiles(filteredDataContainer.getPortalFileMetadataList());
 
   }
 
@@ -150,8 +150,13 @@ public class Importer implements  Runnable {
 
     log.info("Updating analysisRepository with {} Sequencing Reads", seqReadAnalysisList.size());
     seqReadAnalysisList.forEach(x -> {
-      analysisRepository.createAnalysis(x);
-      analysisRepository.createSequencingRead(x.getExperiment());
+      try {
+        analysisRepository.createAnalysis(x);
+        analysisRepository.createSequencingRead(x.getExperiment());
+      } catch (Throwable t) {
+        log.error("SeqAnalysisError: \n{}\n",x);
+        throw Lombok.sneakyThrow(t);
+      }
     });
 
     log.info("Converting VariantCalls...");
@@ -163,11 +168,11 @@ public class Importer implements  Runnable {
       analysisRepository.createVariantCall(x.getExperiment());
     });
 
-    log.info("Converting FileSets...");
-    val fileSets = FILE_SET_CONVERTER.convertFileSets(dataContainer.getPortalFileMetadataList());
+//    log.info("Converting FileSets...");
+//    val fileSets = FILE_SET_CONVERTER.convertFileSets(dataContainer.getPortalFileMetadataList());
 
-    log.info("Updating analysisRespositry with {} FileSets", fileSets.size());
-    fileSets.forEach(x -> analysisRepository.addFile(x.getAnalysisId(), x.getFileId()));
+//    log.info("Updating analysisRespositry with {} FileSets", fileSets.size());
+//    fileSets.forEach(x -> analysisRepository.addFile(x.getAnalysisId(), x.getFileId()));
 
     log.info("Converting SampleSets...");
     val sampleSets = SAMPLE_SET_CONVERTER.convertSampleSets(dataContainer.getPortalFileMetadataList());

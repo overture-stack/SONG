@@ -8,8 +8,8 @@ import lombok.val;
 import org.icgc.dcc.song.importer.dao.DonorDao;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
-import org.icgc.dcc.song.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.importer.resolvers.AnalysisTypes;
+import org.icgc.dcc.song.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
@@ -22,7 +22,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.importer.convert.FileConverter.getFileTypes;
-import static org.icgc.dcc.song.importer.convert.StudyConverter.getStudyId;
 import static org.icgc.dcc.song.importer.resolvers.AnalysisTypes.SEQUENCING_READ;
 import static org.icgc.dcc.song.importer.resolvers.AnalysisTypes.VARIANT_CALL;
 import static org.icgc.dcc.song.server.model.Upload.PUBLISHED;
@@ -126,15 +125,19 @@ public class AnalysisConverter {
   }
 
   private static void updateAnalysis(Analysis analysis, SeqReadAggregate seqReadAggregate){
-    analysis.setAnalysisId(seqReadAggregate.getAnalysisId());
+    val analysisId = seqReadAggregate.getAnalysisId();
+    analysis.setAnalysisId(analysisId);
     analysis.setAnalysisState(PUBLISHED);
+    analysis.setAnalysisSubmitterId(analysisId);
     analysis.setStudy(seqReadAggregate.getStudyId());
     analysis.setInfo(NA);
   }
 
   private static void updateAnalysis(Analysis analysis, VariantCallAggregate variantCallAggregate){
-    analysis.setAnalysisId(variantCallAggregate.getAnalysisId());
+    val analysisId = variantCallAggregate.getAnalysisId();
+    analysis.setAnalysisId(analysisId);
     analysis.setAnalysisState(PUBLISHED);
+    analysis.setAnalysisSubmitterId(analysisId);
     analysis.setStudy(variantCallAggregate.getStudyId());
     analysis.setInfo(NA);
   }

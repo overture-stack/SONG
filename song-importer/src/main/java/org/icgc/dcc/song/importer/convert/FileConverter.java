@@ -26,8 +26,8 @@ public class FileConverter {
   private static File convertToFile(PortalFileMetadata portalFileMetadata){
     return File.create(
         getFileId(portalFileMetadata),
-        getFileName(portalFileMetadata),
         getAnalysisId(portalFileMetadata),
+        getFileName(portalFileMetadata),
         getStudyId(portalFileMetadata),
         getFileSize(portalFileMetadata),
         getFileType(portalFileMetadata),
