@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Set;
 
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.icgc.dcc.song.importer.convert.AnalysisConverter.getAnalysisId;
 import static org.icgc.dcc.song.importer.convert.Converters.NA;
+import static org.icgc.dcc.song.importer.convert.StudyConverter.getStudyId;
 
 @RequiredArgsConstructor
 public class FileConverter {
@@ -25,7 +27,8 @@ public class FileConverter {
     return File.create(
         getFileId(portalFileMetadata),
         getFileName(portalFileMetadata),
-        StudyConverter.getStudyId(portalFileMetadata),
+        getAnalysisId(portalFileMetadata),
+        getStudyId(portalFileMetadata),
         getFileSize(portalFileMetadata),
         getFileType(portalFileMetadata),
         getFileMd5sum(portalFileMetadata),
