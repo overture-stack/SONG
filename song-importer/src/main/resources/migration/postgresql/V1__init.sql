@@ -63,19 +63,19 @@ CREATE TABLE Specimen(id VARCHAR(36) PRIMARY KEY, donor_id VARCHAR(36) reference
 CREATE TABLE Sample(id VARCHAR(36) PRIMARY KEY, specimen_id VARCHAR(36) references Specimen, submitter_id TEXT,
     type SAMPLE_TYPE, info TEXT);
 
-CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, name TEXT, size BIGINT,
-    md5 CHAR(32), type FILE_TYPE, info TEXT);
-
 CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, study_id VARCHAR(36) references Study,
     state ANALYSIS_STATE, info TEXT);
-CREATE TABLE FileSet(analysis_id VARCHAR(36) references Analysis, file_id VARCHAR(36) references File ON DELETE CASCADE);
+
+CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, analysis_id VARCHAR(36) references Analysis, study_id VARCHAR(36) references Study, name TEXT, size BIGINT,
+    md5 CHAR(32), type FILE_TYPE, info TEXT);
 CREATE TABLE SampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);
 CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN,
     insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT, info TEXT);
 CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT,
     tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT, info TEXT);
 
-CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study, state VARCHAR(50), errors TEXT,
+CREATE TABLE Upload(id VARCHAR(41) PRIMARY KEY, study_id VARCHAR(36) references Study,
+    analysis_submitter_id TEXT, state VARCHAR(50), errors TEXT,
     payload TEXT, created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now());
 

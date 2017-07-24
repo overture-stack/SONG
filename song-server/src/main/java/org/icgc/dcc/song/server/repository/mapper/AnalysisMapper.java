@@ -37,7 +37,7 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
   @SneakyThrows
   public Analysis map(int index, ResultSet r, StatementContext ctx) throws SQLException {
     val id = r.getString(ID);
-    val submitter_id = r.getString(SUBMITTER_ID);
+//    val submitter_id = r.getString(SUBMITTER_ID);
     val study = r.getString(STUDY_ID );
     val type = r.getString(TYPE);
     val state = r.getString(STATE);
