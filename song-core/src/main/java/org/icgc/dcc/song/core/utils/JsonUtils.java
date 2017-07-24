@@ -30,6 +30,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -61,6 +62,11 @@ public class JsonUtils {
 
   public static ObjectNode ObjectNode() {
     return mapper.createObjectNode();
+  }
+
+  @SneakyThrows
+  public static JsonNode read(URL url) {
+    return mapper.readTree(url);
   }
 
   @SneakyThrows

@@ -43,13 +43,11 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.UUID;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
-import static org.icgc.dcc.song.server.model.enums.Constants.list;
-import static java.lang.String.format;
 
 @Slf4j
 @SpringBootTest

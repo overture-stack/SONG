@@ -25,6 +25,7 @@ CREATE TYPE specimen_type as ENUM(
     'Normal - blood derived', 'Normal - bone marrow',
     'Normal - tissue adjacent to primary', 'Normal - buccal cell',
     'Normal - EBV immortalized', 'Normal - lymph node', 'Normal - other',
+    'Primary tumour',
     'Primary tumour - solid tissue',
     'Primary tumour - blood derived (peripheral blood)',
     'Primary tumour - blood derived (bone marrow)',
