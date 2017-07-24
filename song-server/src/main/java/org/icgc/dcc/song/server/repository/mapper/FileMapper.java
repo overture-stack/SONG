@@ -31,7 +31,7 @@ public class FileMapper implements ResultSetMapper<File> {
 
   @Override
   public File map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    return File.create(r.getString(ID), r.getString(NAME), r.getString(STUDY_ID),
+    return File.create(r.getString(ID), r.getString(ANALYSIS_ID), r.getString(NAME), r.getString(STUDY_ID),
         r.getLong(SIZE), r.getString(TYPE), r.getString(MD5),
             r.getString(INFO));
   }

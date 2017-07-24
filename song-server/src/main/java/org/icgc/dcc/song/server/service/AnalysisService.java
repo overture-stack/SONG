@@ -101,15 +101,8 @@ public class AnalysisService {
   }
 
   void saveFiles(String id, String studyId, List<File> files) {
-    files.stream()
-            .map(f->fileService.save(id, studyId, f))
-            .forEach(fileId->addFile(id, fileId));
+    files.stream().map(f->fileService.save(id, studyId, f));
   }
-
-  void addFile(String id, String fileId) {
-    repository.addFile(id, fileId);
-  }
-
 
   /**
    * Gets all analysis for a given study.
