@@ -20,6 +20,7 @@ package org.icgc.dcc.song.server.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.service.AnalysisService;
@@ -33,10 +34,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static org.icgc.dcc.song.server.model.analysis.AnalysisSearchRequest.createAnalysisSearchRequest;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -98,6 +101,18 @@ public class AnalysisController {
   @GetMapping(value = "/{id}/files")
   public List<File> getFilesById(@PathVariable("id") String id) {
     return analysisService.readFiles(id);
+  }
+
+
+  @GetMapping(value = "/search")
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public List<Analysis> search(@PathVariable("studyId") String studyId,
+      @RequestParam(value = "donorId",required = false) String donorIds,
+      @RequestParam(value = "sampleId",required = false) String sampleIds,
+      @RequestParam(value = "specimenId", required = false) String specimenIds,
+      @RequestParam(value = "fileId", required = false) String fileIds ) {
+    val request = createAnalysisSearchRequest(studyId, donorIds, sampleIds, specimenIds, fileIds);
+    return analysisService.searchAnalysis(request);
   }
 
 }

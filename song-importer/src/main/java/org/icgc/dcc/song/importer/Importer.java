@@ -55,6 +55,7 @@ public class Importer implements  Runnable {
 
   @Override
   public void run() {
+
     log.info("Building FileFilter...");
     val fileFilter = buildFileFilter();
 

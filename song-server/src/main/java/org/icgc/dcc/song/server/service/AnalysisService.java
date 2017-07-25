@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AnalysisSearchRequest;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
@@ -112,19 +113,21 @@ public class AnalysisService {
    */
   public List<Analysis> getAnalysis(@NonNull String studyId) {
     val analysisList = repository.find(studyId);
-    analysisList.forEach(a -> {
-          if (a != null) {
-            String id = a.getAnalysisId();
-            a.setFile(readFiles(id));
-            a.setSample(readSamples(id));
-            if (a instanceof SequencingReadAnalysis) {
-              ((SequencingReadAnalysis) a).setExperiment(repository.readSequencingRead(id));
-            } else if (a instanceof VariantCallAnalysis) {
-              ((VariantCallAnalysis) a).setExperiment(repository.readVariantCall(id));
-            }
-          }
-        });
-    return analysisList;
+    return processAnalysisList(analysisList);
+  }
+
+  /**
+   * Searches all analysis matching the AnalysisSearchRequest
+   * @param request which defines the query
+   * @return returns a list of analysis with child entities in response to the search request
+   */
+  public List<Analysis> searchAnalysis(@NonNull AnalysisSearchRequest request){
+    val analysisList = repository.search(request.getStudyId(),
+        request.getDonorId(),
+        request.getSpecimenId(),
+        request.getSampleId(),
+        request.getFileId() );
+    return processAnalysisList(analysisList);
   }
 
   public Analysis read(String id) {
@@ -184,4 +187,27 @@ public class AnalysisService {
   boolean confirmUploaded(String accessToken, String fileId) {
     return existence.isObjectExist(accessToken,fileId);
   }
+
+  /**
+   * Adds all child entities for each analysis
+   * This method should be watched in case performance becomes a problem.
+   * @param analysisList list of Analysis to be updated
+   * @return returns a List of analysis with the child entities.
+   */
+  private List<Analysis> processAnalysisList(List<Analysis>  analysisList){
+    analysisList.forEach(a -> {
+      if (a != null) {
+        String id = a.getAnalysisId();
+        a.setFile(readFiles(id));
+        a.setSample(readSamples(id));
+        if (a instanceof SequencingReadAnalysis) {
+          ((SequencingReadAnalysis) a).setExperiment(repository.readSequencingRead(id));
+        } else if (a instanceof VariantCallAnalysis) {
+          ((VariantCallAnalysis) a).setExperiment(repository.readVariantCall(id));
+        }
+      }
+    });
+    return analysisList;
+  }
+
 }
