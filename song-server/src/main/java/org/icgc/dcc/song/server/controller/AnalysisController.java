@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AnalysisSearchRequest;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +31,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -111,8 +114,15 @@ public class AnalysisController {
       @RequestParam(value = "sampleId",required = false) String sampleIds,
       @RequestParam(value = "specimenId", required = false) String specimenIds,
       @RequestParam(value = "fileId", required = false) String fileIds ) {
-    val request = createAnalysisSearchRequest(studyId, donorIds, sampleIds, specimenIds, fileIds);
-    return analysisService.searchAnalysis(request);
+    val request = createAnalysisSearchRequest(donorIds, sampleIds, specimenIds, fileIds);
+    return analysisService.searchAnalysis(studyId,request);
+  }
+
+  @PostMapping(value = "/search", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public List<Analysis> search(@PathVariable("studyId") String studyId, @RequestBody AnalysisSearchRequest request) {
+    return analysisService.searchAnalysis(studyId, request);
   }
 
 }
