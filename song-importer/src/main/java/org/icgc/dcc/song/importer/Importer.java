@@ -1,6 +1,5 @@
 package org.icgc.dcc.song.importer;
 
-import lombok.Lombok;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -151,13 +150,8 @@ public class Importer implements  Runnable {
 
     log.info("Updating analysisRepository with {} Sequencing Reads", seqReadAnalysisList.size());
     seqReadAnalysisList.forEach(x -> {
-      try {
-        analysisRepository.createAnalysis(x);
-        analysisRepository.createSequencingRead(x.getExperiment());
-      } catch (Throwable t) {
-        log.error("SeqAnalysisError: \n{}\n",x);
-        throw Lombok.sneakyThrow(t);
-      }
+      analysisRepository.createAnalysis(x);
+      analysisRepository.createSequencingRead(x.getExperiment());
     });
 
     log.info("Converting VariantCalls...");
