@@ -27,7 +27,7 @@ import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
 
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Publish an analysis id" )
+@Parameters(separators = "=", commandDescription = "Search for analysis objects for the current studyId" )
 public class SearchCommand extends Command {
 
   @Parameter(names = { "-f", "--file-id" }, required = false)
