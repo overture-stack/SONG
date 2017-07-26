@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class AnalysisSearchRequest {
 
-  private static final String WILD_CARD = "*";
+  private static final String WILD_CARD = ".*";
 
   private final String donorId;
   private final String sampleId;
