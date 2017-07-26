@@ -12,7 +12,7 @@ INNER JOIN SampleSet as SAS on SA.id = SAS.sample_id
 INNER JOIN File as F on SAS.analysis_id = F.analysis_id
 INNER JOIN Analysis as A on SAS.analysis_id = A.id
 WHERE D.study_id = :studyId
-      AND D.id LIKE :donorId
-      AND SP.id LIKE :specimenId
-      AND SA.id LIKE :sampleId
-      AND F.id LIKE :fileId;
+      AND D.id  ~* :donorId
+      AND SP.id ~* :specimenId
+      AND SA.id ~* :sampleId
+      AND F.id  ~* :fileId;
