@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.SongError.error;
@@ -192,22 +193,31 @@ public class AnalysisService {
    * Adds all child entities for each analysis
    * This method should be watched in case performance becomes a problem.
    * @param analysisList list of Analysis to be updated
-   * @return returns a List of analysis with the child entities.
+   * @return returns a List of analysis with the child entities
    */
-  private List<Analysis> processAnalysisList(List<Analysis>  analysisList){
-    analysisList.forEach(a -> {
-      if (a != null) {
-        String id = a.getAnalysisId();
-        a.setFile(readFiles(id));
-        a.setSample(readSamples(id));
-        if (a instanceof SequencingReadAnalysis) {
-          ((SequencingReadAnalysis) a).setExperiment(repository.readSequencingRead(id));
-        } else if (a instanceof VariantCallAnalysis) {
-          ((VariantCallAnalysis) a).setExperiment(repository.readVariantCall(id));
-        }
-      }
-    });
+  private List<Analysis> processAnalysisList(List<Analysis> analysisList){
+    analysisList.stream()
+        .filter(Objects::nonNull)
+        .forEach(this::processAnalysis);
     return analysisList;
+  }
+
+  /**
+   * Adds child entities to analysis
+   * This method should be watched in case performance becomes a problem.
+   * @param analysis is the Analysis to be updated
+   * @return updated analysis with the child entity
+   */
+  private Analysis processAnalysis(Analysis  analysis) {
+    String id = analysis.getAnalysisId();
+    analysis.setFile(readFiles(id));
+    analysis.setSample(readSamples(id));
+    if (analysis instanceof SequencingReadAnalysis) {
+      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(id));
+    } else if (analysis instanceof VariantCallAnalysis) {
+      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(id));
+    }
+    return analysis;
   }
 
 }

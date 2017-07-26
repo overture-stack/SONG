@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class AnalysisSearchRequest {
 
-  private static final String WILD_CARD = "%";
+  private static final String WILD_CARD = "*";
 
   private final String donorId;
   private final String sampleId;
@@ -15,27 +15,27 @@ public class AnalysisSearchRequest {
   public static AnalysisSearchRequest createAnalysisSearchRequest(
       String donorId, String sampleId, String specimenId, String fileId) {
     return new AnalysisSearchRequest(
-        procOpt(donorId),
-        procOpt(sampleId),
-        procOpt(specimenId),
-        procOpt(fileId)
+        getGlobPattern(donorId),
+        getGlobPattern(sampleId),
+        getGlobPattern(specimenId),
+        getGlobPattern(fileId)
     );
   }
 
   public String getDonorId(){
-    return procOpt(this.donorId);
+    return getGlobPattern(this.donorId);
   }
   public String getSampleId(){
-    return procOpt(this.sampleId);
+    return getGlobPattern(this.sampleId);
   }
   public String getSpecimenId(){
-    return procOpt(this.specimenId);
+    return getGlobPattern(this.specimenId);
   }
   public String getFileId(){
-    return procOpt(this.fileId);
+    return getGlobPattern(this.fileId);
   }
 
-  private static String procOpt(String opt){
+  private static String getGlobPattern(String opt){
     return opt == null ?  WILD_CARD : opt;
   }
 

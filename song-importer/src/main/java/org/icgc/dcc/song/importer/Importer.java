@@ -163,12 +163,6 @@ public class Importer implements  Runnable {
       analysisRepository.createVariantCall(x.getExperiment());
     });
 
-//    log.info("Converting FileSets...");
-//    val fileSets = FILE_SET_CONVERTER.convertFileSets(dataContainer.getPortalFileMetadataList());
-
-//    log.info("Updating analysisRespositry with {} FileSets", fileSets.size());
-//    fileSets.forEach(x -> analysisRepository.addFile(x.getAnalysisId(), x.getFileId()));
-
     log.info("Converting SampleSets...");
     val sampleSets = SAMPLE_SET_CONVERTER.convertSampleSets(dataContainer.getPortalFileMetadataList());
 

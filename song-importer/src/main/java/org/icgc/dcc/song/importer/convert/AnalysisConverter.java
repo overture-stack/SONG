@@ -10,7 +10,6 @@ import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.resolvers.AnalysisTypes;
 import org.icgc.dcc.song.importer.resolvers.FileTypes;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
@@ -22,6 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.importer.convert.FileConverter.getFileTypes;
+import static org.icgc.dcc.song.importer.convert.StudyConverter.getStudyId;
 import static org.icgc.dcc.song.importer.resolvers.AnalysisTypes.SEQUENCING_READ;
 import static org.icgc.dcc.song.importer.resolvers.AnalysisTypes.VARIANT_CALL;
 import static org.icgc.dcc.song.server.model.Upload.PUBLISHED;
@@ -60,7 +60,7 @@ public class AnalysisConverter {
   private VariantCallAggregate buildVariantCallAggregate(PortalFileMetadata portalFileMetadata){
     val portalDonorMetadata = donorDao.getPortalDonorMetadata(portalFileMetadata.getDonorId());
     return VariantCallAggregate.builder()
-        .studyId(StudyConverter.getStudyId(portalFileMetadata))
+        .studyId(getStudyId(portalFileMetadata))
         .analysisId(getAnalysisId(portalFileMetadata))
         .variantCallingTool(getVariantCallingTool(portalFileMetadata))
         .type(getAnalysisType(portalFileMetadata))
@@ -72,7 +72,7 @@ public class AnalysisConverter {
     return SeqReadAggregate.builder()
         .analysisId(getAnalysisId(portalFileMetadata))
         .type(getAnalysisType(portalFileMetadata))
-        .studyId(StudyConverter.getStudyId(portalFileMetadata))
+        .studyId(getStudyId(portalFileMetadata))
         .referenceGenome(getReferenceGenome(portalFileMetadata))
         .libraryStrategy(getLibraryStrategy(portalFileMetadata))
         .alignmentTool(getAlignmentTool(portalFileMetadata))
@@ -88,10 +88,15 @@ public class AnalysisConverter {
         variantCallAggregate, VARIANT_CALL.getAnalysisTypeName());
 
     val variantCallAnalysis = new VariantCallAnalysis();
-    updateAnalysis(variantCallAnalysis, variantCallAggregate);
+    val analysisId = variantCallAggregate.getAnalysisId();
+    variantCallAnalysis.setAnalysisId(analysisId);
+    variantCallAnalysis.setAnalysisState(PUBLISHED);
+    variantCallAnalysis.setAnalysisSubmitterId(analysisId);
+    variantCallAnalysis.setStudy(variantCallAggregate.getStudyId());
+    variantCallAnalysis.setInfo(NA);
 
     val variantCallExperiment = VariantCall.create(
-        variantCallAggregate.getAnalysisId(),
+        analysisId,
         variantCallAggregate.getVariantCallingTool(),
         variantCallAggregate.getMatchedNormalSampleSubmitterId(),
         NA);
@@ -107,7 +112,12 @@ public class AnalysisConverter {
         seqReadAggregate, SEQUENCING_READ.getAnalysisTypeName());
 
     val sequencingReadAnalysis = new SequencingReadAnalysis();
-    updateAnalysis(sequencingReadAnalysis, seqReadAggregate);
+    val analysisId = seqReadAggregate.getAnalysisId();
+    sequencingReadAnalysis.setAnalysisId(analysisId);
+    sequencingReadAnalysis.setAnalysisState(PUBLISHED);
+    sequencingReadAnalysis.setAnalysisSubmitterId(analysisId);
+    sequencingReadAnalysis.setStudy(seqReadAggregate.getStudyId());
+    sequencingReadAnalysis.setInfo(NA);
 
 
     val sequencingReadExperiment = SequencingRead.create(
@@ -123,25 +133,6 @@ public class AnalysisConverter {
     sequencingReadAnalysis.setExperiment(sequencingReadExperiment);
     return sequencingReadAnalysis;
   }
-
-  private static void updateAnalysis(Analysis analysis, SeqReadAggregate seqReadAggregate){
-    val analysisId = seqReadAggregate.getAnalysisId();
-    analysis.setAnalysisId(analysisId);
-    analysis.setAnalysisState(PUBLISHED);
-    analysis.setAnalysisSubmitterId(analysisId);
-    analysis.setStudy(seqReadAggregate.getStudyId());
-    analysis.setInfo(NA);
-  }
-
-  private static void updateAnalysis(Analysis analysis, VariantCallAggregate variantCallAggregate){
-    val analysisId = variantCallAggregate.getAnalysisId();
-    analysis.setAnalysisId(analysisId);
-    analysis.setAnalysisState(PUBLISHED);
-    analysis.setAnalysisSubmitterId(analysisId);
-    analysis.setStudy(variantCallAggregate.getStudyId());
-    analysis.setInfo(NA);
-  }
-
 
   public static Boolean isAligned(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getDataType().equals(ALIGNED_READS);
@@ -188,6 +179,7 @@ public class AnalysisConverter {
     @NonNull private final String matchedNormalSampleSubmitterId;
     @NonNull private final String studyId;
     @NonNull private final String type;
+
 
   }
 
