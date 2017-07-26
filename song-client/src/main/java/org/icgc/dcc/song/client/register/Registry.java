@@ -108,4 +108,13 @@ public class Registry {
     return status;
   }
 
+  public Status search(String studyId,
+      String sampleId,
+      String specimenId,
+      String donorId,
+      String fileId){
+    val url = endpoint.searchGet(studyId,sampleId,specimenId,donorId,fileId);
+    return restClient.get(url);
+  }
+
 }

@@ -18,11 +18,18 @@
  */
 package org.icgc.dcc.song.client.register;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import lombok.NonNull;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 
 public class Endpoint {
+
+  private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
 
   private String serverUrl;
 
@@ -54,5 +61,28 @@ public class Endpoint {
   public String publish(String studyId, String analysisId) {
     return format("%s/studies/%s/analysis/publish/%s", serverUrl, studyId, analysisId);
   }
+
+  public String searchGet(@NonNull String studyId,
+      String sampleId,
+      String specimenId,
+      String donorId,
+      String fileId){
+    val list = Lists.<String>newArrayList();
+    if (!isNull(sampleId)){
+      list.add("sampleId="+sampleId);
+    }
+    if (!isNull(specimenId)){
+      list.add("specimenId="+specimenId);
+    }
+    if (!isNull(donorId)){
+      list.add("donorId="+donorId);
+    }
+    if (!isNull(fileId)){
+      list.add("fileId="+fileId);
+    }
+    val params = AMPERSAND_JOINER.join(list);
+    return format("%s/studies/%s/analysis/search?%s", serverUrl, studyId, params);
+  }
+
 
 }
