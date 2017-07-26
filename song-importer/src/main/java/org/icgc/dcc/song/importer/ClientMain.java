@@ -35,7 +35,6 @@ import static org.springframework.boot.Banner.Mode.CONSOLE;
  */
 @Slf4j
 @SpringBootApplication
-//@Component
 @Configuration
 @RequiredArgsConstructor
 public class ClientMain implements CommandLineRunner {
