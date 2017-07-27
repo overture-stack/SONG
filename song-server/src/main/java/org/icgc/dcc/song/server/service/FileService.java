@@ -39,6 +39,8 @@ public class FileService {
   @Autowired
   FileRepository repository;
   @Autowired
+  InfoService infoService;
+  @Autowired
   IdService idService;
 
   public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
@@ -48,6 +50,7 @@ public class FileService {
     file.setAnalysisId(analysisId);
 
     val status = repository.create(file);
+    infoService.save(file, id, "File");
 
     if (status != 1) {
       throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create File: %s", file.toString());
@@ -57,16 +60,23 @@ public class FileService {
   }
 
   public File read(@NonNull String id) {
-    return repository.read(id);
+    val f = repository.read(id);
+    if (f==null) {
+      return null;
+    }
+    infoService.setInfo(f,id,"File");
+    return f;
   }
 
   public String update(@NonNull File f) {
     repository.update(f);
+    infoService.update(f, f.getObjectId(), "File");
     return OK;
   }
 
   public String delete(@NonNull String id) {
     repository.delete(id);
+    infoService.delete(id, "File");
     return OK;
   }
 

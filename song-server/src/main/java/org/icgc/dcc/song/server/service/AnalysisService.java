@@ -69,9 +69,13 @@ public class AnalysisService {
     infoService.update(analysis, id, "Analysis");
 
     if (analysis instanceof SequencingReadAnalysis ) {
-      repository.updateSequencingRead(((SequencingReadAnalysis) analysis).getExperiment() );
+      val experiment = ((SequencingReadAnalysis) analysis).getExperiment();
+      repository.updateSequencingRead( experiment);
+      infoService.update(experiment, id, "SequencingRead");
     } else if (analysis instanceof VariantCallAnalysis) {
-      repository.updateVariantCall(((VariantCallAnalysis) analysis).getExperiment());
+      val experiment = ((VariantCallAnalysis) analysis).getExperiment();
+      repository.updateVariantCall(experiment);
+      infoService.update(experiment, id, "VariantCall");
     }
     return ok("AnalysisId %s was updated successfully", analysis.getAnalysisId());
   }
@@ -90,10 +94,12 @@ public class AnalysisService {
      val experiment = ((SequencingReadAnalysis) a).getExperiment();
      experiment.setAnalysisId(id);
      repository.createSequencingRead(experiment);
+     infoService.save(experiment, id, "SequencingRead");
    } else if (a instanceof VariantCallAnalysis) {
      val experiment = ((VariantCallAnalysis) a).getExperiment();
      experiment.setAnalysisId(id);
      repository.createVariantCall(experiment);
+     infoService.save(experiment, id, "VariantCall");
    } else {
      // shouldn't be possible if we validated our JSON first...
      throw new IllegalArgumentException("Invalid analysis type");
@@ -148,9 +154,11 @@ public class AnalysisService {
 
     if (analysis instanceof SequencingReadAnalysis) {
       val experiment = repository.readSequencingRead(id);
+      infoService.setInfo(experiment, id, "SequencingRead");
       ((SequencingReadAnalysis) analysis).setExperiment(experiment);
     } else if (analysis instanceof VariantCallAnalysis) {
       val experiment = repository.readVariantCall(id);
+      infoService.setInfo(experiment, id, "VariantCall");
       ((VariantCallAnalysis) analysis).setExperiment(experiment);
     }
 

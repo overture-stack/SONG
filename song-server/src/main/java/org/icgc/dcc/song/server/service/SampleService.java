@@ -41,6 +41,10 @@ public class SampleService {
 
   @Autowired
   SampleRepository repository;
+
+  @Autowired
+  InfoService infoService;
+
   @Autowired
   IdService idService;
 
@@ -49,6 +53,7 @@ public class SampleService {
     sample.setSampleId(id);
     sample.setSpecimenId(sample.getSpecimenId());
     int status = repository.create(sample);
+    infoService.save(sample, id, "Sample");
 
     if (status != 1) {
       throw buildServerException(MESSAGE_CONTEXT, SAMPLE_RECORD_FAILED, "Cannot create Sample: %s", sample.toString());
@@ -62,6 +67,8 @@ public class SampleService {
     if (sample == null) {
       return null;
     }
+    infoService.setInfo(sample,id,"Sample");
+
     return sample;
   }
 
@@ -72,11 +79,13 @@ public class SampleService {
 
   public String update(@NonNull Sample sample) {
     repository.update(sample);
+    infoService.update(sample, sample.getSampleId(),"Sample");
     return OK;
   }
 
   public String delete(@NonNull String id) {
     repository.delete(id);
+    infoService.delete(id,"Sample");
     return OK;
   }
 

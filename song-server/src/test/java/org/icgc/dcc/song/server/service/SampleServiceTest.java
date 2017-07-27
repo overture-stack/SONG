@@ -22,6 +22,7 @@ import lombok.val;
 import org.assertj.core.api.Assertions;
 //import org.flywaydb.test.annotation.FlywayTest;
 //import org.flywaydb.test.junit.FlywayTestExecutionListener;
+import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,8 +57,9 @@ public class SampleServiceTest {
   @Test
   public void testCreateAndDeleteSample() {
     val specimenId = "SP2";
-    val metadata = "";
+    val metadata = JsonUtils.fromSingleQuoted("{'ageCategory': 3, 'species': 'human'}");
     val s = Sample.create("", "101-IP-A", specimenId, "Amplified DNA");
+    s.setInfo(metadata);
 
     val status = sampleService.create("Study123", s);
     val id = s.getSampleId();
@@ -66,7 +68,7 @@ public class SampleServiceTest {
     assertThat(status).isEqualTo(id);
 
     Sample check = sampleService.read(id);
-    assertThat(s).isEqualToComparingFieldByField(check);
+    assertThat(check).isEqualToComparingFieldByField(s);
 
     sampleService.delete(id);
     Sample check2 = sampleService.read(id);
@@ -75,7 +77,7 @@ public class SampleServiceTest {
 
   @Test
   public void testUpdateSample() {
-    val metadata = "";
+
     val specimenId = "SP2";
     val s = Sample.create("", "102-CBP-A", specimenId, "RNA");
 
@@ -83,8 +85,9 @@ public class SampleServiceTest {
 
     val id = s.getSampleId();
 
+    val metadata = JsonUtils.fromSingleQuoted("{'species': 'Canadian Beaver'}");
     val s2 = Sample.create(id, "Sample 102", s.getSpecimenId(), "FFPE RNA");
-
+    s2.setInfo(metadata);
     sampleService.update(s2);
 
     val s3 = sampleService.read(id);
