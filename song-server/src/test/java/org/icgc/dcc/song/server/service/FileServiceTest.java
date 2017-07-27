@@ -19,8 +19,8 @@
 package org.icgc.dcc.song.server.service;
 
 import lombok.val;
-import org.flywaydb.test.annotation.FlywayTest;
-import org.flywaydb.test.junit.FlywayTestExecutionListener;
+//mport org.flywaydb.test.annotation.FlywayTest;
+//import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.junit.Test;
@@ -38,8 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@FlywayTest
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
+//@FlywayTest
 @ActiveProfiles("dev")
 public class FileServiceTest {
 
@@ -58,7 +58,7 @@ public class FileServiceTest {
     val metadata = JsonUtils.fromSingleQuoted("{'info':'<XML>Not even well-formed <XML></XML>'}");
     val file = fileService.read(id);
 
-    val expected = File.create(id, analysisId, name, study, size, type, md5, metadata);
+    val expected = File.create(id, analysisId, name, study, size, type, md5);
     assertThat(file).isEqualToComparingFieldByField(expected);
   }
 
@@ -75,7 +75,7 @@ public class FileServiceTest {
 
     f.setFileSize(0L);
     f.setFileType("FAI");
-    f.setFileMd5sum("md5abcdefg");
+    f.setFileMd5sum("6bb8ee7218e96a59e0ad898b4f5360f1");
 
     val status = fileService.create("AN1",  studyId, f);
     val id = f.getObjectId();
@@ -103,12 +103,13 @@ public class FileServiceTest {
     val md5 = "md5sumaebcefghadwa";
     val metadata = "";
 
-    val s = File.create(id, analysisId,name, sampleId, size, type, md5, metadata);
+    val s = File.create(id, analysisId,name, sampleId, size, type, md5);
 
     fileService.create("AN1", study, s);
     val id2 = s.getObjectId();
 
-    val s2 = File.create(id2,  analysisId,"File 102.fai", study, 123456789L, "FAI", "md5magical", "");
+    val s2 = File.create(id2,  analysisId,"File 102.fai", study, 123456789L, "FAI",
+            "e1f2a096d90c2cb9e63338e41d805977");
     fileService.update(s2);
 
     val s3 = fileService.read(id2);

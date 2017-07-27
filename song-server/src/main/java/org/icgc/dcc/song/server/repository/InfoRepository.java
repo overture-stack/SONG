@@ -16,30 +16,23 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.server.config;
+package org.icgc.dcc.song.server.repository;
 
-import org.flywaydb.core.Flyway;
-import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Profile;
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 
-import lombok.extern.slf4j.Slf4j;
+public interface InfoRepository {
 
-@Slf4j
-public class DevFlywayConfig {
+  @SqlUpdate("INSERT INTO Info (id, id_type, info) VALUES(:id,:type,:info)")
+  int create(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String info);
 
-  @Bean
-  @Profile("dev")
-  public FlywayMigrationStrategy cleanMigrateStrategy() {
-      FlywayMigrationStrategy strategy = new FlywayMigrationStrategy() {
-          @Override
-          public void migrate(Flyway flyway) {
-              flyway.clean();
-              flyway.migrate();
-              log.info("Executed the clean");
-          }
-      };
+  @SqlUpdate("UPDATE Info set info=:info where id=:id AND id_type=:type")
+  int set(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String info);
 
-      return strategy;
-  }
+  @SqlQuery("SELECT info from Info where id_type=:type AND id=:id")
+  String read(@Bind("id") String id, @Bind("type") String id_type);
+
+  @SqlUpdate("DELETE from Info where id_type=:type AND id=:id")
+  int delete(@Bind("id") String id, @Bind("type") String id_type);
 }

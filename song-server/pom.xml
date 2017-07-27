@@ -64,6 +64,7 @@
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
@@ -75,6 +76,7 @@
             <version>${flyway-spring-test.version}</version>
             <scope>test</scope>
         </dependency>
+         -->
 
         <!-- JDBI -->
         <dependency>

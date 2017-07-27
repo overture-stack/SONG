@@ -37,10 +37,7 @@ public interface StudyRepository {
   @SqlUpdate("UPDATE study SET name=:name, description=:description where id=:id")
   int set(@Bind("id") String id, @Bind("name") String name, @Bind("description") String description);
 
-  @SqlQuery("SELECT id, name, organization, description, info FROM study WHERE id = :studyId")
+  @SqlQuery("SELECT s.id, name, organization, description FROM Study s WHERE s.id = :studyId")
   Study read(@Bind("studyId") String id);
-
-  @SqlQuery("SELECT id, name, organization, description, info FROM study WHERE name = :name")
-  List<Study> readByName(@Bind("name") String name);
 
 }

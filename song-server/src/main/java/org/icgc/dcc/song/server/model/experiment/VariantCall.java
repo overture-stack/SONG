@@ -33,12 +33,12 @@ public class VariantCall extends Experiment {
   private String variantCallingTool;
   private String matchedNormalSampleSubmitterId;
 
-  public static VariantCall create(String id, String tool, String submitterId, String info) {
+  public static VariantCall create(String id, String tool, String submitterId) {
     val v = new VariantCall();
     v.setAnalysisId(id);
     v.setVariantCallingTool(tool);
     v.setMatchedNormalSampleSubmitterId(submitterId);
-    v.addInfo(info);
+
 
     return v;
   }

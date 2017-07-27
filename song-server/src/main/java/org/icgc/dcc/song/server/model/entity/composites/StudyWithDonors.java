@@ -3,6 +3,7 @@ package org.icgc.dcc.song.server.model.entity.composites;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
 
 import java.util.ArrayList;
@@ -16,7 +17,9 @@ public class StudyWithDonors extends Study {
 
     @JsonIgnore
     public Study getStudy() {
-        return Study.create(getStudyId(), getName(),getOrganization(), getDescription(), getInfo());
+        val s= Study.create(getStudyId(), getName(),getOrganization(), getDescription());
+        s.setInfo(getInfo());
+        return s;
     }
 
     @JsonIgnore

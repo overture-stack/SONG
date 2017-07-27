@@ -43,7 +43,7 @@ public class SequencingRead extends Experiment {
   private String referenceGenome;
 
   public static SequencingRead create(String id, boolean aligned, String tool, Long size, String strategy,
-                               boolean isPaired, String genome, String info) {
+                               boolean isPaired, String genome) {
     val s = new SequencingRead();
     s.setAnalysisId(id);
     s.setAligned(aligned);
@@ -52,7 +52,7 @@ public class SequencingRead extends Experiment {
     s.setLibraryStrategy(strategy);
     s.setPairedEnd(isPaired);
     s.setReferenceGenome(genome);
-    s.addInfo(info);
+
     return s;
   }
 

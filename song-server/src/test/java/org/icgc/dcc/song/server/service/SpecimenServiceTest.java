@@ -20,8 +20,9 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import org.flywaydb.test.annotation.FlywayTest;
-import org.flywaydb.test.junit.FlywayTestExecutionListener;
+//import org.flywaydb.test.annotation.FlywayTest;
+//import org.flywaydb.test.junit.FlywayTestExecutionListener;
+import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.junit.Test;
@@ -37,8 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class})
-@FlywayTest
+@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
+//@FlywayTest
 @ActiveProfiles("dev")
 public class SpecimenServiceTest {
 
@@ -92,7 +93,9 @@ public class SpecimenServiceTest {
     @Test
     public void testCreateAndDeleteSpecimen() {
         val donorId = "DO2";
-        Specimen s = createSpecimen("", "Specimen 101 Ipsilon Prime", donorId, "Tumour", "Cell line - derived from tumour");
+        Specimen s = createSpecimen("", "Specimen 101 Ipsilon Prime", donorId, "Tumour",
+                "Cell line - derived from tumour");
+        s.setInfo(JsonUtils.fromSingleQuoted("{'ageCategory': 42, 'status': 'deceased'}"));
 
         val status = specimenService.create("Study123", s);
         val id = s.getSpecimenId();

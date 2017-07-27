@@ -43,9 +43,12 @@ public class SpecimenService {
   @Autowired
   private final IdService idService;
   @Autowired
-  private final SpecimenRepository repository;
-  @Autowired
   private final SampleService sampleService;
+  @Autowired
+  private final InfoService infoService;
+  @Autowired
+  private final SpecimenRepository repository;
+
 
   public String create(@NonNull String studyId, @NonNull Specimen specimen) {
     val id = idService.generateSpecimenId(studyId, specimen.getSpecimenSubmitterId());
@@ -55,6 +58,7 @@ public class SpecimenService {
       throw buildServerException(this.getClass(), SPECIMEN_RECORD_FAILED,
           "Cannot create Specimen: %s", specimen.toString());
     }
+    infoService.save(specimen, id, "Specimen");
 
     return id;
   }
@@ -64,12 +68,13 @@ public class SpecimenService {
     if (specimen == null) {
       return null;
     }
+    infoService.setInfo(specimen, id, "Specimen");
 
     return specimen;
   }
 
   public SpecimenWithSamples readWithSamples(String id) {
-    val specimen = repository.read(id);
+    val specimen = read(id);
     val s = new SpecimenWithSamples();
     s.setSpecimen(specimen);
     s.setSamples(sampleService.readByParentId(id));
@@ -86,12 +91,14 @@ public class SpecimenService {
 
   public String update(@NonNull Specimen specimen) {
     repository.update(specimen);
+    infoService.update(specimen, specimen.getSpecimenId(),"Specimen");
     return OK;
   }
 
   public String delete(@NonNull String id) {
     sampleService.deleteByParentId(id);
     repository.delete(id);
+    infoService.delete(id,"Specimen");
     return OK;
   }
 

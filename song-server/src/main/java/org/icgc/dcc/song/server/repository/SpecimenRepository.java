@@ -31,23 +31,23 @@ import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 @RegisterMapper(SpecimenMapper.class)
 public interface SpecimenRepository {
 
-  @SqlUpdate("INSERT INTO Specimen (id, submitter_id, donor_id, class, type, info) VALUES (:specimenId, :specimenSubmitterId, :donorId, :specimenClass, :specimenType, :info)")
+  @SqlUpdate("INSERT INTO Specimen (id, submitter_id, donor_id, class, type) VALUES (:specimenId, " +
+          ":specimenSubmitterId, :donorId, :specimenClass, :specimenType)")
   int create(@BindBean Specimen specimen);
 
-  @SqlQuery("SELECT id, submitter_id, donor_id, class, type, info FROM Specimen where id=:id")
+  @SqlQuery("SELECT id, submitter_id, donor_id, class, type FROM Specimen where id=:id")
   Specimen read(@Bind("id") String id);
 
-  @SqlUpdate("UPDATE Specimen SET submitter_id=:specimenSubmitterId, class=:specimenClass, type=:specimenType where id=:specimenId")
+  @SqlUpdate("UPDATE Specimen SET submitter_id=:specimenSubmitterId, class=:specimenClass, type=:specimenType " +
+          "where id=:specimenId")
   int update(@BindBean Specimen specimen);
 
-  @SqlUpdate("UPDATE Specimen SET submitter_id=:specimenSubmitterId, class=:specimenClass, type=:specimenType where id=:id")
+  @SqlUpdate("UPDATE Specimen SET submitter_id=:specimenSubmitterId, class=:specimenClass, type=:specimenType " +
+          "where id=:id")
   int update(@Bind("id") String id, @BindBean Specimen specimen);
 
   @SqlUpdate("DELETE from Specimen where id=:id")
   int delete(@Bind("id") String id);
-
-  @SqlQuery("SELECT id, submitter_id, donor_id, class, type, info FROM Specimen where donor_id=:donor_id")
-  List<Specimen> readByParentId(@Bind("donor_id") String donor_id);
 
   @SqlQuery("SELECT id from Specimen where donor_id=:donor_id")
   List<String> findByParentId(@Bind("donor_id") String donor_id);

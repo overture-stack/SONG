@@ -3,6 +3,7 @@ package org.icgc.dcc.song.server.model.entity.composites;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Donor;
 
 import java.util.ArrayList;
@@ -25,7 +26,9 @@ public class DonorWithSpecimens extends Donor {
 
     @JsonIgnore
     public Donor getDonor() {
-        return Donor.create(getDonorId(),getDonorSubmitterId(),getStudyId(), getDonorGender(), getInfo());
+        val donor = Donor.create(getDonorId(),getDonorSubmitterId(),getStudyId(), getDonorGender());
+        donor.setInfo(getInfo());
+        return donor;
     }
 
     public void addSpecimen(SpecimenWithSamples s) {

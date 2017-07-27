@@ -2,6 +2,7 @@ package org.icgc.dcc.song.importer.convert;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.server.model.entity.Study;
@@ -23,13 +24,14 @@ public class StudyConverter {
   }
 
   public static Study convertToStudy(@NonNull PortalDonorMetadata portalDonorMetadata){
-    return Study.create(
+    val s=Study.create(
         getStudyId(portalDonorMetadata),
         getStudyName(portalDonorMetadata),
         getStudyOrganization(),
-        getStudyDescription(),
-        getStudyInfo()
+        getStudyDescription()
     );
+    s.setInfo(getStudyInfo());
+    return s;
   }
 
   public static String getStudyId(@NonNull PortalDonorMetadata portalDonorMetadata){

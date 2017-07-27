@@ -18,55 +18,46 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import java.util.List;
-
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.icgc.dcc.song.server.model.entity.Study;
-import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
+import org.icgc.dcc.song.server.model.Metadata;
+import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
+import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.icgc.dcc.song.server.repository.InfoRepository;
-import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import java.util.ArrayList;
+import java.util.List;
 
-@Service
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_RECORD_FAILED;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.utils.Responses.OK;
+
 @RequiredArgsConstructor
-public class StudyService {
+@Service
+public class InfoService {
+  @Autowired
+  private final InfoRepository infoRepository;
 
-  /**
-   * Dependencies
-   */
-  @Autowired
-  StudyRepository studyRepository;
-  @Autowired
-  InfoService infoService;
-  @Autowired
-  DonorService donorService;
-
-  @SneakyThrows
-  public Study read(String studyId) {
-    val study = studyRepository.read(studyId);
-    infoService.setInfo(study, studyId, "Study");
-    return study;
+  public void setInfo(@NonNull Metadata object, @NonNull String objectId, @NonNull String infoType) {
+    val json = infoRepository.read(objectId, infoType);
+    object.setInfo(json);
   }
 
-  @SneakyThrows
-  public StudyWithDonors readWithChildren(String studyId) {
-    val study = new StudyWithDonors();
-    val s = read(studyId);
-    infoService.setInfo(s,studyId, "Study");
-    study.setStudy(s);
-    study.setDonors(donorService.readByParentId(studyId));
-    return study;
+  public void save(@NonNull Metadata object, @NonNull String objectId, @NonNull String infoType) {
+    infoRepository.create(objectId, infoType, object.getInfo());
   }
 
-  public int saveStudy(Study study) {
-    val id = study.getStudyId();
-    val status= studyRepository.create(id, study.getName(), study.getDescription(), study.getOrganization());
-    infoService.save(study,id,study.getInfo());
-    return status;
+  public void update(@NonNull Metadata object, @NonNull String objectId, @NonNull String infoType) {
+    infoRepository.set(objectId, infoType, object.getInfo());
   }
+
+  public void delete(@NonNull String objectId, String infoType) {
+    infoRepository.delete(objectId, infoType);
+  }
+
 
 }

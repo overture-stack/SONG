@@ -36,7 +36,7 @@ public class DonorMapper implements ResultSetMapper<Donor> {
   @SneakyThrows
   public Donor map(int index, ResultSet r, StatementContext ctx) throws SQLException {
     return Donor.create(r.getString(ID), r.getString(SUBMITTER_ID), r.getString(STUDY_ID),
-        r.getString(GENDER), r.getString(INFO));
+        r.getString(GENDER));
   }
 
 }

@@ -2,6 +2,7 @@ package org.icgc.dcc.song.importer.convert;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.server.model.entity.File;
@@ -22,14 +23,16 @@ public class FileConverter {
   }
 
   private static File convertToFile(PortalFileMetadata portalFileMetadata){
+    val analysisId="just compile!";
     return File.create(
         getFileId(portalFileMetadata),
+        analysisId,
         getFileName(portalFileMetadata),
+
         StudyConverter.getStudyId(portalFileMetadata),
-        getFileSize(portalFileMetadata),
+            getFileSize(portalFileMetadata),
         getFileType(portalFileMetadata),
-        getFileMd5sum(portalFileMetadata),
-        getFileInfo()
+        getFileMd5sum(portalFileMetadata)
     );
   }
 

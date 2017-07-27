@@ -30,8 +30,7 @@ public class StudyMapper implements ResultSetMapper<Study> {
 
   @Override
   public Study map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    return Study.create(r.getString(ID), r.getString(NAME), r.getString(ORGANIZATION), r.getString(DESCRIPTION),
-            r.getString(INFO));
+    return Study.create(r.getString(ID), r.getString(NAME), r.getString(ORGANIZATION), r.getString(DESCRIPTION));
   }
 
 }

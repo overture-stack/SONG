@@ -24,7 +24,7 @@ public class SpecimenWithSamples extends Specimen {
 
     public Specimen getSpecimen() {
         return Specimen.create(getSpecimenId(),getDonorId(),getSpecimenSubmitterId(), getSpecimenClass(),
-                getSpecimenType(), getInfo());
+                getSpecimenType());
     }
 
     public void addSample(Sample s) {

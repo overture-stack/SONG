@@ -47,6 +47,8 @@ public class AnalysisService {
   @Autowired
   private final AnalysisRepository repository;
   @Autowired
+  private final InfoService infoService;
+  @Autowired
   private final IdService idService;
   @Autowired
   private final CompositeEntityService compositeEntityService;
@@ -57,10 +59,12 @@ public class AnalysisService {
   private final ExistenceService existence;
 
   public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
-    repository.deleteCompositeEntities(analysis.getAnalysisId());
-    saveCompositeEntities(studyId, analysis.getAnalysisId(), analysis.getSample());
-    repository.deleteFiles(analysis.getAnalysisId());
-    saveFiles(analysis.getAnalysisId(), studyId, analysis.getFile());
+    val id = analysis.getAnalysisId();
+    repository.deleteCompositeEntities(id);
+    saveCompositeEntities(studyId, id, analysis.getSample());
+    repository.deleteFiles(id);
+    saveFiles(id, studyId, analysis.getFile());
+    infoService.update(analysis, id, "Analysis");
 
     if (analysis instanceof SequencingReadAnalysis ) {
       repository.updateSequencingRead(((SequencingReadAnalysis) analysis).getExperiment() );
@@ -75,6 +79,7 @@ public class AnalysisService {
     a.setAnalysisId(id);
     a.setStudy(studyId);
     repository.createAnalysis(a);
+    infoService.save(a, id, "Analysis");
 
     saveCompositeEntities(studyId, id, a.getSample() );
     saveFiles(id, studyId, a.getFile());
@@ -82,7 +87,7 @@ public class AnalysisService {
    if (a instanceof SequencingReadAnalysis) {
      val experiment = ((SequencingReadAnalysis) a).getExperiment();
      experiment.setAnalysisId(id);
-     repository.createSequencingRead(experiment) ;
+     repository.createSequencingRead(experiment);
    } else if (a instanceof VariantCallAnalysis) {
      val experiment = ((VariantCallAnalysis) a).getExperiment();
      experiment.setAnalysisId(id);
@@ -117,6 +122,7 @@ public class AnalysisService {
             String id = a.getAnalysisId();
             a.setFile(readFiles(id));
             a.setSample(readSamples(id));
+            infoService.setInfo(a, id, "Analysis");
             if (a instanceof SequencingReadAnalysis) {
               ((SequencingReadAnalysis) a).setExperiment(repository.readSequencingRead(id));
             } else if (a instanceof VariantCallAnalysis) {
@@ -135,6 +141,7 @@ public class AnalysisService {
 
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
+    infoService.setInfo(analysis, id, "Analysis");
 
     if (analysis instanceof SequencingReadAnalysis) {
       val experiment = repository.readSequencingRead(id);

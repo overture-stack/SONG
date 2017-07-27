@@ -27,8 +27,7 @@ public class DonorConverter {
         getDonorId(portalDonorMetadata),
         getDonorSubmitterId(portalDonorMetadata),
         StudyConverter.getStudyId(portalDonorMetadata),
-        getGender(portalDonorMetadata),
-        NA);
+        getGender(portalDonorMetadata));
   }
 
   public static String getDonorId(@NonNull PortalDonorMetadata portalDonorMetadata){

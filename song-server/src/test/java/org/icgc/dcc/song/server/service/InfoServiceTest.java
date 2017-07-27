@@ -18,11 +18,13 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import lombok.SneakyThrows;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-//import org.flywaydb.test.annotation.FlywayTest;
-//import org.flywaydb.test.junit.FlywayTestExecutionListener;
-import org.icgc.dcc.song.server.model.entity.Sample;
+import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.model.entity.Specimen;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,61 +36,55 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
+
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
-//@FlywayTest
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
-public class SampleServiceTest {
-
+public class InfoServiceTest {
   @Autowired
-  SampleService sampleService;
+  InfoService infoService;
+
 
   @Test
-  public void testReadSample() {
-    val id = "SA1";
-    val sample = sampleService.read(id);
-    Assertions.assertThat(sample.getSampleId()).isEqualTo(id);
-    Assertions.assertThat(sample.getSampleSubmitterId()).isEqualTo("T285-G7-A5");
-    Assertions.assertThat(sample.getSampleType()).isEqualTo("DNA");
+  @SneakyThrows
+  public void testInfo() {
+    val json = JsonUtils.mapper().createObjectNode();
+    val id = "DOX12345";
+
+    json.put("ageCategory", "A");
+    json.put("survivalStatus", "deceased");
+
+    String info = JsonUtils.nodeToJSON(json);
+
+    val d = new Donor();
+    d.setDonorId(id);
+    d.setInfo(info);
+
+    infoService.save(d,d.getDonorId(),"Donor");
+
+    val d2 = new Donor();
+    d2.setDonorId(id);
+    infoService.setInfo(d2,d2.getDonorId(),"Donor");
+    val json2 = JsonUtils.readTree(d2.getInfo());
+
+    assertThat(json).isEqualTo(json2);
+
+    json.put("species", "human");
+    d.setInfo(JsonUtils.nodeToJSON(json));
+
+    infoService.update(d,d.getDonorId(),"Donor");
+
+    val d3 = new Donor();
+    d3.setDonorId(id);
+    infoService.setInfo(d3,d.getDonorId(),"Donor");
+    val json3 = JsonUtils.readTree(d3.getInfo());
+
+    assertThat(json3).isEqualTo(json);
+
+
   }
 
-  @Test
-  public void testCreateAndDeleteSample() {
-    val specimenId = "SP2";
-    val metadata = "";
-    val s = Sample.create("", "101-IP-A", specimenId, "Amplified DNA");
-
-    val status = sampleService.create("Study123", s);
-    val id = s.getSampleId();
-
-    assertThat(id).startsWith("SA");
-    assertThat(status).isEqualTo(id);
-
-    Sample check = sampleService.read(id);
-    assertThat(s).isEqualToComparingFieldByField(check);
-
-    sampleService.delete(id);
-    Sample check2 = sampleService.read(id);
-    assertThat(check2).isNull();
-  }
-
-  @Test
-  public void testUpdateSample() {
-    val metadata = "";
-    val specimenId = "SP2";
-    val s = Sample.create("", "102-CBP-A", specimenId, "RNA");
-
-    sampleService.create("Study123", s);
-
-    val id = s.getSampleId();
-
-    val s2 = Sample.create(id, "Sample 102", s.getSpecimenId(), "FFPE RNA");
-
-    sampleService.update(s2);
-
-    val s3 = sampleService.read(id);
-    Assertions.assertThat(s3).isEqualToComparingFieldByField(s2);
-  }
 
 }
