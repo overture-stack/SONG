@@ -25,7 +25,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.importer.Factory.DONOR_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.FILE_CONVERTER;
-import static org.icgc.dcc.song.importer.Factory.FILE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SAMPLE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SPECIMEN_SAMPLE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.STUDY_CONVERTER;
@@ -55,6 +54,7 @@ public class Importer implements  Runnable {
 
   @Override
   public void run() {
+
     log.info("Building FileFilter...");
     val fileFilter = buildFileFilter();
 
@@ -77,8 +77,8 @@ public class Importer implements  Runnable {
     processStudies(filteredDataContainer.getPortalDonorMetadataSet());
     processDonors(filteredDataContainer.getPortalDonorMetadataSet());
     processSpecimensAndSamples(filteredDataContainer.getPortalFileMetadataList());
-    processFiles(filteredDataContainer.getPortalFileMetadataList());
     processAnalysis(filteredDataContainer);
+    processFiles(filteredDataContainer.getPortalFileMetadataList());
 
   }
 
@@ -162,12 +162,6 @@ public class Importer implements  Runnable {
       analysisRepository.createAnalysis(x);
       analysisRepository.createVariantCall(x.getExperiment());
     });
-
-    log.info("Converting FileSets...");
-    val fileSets = FILE_SET_CONVERTER.convertFileSets(dataContainer.getPortalFileMetadataList());
-
-    log.info("Updating analysisRespositry with {} FileSets", fileSets.size());
-    fileSets.forEach(x -> analysisRepository.addFile(x.getAnalysisId(), x.getFileId()));
 
     log.info("Converting SampleSets...");
     val sampleSets = SAMPLE_SET_CONVERTER.convertSampleSets(dataContainer.getPortalFileMetadataList());

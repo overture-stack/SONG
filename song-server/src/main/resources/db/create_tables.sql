@@ -77,6 +77,7 @@ CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, analysis_id VARCHAR(36) references
     md5 CHAR(32), type FILE_TYPE);
 
 DROP TABLE IF EXISTS SampleSet CASCADE;
+
 CREATE TABLE SampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);
 
 DROP TABLE IF EXISTS SequencingRead CASCADE;
@@ -84,7 +85,7 @@ CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy
 DROP TABLE IF EXISTS VariantCall CASCADE;
 CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT, tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT);
 
-DROP TABLE IF EXISTS Update CASCADE;
+DROP TABLE IF EXISTS Upload CASCADE;
 CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study, analysis_submitter_id TEXT, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP NOT NULL DEFAULT now(), updated_at TIMESTAMP NOT NULL DEFAULT now());
 
 drop TYPE if exists id_type CASCADE;
@@ -92,4 +93,5 @@ create TYPE id_type as ENUM('Study','Donor','Specimen','Sample','File','Analysis
 
 DROP TABLE IF EXISTS Info;
 CREATE TABLE Info(id VARCHAR(36), id_type id_type, info JSON);
+
 

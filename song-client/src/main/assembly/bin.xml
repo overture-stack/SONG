@@ -42,7 +42,7 @@
   </fileSets>
   <files>
     <file>
-      <source>${project.build.directory}/${artifactId}-${version}.jar</source>
+      <source>${project.build.directory}/${artifactId}-${version}-exec.jar</source>
       <outputDirectory>lib</outputDirectory>
       <destName>${artifactId}.jar</destName>
     </file>

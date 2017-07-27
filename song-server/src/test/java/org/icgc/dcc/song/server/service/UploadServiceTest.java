@@ -157,12 +157,14 @@ public class UploadServiceTest {
     log.info(format("UploadStatus='%s'",uploadStatus));
     val uploadId = fromStatus(uploadStatus,"uploadId");
     val status = fromStatus(uploadStatus, "status");
-    assertThat(status).isEqualTo("WARNING: replaced content for analysisSubmitterId 'VariantCall X24Alpha'");
+    assertThat(status).isEqualTo("ok");
 
     val json2 = json.replace("silver bullet","golden hammer");
     assertThat(json).isNotEqualTo(json2);
     val uploadStatus2 = uploadService.upload(study, json2, false);
-    val uploadId2 =  fromStatus(uploadStatus,"uploadId");
+    val uploadId2 =  fromStatus(uploadStatus2,"uploadId");
+    val status2 = fromStatus(uploadStatus2, "status");
+    assertThat(status2).isEqualTo("WARNING: replaced content for analysisSubmitterId 'VariantCall X24Alpha'");
 
 
     val upload = uploadService.read(uploadId2);

@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>song</artifactId>
 		<groupId>org.icgc.dcc</groupId>
-		<version>0.1.3-SNAPSHOT</version>
+		<version>0.1.4-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
@@ -14,7 +14,7 @@
 		<dependency>
 			<groupId>org.icgc.dcc</groupId>
 			<artifactId>song-core</artifactId>
-			<version>0.1.3-SNAPSHOT</version>
+			<version>0.1.4-SNAPSHOT</version>
 		</dependency>
 
 		<!-- jcommander -->
@@ -111,6 +111,21 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<classifier>exec</classifier>
+					<fork>true</fork>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
@@ -125,20 +140,6 @@
 								<descriptor>src/main/assembly/bin.xml</descriptor>
 							</descriptors>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<fork>true</fork>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>

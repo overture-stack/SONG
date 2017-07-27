@@ -1,5 +1,6 @@
 SELECT DISTINCT
   A.id,
+  A.submitter_id,
   A.type,
   A.state,
   A.study_id,

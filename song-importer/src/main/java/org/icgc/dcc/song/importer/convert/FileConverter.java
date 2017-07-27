@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Set;
 
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.icgc.dcc.song.importer.convert.AnalysisConverter.getAnalysisId;
 import static org.icgc.dcc.song.importer.convert.Converters.NA;
+import static org.icgc.dcc.song.importer.convert.StudyConverter.getStudyId;
 
 @RequiredArgsConstructor
 public class FileConverter {
@@ -23,14 +25,12 @@ public class FileConverter {
   }
 
   private static File convertToFile(PortalFileMetadata portalFileMetadata){
-    val analysisId="just compile!";
     return File.create(
         getFileId(portalFileMetadata),
-        analysisId,
+        getAnalysisId(portalFileMetadata),
         getFileName(portalFileMetadata),
-
-        StudyConverter.getStudyId(portalFileMetadata),
-            getFileSize(portalFileMetadata),
+        getStudyId(portalFileMetadata),
+        getFileSize(portalFileMetadata),
         getFileType(portalFileMetadata),
         getFileMd5sum(portalFileMetadata)
     );
