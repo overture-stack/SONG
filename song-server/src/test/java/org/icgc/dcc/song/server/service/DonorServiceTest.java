@@ -77,6 +77,7 @@ public class DonorServiceTest {
     json.put("donorSubmitterId", "Subject X21-Alpha");
     json.put("studyId", studyId);
     json.put("donorGender", "unspecified");
+    json.put("species", "human");
 
     DonorWithSpecimens d = JsonUtils.mapper().convertValue(json, DonorWithSpecimens.class);
     assertThat(d.getDonorId()).isEqualTo("");
@@ -98,6 +99,7 @@ public class DonorServiceTest {
   @Test
   public void testUpdateDonor() {
     val studyId = "ABC123";
+    val info = JsonUtils.fromSingleQuoted("{'test': 'new json'}");
 
     val d = new DonorWithSpecimens();
     d.setDonorId("");
@@ -113,6 +115,7 @@ public class DonorServiceTest {
     d2.setDonorSubmitterId("X21-Beta-17");
     d2.setStudyId(studyId);
     d2.setDonorGender("female");
+    d2.setInfo(info);
 
     service.update(d2);
 

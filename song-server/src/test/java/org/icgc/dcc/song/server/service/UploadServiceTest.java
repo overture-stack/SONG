@@ -143,7 +143,7 @@ public class UploadServiceTest {
     val finalState = validate(uploadId);
     assertThat(finalState).isEqualTo("VALIDATED");
 
-    // test save
+    // test create
     val response = uploadService.save(study,uploadId);
     assertThat(response.getStatusCode()).isEqualTo(OK);
   }
@@ -171,7 +171,7 @@ public class UploadServiceTest {
     assertThat(upload.getPayload()).isEqualTo(json2);
     assertThat(upload.getState()).isEqualTo("VALIDATED");
 
-    // test save
+    // test create
     val response = uploadService.save(study,uploadId);
     assertThat(response.getStatusCode()).isEqualTo(OK);
   }
@@ -231,7 +231,7 @@ public class UploadServiceTest {
     val finalState = validate(uploadId);
     assertThat(finalState).isEqualTo("VALIDATED");
 
-    // test save
+    // test create
    val response = uploadService.save(study,uploadId);
    assertThat(response.getStatusCode()).isEqualTo(OK);
   }

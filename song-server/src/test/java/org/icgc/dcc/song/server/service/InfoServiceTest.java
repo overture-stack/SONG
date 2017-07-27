@@ -20,11 +20,8 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.SneakyThrows;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.Specimen;
-import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,16 +33,13 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
-
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class InfoServiceTest {
   @Autowired
-  InfoService infoService;
-
+  DonorInfoService infoService;
 
   @Test
   @SneakyThrows
@@ -55,35 +49,19 @@ public class InfoServiceTest {
 
     json.put("ageCategory", "A");
     json.put("survivalStatus", "deceased");
-
     String info = JsonUtils.nodeToJSON(json);
 
-    val d = new Donor();
-    d.setDonorId(id);
-    d.setInfo(info);
-
-    infoService.save(d,d.getDonorId(),"Donor");
-
-    val d2 = new Donor();
-    d2.setDonorId(id);
-    infoService.setInfo(d2,d2.getDonorId(),"Donor");
-    val json2 = JsonUtils.readTree(d2.getInfo());
-
+    infoService.create(id, info);
+    val json2 = JsonUtils.readTree(infoService.read(id));
     assertThat(json).isEqualTo(json2);
 
     json.put("species", "human");
-    d.setInfo(JsonUtils.nodeToJSON(json));
+    val new_info= JsonUtils.nodeToJSON(json);
 
-    infoService.update(d,d.getDonorId(),"Donor");
-
-    val d3 = new Donor();
-    d3.setDonorId(id);
-    infoService.setInfo(d3,d.getDonorId(),"Donor");
-    val json3 = JsonUtils.readTree(d3.getInfo());
+    infoService.update(id, new_info);
+    val json3 = JsonUtils.readTree(infoService.read(id));
 
     assertThat(json3).isEqualTo(json);
-
-
   }
 
 

@@ -18,12 +18,12 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import java.util.List;
-
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
-import org.icgc.dcc.song.server.repository.InfoRepository;
+import org.icgc.dcc.song.server.model.enums.InfoType;
+import org.icgc.dcc.song.server.service.InfoService;
+import org.icgc.dcc.song.server.config.RepositoryConfig;
 import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,20 +35,20 @@ import lombok.SneakyThrows;
 @RequiredArgsConstructor
 public class StudyService {
 
-  /**
-   * Dependencies
-   */
   @Autowired
   StudyRepository studyRepository;
+
   @Autowired
-  InfoService infoService;
+  StudyInfoService infoService;
+
   @Autowired
   DonorService donorService;
 
   @SneakyThrows
   public Study read(String studyId) {
     val study = studyRepository.read(studyId);
-    infoService.setInfo(study, studyId, "Study");
+    val info = infoService.read(studyId);
+    study.setInfo(info);
     return study;
   }
 
@@ -56,7 +56,7 @@ public class StudyService {
   public StudyWithDonors readWithChildren(String studyId) {
     val study = new StudyWithDonors();
     val s = read(studyId);
-    infoService.setInfo(s,studyId, "Study");
+
     study.setStudy(s);
     study.setDonors(donorService.readByParentId(studyId));
     return study;
@@ -65,7 +65,7 @@ public class StudyService {
   public int saveStudy(Study study) {
     val id = study.getStudyId();
     val status= studyRepository.create(id, study.getName(), study.getDescription(), study.getOrganization());
-    infoService.save(study,id,study.getInfo());
+    infoService.create(id,study.getInfo());
     return status;
   }
 

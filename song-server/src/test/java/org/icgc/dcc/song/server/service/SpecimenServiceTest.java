@@ -122,7 +122,7 @@ public class SpecimenServiceTest {
         val id = s.getSpecimenId();
 
         val s2 = createSpecimen(id, "Specimen 102", s.getDonorId(), "Normal", "Normal - other");
-
+        s2.setInfo(JsonUtils.fromSingleQuoted("{'notes': ['A sharp, B flat']}"));
         specimenService.update(s2);
 
         val s3 = specimenService.read(id);

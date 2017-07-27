@@ -33,6 +33,7 @@ public interface InfoRepository {
   @SqlQuery("SELECT info from Info where id_type=:type AND id=:id")
   String read(@Bind("id") String id, @Bind("type") String id_type);
 
-  @SqlUpdate("DELETE from Info where id_type=:type AND id=:id")
-  int delete(@Bind("id") String id, @Bind("type") String id_type);
+  @SqlUpdate("DELETE from Info where id=:id")
+  int delete(@Bind("id") String id);
+
 }

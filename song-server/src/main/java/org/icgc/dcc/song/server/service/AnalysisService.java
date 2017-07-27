@@ -28,6 +28,8 @@ import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
+import org.icgc.dcc.song.server.model.experiment.SequencingRead;
+import org.icgc.dcc.song.server.model.experiment.VariantCall;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +51,12 @@ public class AnalysisService {
   @Autowired
   private final AnalysisRepository repository;
   @Autowired
-  private final InfoService infoService;
+  private final AnalysisInfoService infoService;
+  @Autowired
+  private final SequencingReadInfoService sequencingReadInfoService;
+  @Autowired
+  private final VariantCallInfoService variantCallInfoService;
+
   @Autowired
   private final IdService idService;
   @Autowired
@@ -60,51 +67,40 @@ public class AnalysisService {
   @Autowired
   private final ExistenceService existence;
 
-  public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
-    val id = analysis.getAnalysisId();
-    repository.deleteCompositeEntities(id);
-    saveCompositeEntities(studyId, id, analysis.getSample());
-    repository.deleteFiles(id);
-    saveFiles(id, studyId, analysis.getFile());
-    infoService.update(analysis, id, "Analysis");
-
-    if (analysis instanceof SequencingReadAnalysis ) {
-      val experiment = ((SequencingReadAnalysis) analysis).getExperiment();
-      repository.updateSequencingRead( experiment);
-      infoService.update(experiment, id, "SequencingRead");
-    } else if (analysis instanceof VariantCallAnalysis) {
-      val experiment = ((VariantCallAnalysis) analysis).getExperiment();
-      repository.updateVariantCall(experiment);
-      infoService.update(experiment, id, "VariantCall");
-    }
-    return ok("AnalysisId %s was updated successfully", analysis.getAnalysisId());
-  }
 
   public String create(String studyId, Analysis a) {
     val id = idService.generateAnalysisId();
     a.setAnalysisId(id);
     a.setStudy(studyId);
     repository.createAnalysis(a);
-    infoService.save(a, id, "Analysis");
+    infoService.create(id, a.getInfo());
 
     saveCompositeEntities(studyId, id, a.getSample() );
     saveFiles(id, studyId, a.getFile());
 
    if (a instanceof SequencingReadAnalysis) {
      val experiment = ((SequencingReadAnalysis) a).getExperiment();
-     experiment.setAnalysisId(id);
-     repository.createSequencingRead(experiment);
-     infoService.save(experiment, id, "SequencingRead");
+     createSequencingRead(id, experiment);
    } else if (a instanceof VariantCallAnalysis) {
      val experiment = ((VariantCallAnalysis) a).getExperiment();
-     experiment.setAnalysisId(id);
-     repository.createVariantCall(experiment);
-     infoService.save(experiment, id, "VariantCall");
+     createVariantCall(id, experiment);
    } else {
      // shouldn't be possible if we validated our JSON first...
      throw new IllegalArgumentException("Invalid analysis type");
    }
    return id;
+  }
+
+  public void createSequencingRead(String id, SequencingRead experiment) {
+    experiment.setAnalysisId(id);
+    repository.createSequencingRead(experiment);
+    sequencingReadInfoService.create(id, experiment.getInfo());
+  }
+
+  public void createVariantCall(String id, VariantCall experiment) {
+    experiment.setAnalysisId(id);
+    repository.createVariantCall(experiment);
+    variantCallInfoService.create(id, experiment.getInfo());
   }
 
   void saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
@@ -115,6 +111,35 @@ public class AnalysisService {
 
   void saveFiles(String id, String studyId, List<File> files) {
     files.stream().map(f->fileService.save(id, studyId, f));
+  }
+
+  public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
+    val id = analysis.getAnalysisId();
+    repository.deleteCompositeEntities(id);
+    saveCompositeEntities(studyId, id, analysis.getSample());
+    repository.deleteFiles(id);
+    saveFiles(id, studyId, analysis.getFile());
+    infoService.update(id, analysis.getInfo());
+
+    if (analysis instanceof SequencingReadAnalysis ) {
+      val experiment = ((SequencingReadAnalysis) analysis).getExperiment();
+      updateSequencingRead(id, experiment);
+    } else if (analysis instanceof VariantCallAnalysis) {
+      val experiment = ((VariantCallAnalysis) analysis).getExperiment();
+      updateVariantCall(id, experiment);
+    }
+    return ok("AnalysisId %s was updated successfully", analysis.getAnalysisId());
+  }
+
+
+  public void updateSequencingRead(String id, SequencingRead experiment) {
+    repository.updateSequencingRead( experiment);
+    sequencingReadInfoService.update(id, experiment.getInfo());
+  }
+
+  public void updateVariantCall(String id, VariantCall experiment) {
+    repository.updateVariantCall( experiment);
+    variantCallInfoService.update(id, experiment.getInfo());
   }
 
   /**
@@ -147,22 +172,40 @@ public class AnalysisService {
     if (analysis == null) {
       return null;
     }
+    analysis.setInfo(infoService.read(id));
 
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
-    infoService.setInfo(analysis, id, "Analysis");
 
     if (analysis instanceof SequencingReadAnalysis) {
-      val experiment = repository.readSequencingRead(id);
-      infoService.setInfo(experiment, id, "SequencingRead");
+      val experiment = readSequencingRead(id);
       ((SequencingReadAnalysis) analysis).setExperiment(experiment);
     } else if (analysis instanceof VariantCallAnalysis) {
-      val experiment = repository.readVariantCall(id);
-      infoService.setInfo(experiment, id, "VariantCall");
+      val experiment =readVariantCall(id);
       ((VariantCallAnalysis) analysis).setExperiment(experiment);
     }
 
     return analysis;
+  }
+
+  SequencingRead readSequencingRead(String id) {
+    val experiment = repository.readSequencingRead(id);
+    if (experiment == null) {
+      return null;
+    }
+    experiment.setInfo(sequencingReadInfoService.read(id));
+
+    return experiment;
+  }
+
+  VariantCall readVariantCall(String id) {
+    val experiment = repository.readVariantCall(id);
+    if (experiment == null) {
+      return null;
+    }
+    experiment.setInfo(variantCallInfoService.read(id));
+
+    return experiment;
   }
 
   public List<File> readFiles(String id) {
@@ -222,15 +265,16 @@ public class AnalysisService {
    * @param analysis is the Analysis to be updated
    * @return updated analysis with the child entity
    */
-  private Analysis processAnalysis(Analysis  analysis) {
+  private Analysis processAnalysis(Analysis analysis) {
     String id = analysis.getAnalysisId();
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
-    infoService.setInfo(analysis, id, "Analysis");
+    analysis.setInfo(infoService.read(id));
+
     if (analysis instanceof SequencingReadAnalysis) {
-      ((SequencingReadAnalysis) analysis).setExperiment(repository.readSequencingRead(id));
+      ((SequencingReadAnalysis) analysis).setExperiment(readSequencingRead(id));
     } else if (analysis instanceof VariantCallAnalysis) {
-      ((VariantCallAnalysis) analysis).setExperiment(repository.readVariantCall(id));
+      ((VariantCallAnalysis) analysis).setExperiment(readVariantCall(id));
     }
     return analysis;
   }

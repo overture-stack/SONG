@@ -34,7 +34,6 @@ import java.util.List;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_RECORD_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
-import static org.icgc.dcc.song.server.model.enums.IdPrefix.Specimen;
 
 @RequiredArgsConstructor
 @Service
@@ -45,7 +44,7 @@ public class SpecimenService {
   @Autowired
   private final SampleService sampleService;
   @Autowired
-  private final InfoService infoService;
+  private final SpecimenInfoService infoService;
   @Autowired
   private final SpecimenRepository repository;
 
@@ -58,7 +57,7 @@ public class SpecimenService {
       throw buildServerException(this.getClass(), SPECIMEN_RECORD_FAILED,
           "Cannot create Specimen: %s", specimen.toString());
     }
-    infoService.save(specimen, id, "Specimen");
+    infoService.create(id, specimen.getInfo());
 
     return id;
   }
@@ -68,7 +67,7 @@ public class SpecimenService {
     if (specimen == null) {
       return null;
     }
-    infoService.setInfo(specimen, id, "Specimen");
+    specimen.setInfo(infoService.read(id));
 
     return specimen;
   }
@@ -91,14 +90,14 @@ public class SpecimenService {
 
   public String update(@NonNull Specimen specimen) {
     repository.update(specimen);
-    infoService.update(specimen, specimen.getSpecimenId(),"Specimen");
+    infoService.update(specimen.getSpecimenId(),specimen.getInfo());
     return OK;
   }
 
   public String delete(@NonNull String id) {
     sampleService.deleteByParentId(id);
     repository.delete(id);
-    infoService.delete(id,"Specimen");
+    infoService.delete(id);
     return OK;
   }
 

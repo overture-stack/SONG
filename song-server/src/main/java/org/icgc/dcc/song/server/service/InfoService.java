@@ -20,44 +20,97 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
-import org.icgc.dcc.song.server.model.Metadata;
-import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
-import org.icgc.dcc.song.server.repository.DonorRepository;
-import org.icgc.dcc.song.server.repository.InfoRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_RECORD_FAILED;
-import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
-import static org.icgc.dcc.song.core.utils.Responses.OK;
-
+import org.icgc.dcc.song.server.model.enums.InfoType;
+import org.icgc.dcc.song.server.repository.InfoRepository;
 @RequiredArgsConstructor
 @Service
-public class InfoService {
-  @Autowired
+public abstract class InfoService {
+  private final InfoType type;
   private final InfoRepository infoRepository;
 
-  public void setInfo(@NonNull Metadata object, @NonNull String objectId, @NonNull String infoType) {
-    val json = infoRepository.read(objectId, infoType);
-    object.setInfo(json);
+  public String read(@NonNull String id) {
+    return infoRepository.read(id, type.name());
   }
 
-  public void save(@NonNull Metadata object, @NonNull String objectId, @NonNull String infoType) {
-    infoRepository.create(objectId, infoType, object.getInfo());
+  public void create( @NonNull String id,  String info) {
+    infoRepository.create(id, type.name(), info);
   }
 
-  public void update(@NonNull Metadata object, @NonNull String objectId, @NonNull String infoType) {
-    infoRepository.set(objectId, infoType, object.getInfo());
+  public void update(@NonNull String id, String info) {
+    infoRepository.set(id, type.name(), info);
   }
 
-  public void delete(@NonNull String objectId, String infoType) {
-    infoRepository.delete(objectId, infoType);
+  public void delete(@NonNull String id) {
+    infoRepository.delete(id);
   }
-
 
 }
+
+@Service
+class StudyInfoService extends InfoService {
+  @Autowired
+  StudyInfoService(InfoRepository repo) {
+    super(InfoType.Study, repo);
+  }
+}
+
+@Service
+class DonorInfoService extends InfoService {
+  @Autowired
+  DonorInfoService(InfoRepository repo) {
+    super(InfoType.Donor, repo);
+  }
+}
+
+@Service
+class SpecimenInfoService extends InfoService {
+  @Autowired
+  SpecimenInfoService(InfoRepository repo) {
+    super(InfoType.Specimen, repo);
+  }
+}
+
+@Service
+class SampleInfoService extends InfoService {
+  @Autowired
+  SampleInfoService(InfoRepository repo) {
+    super(InfoType.Sample, repo);
+  }
+}
+
+@Service
+class FileInfoService extends InfoService {
+  @Autowired
+  FileInfoService(InfoRepository repo) {
+    super(InfoType.File, repo);
+  }
+}
+
+@Service
+class AnalysisInfoService extends InfoService {
+  @Autowired
+  AnalysisInfoService(InfoRepository repo) {
+    super(InfoType.Analysis, repo);
+  }
+}
+
+@Service
+class VariantCallInfoService extends InfoService {
+  @Autowired
+  VariantCallInfoService(InfoRepository repo) {
+    super(InfoType.VariantCall, repo);
+  }
+}
+
+@Service
+class SequencingReadInfoService extends InfoService {
+  @Autowired
+  SequencingReadInfoService(InfoRepository repo) {
+    super(InfoType.SequencingRead, repo);
+  }
+}
+
