@@ -19,8 +19,6 @@
 package org.icgc.dcc.song.server.service;
 
 import lombok.val;
-//mport org.flywaydb.test.annotation.FlywayTest;
-//import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.junit.Test;
@@ -31,8 +29,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,7 +60,6 @@ public class FileServiceTest {
 
   @Test
   public void testCreateAndDeleteFile() {
-    val sampleId = "";
     val studyId="ABC123";
     val metadata = JsonUtils.fromSingleQuoted("{'species': 'human'}");
     val f = new File();

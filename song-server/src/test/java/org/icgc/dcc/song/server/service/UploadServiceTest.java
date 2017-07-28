@@ -21,8 +21,6 @@ package org.icgc.dcc.song.server.service;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-//import org.flywaydb.test.annotation.FlywayTest;
-//import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Upload;
 import org.junit.Test;
@@ -46,7 +44,6 @@ import static org.springframework.http.HttpStatus.OK;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
-//@FlywayTest
 @ActiveProfiles({"dev", "secure", "test"})
 public class UploadServiceTest {
 
@@ -143,7 +140,7 @@ public class UploadServiceTest {
     val finalState = validate(uploadId);
     assertThat(finalState).isEqualTo("VALIDATED");
 
-    // test create
+    // test save
     val response = uploadService.save(study,uploadId);
     assertThat(response.getStatusCode()).isEqualTo(OK);
   }
@@ -171,7 +168,7 @@ public class UploadServiceTest {
     assertThat(upload.getPayload()).isEqualTo(json2);
     assertThat(upload.getState()).isEqualTo("VALIDATED");
 
-    // test create
+    // test save
     val response = uploadService.save(study,uploadId);
     assertThat(response.getStatusCode()).isEqualTo(OK);
   }
@@ -231,7 +228,7 @@ public class UploadServiceTest {
     val finalState = validate(uploadId);
     assertThat(finalState).isEqualTo("VALIDATED");
 
-    // test create
+    // test save
    val response = uploadService.save(study,uploadId);
    assertThat(response.getStatusCode()).isEqualTo(OK);
   }

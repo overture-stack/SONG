@@ -24,11 +24,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import org.icgc.dcc.song.server.model.enums.InfoType;
 import org.icgc.dcc.song.server.repository.InfoRepository;
 @RequiredArgsConstructor
 @Service
-public abstract class InfoService {
+abstract class InfoService {
+  public enum InfoType {
+    Study, Donor, Specimen, Sample, File, Analysis, SequencingRead, VariantCall
+  }
   private final InfoType type;
   private final InfoRepository infoRepository;
 

@@ -20,8 +20,6 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.val;
 import org.assertj.core.api.Assertions;
-//import org.flywaydb.test.annotation.FlywayTest;
-//import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.Specimen;
@@ -40,7 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-//@FlywayTest
 @ActiveProfiles("dev")
 public class DonorServiceTest {
 

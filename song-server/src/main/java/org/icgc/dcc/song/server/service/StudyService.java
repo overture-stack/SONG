@@ -21,9 +21,6 @@ package org.icgc.dcc.song.server.service;
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
-import org.icgc.dcc.song.server.model.enums.InfoType;
-import org.icgc.dcc.song.server.service.InfoService;
-import org.icgc.dcc.song.server.config.RepositoryConfig;
 import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +44,9 @@ public class StudyService {
   @SneakyThrows
   public Study read(String studyId) {
     val study = studyRepository.read(studyId);
+    if (study == null) {
+      return study;
+    }
     val info = infoService.read(studyId);
     study.setInfo(info);
     return study;

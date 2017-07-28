@@ -83,8 +83,9 @@ public interface AnalysisRepository {
   SequencingRead readSequencingRead(@Bind("id") String id);
 
   @SqlUpdate("UPDATE SequencingRead SET library_strategy=:libraryStrategy, paired_end=:pairedEnd, " +
-          "insert_size=:insertSize, aligned=:aligned, alignment_tool=:alignmentTool, reference_genome=:referenceGenome" +
-          " WHERE id=:analysisId")
+          "insert_size=:insertSize, aligned=:aligned, alignment_tool=:alignmentTool, " +
+          "reference_genome=:referenceGenome " +
+          "WHERE id=:analysisId")
   void updateSequencingRead(@BindBean SequencingRead sequencingRead);
 
   @RegisterMapper(VariantCallMapper.class)

@@ -48,9 +48,6 @@ public class Constants {
       "Xenograft - derived from tumour cell line", "Cell line - derived from tumour", "Primary tumour - lymph node",
       "Metastatic tumour - other", "Cell line - derived from xenograft tumour");
 
-  public static final Collection<String> INFO_TYPE = list( "Study","Donor","Specimen","Sample","File","Analysis",
-          "SequencingRead","VariantCall");
-
   public static Collection<String> list(String... s) {
     return Collections.unmodifiableCollection(Arrays.asList(s));
   }

@@ -20,9 +20,7 @@ package org.icgc.dcc.song.server.config;
 
 import javax.sql.DataSource;
 
-import org.icgc.dcc.song.server.model.enums.InfoType;
 import org.icgc.dcc.song.server.repository.*;
-import org.icgc.dcc.song.server.service.InfoService;
 import org.skife.jdbi.v2.DBI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

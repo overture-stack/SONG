@@ -70,7 +70,8 @@ CREATE TABLE Sample(id VARCHAR(36) PRIMARY KEY, specimen_id VARCHAR(36) referenc
     type SAMPLE_TYPE);
 
 DROP TABLE IF EXISTS Analysis CASCADE;
-CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, type ANALYSIS_TYPE, study_id VARCHAR(36) references Study, submitter_id TEXT, state ANALYSIS_STATE);
+CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT,
+    type ANALYSIS_TYPE, state ANALYSIS_STATE);
 
 DROP TABLE IF EXISTS File CASCADE;
 CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, analysis_id VARCHAR(36) references Analysis, study_id VARCHAR(36) references Study, name TEXT, size BIGINT,
