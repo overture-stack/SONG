@@ -21,8 +21,6 @@ package org.icgc.dcc.song.server.service;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.flywaydb.test.annotation.FlywayTest;
-import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Upload;
 import org.junit.Test;
@@ -45,8 +43,7 @@ import static org.springframework.http.HttpStatus.OK;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@FlywayTest
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
 @ActiveProfiles({"dev", "secure", "test"})
 public class UploadServiceTest {
 
@@ -162,7 +159,9 @@ public class UploadServiceTest {
     val json2 = json.replace("silver bullet","golden hammer");
     assertThat(json).isNotEqualTo(json2);
     val uploadStatus2 = uploadService.upload(study, json2, false);
-    val uploadId2 =  fromStatus(uploadStatus,"uploadId");
+    val uploadId2 =  fromStatus(uploadStatus2,"uploadId");
+    val status2 = fromStatus(uploadStatus2, "status");
+    assertThat(status2).isEqualTo("WARNING: replaced content for analysisSubmitterId 'VariantCall X24Alpha'");
 
 
     val upload = uploadService.read(uploadId2);

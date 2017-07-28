@@ -36,8 +36,7 @@ public class VariantCallMapper implements ResultSetMapper<VariantCall> {
   public VariantCall map(int index, ResultSet r, StatementContext ctx) throws SQLException {
     return VariantCall.create(r.getString(ID),
                 r.getString(VARIANT_CALLING_TOOL),
-                r.getString(MATCHED_NORMAL_SAMPLE_SUBMITTER_ID),
-                r.getString(INFO));
+                r.getString(MATCHED_NORMAL_SAMPLE_SUBMITTER_ID));
   }
 
 }

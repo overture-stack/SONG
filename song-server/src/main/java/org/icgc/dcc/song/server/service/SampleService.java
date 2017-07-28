@@ -22,7 +22,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Sample;
-import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.SampleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,6 @@ import java.util.List;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_RECORD_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
-import static org.icgc.dcc.song.server.model.enums.IdPrefix.Sample;
 
 @RequiredArgsConstructor
 @Service
@@ -41,6 +39,10 @@ public class SampleService {
 
   @Autowired
   SampleRepository repository;
+
+  @Autowired
+  SampleInfoService infoService;
+
   @Autowired
   IdService idService;
 
@@ -49,6 +51,7 @@ public class SampleService {
     sample.setSampleId(id);
     sample.setSpecimenId(sample.getSpecimenId());
     int status = repository.create(sample);
+    infoService.create(id, sample.getInfo());
 
     if (status != 1) {
       throw buildServerException(MESSAGE_CONTEXT, SAMPLE_RECORD_FAILED, "Cannot create Sample: %s", sample.toString());
@@ -62,6 +65,9 @@ public class SampleService {
     if (sample == null) {
       return null;
     }
+    val info = infoService.read(id);
+    sample.setInfo(info);
+
     return sample;
   }
 
@@ -72,11 +78,13 @@ public class SampleService {
 
   public String update(@NonNull Sample sample) {
     repository.update(sample);
+    infoService.update(sample.getSampleId(), sample.getInfo());
     return OK;
   }
 
   public String delete(@NonNull String id) {
     repository.delete(id);
+    infoService.delete(id);
     return OK;
   }
 

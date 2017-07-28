@@ -39,14 +39,14 @@ public class Sample extends Metadata {
   private String sampleSubmitterId = "";
   private String sampleType = "";
 
-  public static Sample create(String id, @NonNull String submitter, String specimenId, String type, String metadata) {
+  public static Sample create(String id, @NonNull String submitter, String specimenId, String type) {
     val sample = new Sample();
     sample.setSampleId(id);
     sample.setSpecimenId(specimenId);
     sample.setSampleSubmitterId(submitter);
 
     sample.setSampleType(type);
-    sample.addInfo(metadata);
+
     return sample;
   }
 

@@ -98,8 +98,7 @@ public class AnalysisConverter {
     val variantCallExperiment = VariantCall.create(
         analysisId,
         variantCallAggregate.getVariantCallingTool(),
-        variantCallAggregate.getMatchedNormalSampleSubmitterId(),
-        NA);
+        variantCallAggregate.getMatchedNormalSampleSubmitterId());
     variantCallAnalysis.setExperiment(variantCallExperiment);
     return variantCallAnalysis;
   }
@@ -127,8 +126,7 @@ public class AnalysisConverter {
         NULL_INSERT_SIZE,
         seqReadAggregate.getLibraryStrategy(),
         DEFAULT_SEQUENCING_READ_IS_PAIRED,
-        seqReadAggregate.getReferenceGenome(),
-        NA);
+        seqReadAggregate.getReferenceGenome());
 
     sequencingReadAnalysis.setExperiment(sequencingReadExperiment);
     return sequencingReadAnalysis;

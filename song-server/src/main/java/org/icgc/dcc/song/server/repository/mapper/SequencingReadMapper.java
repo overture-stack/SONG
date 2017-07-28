@@ -42,8 +42,7 @@ public class SequencingReadMapper implements ResultSetMapper<SequencingRead> {
             r.getLong(INSERT_SIZE),
             r.getString(LIBRARY_STRATEGY),
             r.getBoolean(PAIRED_END),
-            r.getString(REFERENCE_GENOME),
-            r.getString(INFO));
+            r.getString(REFERENCE_GENOME));
   }
 
 }

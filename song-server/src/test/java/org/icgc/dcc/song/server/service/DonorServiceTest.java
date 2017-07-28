@@ -20,8 +20,6 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import org.flywaydb.test.annotation.FlywayTest;
-import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.Specimen;
@@ -39,8 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@FlywayTest
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class DonorServiceTest {
 
@@ -77,6 +74,7 @@ public class DonorServiceTest {
     json.put("donorSubmitterId", "Subject X21-Alpha");
     json.put("studyId", studyId);
     json.put("donorGender", "unspecified");
+    json.put("species", "human");
 
     DonorWithSpecimens d = JsonUtils.mapper().convertValue(json, DonorWithSpecimens.class);
     assertThat(d.getDonorId()).isEqualTo("");
@@ -98,6 +96,7 @@ public class DonorServiceTest {
   @Test
   public void testUpdateDonor() {
     val studyId = "ABC123";
+    val info = JsonUtils.fromSingleQuoted("{'test': 'new json'}");
 
     val d = new DonorWithSpecimens();
     d.setDonorId("");
@@ -113,6 +112,7 @@ public class DonorServiceTest {
     d2.setDonorSubmitterId("X21-Beta-17");
     d2.setStudyId(studyId);
     d2.setDonorGender("female");
+    d2.setInfo(info);
 
     service.update(d2);
 

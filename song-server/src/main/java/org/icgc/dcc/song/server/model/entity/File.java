@@ -41,8 +41,8 @@ public class File extends Metadata {
   private String fileType = "";
   private String fileMd5sum = "";
 
-  public static File create(String id, String analysisId, String name, String study, Long size, String type, String md5,
-      String metadata) {
+  public static File create(String id, String analysisId, String name, String study, Long size,
+                            String type, String md5) {
     val f = new File();
     f.setObjectId(id);
     f.setAnalysisId(analysisId);
@@ -51,8 +51,6 @@ public class File extends Metadata {
     f.setFileSize(size);
     f.setFileType(type);
     f.setFileMd5sum(md5);
-
-    f.addInfo(metadata);
     return f;
   }
 

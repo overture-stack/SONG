@@ -18,10 +18,10 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import lombok.SneakyThrows;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.model.entity.Sample;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,60 +35,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
-public class SampleServiceTest {
-
+public class InfoServiceTest {
   @Autowired
-  SampleService sampleService;
+  DonorInfoService infoService;
 
   @Test
-  public void testReadSample() {
-    val id = "SA1";
-    val sample = sampleService.read(id);
-    Assertions.assertThat(sample.getSampleId()).isEqualTo(id);
-    Assertions.assertThat(sample.getSampleSubmitterId()).isEqualTo("T285-G7-A5");
-    Assertions.assertThat(sample.getSampleType()).isEqualTo("DNA");
+  @SneakyThrows
+  public void testInfo() {
+    val json = JsonUtils.mapper().createObjectNode();
+    val id = "DOX12345";
+
+    json.put("ageCategory", "A");
+    json.put("survivalStatus", "deceased");
+    String info = JsonUtils.nodeToJSON(json);
+
+    infoService.create(id, info);
+    val json2 = JsonUtils.readTree(infoService.read(id));
+    assertThat(json).isEqualTo(json2);
+
+    json.put("species", "human");
+    val new_info= JsonUtils.nodeToJSON(json);
+
+    infoService.update(id, new_info);
+    val json3 = JsonUtils.readTree(infoService.read(id));
+
+    assertThat(json3).isEqualTo(json);
   }
 
-  @Test
-  public void testCreateAndDeleteSample() {
-    val specimenId = "SP2";
-    val metadata = JsonUtils.fromSingleQuoted("{'ageCategory': 3, 'species': 'human'}");
-    val s = Sample.create("", "101-IP-A", specimenId, "Amplified DNA");
-    s.setInfo(metadata);
-
-    val status = sampleService.create("Study123", s);
-    val id = s.getSampleId();
-
-    assertThat(id).startsWith("SA");
-    assertThat(status).isEqualTo(id);
-
-    Sample check = sampleService.read(id);
-    assertThat(check).isEqualToComparingFieldByField(s);
-
-    sampleService.delete(id);
-    Sample check2 = sampleService.read(id);
-    assertThat(check2).isNull();
-  }
-
-  @Test
-  public void testUpdateSample() {
-
-    val specimenId = "SP2";
-    val s = Sample.create("", "102-CBP-A", specimenId, "RNA");
-
-    sampleService.create("Study123", s);
-
-    val id = s.getSampleId();
-
-    val metadata = JsonUtils.fromSingleQuoted("{'species': 'Canadian Beaver'}");
-    val s2 = Sample.create(id, "Sample 102", s.getSpecimenId(), "FFPE RNA");
-    s2.setInfo(metadata);
-    sampleService.update(s2);
-
-    val s3 = sampleService.read(id);
-    Assertions.assertThat(s3).isEqualToComparingFieldByField(s2);
-  }
 
 }

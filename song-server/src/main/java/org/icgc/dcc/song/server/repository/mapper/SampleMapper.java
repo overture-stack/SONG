@@ -33,7 +33,7 @@ public class SampleMapper implements ResultSetMapper<Sample> {
   @Override
   public Sample map(int index, ResultSet r, StatementContext ctx) throws SQLException {
     return Sample.create(r.getString(ID), r.getString(SUBMITTER_ID), r.getString(SPECIMEN_ID),
-        r.getString(TYPE), r.getString(INFO));
+        r.getString(TYPE));
   }
 
 }

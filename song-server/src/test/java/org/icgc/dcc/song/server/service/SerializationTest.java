@@ -107,7 +107,9 @@ public class SerializationTest {
     val gender = "male";
     val metadata = "";
 
-    val donor = Donor.create(id, submitterId, studyId, gender, metadata);
+    val donor = Donor.create(id, submitterId, studyId, gender);
+    donor.setInfo(metadata);
+
     val json = JsonUtils.toJson(donor);
 
     val expected = String.format(
@@ -124,11 +126,10 @@ public class SerializationTest {
     val submitterId = "123";
     val studyId = "X23-CA";
     val gender = "potatoes";
-    val metadata = "";
 
     boolean failed = false;
     try {
-      Donor.create(id, submitterId, studyId, gender, metadata);
+      Donor.create(id, submitterId, studyId, gender);
     } catch (IllegalArgumentException e) {
       failed = true;
     }
@@ -150,7 +151,7 @@ public class SerializationTest {
     val metadata = "";
 
     val sequencingRead = SequencingRead.create(id, aligned, alignmentTool, insertSize,
-            libraryStrategy, pairedEnd, genome, metadata);
+            libraryStrategy, pairedEnd, genome);
     val json = JsonUtils.toJson(sequencingRead);
 
     val expected = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
@@ -173,7 +174,7 @@ public class SerializationTest {
     val metadata = "";
 
     val sequencingRead1 = SequencingRead.create(id, aligned, alignmentTool, insertSize,
-            libraryStrategy, pairedEnd, genome, metadata);
+            libraryStrategy, pairedEnd, genome);
 
     val singleQuotedJson = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
                     "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s, 'referenceGenome': '%s', 'info':'{%s}'}", id, aligned, alignmentTool,

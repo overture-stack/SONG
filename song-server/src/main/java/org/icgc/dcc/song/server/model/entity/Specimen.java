@@ -43,15 +43,14 @@ public class Specimen extends Metadata {
   private String specimenClass = "";
   private String specimenType = "";
 
-  public static Specimen create(String id,  @NonNull String submitterId, String donorId,String specimenClass, String type,
-                                String metadata) {
+  public static Specimen create(String id, @NonNull String submitterId, String donorId, String specimenClass,
+                                String type) {
     val s = new Specimen();
     s.setSpecimenId(id);
     s.setDonorId(donorId);
     s.setSpecimenSubmitterId(submitterId);
     s.setSpecimenClass(specimenClass);
     s.setSpecimenType(type);
-    s.addInfo(metadata);
 
     return s;
   }

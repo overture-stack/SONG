@@ -26,8 +26,6 @@ import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_RECORD_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
@@ -39,6 +37,8 @@ public class FileService {
   @Autowired
   FileRepository repository;
   @Autowired
+  FileInfoService infoService;
+  @Autowired
   IdService idService;
 
   public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
@@ -49,24 +49,33 @@ public class FileService {
 
     val status = repository.create(file);
 
+
     if (status != 1) {
       throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create File: %s", file.toString());
     }
+    infoService.create(id, file.getInfo());
 
     return id;
   }
 
   public File read(@NonNull String id) {
-    return repository.read(id);
+    val f = repository.read(id);
+    if (f==null) {
+      return null;
+    }
+    f.setInfo(infoService.read(id));
+    return f;
   }
 
   public String update(@NonNull File f) {
     repository.update(f);
+    infoService.update(f.getObjectId(), f.getInfo());
     return OK;
   }
 
   public String delete(@NonNull String id) {
     repository.delete(id);
+    infoService.delete(id);
     return OK;
   }
 

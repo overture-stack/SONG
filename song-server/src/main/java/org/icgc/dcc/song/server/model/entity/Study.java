@@ -35,13 +35,13 @@ public class Study extends Metadata {
   private String organization="";
   private String description="";
 
-  public static Study create(@NonNull String id, String name, String org, String desc, String metadata) {
+  public static Study create(@NonNull String id, String name, String org, String desc) {
       val s = new Study();
       s.setStudyId(id);
       s.setName(name);
       s.setOrganization(org);
       s.setDescription(desc);
-      s.addInfo(metadata);
+
       return s;
   }
 

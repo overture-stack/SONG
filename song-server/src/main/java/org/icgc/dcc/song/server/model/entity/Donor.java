@@ -43,13 +43,12 @@ public class Donor extends Metadata {
   private String studyId = "";
   private String donorGender = "";
 
-  public static Donor create(String id, String submitterId, String studyId, String gender, String metadata) {
+  public static Donor create(String id, String submitterId, String studyId, String gender) {
     val d = new Donor();
     d.setDonorId(id);
     d.setStudyId(studyId);
     d.setDonorSubmitterId(submitterId);
     d.setDonorGender(gender);
-    d.addInfo(metadata);
 
     return d;
   }

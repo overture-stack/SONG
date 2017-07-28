@@ -24,8 +24,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import org.flywaydb.test.annotation.FlywayTest;
-import org.flywaydb.test.junit.FlywayTestExecutionListener;
+import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
@@ -52,8 +51,7 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@FlywayTest
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class AnalysisServiceTest {
 
@@ -83,8 +81,9 @@ public class AnalysisServiceTest {
     val experiment = ((SequencingReadAnalysis) created).getExperiment();
     assertThat(experiment).isNotNull();
     assertThat(experiment.getAlignmentTool().equals("BigWrench"));
+    assertThat(experiment.getInfo()).isEqualTo(JsonUtils.fromSingleQuoted("{'notes':'N/A'}"));
 
-    // test update
+;    // test update
     val change="ModifiedToolName";
     experiment.setAlignmentTool(change);
     service.updateAnalysis(study, created);
@@ -111,7 +110,8 @@ public class AnalysisServiceTest {
     val experiment = ((VariantCallAnalysis) created).getExperiment();
     assertThat(experiment).isNotNull();
     assertThat(experiment.getVariantCallingTool()).isEqualTo("silver bullet");
-
+    assertThat(experiment.getInfo()).isEqualTo(
+            JsonUtils.fromSingleQuoted("{'notes':'we can put anything we want as extra JSON fields'}"));
     // test update
     val change="GoldenHammer";
     experiment.setVariantCallingTool(change) ;
@@ -177,12 +177,6 @@ public class AnalysisServiceTest {
     assertThat(analysis.getAnalysisState()).isEqualTo("PUBLISHED");
   }
 
-  @Test
-  public void testUpdate() {
-    val id = "AN1";
-    val analysis = service.read(id);
-    // FIXME: implement this...
-  }
 
   @Test
   public void testSuppress() {

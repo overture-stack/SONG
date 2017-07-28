@@ -65,18 +65,19 @@ public class SpecimenSampleConverter {
             sampleId,
             submittedSampleId,
             specimenId,
-            getSampleType(portalFileMetadata),
-            getSampleInfo()
+            getSampleType(portalFileMetadata)
+
         );
+        sampleEntity.setInfo(getSampleInfo());
 
         val specimenEntity = Specimen.create(
             specimenId,
             submittedSpecimenId,
             donorId,
             resolveSpecimenClass(specimenType),
-            specimenType,
-            getSpecimenInfo()
+            specimenType
         );
+        specimenEntity.setInfo(getSpecimenInfo() );
         list.add(createSpecimenSampleContainer(specimenEntity, sampleEntity));
 
       }

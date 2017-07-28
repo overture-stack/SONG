@@ -18,8 +18,6 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import java.util.List;
-
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
@@ -34,34 +32,41 @@ import lombok.SneakyThrows;
 @RequiredArgsConstructor
 public class StudyService {
 
-  /**
-   * Dependencies
-   */
   @Autowired
   StudyRepository studyRepository;
+
+  @Autowired
+  StudyInfoService infoService;
+
   @Autowired
   DonorService donorService;
 
   @SneakyThrows
   public Study read(String studyId) {
-    return studyRepository.read(studyId);
+    val study = studyRepository.read(studyId);
+    if (study == null) {
+      return study;
+    }
+    val info = infoService.read(studyId);
+    study.setInfo(info);
+    return study;
   }
 
   @SneakyThrows
   public StudyWithDonors readWithChildren(String studyId) {
     val study = new StudyWithDonors();
-    study.setStudy(read(studyId));
+    val s = read(studyId);
+
+    study.setStudy(s);
     study.setDonors(donorService.readByParentId(studyId));
     return study;
   }
 
-  @SneakyThrows
-  public List<Study> readByName(String name) {
-    return studyRepository.readByName(name);
-  }
-
   public int saveStudy(Study study) {
-    return studyRepository.create(study.getStudyId(), study.getName(), study.getDescription(), study.getOrganization());
+    val id = study.getStudyId();
+    val status= studyRepository.create(id, study.getName(), study.getDescription(), study.getOrganization());
+    infoService.create(id,study.getInfo());
+    return status;
   }
 
 }

@@ -43,6 +43,8 @@ public class DonorService {
   @Autowired
   private final DonorRepository donorRepository;
   @Autowired
+  private final DonorInfoService infoService;
+  @Autowired
   private final IdService idService;
   @Autowired
   private final SpecimenService specimenService;
@@ -50,18 +52,25 @@ public class DonorService {
   public String create(@NonNull DonorWithSpecimens d) {
     val id = idService.generateDonorId(d.getDonorSubmitterId(), d.getStudyId());
     d.setDonorId(id);
+    val donor = d.getDonor();
 
-    val status = donorRepository.create(d.getDonor());
+    val status = donorRepository.create(donor);
     if (status != 1) {
       throw buildServerException(this.getClass(), DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
     }
+    infoService.create(id, donor.getInfo());
     d.getSpecimens().forEach(s -> specimenService.create(d.getStudyId(), s));
 
     return id;
   }
 
   public Donor read(@NonNull String id) {
-    return donorRepository.read(id);
+    val donor = donorRepository.read(id);
+    if (donor == null) {
+      return null;
+    }
+    donor.setInfo(infoService.read(id));
+    return donor;
   }
 
   public DonorWithSpecimens readWithSpecimens(@NonNull String id) {
@@ -82,6 +91,7 @@ public class DonorService {
 
   public String update(@NonNull Donor donor) {
     if (donorRepository.update(donor) == 1) {
+      infoService.update(donor.getDonorId(), donor.getInfo());
       return "Updated";
     }
     return "Failed"; //TODO: [DCC-5644] need to properly handle this. Should an ServerException be thrown?
@@ -90,6 +100,7 @@ public class DonorService {
   public String delete(@NonNull String studyId, @NonNull String id) {
     specimenService.deleteByParentId(id);
     donorRepository.delete(studyId, id);
+    infoService.delete(id);
     return OK;
   }
 
