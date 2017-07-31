@@ -30,7 +30,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
-import static org.icgc.dcc.song.server.repository.AttributeNames.INFO;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STATE;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STUDY_ID;
 import static org.icgc.dcc.song.server.repository.AttributeNames.SUBMITTER_ID;
@@ -46,14 +45,13 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
     val study = r.getString(STUDY_ID );
     val type = r.getString(TYPE);
     val state = r.getString(STATE);
-    val info = r.getString(INFO);
 
 
     if (type.equals("sequencingRead")) {
-      return SequencingReadAnalysis.create(id, study, submitter_id, state, info);
+      return SequencingReadAnalysis.create(id, study, submitter_id, state);
     }
     if (type.equals("variantCall")) {
-      return VariantCallAnalysis.create(id, study, submitter_id, state, info);
+      return VariantCallAnalysis.create(id, study, submitter_id, state);
     }
 
     return null;
