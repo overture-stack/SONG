@@ -57,6 +57,11 @@ auth:
     multiplier: 2.0
 
 ---
+spring.profiles: test
+spring:
+  profiles:
+    include: [dev]
+---
 spring.profiles: dev
 spring:
   profiles:
