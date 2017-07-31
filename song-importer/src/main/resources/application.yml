@@ -137,9 +137,6 @@ spring.datasource:
   max-idle: 1
   min-idle: 1
 
-flyway:
-  locations: db/migration/{vendor}
-
 ---
 spring:
   profiles: test
