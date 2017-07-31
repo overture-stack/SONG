@@ -20,14 +20,14 @@ import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static org.icgc.dcc.song.server.model.enums.IdTypes.Analysis;
-import static org.icgc.dcc.song.server.model.enums.IdTypes.Donor;
-import static org.icgc.dcc.song.server.model.enums.IdTypes.File;
-import static org.icgc.dcc.song.server.model.enums.IdTypes.Sample;
-import static org.icgc.dcc.song.server.model.enums.IdTypes.SequencingRead;
-import static org.icgc.dcc.song.server.model.enums.IdTypes.Specimen;
-import static org.icgc.dcc.song.server.model.enums.IdTypes.Study;
-import static org.icgc.dcc.song.server.model.enums.IdTypes.VariantCall;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.Analysis;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.Donor;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.File;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.Sample;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SequencingRead;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.Specimen;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.Study;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.VariantCall;
 
 @Component
 public class RepositoryDao {

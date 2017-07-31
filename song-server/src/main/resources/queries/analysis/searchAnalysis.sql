@@ -1,12 +1,4 @@
-SELECT
-  t1.id,
-  t1.submitter_id,
-  t1.type,
-  t1.state,
-  t1.study_id,
-  I.info
-FROM
-  (SELECT DISTINCT
+SELECT DISTINCT
   A.id,
   A.submitter_id,
   A.type,
@@ -22,6 +14,4 @@ WHERE D.study_id = :studyId
       AND D.id  ~* :donorId
       AND SP.id ~* :specimenId
       AND SA.id ~* :sampleId
-      AND F.id  ~* :fileId) t1
-INNER JOIN Info as I on t1.id = I.id
-WHERE I.id_type = 'Analysis';
+      AND F.id  ~* :fileId;

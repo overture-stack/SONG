@@ -9,6 +9,3 @@ echo " -- Creating DB -- "
 
 echo " -- Creating Tables -- "
 psql $DB < ./create_tables.sql
-
-echo " -- Adding test data -- "
-psql $DB < ./add_test_data.sql
