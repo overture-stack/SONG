@@ -18,20 +18,14 @@
  */
 package org.icgc.dcc.song.importer.config;
 
-import org.icgc.dcc.song.server.repository.AnalysisRepository;
-import org.icgc.dcc.song.server.repository.DonorRepository;
-import org.icgc.dcc.song.server.repository.FileRepository;
-import org.icgc.dcc.song.server.repository.SampleRepository;
-import org.icgc.dcc.song.server.repository.SpecimenRepository;
-import org.icgc.dcc.song.server.repository.StudyRepository;
-import org.icgc.dcc.song.server.repository.UploadRepository;
+import javax.sql.DataSource;
+
+import org.icgc.dcc.song.server.repository.*;
 import org.skife.jdbi.v2.DBI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-
-import javax.sql.DataSource;
 
 @Lazy
 @Configuration
@@ -78,6 +72,11 @@ public class RepositoryConfig {
   @Bean
   public AnalysisRepository AnalysisRepository(DBI dbi) {
     return dbi.open(AnalysisRepository.class);
+  }
+
+ @Bean
+  public InfoRepository InfoRepository(DBI dbi) {
+    return dbi.open(InfoRepository.class);
   }
 
 }
