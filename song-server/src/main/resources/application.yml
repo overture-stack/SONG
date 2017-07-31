@@ -40,9 +40,6 @@ validation:
   queue:
     capacity: 100
 
-flyway:
-  baselineOnMigrate: true
-
 validation.delayMs: 3000
 
 auth:
@@ -64,12 +61,8 @@ spring.profiles: dev
 spring:
   profiles:
     include: [fastTest]
-  h2:
-    console:
-      enabled: true
-      settings:
-        web-allow-others: true
-      path: /console
+  datasource:
+    initialize: true
 
 auth:
   server:
@@ -85,9 +78,6 @@ spring.datasource:
   max-active: 10
   max-idle: 1
   min-idle: 1
-
-flyway:
-  locations: db/migration/{vendor},db/migration/data
 
 ---
 
@@ -123,7 +113,9 @@ auth:
 
 spring:
   profiles: prod
-  
+  datasource:
+    initialize: false
+
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
@@ -134,9 +126,6 @@ spring.datasource:
   max-active: 10
   max-idle: 1
   min-idle: 1
-
-flyway:
-  locations: db/migration/{vendor}
 
 ---
 spring:
