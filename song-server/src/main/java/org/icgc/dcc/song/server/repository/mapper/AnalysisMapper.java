@@ -30,7 +30,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
-import static org.icgc.dcc.song.server.repository.AttributeNames.INFO;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STATE;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STUDY_ID;
 import static org.icgc.dcc.song.server.repository.AttributeNames.SUBMITTER_ID;

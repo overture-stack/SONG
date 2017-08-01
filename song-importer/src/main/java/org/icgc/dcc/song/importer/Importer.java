@@ -1,6 +1,5 @@
 package org.icgc.dcc.song.importer;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -8,13 +7,6 @@ import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.SpecimenSample
 import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
-import org.icgc.dcc.song.server.model.entity.Study;
-import org.icgc.dcc.song.server.repository.AnalysisRepository;
-import org.icgc.dcc.song.server.repository.DonorRepository;
-import org.icgc.dcc.song.server.repository.FileRepository;
-import org.icgc.dcc.song.server.repository.SampleRepository;
-import org.icgc.dcc.song.server.repository.SpecimenRepository;
-import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,15 +34,7 @@ public class Importer implements  Runnable {
 
   private static final String DATA_CONTAINER_PERSISTENCE_FN = "dataContainer.dat";
 
-  @Autowired private StudyRepository studyRepository;
-  @Autowired private DonorRepository donorRepository;
-  @Autowired private SpecimenRepository specimenRepository;
-  @Autowired private SampleRepository sampleRepository;
-  @Autowired private FileRepository fileRepository;
-  @Autowired private AnalysisRepository analysisRepository;
-
-
-
+  @Autowired private RepositoryDao repositoryDao;
 
   @Override
   public void run() {
@@ -78,6 +62,7 @@ public class Importer implements  Runnable {
     processDonors(filteredDataContainer.getPortalDonorMetadataSet());
     processSpecimensAndSamples(filteredDataContainer.getPortalFileMetadataList());
     processAnalysis(filteredDataContainer);
+    processSampleSets(filteredPortalFileMetadataList);
     processFiles(filteredDataContainer.getPortalFileMetadataList());
 
   }
@@ -87,11 +72,7 @@ public class Importer implements  Runnable {
     val studies = STUDY_CONVERTER.convertStudies(portalDonorMetadataSet);
 
     log.info("Updating StudyRepository with {} studies", studies.size());
-    studies.forEach(this::createStudy);
-  }
-
-  private void createStudy(@NonNull Study study){
-    studyRepository.create(study.getStudyId(),study.getName(),study.getOrganization(),study.getDescription());
+    studies.forEach(repositoryDao::createStudy);
   }
 
   private void processDonors(Set<PortalDonorMetadata> portalDonorMetadataSet){
@@ -99,7 +80,7 @@ public class Importer implements  Runnable {
     val donors = DONOR_CONVERTER.convertDonors(portalDonorMetadataSet);
 
     log.info("Updating DonorRepository with {} donors", donors.size());
-    donors.forEach(donorRepository::create);
+    donors.forEach(repositoryDao::createDonor);
   }
 
   private void processSpecimensAndSamples(List<PortalFileMetadata> portalFileMetadataList){
@@ -114,7 +95,7 @@ public class Importer implements  Runnable {
         .keySet();
 
     log.info("Updating SpecimenRepository with {} specimens", specimens.size());
-    specimens.forEach(specimenRepository::create);
+    specimens.forEach(repositoryDao::createSpecimen);
 
     // Aggregating samples
     val samples = specimenSampleTuples.stream()
@@ -126,7 +107,7 @@ public class Importer implements  Runnable {
         .collect(toImmutableSet());
 
     log.info("Updating SampleRepository with {} samples", samples.size());
-    samples.forEach(sampleRepository::create);
+    samples.forEach(repositoryDao::createSample);
 
   }
 
@@ -135,7 +116,7 @@ public class Importer implements  Runnable {
     val files = FILE_CONVERTER.convertFiles(portalFileMetadataList);
 
     log.info("Updating FileRepository with {} files", files.size());
-    files.forEach(fileRepository::create);
+    files.forEach(repositoryDao::createFile);
   }
 
   private void processAnalysis(DataContainer dataContainer){
@@ -149,26 +130,21 @@ public class Importer implements  Runnable {
     val seqReadAnalysisList = analysisConverter.convertSequencingReads(dataContainer.getPortalFileMetadataList());
 
     log.info("Updating analysisRepository with {} Sequencing Reads", seqReadAnalysisList.size());
-    seqReadAnalysisList.forEach(x -> {
-      analysisRepository.createAnalysis(x);
-      analysisRepository.createSequencingRead(x.getExperiment());
-    });
+    seqReadAnalysisList.forEach(repositoryDao::createSequencingReadAnalysis);
 
     log.info("Converting VariantCalls...");
     val variantCallList = analysisConverter.convertVariantCalls(dataContainer.getPortalFileMetadataList());
 
     log.info("Updating analysisRepository with {} VariantCalls", variantCallList.size());
-    variantCallList.forEach(x -> {
-      analysisRepository.createAnalysis(x);
-      analysisRepository.createVariantCall(x.getExperiment());
-    });
+    variantCallList.forEach(repositoryDao::createVariantCallAnalysis);
+  }
 
+  private void processSampleSets(List<PortalFileMetadata> portalFileMetadataList){
     log.info("Converting SampleSets...");
-    val sampleSets = SAMPLE_SET_CONVERTER.convertSampleSets(dataContainer.getPortalFileMetadataList());
+    val sampleSets = SAMPLE_SET_CONVERTER.convertSampleSets(portalFileMetadataList);
 
     log.info("Updating analysisRespositry with {} SampleSets", sampleSets.size());
-    sampleSets.forEach(x -> analysisRepository.addSample(x.getAnalysisId(), x.getSampleId()));
-
+    sampleSets.forEach(repositoryDao::createSampleSet);
   }
 
 }
