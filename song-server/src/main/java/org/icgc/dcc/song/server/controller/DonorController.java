@@ -54,7 +54,7 @@ public class DonorController {
   @PostMapping(value = "/donors", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(@RequestBody DonorWithSpecimens donor) {
+  public String create(@PathVariable("studyId") String studyId, @RequestBody DonorWithSpecimens donor) {
     return donorService.create(donor);
 
   }

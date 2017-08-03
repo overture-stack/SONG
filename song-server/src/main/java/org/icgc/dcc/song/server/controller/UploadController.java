@@ -70,7 +70,7 @@ public class UploadController {
   @GetMapping(value = "/{studyId}/status/{uploadId}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public @ResponseBody
-  Upload status(@PathVariable("uploadId") String uploadId) {
+  Upload status(@PathVariable("studyId") String studyId,@PathVariable("uploadId") String uploadId) {
     return uploadService.read(uploadId);
   }
 
