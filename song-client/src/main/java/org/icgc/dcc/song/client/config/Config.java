@@ -41,6 +41,8 @@ public class Config {
   private String studyId;
   @Value("client.programName")
   private String programName;
+  @Value("client.accessToken")
+  private String accessToken;
 
   @Getter(NONE)
   @Value("client.debug")
