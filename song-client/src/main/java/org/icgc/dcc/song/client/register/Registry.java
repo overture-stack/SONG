@@ -27,10 +27,14 @@ import org.icgc.dcc.song.client.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SERVICE_UNAVAILABLE;
+import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
+
 @Component
 public class Registry {
 
   private static final boolean DEFAULT_DEBUG_ENABLE = false;
+
 
   @Setter
   private RestClient restClient;
@@ -38,11 +42,16 @@ public class Registry {
   private ObjectMapper mapper;
   Endpoint endpoint;
 
+  private String accessToken;
+  private ErrorStatusHeader errorStatusHeader;
+
   @Autowired
-  public Registry(Config config, RestClient restClient) {
+  public Registry(Config config, RestClient restClient, ErrorStatusHeader errorStatusHeader) {
     this.mapper = new ObjectMapper();
     this.restClient = restClient;
     this.endpoint = new Endpoint(config.getServerUrl());
+    this.accessToken = config.getAccessToken();
+    this.errorStatusHeader = errorStatusHeader;
   }
 
 
@@ -71,7 +80,7 @@ public class Registry {
    */
   public Status upload(String json, boolean isAsyncValidation) {
     val url = endpoint.upload(getStudyId(json), isAsyncValidation);
-    return restClient.post(url, json);
+    return restClient.postAuth(accessToken, url, json);
   }
 
   /***
@@ -82,17 +91,29 @@ public class Registry {
    */
   public Status getUploadStatus(String studyId, String uploadId) {
     val url = endpoint.status(studyId, uploadId);
-    return restClient.get(url);
+    return restClient.get(accessToken, url);
   }
 
   public Status save(String studyId, String uploadId) {
     val url = endpoint.saveById(studyId, uploadId);
-    return restClient.post(url);
+    return restClient.postAuth(accessToken, url);
   }
 
   public Status getAnalysisFiles(String studyId, String analysisId) {
     val url = endpoint.getAnalysisFiles(studyId, analysisId);
-    return restClient.get(url);
+    return restClient.get(accessToken, url);
+  }
+
+  public Status isAlive(){
+    val url = endpoint.isAlive();
+    try {
+      return restClient.get(url);
+    } catch (Throwable e){
+      val songError = createSongError(SERVICE_UNAVAILABLE, e.getMessage());
+      val status = new Status();
+      status.err(errorStatusHeader.getSongClientErrorOutput(songError));
+      return status;
+    }
   }
 
   /**
@@ -101,11 +122,7 @@ public class Registry {
    */
   public Status publish(String studyId, String analysisId ){
     val url = endpoint.publish(studyId, analysisId);
-    val status = restClient.put(url);
-    if (!status.hasErrors() && !status.hasOutputs()){
-      status.output("The analysisId '%s' was successfully published for the studyId '%s'", analysisId, studyId);
-    }
-    return status;
+    return restClient.putAuth(accessToken, url);
   }
 
   public Status search(String studyId,
@@ -114,7 +131,7 @@ public class Registry {
       String donorId,
       String fileId){
     val url = endpoint.searchGet(studyId,sampleId,specimenId,donorId,fileId);
-    return restClient.get(url);
+    return restClient.get(accessToken, url);
   }
 
 }
