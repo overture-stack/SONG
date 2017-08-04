@@ -18,14 +18,17 @@
  */
 package org.icgc.dcc.song.client;
 
+import lombok.val;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import lombok.val;
+import java.util.function.Consumer;
 
 @SpringBootApplication
 public class SpringApp {
+
+  public static Consumer<Integer> exit = System::exit;
 
   public static void main(String... args) {
     val app = new SpringApplication(SpringApp.class);
