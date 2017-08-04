@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
@@ -106,7 +107,7 @@ public class SongError {
     return createSongError(serverError, contextMessage( context, formattedMessage, args));
   }
 
-  public static SongError createSongError(ServerError serverError, String formattedMessage, Object...args){
+  public static SongError createSongError(@NonNull ServerError serverError, @NonNull String formattedMessage, Object...args){
     val st = streamCallingStackTrace()
         .skip(1)
         .collect(toImmutableList());
