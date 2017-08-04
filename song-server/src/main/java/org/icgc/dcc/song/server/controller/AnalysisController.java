@@ -74,6 +74,7 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> publishAnalysis(
+      @PathVariable("studyId") String studyId,
       @RequestHeader(value = HttpHeaders.AUTHORIZATION) final String accessToken,
       @PathVariable("id") String id) {
     return analysisService.publish(accessToken,id);
@@ -82,7 +83,8 @@ public class AnalysisController {
   @PutMapping(value="/suppress/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> suppressAnalysis(@PathVariable("id") String id) {
+  public ResponseEntity<String> suppressAnalysis(@PathVariable("studyId") String studyId,
+      @PathVariable("id") String id) {
     return analysisService.suppress(id);
   }
 
