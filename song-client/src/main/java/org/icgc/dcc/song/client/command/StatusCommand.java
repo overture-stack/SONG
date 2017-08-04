@@ -35,6 +35,9 @@ public class StatusCommand extends Command {
   @Parameter(names = { "-u", "--upload-id" }, required = false)
   private String uploadId;
 
+  @Parameter(names = { "-p", "--ping" }, required = false, description = "Pings the server to see if its connected")
+  private boolean ping;
+
   @NonNull
   Registry registry;
   @NonNull
@@ -42,11 +45,16 @@ public class StatusCommand extends Command {
 
   @Override
   public void run() {
-    if (uploadId == null) {
-      uploadId = getJson().at("/uploadId").asText("");
+    if (ping){
+      val status = registry.isAlive();
+      save(status);
+    }  else {
+      if (uploadId == null) {
+        uploadId = getJson().at("/uploadId").asText("");
+      }
+      val status = registry.getUploadStatus(config.getStudyId(), uploadId);
+      save(status);
     }
-    val status = registry.getUploadStatus(config.getStudyId(), uploadId);
-    save(status);
   }
 
 }
