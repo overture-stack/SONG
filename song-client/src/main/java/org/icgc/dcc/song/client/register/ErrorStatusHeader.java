@@ -10,6 +10,7 @@ import static org.icgc.dcc.song.core.utils.Debug.generateHeader;
 
 @Component
 public class ErrorStatusHeader {
+  
   private static final String SONG_SERVER_ERROR_TITLE = "SONG SERVER ERROR";
   private static final String SONG_CLIENT_ERROR_TITLE = "SONG CLIENT ERROR";
   private static final int NUM_SYMBOLS = 60;

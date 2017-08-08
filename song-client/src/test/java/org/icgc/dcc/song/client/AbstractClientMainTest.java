@@ -7,6 +7,7 @@ import org.springframework.boot.test.rule.OutputCapture;
 import java.util.function.Consumer;
 
 public class AbstractClientMainTest {
+
   @Rule
   public OutputCapture capture = new OutputCapture();
   public ExitCodeCapture exitCodeCapture = new ExitCodeCapture();
@@ -35,6 +36,5 @@ public class AbstractClientMainTest {
     }
 
   }
-
 
 }

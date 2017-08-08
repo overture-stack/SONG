@@ -34,14 +34,11 @@ import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
 public class Registry {
 
   private static final boolean DEFAULT_DEBUG_ENABLE = false;
-
-
+  
   @Setter
   private RestClient restClient;
-
   private ObjectMapper mapper;
-  Endpoint endpoint;
-
+  private Endpoint endpoint;
   private String accessToken;
   private ErrorStatusHeader errorStatusHeader;
 

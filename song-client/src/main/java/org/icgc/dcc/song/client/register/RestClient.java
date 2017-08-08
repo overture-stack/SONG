@@ -42,9 +42,6 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 
-/**
- *
- */
 @Component
 public class RestClient {
 
@@ -170,7 +167,5 @@ public class RestClient {
     }
     return headers;
   }
-
-
 
 }
