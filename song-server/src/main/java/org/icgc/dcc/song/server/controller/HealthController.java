@@ -16,45 +16,19 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.client.command;
+package org.icgc.dcc.song.server.controller;
 
-import org.icgc.dcc.song.client.config.Config;
-import org.icgc.dcc.song.client.register.Registry;
-
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Get the status of an upload from it's upload id.")
-public class StatusCommand extends Command {
+public class HealthController {
 
-  @Parameter(names = { "-u", "--upload-id" }, required = false)
-  private String uploadId;
-
-  @Parameter(names = { "-p", "--ping" }, required = false, description = "Pings the server to see if its connected")
-  private boolean ping;
-
-  @NonNull
-  Registry registry;
-  @NonNull
-  Config config;
-
-  @Override
-  public void run() {
-    if (ping){
-      val status = registry.isAlive();
-      save(status);
-    }  else {
-      if (uploadId == null) {
-        uploadId = getJson().at("/uploadId").asText("");
-      }
-      val status = registry.getUploadStatus(config.getStudyId(), uploadId);
-      save(status);
-    }
+  @GetMapping(value = "/isAlive")
+  public boolean isAlive() {
+    return true;
   }
 
 }

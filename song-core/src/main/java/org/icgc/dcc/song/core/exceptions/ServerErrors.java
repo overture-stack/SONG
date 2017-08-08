@@ -9,6 +9,7 @@ import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @Getter
@@ -20,6 +21,8 @@ public enum ServerErrors implements ServerError {
   UPLOAD_ID_NOT_FOUND(NOT_FOUND ),
   UPLOAD_ID_NOT_VALIDATED(CONFLICT),
   ANALYSIS_ID_NOT_CREATED(INTERNAL_SERVER_ERROR),
+  UNAUTHORIZED_TOKEN(UNAUTHORIZED),
+  SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE),
   UNPUBLISHED_FILE_IDS(CONFLICT),
   NOT_IMPLEMENTED_YET(NOT_IMPLEMENTED),
   SAMPLE_RECORD_FAILED(INTERNAL_SERVER_ERROR),

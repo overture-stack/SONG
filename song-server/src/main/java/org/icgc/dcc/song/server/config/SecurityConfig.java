@@ -43,6 +43,7 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
     http
         .authorizeRequests()
         .antMatchers("/health").permitAll()
+        .antMatchers("/isAlive").permitAll()
         .antMatchers("/upload/**").permitAll()
         .antMatchers("/download/**").permitAll()
         .and()

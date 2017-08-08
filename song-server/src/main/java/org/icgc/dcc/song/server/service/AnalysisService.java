@@ -110,7 +110,7 @@ public class AnalysisService {
   }
 
   void saveFiles(String id, String studyId, List<File> files) {
-    files.stream().map(f->fileService.save(id, studyId, f));
+    files.forEach(f->fileService.save(id, studyId, f));
   }
 
   public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {

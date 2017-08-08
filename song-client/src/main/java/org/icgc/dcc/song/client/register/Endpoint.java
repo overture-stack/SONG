@@ -58,6 +58,10 @@ public class Endpoint {
     return format("%s/studies/%s/analysis/%s/files", serverUrl, studyId, analysisId);
   }
 
+  public String isAlive() {
+    return format("%s/isAlive", serverUrl);
+  }
+
   public String publish(String studyId, String analysisId) {
     return format("%s/studies/%s/analysis/publish/%s", serverUrl, studyId, analysisId);
   }

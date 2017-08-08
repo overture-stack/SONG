@@ -22,6 +22,7 @@ client:
   studyId: ABC123
   programName: sing
   debug: false
+  accessToken: ${accessToken:}
 logging.level.org.springframework: OFF
 
 

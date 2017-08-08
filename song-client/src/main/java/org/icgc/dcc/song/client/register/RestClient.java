@@ -18,59 +18,92 @@
  */
 package org.icgc.dcc.song.client.register;
 
+import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
-import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.errors.ServerResponseErrorHandler;
 import org.icgc.dcc.song.core.exceptions.ServerException;
-import org.icgc.dcc.song.core.exceptions.SongError;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.function.Function;
 
-import static java.lang.String.format;
-import static org.icgc.dcc.song.core.utils.Debug.generateHeader;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 
-/**
- *
- */
 @Component
 public class RestClient {
 
-  private static final String SONG_SERVER_ERROR_TITLE = "SONG SERVER ERROR";
-  private static final int NUM_SYMBOLS = 60;
-  private static final String SING_SYMBOL = " 🎵 ";
-  private static final String HEADER_SYMBOL = "*";
-  private static final String SONG_SERVER_ERROR_HEADER = generateHeader(SONG_SERVER_ERROR_TITLE, NUM_SYMBOLS, HEADER_SYMBOL);
+  private final RestTemplate restTemplate;
+  private final ErrorStatusHeader errorStatusHeader;
 
-  private RestTemplate restTemplate;
-  private boolean debug;
-
-  public RestClient(Config config) {
+  @Autowired
+  public RestClient(ErrorStatusHeader errorStatusHeader) {
     this.restTemplate = new RestTemplate();
-    this.debug = config.isDebug();
     this.restTemplate.setErrorHandler(new ServerResponseErrorHandler());
+    this.errorStatusHeader = errorStatusHeader;
   }
 
-  public Status get(String url) {
-    return tryRequest(x -> x.getForEntity(url, String.class));
+  public Status get(@NonNull String url) {
+    return _get(buildJsonContentHttpHeader(),url);
   }
 
-  public Status post(String url) {
+  public Status get(@NonNull String accessToken, String url) {
+    return _get(buildAuthHttpHeader(accessToken), url);
+  }
+
+  public Status post(@NonNull String url, String json) {
+    return _post(buildJsonContentHttpHeader(), url, json);
+  }
+
+  public Status postAuth(@NonNull String accessToken, String url, String json) {
+    return _post(buildAuthJsonContentHttpHeader(accessToken), url, json);
+  }
+
+  public Status postAuth(@NonNull String accessToken, String url) {
+    return _post(buildAuthJsonContentHttpHeader(accessToken), url, "");
+  }
+
+  public Status post(@NonNull String url) {
     return post(url, "");
   }
 
-  public Status post(String url, String json) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-    HttpEntity<String> entity = new HttpEntity<String>(json, headers);
-    return tryRequest(x -> x.postForEntity(url, entity, String.class));
+  public Status put(String url, String json) {
+    return _put(buildJsonContentHttpHeader(), url, json);
+  }
+
+  public Status put(String url) {
+    return put(url,"");
+  }
+
+  public Status putAuth(@NonNull String accessToken, String url, String json) {
+    return _put(buildAuthJsonContentHttpHeader(accessToken), url, json);
+  }
+
+  public Status putAuth(@NonNull String accessToken, String url) {
+    return putAuth(accessToken, url,"");
+  }
+
+  public Status putOld(@NonNull String url, String json) {
+    Status status = new Status();
+    try {
+      restTemplate.put(url, json);
+    } catch (ServerException e){
+      val songError = e.getSongError();
+      status.err(errorStatusHeader.getSongServerErrorOutput(songError));
+    }
+    return status;
   }
 
   private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction){
@@ -86,31 +119,53 @@ public class RestClient {
       } else {
         status.err("[%s]: %s",response.getStatusCode().value(),response.toString());
       }
+    } catch (ResourceAccessException e){
+      val songError2 = createSongError(UNAUTHORIZED_TOKEN, "Invalid token");
+      status.err(errorStatusHeader.getSongServerErrorOutput(songError2));
     } catch (ServerException e){
       val songError = e.getSongError();
-      status.err(getSongErrorOutput(songError));
+      status.err(errorStatusHeader.getSongServerErrorOutput(songError));
     }
     return status;
   }
 
-  private String getSongErrorOutput(SongError songError){
-    return debug ? format("%s\n%s", SONG_SERVER_ERROR_HEADER,songError.toPrettyJson()) : songError.toString();
+
+  private Status _get(@NonNull HttpHeaders httpHeaders, @NonNull String url) {
+    val entity = new HttpEntity<String>(null, httpHeaders);
+    return tryRequest(x -> x.exchange(url, GET, entity, String.class));
   }
 
-  public Status put(String url, String json) {
-    Status status = new Status();
-    try {
-      restTemplate.put(url, json);
-    } catch (ServerException e){
-      val songError = e.getSongError();
-      status.err(getSongErrorOutput(songError));
+  private Status _put(@NonNull HttpHeaders httpHeaders, @NonNull String url, String json) {
+    val entity = new HttpEntity<String>(json, httpHeaders);
+    return tryRequest(x -> x.exchange(url, PUT, entity, String.class));
+  }
+
+  private Status _post(@NonNull HttpHeaders httpHeaders, @NonNull String url, String json){
+    val entity = new HttpEntity<String>(json, httpHeaders);
+    return tryRequest(x -> x.postForEntity(url, entity, String.class));
+  }
+
+  private static HttpHeaders buildJsonContentHttpHeader(){
+    return buildHttpHeader(null, true);
+  }
+
+  private static HttpHeaders buildAuthHttpHeader(String accessToken ){
+    return buildHttpHeader(accessToken, false);
+  }
+
+  private static HttpHeaders buildAuthJsonContentHttpHeader(String accessToken ){
+    return buildHttpHeader(accessToken, true);
+  }
+
+  private static HttpHeaders buildHttpHeader(String accessToken, boolean isJsonContent ){
+    val headers = new HttpHeaders();
+    if (!isNull(accessToken)){
+      headers.set(AUTHORIZATION, "Bearer "+accessToken);
     }
-    return status;
+    if (isJsonContent){
+      headers.setContentType(APPLICATION_JSON_UTF8);
+    }
+    return headers;
   }
-
-  public Status put(String url) {
-    return put(url,"");
-  }
-
 
 }

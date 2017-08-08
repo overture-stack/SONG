@@ -20,33 +20,33 @@ function header {
 header "Uploading file"
 uploadFile=${1:-sequencingRead.json}
 set -x 
-u=`cat $uploadFile | $SING_EXE upload`
+u=`$SING_EXE upload -f $uploadFile | jq -r -C '.uploadId' `
 set +x 
 
 header "Checking Status of upload"
 set -x 
-echo $u | ${SING_EXE} status | jq -C .state 
+${SING_EXE} status -u $u | jq -r -C .state
 set +x 
 
 header "Sleeping for 1 sec, then checking upload status again"
 sleep 1
 set -x 
-echo $u | ${SING_EXE} status | jq -C .state 
+${SING_EXE} status -u $u | jq -r .state
 set +x 
 
 header "Saving uploaded analysis data"
 set -x 
-a=`echo $u | $SING_EXE save`
+a=`$SING_EXE save -u $u | jq -r .analysisId`
 set +x 
 
 header "Checking status of upload"
 set -x 
-echo $u | ${SING_EXE} status | jq -C .state 
+${SING_EXE} status -u $u | jq -r .state
 set +x 
 
 header "Fetching manifest for our analysis" 
 set -x 
-echo $a | ${SING_EXE} manifest -f manifest.txt
+${SING_EXE} manifest -a $a -f manifest.txt
 set +x 
 cat manifest.txt
 
