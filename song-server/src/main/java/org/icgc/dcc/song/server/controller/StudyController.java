@@ -60,6 +60,11 @@ public class StudyController {
     return studyService.readWithChildren(studyId);
   }
 
+  @GetMapping("/all")
+  public List<String> findAllStudies() {
+    return studyService.findAllStudies();
+  }
+
   @PostMapping(value = "/{studyId}/", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @ResponseBody

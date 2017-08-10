@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StudyService {
@@ -69,4 +71,7 @@ public class StudyService {
     return status;
   }
 
+    public List<String> findAllStudies() {
+      return studyRepository.findAllStudies();
+    }
 }
