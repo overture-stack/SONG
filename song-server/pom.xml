@@ -173,7 +173,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <attach>false</attach>
+                            <attach>true</attach>
                             <descriptors>
                                 <descriptor>src/main/assembly/bin.xml</descriptor>
                             </descriptors>
