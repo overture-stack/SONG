@@ -71,7 +71,7 @@ spring:
 
 auth:
   server:
-    uploadScope: "upload"
+    suffix: "upload"
 
 # Datasource
 spring.datasource:
@@ -96,7 +96,7 @@ auth:
     clientSecret: "clientSecret"
     enableStrictSSL: false
     enableHttpLogging: false
-    uploadScope: "upload"
+    suffix: "upload"
 ---
 
 spring:

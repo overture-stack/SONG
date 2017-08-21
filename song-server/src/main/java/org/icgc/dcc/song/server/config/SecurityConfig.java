@@ -34,7 +34,7 @@ import lombok.SneakyThrows;
 @EnableResourceServer
 public class SecurityConfig extends ResourceServerConfigurerAdapter {
 
-  @Value("${auth.server.uploadScope}")
+  @Value("${auth.server.suffix}")
   private String uploadScope;
 
   @Override
