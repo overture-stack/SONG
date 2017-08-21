@@ -52,6 +52,7 @@ public class FileController {
 
   @GetMapping(value = "/files/{id}")
   @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public File read(@PathVariable("id") String id) {
     return fileService.read(id);
   }

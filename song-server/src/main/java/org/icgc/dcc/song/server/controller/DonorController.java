@@ -61,6 +61,7 @@ public class DonorController {
 
   @GetMapping(value = "/donors/{id}")
   @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public Donor read(@PathVariable("id") String id) {
     return donorService.read(id);
   }

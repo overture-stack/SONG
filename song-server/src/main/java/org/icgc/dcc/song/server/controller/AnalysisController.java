@@ -94,7 +94,8 @@ public class AnalysisController {
    * @return A JSON object representing this analysis
    */
   @GetMapping(value = "/{id}")
-  public Analysis read(@PathVariable("id") String id) {
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public Analysis read(@PathVariable("studyId") String studyId, @PathVariable("id") String id) {
     return analysisService.read(id);
   }
 

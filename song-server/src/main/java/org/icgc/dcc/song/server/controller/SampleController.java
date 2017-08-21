@@ -60,6 +60,7 @@ public class SampleController {
 
   @GetMapping(value = "/samples/{id}")
   @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public Sample read(@PathVariable("id") String id) {
     return sampleService.read(id);
   }

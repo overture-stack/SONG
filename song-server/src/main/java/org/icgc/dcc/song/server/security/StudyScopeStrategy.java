@@ -36,8 +36,8 @@ public class StudyScopeStrategy {
 
   private static final String SCOPE_STRATEGY = "song.%s.%s";
 
-  @Value("${auth.server.uploadScope}")
-  protected String uploadScope;
+  @Value("${auth.server.suffix}")
+  protected String scope;
 
   public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
     log.info("Checking authorization with study id {}", studyId);
@@ -53,11 +53,11 @@ public class StudyScopeStrategy {
   }
 
   protected void setAuthorizeScope(String scopeStr) {
-    uploadScope = scopeStr;
+    scope = scopeStr;
   }
 
   protected String getAuthorizeScope() {
-    return uploadScope;
+    return scope;
   }
 
   private Set<String> getScopes(@NonNull OAuth2Authentication o2auth) {
@@ -65,7 +65,7 @@ public class StudyScopeStrategy {
   }
 
   private boolean verify(@NonNull Set<String> grantedScopes, @NonNull final String studyId) {
-    val strategy = format(SCOPE_STRATEGY, studyId.toUpperCase(), uploadScope);
+    val strategy = format(SCOPE_STRATEGY, studyId.toUpperCase(), scope);
     val check = grantedScopes.stream().filter(s -> s.equals(strategy)).collect(toList());
     return !check.isEmpty();
   }

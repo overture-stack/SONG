@@ -60,6 +60,7 @@ public class SpecimenController {
 
   @GetMapping(value = "/specimens/{id}")
   @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public Specimen read(@PathVariable("id") String id) {
     return specimenService.read(id);
   }
