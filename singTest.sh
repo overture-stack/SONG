@@ -49,20 +49,3 @@ set -x
 ${SING_EXE} manifest -a $a -f manifest.txt
 set +x 
 cat manifest.txt
-
-non_existant_upload_id="fake_uploadId"
-header "[ERROR_TEST] Checking status of non-existant uploadId $non_existant_upload_id"
-set -x 
-${SING_EXE} status -u $non_existant_upload_id | jq -C .state 
-set +x 
-
-header "[ERROR_TEST] Saving non-existant uploadId $non_existant_upload_id"
-set -x 
-bad_a=`$SING_EXE save -u $non_existant_upload_id`
-set +x 
-
-non_existant_analysis_id="fake_analysisId"
-header "[ERROR_TEST] Uploading manifect for non-existant analysisId $non_existant_analysis_id"
-set -x 
-${SING_EXE} manifest -a $non_existant_analysis_id -f manifest.txt
-set +x 

@@ -46,6 +46,7 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
         .antMatchers("/isAlive").permitAll()
         .antMatchers("/upload/**").permitAll()
         .antMatchers("/download/**").permitAll()
+        .antMatchers("/entities/**").permitAll()
         .and()
         .authorizeRequests()
         .anyRequest().authenticated();
