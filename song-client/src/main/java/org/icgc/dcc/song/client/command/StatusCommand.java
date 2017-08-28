@@ -46,7 +46,7 @@ public class StatusCommand extends Command {
   @Override
   public void run() {
     if (ping){
-      val status = registry.isAlive();
+      val status = registry.isServerAlive();
       save(status);
     }  else {
       if (uploadId == null) {

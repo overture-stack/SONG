@@ -24,10 +24,15 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
+import org.icgc.dcc.song.core.exceptions.ServerException;
+import org.icgc.dcc.song.core.exceptions.SongError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 
+import static java.lang.Boolean.parseBoolean;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SERVICE_UNAVAILABLE;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
 
 @Component
@@ -88,7 +93,18 @@ public class Registry {
    */
   public Status getUploadStatus(String studyId, String uploadId) {
     val url = endpoint.status(studyId, uploadId);
-    return restClient.get(accessToken, url);
+    try{
+      return restClient.get(accessToken, url);
+    } catch(ResourceAccessException e){
+      val status = isServerAlive();
+      try {
+        val value = parseBoolean(status.toString());
+        val songError = SongError.createSongError(UNKNOWN_ERROR, "Unknown error");
+        throw new ServerException(songError,e);
+      } catch (Exception e2){
+        return status;
+      }
+    }
   }
 
   public Status save(String studyId, String uploadId) {
@@ -101,7 +117,16 @@ public class Registry {
     return restClient.get(accessToken, url);
   }
 
-  public Status isAlive(){
+  public boolean isServerAlive2(){
+    val url = endpoint.isAlive();
+    try {
+      return parseBoolean(restClient.get(url).toString());
+    } catch (Throwable e){
+      return false;
+    }
+  }
+
+  public Status isServerAlive(){
     val url = endpoint.isAlive();
     try {
       return restClient.get(url);

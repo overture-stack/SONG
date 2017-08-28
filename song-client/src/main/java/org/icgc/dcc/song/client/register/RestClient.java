@@ -29,14 +29,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.function.Function;
 
 import static java.util.Objects.isNull;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
-import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
@@ -106,6 +103,7 @@ public class RestClient {
     return status;
   }
 
+
   private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction){
     Status status = new Status();
     try {
@@ -119,9 +117,6 @@ public class RestClient {
       } else {
         status.err("[%s]: %s",response.getStatusCode().value(),response.toString());
       }
-    } catch (ResourceAccessException e){
-      val songError2 = createSongError(UNAUTHORIZED_TOKEN, "Invalid token");
-      status.err(errorStatusHeader.getSongServerErrorOutput(songError2));
     } catch (ServerException e){
       val songError = e.getSongError();
       status.err(errorStatusHeader.getSongServerErrorOutput(songError));
