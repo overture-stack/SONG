@@ -19,7 +19,6 @@
 package org.icgc.dcc.song.server.security;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +40,6 @@ public class StudyScopeStrategy {
   @Value("${auth.server.suffix}")
   protected String scope;
 
-  @SneakyThrows
   public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
     log.info("Checking authorization with study id {}", studyId);
 
@@ -70,10 +68,14 @@ public class StudyScopeStrategy {
   private boolean isGranted(String tokenScope, String studyId) {
     log.info(format("Checking token's scope '%s', studyId '%s', server's scope='%s'", tokenScope, studyId, scope));
     val systemScope = format(SYSTEM_SCOPE_STRATEGY, scope);
-    if (systemScope.equals(tokenScope)) { return true; }
+    if (systemScope.equals(tokenScope)) {
+      return true;
+    }
 
     val endUserScope = format(END_USER_SCOPE_STRATEGY, studyId.toUpperCase(), scope);
-    if (endUserScope.equals(tokenScope)) { return true; }
+    if (endUserScope.equals(tokenScope)) {
+      return true;
+    }
     return false;
   }
 
