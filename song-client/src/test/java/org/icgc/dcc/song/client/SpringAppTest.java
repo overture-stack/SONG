@@ -18,13 +18,6 @@ public class SpringAppTest extends AbstractClientMainTest{
   @Rule
   public TemporaryFolder tmp = new TemporaryFolder();
 
-  @Test
-  @SneakyThrows
-  @Ignore
-  public void testF(){
-    executeMain("manifest", "-a", "86fa41c5-f589-4e8c-bb07-8aaf555e2c6c", "-f", "manifest.txt");
-
-  }
 
   @Test
   @SneakyThrows
@@ -40,7 +33,31 @@ public class SpringAppTest extends AbstractClientMainTest{
   @SneakyThrows
   @Ignore
   public void testStatus(){
-    executeMain("status", "-u", "UP-8b871d42-f86e-458d-8e4d-7e6688c597f9");
+    executeMain("status", "-u", "UP-826f10c8-7933-4160-9530-d24de40890ba");
+    log.info("sdf");
+  }
+
+  @Test
+  @SneakyThrows
+  @Ignore
+  public void testSave(){
+    executeMain("save", "-u", "UP-826f10c8-7933-4160-9530-d24de40890ba");
+    log.info("save");
+  }
+
+  @Test
+  @SneakyThrows
+  @Ignore
+  public void testManifest(){
+    executeMain("manifest", "-a", "86fa41c5-f589-4e8c-bb07-8aaf555e2c6c", "-f", "manifest.txt");
+
+  }
+
+  @Test
+  @SneakyThrows
+  @Ignore
+  public void testSuppress(){
+    executeMain("suppress", "-a", "86fa41c5-f589-4e8c-bb07-8aaf555e2c6c");
     log.info("sdf");
   }
 
