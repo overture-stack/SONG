@@ -24,14 +24,16 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
-import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.core.exceptions.SongError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.net.HttpRetryException;
+import java.util.function.Supplier;
+
 import static java.lang.Boolean.parseBoolean;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.SERVICE_UNAVAILABLE;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
 
@@ -46,6 +48,7 @@ public class Registry {
   private Endpoint endpoint;
   private String accessToken;
   private ErrorStatusHeader errorStatusHeader;
+  private Config config;
 
   @Autowired
   public Registry(Config config, RestClient restClient, ErrorStatusHeader errorStatusHeader) {
@@ -54,6 +57,7 @@ public class Registry {
     this.endpoint = new Endpoint(config.getServerUrl());
     this.accessToken = config.getAccessToken();
     this.errorStatusHeader = errorStatusHeader;
+    this.config = config;
   }
 
 
@@ -82,7 +86,7 @@ public class Registry {
    */
   public Status upload(String json, boolean isAsyncValidation) {
     val url = endpoint.upload(getStudyId(json), isAsyncValidation);
-    return restClient.postAuth(accessToken, url, json);
+    return tryPostAuth(accessToken, url, json);
   }
 
   /***
@@ -91,50 +95,28 @@ public class Registry {
    * @param uploadId
    * @return The state of the upload
    */
+
   public Status getUploadStatus(String studyId, String uploadId) {
     val url = endpoint.status(studyId, uploadId);
-    try{
-      return restClient.get(accessToken, url);
-    } catch(ResourceAccessException e){
-      val status = isServerAlive();
-      try {
-        val value = parseBoolean(status.toString());
-        val songError = SongError.createSongError(UNKNOWN_ERROR, "Unknown error");
-        throw new ServerException(songError,e);
-      } catch (Exception e2){
-        return status;
-      }
-    }
+    return tryGet(accessToken, url);
   }
 
   public Status save(String studyId, String uploadId) {
     val url = endpoint.saveById(studyId, uploadId);
-    return restClient.postAuth(accessToken, url);
+    return tryPostAuth(accessToken, url);
   }
 
   public Status getAnalysisFiles(String studyId, String analysisId) {
     val url = endpoint.getAnalysisFiles(studyId, analysisId);
-    return restClient.get(accessToken, url);
+    return tryGet(accessToken, url);
   }
 
-  public boolean isServerAlive2(){
+  public boolean isServerAlive(){
     val url = endpoint.isAlive();
     try {
-      return parseBoolean(restClient.get(url).toString());
-    } catch (Throwable e){
+      return parseBoolean(restClient.get(url).getOutputs());
+    } catch (Throwable t){
       return false;
-    }
-  }
-
-  public Status isServerAlive(){
-    val url = endpoint.isAlive();
-    try {
-      return restClient.get(url);
-    } catch (Throwable e){
-      val songError = createSongError(SERVICE_UNAVAILABLE, e.getMessage());
-      val status = new Status();
-      status.err(errorStatusHeader.getSongClientErrorOutput(songError));
-      return status;
     }
   }
 
@@ -144,7 +126,7 @@ public class Registry {
    */
   public Status publish(String studyId, String analysisId ){
     val url = endpoint.publish(studyId, analysisId);
-    return restClient.putAuth(accessToken, url);
+    return tryPutAuth(accessToken, url);
   }
 
   public Status search(String studyId,
@@ -153,7 +135,56 @@ public class Registry {
       String donorId,
       String fileId){
     val url = endpoint.searchGet(studyId,sampleId,specimenId,donorId,fileId);
-    return restClient.get(accessToken, url);
+    return tryGet(accessToken, url);
+  }
+
+  private Status tryClient(Supplier<Status> supplier){
+    val status = new Status();
+    try {
+      return supplier.get();
+    } catch(ResourceAccessException e){
+      val isAlive = isServerAlive();
+      SongError songError;
+      if(isAlive){
+        val cause = e.getCause();
+        if (cause instanceof HttpRetryException){
+          val httpRetryException = (HttpRetryException)cause;
+          if (httpRetryException.responseCode() == UNAUTHORIZED_TOKEN.getHttpStatus().value()){
+            songError = createSongError(UNAUTHORIZED_TOKEN,"Invalid token");
+          } else {
+            songError = createSongError(UNKNOWN_ERROR,
+                "Unknown error with ResponseCode [%s] -- Reason: %s, Message: %s",
+                httpRetryException.responseCode(),
+                httpRetryException.getReason(),
+                httpRetryException.getMessage());
+          }
+        } else {
+          songError = createSongError(UNKNOWN_ERROR,
+              "Unknown error: %s", e.getMessage());
+        }
+        status.err(errorStatusHeader.getSongServerErrorOutput(songError));
+      } else {
+        status.err(errorStatusHeader.createMessage("The SONG server may not be running on '%s'. Ensure "
+            + "the GET response of the '%s' endpoint returns true", config.getServerUrl(), endpoint.isAlive()));
+      }
+      return status;
+    }
+  }
+
+  private Status tryGet(String accessToken, String url){
+    return tryClient(() -> restClient.get(accessToken, url));
+  }
+
+  private Status tryPutAuth(String accessToken, String url){
+    return tryClient(() -> restClient.putAuth(accessToken, url));
+  }
+
+  private Status tryPostAuth(String accessToken, String url){
+    return tryClient(() -> restClient.postAuth(accessToken, url));
+  }
+
+  private Status tryPostAuth(String accessToken, String url, String json){
+    return tryClient(() -> restClient.postAuth(accessToken, url, json));
   }
 
 }

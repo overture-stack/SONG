@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.client.register;
 
+import lombok.val;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.core.exceptions.SongError;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,12 @@ public class ErrorStatusHeader {
 
   public String getSongClientErrorOutput(SongError songError){
     return debugEnabled ? format("%s\n%s", SONG_CLIENT_ERROR_HEADER,songError.toPrettyJson()) : songError.toString();
+  }
+
+  public String createMessage(String format, Object...args){
+    val message = format(format, args);
+    return debugEnabled ? format("%s\n%s", SONG_CLIENT_ERROR_HEADER,message) : message;
+
   }
 
 }

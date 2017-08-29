@@ -18,15 +18,14 @@
  */
 package org.icgc.dcc.song.client.command;
 
-import org.icgc.dcc.song.client.config.Config;
-import org.icgc.dcc.song.client.register.Registry;
-
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.icgc.dcc.song.client.cli.Status;
+import org.icgc.dcc.song.client.config.Config;
+import org.icgc.dcc.song.client.register.Registry;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Get the status of an upload from it's upload id.")
@@ -46,7 +45,8 @@ public class StatusCommand extends Command {
   @Override
   public void run() {
     if (ping){
-      val status = registry.isServerAlive();
+      val status = new Status();
+      status.output(Boolean.toString(registry.isServerAlive()));
       save(status);
     }  else {
       if (uploadId == null) {
