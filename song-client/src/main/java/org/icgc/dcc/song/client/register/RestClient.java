@@ -22,7 +22,6 @@ import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.errors.ServerResponseErrorHandler;
-import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -90,17 +89,6 @@ public class RestClient {
 
   public Status putAuth(@NonNull String accessToken, String url) {
     return putAuth(accessToken, url,"");
-  }
-
-  public Status putOld(@NonNull String url, String json) {
-    Status status = new Status();
-    try {
-      restTemplate.put(url, json);
-    } catch (ServerException e){
-      val songError = e.getSongError();
-      status.err(errorStatusHeader.getSongServerErrorOutput(songError));
-    }
-    return status;
   }
 
   private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction){
