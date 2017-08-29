@@ -122,6 +122,11 @@ public class Registry {
     return restClient.putAuth(accessToken, url);
   }
 
+  public Status suppress(String studyId, String analysisId ){
+    val url = endpoint.suppress(studyId, analysisId);
+    return restClient.putAuth(accessToken, url);
+  }
+
   public Status search(String studyId,
       String sampleId,
       String specimenId,

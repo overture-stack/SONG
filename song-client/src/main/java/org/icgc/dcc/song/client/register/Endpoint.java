@@ -66,6 +66,10 @@ public class Endpoint {
     return format("%s/studies/%s/analysis/publish/%s", serverUrl, studyId, analysisId);
   }
 
+  public String suppress(String studyId, String analysisId) {
+    return format("%s/studies/%s/analysis/suppress/%s", serverUrl, studyId, analysisId);
+  }
+
   public String searchGet(@NonNull String studyId,
       String sampleId,
       String specimenId,
