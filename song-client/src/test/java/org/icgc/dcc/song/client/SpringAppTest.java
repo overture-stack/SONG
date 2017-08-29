@@ -18,7 +18,9 @@ public class SpringAppTest extends AbstractClientMainTest{
   @Rule
   public TemporaryFolder tmp = new TemporaryFolder();
 
-
+  /**
+   * Placeholder test for debuging the client
+   */
   @Test
   @SneakyThrows
   @Ignore
@@ -26,38 +28,6 @@ public class SpringAppTest extends AbstractClientMainTest{
     val jsonPath = Paths.get("../sequencingRead.json");
     assertThat(jsonPath).exists();
     executeMain("upload", "-f", jsonPath.toString());
-    log.info("sdf");
-  }
-
-  @Test
-  @SneakyThrows
-  @Ignore
-  public void testStatus(){
-    executeMain("status", "-u", "UP-826f10c8-7933-4160-9530-d24de40890ba");
-    log.info("sdf");
-  }
-
-  @Test
-  @SneakyThrows
-  @Ignore
-  public void testSave(){
-    executeMain("save", "-u", "UP-826f10c8-7933-4160-9530-d24de40890ba");
-    log.info("save");
-  }
-
-  @Test
-  @SneakyThrows
-  @Ignore
-  public void testManifest(){
-    executeMain("manifest", "-a", "86fa41c5-f589-4e8c-bb07-8aaf555e2c6c", "-f", "manifest.txt");
-
-  }
-
-  @Test
-  @SneakyThrows
-  @Ignore
-  public void testSuppress(){
-    executeMain("suppress", "-a", "86fa41c5-f589-4e8c-bb07-8aaf555e2c6c");
     log.info("sdf");
   }
 
