@@ -95,7 +95,6 @@ public class Registry {
    * @param uploadId
    * @return The state of the upload
    */
-
   public Status getUploadStatus(String studyId, String uploadId) {
     val url = endpoint.status(studyId, uploadId);
     return tryGet(accessToken, url);
@@ -111,6 +110,10 @@ public class Registry {
     return tryGet(accessToken, url);
   }
 
+  /**
+   * Returns true if the SONG server is running, otherwise false.
+   * @return boolean
+   */
   public boolean isServerAlive(){
     val url = endpoint.isAlive();
     try {
@@ -138,6 +141,11 @@ public class Registry {
     return tryGet(accessToken, url);
   }
 
+  /**
+   * Wraps the restClient calls, so that unauthorized.token errors are handled properly. In addition, if an error occurs, the availability of the song server is checked, to ensure its running.
+   * @param supplier Request method that returns a Status object
+   * @return the status
+   */
   private Status tryClient(Supplier<Status> supplier){
     val status = new Status();
     try {

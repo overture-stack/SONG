@@ -38,7 +38,6 @@ public class ErrorStatusHeader {
   public String createMessage(String format, Object...args){
     val message = format(format, args);
     return debugEnabled ? format("%s\n%s", SONG_CLIENT_ERROR_HEADER,message) : message;
-
   }
 
 }
