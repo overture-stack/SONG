@@ -49,17 +49,6 @@ public class Registry {
     this.errorStatusHeader = errorStatusHeader;
   }
 
-
-  @SneakyThrows
-  private String getAnalysisType(String json) {
-    val node = mapper.readTree(json);
-
-    if (node.has("analysisType")) {
-      return node.get("analysisType").asText();
-    }
-    throw new Error("No analysis type specified in JSON document" + node.asText());
-  }
-
   @SneakyThrows
   private String getStudyId(String json) {
     val node = mapper.readTree(json);
@@ -79,7 +68,7 @@ public class Registry {
 
   /***
    * Returns the state of the registration on the server (JSON)
-   * 
+   *
    * @param uploadId
    * @return The state of the upload
    */
