@@ -43,10 +43,10 @@ public class SearchCommand extends Command {
   private String donorId;
 
   @NonNull
-  Registry registry;
+  private Registry registry;
 
   @NonNull
-  Config config;
+  private Config config;
 
   @Override
   public void run() {

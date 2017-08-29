@@ -31,7 +31,7 @@ import lombok.val;
 public class ConfigCommand extends Command {
 
   @NonNull
-  Config config;
+  private Config config;
 
   @Override
   public void run() {

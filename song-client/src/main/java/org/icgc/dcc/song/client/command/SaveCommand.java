@@ -18,16 +18,13 @@
  */
 package org.icgc.dcc.song.client.command;
 
-import lombok.val;
-import org.icgc.dcc.song.client.cli.Status;
-import org.icgc.dcc.song.client.config.Config;
-import org.icgc.dcc.song.client.register.Registry;
-
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import org.icgc.dcc.song.client.config.Config;
+import org.icgc.dcc.song.client.register.Registry;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Save an uploaded analysis by it's upload id, and get the permanent analysis id")
@@ -37,9 +34,10 @@ public class SaveCommand extends Command {
   private String uploadId;
 
   @NonNull
-  Registry registry;
+  private Registry registry;
+
   @NonNull
-  Config config;
+  private Config config;
 
   @Override
   public void run() {

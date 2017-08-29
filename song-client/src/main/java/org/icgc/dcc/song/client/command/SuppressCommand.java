@@ -34,10 +34,10 @@ public class SuppressCommand extends Command {
   private String analysisId;
 
   @NonNull
-  Registry registry;
+  private Registry registry;
 
   @NonNull
-  Config config;
+  private Config config;
 
   @Override
   public void run() {

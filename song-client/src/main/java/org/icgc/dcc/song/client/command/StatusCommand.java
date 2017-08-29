@@ -39,9 +39,10 @@ public class StatusCommand extends Command {
   private boolean ping;
 
   @NonNull
-  Registry registry;
+  private Registry registry;
+
   @NonNull
-  Config config;
+  private Config config;
 
   @Override
   public void run() {

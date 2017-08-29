@@ -33,8 +33,6 @@ import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
 @Component
 public class Registry {
 
-  private static final boolean DEFAULT_DEBUG_ENABLE = false;
-  
   @Setter
   private RestClient restClient;
   private ObjectMapper mapper;
@@ -53,7 +51,7 @@ public class Registry {
 
 
   @SneakyThrows
-  String getAnalysisType(String json) {
+  private String getAnalysisType(String json) {
     val node = mapper.readTree(json);
 
     if (node.has("analysisType")) {
@@ -63,11 +61,10 @@ public class Registry {
   }
 
   @SneakyThrows
-  String getStudyId(String json) {
+  private String getStudyId(String json) {
     val node = mapper.readTree(json);
     return node.get("study").asText();
   }
-
 
   /**
    * Register an analysis with the song server.

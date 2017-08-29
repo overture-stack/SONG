@@ -41,17 +41,19 @@ import java.util.stream.StreamSupport;
 @Parameters(commandDescription = "Generate a manifest file for the analysis with the specified analysis id")
 public class ManifestCommand extends Command {
 
+  private static final String JSON_PATH_TO_FILES = "";
+
   @Parameter(names = { "-a", "--analysis-id" })
-  String analysisId;
+  private String analysisId;
 
   @Parameter(names = { "--file", "-f" }, description = "Filename to save file in (if not set, displays manifest on standard output")
-  String fileName;
+  private String fileName;
 
   @NonNull
-  Registry registry;
+  private Registry registry;
+
   @NonNull
-  Config config;
-  private static final String JSON_PATH_TO_FILES = "";
+  private Config config;
 
   @Override
   @SneakyThrows
@@ -80,7 +82,7 @@ public class ManifestCommand extends Command {
   }
 
   @SneakyThrows
-  Manifest createManifest(String analysisId, String json) {
+  private Manifest createManifest(String analysisId, String json) {
     val mapper = new ObjectMapper();
     val root = mapper.readTree(json);
 
@@ -93,7 +95,7 @@ public class ManifestCommand extends Command {
     return m;
   }
 
-  ManifestEntry jsonNodeToManifestEntry(JsonNode node) {
+  private ManifestEntry jsonNodeToManifestEntry(JsonNode node) {
     val j = new JsonObject(node);
     val fileId = j.get("objectId");
     val fileName = j.get("fileName");
