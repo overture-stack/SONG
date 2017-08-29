@@ -105,20 +105,15 @@ public class RestClient {
 
   private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction){
     Status status = new Status();
-    try {
-      val response = restTemplateFunction.apply(restTemplate);
-      if (response.getStatusCode() == HttpStatus.OK) {
-        if (response.getBody() == null) {
-          status.err("[SONG_CLIENT_ERROR]: Null response from server: %s", response.toString());
-        } else {
-          status.output(response.getBody().toString());
-        }
+    val response = restTemplateFunction.apply(restTemplate);
+    if (response.getStatusCode() == HttpStatus.OK) {
+      if (response.getBody() == null) {
+        status.err("[SONG_CLIENT_ERROR]: Null response from server: %s", response.toString());
       } else {
-        status.err("[%s]: %s",response.getStatusCode().value(),response.toString());
+        status.output(response.getBody().toString());
       }
-    } catch (ServerException e){
-      val songError = e.getSongError();
-      status.err(errorStatusHeader.getSongServerErrorOutput(songError));
+    } else {
+      status.err("[%s]: %s",response.getStatusCode().value(),response.toString());
     }
     return status;
   }
