@@ -103,7 +103,6 @@ public class RestClient {
     return status;
   }
 
-
   private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction){
     Status status = new Status();
     try {
@@ -123,7 +122,6 @@ public class RestClient {
     }
     return status;
   }
-
 
   private Status _get(@NonNull HttpHeaders httpHeaders, @NonNull String url) {
     val entity = new HttpEntity<String>(null, httpHeaders);
