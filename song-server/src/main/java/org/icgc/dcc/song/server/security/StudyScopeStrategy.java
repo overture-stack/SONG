@@ -34,7 +34,8 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class StudyScopeStrategy {
 
-  private static final String SCOPE_STRATEGY = "song.%s.%s";
+  private static final String END_USER_SCOPE_STRATEGY = "song.%s.%s";
+  private static final String SYSTEM_SCOPE_STRATEGY = "song.%s";
 
   @Value("${auth.server.suffix}")
   protected String scope;
@@ -64,9 +65,22 @@ public class StudyScopeStrategy {
     return o2auth.getOAuth2Request().getScope();
   }
 
+  private boolean isGranted(String tokenScope, String studyId) {
+    log.info(format("Checking token's scope '%s', studyId '%s', server's scope='%s'", tokenScope, studyId, scope));
+    val systemScope = format(SYSTEM_SCOPE_STRATEGY, scope);
+    if (systemScope.equals(tokenScope)) {
+      return true;
+    }
+
+    val endUserScope = format(END_USER_SCOPE_STRATEGY, studyId.toUpperCase(), scope);
+    if (endUserScope.equals(tokenScope)) {
+      return true;
+    }
+    return false;
+  }
+
   private boolean verify(@NonNull Set<String> grantedScopes, @NonNull final String studyId) {
-    val strategy = format(SCOPE_STRATEGY, studyId.toUpperCase(), scope);
-    val check = grantedScopes.stream().filter(s -> s.equals(strategy)).collect(toList());
+    val check = grantedScopes.stream().filter(s -> isGranted(s,studyId)).collect(toList());
     return !check.isEmpty();
   }
 
