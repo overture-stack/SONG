@@ -38,11 +38,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.SongError.error;
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -63,7 +65,12 @@ public class UploadService {
   private final UploadRepository uploadRepository;
 
   public Upload read(@NonNull String uploadId) {
-    return uploadRepository.get(uploadId);
+    val upload = uploadRepository.get(uploadId);
+    if (isNull(upload)){
+      throw buildServerException(MESSAGE_CONTEXT, UPLOAD_ID_NOT_FOUND,
+          "The uploadId '%s' was not found", uploadId);
+    }
+    return upload;
   }
 
   private void create(@NonNull String studyId, String analysisSubmitterId, @NonNull String uploadId,

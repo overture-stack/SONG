@@ -27,39 +27,23 @@ import org.icgc.dcc.song.client.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.SERVICE_UNAVAILABLE;
-import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
+import static java.lang.Boolean.parseBoolean;
 
 @Component
 public class Registry {
 
-  private static final boolean DEFAULT_DEBUG_ENABLE = false;
-  
   @Setter
   private RestClient restClient;
   private ObjectMapper mapper;
   private Endpoint endpoint;
   private String accessToken;
-  private ErrorStatusHeader errorStatusHeader;
 
   @Autowired
-  public Registry(Config config, RestClient restClient, ErrorStatusHeader errorStatusHeader) {
+  public Registry(Config config, RestClient restClient) {
     this.mapper = new ObjectMapper();
     this.restClient = restClient;
     this.endpoint = new Endpoint(config.getServerUrl());
     this.accessToken = config.getAccessToken();
-    this.errorStatusHeader = errorStatusHeader;
-  }
-
-
-  @SneakyThrows
-  String getAnalysisType(String json) {
-    val node = mapper.readTree(json);
-
-    if (node.has("analysisType")) {
-      return node.get("analysisType").asText();
-    }
-    throw new Error("No analysis type specified in JSON document" + node.asText());
   }
 
   @SneakyThrows
@@ -67,7 +51,6 @@ public class Registry {
     val node = mapper.readTree(json);
     return node.get("study").asText();
   }
-
 
   /**
    * Register an analysis with the song server.
@@ -101,15 +84,16 @@ public class Registry {
     return restClient.get(accessToken, url);
   }
 
-  public Status isAlive(){
+  /**
+   * Returns true if the SONG server is running, otherwise false.
+   * @return boolean
+   */
+  public boolean isServerAlive(){
     val url = endpoint.isAlive();
     try {
-      return restClient.get(url);
-    } catch (Throwable e){
-      val songError = createSongError(SERVICE_UNAVAILABLE, e.getMessage());
-      val status = new Status();
-      status.err(errorStatusHeader.getSongClientErrorOutput(songError));
-      return status;
+      return parseBoolean(restClient.get(url).getOutputs());
+    } catch (Throwable t){
+      return false;
     }
   }
 

@@ -1,6 +1,8 @@
-package org.icgc.dcc.song.core.exceptions;
+package org.icgc.dcc.song.server.exceptions;
 
 import lombok.val;
+import org.icgc.dcc.song.core.exceptions.ServerException;
+import org.icgc.dcc.song.core.exceptions.SongError;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,6 +35,5 @@ public class ServerExceptionHandler {
     error.setStackTraceElementArray(ex.getStackTrace());
     return error.getResponseEntity();
   }
-
 
 }

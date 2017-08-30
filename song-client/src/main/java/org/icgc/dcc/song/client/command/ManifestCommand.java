@@ -32,6 +32,7 @@ import org.icgc.dcc.song.client.model.Manifest;
 import org.icgc.dcc.song.client.model.ManifestEntry;
 import org.icgc.dcc.song.client.register.Registry;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
@@ -54,8 +55,7 @@ public class ManifestCommand extends Command {
   private static final String JSON_PATH_TO_FILES = "";
 
   @Override
-  @SneakyThrows
-  public void run() {
+  public void run() throws IOException {
     if (analysisId == null) {
       analysisId = getJson().at("/analysisId").asText("");
     }
