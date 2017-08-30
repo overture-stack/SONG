@@ -20,12 +20,9 @@ package org.icgc.dcc.song.client.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
-import lombok.val;
-
-import org.icgc.dcc.song.client.cli.Status;
-
 import lombok.Data;
+import lombok.val;
+import org.icgc.dcc.song.client.cli.Status;
 
 import java.io.IOException;
 
@@ -73,10 +70,9 @@ public abstract class Command {
   /***
    * Require all of our children to define a "run" method.
    */
-  public abstract void run();
+  public abstract void run() throws IOException;
 
-  @SneakyThrows
-  public JsonNode getJson() {
+  public JsonNode getJson() throws IOException {
     val mapper = new ObjectMapper();
 
     val json = mapper.readTree(System.in);

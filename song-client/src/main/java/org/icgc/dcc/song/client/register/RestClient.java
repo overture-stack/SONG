@@ -22,7 +22,6 @@ import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.errors.ServerResponseErrorHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,13 +41,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 public class RestClient {
 
   private final RestTemplate restTemplate;
-  private final ErrorStatusHeader errorStatusHeader;
 
-  @Autowired
-  public RestClient(ErrorStatusHeader errorStatusHeader) {
+  public RestClient() {
     this.restTemplate = new RestTemplate();
     this.restTemplate.setErrorHandler(new ServerResponseErrorHandler());
-    this.errorStatusHeader = errorStatusHeader;
   }
 
   public Status get(@NonNull String url) {

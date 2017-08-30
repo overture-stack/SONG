@@ -37,6 +37,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
+import java.io.IOException;
 import java.net.HttpRetryException;
 
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
@@ -99,9 +100,11 @@ public class ClientMain implements CommandLineRunner {
       } else {
         command.err(errorStatusHeader.createMessage("The SONG server may not be running on '%s'", config.getServerUrl()));
       }
-    } catch (ServerException ex){
+    } catch (ServerException ex) {
       val songError = ex.getSongError();
       command.err(errorStatusHeader.getSongServerErrorOutput(songError));
+    } catch (IOException e) {
+      command.err("IO Error: %s",e.getMessage());
     } finally{
       command.report();
     }

@@ -18,6 +18,8 @@
  */
 package org.icgc.dcc.song.client.command;
 
+import java.io.IOException;
+
 /**
  * 
  */
@@ -35,7 +37,7 @@ public class ErrorCommand extends Command {
   }
 
   @Override
-  public void run() {
+  public void run() throws IOException {
     // no-op
   }
 
