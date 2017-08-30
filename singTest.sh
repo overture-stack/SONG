@@ -50,7 +50,3 @@ ${SING_EXE} manifest -a $a -f manifest.txt
 set +x 
 cat manifest.txt
 
-header "Suppressing Analysis"
-set -x
-${SING_EXE} suppress -a $a
-set +x
