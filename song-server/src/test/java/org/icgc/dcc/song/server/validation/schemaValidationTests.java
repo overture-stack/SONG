@@ -18,22 +18,19 @@
  */
 package org.icgc.dcc.song.server.validation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.InputStream;
-import java.util.Set;
-
-//import org.junit.Before;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
-
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Test;
+
+import java.io.InputStream;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 public class schemaValidationTests {
@@ -49,7 +46,7 @@ public class schemaValidationTests {
   public void validate_submit_sequencing_read_missing_required() throws Exception {
     val errors = validate("schemas/sequencingRead.json",
             "documents/sequencingread-missing-required.json");
-    assertThat(errors.size()).isEqualTo(2);
+    assertThat(errors.size()).isEqualTo(3);
   }
 
   @Test
