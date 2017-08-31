@@ -26,6 +26,8 @@ import lombok.val;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
 
+import java.io.IOException;
+
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Search for analysis objects for the current studyId" )
 public class SearchCommand extends Command {
@@ -43,13 +45,13 @@ public class SearchCommand extends Command {
   private String donorId;
 
   @NonNull
-  Registry registry;
+  private Registry registry;
 
   @NonNull
-  Config config;
+  private Config config;
 
   @Override
-  public void run() {
+  public void run() throws IOException {
     val status = registry.search(config.getStudyId(), sampleId, specimenId, donorId, fileId );
     save(status);
   }

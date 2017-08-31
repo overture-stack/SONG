@@ -26,15 +26,17 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+import java.io.IOException;
+
 @RequiredArgsConstructor
 @Parameters(commandDescription = "Show the current configuration settings")
 public class ConfigCommand extends Command {
 
   @NonNull
-  Config config;
+  private Config config;
 
   @Override
-  public void run() {
+  public void run() throws IOException {
     output("Current configuration:\n");
 
     @NonNull

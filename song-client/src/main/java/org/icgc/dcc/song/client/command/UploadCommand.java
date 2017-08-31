@@ -22,12 +22,15 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.icgc.dcc.song.client.register.Registry;
 
 import java.io.File;
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Upload an analysis file, and get an upload id")
 public class UploadCommand extends Command {
 
@@ -37,27 +40,17 @@ public class UploadCommand extends Command {
   @Parameter(names = { "-a", "--async" },description = "Enables asynchronous validation")
   boolean isAsyncValidation = false;
 
-  Registry registry;
-
-  public UploadCommand(Registry registry) {
-    this.registry = registry;
-  }
+  @NonNull
+  private Registry registry;
 
   @Override
-  public void run() {
-
-    String json;
-    try {
-      json = readUploadContent();
-    } catch (IOException e) {
-      err("Error: Input/Output Error '%s'", e.getMessage());
-      return;
-    }
+  public void run() throws IOException {
+    val json = readUploadContent();
     val status = registry.upload(json, isAsyncValidation);
     save(status);
   }
 
-  String readUploadContent() throws IOException {
+  private String readUploadContent() throws IOException {
     if (fileName == null) {
       val json=getJson();
       return json.toString();
