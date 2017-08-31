@@ -28,13 +28,13 @@ import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 })
 public abstract class Analysis extends Metadata {
 
-    String analysisId="";
-    String study="";
-    String analysisSubmitterId="";
-    String analysisState= UNPUBLISHED.name();
+    private String analysisId="";
+    private String study="";
+    private String analysisSubmitterId="";
+    private String analysisState = UNPUBLISHED.name();
 
-    List<CompositeEntity> sample;
-    List<File> file;
+    private List<CompositeEntity> sample;
+    private List<File> file;
 
     abstract public String getAnalysisType();
 
