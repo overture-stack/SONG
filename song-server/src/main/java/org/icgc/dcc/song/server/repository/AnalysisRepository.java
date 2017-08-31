@@ -42,7 +42,7 @@ public interface AnalysisRepository {
   void createAnalysis(@BindBean Analysis analysis );
 
   @SqlUpdate("Update Analysis set state=:state where id=:analysisId")
-  void updateState(@Bind("analysisId") String id, @Bind("state") String state);
+  int updateState(@Bind("analysisId") String id, @Bind("state") String state);
 
   @SqlUpdate("INSERT INTO FileSet (analysis_id, file_id) values (:analysisId, :fileId)")
   void addFile(@Bind("analysisId") String id, @Bind("fileId") String fileId);

@@ -12,6 +12,7 @@ import org.icgc.dcc.song.server.model.enums.Constants;
 
 import java.util.List;
 
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -30,7 +31,7 @@ public abstract class Analysis extends Metadata {
     String analysisId="";
     String study="";
     String analysisSubmitterId="";
-    String analysisState="UNPUBLISHED";
+    String analysisState= UNPUBLISHED.name();
 
     List<CompositeEntity> sample;
     List<File> file;
