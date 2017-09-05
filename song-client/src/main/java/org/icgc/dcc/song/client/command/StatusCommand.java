@@ -28,6 +28,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+import java.io.IOException;
+
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Get the status of an upload from it's upload id.")
 public class StatusCommand extends Command {
@@ -39,12 +41,13 @@ public class StatusCommand extends Command {
   private boolean ping;
 
   @NonNull
-  Registry registry;
+  private Registry registry;
+
   @NonNull
-  Config config;
+  private Config config;
 
   @Override
-  public void run() {
+  public void run() throws IOException {
     if (ping){
       val status = registry.isAlive();
       save(status);

@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 @Component
 @Slf4j
 public class ClientMain implements CommandLineRunner {
@@ -58,8 +60,13 @@ public class ClientMain implements CommandLineRunner {
   @Override
   public void run(String... args) {
     val command = dispatcher.parse(args);
-    command.run();
-    command.report();
+    try {
+      command.run();
+    } catch (IOException e){
+      command.err("IO Error: %s", e.getMessage());
+    } finally {
+      command.report();
+    }
   }
 
 }

@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.json.JsonObject;
@@ -32,6 +31,7 @@ import org.icgc.dcc.song.client.model.Manifest;
 import org.icgc.dcc.song.client.model.ManifestEntry;
 import org.icgc.dcc.song.client.register.Registry;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
@@ -41,21 +41,22 @@ import java.util.stream.StreamSupport;
 @Parameters(commandDescription = "Generate a manifest file for the analysis with the specified analysis id")
 public class ManifestCommand extends Command {
 
-  @Parameter(names = { "-a", "--analysis-id" })
-  String analysisId;
-
-  @Parameter(names = { "--file", "-f" }, description = "Filename to save file in (if not set, displays manifest on standard output")
-  String fileName;
-
-  @NonNull
-  Registry registry;
-  @NonNull
-  Config config;
   private static final String JSON_PATH_TO_FILES = "";
 
+  @Parameter(names = { "-a", "--analysis-id" })
+  private String analysisId;
+
+  @Parameter(names = { "--file", "-f" }, description = "Filename to save file in (if not set, displays manifest on standard output")
+  private String fileName;
+
+  @NonNull
+  private Registry registry;
+
+  @NonNull
+  private Config config;
+
   @Override
-  @SneakyThrows
-  public void run() {
+  public void run() throws IOException {
     if (analysisId == null) {
       analysisId = getJson().at("/analysisId").asText("");
     }
@@ -79,8 +80,7 @@ public class ManifestCommand extends Command {
     }
   }
 
-  @SneakyThrows
-  Manifest createManifest(String analysisId, String json) {
+  private Manifest createManifest(String analysisId, String json) throws IOException {
     val mapper = new ObjectMapper();
     val root = mapper.readTree(json);
 
@@ -93,7 +93,7 @@ public class ManifestCommand extends Command {
     return m;
   }
 
-  ManifestEntry jsonNodeToManifestEntry(JsonNode node) {
+  private ManifestEntry jsonNodeToManifestEntry(JsonNode node) {
     val j = new JsonObject(node);
     val fileId = j.get("objectId");
     val fileName = j.get("fileName");
