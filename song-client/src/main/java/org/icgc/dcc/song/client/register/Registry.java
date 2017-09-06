@@ -27,9 +27,6 @@ import org.icgc.dcc.song.client.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.SERVICE_UNAVAILABLE;
-import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
-
 @Component
 public class Registry {
 
@@ -38,15 +35,13 @@ public class Registry {
   private ObjectMapper mapper;
   private Endpoint endpoint;
   private String accessToken;
-  private ErrorStatusHeader errorStatusHeader;
 
   @Autowired
-  public Registry(Config config, RestClient restClient, ErrorStatusHeader errorStatusHeader) {
+  public Registry(Config config, RestClient restClient) {
     this.mapper = new ObjectMapper();
     this.restClient = restClient;
     this.endpoint = new Endpoint(config.getServerUrl());
     this.accessToken = config.getAccessToken();
-    this.errorStatusHeader = errorStatusHeader;
   }
 
   @SneakyThrows
@@ -87,15 +82,16 @@ public class Registry {
     return restClient.get(accessToken, url);
   }
 
-  public Status isAlive(){
+  /**
+   * Returns true if the SONG server is running, otherwise false.
+   * @return boolean
+   */
+  public boolean isAlive(){
     val url = endpoint.isAlive();
     try {
-      return restClient.get(url);
+      return Boolean.parseBoolean(restClient.get(url).getOutputs());
     } catch (Throwable e){
-      val songError = createSongError(SERVICE_UNAVAILABLE, e.getMessage());
-      val status = new Status();
-      status.err(errorStatusHeader.getSongClientErrorOutput(songError));
-      return status;
+      return false;
     }
   }
 
