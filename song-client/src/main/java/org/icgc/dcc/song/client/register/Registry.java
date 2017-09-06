@@ -33,8 +33,6 @@ import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
 @Component
 public class Registry {
 
-  private static final boolean DEFAULT_DEBUG_ENABLE = false;
-  
   @Setter
   private RestClient restClient;
   private ObjectMapper mapper;
@@ -51,23 +49,11 @@ public class Registry {
     this.errorStatusHeader = errorStatusHeader;
   }
 
-
   @SneakyThrows
-  String getAnalysisType(String json) {
-    val node = mapper.readTree(json);
-
-    if (node.has("analysisType")) {
-      return node.get("analysisType").asText();
-    }
-    throw new Error("No analysis type specified in JSON document" + node.asText());
-  }
-
-  @SneakyThrows
-  String getStudyId(String json) {
+  private String getStudyId(String json) {
     val node = mapper.readTree(json);
     return node.get("study").asText();
   }
-
 
   /**
    * Register an analysis with the song server.
@@ -82,7 +68,7 @@ public class Registry {
 
   /***
    * Returns the state of the registration on the server (JSON)
-   * 
+   *
    * @param uploadId
    * @return The state of the upload
    */
@@ -119,6 +105,11 @@ public class Registry {
    */
   public Status publish(String studyId, String analysisId ){
     val url = endpoint.publish(studyId, analysisId);
+    return restClient.putAuth(accessToken, url);
+  }
+
+  public Status suppress(String studyId, String analysisId ){
+    val url = endpoint.suppress(studyId, analysisId);
     return restClient.putAuth(accessToken, url);
   }
 

@@ -21,24 +21,21 @@ package org.icgc.dcc.song.client.register;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
+@RequiredArgsConstructor
 public class Endpoint {
 
   private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
 
+  @NonNull
   private String serverUrl;
 
-  @Autowired
-  Endpoint(String serverUrl) {
-    this.serverUrl = serverUrl;
-  }
-
-  String upload(String studyId, boolean isAsyncValidation) {
+  public String upload(String studyId, boolean isAsyncValidation) {
     if (isAsyncValidation){
       return format("%s/upload/%s/async", serverUrl, studyId);
     } else {
@@ -50,7 +47,7 @@ public class Endpoint {
     return format("%s/upload/%s/save/%s", serverUrl, studyId, uploadId);
   }
 
-  String status(String studyId, String uploadId) {
+  public String status(String studyId, String uploadId) {
     return format("%s/upload/%s/status/%s", serverUrl, studyId, uploadId);
   }
 
@@ -64,6 +61,10 @@ public class Endpoint {
 
   public String publish(String studyId, String analysisId) {
     return format("%s/studies/%s/analysis/publish/%s", serverUrl, studyId, analysisId);
+  }
+
+  public String suppress(String studyId, String analysisId) {
+    return format("%s/studies/%s/analysis/suppress/%s", serverUrl, studyId, analysisId);
   }
 
   public String searchGet(@NonNull String studyId,
@@ -87,6 +88,5 @@ public class Endpoint {
     val params = AMPERSAND_JOINER.join(list);
     return format("%s/studies/%s/analysis/search?%s", serverUrl, studyId, params);
   }
-
 
 }

@@ -49,3 +49,4 @@ set -x
 ${SING_EXE} manifest -a $a -f manifest.txt
 set +x 
 cat manifest.txt
+

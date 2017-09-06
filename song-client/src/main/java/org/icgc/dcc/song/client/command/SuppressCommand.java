@@ -25,14 +25,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
+
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Save an uploaded analysis by it's upload id, and get the permanent analysis id")
-public class SaveCommand extends Command {
+@Parameters(separators = "=", commandDescription = "Suppress an analysis id" )
+public class SuppressCommand extends Command {
 
-  @Parameter(names = { "-u", "--upload-id" })
-  private String uploadId;
+  @Parameter(names = { "-a", "--analysis-id" }, required = false)
+  private String analysisId;
 
   @NonNull
   private Registry registry;
@@ -41,11 +42,12 @@ public class SaveCommand extends Command {
   private Config config;
 
   @Override
-  public void run() throws IOException{
-    if (uploadId == null) {
-      uploadId = getJson().at("/uploadId").asText("");
+  public void run() throws IOException {
+    if (analysisId == null) {
+      analysisId = getJson().at("/analysisId").asText("");
     }
-    val status = registry.save(config.getStudyId(), uploadId);
+
+    val status = registry.suppress(config.getStudyId(), analysisId);
     save(status);
   }
 

@@ -26,6 +26,7 @@ import org.icgc.dcc.song.client.command.PublishCommand;
 import org.icgc.dcc.song.client.command.SaveCommand;
 import org.icgc.dcc.song.client.command.SearchCommand;
 import org.icgc.dcc.song.client.command.StatusCommand;
+import org.icgc.dcc.song.client.command.SuppressCommand;
 import org.icgc.dcc.song.client.command.UploadCommand;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
@@ -54,6 +55,7 @@ public class ClientMain implements CommandLineRunner {
     builder.register("search", new SearchCommand(registry, config));
     builder.register("manifest", new ManifestCommand(registry, config));
     builder.register("publish", new PublishCommand(registry, config));
+    builder.register("suppress", new SuppressCommand(registry, config));
     this.dispatcher = builder.build();
   }
 

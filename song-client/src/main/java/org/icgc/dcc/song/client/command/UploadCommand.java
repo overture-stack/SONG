@@ -35,7 +35,7 @@ import java.io.IOException;
 public class UploadCommand extends Command {
 
   @Parameter(names = { "-f", "--file" })
-  String fileName;
+  private String fileName;
 
   @Parameter(names = { "-a", "--async" },description = "Enables asynchronous validation")
   boolean isAsyncValidation = false;
