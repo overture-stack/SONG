@@ -26,6 +26,7 @@ import org.icgc.dcc.song.client.command.PublishCommand;
 import org.icgc.dcc.song.client.command.SaveCommand;
 import org.icgc.dcc.song.client.command.SearchCommand;
 import org.icgc.dcc.song.client.command.StatusCommand;
+import org.icgc.dcc.song.client.command.SuppressCommand;
 import org.icgc.dcc.song.client.command.UploadCommand;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.ErrorStatusHeader;
@@ -79,7 +80,7 @@ public class ClientMain implements CommandLineRunner {
     try{
       command.run();
     } catch(RestClientException e){
-      val isAlive = registry.isServerAlive();
+      val isAlive = registry.isAlive();
       SongError songError;
       if(isAlive){
         val cause = e.getCause();
