@@ -44,15 +44,8 @@ public class UploadCommand extends Command {
   private Registry registry;
 
   @Override
-  public void run() {
-
-    String json;
-    try {
-      json = readUploadContent();
-    } catch (IOException e) {
-      err("Error: Input/Output Error '%s'", e.getMessage());
-      return;
-    }
+  public void run() throws IOException {
+    val json = readUploadContent();
     val status = registry.upload(json, isAsyncValidation);
     save(status);
   }

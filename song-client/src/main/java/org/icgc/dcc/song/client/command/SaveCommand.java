@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Save an uploaded analysis by it's upload id, and get the permanent analysis id")
@@ -40,7 +41,7 @@ public class SaveCommand extends Command {
   private Config config;
 
   @Override
-  public void run() {
+  public void run() throws IOException{
     if (uploadId == null) {
       uploadId = getJson().at("/uploadId").asText("");
     }

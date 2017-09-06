@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.json.JsonObject;
@@ -32,6 +31,7 @@ import org.icgc.dcc.song.client.model.Manifest;
 import org.icgc.dcc.song.client.model.ManifestEntry;
 import org.icgc.dcc.song.client.register.Registry;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
@@ -56,8 +56,7 @@ public class ManifestCommand extends Command {
   private Config config;
 
   @Override
-  @SneakyThrows
-  public void run() {
+  public void run() throws IOException {
     if (analysisId == null) {
       analysisId = getJson().at("/analysisId").asText("");
     }
@@ -81,8 +80,7 @@ public class ManifestCommand extends Command {
     }
   }
 
-  @SneakyThrows
-  private Manifest createManifest(String analysisId, String json) {
+  private Manifest createManifest(String analysisId, String json) throws IOException {
     val mapper = new ObjectMapper();
     val root = mapper.readTree(json);
 

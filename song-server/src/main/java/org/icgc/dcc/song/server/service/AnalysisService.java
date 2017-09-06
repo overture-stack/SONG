@@ -28,6 +28,7 @@ import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
+import org.icgc.dcc.song.server.model.enums.AnalysisStates;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
@@ -39,9 +40,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_STATE_UPDATE_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.SongError.error;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
 
 @Slf4j
 @Service
@@ -229,7 +234,7 @@ public class AnalysisService {
        }
     }
     if (missingUploads.isEmpty()) {
-      repository.updateState(id,"PUBLISHED");
+      checkedUpdateState(id, PUBLISHED);
       return ok("AnalysisId %s successfully published", id);
     }
     return error(UNPUBLISHED_FILE_IDS,
@@ -238,8 +243,19 @@ public class AnalysisService {
   }
 
   public ResponseEntity<String> suppress(String id) {
-    repository.updateState(id, "SUPPRESSED");
+    checkedUpdateState(id, SUPPRESSED);
     return ok("AnalysisId %s was suppressed",id);
+  }
+
+  private void checkedUpdateState(String id, AnalysisStates analysisState) {
+    val state = analysisState.name();
+    val status = repository.updateState(id, state);
+    if (status != 1) {
+      throw buildServerException(this.getClass(),
+          ANALYSIS_STATE_UPDATE_FAILED,
+          "Cannot update analysisId '%s' with state '%s'. Ensure analysisId exists, and the state is allowed",
+          id, state);
+    }
   }
 
   boolean confirmUploaded(String accessToken, String fileId) {

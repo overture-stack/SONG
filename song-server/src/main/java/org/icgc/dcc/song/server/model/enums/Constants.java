@@ -24,7 +24,7 @@ import java.util.Collections;
 
 public class Constants {
 
-  public static final Collection<String> ANALYSIS_STATE = list("PUBLISHED","UNPUBLISHED","SUPPRESSED");
+  public static final Collection<String> ANALYSIS_STATE = list(AnalysisStates.toStringArray());
   public static final Collection<String> DONOR_GENDER = list("male", "female", "unspecified");
   public static final Collection<String> FILE_TYPE =
       list("FASTA", "FAI", "FASTQ", "BAM", "BAI", "VCF", "TBI", "IDX", "XML");
