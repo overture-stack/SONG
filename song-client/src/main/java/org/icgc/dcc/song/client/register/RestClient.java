@@ -22,21 +22,16 @@ import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.errors.ServerResponseErrorHandler;
-import org.icgc.dcc.song.core.exceptions.ServerException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.function.Function;
 
 import static java.util.Objects.isNull;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
-import static org.icgc.dcc.song.core.exceptions.SongError.createSongError;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
@@ -46,13 +41,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 public class RestClient {
 
   private final RestTemplate restTemplate;
-  private final ErrorStatusHeader errorStatusHeader;
 
-  @Autowired
-  public RestClient(ErrorStatusHeader errorStatusHeader) {
+  public RestClient() {
     this.restTemplate = new RestTemplate();
     this.restTemplate.setErrorHandler(new ServerResponseErrorHandler());
-    this.errorStatusHeader = errorStatusHeader;
   }
 
   public Status get(@NonNull String url) {
@@ -95,36 +87,17 @@ public class RestClient {
     return putAuth(accessToken, url,"");
   }
 
-  public Status putOld(@NonNull String url, String json) {
-    Status status = new Status();
-    try {
-      restTemplate.put(url, json);
-    } catch (ServerException e){
-      val songError = e.getSongError();
-      status.err(errorStatusHeader.getSongServerErrorOutput(songError));
-    }
-    return status;
-  }
-
   private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction){
     Status status = new Status();
-    try {
-      val response = restTemplateFunction.apply(restTemplate);
-      if (response.getStatusCode() == HttpStatus.OK) {
-        if (response.getBody() == null) {
-          status.err("[SONG_CLIENT_ERROR]: Null response from server: %s", response.toString());
-        } else {
-          status.output(response.getBody().toString());
-        }
+    val response = restTemplateFunction.apply(restTemplate);
+    if (response.getStatusCode() == HttpStatus.OK) {
+      if (response.getBody() == null) {
+        status.err("[SONG_CLIENT_ERROR]: Null response from server: %s", response.toString());
       } else {
-        status.err("[%s]: %s",response.getStatusCode().value(),response.toString());
+        status.output(response.getBody().toString());
       }
-    } catch (ResourceAccessException e){
-      val songError2 = createSongError(UNAUTHORIZED_TOKEN, "Invalid token");
-      status.err(errorStatusHeader.getSongServerErrorOutput(songError2));
-    } catch (ServerException e){
-      val songError = e.getSongError();
-      status.err(errorStatusHeader.getSongServerErrorOutput(songError));
+    } else {
+      status.err("[%s]: %s",response.getStatusCode().value(),response.toString());
     }
     return status;
   }
