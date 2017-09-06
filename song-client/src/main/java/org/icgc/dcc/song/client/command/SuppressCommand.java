@@ -26,6 +26,8 @@ import lombok.val;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
 
+import java.io.IOException;
+
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Suppress an analysis id" )
 public class SuppressCommand extends Command {
@@ -40,7 +42,7 @@ public class SuppressCommand extends Command {
   private Config config;
 
   @Override
-  public void run() {
+  public void run() throws IOException {
     if (analysisId == null) {
       analysisId = getJson().at("/analysisId").asText("");
     }
