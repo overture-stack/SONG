@@ -18,15 +18,14 @@
  */
 package org.icgc.dcc.song.client.command;
 
-import org.icgc.dcc.song.client.config.Config;
-import org.icgc.dcc.song.client.register.Registry;
-
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.icgc.dcc.song.client.cli.Status;
+import org.icgc.dcc.song.client.config.Config;
+import org.icgc.dcc.song.client.register.Registry;
 
 import java.io.IOException;
 
@@ -49,7 +48,8 @@ public class StatusCommand extends Command {
   @Override
   public void run() throws IOException {
     if (ping){
-      val status = registry.isAlive();
+      val status = new Status();
+      status.output(Boolean.toString(registry.isAlive()));
       save(status);
     }  else {
       if (uploadId == null) {
