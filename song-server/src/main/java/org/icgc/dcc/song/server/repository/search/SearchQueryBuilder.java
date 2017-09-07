@@ -67,16 +67,18 @@ public class SearchQueryBuilder {
         .collect(joining(AND_DELIMITER));
   }
 
-  private static String convertToWhereCondition(String tableName, SearchTerm searchTerm){
+  private static String convertToWhereCondition(String columnName, SearchTerm searchTerm){
     val sb = new StringBuilder();
-    sb.append(tableName);
-    searchTerm.getNonLeafKeys().forEach(key -> sb.append(JSON_OBJECT_ARROW).append(surroundSingleQuote(key)));
-    sb.append(JSON_VALUE_ARROW + surroundSingleQuote(searchTerm.getLeafKey()) +
-        REGEX_ASSIGNMENT + surroundSingleQuote(searchTerm.getValue()));
+    sb.append(columnName);
+    searchTerm.getNonLeafKeys().forEach(key -> sb.append(JSON_OBJECT_ARROW).append(surroundSingleQuotes(key)));
+    sb.append(JSON_VALUE_ARROW)
+        .append(surroundSingleQuotes(searchTerm.getLeafKey()))
+        .append(REGEX_ASSIGNMENT)
+        .append(surroundSingleQuotes(searchTerm.getValue()));
     return sb.toString();
   }
 
-  private static String surroundSingleQuote(String input){
+  private static String surroundSingleQuotes(String input){
     return format("'%s'", input);
   }
 
@@ -84,10 +86,10 @@ public class SearchQueryBuilder {
     val sb = new StringBuilder();
     sb.append("SELECT a.id AS analysis_id ");
     if (includeInfoField){
-      sb.append(format(", i.info AS %s ", TABLE_NAME));
+      sb.append(format(", i.info AS %s ", COLUMN_NAME));
     }
     sb.append("FROM analysis AS a ");
-    sb.append("INNER JOIN info i ON a.id = i.id ");
+    sb.append(format("INNER JOIN %s i ON a.id = i.id ", TABLE_NAME));
     sb.append("WHERE i.id_type = 'Analysis'");
     return sb.toString();
   }
