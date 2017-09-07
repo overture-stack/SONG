@@ -52,7 +52,7 @@ public class SearchCommand extends Command {
 
   @Override
   public void run() throws IOException {
-    val status = registry.search(config.getStudyId(), sampleId, specimenId, donorId, fileId );
+    val status = registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId );
     save(status);
   }
 

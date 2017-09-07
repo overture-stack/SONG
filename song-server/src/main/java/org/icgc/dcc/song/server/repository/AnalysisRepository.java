@@ -104,8 +104,8 @@ public interface AnalysisRepository {
   List<Analysis> find(@Bind("studyId") String studyId);
 
   @RegisterMapper(AnalysisMapper.class)
-  @SqlQuery("queries/analysis/searchAnalysis.sql")
-  List<Analysis> search(@Bind("studyId") String studyId,
+  @SqlQuery("queries/analysis/idSearch.sql")
+  List<Analysis> idSearch(@Bind("studyId") String studyId,
       @Bind("donorId") String donorId,
       @Bind("specimenId") String specimenId,
       @Bind("sampleId") String sampleId,

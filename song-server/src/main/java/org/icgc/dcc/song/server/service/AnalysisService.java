@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
-import org.icgc.dcc.song.server.model.analysis.AnalysisSearchRequest;
+import org.icgc.dcc.song.server.model.analysis.IdSearchRequest;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
@@ -159,12 +159,12 @@ public class AnalysisService {
   }
 
   /**
-   * Searches all analysis matching the AnalysisSearchRequest
+   * Searches all analysis matching the IdSearchRequest
    * @param request which defines the query
    * @return returns a list of analysis with child entities in response to the search request
    */
-  public List<Analysis> searchAnalysis(@NonNull String studyId, @NonNull AnalysisSearchRequest request){
-    val analysisList = repository.search(studyId,
+  public List<Analysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request){
+    val analysisList = repository.idSearch(studyId,
         request.getDonorId(),
         request.getSpecimenId(),
         request.getSampleId(),
