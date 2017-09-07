@@ -67,7 +67,7 @@ public class Endpoint {
     return format("%s/studies/%s/analysis/suppress/%s", serverUrl, studyId, analysisId);
   }
 
-  public String searchGet(@NonNull String studyId,
+  public String idSearch(@NonNull String studyId,
       String sampleId,
       String specimenId,
       String donorId,
@@ -86,7 +86,7 @@ public class Endpoint {
       list.add("fileId="+fileId);
     }
     val params = AMPERSAND_JOINER.join(list);
-    return format("%s/studies/%s/analysis/search?%s", serverUrl, studyId, params);
+    return format("%s/studies/%s/analysis/search/id?%s", serverUrl, studyId, params);
   }
 
 }

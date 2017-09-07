@@ -163,8 +163,8 @@ public class AnalysisService {
    * @param request which defines the query
    * @return returns a list of analysis with child entities in response to the search request
    */
-  public List<Analysis> searchAnalysis(@NonNull String studyId, @NonNull AnalysisSearchRequest request){
-    val analysisList = repository.search(studyId,
+  public List<Analysis> idSearch(@NonNull String studyId, @NonNull AnalysisSearchRequest request){
+    val analysisList = repository.idSearch(studyId,
         request.getDonorId(),
         request.getSpecimenId(),
         request.getSampleId(),

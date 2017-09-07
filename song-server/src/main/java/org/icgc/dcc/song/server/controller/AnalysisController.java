@@ -110,22 +110,22 @@ public class AnalysisController {
   }
 
 
-  @GetMapping(value = "/search")
+  @GetMapping(value = "/search/id")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public List<Analysis> search(@PathVariable("studyId") String studyId,
+  public List<Analysis> idSearch(@PathVariable("studyId") String studyId,
       @RequestParam(value = "donorId",required = false) String donorIds,
       @RequestParam(value = "sampleId",required = false) String sampleIds,
       @RequestParam(value = "specimenId", required = false) String specimenIds,
       @RequestParam(value = "fileId", required = false) String fileIds ) {
     val request = createAnalysisSearchRequest(donorIds, sampleIds, specimenIds, fileIds);
-    return analysisService.searchAnalysis(studyId,request);
+    return analysisService.idSearch(studyId, request);
   }
 
-  @PostMapping(value = "/search", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(value = "/search/id", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public List<Analysis> search(@PathVariable("studyId") String studyId, @RequestBody AnalysisSearchRequest request) {
-    return analysisService.searchAnalysis(studyId, request);
+  public List<Analysis> idSearch(@PathVariable("studyId") String studyId, @RequestBody AnalysisSearchRequest request) {
+    return analysisService.idSearch(studyId, request);
   }
 
 }
