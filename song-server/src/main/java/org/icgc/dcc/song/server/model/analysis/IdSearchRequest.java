@@ -3,7 +3,7 @@ package org.icgc.dcc.song.server.model.analysis;
 import lombok.Data;
 
 @Data
-public class AnalysisSearchRequest {
+public class IdSearchRequest {
 
   private static final String WILD_CARD = ".*";
 
@@ -12,9 +12,9 @@ public class AnalysisSearchRequest {
   private final String specimenId;
   private final String fileId;
 
-  public static AnalysisSearchRequest createAnalysisSearchRequest(
+  public static IdSearchRequest createIdSearchRequest(
       String donorId, String sampleId, String specimenId, String fileId) {
-    return new AnalysisSearchRequest(
+    return new IdSearchRequest(
         getGlobPattern(donorId),
         getGlobPattern(sampleId),
         getGlobPattern(specimenId),
