@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.base.Throwables.getRootCause;
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 import static org.icgc.dcc.common.core.util.Splitters.NEWLINE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
@@ -23,19 +26,21 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 @ControllerAdvice
 public class ServerExceptionHandler {
 
+  private static final String AMPERSAND = "&";
+  private static final String QUESTION_MARK= "?";
+
   @ExceptionHandler(ServerException.class)
   public ResponseEntity<String> handleServerException(HttpServletRequest request, HttpServletResponse response, ServerException ex){
-    val requestUrl = request.getRequestURL().toString();
     val songError = ex.getSongError();
-    songError.setRequestUrl(requestUrl);
+    songError.setRequestUrl(generateRequestUrlWithParams(request));
+    log.error(songError.toPrettyJson());
     return songError.getResponseEntity();
   }
 
   @ExceptionHandler(Throwable.class)
   public ResponseEntity<String> handleThrowable(HttpServletRequest request, HttpServletResponse response, Throwable ex){
-    val requestUrl = request.getRequestURL().toString();
     val error = new SongError();
-    error.setRequestUrl(requestUrl);
+    error.setRequestUrl(generateRequestUrlWithParams(request));
     error.setTimestamp(System.currentTimeMillis());
     error.setHttpStatus(UNKNOWN_ERROR.getHttpStatus());
     error.setErrorId(UNKNOWN_ERROR.getErrorId());
@@ -52,6 +57,27 @@ public class ServerExceptionHandler {
         .stream()
         .map(String::trim)
         .collect(toImmutableList());
+  }
+
+  private static String generateRequestUrlWithParams(HttpServletRequest request){
+    val requestUrl = request.getRequestURL();
+    val params = request.getParameterMap()
+        .entrySet()
+        .stream()
+        .map(x -> createUrlParams(x.getKey(), x.getValue()))
+        .flatMap(Collection::stream)
+        .collect(joining(AMPERSAND));
+    return requestUrl+QUESTION_MARK+params;
+  }
+
+  private static List<String> createUrlParams(String key, String ... values){
+    return stream(values)
+        .map(x -> createUrlParam(key, x))
+        .collect(toImmutableList());
+  }
+
+  private static String createUrlParam(String key, String value){
+    return format("%s=%s", key, value);
   }
 
 
