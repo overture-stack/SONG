@@ -50,16 +50,22 @@ public class SearchTerm {
     return keyChain.get(keyChain.size() - 1);
   }
 
-  public static SearchTerm createKeyValue(List<String> keyChain, String value) {
+  public static SearchTerm createSearchTerm(List<String> keyChain, String value) {
     checkArgument(keyChain.size() > 0, "There must be at least one key in the chain");
     return new SearchTerm(keyChain, value);
   }
 
-  public static SearchTerm createKeyValue(@NonNull String key, String value) {
+  public static SearchTerm createSearchTerm(@NonNull String key, String value) {
     val trimmedKey = key.trim();
     checkArgument(key.matches(".*\\S.*"),
         "The key '%s' is not acceptable. There must be at least one non-whitespace character", key);
-    return createKeyValue(DOT.splitToList(trimmedKey), value);
+    return createSearchTerm(DOT.splitToList(trimmedKey), value);
+  }
+
+  public static List<SearchTerm> createMultiSearchTerms(@NonNull String key, @NonNull List<String> values) {
+    return values.stream()
+        .map(v -> createSearchTerm(key, v))
+        .collect(toImmutableList());
   }
 
 }

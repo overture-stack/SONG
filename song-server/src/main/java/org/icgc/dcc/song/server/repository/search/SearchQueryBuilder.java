@@ -4,12 +4,15 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
-import static org.icgc.dcc.song.server.repository.search.SearchTerm.createKeyValue;
+import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.analysis_id;
+import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.info;
+import static org.icgc.dcc.song.server.repository.search.SearchTerm.createSearchTerm;
 
 /**
  * Mutable class that builds a search query for greedy regex searching key-value pairs in a table
@@ -18,7 +21,6 @@ import static org.icgc.dcc.song.server.repository.search.SearchTerm.createKeyVal
 public class SearchQueryBuilder {
 
   private static final String TABLE_NAME = "info";
-  private static final String COLUMN_NAME = "info";
   private static final String AND_DELIMITER = " AND ";
   private static final String JSON_OBJECT_ARROW = "->";
   private static final String JSON_VALUE_ARROW = "->>";
@@ -58,18 +60,27 @@ public class SearchQueryBuilder {
    * @return this
    */
   public SearchQueryBuilder add(@NonNull String key, @NonNull String value){
-    return add(createKeyValue(key, value));
+    return add(createSearchTerm(key, value));
+  }
+
+  public SearchQueryBuilder add(@NonNull String key, @NonNull List<String> values){
+    values.forEach(v -> add(key, v));
+    return this;
   }
 
   private String generateWhereConditions(){
     return searchTerms.stream()
-        .map(x -> convertToWhereCondition(COLUMN_NAME, x))
+        .map(x -> convertToWhereCondition(TABLE_NAME, info.name(), x))
         .collect(joining(AND_DELIMITER));
   }
 
-  private static String convertToWhereCondition(String columnName, SearchTerm searchTerm){
+  public static SearchQueryBuilder createSearchQueryBuilder(boolean includeInfoField){
+    return new SearchQueryBuilder(includeInfoField);
+  }
+
+  private static String convertToWhereCondition(String tableName, String columnName, SearchTerm searchTerm){
     val sb = new StringBuilder();
-    sb.append(columnName);
+    sb.append(tableName+"."+columnName);
     searchTerm.getNonLeafKeys().forEach(key -> sb.append(JSON_OBJECT_ARROW).append(surroundSingleQuotes(key)));
     sb.append(JSON_VALUE_ARROW)
         .append(surroundSingleQuotes(searchTerm.getLeafKey()))
@@ -84,13 +95,11 @@ public class SearchQueryBuilder {
 
   private static String generateSelectBaseQuery(boolean includeInfoField){
     val sb = new StringBuilder();
-    sb.append("SELECT a.id AS analysis_id ");
+    sb.append(format("SELECT analysis.id AS %s ", analysis_id.name()));
     if (includeInfoField){
-      sb.append(format(", i.info AS %s ", COLUMN_NAME));
+      sb.append(format(", info.info AS %s ", info.name()));
     }
-    sb.append("FROM analysis AS a ");
-    sb.append(format("INNER JOIN %s i ON a.id = i.id ", TABLE_NAME));
-    sb.append("WHERE i.id_type = 'Analysis'");
+    sb.append(format("FROM analysis INNER JOIN %s ON analysis.id = info.id WHERE info.id_type = 'Analysis'", TABLE_NAME));
     return sb.toString();
   }
 

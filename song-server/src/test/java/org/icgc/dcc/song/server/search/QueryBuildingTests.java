@@ -10,11 +10,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public class QueryBuildingTests {
 
-  private static final String BEGINNING_PORTION = "SELECT a.id AS analysis_id ";
-  private static final String INCLUDED_INFO_PORTION = ", i.info AS info " ;
-  private static final String MIDDLE_PORTION = "FROM analysis AS a INNER JOIN info i ON a.id = i.id WHERE i.id_type = "
-      + "'Analysis'";
-  private static final String WITH_CONDITIONS = " AND info->>'key1' ~ '.*value1$' AND info->'key2'->'key3'->>'key4' ~ '" + ".*value2\\d+';";
+  private static final String BEGINNING_PORTION = "SELECT analysis.id AS analysis_id ";
+  private static final String INCLUDED_INFO_PORTION = ", info.info AS info " ;
+  private static final String MIDDLE_PORTION =
+      "FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis'";
+  private static final String WITH_CONDITIONS = " AND info.info->>'key1' ~ '.*value1$' AND info.info->'key2'->'key3'->>'key4' ~ '" + ".*value2\\d+';";
   private static final String WITHOUT_CONDITIONS = ";";
 
   @Test
