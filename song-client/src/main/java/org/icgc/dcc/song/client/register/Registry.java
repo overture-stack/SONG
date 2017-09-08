@@ -109,12 +109,12 @@ public class Registry {
     return restClient.putAuth(accessToken, url);
   }
 
-  public Status search(String studyId,
+  public Status idSearch(String studyId,
       String sampleId,
       String specimenId,
       String donorId,
       String fileId){
-    val url = endpoint.searchGet(studyId,sampleId,specimenId,donorId,fileId);
+    val url = endpoint.idSearch(studyId,sampleId,specimenId,donorId,fileId);
     return restClient.get(accessToken, url);
   }
 
