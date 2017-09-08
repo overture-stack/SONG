@@ -23,12 +23,14 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.AnalysisSearchRequest;
+import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -126,6 +128,15 @@ public class AnalysisController {
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public List<Analysis> search(@PathVariable("studyId") String studyId, @RequestBody AnalysisSearchRequest request) {
     return analysisService.searchAnalysis(studyId, request);
+  }
+
+  @GetMapping(value = "/search/info")
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public List<InfoSearchResponse> search(@PathVariable("studyId") String studyId,
+      @RequestParam(value = "includeInfo", required = true) boolean includeInfo,
+      @RequestParam MultiValueMap<String, String> multiValueMap ) {
+    multiValueMap.remove("includeInfo"); //Always added to map, but is redundant
+    return analysisService.infoSearch(studyId,includeInfo, multiValueMap);
   }
 
 }
