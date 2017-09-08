@@ -22,27 +22,54 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
+import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
+import org.icgc.dcc.song.client.errors.IllegalCommandLineArgumentException;
 import org.icgc.dcc.song.client.register.Registry;
 
 import java.io.IOException;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.icgc.dcc.common.core.util.Joiners.SLASH;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Search for analysis objects for the current studyId" )
 public class SearchCommand extends Command {
+  private static final String F_SWITCH = "-f";
+  private static final String SA_SWITCH = "-sa";
+  private static final String SP_SWITCH = "-sp";
+  private static final String D_SWITCH = "-d";
+  private static final String I_SWITCH = "-i";
+  private static final String T_SWITCH = "-t";
 
-  @Parameter(names = { "-f", "--file-id" }, required = false)
+  private static final String FILE_ID_SWITCH = "--file-id";
+  private static final String SAMPLE_ID_SWITCH = "--sample-id";
+  private static final String SPECIMEN_ID_SWITCH = "--specimen-id";
+  private static final String DONOR_ID_SWITCH = "--donor-id";
+  private static final String INFO_SWITCH = "--info";
+  private static final String SEARCH_TERMS_SWITCH = "--search-terms";
+
+  @Parameter(names = { F_SWITCH, FILE_ID_SWITCH }, required = false)
   private String fileId;
 
-  @Parameter(names = { "-sa", "--sample-id" }, required = false)
+  @Parameter(names = { SA_SWITCH, SAMPLE_ID_SWITCH }, required = false)
   private String sampleId;
 
-  @Parameter(names = { "-sp", "--specimen-id" }, required = false)
+  @Parameter(names = { SP_SWITCH, SPECIMEN_ID_SWITCH }, required = false)
   private String specimenId;
 
-  @Parameter(names = { "-d", "--donor-id" }, required = false)
+  @Parameter(names = { D_SWITCH, DONOR_ID_SWITCH }, required = false)
   private String donorId;
+
+  @Parameter(names = { I_SWITCH, INFO_SWITCH }, required = false)
+  private boolean includeInfo = false;
+
+  @Parameter(names = { T_SWITCH, SEARCH_TERMS_SWITCH }, required = false, variableArity = true)
+  private List<String> infoSearchTerms = newArrayList();
 
   @NonNull
   private Registry registry;
@@ -52,8 +79,56 @@ public class SearchCommand extends Command {
 
   @Override
   public void run() throws IOException {
-    val status = registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId );
+    check();
+    Status status;
+    if (isIdSearchDefined()){
+      status = registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId );
+    } else if (isInfoSearchDefined()){
+      status = registry.infoSearch(config.getStudyId(), includeInfo, infoSearchTerms);
+    } else {
+      throw new IllegalCommandLineArgumentException("Must define at least one switch for the 'search' command");
+    }
     save(status);
+  }
+
+  private void check(){
+    if (isInfoSearchDefined()){
+      checkMutuallyExclusiveSearchTerms(SLASH.join(F_SWITCH,FILE_ID_SWITCH), fileId);
+      checkMutuallyExclusiveSearchTerms(SLASH.join(SA_SWITCH,SAMPLE_ID_SWITCH), sampleId);
+      checkMutuallyExclusiveSearchTerms(SLASH.join(SP_SWITCH,SPECIMEN_ID_SWITCH), specimenId);
+      checkMutuallyExclusiveSearchTerms(SLASH.join(D_SWITCH,DONOR_ID_SWITCH), donorId);
+    } else {
+      checkIncludeInfoNotDefined();
+    }
+  }
+
+  private static void checkCliArgument(boolean expression, String formatMessage, Object...params){
+    if (!expression){
+      throw new IllegalCommandLineArgumentException(format(formatMessage,params));
+    }
+  }
+
+  private void checkMutuallyExclusiveSearchTerms(String paramSwitch, String idModeParamValue){
+    checkCliArgument(isNull(idModeParamValue),
+        "'%s' option and '%s' option are mutually exclusive",
+        paramSwitch, SLASH.join(T_SWITCH,SEARCH_TERMS_SWITCH));
+  }
+
+  private void checkIncludeInfoNotDefined(){
+    checkCliArgument(!includeInfo,
+        "the '%s/%s' option is required when using the '%s/%s' option",
+        T_SWITCH, SEARCH_TERMS_SWITCH, I_SWITCH, INFO_SWITCH);
+  }
+
+  private boolean isIdSearchDefined() {
+    return nonNull(fileId)
+        || nonNull(sampleId)
+        || nonNull(specimenId)
+        || nonNull(donorId);
+  }
+
+  private boolean isInfoSearchDefined(){
+    return infoSearchTerms.size() > 0;
   }
 
 }
