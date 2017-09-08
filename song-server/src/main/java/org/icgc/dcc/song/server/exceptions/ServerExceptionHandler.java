@@ -1,6 +1,5 @@
 package org.icgc.dcc.song.server.exceptions;
 
-import com.google.common.base.Throwables;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.exceptions.ServerException;
@@ -13,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+import static com.google.common.base.Throwables.getRootCause;
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Splitters.NEWLINE;
@@ -40,7 +40,7 @@ public class ServerExceptionHandler {
     error.setHttpStatus(UNKNOWN_ERROR.getHttpStatus());
     error.setErrorId(UNKNOWN_ERROR.getErrorId());
     error.setMessage(ex.getMessage());
-    val rootCause = Throwables.getRootCause(ex);
+    val rootCause = getRootCause(ex);
     error.setDebugMessage(format("[ROOT_CAUSE] -> %s: %s", rootCause.getClass().getName(), rootCause.getMessage()));
     error.setStackTrace(getFullStackTraceList(ex));
     log.error(error.toPrettyJson());
