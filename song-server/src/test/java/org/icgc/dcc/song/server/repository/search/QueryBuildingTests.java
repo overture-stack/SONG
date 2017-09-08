@@ -1,8 +1,7 @@
-package org.icgc.dcc.song.server.search;
+package org.icgc.dcc.song.server.repository.search;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.repository.search.SearchQueryBuilder;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

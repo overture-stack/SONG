@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.val;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.EMPTY_LIST;
 import static org.icgc.dcc.common.core.util.Splitters.DOT;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEARCH_TERM_SYNTAX;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
 /**
  * Contains a key-value pair, as well as methods for parsing the key hierarchy in to chain of keys
@@ -20,14 +20,21 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SearchTerm {
 
-  @NonNull @Getter @Setter private String key;
-  @NonNull @Getter @Setter private String value;
+  @NonNull @Getter private String key;
+  @NonNull @Getter private String value;
 
   private List<String> keyChain;
 
   public void setKey(String key){
     this.key = key.trim();
     this.keyChain = parseKeyChain(key);
+  }
+
+  public void setValue(String value){
+    checkServer(!value.equals(""),
+        this.getClass(), SEARCH_TERM_SYNTAX ,
+        "value for key '%s' must be non-empty and non-null", getKey());
+    this.value = value;
   }
 
   /**
@@ -56,7 +63,8 @@ public class SearchTerm {
   }
 
   private static List<String> parseKeyChain(String key){
-    checkArgument(key.matches(".*\\S.*"),
+    checkServer(key.matches(".*\\S.*"),
+        SearchTerm.class, SEARCH_TERM_SYNTAX,
         "The key '%s' is not acceptable. There must be at least one non-whitespace character", key);
     return DOT.splitToList(key);
   }

@@ -5,6 +5,7 @@ import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -30,6 +31,7 @@ public enum ServerErrors implements ServerError {
   DONOR_RECORD_FAILED(INTERNAL_SERVER_ERROR),
   ANALYSIS_STATE_UPDATE_FAILED(INTERNAL_SERVER_ERROR),
   FILE_RECORD_FAILED(INTERNAL_SERVER_ERROR),
+  SEARCH_TERM_SYNTAX(BAD_REQUEST),
   UNKNOWN_ERROR(INTERNAL_SERVER_ERROR);
 
   private static final Character ERROR_ID_SEPARATOR = '.';
