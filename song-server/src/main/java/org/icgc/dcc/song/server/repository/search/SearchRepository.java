@@ -16,7 +16,7 @@ public class SearchRepository {
   private final Handle handle;
   private final InfoSearchResponseMapper infoSearchResponseMapper;
 
-  public List<InfoSearchResponse> infoSearch(boolean includeInfo, @NonNull List<SearchTerm> searchTerms){
+  public List<InfoSearchResponse> infoSearch(boolean includeInfo, @NonNull Iterable<SearchTerm> searchTerms){
     val searchQueryBuilder = createSearchQueryBuilder(includeInfo);
     searchTerms.forEach(searchQueryBuilder::add);
     val query = searchQueryBuilder.build();

@@ -23,8 +23,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
-import org.icgc.dcc.song.server.model.analysis.IdSearchRequest;
+import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
@@ -189,6 +190,11 @@ public class AnalysisService {
         .flatMap(Collection::stream)
         .collect(toImmutableList());
     return searchRepository.infoSearch(includeInfo, searchTerms);
+  }
+
+  public List<InfoSearchResponse> infoSearch(@NonNull String studyId,
+      @NonNull InfoSearchRequest request){
+    return searchRepository.infoSearch(request.isIncludeInfo(), request.getSearchTerms());
   }
 
   public Analysis read(String id) {

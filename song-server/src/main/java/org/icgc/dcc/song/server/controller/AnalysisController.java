@@ -22,9 +22,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
-import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
-import org.icgc.dcc.song.server.model.analysis.IdSearchRequest;
 import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
+import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
+import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -44,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static org.icgc.dcc.song.server.model.analysis.IdSearchRequest.createIdSearchRequest;
+import static org.icgc.dcc.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -133,10 +134,17 @@ public class AnalysisController {
   @GetMapping(value = "/search/info")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public List<InfoSearchResponse> search(@PathVariable("studyId") String studyId,
-      @RequestParam(value = "includeInfo", required = true) boolean includeInfo,
+      @RequestParam(value = "includeInfo") boolean includeInfo,
       @RequestParam MultiValueMap<String, String> multiValueMap ) {
     multiValueMap.remove("includeInfo"); //Always added to map, but is redundant
     return analysisService.infoSearch(studyId,includeInfo, multiValueMap);
+  }
+
+  @PostMapping(value = "/search/info")
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public List<InfoSearchResponse> search(@PathVariable("studyId") String studyId,
+      @RequestBody InfoSearchRequest request){
+    return analysisService.infoSearch(studyId, request);
   }
 
 }
