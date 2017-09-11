@@ -22,17 +22,15 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
-import org.icgc.dcc.song.client.errors.IllegalCommandLineArgumentException;
 import org.icgc.dcc.song.client.register.Registry;
 
 import java.io.IOException;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.icgc.dcc.common.core.util.Joiners.SLASH;
 
@@ -79,45 +77,48 @@ public class SearchCommand extends Command {
 
   @Override
   public void run() throws IOException {
-    check();
-    Status status;
-    if (isIdSearchDefined()){
-      status = registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId );
-    } else if (isInfoSearchDefined()){
-      status = registry.infoSearch(config.getStudyId(), includeInfo, infoSearchTerms);
-    } else {
-      throw new IllegalCommandLineArgumentException("Must define at least one switch for the 'search' command");
+    val status = check();
+    if ( !status.hasErrors()){
+      if (isIdSearchDefined()){
+        status.save(registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId ));
+      } else if (isInfoSearchDefined()){
+        status.save(registry.infoSearch(config.getStudyId(), includeInfo, infoSearchTerms));
+      } else {
+        status.err("Must define at least one switch for the 'search' command\n");
+      }
     }
     save(status);
   }
 
-  private void check(){
+  private Status check(){
+    val status = new Status();
     if (isInfoSearchDefined()){
-      checkMutuallyExclusiveSearchTerms(SLASH.join(F_SWITCH,FILE_ID_SWITCH), fileId);
-      checkMutuallyExclusiveSearchTerms(SLASH.join(SA_SWITCH,SAMPLE_ID_SWITCH), sampleId);
-      checkMutuallyExclusiveSearchTerms(SLASH.join(SP_SWITCH,SPECIMEN_ID_SWITCH), specimenId);
-      checkMutuallyExclusiveSearchTerms(SLASH.join(D_SWITCH,DONOR_ID_SWITCH), donorId);
+      status.save(checkMutuallyExclusiveSearchTerms(SLASH.join(F_SWITCH,FILE_ID_SWITCH), fileId));
+      status.save(checkMutuallyExclusiveSearchTerms(SLASH.join(SA_SWITCH,SAMPLE_ID_SWITCH), sampleId));
+      status.save(checkMutuallyExclusiveSearchTerms(SLASH.join(SP_SWITCH,SPECIMEN_ID_SWITCH), specimenId));
+      status.save(checkMutuallyExclusiveSearchTerms(SLASH.join(D_SWITCH,DONOR_ID_SWITCH), donorId));
     } else {
-      checkIncludeInfoNotDefined();
+      status.save(checkIncludeInfoNotDefined());
     }
+    return status;
   }
 
-  private static void checkCliArgument(boolean expression, String formatMessage, Object...params){
-    if (!expression){
-      throw new IllegalCommandLineArgumentException(format(formatMessage,params));
+  private Status checkMutuallyExclusiveSearchTerms(String paramSwitch, String idModeParamValue){
+    val status = new Status();
+    if (nonNull(idModeParamValue)){
+      status.err("'%s' option and '%s' option are mutually exclusive\n",
+          paramSwitch, SLASH.join(T_SWITCH,SEARCH_TERMS_SWITCH));
     }
+    return status;
   }
 
-  private void checkMutuallyExclusiveSearchTerms(String paramSwitch, String idModeParamValue){
-    checkCliArgument(isNull(idModeParamValue),
-        "'%s' option and '%s' option are mutually exclusive",
-        paramSwitch, SLASH.join(T_SWITCH,SEARCH_TERMS_SWITCH));
-  }
-
-  private void checkIncludeInfoNotDefined(){
-    checkCliArgument(!includeInfo,
-        "the '%s/%s' option is required when using the '%s/%s' option",
-        T_SWITCH, SEARCH_TERMS_SWITCH, I_SWITCH, INFO_SWITCH);
+  private Status checkIncludeInfoNotDefined(){
+    val status = new Status();
+    if (includeInfo){
+      status.err( "the '%s/%s' option is required when using the '%s/%s' option\n",
+          T_SWITCH, SEARCH_TERMS_SWITCH, I_SWITCH, INFO_SWITCH);
+    }
+    return status;
   }
 
   private boolean isIdSearchDefined() {
