@@ -29,7 +29,6 @@ import org.icgc.dcc.song.client.command.StatusCommand;
 import org.icgc.dcc.song.client.command.SuppressCommand;
 import org.icgc.dcc.song.client.command.UploadCommand;
 import org.icgc.dcc.song.client.config.Config;
-import org.icgc.dcc.song.client.errors.IllegalCommandLineArgumentException;
 import org.icgc.dcc.song.client.register.ErrorStatusHeader;
 import org.icgc.dcc.song.client.register.Registry;
 import org.icgc.dcc.song.core.exceptions.ServerException;
@@ -107,8 +106,6 @@ public class ClientMain implements CommandLineRunner {
     } catch (ServerException ex) {
       val songError = ex.getSongError();
       command.err(errorStatusHeader.getSongServerErrorOutput(songError));
-    } catch (IllegalCommandLineArgumentException e){
-      command.err(errorStatusHeader.createMessage("CLI Error: %s", e.getMessage()));
     } catch (IOException e) {
       command.err("IO Error: %s",e.getMessage());
     } finally{

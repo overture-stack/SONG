@@ -20,10 +20,9 @@ public class SearchRepository {
     val searchQueryBuilder = createSearchQueryBuilder(includeInfo);
     searchTerms.forEach(searchQueryBuilder::add);
     val query = searchQueryBuilder.build();
-    val r = handle.createQuery(query);
-    val q = r.map(infoSearchResponseMapper);
-    val out = q.list();
-    return out;
+    return handle.createQuery(query)
+        .map(infoSearchResponseMapper)
+        .list();
   }
 
 }
