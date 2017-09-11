@@ -18,8 +18,9 @@
  */
 package org.icgc.dcc.song.server.repository.mapper;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.val;
 import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
@@ -33,19 +34,23 @@ import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.inf
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithInfo;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithoutInfo;
 
+@RequiredArgsConstructor
 public class InfoSearchResponseMapper implements ResultSetMapper<InfoSearchResponse> {
 
-  private static final int MIN_COLUMN_COUNT = 1;
+  @NonNull private final boolean includeInfo;
 
   @Override
   @SneakyThrows
   public InfoSearchResponse map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    val columnCount = r.getMetaData().getColumnCount();
-    if (columnCount > MIN_COLUMN_COUNT){
+    if (includeInfo){
       return createWithInfo(r.getString(analysis_id.name()), readTree(r.getString(info.name())));
     } else {
       return createWithoutInfo(r.getString(analysis_id.name()));
     }
+  }
+
+  public static InfoSearchResponseMapper createInfoSearchResponseMapper(boolean includeInfo) {
+    return new InfoSearchResponseMapper(includeInfo);
   }
 
 }

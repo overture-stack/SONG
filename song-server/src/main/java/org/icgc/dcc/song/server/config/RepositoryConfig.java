@@ -18,7 +18,6 @@
  */
 package org.icgc.dcc.song.server.config;
 
-import lombok.val;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
@@ -89,7 +88,7 @@ public class RepositoryConfig {
 
   @Bean
   public SearchRepository searchRepository(DBI dbi){
-    return new SearchRepository(dbi.open(), new InfoSearchResponseMapper());
+    return new SearchRepository(dbi.open());
   }
 
 }
