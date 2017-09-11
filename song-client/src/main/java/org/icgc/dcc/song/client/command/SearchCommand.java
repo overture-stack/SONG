@@ -23,26 +23,44 @@ import com.beust.jcommander.Parameters;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
 import org.icgc.dcc.song.client.register.Registry;
 
 import java.io.IOException;
 
+import static java.util.Objects.nonNull;
+
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Search for analysis objects for the current studyId" )
 public class SearchCommand extends Command {
 
-  @Parameter(names = { "-f", "--file-id" }, required = false)
+  private static final String F_SWITCH =  "-f";
+  private static final String SA_SWITCH =  "-sa";
+  private static final String SP_SWITCH =  "-sp";
+  private static final String D_SWITCH =  "-d";
+  private static final String A_SWITCH =  "-a";
+  private static final String FILE_ID_SWITCH  = "--file-id" ;
+  private static final String SAMPLE_ID_SWITCH = "--sample-id" ;
+  private static final String SPECIMEN_ID_SWITCH = "--specimen-id" ;
+  private static final String DONOR_ID_SWITCH =  "--donor-id" ;
+  private static final String ANALYSIS_ID_SWITCH = "--analysis-id" ;
+
+
+  @Parameter(names = { F_SWITCH, FILE_ID_SWITCH }, required = false)
   private String fileId;
 
-  @Parameter(names = { "-sa", "--sample-id" }, required = false)
+  @Parameter(names = { SA_SWITCH, SAMPLE_ID_SWITCH }, required = false)
   private String sampleId;
 
-  @Parameter(names = { "-sp", "--specimen-id" }, required = false)
+  @Parameter(names = { SP_SWITCH, SPECIMEN_ID_SWITCH }, required = false)
   private String specimenId;
 
-  @Parameter(names = { "-d", "--donor-id" }, required = false)
+  @Parameter(names = { D_SWITCH, DONOR_ID_SWITCH }, required = false)
   private String donorId;
+
+  @Parameter(names = { A_SWITCH, ANALYSIS_ID_SWITCH }, required = false)
+  private String analysisId;
 
   @NonNull
   private Registry registry;
@@ -52,8 +70,37 @@ public class SearchCommand extends Command {
 
   @Override
   public void run() throws IOException {
-    val status = registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId );
+    val status = checkOnlyAnalysisIdSwitch();
+    if (!status.hasErrors()){
+      if (isAnalysisIdMode()){
+        status.save(registry.getAnalysis(config.getStudyId(), analysisId));
+      } else {
+        status.save(registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId ));
+      }
+    }
     save(status);
+  }
+
+  private boolean isAnalysisIdMode(){
+    return nonNull(analysisId);
+  }
+
+  private Status checkOnlyAnalysisIdSwitch(){
+    val status = new Status();
+    status.save(checkParamNotDefined(F_SWITCH, FILE_ID_SWITCH, fileId));
+    status.save(checkParamNotDefined(SA_SWITCH, SAMPLE_ID_SWITCH, sampleId));
+    status.save(checkParamNotDefined(SP_SWITCH, SPECIMEN_ID_SWITCH, specimenId));
+    status.save(checkParamNotDefined(D_SWITCH, DONOR_ID_SWITCH, donorId));
+    return status;
+  }
+
+  private Status checkParamNotDefined(String shortSwitch, String longSwitch,  Object param){
+    val status = new Status();
+    if (isAnalysisIdMode() && nonNull(param)){
+        status.err("the %s/%s switch and the %s/%s switch are mutually exclusive\n",
+            shortSwitch,longSwitch, A_SWITCH, ANALYSIS_ID_SWITCH);
+    }
+    return status;
   }
 
 }
