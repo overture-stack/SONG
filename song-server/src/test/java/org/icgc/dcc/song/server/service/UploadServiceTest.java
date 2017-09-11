@@ -36,7 +36,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.nio.file.Files;
 
 import static java.lang.String.format;
-import static java.lang.System.out;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -72,7 +71,7 @@ public class UploadServiceTest {
 
   @Test
   public void testSyncUploadNoCreated(){
-    val fileName = "sequencingRead.json";
+    val fileName = "documents/search/sequencingread1.json";
     val study="ABC123";
     val json = readFile(fileName);
     val uploadStatus = uploadService.upload(study, json, false );
