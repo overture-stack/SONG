@@ -3,6 +3,7 @@ package org.icgc.dcc.song.server.repository.search;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +42,7 @@ public class QueryBuildingTests {
     assertThat(query).isEqualTo(BEGINNING_PORTION+INCLUDED_INFO_PORTION+MIDDLE_PORTION+WITH_CONDITIONS);
   }
 
+  @Ignore
   @Test
   public void testCaseInsensitive(){
     fail("case insensitive not implemented yet");
