@@ -20,20 +20,16 @@ package org.icgc.dcc.song.server.repository.search;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
-import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
-import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.repository.InfoRepository;
 import org.icgc.dcc.song.server.service.AnalysisService;
-import org.icgc.dcc.song.server.service.FileService;
 import org.icgc.dcc.song.server.service.UploadService;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,15 +41,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
-import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
+import static org.icgc.dcc.common.core.util.Joiners.PATH;
+import static org.icgc.dcc.song.server.repository.search.InfoSearchRequest.createInfoSearchRequest;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithInfo;
-import static org.icgc.dcc.song.server.repository.search.SearchTerm.createSearchTerm;
+import static org.icgc.dcc.song.server.repository.search.SearchTerm.parseSearchTerms;
+import static org.junit.Assert.fail;
 
 @Slf4j
 @SpringBootTest
@@ -62,66 +61,67 @@ import static org.icgc.dcc.song.server.repository.search.SearchTerm.createSearch
 @ActiveProfiles("dev")
 public class InfoSearchTest {
 
-  @Autowired
-  FileService fileService;
-  @Autowired
-  AnalysisService service;
+  private static final String STUDY = "ABC123";
+  private static final String PAYLOAD_DIR = "documents/search";
 
-  @Autowired
-  UploadService uploadService;
+  private static final Set<String> TEST_PAYLOAD_FILENAMES = newHashSet(
+      "testData_0.json",
+      "testData_1.json",
+      "testData_2.json",
+      "testData_3.json",
+      "testData_4.json",
+      "testData_5.json",
+      "testData_6.json",
+      "testData_7.json",
+      "testData_8.json"
+  );
 
-  @Autowired InfoRepository infoRepository;
+  @Autowired private AnalysisService service;
+  @Autowired private UploadService uploadService;
+  @Autowired private InfoRepository infoRepository;
 
-  @SneakyThrows
-  private String readFile(String name) {
-    return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
-  }
+  private Map<String, InfoSearchResponse> analysisRespMap;
 
-  private InfoSearchResponse loadAndCreateResponse(String study, String payloadPath) throws Exception {
-    val json = getJsonNodeFromClasspath(payloadPath);
-    val uploadStatus = uploadService.upload(study, json, false );
-    log.info(format("Got uploadStatus='%s'",uploadStatus));
-    val uploadId = fromStatus(uploadStatus,"uploadId");
-    val upload = uploadService.read(uploadId);
-    assertThat(upload.getState()).isEqualTo("VALIDATED");
-    val resp = uploadService.save(study, uploadId);
-    val analysisId = fromStatus(resp,"analysisId");
-    val info = infoRepository.read(analysisId, "Analysis");
-    return createWithInfo(analysisId, JsonUtils.readTree(info) );
+  @Before
+  public void init(){
+    if (analysisRespMap == null){//load it only once
+      this.analysisRespMap = Maps.<String, InfoSearchResponse>newHashMap();
+      for (val payloadPath : TEST_PAYLOAD_FILENAMES){
+        val expectedResponse = extractResponse(STUDY, payloadPath);
+        analysisRespMap.put(expectedResponse.getAnalysisId(), expectedResponse);
+      }
+    }
   }
 
   @Test
-  public void testMe() throws Exception {
-    val study = "ABC123";
-    val payloadPath ="documents/search/sequencingread1.json";
-    val expectedInfoSearchResponse = loadAndCreateResponse(study, payloadPath);
-    val st = createSearchTerm("name", "rob");
-    val request = InfoSearchRequest.createInfoSearchRequest(true, Lists.newArrayList(st));
-    val actualInfoSearchResponseArray = service.infoSearch(study, request );
-    assertThat(actualInfoSearchResponseArray).hasSize(1);
-    val firstActualResult = actualInfoSearchResponseArray.get(0);
-    assertThat(firstActualResult).isEqualTo(expectedInfoSearchResponse);
-    log.info("sdfsdf");
-  }
-
   @SneakyThrows
-  public String fromStatus( ResponseEntity<String> uploadStatus, String key) {
-    val uploadId = JsonUtils.readTree(uploadStatus.getBody()).at("/"+key).asText("");
-    return uploadId;
+  public void testTemplateTest(){
+    val actualResponseList = search(true,
+        "dataCategorization.dataType=SSM",
+        "dataCategorization.experimentalStrategy=WGS");
+    assertThat(actualResponseList).hasSize(1);
+    val infoSearchResponse = actualResponseList.get(0);
+    assertThat(this.analysisRespMap).containsKey(infoSearchResponse.getAnalysisId());
+    assertThat(infoSearchResponse).isEqualTo(this.analysisRespMap.get(infoSearchResponse.getAnalysisId()));
   }
 
+  @Ignore
   @Test
   public void testGreedy(){
     // 1) key1 = miss and key1 = a$
     //    - data1 has key1 = mississauga, key2 = base
     //    - data2 has key1 = missippi, key2 = missa
+    fail("not implemented yet");
   }
 
+  @Ignore
   @Test
   public void testNonGreedy(){
     // test "^rob$" and "^ro$"
+    fail("not implemented yet");
   }
 
+  @Ignore
   @Test
   public void testNested(){
     // test searching for documents with nested values
@@ -134,8 +134,10 @@ public class InfoSearchTest {
     //      }
     // 1)  key1 is address->coordinate->latitude
     // 2)  key1 is name
+    fail("not implemented yet");
   }
 
+  @Ignore
   @Test
   public void testANDing(){
     // test mutlple search terms.
@@ -148,142 +150,83 @@ public class InfoSearchTest {
     //    - data3 has key1 = missippi, key2 = unknown
     //    - data3 has key1 = toronto, key2 = male
     //    - data3 has key1 = toronto, key2 = unknown
+    fail("not implemented yet");
   }
 
+  @Ignore
   @Test
   public void testIncludeInfo(){
     // test that response has correct fields depending on includeInfo value
+    fail("not implemented yet");
   }
 
+  @Ignore
   @Test
   public void testExcludeInfo(){
     // test that response has correct fields depending on includeInfo value
+    fail("not implemented yet");
   }
 
+  @Ignore
   @Test
   public void testSyntaxErrors(){
     // create malformed search term if possible
+    fail("not implemented yet");
   }
 
-
-
+  @Ignore
   @Test
-  public void testCreateAndUpdate() {
-    val study="ABC123";
-    val json = readFile("sequencingRead.json");
-    val analysis = fromJson(json, Analysis.class);
-    val analysisId=service.create(study, analysis);
-
-    val created = service.read(analysisId);
-    assertThat(created.getAnalysisId()).isEqualTo(analysisId);
-    assertThat(created.getAnalysisState()).isEqualTo(analysis.getAnalysisState());
-    assertThat(created.getAnalysisType()).isEqualTo("sequencingRead");
-    assertThat(created.getSample().size()).isEqualTo(1);
-    val sample = created.getSample().get(0);
-    val experiment = ((SequencingReadAnalysis) created).getExperiment();
-    assertThat(experiment).isNotNull();
-    assertThat(experiment.getAlignmentTool().equals("BigWrench"));
-    assertThat(experiment.getInfo()).isEqualTo(JsonUtils.fromSingleQuoted("{'notes':'N/A'}"));
-
-;    // test update
-    val change="ModifiedToolName";
-    experiment.setAlignmentTool(change);
-    service.updateAnalysis(study, created);
-    val gotBack = service.read(analysisId);
-    val experiment2 =((SequencingReadAnalysis)gotBack).getExperiment();
-    assertThat(experiment2.getAlignmentTool() ).isEqualTo(change);
-
-    log.info(format("Created '%s'",toJson(created)));
+  public void testArrayNonGreedy(){
+    // test that a field that contains an array, can be searched for a non-greedy pattern, and if one or more items
+    // it, the analysis id is returned. for example. info.info->>'study' ~ '^PCA$'
+    fail("not implemented yet");
   }
 
+  @Ignore
   @Test
-  public void testCreateAndUpdateVariantCall() {
-    val study="ABC123";
-    val json = readFile("variantCall.json");
-    val analysis = fromJson(json, Analysis.class);
-    val analysisId=service.create(study, analysis);
+  public void testArrayGreedy(){
+    // test that a field that contains an array, can be searched for a GREEDY pattern...
+    fail("not implemented yet");
+  }
 
-    val created = service.read(analysisId);
-    assertThat(created.getAnalysisId()).isEqualTo(analysisId);
-    assertThat(created.getAnalysisState()).isEqualTo(analysis.getAnalysisState());
-    assertThat(created.getAnalysisType()).isEqualTo("variantCall");
-    assertThat(created.getSample().size()).isEqualTo(1);
-    val sample = created.getSample().get(0);
-    val experiment = ((VariantCallAnalysis) created).getExperiment();
-    assertThat(experiment).isNotNull();
-    assertThat(experiment.getVariantCallingTool()).isEqualTo("silver bullet");
-    assertThat(experiment.getInfo()).isEqualTo(
-            JsonUtils.fromSingleQuoted("{'notes':'we can put anything we want as extra JSON fields'}"));
-    // test update
-    val change="GoldenHammer";
-    experiment.setVariantCallingTool(change) ;
-    service.updateAnalysis(study, created);
-    val gotBack = service.read(analysisId);
-    val experiment2 =((VariantCallAnalysis)gotBack).getExperiment();
-    assertThat(experiment2.getVariantCallingTool()).isEqualTo(change);
+  private InfoSearchResponse loadAndCreateResponse1(String study, String payloadString) throws Exception {
+    val uploadStatus = uploadService.upload(study, payloadString, false );
+    log.info(format("Got uploadStatus='%s'",uploadStatus));
+    val uploadId = fromStatus(uploadStatus,"uploadId");
+    val upload = uploadService.read(uploadId);
+    assertThat(upload.getState()).isEqualTo("VALIDATED");
+    val resp = uploadService.save(study, uploadId);
+    val analysisId = fromStatus(resp,"analysisId");
+    val info = infoRepository.read(analysisId, "Analysis");
+    return createWithInfo(analysisId, JsonUtils.readTree(info) );
+  }
 
-    log.info(format("Created '%s'",toJson(created)));
+  @SneakyThrows
+  private List<InfoSearchResponse> search(boolean includeInfo, String ... searchTermStrings){
+    val searchTerms = parseSearchTerms(searchTermStrings);
+    val req = createInfoSearchRequest(includeInfo, searchTerms);
+    return service.infoSearch(STUDY, req);
+  }
+
+  @SneakyThrows
+  private InfoSearchResponse extractResponse(String study, String payloadPath){
+    val testDataPath = PATH.join(PAYLOAD_DIR, payloadPath);
+    val testDataString = getJsonNodeFromClasspath(testDataPath);
+    return loadAndCreateResponse1(study, testDataString);
   }
 
 
-  @Test
-  public void testRead() {
-    // test sequencing read
-    val id1="AN1";
-    val json1 = readFile("existingVariantCall.json");
-    val analysis1 = service.read(id1);
-    assertThat(analysis1.getAnalysisId()).isEqualTo("AN1");
-    //assertThat(analysis1.getAnalysisState()).isEqualTo("UNPUBLISHED");
-    assertThat(analysis1.getAnalysisType()).isEqualTo("variantCall");
-    assertThat(analysis1.getStudy()).isEqualTo("ABC123");
-    assertThat(analysis1.getSample().size()).isEqualTo(2);
-    assertThat(analysis1.getInfo()).isEqualTo("{}");
-    assertThat(analysis1.getFile().size()).isEqualTo(2);
-    assertThat(analysis1).isInstanceOf(VariantCallAnalysis.class);
-    val experiment1 = ((VariantCallAnalysis) analysis1).getExperiment();
-    assertThat(experiment1).isNotNull();
-    assertThat(experiment1.getVariantCallingTool()).isEqualTo("SuperNewVariantCallingTool");
-
-
-    // test variant call
-    val id2="AN2";
-    val json2 = readFile("existingSequencingRead.json");
-    val analysis2 = service.read(id2);
-    assertThat(analysis2.getAnalysisId()).isEqualTo("AN2");
-    //assertThat(analysis2.getAnalysisState()).isEqualTo("UNPUBLISHED");
-    assertThat(analysis2.getAnalysisType()).isEqualTo("sequencingRead");
-    assertThat(analysis2.getFile().size()).isEqualTo(2);
-    assertThat(analysis2).isInstanceOf(SequencingReadAnalysis.class);
-    val experiment2 = ((SequencingReadAnalysis) analysis2).getExperiment();
-    assertThat(experiment2).isNotNull();
-    assertThat(experiment2.getAlignmentTool()).isEqualTo("BigWrench");
-
-    //checkRead(id2, fromJson(json2, Analysis.class));
-
-    // test not found
-    val id3="ANDOESNTEXIST";
-    val analysis3 = service.read(id3);
-    assertThat(analysis3).isNull();
+  @SneakyThrows
+  private String fromStatus( ResponseEntity<String> uploadStatus, String key) {
+    val uploadId = JsonUtils.readTree(uploadStatus.getBody()).at("/"+key).asText("");
+    return uploadId;
   }
 
-
-  public String getJsonNodeFromClasspath(String name) throws Exception {
+  private static String getJsonNodeFromClasspath(String name) throws Exception {
     InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
     ObjectMapper mapper = new ObjectMapper();
     JsonNode node = mapper.readTree(is1);
     return mapper.writeValueAsString(node);
-  }
-
-  @Test
-  public void testReadFiles() {
-    val files = service.readFiles("AN1");
-    System.err.printf("Got files '%s'", files);
-    val expectedFiles = new ArrayList<File>();
-    expectedFiles.add(fileService.read("FI1"));
-    expectedFiles.add(fileService.read("FI2"));
-
-    Assertions.assertThat(files).containsAll(expectedFiles);
-    assertThat(expectedFiles).containsAll(files);
   }
 
 }
