@@ -7,7 +7,7 @@ import lombok.val;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.analysis_id;
@@ -28,7 +28,7 @@ public class SearchQueryBuilder {
   private static final String STATEMENT_END = ";";
 
   private final boolean includeInfoField;
-  private final Set<SearchTerm> searchTerms = newHashSet();
+  private final Set<SearchTerm> searchTerms = newLinkedHashSet();
 
   /**
    * Builds the query based on the current configuration

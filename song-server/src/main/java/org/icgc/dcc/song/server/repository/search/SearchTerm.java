@@ -2,12 +2,14 @@ package org.icgc.dcc.song.server.repository.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.base.Splitter;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
 
 import java.util.List;
 
+import static java.util.Arrays.stream;
 import static java.util.Collections.EMPTY_LIST;
 import static org.icgc.dcc.common.core.util.Splitters.DOT;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
@@ -19,6 +21,8 @@ import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SearchTerm {
+
+  private static final Splitter EQUALS_SPLITTER = Splitter.on('=');
 
   @NonNull @Getter private String key;
   @NonNull @Getter private String value;
@@ -74,6 +78,17 @@ public class SearchTerm {
     st.setKey(key);
     st.setValue(value);
     return st;
+  }
+
+  public static SearchTerm parseSearchTerm(String keyValuePair){
+    val list = EQUALS_SPLITTER.limit(2).splitToList(keyValuePair);
+    return createSearchTerm(list.get(0), list.get(1));
+  }
+
+  public static List<SearchTerm> parseSearchTerms(String ... keyValuePairs){
+    return stream(keyValuePairs)
+        .map(SearchTerm::parseSearchTerm)
+        .collect(toImmutableList());
   }
 
   public static List<SearchTerm> createMultiSearchTerms(@NonNull String key, @NonNull List<String> values) {
