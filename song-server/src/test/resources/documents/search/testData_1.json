@@ -38,5 +38,5 @@
     "fileSize" : 2394,
     "fileMd5sum" : "22de0f976538a9b7c8d93"
   } ],
-  "info" : "{\"access\":\"controlled\",\"dataCategorization\":{\"dataType\":\"SGV\",\"experimentalStrategy\":\"WGS\"},\"referenceGenome\":{\"genomeBuild\":\"GRCh37\",\"referenceName\":\"hs37d5\",\"downloadUrl\":\"ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz\"},\"analysisMethod\":{\"analysisType\":\"Variant calling\",\"software\":\"Broad variant call pipeline\"},\"study\":[\"PCAWG\"]}"
+  "info" : "{\"access\":\"controlled\",\"dataCategorization\":{\"dataType\":\"SGV\",\"experimentalStrategy\":\"WGS\"},\"referenceGenome\":{\"genomeBuild\":\"GRCh37\",\"referenceName\":\"hs37d5\",\"downloadUrl\":\"ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz\"},\"analysisMethod\":{\"analysisType\":\"Variant calling\",\"software\":\"Broad variant call pipeline\"},\"study\":[\"PCAWG\",\"EGA\"]}"
 }
