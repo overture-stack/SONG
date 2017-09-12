@@ -71,7 +71,7 @@ public class UploadServiceTest {
 
   @Test
   public void testSyncUploadNoCreated(){
-    val fileName = "documents/search/sequencingread1.json";
+    val fileName = "sequencingRead.json";
     val study="ABC123";
     val json = readFile(fileName);
     val uploadStatus = uploadService.upload(study, json, false );
