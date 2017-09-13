@@ -75,7 +75,7 @@ public class ExistenceServiceTest {
     mockServer.createContext(format("/upload/%s", OBJECT_ID1), createNormalMockDccStorageHandler(true, TOKEN));
     mockServer.createContext(format("/upload/%s", OBJECT_ID2), createNormalMockDccStorageHandler(false, TOKEN));
     mockServer.start();
-    val exi = createExistenceService(retryTemplate, mockServerUrl, REQUEST_CON_TIMEOUT);
+    val exi = createExistenceService(retryTemplate, mockServerUrl);
     assertThat(exi.isObjectExist(TOKEN, OBJECT_ID1)).isTrue();
     assertThat(exi.isObjectExist(TOKEN, OBJECT_ID2)).isFalse();
     assertThat(countingRetryListener.getErrorCount()).isEqualTo(0);
@@ -125,7 +125,7 @@ public class ExistenceServiceTest {
     //Create HttpServer that mocks dcc-storage /upload endpoint
     mockServer.createContext(format("/upload/%s", OBJECT_ID1), handler);
     mockServer.start();
-    val exi = createExistenceService(retryTemplate, mockServerUrl, REQUEST_CON_TIMEOUT);
+    val exi = createExistenceService(retryTemplate, mockServerUrl);
     assertThat(exi.isObjectExist(TOKEN, OBJECT_ID1)).isTrue();
     val seconds = 1;
     mockServer.stop(seconds);
