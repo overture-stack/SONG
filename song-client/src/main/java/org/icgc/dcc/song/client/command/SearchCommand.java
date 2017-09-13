@@ -29,10 +29,13 @@ import org.icgc.dcc.song.client.register.Registry;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.nonNull;
-import static org.icgc.dcc.common.core.util.Joiners.SLASH;
+import static org.icgc.dcc.song.client.command.rules.ModeRule.createModeRule;
+import static org.icgc.dcc.song.client.command.rules.ParamTerm.createParamTerm;
+import static org.icgc.dcc.song.client.command.rules.RuleProcessor.createRuleProcessor;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Search for analysis objects for the current studyId" )
@@ -43,6 +46,7 @@ public class SearchCommand extends Command {
   private static final String D_SWITCH = "-d";
   private static final String I_SWITCH = "-i";
   private static final String T_SWITCH = "-t";
+  private static final String A_SWITCH =  "-a";
 
   private static final String FILE_ID_SWITCH = "--file-id";
   private static final String SAMPLE_ID_SWITCH = "--sample-id";
@@ -50,6 +54,8 @@ public class SearchCommand extends Command {
   private static final String DONOR_ID_SWITCH = "--donor-id";
   private static final String INFO_SWITCH = "--info";
   private static final String SEARCH_TERMS_SWITCH = "--search-terms";
+  private static final String ANALYSIS_ID_SWITCH = "--analysis-id" ;
+
 
   @Parameter(names = { F_SWITCH, FILE_ID_SWITCH }, required = false)
   private String fileId;
@@ -62,6 +68,9 @@ public class SearchCommand extends Command {
 
   @Parameter(names = { D_SWITCH, DONOR_ID_SWITCH }, required = false)
   private String donorId;
+
+  @Parameter(names = { A_SWITCH, ANALYSIS_ID_SWITCH }, required = false)
+  private String analysisId;
 
   @Parameter(names = { I_SWITCH, INFO_SWITCH }, required = false)
   private boolean includeInfo = false;
@@ -77,12 +86,14 @@ public class SearchCommand extends Command {
 
   @Override
   public void run() throws IOException {
-    val status = check();
+    val status = checkRules();
     if ( !status.hasErrors()){
-      if (isIdSearchDefined()){
+      if (isIdSearchMode()){
         status.save(registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId ));
-      } else if (isInfoSearchDefined()){
+      } else if (isInfoSearchMode()) {
         status.save(registry.infoSearch(config.getStudyId(), includeInfo, infoSearchTerms));
+      } else if (isAnalysisSearchMode()){
+        status.save(registry.getAnalysis(config.getStudyId(), analysisId));
       } else {
         status.err("Must define at least one switch for the 'search' command\n");
       }
@@ -90,46 +101,42 @@ public class SearchCommand extends Command {
     save(status);
   }
 
-  private Status check(){
-    val status = new Status();
-    if (isInfoSearchDefined()){
-      status.save(checkMutuallyExclusiveSearchTerms(SLASH.join(F_SWITCH,FILE_ID_SWITCH), fileId));
-      status.save(checkMutuallyExclusiveSearchTerms(SLASH.join(SA_SWITCH,SAMPLE_ID_SWITCH), sampleId));
-      status.save(checkMutuallyExclusiveSearchTerms(SLASH.join(SP_SWITCH,SPECIMEN_ID_SWITCH), specimenId));
-      status.save(checkMutuallyExclusiveSearchTerms(SLASH.join(D_SWITCH,DONOR_ID_SWITCH), donorId));
-    } else {
-      status.save(checkIncludeInfoNotDefined());
-    }
-    return status;
+
+  private boolean isInfoSearchMode(){
+    return infoSearchTerms.size() > 0;
   }
 
-  private Status checkMutuallyExclusiveSearchTerms(String paramSwitch, String idModeParamValue){
-    val status = new Status();
-    if (nonNull(idModeParamValue)){
-      status.err("'%s' option and '%s' option are mutually exclusive\n",
-          paramSwitch, SLASH.join(T_SWITCH,SEARCH_TERMS_SWITCH));
-    }
-    return status;
+  private boolean isAnalysisSearchMode(){
+    return nonNull(analysisId);
   }
 
-  private Status checkIncludeInfoNotDefined(){
-    val status = new Status();
-    if (includeInfo){
-      status.err( "the '%s/%s' option is required when using the '%s/%s' option\n",
-          T_SWITCH, SEARCH_TERMS_SWITCH, I_SWITCH, INFO_SWITCH);
-    }
-    return status;
-  }
-
-  private boolean isIdSearchDefined() {
+  private boolean isIdSearchMode(){
     return nonNull(fileId)
         || nonNull(sampleId)
         || nonNull(specimenId)
         || nonNull(donorId);
   }
 
-  private boolean isInfoSearchDefined(){
-    return infoSearchTerms.size() > 0;
+  private static final String ANALYSIS_MODE = "ANALYSIS_MODE";
+  private static final String ID_MODE = "ID_MODE";
+  private static final String INFO_MODE = "INFO_MODE";
+
+  private Status checkRules() {
+    val fileTerm = createParamTerm(F_SWITCH, FILE_ID_SWITCH, fileId, Objects::nonNull);
+    val sampleTerm = createParamTerm(SA_SWITCH, SAMPLE_ID_SWITCH, sampleId, Objects::nonNull);
+    val specimenTerm = createParamTerm(SP_SWITCH, SPECIMEN_ID_SWITCH, specimenId, Objects::nonNull);
+    val donorTerm = createParamTerm(D_SWITCH, DONOR_ID_SWITCH, donorId, Objects::nonNull);
+    val analysisIdTerm = createParamTerm(A_SWITCH, ANALYSIS_ID_SWITCH, analysisId, Objects::nonNull);
+    val infoTerm = createParamTerm(I_SWITCH, INFO_SWITCH, includeInfo, x -> x);
+    val searchTerm = createParamTerm(T_SWITCH, SEARCH_TERMS_SWITCH, infoSearchTerms, x -> x.size() > 0);
+
+
+    val idSearchMode = createModeRule(ID_MODE, fileTerm, sampleTerm, specimenTerm, donorTerm);
+    val infoSearchMode = createModeRule(INFO_MODE, infoTerm, searchTerm);
+    val analysisSearchMode = createModeRule(ANALYSIS_MODE, analysisIdTerm);
+    val ruleProcessor = createRuleProcessor(idSearchMode, infoSearchMode, analysisSearchMode);
+    return ruleProcessor.check();
+
   }
 
 }

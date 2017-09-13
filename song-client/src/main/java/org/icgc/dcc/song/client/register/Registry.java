@@ -82,6 +82,11 @@ public class Registry {
     return restClient.get(accessToken, url);
   }
 
+  public Status getAnalysis(String studyId, String analysisId) {
+    val url = endpoint.getAnalysis(studyId, analysisId);
+    return restClient.get(accessToken, url);
+  }
+
   /**
    * Returns true if the SONG server is running, otherwise false.
    * @return boolean
