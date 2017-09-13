@@ -60,14 +60,16 @@ public class ServerExceptionHandler {
   }
 
   private static String generateRequestUrlWithParams(HttpServletRequest request){
-    val requestUrl = request.getRequestURL();
-    val params = request.getParameterMap()
-        .entrySet()
-        .stream()
-        .map(x -> createUrlParams(x.getKey(), x.getValue()))
-        .flatMap(Collection::stream)
-        .collect(joining(AMPERSAND));
-    return requestUrl+QUESTION_MARK+params;
+    val requestUrl = request.getRequestURL().toString();
+    val paramEntries = request.getParameterMap().entrySet();
+    if (paramEntries.size() > 0){
+      val params = paramEntries.stream()
+          .map(x -> createUrlParams(x.getKey(), x.getValue()))
+          .flatMap(Collection::stream)
+          .collect(joining(AMPERSAND));
+      return requestUrl+QUESTION_MARK+params;
+    }
+    return requestUrl;
   }
 
   private static List<String> createUrlParams(String key, String ... values){
