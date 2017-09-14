@@ -95,7 +95,7 @@ public class InfoSearchTest {
 
   @Test
   @SneakyThrows
-  public void testTemplateTest(){
+  public void testBasicTermSearch(){
     val actualResponseList = search(true,
         "dataCategorization.dataType=SSM",
         "dataCategorization.experimentalStrategy=WGS");
@@ -103,90 +103,6 @@ public class InfoSearchTest {
     val infoSearchResponse = actualResponseList.get(0);
     assertThat(this.analysisRespMap).containsKey(infoSearchResponse.getAnalysisId());
     assertThat(infoSearchResponse).isEqualTo(this.analysisRespMap.get(infoSearchResponse.getAnalysisId()));
-  }
-
-  @Ignore
-  @Test
-  public void testGreedy(){
-    // 1) key1 = miss and key1 = a$
-    //    - data1 has key1 = mississauga, key2 = base
-    //    - data2 has key1 = missippi, key2 = missa
-    fail("not implemented yet");
-  }
-
-  @Ignore
-  @Test
-  public void testNonGreedy(){
-    // test "^rob$" and "^ro$"
-    fail("not implemented yet");
-  }
-
-  @Ignore
-  @Test
-  public void testNested(){
-    // test searching for documents with nested values
-    //      data:
-    //      { "name" : "rob",
-    //        "address" : { "coordinate" : { "latitude" : 10.0 ,  "longitude" : 12.0 } }
-    //      }
-    //      { "name" : "alex",
-    //        "address" : { "coordinate" : { "latitude" : 17.0 ,  "longitude" : 32.0 } }
-    //      }
-    // 1)  key1 is address->coordinate->latitude
-    // 2)  key1 is name
-    fail("not implemented yet");
-  }
-
-  @Ignore
-  @Test
-  public void testANDing(){
-    // test mutlple search terms.
-    // 1) key1 = miss and key1 = a$
-    //    - data1 has key1 = mississauga, key2 = base
-    //    - data2 has key1 = missippi, key2 = missa
-    // 2) key1 = miss and key2 = male
-    //    - data1 has key1 = mississauga, key2 = male
-    //    - data2 has key1 = missippi, key2 = male
-    //    - data3 has key1 = missippi, key2 = unknown
-    //    - data3 has key1 = toronto, key2 = male
-    //    - data3 has key1 = toronto, key2 = unknown
-    fail("not implemented yet");
-  }
-
-  @Ignore
-  @Test
-  public void testIncludeInfo(){
-    // test that response has correct fields depending on includeInfo value
-    fail("not implemented yet");
-  }
-
-  @Ignore
-  @Test
-  public void testExcludeInfo(){
-    // test that response has correct fields depending on includeInfo value
-    fail("not implemented yet");
-  }
-
-  @Ignore
-  @Test
-  public void testSyntaxErrors(){
-    // create malformed search term if possible
-    fail("not implemented yet");
-  }
-
-  @Ignore
-  @Test
-  public void testArrayNonGreedy(){
-    // test that a field that contains an array, can be searched for a non-greedy pattern, and if one or more items
-    // it, the analysis id is returned. for example. info.info->>'study' ~ '^PCA$'
-    fail("not implemented yet");
-  }
-
-  @Ignore
-  @Test
-  public void testArrayGreedy(){
-    // test that a field that contains an array, can be searched for a GREEDY pattern...
-    fail("not implemented yet");
   }
 
   private InfoSearchResponse loadAndCreateResponse1(String study, String payloadString) throws Exception {
