@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 SING_EXE="./sing"
 ROOT_LOC="song-server/src/test/resources/documents/search"
 $SING_EXE upload  -f "$ROOT_LOC/testData_0.json" | cut -d '"' -f 8 | xargs ./sing save -u

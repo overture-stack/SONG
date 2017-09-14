@@ -26,7 +26,6 @@ import org.icgc.dcc.song.server.repository.SampleRepository;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.icgc.dcc.song.server.repository.UploadRepository;
-import org.icgc.dcc.song.server.repository.mapper.InfoSearchResponseMapper;
 import org.icgc.dcc.song.server.repository.search.SearchRepository;
 import org.skife.jdbi.v2.DBI;
 import org.springframework.beans.factory.annotation.Autowired;

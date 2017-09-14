@@ -37,16 +37,15 @@ public enum ServerErrors implements ServerError {
   private static final Character ERROR_ID_SEPARATOR = '.';
   private static final String REGEX = "[A-Z0-9_]+";
 
-  @NonNull private final String errorId;
-  @NonNull private final HttpStatus httpStatus;
+  private final String errorId;
+  private final HttpStatus httpStatus;
 
-  ServerErrors(HttpStatus httpStatus){
+  ServerErrors(@NonNull HttpStatus httpStatus){
     this.httpStatus = httpStatus;
     this.errorId = extractErrorId(this.name());
   }
 
-
-  public static String extractErrorId(String errorId){
+  public static String extractErrorId(@NonNull String errorId){
     checkArgument(errorId.matches(REGEX),
         "The errorId [%s] must follow the regex: %s", errorId, REGEX);
     return errorId.toLowerCase().replaceAll("_",".");

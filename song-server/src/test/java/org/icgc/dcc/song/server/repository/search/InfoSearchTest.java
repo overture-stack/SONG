@@ -29,7 +29,6 @@ import org.icgc.dcc.song.server.repository.InfoRepository;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.icgc.dcc.song.server.service.UploadService;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,6 @@ import static org.icgc.dcc.common.core.util.Joiners.PATH;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchRequest.createInfoSearchRequest;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithInfo;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.parseSearchTerms;
-import static org.junit.Assert.fail;
 
 @Slf4j
 @SpringBootTest

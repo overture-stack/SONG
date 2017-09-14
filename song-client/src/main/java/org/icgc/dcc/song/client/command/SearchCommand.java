@@ -40,6 +40,17 @@ import static org.icgc.dcc.song.client.command.rules.RuleProcessor.createRulePro
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Search for analysis objects for the current studyId" )
 public class SearchCommand extends Command {
+
+  /**
+   * Mode Name Constants
+   */
+  private static final String ANALYSIS_MODE = "ANALYSIS_MODE";
+  private static final String ID_MODE = "ID_MODE";
+  private static final String INFO_MODE = "INFO_MODE";
+
+  /**
+   * Short Switch Constants
+   */
   private static final String F_SWITCH = "-f";
   private static final String SA_SWITCH = "-sa";
   private static final String SP_SWITCH = "-sp";
@@ -48,6 +59,9 @@ public class SearchCommand extends Command {
   private static final String T_SWITCH = "-t";
   private static final String A_SWITCH =  "-a";
 
+  /**
+   * Long Switch Constants
+   */
   private static final String FILE_ID_SWITCH = "--file-id";
   private static final String SAMPLE_ID_SWITCH = "--sample-id";
   private static final String SPECIMEN_ID_SWITCH = "--specimen-id";
@@ -101,7 +115,6 @@ public class SearchCommand extends Command {
     save(status);
   }
 
-
   private boolean isInfoSearchMode(){
     return infoSearchTerms.size() > 0;
   }
@@ -117,10 +130,6 @@ public class SearchCommand extends Command {
         || nonNull(donorId);
   }
 
-  private static final String ANALYSIS_MODE = "ANALYSIS_MODE";
-  private static final String ID_MODE = "ID_MODE";
-  private static final String INFO_MODE = "INFO_MODE";
-
   private Status checkRules() {
     val fileTerm = createParamTerm(F_SWITCH, FILE_ID_SWITCH, fileId, Objects::nonNull);
     val sampleTerm = createParamTerm(SA_SWITCH, SAMPLE_ID_SWITCH, sampleId, Objects::nonNull);
@@ -130,13 +139,11 @@ public class SearchCommand extends Command {
     val infoTerm = createParamTerm(I_SWITCH, INFO_SWITCH, includeInfo, x -> x);
     val searchTerm = createParamTerm(T_SWITCH, SEARCH_TERMS_SWITCH, infoSearchTerms, x -> x.size() > 0);
 
-
     val idSearchMode = createModeRule(ID_MODE, fileTerm, sampleTerm, specimenTerm, donorTerm);
     val infoSearchMode = createModeRule(INFO_MODE, infoTerm, searchTerm);
     val analysisSearchMode = createModeRule(ANALYSIS_MODE, analysisIdTerm);
     val ruleProcessor = createRuleProcessor(idSearchMode, infoSearchMode, analysisSearchMode);
     return ruleProcessor.check();
-
   }
 
 }

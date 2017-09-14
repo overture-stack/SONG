@@ -9,6 +9,7 @@ import lombok.val;
 
 import java.util.List;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Arrays.stream;
 import static java.util.Collections.EMPTY_LIST;
 import static org.icgc.dcc.common.core.util.Splitters.DOT;
@@ -34,8 +35,9 @@ public class SearchTerm {
     this.keyChain = parseKeyChain(key);
   }
 
+
   public void setValue(String value){
-    checkServer(!value.equals(""),
+    checkServer(!isNullOrEmpty(value),
         this.getClass(), SEARCH_TERM_SYNTAX ,
         "value for key '%s' must be non-empty and non-null", getKey());
     this.value = value;
