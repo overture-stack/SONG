@@ -58,7 +58,7 @@ import static org.junit.Assert.fail;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev","test"})
 public class InfoSearchTest {
 
   private static final String STUDY = "ABC123";
