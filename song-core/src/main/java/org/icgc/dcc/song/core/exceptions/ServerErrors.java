@@ -1,6 +1,5 @@
 package org.icgc.dcc.song.core.exceptions;
 
-import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 
@@ -13,7 +12,6 @@ import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
-@Getter
 public enum ServerErrors implements ServerError {
 
   UPLOAD_REPOSITORY_CREATE_RECORD(UNPROCESSABLE_ENTITY),
@@ -43,6 +41,14 @@ public enum ServerErrors implements ServerError {
   ServerErrors(@NonNull HttpStatus httpStatus){
     this.httpStatus = httpStatus;
     this.errorId = extractErrorId(this.name());
+  }
+
+  public String getErrorId() {
+    return errorId;
+  }
+
+  public HttpStatus getHttpStatus() {
+    return httpStatus;
   }
 
   public static String extractErrorId(@NonNull String errorId){
