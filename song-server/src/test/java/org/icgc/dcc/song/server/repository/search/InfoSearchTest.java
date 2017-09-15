@@ -18,8 +18,6 @@
  */
 package org.icgc.dcc.song.server.repository.search;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +37,6 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +48,8 @@ import static org.icgc.dcc.common.core.util.Joiners.PATH;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchRequest.createInfoSearchRequest;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithInfo;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.parseSearchTerms;
+import static org.icgc.dcc.song.server.utils.TestFiles.SEARCH_TEST_DIR;
+import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 
 @Slf4j
 @SpringBootTest
@@ -60,7 +59,6 @@ import static org.icgc.dcc.song.server.repository.search.SearchTerm.parseSearchT
 public class InfoSearchTest {
 
   private static final String STUDY = "ABC123";
-  private static final String PAYLOAD_DIR = "documents/search";
 
   private static final Set<String> TEST_PAYLOAD_FILENAMES = newHashSet(
       "testData_0.json",
@@ -124,8 +122,8 @@ public class InfoSearchTest {
 
   @SneakyThrows
   private InfoSearchResponse extractResponse(String study, String payloadPath){
-    val testDataPath = PATH.join(PAYLOAD_DIR, payloadPath);
-    val testDataString = getJsonNodeFromClasspath(testDataPath);
+    val testDataPath = PATH.join(SEARCH_TEST_DIR, payloadPath);
+    val testDataString = getJsonStringFromClasspath(testDataPath);
     return loadAndCreateResponse1(study, testDataString);
   }
 
@@ -134,13 +132,6 @@ public class InfoSearchTest {
   private String fromStatus( ResponseEntity<String> uploadStatus, String key) {
     val uploadId = JsonUtils.readTree(uploadStatus.getBody()).at("/"+key).asText("");
     return uploadId;
-  }
-
-  private static String getJsonNodeFromClasspath(String name) throws Exception {
-    InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode node = mapper.readTree(is1);
-    return mapper.writeValueAsString(node);
   }
 
 }

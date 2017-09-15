@@ -1,45 +1,75 @@
 package org.icgc.dcc.song.server.repository.search;
 
 import com.google.common.collect.Lists;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.icgc.dcc.common.core.util.Joiners.PATH;
 import static org.icgc.dcc.song.server.repository.search.SearchQueryBuilder.createSearchQueryBuilder;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiSearchTerms;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.createSearchTerm;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.parseSearchTerm;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.parseSearchTerms;
+import static org.icgc.dcc.song.server.utils.TestFiles.SEARCH_TEST_DIR;
+import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
 @Slf4j
 public class QueryBuildingTests {
 
-  private static final String BEGINNING_PORTION = "SELECT analysis.id AS analysis_id ";
-  private static final String INCLUDED_INFO_PORTION = ", info.info AS info " ;
-  private static final String MIDDLE_PORTION =
-      "FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis'";
-  private static final String WITH_CONDITIONS = " AND info.info->>'key1' ~ '.*value1$' AND info.info->'key2'->'key3'->>'key4' ~ '" + ".*value2\\d+';";
-  private static final String WITHOUT_CONDITIONS = ";";
+  private static final String TEST_NAME = "testName";
+  private static final String QUERY = "query";
+  private static final String KEY_CHAIN1 = "key1";
+  private static final String VALUE1 = ".*value1$";
+  private static final String KEY_CHAIN2= "key2.key3.key4";
+  private static final String VALUE2 = ".*value2\\d+";
+  private static final String EXPECTED_QUERIES_PATHNAME = "expectedSearchQueries.json";
+  private static Map<String, String > EXPECTED_TEST_QUERY_MAP = newHashMap();
+
+  @Rule
+  public TestName testName = new TestName();
+
+  @BeforeClass
+  @SneakyThrows
+  public static void init(){
+    val json = getJsonNodeFromClasspath(PATH.join(SEARCH_TEST_DIR, EXPECTED_QUERIES_PATHNAME));
+    for(val testData : json){
+      val testname = testData.path(TEST_NAME).textValue().replaceAll(".*/", "");
+      val expectedQuery = testData.path(QUERY).textValue();
+      checkNotNull(testname);
+      checkNotNull(expectedQuery);
+      checkState(!EXPECTED_TEST_QUERY_MAP.containsKey(testname),
+          "The golden json test fixture '%s' should not have duplicate entries of '%s'",
+          EXPECTED_QUERIES_PATHNAME, testname );
+      EXPECTED_TEST_QUERY_MAP.put(testname, expectedQuery);
+    }
+  }
 
   @Test
   public void testSearchQueryEmptyNoInfo(){
-    val query = createQuery(false, true);
-    assertThat(query).isEqualTo(BEGINNING_PORTION+MIDDLE_PORTION+WITHOUT_CONDITIONS);
+    runTest(false, true);
   }
 
   @Test
   public void testSearchQueryEmptyIncludeInfo(){
-    val query = createQuery(true, true);
-    assertThat(query).isEqualTo(BEGINNING_PORTION+INCLUDED_INFO_PORTION+MIDDLE_PORTION+WITHOUT_CONDITIONS);
+    runTest(true, true);
   }
 
   @Test
   public void testSearchQueryBasicIncludeInfo(){
-    val query = createQuery(true, false);
-    assertThat(query).isEqualTo(BEGINNING_PORTION+INCLUDED_INFO_PORTION+MIDDLE_PORTION+WITH_CONDITIONS);
+    runTest(true, false);
   }
 
   @Ignore
@@ -50,8 +80,7 @@ public class QueryBuildingTests {
 
   @Test
   public void testSearchQueryBasicNoInfo(){
-    val query = createQuery(false, false);
-    assertThat(query).isEqualTo(BEGINNING_PORTION+MIDDLE_PORTION+WITH_CONDITIONS);
+    runTest(false, false);
   }
 
   @Test
@@ -105,17 +134,32 @@ public class QueryBuildingTests {
     assertThat(st2.getValue()).isEqualTo("r=t");
   }
 
-  private static String createQuery(boolean includeInfoField, boolean isEmpty){
-    val searchQueryBuilder = createSearchQueryBuilder(includeInfoField);
-    if (!isEmpty){
-      searchQueryBuilder.add("key1", ".*value1$");
-      searchQueryBuilder.add("key2.key3.key4", ".*value2\\d+");
-    }
-    val query = searchQueryBuilder.build();
-    log.debug(query);
-    return query;
+  private String getCurrentTestName(){
+    return testName.getMethodName();
   }
 
+  private String getExpectedTestQuery(){
+    val thisTestName = getCurrentTestName();
+    checkState(EXPECTED_TEST_QUERY_MAP.containsKey(thisTestName),
+        "The expected query for this testname '%s' does not exist in the golden json test fixture '%s'",
+        thisTestName, EXPECTED_QUERIES_PATHNAME );
+    return  EXPECTED_TEST_QUERY_MAP.get(thisTestName);
+  }
 
+  private void runTest(boolean includeInfoField, boolean isEmpty){
+    val query = createQuery(includeInfoField, isEmpty);
+    assertThat(query).isEqualTo(getExpectedTestQuery());
+  }
+
+  private String createQuery(boolean includeInfoField, boolean isEmpty){
+    val searchQueryBuilder = createSearchQueryBuilder(includeInfoField);
+    if (!isEmpty){
+      searchQueryBuilder.add(KEY_CHAIN1, VALUE1);
+      searchQueryBuilder.add(KEY_CHAIN2, VALUE2);
+    }
+    val query = searchQueryBuilder.build();
+    log.debug("{}: {}",getCurrentTestName(), query);
+    return query;
+  }
 
 }
