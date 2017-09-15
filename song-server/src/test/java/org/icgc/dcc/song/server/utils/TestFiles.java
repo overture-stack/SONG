@@ -1,7 +1,6 @@
 package org.icgc.dcc.song.server.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 
 import java.io.InputStream;
@@ -13,7 +12,6 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 public class TestFiles {
 
   public static final String SEARCH_TEST_DIR = "documents/search";
-  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   @SneakyThrows
   public static String getJsonStringFromClasspath(String name) {
