@@ -30,4 +30,17 @@ public class ServerException extends RuntimeException {
     return new ServerException(songError);
   }
 
+  public static void checkServer(boolean expression, String context, ServerError serverError, String formattedMessage,
+      Object...args ){
+    if (!expression){
+      throw buildServerException(context, serverError, formattedMessage, args);
+    }
+  }
+
+  public static void checkServer(boolean expression, Class<?> clazz, ServerError serverError, String formattedMessage, Object...args ){
+      if (!expression){
+        throw buildServerException(clazz, serverError, formattedMessage, args);
+      }
+  }
+
 }

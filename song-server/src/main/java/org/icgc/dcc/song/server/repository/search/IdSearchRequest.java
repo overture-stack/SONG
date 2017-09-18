@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.model.analysis;
+package org.icgc.dcc.song.server.repository.search;
 
 import lombok.Data;
 

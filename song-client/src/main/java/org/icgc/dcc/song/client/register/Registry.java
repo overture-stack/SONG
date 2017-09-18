@@ -123,4 +123,9 @@ public class Registry {
     return restClient.get(accessToken, url);
   }
 
+  public Status infoSearch(String studyId, boolean includeInfo, Iterable<String> searchTerms){
+    val url = endpoint.infoSearch(studyId,includeInfo, searchTerms);
+    return restClient.get(accessToken, url);
+  }
+
 }

@@ -93,4 +93,10 @@ public class Endpoint {
     return format("%s/studies/%s/analysis/search/id?%s", serverUrl, studyId, params);
   }
 
+  public String infoSearch(@NonNull String studyId,
+      final boolean includeInfo, @NonNull Iterable<String> searchTerms){
+    val params = AMPERSAND_JOINER.join(searchTerms);
+    return format("%s/studies/%s/analysis/search/info?includeInfo=%s&%s", serverUrl, studyId, includeInfo, params);
+  }
+
 }

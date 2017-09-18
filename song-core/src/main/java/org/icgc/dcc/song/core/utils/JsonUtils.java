@@ -30,6 +30,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
@@ -58,6 +59,10 @@ public class JsonUtils {
 
   public static JsonNode readTree(String json) throws  IOException {
     return mapper.readTree(json);
+  }
+
+  public static JsonNode readTree(InputStream in) throws  IOException {
+    return mapper.readTree(in);
   }
 
   public static ObjectNode ObjectNode() {

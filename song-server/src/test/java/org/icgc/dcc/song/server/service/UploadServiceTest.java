@@ -36,7 +36,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.nio.file.Files;
 
 import static java.lang.String.format;
-import static java.lang.System.out;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
 

@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
-import org.icgc.dcc.song.server.model.analysis.IdSearchRequest;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
@@ -32,14 +31,21 @@ import org.icgc.dcc.song.server.model.enums.AnalysisStates;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
+import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
+import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
+import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
+import org.icgc.dcc.song.server.repository.search.SearchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_STATE_UPDATE_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
@@ -47,6 +53,7 @@ import static org.icgc.dcc.song.core.exceptions.SongError.error;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiSearchTerms;
 
 @Slf4j
 @Service
@@ -71,6 +78,9 @@ public class AnalysisService {
   private final FileService fileService;
   @Autowired
   private final ExistenceService existence;
+
+  @Autowired
+  private final SearchRepository searchRepository;
 
 
   public String create(String studyId, Analysis a) {
@@ -170,6 +180,21 @@ public class AnalysisService {
         request.getSampleId(),
         request.getFileId() );
     return processAnalysisList(analysisList);
+  }
+
+  public List<InfoSearchResponse> infoSearch(@NonNull String studyId,
+      boolean includeInfo, @NonNull MultiValueMap<String, String> multiKeyValueMap){
+    val searchTerms = multiKeyValueMap.entrySet()
+        .stream()
+        .map(x -> createMultiSearchTerms(x.getKey(), x.getValue()))
+        .flatMap(Collection::stream)
+        .collect(toImmutableList());
+    return searchRepository.infoSearch(includeInfo, searchTerms);
+  }
+
+  public List<InfoSearchResponse> infoSearch(@NonNull String studyId,
+      @NonNull InfoSearchRequest request){
+    return searchRepository.infoSearch(request.isIncludeInfo(), request.getSearchTerms());
   }
 
   public Analysis read(String id) {
@@ -294,5 +319,6 @@ public class AnalysisService {
     }
     return analysis;
   }
+
 
 }

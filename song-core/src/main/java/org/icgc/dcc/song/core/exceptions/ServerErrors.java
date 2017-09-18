@@ -1,10 +1,10 @@
 package org.icgc.dcc.song.core.exceptions;
 
-import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -12,7 +12,6 @@ import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
-@Getter
 public enum ServerErrors implements ServerError {
 
   UPLOAD_REPOSITORY_CREATE_RECORD(UNPROCESSABLE_ENTITY),
@@ -30,21 +29,29 @@ public enum ServerErrors implements ServerError {
   DONOR_RECORD_FAILED(INTERNAL_SERVER_ERROR),
   ANALYSIS_STATE_UPDATE_FAILED(INTERNAL_SERVER_ERROR),
   FILE_RECORD_FAILED(INTERNAL_SERVER_ERROR),
+  SEARCH_TERM_SYNTAX(BAD_REQUEST),
   UNKNOWN_ERROR(INTERNAL_SERVER_ERROR);
 
   private static final Character ERROR_ID_SEPARATOR = '.';
   private static final String REGEX = "[A-Z0-9_]+";
 
-  @NonNull private final String errorId;
-  @NonNull private final HttpStatus httpStatus;
+  private final String errorId;
+  private final HttpStatus httpStatus;
 
-  ServerErrors(HttpStatus httpStatus){
+  ServerErrors(@NonNull HttpStatus httpStatus){
     this.httpStatus = httpStatus;
     this.errorId = extractErrorId(this.name());
   }
 
+  public String getErrorId() {
+    return errorId;
+  }
 
-  public static String extractErrorId(String errorId){
+  public HttpStatus getHttpStatus() {
+    return httpStatus;
+  }
+
+  public static String extractErrorId(@NonNull String errorId){
     checkArgument(errorId.matches(REGEX),
         "The errorId [%s] must follow the regex: %s", errorId, REGEX);
     return errorId.toLowerCase().replaceAll("_",".");
