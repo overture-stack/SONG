@@ -41,6 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SerializationTest {
 
+  private static final String FILEPATH = "src/test/resources/fixtures/";
+
   @Test
   @SneakyThrows
   public void testConvertValue() {
@@ -211,7 +213,7 @@ public class SerializationTest {
 
   @Test
   public void testSequencingReadAnalysisFromJson() throws IOException {
-    val json = readFile("sequencingRead.json");
+    val json = readFile(FILEPATH + "sequencingRead.json");
     val analysis = JsonUtils.fromJson(json, Analysis.class);
 
     System.out.printf("*** Analysis object='%s'\n",analysis);
@@ -230,7 +232,7 @@ public class SerializationTest {
 
   @Test
   public void testVariantCallAnalysisFromJson() throws IOException {
-    val json =readFile("variantCall.json");
+    val json =readFile(FILEPATH + "variantCall.json");
     val analysis = JsonUtils.fromJson(json, Analysis.class);
     System.out.printf("*** Analysis object='%s'\n",analysis);
     assertThat(analysis.getAnalysisType()).isEqualTo("variantCall");
