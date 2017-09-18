@@ -1,0 +1,1 @@
+java  -jar ../../../../song-server/target/*.jar --security.basic.enabled=false --spring.profiles.active="dev,test" --logging.level.root=WARN --logging-level.org.icgc-dcc=INFO 

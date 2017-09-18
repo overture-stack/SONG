@@ -55,6 +55,8 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 @ActiveProfiles("dev")
 public class AnalysisServiceTest {
 
+  private static final String FILEPATH = "src/test/resources/fixtures/";
+
   @Autowired
   FileService fileService;
   @Autowired
@@ -68,7 +70,7 @@ public class AnalysisServiceTest {
   @Test
   public void testCreateAndUpdate() {
     val study="ABC123";
-    val json = readFile("sequencingRead.json");
+    val json = readFile(FILEPATH + "sequencingRead.json");
     val analysis = fromJson(json, Analysis.class);
     val analysisId=service.create(study, analysis);
 
@@ -97,7 +99,7 @@ public class AnalysisServiceTest {
   @Test
   public void testCreateAndUpdateVariantCall() {
     val study="ABC123";
-    val json = readFile("variantCall.json");
+    val json = readFile(FILEPATH + "variantCall.json");
     val analysis = fromJson(json, Analysis.class);
     val analysisId=service.create(study, analysis);
 
@@ -128,7 +130,7 @@ public class AnalysisServiceTest {
   public void testRead() {
     // test sequencing read
     val id1="AN1";
-    val json1 = readFile("existingVariantCall.json");
+    val json1 = readFile(FILEPATH + "existingVariantCall.json");
     val analysis1 = service.read(id1);
     assertThat(analysis1.getAnalysisId()).isEqualTo("AN1");
     //assertThat(analysis1.getAnalysisState()).isEqualTo("UNPUBLISHED");
@@ -145,7 +147,7 @@ public class AnalysisServiceTest {
 
     // test variant call
     val id2="AN2";
-    val json2 = readFile("existingSequencingRead.json");
+    val json2 = readFile(FILEPATH + "existingSequencingRead.json");
     val analysis2 = service.read(id2);
     assertThat(analysis2.getAnalysisId()).isEqualTo("AN2");
     //assertThat(analysis2.getAnalysisState()).isEqualTo("UNPUBLISHED");

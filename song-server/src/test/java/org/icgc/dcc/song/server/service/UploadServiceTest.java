@@ -46,6 +46,8 @@ import static org.springframework.http.HttpStatus.OK;
 @ActiveProfiles({"dev", "secure", "test"})
 public class UploadServiceTest {
 
+  private static final String FILEPATH = "../src/test/resources/fixtures/";
+
   @Autowired
   UploadService uploadService;
 
@@ -114,7 +116,7 @@ public class UploadServiceTest {
 
   @SneakyThrows
   @Test public void testAsyncUpdate() {
-    val fileName="updateAnalysisTest.json";
+    val fileName= "updateAnalysisTest.json";
     val study="ABC123";
     val json = readFile(fileName);
     val uploadStatus = uploadService.upload(study, json, false );
@@ -146,7 +148,7 @@ public class UploadServiceTest {
 
   @SneakyThrows
   @Test public void testSyncUpdate() {
-    val fileName="variantCallWithSubmitterId.json";
+    val fileName = "variantCallWithSubmitterId.json";
     val study="ABC123";
     val json = readFile(fileName);
     val uploadStatus = uploadService.upload(study, json, false );
@@ -184,7 +186,7 @@ public class UploadServiceTest {
 
   @SneakyThrows
   private String readFile(String name) {
-    return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
+    return new String(Files.readAllBytes(new java.io.File(FILEPATH, name).toPath()));
   }
 
   private String read(String uploadId) {
