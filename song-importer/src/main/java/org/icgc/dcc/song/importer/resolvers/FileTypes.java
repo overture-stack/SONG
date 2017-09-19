@@ -12,7 +12,10 @@ import static java.util.stream.Collectors.joining;
 @RequiredArgsConstructor
 public enum FileTypes {
   BAM("BAM"),
-  VCF("VCF");
+  VCF("VCF"),
+  BAI("BAI"),
+  TBI("TBI"),
+  IDX("IDX");
 
   @Getter private final String fileTypeName;
 

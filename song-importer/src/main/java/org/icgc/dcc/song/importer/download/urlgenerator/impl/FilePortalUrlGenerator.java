@@ -9,7 +9,7 @@ import java.net.URL;
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.icgc.dcc.song.importer.download.PortalFilterQuerys.COLLAB_FILTER;
+import static org.icgc.dcc.song.importer.download.PortalFilterQuerys.buildRepoFilter;
 
 @RequiredArgsConstructor
 public class FilePortalUrlGenerator implements UrlGenerator {
@@ -19,6 +19,7 @@ public class FilePortalUrlGenerator implements UrlGenerator {
   private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
 
   private final String serverUrl;
+  private final String repoName;
 
   @Override
   @SneakyThrows
@@ -32,8 +33,8 @@ public class FilePortalUrlGenerator implements UrlGenerator {
             getSizeParam(size)));
   }
 
-  public static FilePortalUrlGenerator createFilePortalUrlGenerator(String serverUrl){
-    return new FilePortalUrlGenerator(serverUrl);
+  public static FilePortalUrlGenerator createFilePortalUrlGenerator(String serverUrl, String repoName){
+    return new FilePortalUrlGenerator(serverUrl, repoName);
   }
 
   private static String getSizeParam(int size){
@@ -43,13 +44,13 @@ public class FilePortalUrlGenerator implements UrlGenerator {
     return "from="+from;
   }
 
-  private static String getFiltersParam(){
+  private String getFiltersParam(){
     return "filters="+encodeFilter();
   }
 
   @SneakyThrows
-  private static String encodeFilter(){
-    return encode(COLLAB_FILTER.toString(), UTF_8.name());
+  private String encodeFilter(){
+    return encode(buildRepoFilter(repoName).toString(), UTF_8.name());
   }
 
 

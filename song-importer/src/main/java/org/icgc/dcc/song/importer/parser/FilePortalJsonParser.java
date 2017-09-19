@@ -27,10 +27,41 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
-import static org.icgc.dcc.song.importer.parser.FieldNames.*;
+import static org.icgc.dcc.song.importer.parser.FieldNames.ACCESS;
+import static org.icgc.dcc.song.importer.parser.FieldNames.ANALYSIS_METHOD;
+import static org.icgc.dcc.song.importer.parser.FieldNames.DATA_CATEGORIZATION;
+import static org.icgc.dcc.song.importer.parser.FieldNames.DATA_TYPE;
+import static org.icgc.dcc.song.importer.parser.FieldNames.DONORS;
+import static org.icgc.dcc.song.importer.parser.FieldNames.DONOR_ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.EXPERIMENTAL_STRATEGY;
+import static org.icgc.dcc.song.importer.parser.FieldNames.FILE_COPIES;
+import static org.icgc.dcc.song.importer.parser.FieldNames.FILE_FORMAT;
+import static org.icgc.dcc.song.importer.parser.FieldNames.FILE_MD5SUM;
+import static org.icgc.dcc.song.importer.parser.FieldNames.FILE_NAME;
+import static org.icgc.dcc.song.importer.parser.FieldNames.FILE_SIZE;
+import static org.icgc.dcc.song.importer.parser.FieldNames.GENOME_BUILD;
+import static org.icgc.dcc.song.importer.parser.FieldNames.ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE;
+import static org.icgc.dcc.song.importer.parser.FieldNames.LAST_MODIFIED;
+import static org.icgc.dcc.song.importer.parser.FieldNames.OBJECT_ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.PROJECT_CODE;
+import static org.icgc.dcc.song.importer.parser.FieldNames.REFERENCE_GENOME;
+import static org.icgc.dcc.song.importer.parser.FieldNames.REFERENCE_NAME;
+import static org.icgc.dcc.song.importer.parser.FieldNames.REPO_DATA_BUNDLE_ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.REPO_METADATA_PATH;
+import static org.icgc.dcc.song.importer.parser.FieldNames.REPO_NAME;
+import static org.icgc.dcc.song.importer.parser.FieldNames.SAMPLE_ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.SOFTWARE;
+import static org.icgc.dcc.song.importer.parser.FieldNames.SPECIMEN_ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.SPECIMEN_TYPE;
+import static org.icgc.dcc.song.importer.parser.FieldNames.SUBMITTED_DONOR_ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.SUBMITTED_SAMPLE_ID;
+import static org.icgc.dcc.song.importer.parser.FieldNames.SUBMITTED_SPECIMEN_ID;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class FilePortalJsonParser {
@@ -99,8 +130,12 @@ public final class FilePortalJsonParser {
     return file.path(REFERENCE_GENOME);
   }
 
-  public static String getRepoDataBundleId(@NonNull ObjectNode file){
-    return getFirstFileCopy(file).path(REPO_DATA_BUNDLE_ID).textValue();
+  public static String getRepoDataBundleId(@NonNull ObjectNode file, @NonNull String repoName){
+    return getRepoFileCopy(file, repoName).path(REPO_DATA_BUNDLE_ID).textValue();
+  }
+
+  public static String getRepoMetadataPath(@NonNull ObjectNode file, @NonNull String repoName){
+    return getRepoFileCopy(file, repoName).path(REPO_METADATA_PATH).textValue();
   }
 
   public static Optional<String> getIndexFileId(@NonNull ObjectNode file){
@@ -169,6 +204,17 @@ public final class FilePortalJsonParser {
 
   private static JsonNode getFirstFileCopy(@NonNull ObjectNode file) {
     return getFileCopies(file).path(0);
+  }
+
+  private static JsonNode getRepoFileCopy(@NonNull ObjectNode file, @NonNull String repoName) {
+    val fileCopies = getFileCopies(file);
+    checkState(fileCopies.isArray(), "The object '%s' is not an array", fileCopies.toString() );
+    for (val fileCopy : fileCopies){
+      if (fileCopy.has(REPO_NAME) && fileCopy.get(REPO_NAME).textValue().equals(repoName)){
+        return fileCopy;
+      }
+    }
+    throw new IllegalStateException(format("Could not find the repoName '%s'", repoName));
   }
 
   private static JsonNode getDataCategorization(@NonNull ObjectNode file) {

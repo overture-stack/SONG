@@ -24,6 +24,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
+import static org.icgc.dcc.song.importer.Config.COLLAB_REPO_NAME;
 import static org.icgc.dcc.song.importer.Config.PERSISTED_DIR_PATH;
 import static org.icgc.dcc.song.importer.Config.PORTAL_API;
 import static org.icgc.dcc.song.importer.Config.PROBLEMATIC_SPECIMEN_IDS;
@@ -32,6 +33,7 @@ import static org.icgc.dcc.song.importer.download.PortalDonorIdFetcher.createPor
 import static org.icgc.dcc.song.importer.download.PortalDownloadIterator.createDefaultPortalDownloadIterator;
 import static org.icgc.dcc.song.importer.download.fetcher.DataFetcher.createDataFetcher;
 import static org.icgc.dcc.song.importer.download.fetcher.DonorFetcher.createDonorFetcher;
+import static org.icgc.dcc.song.importer.download.fetcher.FileFetcher.convertToPortalFileMetadata;
 import static org.icgc.dcc.song.importer.download.fetcher.FileFetcher.createFileFetcher;
 import static org.icgc.dcc.song.importer.download.urlgenerator.impl.FilePortalUrlGenerator.createFilePortalUrlGenerator;
 import static org.icgc.dcc.song.importer.filters.FileFilter.createFileFilter;
@@ -53,14 +55,14 @@ public class Factory {
       createObjectFileRestorer (PERSISTED_DIR_PATH, DataContainer.class);
 
   private static PortalDownloadIterator buildFilePortalDownloader(){
-    val urlGen = createFilePortalUrlGenerator(PORTAL_API);
+    val urlGen = createFilePortalUrlGenerator(PORTAL_API, COLLAB_REPO_NAME);
     return createDefaultPortalDownloadIterator(urlGen);
   }
 
   private static ArrayList<PortalFileMetadata> downloadAndConvertPortalFiles(){
     val downloader = buildFilePortalDownloader();
     return (ArrayList<PortalFileMetadata>) downloader.stream()
-        .map(FileFetcher::convertToPortalFileMetadata)
+        .map(x -> convertToPortalFileMetadata(x, COLLAB_REPO_NAME))
         .collect(toList());
   }
 
@@ -73,8 +75,8 @@ public class Factory {
 
 
   public static FileFetcher buildFileFetcher(){
-    log.info("Creating FilePortalUrlGenerator for url: {}", PORTAL_API);
-    val urlGenerator = createFilePortalUrlGenerator(PORTAL_API);
+    log.info("Creating FilePortalUrlGenerator for url '{}' and repoName '{}'", PORTAL_API, COLLAB_REPO_NAME);
+    val urlGenerator = createFilePortalUrlGenerator(PORTAL_API, COLLAB_REPO_NAME);
 
     log.info("Creating PortalDownloadIterator for FilePortalUrlGenerator");
     val portalDownloadIterator = createDefaultPortalDownloadIterator(urlGenerator);
@@ -100,7 +102,7 @@ public class Factory {
     val donorFetcher = buildDonorFetcher();
 
     log.info("Creating DataFetcher");
-    return createDataFetcher(fileFetcher,donorFetcher);
+    return createDataFetcher(COLLAB_REPO_NAME, fileFetcher,donorFetcher);
   }
 
   public static FileFilter buildFileFilter(){

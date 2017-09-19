@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.importer.download.fetcher;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -15,12 +16,13 @@ import static org.icgc.dcc.song.importer.model.DataContainer.createDataContainer
 @RequiredArgsConstructor
 public class DataFetcher {
 
-  private final FileFetcher fileFetcher;
-  private final DonorFetcher donorFetcher;
+  @NonNull private final String repoName;
+  @NonNull private final FileFetcher fileFetcher;
+  @NonNull private final DonorFetcher donorFetcher;
 
   @SneakyThrows
   public DataContainer fetchData() {
-    val portalFileMetadataListCandidate = fileFetcher.fetchPortalFileMetadatas();
+    val portalFileMetadataListCandidate = fileFetcher.fetchPortalFileMetadatas(repoName);
     val portalDonorMetadatas = donorFetcher.fetchPortalDonorMetadataSet(portalFileMetadataListCandidate);
     val goodDonorIdSet = portalDonorMetadatas
         .stream()
@@ -35,9 +37,9 @@ public class DataFetcher {
     return createDataContainer(portalDonorMetadatas, portalFileMetadatas);
   }
 
-  public static DataFetcher createDataFetcher(FileFetcher fileFetcher,
-      DonorFetcher donorFetcher) {
-    return new DataFetcher(fileFetcher, donorFetcher);
+  public static DataFetcher createDataFetcher(String repoName,
+      FileFetcher fileFetcher, DonorFetcher donorFetcher) {
+    return new DataFetcher(repoName, fileFetcher, donorFetcher);
   }
 
 }

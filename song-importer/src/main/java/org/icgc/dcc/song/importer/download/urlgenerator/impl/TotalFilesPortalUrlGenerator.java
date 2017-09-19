@@ -1,6 +1,7 @@
 package org.icgc.dcc.song.importer.download.urlgenerator.impl;
 
 import com.google.common.base.Joiner;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.icgc.dcc.song.importer.download.urlgenerator.UrlGenerator;
@@ -9,7 +10,7 @@ import java.net.URL;
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.icgc.dcc.song.importer.download.PortalFilterQuerys.COLLAB_FILTER;
+import static org.icgc.dcc.song.importer.download.PortalFilterQuerys.buildRepoFilter;
 
 @RequiredArgsConstructor
 public class TotalFilesPortalUrlGenerator implements UrlGenerator {
@@ -17,7 +18,8 @@ public class TotalFilesPortalUrlGenerator implements UrlGenerator {
   private static final String REPOSITORY_FILES_ENDPOINT = "/api/v1/repository/files/summary";
   private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
 
-  private final String serverUrl;
+  @NonNull private final String serverUrl;
+  @NonNull private final String repoName;
 
   @Override
   @SneakyThrows
@@ -29,18 +31,18 @@ public class TotalFilesPortalUrlGenerator implements UrlGenerator {
         ));
   }
 
-  public static TotalFilesPortalUrlGenerator createTotalFilesPortalUrlGenerator(String serverUrl){
-    return new TotalFilesPortalUrlGenerator(serverUrl);
+  public static TotalFilesPortalUrlGenerator createTotalFilesPortalUrlGenerator(String serverUrl, String repoName){
+    return new TotalFilesPortalUrlGenerator(serverUrl, repoName);
   }
 
 
-  private static String getFiltersParam(){
+  private String getFiltersParam(){
     return "filters="+encodeFilter();
   }
 
   @SneakyThrows
-  private static String encodeFilter(){
-    return encode(COLLAB_FILTER.toString(), UTF_8.name());
+  private String encodeFilter(){
+    return encode(buildRepoFilter(repoName).toString(), UTF_8.name());
   }
 
 }
