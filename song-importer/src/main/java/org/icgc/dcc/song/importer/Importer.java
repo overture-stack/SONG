@@ -7,6 +7,7 @@ import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.SpecimenSample
 import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
+import org.icgc.dcc.song.server.model.entity.File;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,6 @@ import static org.icgc.dcc.song.importer.Factory.FILE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SAMPLE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SPECIMEN_SAMPLE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.STUDY_CONVERTER;
-import static org.icgc.dcc.song.importer.Factory.buildDataFetcher;
 import static org.icgc.dcc.song.importer.Factory.buildFileFilter;
 import static org.icgc.dcc.song.importer.Factory.buildPersistenceFactory;
 import static org.icgc.dcc.song.importer.convert.AnalysisConverter.createAnalysisConverter;
@@ -34,16 +34,21 @@ public class Importer implements  Runnable {
 
   private static final String DATA_CONTAINER_PERSISTENCE_FN = "dataContainer.dat";
 
-  @Autowired private RepositoryDao repositoryDao;
+  @Autowired
+  private RepositoryDao repositoryDao;
+
+  @Autowired
+  private Factory factory;
 
   @Override
   public void run() {
+
 
     log.info("Building FileFilter...");
     val fileFilter = buildFileFilter();
 
     log.info("Building DataFetcher...");
-    val dataFetcher = buildDataFetcher();
+    val dataFetcher = factory.buildDataFetcher();
 
     log.info("Building PersistenceFactory...");
     val persistenceFactory = buildPersistenceFactory(dataFetcher::fetchData);
@@ -57,13 +62,17 @@ public class Importer implements  Runnable {
     log.info("Filtered out {} files",
         dataContainer.getPortalFileMetadataList().size()-filteredPortalFileMetadataList.size());
     val filteredPortalDonorMetadataList = dataContainer.getPortalDonorMetadataList();
-    val filteredDataContainer = createDataContainer(filteredPortalDonorMetadataList, filteredPortalFileMetadataList);
+    val filteredDataContainer = createDataContainer(filteredPortalDonorMetadataList,
+        filteredPortalFileMetadataList,
+        dataContainer.getDccMetadataFiles() );
+
     processStudies(filteredDataContainer.getPortalDonorMetadataSet());
     processDonors(filteredDataContainer.getPortalDonorMetadataSet());
     processSpecimensAndSamples(filteredDataContainer.getPortalFileMetadataList());
     processAnalysis(filteredDataContainer);
     processSampleSets(filteredPortalFileMetadataList);
-    processFiles(filteredDataContainer.getPortalFileMetadataList());
+    processFiles(filteredDataContainer.getPortalFileMetadataList(),
+        filteredDataContainer.getDccMetadataFiles());
 
   }
 
@@ -111,12 +120,17 @@ public class Importer implements  Runnable {
 
   }
 
-  private void processFiles(List<PortalFileMetadata> portalFileMetadataList){
+  private void processFiles(List<PortalFileMetadata> portalFileMetadataList,
+      List<File>  dccMetadataFiles ){
     log.info("Converting Files...");
     val files = FILE_CONVERTER.convertFiles(portalFileMetadataList);
 
     log.info("Updating FileRepository with {} files", files.size());
     files.forEach(repositoryDao::createFile);
+
+    log.info("Updating FileRepository with {} dccMetadata files", files.size());
+    dccMetadataFiles.forEach(repositoryDao::createFile);
+
   }
 
   private void processAnalysis(DataContainer dataContainer){

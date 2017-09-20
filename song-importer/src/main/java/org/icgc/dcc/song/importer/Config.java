@@ -17,16 +17,16 @@
  */
 package org.icgc.dcc.song.importer;
 
-import org.postgresql.jdbc3.Jdbc3SimpleDataSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import javax.sql.DataSource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
+@Configuration
 public class Config {
 
   public static final String PORTAL_API = "https://dcc.icgc.org";
@@ -35,8 +35,8 @@ public class Config {
   public static final Set<String> PROBLEMATIC_SPECIMEN_IDS = newHashSet("SP99323", "SP99331", "SP99319");
 
   @Bean
-  public DataSource dataSource(){
-    return new Jdbc3SimpleDataSource();
+  public Factory factory(){
+    return new Factory();
   }
 
 }

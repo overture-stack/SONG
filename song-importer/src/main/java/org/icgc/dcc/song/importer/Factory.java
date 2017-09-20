@@ -11,6 +11,7 @@ import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter;
 import org.icgc.dcc.song.importer.convert.StudyConverter;
 import org.icgc.dcc.song.importer.download.PortalDownloadIterator;
 import org.icgc.dcc.song.importer.download.fetcher.DataFetcher;
+import org.icgc.dcc.song.importer.download.fetcher.DccMetadataFetcher;
 import org.icgc.dcc.song.importer.download.fetcher.DonorFetcher;
 import org.icgc.dcc.song.importer.download.fetcher.FileFetcher;
 import org.icgc.dcc.song.importer.filters.FileFilter;
@@ -18,6 +19,8 @@ import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.persistence.PersistenceFactory;
 import org.icgc.dcc.song.importer.persistence.filerestorer.impl.ObjectFileRestorer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.function.Function;
@@ -42,6 +45,7 @@ import static org.icgc.dcc.song.importer.persistence.PersistenceFactory.createPe
 import static org.icgc.dcc.song.importer.persistence.filerestorer.impl.ObjectFileRestorer.createObjectFileRestorer;
 
 @Slf4j
+@Component
 public class Factory {
 
   public static final DonorConverter DONOR_CONVERTER = DonorConverter.createDonorConverter();
@@ -50,6 +54,9 @@ public class Factory {
   public static final SampleSetConverter SAMPLE_SET_CONVERTER = SampleSetConverter.createSampleSetConverter();
   public static final SpecimenSampleConverter SPECIMEN_SAMPLE_CONVERTER = createSpecimenSampleConverter();
   public static final StudyConverter STUDY_CONVERTER = StudyConverter.createStudyConverter();
+
+  @Autowired
+  private DccMetadataFetcher dccMetadataFetcher;
 
   public static final ObjectFileRestorer<DataContainer> DATA_CONTAINER_FILE_RESTORER =
       createObjectFileRestorer (PERSISTED_DIR_PATH, DataContainer.class);
@@ -93,7 +100,7 @@ public class Factory {
     return createDonorFetcher(portalDonorIdFetcher);
   }
 
-  public static DataFetcher buildDataFetcher(){
+  public DataFetcher buildDataFetcher(){
 
     log.info("Building FileFetcher");
     val fileFetcher = buildFileFetcher();
@@ -102,7 +109,7 @@ public class Factory {
     val donorFetcher = buildDonorFetcher();
 
     log.info("Creating DataFetcher");
-    return createDataFetcher(COLLAB_REPO_NAME, fileFetcher,donorFetcher);
+    return createDataFetcher(COLLAB_REPO_NAME, fileFetcher,donorFetcher, dccMetadataFetcher);
   }
 
   public static FileFilter buildFileFilter(){

@@ -45,7 +45,6 @@ import static org.icgc.dcc.song.importer.Factory.FILE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SAMPLE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SPECIMEN_SAMPLE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.STUDY_CONVERTER;
-import static org.icgc.dcc.song.importer.Factory.buildDataFetcher;
 import static org.icgc.dcc.song.importer.Factory.buildFileFilter;
 import static org.icgc.dcc.song.importer.convert.AnalysisConverter.createAnalysisConverter;
 import static org.icgc.dcc.song.importer.dao.DonorDao.createDonorDao;
@@ -68,6 +67,7 @@ public class PortalDownloaderTest {
   @Autowired private SampleRepository sampleRepository;
   @Autowired private FileRepository fileRepository;
   @Autowired private AnalysisRepository analysisRepository;
+  private Factory factory = new Factory();
 
   public static <T> Set<T> getSetDifference(Iterable<T> left, Iterable<T> right){
     val leftSet = newHashSet(left);
@@ -101,7 +101,7 @@ public class PortalDownloaderTest {
 
     val fileFilter = buildFileFilter();
     log.info("Persisting or fetching data...");
-    val dataFetcher = buildDataFetcher();
+    val dataFetcher = factory.buildDataFetcher();
     val persistenceFactory = createPersistenceFactory(DATA_CONTAINER_FILE_RESTORER, dataFetcher::fetchData);
     val dataContainer = persistenceFactory.getObject("dataContainer.dat");
     val filteredPortalFileMetadataList = fileFilter.passList(dataContainer.getPortalFileMetadataList());

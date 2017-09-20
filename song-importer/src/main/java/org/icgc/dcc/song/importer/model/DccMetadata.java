@@ -5,11 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.icgc.dcc.song.importer.resolvers.AccessTypes;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 @Value
 @RequiredArgsConstructor
-public class DccMetadata {
+public class DccMetadata implements Serializable{
 
   @NonNull private final String cls;
   @NonNull private final String id;
