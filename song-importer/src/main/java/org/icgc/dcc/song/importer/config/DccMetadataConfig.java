@@ -3,8 +3,9 @@ package org.icgc.dcc.song.importer.config;
 import com.mongodb.MongoClientURI;
 import lombok.Getter;
 import lombok.val;
-import org.icgc.dcc.song.importer.dao.DccMetadataDbDao;
-import org.icgc.dcc.song.importer.dao.DccMetadataQueryBuilder;
+import org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataDbDao;
+import org.icgc.dcc.song.importer.dao.dcc.DccMetadataQueryBuilder;
+import org.icgc.dcc.song.importer.download.fetcher.DccMetadataFetcher;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +37,10 @@ public class DccMetadataConfig {
     return new DccMetadataDbDao(this, queryBuilder);
   }
 
+  @Bean
+  public DccMetadataFetcher dccMetadataFetcher(){
+    return new DccMetadataFetcher(dccMetadataDbDao());
+  }
 
   public MongoClientURI getMongoClientURI(){
     return new MongoClientURI(String.format("mongodb://%s:%s@%s/%s", username,password,host, name));

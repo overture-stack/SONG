@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.importer.dao;
+package org.icgc.dcc.song.importer.dao.dcc.impl;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -7,16 +7,17 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bson.Document;
-import org.icgc.dcc.common.core.util.stream.Collectors;
-import org.icgc.dcc.common.core.util.stream.Streams;
 import org.icgc.dcc.song.importer.config.DccMetadataConfig;
 import org.icgc.dcc.song.importer.convert.DccMetadataConverter;
+import org.icgc.dcc.song.importer.dao.dcc.DccMetadataDao;
+import org.icgc.dcc.song.importer.dao.dcc.DccMetadataQueryBuilder;
 import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,15 +47,15 @@ public class DccMetadataDbDao implements Closeable, DccMetadataDao {
   public Optional<DccMetadata> findByObjectId(@NonNull String objectId){
     val query = dccMetadataQueryBuilder.buildIdQuery(objectId);
     return stream(mongoCollection.find(query).iterator())
-        .map(DccMetadataConverter::convert)
+        .map(DccMetadataConverter::convertToDccMetadata)
         .findFirst();
   }
 
   @Override
-  public List<DccMetadata> findByMultiObjectIds(@NonNull List<String> objectIds){
+  public List<DccMetadata> findByMultiObjectIds(@NonNull Collection<String> objectIds){
     val query = dccMetadataQueryBuilder.buildMultiIdsQuery(objectIds);
     return stream(mongoCollection.find(query).iterator())
-        .map(DccMetadataConverter::convert)
+        .map(DccMetadataConverter::convertToDccMetadata)
         .collect(toImmutableList());
   }
 

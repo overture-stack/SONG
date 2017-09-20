@@ -1,7 +1,8 @@
-package org.icgc.dcc.song.importer.dao;
+package org.icgc.dcc.song.importer.dao.dcc;
 
 import org.icgc.dcc.song.importer.model.DccMetadata;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +12,7 @@ public interface DccMetadataDao {
 
   Optional<DccMetadata> findByObjectId(String objectId);
 
-  List<DccMetadata> findByMultiObjectIds(List<String> objectIds);
+  List<DccMetadata> findByMultiObjectIds(Collection<String> objectIds);
 
   default List<DccMetadata> findByMultiObjectIds(String ... objectIds){
     return findByMultiObjectIds(newArrayList(objectIds));

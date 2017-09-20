@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.server.model.entity.File;
@@ -27,11 +28,26 @@ import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_TYPE;
 @RequiredArgsConstructor
 public class FileConverter {
 
+  private static final long NA_LONG = -1;
+
   public Set<File> convertFiles(@NonNull List<PortalFileMetadata> portalFileMetadatas){
     return portalFileMetadatas.stream()
         .map(FileConverter::convertToFiles)
         .flatMap(Collection::stream)
         .collect(toImmutableSet());
+  }
+
+  public static File convertToFile(DccMetadata dccMetadata, java.io.File file, PortalFileMetadata portalFileMetadata){
+    return File.create(
+        getFileId(dccMetadata),
+        getAnalysisId(portalFileMetadata),
+        getFileName(dccMetadata),
+        getStudyId(portalFileMetadata),
+        getFileSize(file),
+        getFileType(dccMetadata),
+        getFileMd5sum(file)
+    );
+
   }
 
   private static Set<File> convertToFiles(PortalFileMetadata portalFileMetadata){
@@ -62,6 +78,10 @@ public class FileConverter {
     return files.build();
   }
 
+  public static String getFileId(@NonNull DccMetadata dccMetadata){
+    return dccMetadata.getId();
+  }
+
   public static String getFileId(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getObjectId();
   }
@@ -70,21 +90,40 @@ public class FileConverter {
     return portalFileMetadata.getFileName();
   }
 
+  public static String getFileName(@NonNull DccMetadata dccMetadata){
+    return dccMetadata.getFileName();
+  }
+
   public static long getFileSize(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getFileSize();
+  }
+
+  public static long getFileSize(@NonNull java.io.File file){
+    return NA_LONG;
   }
 
   public static String getFileType(@NonNull PortalFileMetadata portalFileMetadata){
     return getFileTypes(portalFileMetadata).getFileTypeName();
   }
 
+  public static String getFileType(@NonNull DccMetadata dccMetadata){
+    return getFileTypes(dccMetadata).getFileTypeName();
+  }
+
   public static FileTypes getFileTypes(@NonNull PortalFileMetadata portalFileMetadata){
     return FileTypes.resolve(portalFileMetadata);
+  }
 
+  public static FileTypes getFileTypes(@NonNull DccMetadata dccMetadata){
+    return FileTypes.resolve(dccMetadata);
   }
 
   public static String getFileMd5sum(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getFileMd5sum();
+  }
+
+  public static String getFileMd5sum(@NonNull java.io.File file){
+    return NA;
   }
 
   public static String getFileInfo(){

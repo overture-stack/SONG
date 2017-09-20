@@ -1,11 +1,10 @@
-package org.icgc.dcc.song.importer.dao;
+package org.icgc.dcc.song.importer.dao.dcc;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import lombok.val;
 
 import java.util.Collection;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -14,7 +13,7 @@ public class DccMetadataQueryBuilder {
   private static final String _ID = "_id";
   private static final String IN = "$in";
 
-  public BasicDBObject buildMultiIdsQuery(List<String> ids){
+  public BasicDBObject buildMultiIdsQuery(Collection<String> ids){
     return idObject(inQuery(ids));
   }
 
