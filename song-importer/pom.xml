@@ -23,6 +23,12 @@
             <version>0.2.3-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>${mongodb.version}</version>
+        </dependency>
+
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -34,6 +40,11 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.data</groupId>-->
+            <!--<artifactId>spring-data-mongodb</artifactId>-->
+            <!--<version>1.2.0.RELEASE</version>-->
+        <!--</dependency>-->
 
         <!-- JDBC -->
         <dependency>
@@ -147,6 +158,7 @@
         <flyway-spring-test.version>4.1.0</flyway-spring-test.version>
         <postgresql.version>9.4.1208-jdbc42-atlassian-hosted</postgresql.version>
         <springfox.version>2.7.0</springfox.version>
+        <mongodb.version>2.4</mongodb.version>
 
         <!-- Spring Security oath2 -->
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
