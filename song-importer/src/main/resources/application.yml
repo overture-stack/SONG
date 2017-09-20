@@ -24,6 +24,15 @@ server:
 dcc-storage:
   url: "https://storage.cancercollaboratory.org"
 
+dcc-metadata:
+  db:
+    name: "dcc-metadata"
+    collection: "Entity"
+    host: "http://localhost:27017"
+    username: 
+    password: 
+
+
 # Management
 management:
   port: 8081
@@ -137,4 +146,4 @@ spring:
   profiles: test
   autoconfigure.exclude: SecurityConfig.class
 
-  
+
