@@ -5,9 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.importer.filters.Filter;
 import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -21,6 +22,7 @@ public class DataFetcher {
   @NonNull private final FileFetcher fileFetcher;
   @NonNull private final DonorFetcher donorFetcher;
   @NonNull private final DccMetadataFetcher dccMetadataFetcher;
+  @NonNull private final Filter<PortalFileMetadata> portalFileMetadataFilter;
 
   @SneakyThrows
   public DataContainer fetchData() {
@@ -33,8 +35,12 @@ public class DataFetcher {
 
     val portalFileMetadatas = portalFileMetadataListCandidate.stream()
         .filter(x -> goodDonorIdSet.contains(x.getDonorId()))
+        .filter(portalFileMetadataFilter::isPass)
         .collect(toList());
 
+    val numFilesFiltered = portalFileMetadataListCandidate.size() - portalFileMetadatas.size();
+    log.info("Filtered out {} files from input portalFileMetadataList with {} files",
+        numFilesFiltered, portalFileMetadataListCandidate.size());
     /**
      * Fetch dccMetadata for the final portalFileMetadata list
      */
@@ -44,10 +50,10 @@ public class DataFetcher {
     return createDataContainer(portalDonorMetadatas, portalFileMetadatas, dccMetadataFiles);
   }
 
-  @Autowired
   public static DataFetcher createDataFetcher(String repoName,
-      FileFetcher fileFetcher, DonorFetcher donorFetcher, DccMetadataFetcher dccMetadataFetcher) {
-    return new DataFetcher(repoName, fileFetcher, donorFetcher, dccMetadataFetcher);
+      FileFetcher fileFetcher, DonorFetcher donorFetcher,
+      DccMetadataFetcher dccMetadataFetcher, Filter<PortalFileMetadata> portalFileMetadataFilter) {
+    return new DataFetcher(repoName, fileFetcher, donorFetcher, dccMetadataFetcher, portalFileMetadataFilter );
   }
 
 }

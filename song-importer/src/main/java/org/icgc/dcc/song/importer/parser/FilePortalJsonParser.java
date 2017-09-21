@@ -160,7 +160,7 @@ public final class FilePortalJsonParser {
   }
 
   public static Optional<Long> getIndexFileFileSize(@NonNull ObjectNode file){
-    return getIndexFile(file, x -> x.path(FILE_MD5SUM).asLong(-1));
+    return getIndexFile(file, x -> x.path(FILE_SIZE).asLong(-1));
   }
 
   public static String getSoftware(@NonNull ObjectNode file){

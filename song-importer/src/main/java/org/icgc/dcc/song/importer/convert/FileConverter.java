@@ -22,6 +22,7 @@ import static org.icgc.dcc.song.importer.convert.StudyConverter.getStudyId;
 import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_ID;
 import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_MD5SUM;
 import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_NAME;
+import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_OBJECT_ID;
 import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_SIZE;
 import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_TYPE;
 
@@ -65,7 +66,7 @@ public class FileConverter {
 
     if (portalFileMetadata.isIndexFileComplete()){
       val indexFile = File.create(
-          getIndexFileId(portalFileMetadata),
+          getIndexFileObjectId(portalFileMetadata),
           getIndexAnalysisId(portalFileMetadata),
           getIndexFileName(portalFileMetadata),
           getIndexStudyId(portalFileMetadata),
@@ -144,6 +145,10 @@ public class FileConverter {
 
   public static String getIndexFileId(@NonNull PortalFileMetadata portalFileMetadata){
     return getIndexField(INDEX_FILE_ID, portalFileMetadata.getIndexFileId());
+  }
+
+  public static String getIndexFileObjectId(@NonNull PortalFileMetadata portalFileMetadata){
+    return getIndexField(INDEX_FILE_OBJECT_ID, portalFileMetadata.getIndexFileObjectId());
   }
 
   public static String getIndexFileName(@NonNull PortalFileMetadata portalFileMetadata){

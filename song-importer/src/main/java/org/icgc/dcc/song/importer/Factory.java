@@ -101,6 +101,9 @@ public class Factory {
 
   public DataFetcher buildDataFetcher(){
 
+    log.info("Building FileFilter...");
+    val fileFilter = buildFileFilter();
+
     log.info("Building FileFetcher");
     val fileFetcher = buildFileFetcher();
 
@@ -108,7 +111,7 @@ public class Factory {
     val donorFetcher = buildDonorFetcher();
 
     log.info("Creating DataFetcher");
-    return createDataFetcher(COLLAB_REPO_NAME, fileFetcher,donorFetcher, dccMetadataFetcher);
+    return createDataFetcher(COLLAB_REPO_NAME, fileFetcher,donorFetcher, dccMetadataFetcher, fileFilter);
   }
 
   public static FileFilter buildFileFilter(){

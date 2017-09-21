@@ -33,6 +33,7 @@ public class FieldNames {
   public static final String INDEX_FILE_FORMAT = "indexFileFormat";
   public static final String INDEX_FILE_MD5SUM = "indexFileMd5sum";
   public static final String INDEX_FILE_ID= "indexFileId";
+  public static final String INDEX_FILE_OBJECT_ID = "indexObjectId";
   public static final String INDEX_FILE_TYPE= "indexFileType";
 
   public static final String OTHER_IDENTIFIERS = "otherIdentifiers";

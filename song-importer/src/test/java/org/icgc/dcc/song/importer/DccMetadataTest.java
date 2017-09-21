@@ -64,8 +64,6 @@ public class DccMetadataTest {
     val objectId1 = "e2918e9d-a558-50cd-b199-a16b318de283";
     val file = simpleDccStorageClient.getFile(objectId1, "N/A", "NA");
     log.info("sdfsdf");
-
-
   }
 
   @Ignore

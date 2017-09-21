@@ -52,14 +52,12 @@ public class SimpleDccStorageClient {
    * State
    */
   private final Path outputDir;
-  private final long currentTime;
   private final Path tempFile;
 
   public SimpleDccStorageClient(DccStorageConfig dccStorageConfig) {
     this.dccStorageConfig = dccStorageConfig;
     this.outputDir = Paths.get(dccStorageConfig.getOutputDir()).toAbsolutePath();
     initDir(outputDir);
-    this.currentTime = System.currentTimeMillis();
     this.tempFile = createTempFile(outputDir);
   }
 
@@ -70,9 +68,8 @@ public class SimpleDccStorageClient {
     val absFilename = absFile.toString();
     checkForParentDir(absFile);
     initParentDir(absFile);
+
     val fileExists = Files.exists(absFile);
-
-
     val persist = dccStorageConfig.isPersist();
     val bypassMd5 = dccStorageConfig.isBypassMd5Check();
     val force = dccStorageConfig.isForceDownload();
@@ -85,29 +82,17 @@ public class SimpleDccStorageClient {
       if (downloadFile){
         return downloadFileByObjectId(objectId, absFilename);
       } else if (bypassMd5) {
-        log.info("File [{}] already exists but md5sum checking was disabled. Skipping download.", absFile);
+        log.debug("File [{}] already exists but md5sum checking was disabled. Skipping download.", absFile);
         return absFile.toFile();
       } else {
-        log.info("File [{}] already exists and matches checksum. Skipping download.", absFile);
+        log.debug("File [{}] already exists and matches checksum. Skipping download.", absFile);
         return absFile.toFile();
       }
     } else {
       return downloadFileByObjectId(objectId, tempFile.toAbsolutePath().toString());
     }
-
-//    if (dccStorageConfig.isPersist()) {
-//      if (md5Match) {
-//        log.info("File [{}] already exists and matches checksum. Skipping download.", absFile);
-//        return absFile.toFile();
-//      } else {
-//        return downloadFileByObjectId(objectId, absFilename);
-//      }
-//    } else {
-//      return downloadFileByObjectId(objectId, tempFile.toAbsolutePath().toString());
-//    }
   }
 
-  // Download file regardless of persist mode
   @SneakyThrows
   private File downloadFileByObjectId(@NonNull final String objectId, @NonNull final String filename) {
     val objectUrl = getObjectUrl(objectId);
