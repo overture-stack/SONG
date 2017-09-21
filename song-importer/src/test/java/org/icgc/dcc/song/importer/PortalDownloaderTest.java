@@ -67,7 +67,7 @@ public class PortalDownloaderTest {
   @Autowired private SampleRepository sampleRepository;
   @Autowired private FileRepository fileRepository;
   @Autowired private AnalysisRepository analysisRepository;
-  private Factory factory = new Factory();
+  @Autowired private Factory factory;
 
   public static <T> Set<T> getSetDifference(Iterable<T> left, Iterable<T> right){
     val leftSet = newHashSet(left);
