@@ -7,6 +7,7 @@ import lombok.val;
 import org.icgc.dcc.common.core.util.Formats;
 import org.slf4j.Logger;
 
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -168,4 +169,10 @@ public class CounterMonitor implements Countable<Integer> {
         instRate,
         avgRate);
   }
+
+  @Override
+  public <C extends Collection<?>> C streamCollectionCount(C objects) {
+    return counter.streamCollectionCount(objects);
+  }
+
 }

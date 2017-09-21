@@ -1,6 +1,5 @@
 package org.icgc.dcc.song.importer.download.fetcher;
 
-import com.google.common.collect.ImmutableSet;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -15,10 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.groupingBy;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.importer.convert.FileConverter.convertToFile;
 import static org.icgc.dcc.song.importer.measurement.CounterMonitor.newMonitor;
 import static org.icgc.dcc.song.importer.storage.SimpleDccStorageClient.calcMd5Sum;
@@ -36,25 +38,28 @@ public class DccMetadataFetcher {
   }
 
   public Set<File> fetchDccMetadataFiles(List<PortalFileMetadata> portalFileMetadatas){
-    val objectIdMap = portalFileMetadatas.stream()
-        .collect(groupingBy(DccMetadataConverter::getId));
+    val objectIdMap = groupDccMetadataIds(portalFileMetadatas);
     val dccMetadatas = dccMetadataDao.findByMultiObjectIds(objectIdMap.keySet());
 
-    val set = ImmutableSet.<File>builder();
     val counterMonitor = newMonitor("dccMetadataFiles",1000);
     counterMonitor.start();
-    for (val dccMetadata :dccMetadatas){
-      val objectId = dccMetadata.getId();
-      val portalFileMetadatasForObjectId = objectIdMap.get(objectId);
-      val file = simpleDccStorageClient.getFile(objectId,"N/A", dccMetadata.getFileName());
-      portalFileMetadatasForObjectId.stream()
-          .map(x -> buildFile(dccMetadata, file, x))
-          .forEach(set::add);
-      counterMonitor.incr(portalFileMetadatasForObjectId.size());
-    }
+    val set = dccMetadatas.stream()
+        .map(x -> processDccMetadata(x, objectIdMap))
+        .map(counterMonitor::streamCollectionCount)
+        .flatMap(Collection::stream)
+        .collect(toImmutableSet());
     counterMonitor.stop();
     counterMonitor.displaySummary();
-    return set.build();
+    return set;
+  }
+
+  private Set<File> processDccMetadata(DccMetadata dccMetadata, Map<String, List<PortalFileMetadata>> objectIdMap){
+    val objectId = dccMetadata.getId();
+    val portalFileMetadatasForObjectId = objectIdMap.get(objectId);
+    val file = simpleDccStorageClient.getFile(objectId,"N/A", dccMetadata.getFileName());
+    return portalFileMetadatasForObjectId.stream()
+        .map(x -> buildFile(dccMetadata, file, x))
+        .collect(toImmutableSet());
   }
 
   @SneakyThrows
@@ -66,5 +71,12 @@ public class DccMetadataFetcher {
     songFile.setFileMd5sum(md5sum);
     return songFile;
   }
+
+  private static Map<String, List<PortalFileMetadata>> groupDccMetadataIds(List<PortalFileMetadata>
+      portalFileMetadatas){
+    return portalFileMetadatas.stream()
+        .collect(groupingBy(DccMetadataConverter::getId));
+  }
+
 
 }

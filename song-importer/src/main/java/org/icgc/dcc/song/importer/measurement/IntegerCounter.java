@@ -1,5 +1,7 @@
 package org.icgc.dcc.song.importer.measurement;
 
+import java.util.Collection;
+
 public class IntegerCounter implements Countable<Integer> {
 
   private static final int DEFAULT_INIT_VAL = 0;
@@ -39,6 +41,12 @@ public class IntegerCounter implements Countable<Integer> {
   @Override
   public Integer getCount() {
     return count;
+  }
+
+  @Override
+  public <C extends Collection<?>> C streamCollectionCount(C objects) {
+    this.incr(objects.size());
+    return objects;
   }
 
 }
