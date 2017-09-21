@@ -1,6 +1,7 @@
 package org.icgc.dcc.song.importer;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.importer.convert.DonorConverter;
@@ -19,8 +20,6 @@ import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.persistence.PersistenceFactory;
 import org.icgc.dcc.song.importer.persistence.filerestorer.impl.ObjectFileRestorer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.function.Function;
@@ -45,7 +44,7 @@ import static org.icgc.dcc.song.importer.persistence.PersistenceFactory.createPe
 import static org.icgc.dcc.song.importer.persistence.filerestorer.impl.ObjectFileRestorer.createObjectFileRestorer;
 
 @Slf4j
-@Component
+@RequiredArgsConstructor
 public class Factory {
 
   public static final DonorConverter DONOR_CONVERTER = DonorConverter.createDonorConverter();
@@ -55,8 +54,8 @@ public class Factory {
   public static final SpecimenSampleConverter SPECIMEN_SAMPLE_CONVERTER = createSpecimenSampleConverter();
   public static final StudyConverter STUDY_CONVERTER = StudyConverter.createStudyConverter();
 
-  @Autowired
-  private DccMetadataFetcher dccMetadataFetcher;
+  private final DccMetadataFetcher dccMetadataFetcher;
+
 
   public static final ObjectFileRestorer<DataContainer> DATA_CONTAINER_FILE_RESTORER =
       createObjectFileRestorer (PERSISTED_DIR_PATH, DataContainer.class);

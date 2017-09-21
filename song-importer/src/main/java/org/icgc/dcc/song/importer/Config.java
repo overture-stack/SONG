@@ -17,8 +17,11 @@
  */
 package org.icgc.dcc.song.importer;
 
+import org.icgc.dcc.song.importer.download.fetcher.DccMetadataFetcher;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,7 +30,11 @@ import java.util.Set;
 import static com.google.common.collect.Sets.newHashSet;
 
 @Configuration
+@Lazy
 public class Config {
+
+  @Autowired
+  private DccMetadataFetcher dccMetadataFetcher;
 
   public static final String PORTAL_API = "https://dcc.icgc.org";
   public static final String COLLAB_REPO_NAME = "Collaboratory - Toronto";
@@ -36,7 +43,7 @@ public class Config {
 
   @Bean
   public Factory factory(){
-    return new Factory();
+    return new Factory(dccMetadataFetcher);
   }
 
 }

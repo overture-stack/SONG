@@ -10,12 +10,12 @@ import org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataDbDao;
 import org.icgc.dcc.song.importer.download.fetcher.DccMetadataFetcher;
 import org.icgc.dcc.song.importer.persistence.ObjectPersistance;
 import org.icgc.dcc.song.importer.resolvers.AccessTypes;
+import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.nio.file.Files;
@@ -26,9 +26,8 @@ import static org.icgc.dcc.song.importer.Factory.buildFileFilter;
 import static org.icgc.dcc.song.importer.model.DccMetadata.createDccMetadata;
 import static org.icgc.dcc.song.importer.persistence.PersistenceFactory.createPersistenceFactory;
 
-@SpringBootTest
+@SpringBootTest(classes = {DccStorageConfig.class, DccMetadataConfig.class, Config.class})
 @Slf4j
-@ContextConfiguration(classes = {DccMetadataConfig.class, DccStorageConfig.class, Config.class})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DccMetadataTest {
 
@@ -44,6 +43,9 @@ public class DccMetadataTest {
   @Autowired
   private Factory factory;
 
+  @Autowired
+  private SimpleDccStorageClient simpleDccStorageClient;
+
 
   @Test
   @SneakyThrows
@@ -54,6 +56,16 @@ public class DccMetadataTest {
     val actualDccMetadata = ObjectPersistance.restore(path);
     Assertions.assertThat(actualDccMetadata).isEqualTo(expectedDccMetadata);
     Files.deleteIfExists(path);
+  }
+
+  @Ignore
+  @Test
+  public void testStorage(){
+    val objectId1 = "e2918e9d-a558-50cd-b199-a16b318de283";
+    val file = simpleDccStorageClient.getFile(objectId1, "N/A", "NA");
+    log.info("sdfsdf");
+
+
   }
 
   @Ignore

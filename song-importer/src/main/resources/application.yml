@@ -23,14 +23,19 @@ server:
 
 dcc-storage:
   url: "https://storage.cancercollaboratory.org"
+  persist: true
+  bypassMd5Check: true
+  forceDownload: false
+  outputDir: "dcc-storage-output"
+  token:
 
 dcc-metadata:
   db:
     name: "dcc-metadata"
     collection: "Entity"
     host: "http://localhost:27017"
-    username: 
-    password: 
+    username:
+    password:
 
 
 # Management

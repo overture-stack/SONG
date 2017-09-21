@@ -28,12 +28,16 @@ import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 @Component
 public class DccMetadataDbDao implements Closeable, DccMetadataDao {
 
+  @Autowired
+  private DccMetadataConfig dccMetadataConfig;
+
+  @Autowired
+  private DccMetadataQueryBuilder dccMetadataQueryBuilder;
+
   private final MongoClientURI mongoClientURI;
   private final MongoClient mongoClient;
   private final MongoCollection<Document> mongoCollection;
-  private final DccMetadataQueryBuilder dccMetadataQueryBuilder;
 
-  @Autowired
   public DccMetadataDbDao(@NonNull DccMetadataConfig dccMetadataConfig,
       @NonNull DccMetadataQueryBuilder dccMetadataQueryBuilder) {
     this.mongoClientURI = dccMetadataConfig.getMongoClientURI();

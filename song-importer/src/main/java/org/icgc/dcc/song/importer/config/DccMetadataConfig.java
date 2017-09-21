@@ -2,10 +2,10 @@ package org.icgc.dcc.song.importer.config;
 
 import com.mongodb.MongoClientURI;
 import lombok.Getter;
-import lombok.val;
-import org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataDbDao;
 import org.icgc.dcc.song.importer.dao.dcc.DccMetadataQueryBuilder;
+import org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataDbDao;
 import org.icgc.dcc.song.importer.download.fetcher.DccMetadataFetcher;
+import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Lazy;
 @Lazy
 @Getter
 public class DccMetadataConfig {
+
 
   @Value("${dcc-metadata.db.host}")
   private String host;
@@ -32,14 +33,20 @@ public class DccMetadataConfig {
   private String password;
 
   @Bean
-  public DccMetadataDbDao dccMetadataDbDao(){
-    val queryBuilder = new DccMetadataQueryBuilder();
-    return new DccMetadataDbDao(this, queryBuilder);
+  public DccMetadataDbDao dccMetadataDbDao(DccMetadataConfig dccMetadataConfig,
+      DccMetadataQueryBuilder dccMetadataQueryBuilder){
+    return new DccMetadataDbDao(dccMetadataConfig, dccMetadataQueryBuilder);
   }
 
   @Bean
-  public DccMetadataFetcher dccMetadataFetcher(){
-    return new DccMetadataFetcher(dccMetadataDbDao());
+  public DccMetadataQueryBuilder dccMetadataQueryBuilder(){
+    return new DccMetadataQueryBuilder();
+  }
+
+  @Bean
+  public DccMetadataFetcher dccMetadataFetcher(DccMetadataDbDao dccMetadataDbDao,
+      SimpleDccStorageClient simpleDccStorageClient){
+    return new DccMetadataFetcher(dccMetadataDbDao,simpleDccStorageClient);
   }
 
   public MongoClientURI getMongoClientURI(){
