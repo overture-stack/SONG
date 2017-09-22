@@ -1,7 +1,6 @@
 package org.icgc.dcc.song.importer.dao.dcc.impl;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -28,14 +27,13 @@ public class DccMetadataDbDao implements Closeable, DccMetadataDao {
 
   private DccMetadataQueryBuilder dccMetadataQueryBuilder;
 
-  private final MongoClientURI mongoClientURI;
   private final MongoClient mongoClient;
   private final MongoCollection<Document> mongoCollection;
 
   public DccMetadataDbDao(@NonNull DccMetadataConfig dccMetadataConfig,
       @NonNull DccMetadataQueryBuilder dccMetadataQueryBuilder) {
-    this.mongoClientURI = dccMetadataConfig.getMongoClientURI();
-    this.mongoClient = new MongoClient(this.mongoClientURI);
+    val mongoClientURI = dccMetadataConfig.getMongoClientURI();
+    this.mongoClient = new MongoClient(mongoClientURI);
     val db = mongoClient.getDatabase(dccMetadataConfig.getName());
     this.mongoCollection = db.getCollection(dccMetadataConfig.getCollection());
     this.dccMetadataQueryBuilder = dccMetadataQueryBuilder;

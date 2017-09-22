@@ -6,16 +6,7 @@ public class IntegerCounter implements Countable<Integer> {
 
   private static final int DEFAULT_INIT_VAL = 0;
 
-  public static IntegerCounter newIntegerCounter(final int initVal){
-    return new IntegerCounter(initVal);
-  }
-
-  public static IntegerCounter newDefaultIntegerCounter(){
-    return newIntegerCounter(DEFAULT_INIT_VAL);
-  }
-
   private final int initVal;
-
   private int count;
 
   public IntegerCounter(final int initVal) {
@@ -48,5 +39,14 @@ public class IntegerCounter implements Countable<Integer> {
     this.incr(objects.size());
     return objects;
   }
+
+  public static IntegerCounter newIntegerCounter(final int initVal){
+    return new IntegerCounter(initVal);
+  }
+
+  public static IntegerCounter newDefaultIntegerCounter(){
+    return newIntegerCounter(DEFAULT_INIT_VAL);
+  }
+
 
 }

@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.util.Lists;
 import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.SpecimenSampleTuple;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.Study;
@@ -27,10 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.groupingBy;
@@ -132,19 +127,6 @@ public class PortalDownloaderTest {
 
     log.info("Converting Files...");
     val files = FILE_CONVERTER.convertFiles(filteredPortalFileMetadataList);
-
-    Map<String, List<String>> expectedMap = filteredPortalFileMetadataList.stream()
-        .map(x -> {
-          val list = Lists.<String>newArrayList();
-          val mainFileType = x.getFileFormat();
-          list.add(mainFileType);
-          x.getIndexFileFileFormat().ifPresent(list::add);
-          return list;
-        })
-        .flatMap(Collection::stream)
-        .collect(Collectors.groupingBy(String::toString));
-
-    val actualMap = files.stream().map(File::getFileType).collect(Collectors.groupingBy(x -> x.toString()));
 
     log.info("Converting FileSets...");
     val fileSets = FILE_SET_CONVERTER.convertFileSets(filteredPortalFileMetadataList);
