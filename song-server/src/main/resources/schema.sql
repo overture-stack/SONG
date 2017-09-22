@@ -45,7 +45,7 @@ CREATE TYPE specimen_type as ENUM(
 DROP TYPE IF EXISTS sample_type CASCADE;
 CREATE TYPE sample_type as ENUM('DNA','FFPE DNA','Amplified DNA','RNA','Total RNA','FFPE RNA');
 DROP TYPE IF EXISTS file_type CASCADE;
-CREATE TYPE file_type as ENUM('FASTA','FAI','FASTQ','BAM','BAI','VCF','TBI','IDX');
+CREATE TYPE file_type as ENUM('FASTA','FAI','FASTQ','BAM','BAI','VCF','TBI','IDX', 'XML');
 DROP TYPE IF EXISTS analysis_state CASCADE;
 CREATE TYPE analysis_state as ENUM('PUBLISHED', 'UNPUBLISHED', 'SUPPRESSED');
 DROP TYPE IF EXISTS library_strategy CASCADE;

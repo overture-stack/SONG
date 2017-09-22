@@ -23,6 +23,20 @@ server:
 
 dcc-storage:
   url: "https://storage.cancercollaboratory.org"
+  persist: true
+  bypassMd5Check: true
+  forceDownload: false
+  outputDir: "dcc-storage-output"
+  token:
+
+dcc-metadata:
+  db:
+    name: "dcc-metadata"
+    collection: "Entity"
+    host: "http://localhost:27017"
+    username:
+    password:
+
 
 # Management
 management:
@@ -39,9 +53,6 @@ validation:
     max: 10
   queue:
     capacity: 100
-
-flyway:
-  baselineOnMigrate: true
 
 validation.delayMs: 3000
 
@@ -60,36 +71,32 @@ auth:
     multiplier: 2.0
 
 ---
+spring.profiles: test
+spring:
+  profiles:
+    include: [dev]
+---
 spring.profiles: dev
 spring:
   profiles:
     include: [fastTest]
-  h2:
-    console:
-      enabled: true
-      settings:
-        web-allow-others: true
-      path: /console
+  datasource:
+    initialize: true
 
 auth:
   server:
-    uploadScope: "upload"
+    suffix: "upload"
 
 # Datasource
 spring.datasource:
-  driver-class-name: org.h2.Driver
-#  url: jdbc:h2:file:${java.io.tmpdir}/db;MULTI_THREADED=TRUE;AUTO_SERVER=TRUE;MODE=PostgreSQL;INIT=runscript from 'classpath:sql/drop_tables.sql'\;runscript from 'classpath:sql/data_types/h2.sql'\;runscript from 'classpath:sql/schema.sql'\;runscript from 'classpath:sql/insert_test_data.sql'
-#  url: jdbc:h2:file:${java.io.tmpdir}/db
-  url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
-  
+  driver-class-name: org.postgresql.Driver
+  url: jdbc:postgresql://localhost:5432/test_db?stringtype=unspecified
+
   username:
   password:
   max-active: 10
   max-idle: 1
   min-idle: 1
-
-flyway:
-  locations: db/migration/{vendor},db/migration/data
 
 ---
 
@@ -103,7 +110,7 @@ auth:
     clientSecret: "clientSecret"
     enableStrictSSL: false
     enableHttpLogging: false
-    uploadScope: "upload"
+    suffix: "upload"
 ---
 
 spring:
@@ -125,7 +132,9 @@ auth:
 
 spring:
   profiles: prod
-  
+  datasource:
+    initialize: false
+
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
@@ -142,4 +151,4 @@ spring:
   profiles: test
   autoconfigure.exclude: SecurityConfig.class
 
-  
+

@@ -28,10 +28,12 @@ import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.icgc.dcc.song.server.model.enums.Constants;
 
+import java.io.Serializable;
+
 @EqualsAndHashCode(callSuper = false)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @Data
-public class File extends Metadata {
+public class File extends Metadata implements Serializable {
 
   private String objectId = "";
   private String analysisId = "";

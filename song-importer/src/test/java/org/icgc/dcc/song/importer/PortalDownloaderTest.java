@@ -18,6 +18,7 @@ import org.icgc.dcc.song.server.repository.FileRepository;
 import org.icgc.dcc.song.server.repository.SampleRepository;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.icgc.dcc.song.server.repository.StudyRepository;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,7 +41,6 @@ import static org.icgc.dcc.song.importer.Factory.FILE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SAMPLE_SET_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SPECIMEN_SAMPLE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.STUDY_CONVERTER;
-import static org.icgc.dcc.song.importer.Factory.buildDataFetcher;
 import static org.icgc.dcc.song.importer.Factory.buildFileFilter;
 import static org.icgc.dcc.song.importer.convert.AnalysisConverter.createAnalysisConverter;
 import static org.icgc.dcc.song.importer.dao.DonorDao.createDonorDao;
@@ -49,11 +49,6 @@ import static org.icgc.dcc.song.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.importer.resolvers.FileTypes.VCF;
 
 @Slf4j
-//@SpringBootTest
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-//@FlywayTest
-//@ActiveProfiles("dev")
 public class PortalDownloaderTest {
   public static final Path PERSISTENCE_DIR_PATH = Paths.get("persistence");
 
@@ -63,6 +58,7 @@ public class PortalDownloaderTest {
   @Autowired private SampleRepository sampleRepository;
   @Autowired private FileRepository fileRepository;
   @Autowired private AnalysisRepository analysisRepository;
+  @Autowired private Factory factory;
 
   public static <T> Set<T> getSetDifference(Iterable<T> left, Iterable<T> right){
     val leftSet = newHashSet(left);
@@ -80,12 +76,10 @@ public class PortalDownloaderTest {
     return !isSame;
   }
 
-  @Test
-  public void testTest(){
 
-  }
-
+  @Ignore
   @SneakyThrows
+  @Test
   public void testFileDownload(){
 //    val totalFilesUrlGenerator= createTotalFilesPortalUrlGenerator(PORTAL_API);
 //    val resp = JsonUtils.read(totalFilesUrlGenerator.getUrl(1,1));
@@ -95,7 +89,7 @@ public class PortalDownloaderTest {
 
     val fileFilter = buildFileFilter();
     log.info("Persisting or fetching data...");
-    val dataFetcher = buildDataFetcher();
+    val dataFetcher = factory.buildDataFetcher();
     val persistenceFactory = createPersistenceFactory(DATA_CONTAINER_FILE_RESTORER, dataFetcher::fetchData);
     val dataContainer = persistenceFactory.getObject("dataContainer.dat");
     val filteredPortalFileMetadataList = fileFilter.passList(dataContainer.getPortalFileMetadataList());

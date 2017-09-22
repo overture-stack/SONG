@@ -3,6 +3,7 @@ package org.icgc.dcc.song.importer.resolvers;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 
 import static java.lang.String.format;
@@ -12,12 +13,23 @@ import static java.util.stream.Collectors.joining;
 @RequiredArgsConstructor
 public enum FileTypes {
   BAM("BAM"),
-  VCF("VCF");
+  VCF("VCF"),
+  BAI("BAI"),
+  TBI("TBI"),
+  XML("XML"),
+  IDX("IDX");
 
   @Getter private final String fileTypeName;
 
   public static FileTypes resolve(PortalFileMetadata portalFileMetadata){
     val fileFormat = portalFileMetadata.getFileFormat();
+    return resolve(fileFormat);
+  }
+
+  public static FileTypes resolve(DccMetadata dccMetadata){
+    val fileFormat = dccMetadata.getFileName()
+        .replaceAll(".*\\.", "")
+        .toUpperCase();
     return resolve(fileFormat);
   }
 

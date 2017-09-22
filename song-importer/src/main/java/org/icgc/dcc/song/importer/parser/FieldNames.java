@@ -17,16 +17,25 @@ public class FieldNames {
   public static final String ID = "id";
   public static final String DATA_TYPE = "dataType";
   public static final String DATA_CATEGORIZATION = "dataCategorization";
-  public static final String FILE_NAME = "fileName";
-  public static final String FILE_COPIES = "fileCopies";
   public static final String LAST_MODIFIED = "lastModified";
   public static final String REFERENCE_GENOME = "referenceGenome";
   public static final String REFERENCE_NAME = "referenceName";
   public static final String EXPERIMENTAL_STRATEGY= "experimentalStrategy";
   public static final String GENOME_BUILD = "genomeBuild";
+  public static final String FILE_NAME = "fileName";
+  public static final String FILE_COPIES = "fileCopies";
   public static final String FILE_SIZE = "fileSize";
   public static final String FILE_FORMAT = "fileFormat";
   public static final String FILE_MD5SUM = "fileMd5sum";
+
+  public static final String INDEX_FILE_NAME = "indexFileName";
+  public static final String INDEX_FILE_SIZE = "indexFileSize";
+  public static final String INDEX_FILE_FORMAT = "indexFileFormat";
+  public static final String INDEX_FILE_MD5SUM = "indexFileMd5sum";
+  public static final String INDEX_FILE_ID= "indexFileId";
+  public static final String INDEX_FILE_OBJECT_ID = "indexObjectId";
+  public static final String INDEX_FILE_TYPE= "indexFileType";
+
   public static final String OTHER_IDENTIFIERS = "otherIdentifiers";
   public static final String TCGA_SAMPLE_BARCODE = "tcgaSampleBarcode";
   public static final String TCGA_ALIQUOT_BARCODE= "tcgaAliquotBarcode";
@@ -51,4 +60,6 @@ public class FieldNames {
   public static final String AVAILABLE_RAW_SEQUENCE_DATA = "availableRawSequenceData";
   public static final String LIBRARY_STRATEGY= "libraryStrategy";
   public static final String REPO_DATA_BUNDLE_ID = "repoDataBundleId";
+  public static final String REPO_METADATA_PATH = "repoMetadataPath";
+  public static final String REPO_NAME = "repoName";
 }

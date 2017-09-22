@@ -14,6 +14,7 @@ public class PortalFileMetadata implements Serializable {
 
   @NonNull private final String access;
   @NonNull private final String repoDataBundleId;
+  @NonNull private final String repoMetadataPath;
   @NonNull private final String dataType;
   @NonNull private final String donorId;
   @NonNull private final String experimentalStrategy;
@@ -62,6 +63,15 @@ public class PortalFileMetadata implements Serializable {
 
   public Optional<String> getIndexFileObjectId(){
     return Optional.ofNullable(indexFileObjectId);
+  }
+
+  public boolean isIndexFileComplete(){
+    return getIndexFileId().isPresent()
+        && getIndexFileFileFormat().isPresent()
+        && getIndexFileFileMd5sum().isPresent()
+        && getIndexFileFileName().isPresent()
+        && getIndexFileFileSize().isPresent()
+        && getIndexFileObjectId().isPresent();
   }
 
 

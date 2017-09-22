@@ -2,13 +2,13 @@ package org.icgc.dcc.song.importer.download.fetcher;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Lombok;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.icgc.dcc.song.importer.download.PortalDownloadIterator;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
 import static java.util.stream.Collectors.toList;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toPrettyJson;
@@ -32,6 +32,7 @@ import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getIndexFil
 import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getObjectId;
 import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getProjectCode;
 import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getRepoDataBundleId;
+import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getRepoMetadataPath;
 import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getSampleIds;
 import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getSoftware;
 import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getSpecimenIds;
@@ -42,25 +43,23 @@ import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getSubmitte
 
 @Slf4j
 @RequiredArgsConstructor
-public class FileFetcher implements Callable<ArrayList<PortalFileMetadata>> {
+public class FileFetcher {
 
   private final PortalDownloadIterator portalDownloadIterator;
 
-  @Override public ArrayList<PortalFileMetadata> call() throws Exception {
-    return fetchPortalFileMetadatas();
-  }
 
-  public ArrayList<PortalFileMetadata> fetchPortalFileMetadatas(){
+  public ArrayList<PortalFileMetadata> fetchPortalFileMetadatas(@NonNull String repoName){
     return (ArrayList<PortalFileMetadata>)portalDownloadIterator.stream()
-        .map(FileFetcher::convertToPortalFileMetadata)
+        .map(x -> FileFetcher.convertToPortalFileMetadata(x, repoName))
         .collect(toList());
   }
 
-  public static PortalFileMetadata convertToPortalFileMetadata(ObjectNode o){
+  public static PortalFileMetadata convertToPortalFileMetadata(ObjectNode o, String repoName){
     try {
       return PortalFileMetadata.builder()
           .access              (getAccess(o))
-          .repoDataBundleId    (getRepoDataBundleId(o))
+          .repoDataBundleId    (getRepoDataBundleId(o, repoName))
+          .repoMetadataPath    (getRepoMetadataPath(o, repoName))
           .dataType            (getDataType(o))
           .donorId             (getDonorId(o))
           .experimentalStrategy(getExperimentalStrategy(o))
