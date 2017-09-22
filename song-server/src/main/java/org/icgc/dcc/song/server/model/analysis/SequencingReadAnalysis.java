@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 
 @EqualsAndHashCode(callSuper=false)
@@ -17,12 +18,14 @@ public class SequencingReadAnalysis extends Analysis {
         return "sequencingRead";
     }
 
-    public static SequencingReadAnalysis create(String id, String study, String submitter_id, String state ) {
+    public static SequencingReadAnalysis create(String id, String study, String submitter_id, String state,
+        AccessTypes access) {
         val s = new SequencingReadAnalysis();
         s.setAnalysisId(id);
         s.setStudy(study);
         s.setAnalysisSubmitterId(submitter_id);
         s.setAnalysisState(state);
+        s.setAnalysisAccess(access);
         return s;
     }
 

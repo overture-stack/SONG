@@ -19,7 +19,12 @@
 package org.icgc.dcc.song.server.model.enums;
 
 public enum IdPrefix {
-  Donor("DO"), Specimen("SP"), Sample("SA"), File("FI"), Upload("UP"), Analysis("AN");
+  DONOR_PREFIX("DO"),
+  SPECIMEN_PREFIX("SP"),
+  SAMPLE_PREFIX("SA"),
+  FILE_PREFIX("FI"),
+  UPLOAD_PREFIX("UP"),
+  ANALYSIS_PREFIX("AN");
 
   private String value;
 

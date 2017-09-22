@@ -5,13 +5,14 @@ import lombok.val;
 import org.bson.Document;
 import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
-import org.icgc.dcc.song.importer.resolvers.AccessTypes;
+import org.icgc.dcc.song.server.model.enums.AccessTypes;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.icgc.dcc.song.importer.model.DccMetadata.createDccMetadata;
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
 
 public class DccMetadataConverter {
 
@@ -52,7 +53,7 @@ public class DccMetadataConverter {
 
   public static AccessTypes getAccess(Document document){
     val accessType = getRequiredAsString(document, ACCESS);
-    return AccessTypes.resolve(accessType);
+    return resolveAccessType(accessType);
   }
 
   public static long getCreatedTime(Document document){

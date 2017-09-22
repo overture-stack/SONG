@@ -34,6 +34,7 @@ import java.util.List;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_RECORD_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
+import static org.icgc.dcc.song.server.model.enums.IdPrefix.SPECIMEN_PREFIX;
 
 @RequiredArgsConstructor
 @Service
@@ -117,7 +118,7 @@ public class SpecimenService {
   public String save(@NonNull String studyId, @NonNull Specimen specimen) {
     String specimenId = repository.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
     if (specimenId == null) {
-      specimenId = idService.generate(IdPrefix.Specimen);
+      specimenId = idService.generate(SPECIMEN_PREFIX);
       specimen.setSpecimenId(specimenId);
       repository.create(specimen);
     } else {

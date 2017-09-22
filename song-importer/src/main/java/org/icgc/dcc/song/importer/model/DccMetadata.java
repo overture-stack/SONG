@@ -3,7 +3,7 @@ package org.icgc.dcc.song.importer.model;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import org.icgc.dcc.song.importer.resolvers.AccessTypes;
+import org.icgc.dcc.song.server.model.enums.AccessTypes;
 
 import java.io.Serializable;
 import java.util.Optional;

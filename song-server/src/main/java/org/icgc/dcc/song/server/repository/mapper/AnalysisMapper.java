@@ -23,12 +23,15 @@ import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
+import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
+import static org.icgc.dcc.song.server.repository.AttributeNames.ACCESS;
 import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STATE;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STUDY_ID;
@@ -45,16 +48,21 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
     val study = r.getString(STUDY_ID );
     val type = r.getString(TYPE);
     val state = r.getString(STATE);
+    val access = getAnalysisAccess(r);
 
 
     if (type.equals("sequencingRead")) {
-      return SequencingReadAnalysis.create(id, study, submitter_id, state);
+      return SequencingReadAnalysis.create(id, study, submitter_id, state, access);
     }
     if (type.equals("variantCall")) {
-      return VariantCallAnalysis.create(id, study, submitter_id, state);
+      return VariantCallAnalysis.create(id, study, submitter_id, state, access);
     }
 
     return null;
+  }
+
+  private static AccessTypes getAnalysisAccess(ResultSet r) throws SQLException {
+    return resolveAccessType(r.getString(ACCESS));
   }
 
 }

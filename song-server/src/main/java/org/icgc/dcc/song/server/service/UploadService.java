@@ -27,7 +27,6 @@ import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
-import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +45,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALID
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.SongError.error;
+import static org.icgc.dcc.song.server.model.enums.IdPrefix.UPLOAD_PREFIX;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RequiredArgsConstructor
@@ -102,7 +102,7 @@ public class UploadService {
       }
 
       if (ids == null || ids.isEmpty()) {
-        uploadId = id.generate(IdPrefix.Upload);
+        uploadId = id.generate(UPLOAD_PREFIX);
         create(studyId, analysisSubmitterId, uploadId, payload);
       } else if (ids.size() == 1) {
         uploadId = ids.get(0);

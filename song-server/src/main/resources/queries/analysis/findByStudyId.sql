@@ -3,7 +3,8 @@ SELECT DISTINCT
   A.submitter_id,
   A.type,
   A.state,
-  A.study_id
+  A.study_id,
+  A.access
 FROM Analysis A
 WHERE
   A.study_id = :studyId
