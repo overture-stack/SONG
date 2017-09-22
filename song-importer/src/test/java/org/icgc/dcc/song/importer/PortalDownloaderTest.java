@@ -20,6 +20,7 @@ import org.icgc.dcc.song.server.repository.FileRepository;
 import org.icgc.dcc.song.server.repository.SampleRepository;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.icgc.dcc.song.server.repository.StudyRepository;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -53,11 +54,6 @@ import static org.icgc.dcc.song.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.importer.resolvers.FileTypes.VCF;
 
 @Slf4j
-//@SpringBootTest
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-//@FlywayTest
-//@ActiveProfiles({"dev", "test"})
 public class PortalDownloaderTest {
   public static final Path PERSISTENCE_DIR_PATH = Paths.get("persistence");
 
@@ -85,11 +81,8 @@ public class PortalDownloaderTest {
     return !isSame;
   }
 
-  @Test
-  public void testTest(){
 
-  }
-
+  @Ignore
   @SneakyThrows
   @Test
   public void testFileDownload(){
