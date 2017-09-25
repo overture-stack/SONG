@@ -2,6 +2,7 @@
   "study": "ABC123",
   "analysisSubmitterId": "A0001",
   "analysisType": "sequencingRead",
+  "analysisAccess" : "controlled",
   "experiment": {
     "libraryStrategy": "WXS",
     "pairedEnd": false,

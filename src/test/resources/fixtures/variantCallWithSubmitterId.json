@@ -2,6 +2,7 @@
   "study": "ABC123",
   "analysisType": "variantCall",
   "analysisSubmitterId": "VariantCall X24Alpha",
+  "analysisAccess" : "open",
   "experiment": {
     "variantCallingTool": "silver bullet",
     "matchedNormalSampleSubmitterId": "sample x24-11a"

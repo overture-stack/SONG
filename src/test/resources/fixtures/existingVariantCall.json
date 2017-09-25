@@ -2,6 +2,7 @@
   "study": "ABC123",
   "analysisId": "AN1",
   "analysisType": "variantCall",
+  "analysisAccess" : "open",
   "experiment": {
     "variantCallingTool": "SuperNewVariantCallingTool"
   },

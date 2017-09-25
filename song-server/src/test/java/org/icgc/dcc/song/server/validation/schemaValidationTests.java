@@ -46,14 +46,14 @@ public class schemaValidationTests {
   public void validate_submit_sequencing_read_missing_required() throws Exception {
     val errors = validate("schemas/sequencingRead.json",
             "documents/sequencingread-missing-required.json");
-    assertThat(errors.size()).isEqualTo(3);
+    assertThat(errors.size()).isEqualTo(4);
   }
 
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
     val errors =
         validate("schemas/sequencingRead.json", "documents/sequencingread-invalid-enum.json");
-    assertThat(errors.size()).isEqualTo(4);
+    assertThat(errors.size()).isEqualTo(5);
   }
 
   @Test
@@ -66,14 +66,14 @@ public class schemaValidationTests {
   public void validate_submit_variant_call_missing_required() throws Exception {
     val errors =
         validate("schemas/variantCall.json", "documents/variantcall-missing-required.json");
-    assertThat(errors.size()).isEqualTo(3);
+    assertThat(errors.size()).isEqualTo(4);
   }
 
   @Test
   public void validate_submit_variant_call_invalid_enum() throws Exception {
     val errors =
         validate("schemas/variantCall.json", "documents/variantcall-invalid-enum.json");
-    assertThat(errors.size()).isEqualTo(4);
+    assertThat(errors.size()).isEqualTo(5);
   }
 
   protected Set<ValidationMessage> validate(String schemaFile, String documentFile) throws Exception {
