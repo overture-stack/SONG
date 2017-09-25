@@ -10,8 +10,8 @@ import java.util.Set;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
-import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.analysis_id;
-import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.info;
+import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
+import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.INFO;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.createSearchTerm;
 
 /**
@@ -70,7 +70,7 @@ public class SearchQueryBuilder {
 
   private String generateWhereConditions(){
     return searchTerms.stream()
-        .map(x -> convertToWhereCondition(TABLE_NAME, info.name(), x))
+        .map(x -> convertToWhereCondition(TABLE_NAME, INFO.toString(), x))
         .collect(joining(AND_DELIMITER));
   }
 
@@ -95,9 +95,9 @@ public class SearchQueryBuilder {
 
   private static String generateSelectBaseQuery(boolean includeInfoField){
     val sb = new StringBuilder();
-    sb.append(format("SELECT analysis.id AS %s ", analysis_id.name()));
+    sb.append(format("SELECT analysis.id AS %s ", ANALYSIS_ID.toString()));
     if (includeInfoField){
-      sb.append(format(", info.info AS %s ", info.name()));
+      sb.append(format(", info.info AS %s ", INFO.toString()));
     }
     sb.append(format("FROM analysis INNER JOIN %s ON analysis.id = info.id WHERE info.id_type = 'Analysis'", TABLE_NAME));
     return sb.toString();

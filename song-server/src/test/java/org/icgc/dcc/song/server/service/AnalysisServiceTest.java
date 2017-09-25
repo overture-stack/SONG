@@ -47,6 +47,8 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
 
 @Slf4j
 @SpringBootTest
@@ -79,6 +81,7 @@ public class AnalysisServiceTest {
     assertThat(created.getAnalysisState()).isEqualTo(analysis.getAnalysisState());
     assertThat(created.getAnalysisType()).isEqualTo("sequencingRead");
     assertThat(created.getSample().size()).isEqualTo(1);
+    assertThat(created.getAnalysisAccess()).isEqualTo(CONTROLLED.toString());
     val sample = created.getSample().get(0);
     val experiment = ((SequencingReadAnalysis) created).getExperiment();
     assertThat(experiment).isNotNull();
@@ -108,6 +111,7 @@ public class AnalysisServiceTest {
     assertThat(created.getAnalysisState()).isEqualTo(analysis.getAnalysisState());
     assertThat(created.getAnalysisType()).isEqualTo("variantCall");
     assertThat(created.getSample().size()).isEqualTo(1);
+    assertThat(created.getAnalysisAccess()).isEqualTo(OPEN.toString());
     val sample = created.getSample().get(0);
     val experiment = ((VariantCallAnalysis) created).getExperiment();
     assertThat(experiment).isNotNull();
@@ -135,6 +139,7 @@ public class AnalysisServiceTest {
     assertThat(analysis1.getAnalysisId()).isEqualTo("AN1");
     //assertThat(analysis1.getAnalysisState()).isEqualTo("UNPUBLISHED");
     assertThat(analysis1.getAnalysisType()).isEqualTo("variantCall");
+    assertThat(analysis1.getAnalysisAccess()).isEqualTo(OPEN.toString());
     assertThat(analysis1.getStudy()).isEqualTo("ABC123");
     assertThat(analysis1.getSample().size()).isEqualTo(2);
     assertThat(analysis1.getInfo()).isEqualTo("{}");
@@ -151,6 +156,7 @@ public class AnalysisServiceTest {
     val analysis2 = service.read(id2);
     assertThat(analysis2.getAnalysisId()).isEqualTo("AN2");
     //assertThat(analysis2.getAnalysisState()).isEqualTo("UNPUBLISHED");
+    assertThat(analysis2.getAnalysisAccess()).isEqualTo(CONTROLLED.toString());
     assertThat(analysis2.getAnalysisType()).isEqualTo("sequencingRead");
     assertThat(analysis2.getFile().size()).isEqualTo(2);
     assertThat(analysis2).isInstanceOf(SequencingReadAnalysis.class);

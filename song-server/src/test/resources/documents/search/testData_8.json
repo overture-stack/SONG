@@ -1,6 +1,7 @@
 {
   "study" : "ABC123",
   "analysisType" : "sequencingRead",
+  "analysisAccess" : "open",
   "experiment" : {
     "libraryStrategy" : "WXS",
     "pairedEnd" : false,

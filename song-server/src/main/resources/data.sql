@@ -8,10 +8,10 @@ insert into Sample (id, specimen_id, submitter_id, type) values ('SA1', 'SP1', '
 insert into Sample (id, specimen_id, submitter_id, type) values ('SA11', 'SP1', 'T285-G7-B9','DNA');
 insert into Sample (id, specimen_id, submitter_id, type) values ('SA21', 'SP2', 'T285-G7N','DNA');
 
-insert into Analysis(id, study_id, state, type) values('AN1','ABC123', 'UNPUBLISHED', 'variantCall');
+insert into Analysis(id, study_id, state, type, access) values('AN1','ABC123', 'UNPUBLISHED', 'variantCall', 'open');
 insert into VariantCall(id, variant_calling_tool) values ('AN1','SuperNewVariantCallingTool');
 
-insert into Analysis(id, study_id, state, type) values ('AN2','ABC123', 'UNPUBLISHED','sequencingRead');
+insert into Analysis(id, study_id, state, type, access) values ('AN2','ABC123', 'UNPUBLISHED','sequencingRead', 'controlled');
 insert into SequencingRead (id, library_strategy, paired_end, insert_size, aligned, alignment_tool, reference_genome) values ('AN2','Other', TRUE, 12345, TRUE, 'BigWrench', 'hg19');
 
 insert into SampleSet(analysis_id, sample_id) values ('AN2','SA1');

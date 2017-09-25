@@ -26,6 +26,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.icgc.dcc.song.server.repository.InfoRepository;
+
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.ANALYSIS;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.DONOR;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.FILE;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SAMPLE;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SEQUENCING_READ;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SPECIMEN;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.STUDY;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.VARIANT_CALL;
+
 @RequiredArgsConstructor
 @Service
 abstract class InfoService {
@@ -34,15 +44,15 @@ abstract class InfoService {
   private final InfoRepository infoRepository;
 
   public String read(@NonNull String id) {
-    return infoRepository.read(id, type.name());
+    return infoRepository.read(id, type.toString());
   }
 
   public void create( @NonNull String id,  String info) {
-    infoRepository.create(id, type.name(), info);
+    infoRepository.create(id, type.toString(), info);
   }
 
   public void update(@NonNull String id, String info) {
-    infoRepository.set(id, type.name(), info);
+    infoRepository.set(id, type.toString(), info);
   }
 
   public void delete(@NonNull String id) {
@@ -55,7 +65,7 @@ abstract class InfoService {
 class StudyInfoService extends InfoService {
   @Autowired
   StudyInfoService(InfoRepository repo) {
-    super(InfoTypes.Study, repo);
+    super(STUDY, repo);
   }
 }
 
@@ -63,7 +73,7 @@ class StudyInfoService extends InfoService {
 class DonorInfoService extends InfoService {
   @Autowired
   DonorInfoService(InfoRepository repo) {
-    super(InfoTypes.Donor, repo);
+    super(DONOR, repo);
   }
 }
 
@@ -71,7 +81,7 @@ class DonorInfoService extends InfoService {
 class SpecimenInfoService extends InfoService {
   @Autowired
   SpecimenInfoService(InfoRepository repo) {
-    super(InfoTypes.Specimen, repo);
+    super(SPECIMEN, repo);
   }
 }
 
@@ -79,7 +89,7 @@ class SpecimenInfoService extends InfoService {
 class SampleInfoService extends InfoService {
   @Autowired
   SampleInfoService(InfoRepository repo) {
-    super(InfoTypes.Sample, repo);
+    super(SAMPLE, repo);
   }
 }
 
@@ -87,7 +97,7 @@ class SampleInfoService extends InfoService {
 class FileInfoService extends InfoService {
   @Autowired
   FileInfoService(InfoRepository repo) {
-    super(InfoTypes.File, repo);
+    super(FILE, repo);
   }
 }
 
@@ -95,7 +105,7 @@ class FileInfoService extends InfoService {
 class AnalysisInfoService extends InfoService {
   @Autowired
   AnalysisInfoService(InfoRepository repo) {
-    super(InfoTypes.Analysis, repo);
+    super(ANALYSIS, repo);
   }
 }
 
@@ -103,7 +113,7 @@ class AnalysisInfoService extends InfoService {
 class VariantCallInfoService extends InfoService {
   @Autowired
   VariantCallInfoService(InfoRepository repo) {
-    super(InfoTypes.VariantCall, repo);
+    super(VARIANT_CALL, repo);
   }
 }
 
@@ -111,7 +121,7 @@ class VariantCallInfoService extends InfoService {
 class SequencingReadInfoService extends InfoService {
   @Autowired
   SequencingReadInfoService(InfoRepository repo) {
-    super(InfoTypes.SequencingRead, repo);
+    super(SEQUENCING_READ, repo);
   }
 }
 

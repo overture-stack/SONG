@@ -20,14 +20,14 @@ import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static org.icgc.dcc.song.server.model.enums.InfoTypes.Analysis;
-import static org.icgc.dcc.song.server.model.enums.InfoTypes.Donor;
-import static org.icgc.dcc.song.server.model.enums.InfoTypes.File;
-import static org.icgc.dcc.song.server.model.enums.InfoTypes.Sample;
-import static org.icgc.dcc.song.server.model.enums.InfoTypes.SequencingRead;
-import static org.icgc.dcc.song.server.model.enums.InfoTypes.Specimen;
-import static org.icgc.dcc.song.server.model.enums.InfoTypes.Study;
-import static org.icgc.dcc.song.server.model.enums.InfoTypes.VariantCall;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.ANALYSIS;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.DONOR;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.FILE;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SAMPLE;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SEQUENCING_READ;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SPECIMEN;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.STUDY;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.VARIANT_CALL;
 
 @Component
 public class RepositoryDao {
@@ -42,40 +42,40 @@ public class RepositoryDao {
 
   public void createDonor(@NonNull Donor donor) {
     donorRepository.create(donor);
-    infoRepository.create(donor.getDonorId(), Donor.name(), donor.getInfo());
+    infoRepository.create(donor.getDonorId(), DONOR.toString(), donor.getInfo());
   }
 
   public void createStudy(@NonNull Study study) {
     studyRepository.create(study.getStudyId(), study.getName(), study.getOrganization(), study.getDescription());
-    infoRepository.create(study.getStudyId(), Study.name(), study.getInfo());
+    infoRepository.create(study.getStudyId(), STUDY.toString(), study.getInfo());
   }
 
   public void createSpecimen(@NonNull Specimen specimen) {
     specimenRepository.create(specimen);
-    infoRepository.create(specimen.getSpecimenId(), Specimen.name(), specimen.getInfo());
+    infoRepository.create(specimen.getSpecimenId(), SPECIMEN.toString(), specimen.getInfo());
   }
 
   public void createSample(@NonNull Sample sample) {
     sampleRepository.create(sample);
-    infoRepository.create(sample.getSampleId(), Sample.name(), sample.getInfo());
+    infoRepository.create(sample.getSampleId(), SAMPLE.toString(), sample.getInfo());
   }
 
   public void createSequencingReadAnalysis(@NonNull SequencingReadAnalysis analysis) {
     analysisRepository.createAnalysis(analysis);
-    infoRepository.create(analysis.getAnalysisId(), Analysis.name(), analysis.getInfo());
+    infoRepository.create(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfo());
 
     val sequencingRead = analysis.getExperiment();
     analysisRepository.createSequencingRead(sequencingRead);
-    infoRepository.create(sequencingRead.getAnalysisId(), SequencingRead.name(), sequencingRead.getInfo());
+    infoRepository.create(sequencingRead.getAnalysisId(), SEQUENCING_READ.toString(), sequencingRead.getInfo());
   }
 
   public void createVariantCallAnalysis(@NonNull VariantCallAnalysis analysis) {
     analysisRepository.createAnalysis(analysis);
-    infoRepository.create(analysis.getAnalysisId(), Analysis.name(), analysis.getInfo());
+    infoRepository.create(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfo());
 
     val sequencingRead = analysis.getExperiment();
     analysisRepository.createVariantCall(sequencingRead);
-    infoRepository.create(sequencingRead.getAnalysisId(), VariantCall.name(), sequencingRead.getInfo());
+    infoRepository.create(sequencingRead.getAnalysisId(), VARIANT_CALL.toString(), sequencingRead.getInfo());
   }
 
   public void createSampleSet(@NonNull SampleSet sampleSet) {
@@ -84,7 +84,7 @@ public class RepositoryDao {
 
   public void createFile(@NonNull File file) {
     fileRepository.create(file);
-    infoRepository.create(file.getObjectId(), File.name(), file.getInfo());
+    infoRepository.create(file.getObjectId(), FILE.toString(), file.getInfo());
   }
 
 }

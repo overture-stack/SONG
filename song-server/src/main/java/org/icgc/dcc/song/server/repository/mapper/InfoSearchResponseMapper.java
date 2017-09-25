@@ -29,8 +29,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.icgc.dcc.song.core.utils.JsonUtils.readTree;
-import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.analysis_id;
-import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.info;
+import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
+import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.INFO;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithInfo;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithoutInfo;
 
@@ -43,9 +43,9 @@ public class InfoSearchResponseMapper implements ResultSetMapper<InfoSearchRespo
   @SneakyThrows
   public InfoSearchResponse map(int index, ResultSet r, StatementContext ctx) throws SQLException {
     if (includeInfo){
-      return createWithInfo(r.getString(analysis_id.name()), readTree(r.getString(info.name())));
+      return createWithInfo(r.getString(ANALYSIS_ID.toString()), readTree(r.getString(INFO.toString())));
     } else {
-      return createWithoutInfo(r.getString(analysis_id.name()));
+      return createWithoutInfo(r.getString(ANALYSIS_ID.toString()));
     }
   }
 

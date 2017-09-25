@@ -5,6 +5,7 @@ public class AttributeNames {
     public static final String STUDY_ID="study_id";
     public static final String TYPE="type";
     public static final String STATE="state";
+    public static final String ACCESS="access";
     public static final String INFO="info";
 
     public static final String SUBMITTER_ID="submitter_id";

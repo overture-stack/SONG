@@ -5,13 +5,16 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
+import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.enums.Constants;
 
 import java.util.List;
 
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 
 @EqualsAndHashCode(callSuper = false)
@@ -32,6 +35,7 @@ public abstract class Analysis extends Metadata {
     private String study="";
     private String analysisSubmitterId="";
     private String analysisState = UNPUBLISHED.name();
+    private String analysisAccess = "";
 
     private List<CompositeEntity> sample;
     private List<File> file;
@@ -42,5 +46,14 @@ public abstract class Analysis extends Metadata {
         Constants.validate(Constants.ANALYSIS_STATE, state);
         this.analysisState=state;
     }
+
+    public void setAnalysisAccess(@NonNull AccessTypes access){
+        this.analysisAccess = access.toString();
+    }
+
+    public void setAnalysisAccess(@NonNull String access){
+      setAnalysisAccess(resolveAccessType(access));
+    }
+
 }
 
