@@ -44,15 +44,15 @@ abstract class InfoService {
   private final InfoRepository infoRepository;
 
   public String read(@NonNull String id) {
-    return infoRepository.read(id, type.name());
+    return infoRepository.read(id, type.toString());
   }
 
   public void create( @NonNull String id,  String info) {
-    infoRepository.create(id, type.name(), info);
+    infoRepository.create(id, type.toString(), info);
   }
 
   public void update(@NonNull String id, String info) {
-    infoRepository.set(id, type.name(), info);
+    infoRepository.set(id, type.toString(), info);
   }
 
   public void delete(@NonNull String id) {
