@@ -31,7 +31,7 @@ management:
 id:
   idUrl: "http://id:9090"
   authToken: "idToken"
-  realIds: false
+  realIds: true
 
 validation:
   threads:
@@ -39,9 +39,6 @@ validation:
     max: 10
   queue:
     capacity: 100
-
-flyway:
-  baselineOnMigrate: true
 
 validation.delayMs: 3000
 
@@ -60,14 +57,21 @@ auth:
     multiplier: 2.0
 
 ---
+spring.profiles: test
+spring:
+  profiles:
+    include: [dev]
+---
 spring.profiles: dev
 spring:
   profiles:
     include: [fastTest]
+  datasource:
+    initialize: true
 
 auth:
   server:
-    uploadScope: "upload"
+    suffix: "upload"
 
 # Datasource
 spring.datasource:
@@ -80,8 +84,6 @@ spring.datasource:
   max-idle: 1
   min-idle: 1
 
-flyway:
-  locations: db/migration/{vendor},db/migration/data
 ---
 
 spring:
@@ -94,7 +96,7 @@ auth:
     clientSecret: "clientSecret"
     enableStrictSSL: false
     enableHttpLogging: false
-    uploadScope: "upload"
+    suffix: "upload"
 ---
 
 spring:
@@ -116,20 +118,19 @@ auth:
 
 spring:
   profiles: prod
-  
+  datasource:
+    initialize: false
+
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://db/song
+  url: jdbc:postgresql://db/song?stringtype=unspecified
 
   username:
   password:
   max-active: 10
   max-idle: 1
   min-idle: 1
-
-flyway:
-  locations: db/migration/{vendor}
 
 ---
 spring:

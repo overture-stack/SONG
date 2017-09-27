@@ -2,6 +2,10 @@ version: '3.2'
 services:
   song:
     build: ./song
+    volumes:
+      - type: bind
+        source: ./song/logs
+        target: /opt/dcc/ext_logs
     depends_on:
       - db 
       - id

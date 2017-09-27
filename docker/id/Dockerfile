@@ -3,8 +3,8 @@ MAINTAINER ICGC <dcc-support@icgc.org>
 
 ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-id-server/[RELEASE]/dcc-id-server-[RELEASE]-dist.tar.gz /dcc-id.tar.gz
 
-RUN \
-  mv dcc-id.tar.gz/dcc-id-server-* dcc-id-server && rmdir dcc-id.tar.gz
+RUN  mv dcc-id.tar.gz/dcc-id-server-* /dcc-id-server
+RUN rm -rf /dcc-id.tar.gz
  
 ADD init.sh /dcc-id-server/init.sh
 
