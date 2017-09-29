@@ -3,8 +3,7 @@ SELECT DISTINCT
   A.submitter_id,
   A.type,
   A.state,
-  A.study_id,
-  A.access
+  A.study_id
 FROM Donor D
   INNER JOIN Specimen SP on D.id = SP.donor_id
   INNER JOIN Sample as SA on SP.id = SA.specimen_id

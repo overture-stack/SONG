@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://song.icgc.org/messages/uploadSequencingRead",
   "type": "object",
-  "required": ["study", "analysisType","experiment","sample","file", "analysisAccess"],
+  "required": ["study", "analysisType","experiment","sample","file"],
   "properties": {
     "study": {
       "type": "string"
@@ -11,13 +11,6 @@
       "type": "string",
       "enum": [
         "sequencingRead"
-      ]
-    },
-    "analysisAccess" : {
-      "type" : "string",
-      "enum" : [
-        "open",
-        "controlled"
       ]
     },
     "experiment": {
@@ -176,6 +169,13 @@
           "fileSize": {
             "type": "integer"
           },
+          "fileAccess" : {
+            "type" : "string",
+            "enum" : [
+              "open",
+              "controlled"
+            ]
+          },
           "fileType": {
             "type": "string",
             "enum": [
@@ -201,6 +201,7 @@
           "fileName",
           "fileSize",
           "fileType",
+          "fileAccess",
           "fileMd5sum"
         ]
       }

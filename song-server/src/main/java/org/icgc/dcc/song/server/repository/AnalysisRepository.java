@@ -37,8 +37,8 @@ import java.util.List;
 @RegisterMapper(FileMapper.class)
 public interface AnalysisRepository {
 
-  @SqlUpdate("INSERT INTO Analysis (id, study_id, submitter_id, type, state, access) " +
-          "VALUES (:analysisId, :study, :analysisSubmitterId, :analysisType, :analysisState, :analysisAccess)")
+  @SqlUpdate("INSERT INTO Analysis (id, study_id, submitter_id, type, state) " +
+          "VALUES (:analysisId, :study, :analysisSubmitterId, :analysisType, :analysisState)")
   void createAnalysis(@BindBean Analysis analysis );
 
   @SqlUpdate("Update Analysis set state=:state where id=:analysisId")
@@ -59,10 +59,10 @@ public interface AnalysisRepository {
   void createVariantCall(@BindBean VariantCall c);
 
   @RegisterMapper(AnalysisMapper.class)
-  @SqlQuery("SELECT id, study_id, submitter_id, type, state, access FROM Analysis WHERE id=:id")
+  @SqlQuery("SELECT id, study_id, submitter_id, type, state FROM Analysis WHERE id=:id")
   Analysis read(@Bind("id") String id);
 
-  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5 FROM File WHERE analysis_id=:id")
+  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5, access FROM File WHERE analysis_id=:id")
   List<File> readFiles(@Bind("id") String id);
 
   @SqlUpdate("DELETE FROM File WHERE analysis_id=:id")

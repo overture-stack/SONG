@@ -8,6 +8,7 @@ import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.resolvers.FileTypes;
 import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.enums.AccessTypes;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,6 +26,7 @@ import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_NAME;
 import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_OBJECT_ID;
 import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_SIZE;
 import static org.icgc.dcc.song.importer.parser.FieldNames.INDEX_FILE_TYPE;
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
 
 @RequiredArgsConstructor
 public class FileConverter {
@@ -46,7 +48,8 @@ public class FileConverter {
         getStudyId(portalFileMetadata),
         getFileSize(file),
         getFileType(dccMetadata),
-        getFileMd5sum(file)
+        getFileMd5sum(file),
+        getFileAccess(dccMetadata)
     );
 
   }
@@ -60,7 +63,8 @@ public class FileConverter {
         getStudyId(portalFileMetadata),
         getFileSize(portalFileMetadata),
         getFileType(portalFileMetadata),
-        getFileMd5sum(portalFileMetadata)
+        getFileMd5sum(portalFileMetadata),
+        getFileAccess(portalFileMetadata)
     );
     files.add(mainFile);
 
@@ -72,11 +76,24 @@ public class FileConverter {
           getIndexStudyId(portalFileMetadata),
           getIndexFileSize(portalFileMetadata),
           getIndexFileType(portalFileMetadata),
-          getIndexFileMd5sum(portalFileMetadata)
+          getIndexFileMd5sum(portalFileMetadata),
+          getIndexFileAccess(portalFileMetadata)
       );
       files.add(indexFile);
     }
     return files.build();
+  }
+
+  public static AccessTypes getIndexFileAccess(@NonNull PortalFileMetadata portalFileMetadata){
+    return resolveAccessType(portalFileMetadata.getAccess());
+  }
+
+  public static AccessTypes getFileAccess(@NonNull PortalFileMetadata portalFileMetadata){
+    return resolveAccessType(portalFileMetadata.getAccess());
+  }
+
+  public static AccessTypes getFileAccess(@NonNull DccMetadata dccMetadata){
+    return dccMetadata.getAccessType();
   }
 
   public static String getFileId(@NonNull DccMetadata dccMetadata){
