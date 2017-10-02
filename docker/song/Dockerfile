@@ -15,7 +15,7 @@ EXPOSE 8080
 ADD config $DCC_HOME/config 
 
 ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/[RELEASE]/song-server-[RELEASE]-dist.tar.gz  $DCC_HOME/song-server.tar.gz
-RUN mv -f $DCC_HOME/song-server.tar.gz/song-server-*  song-server
+RUN tar zxvf $DCC_HOME/song-server.tar.gz && mv -f $DCC_HOME/song-server-*  song-server
 RUN rm -rf $DCC_HOME/song-server.tar.gz
 RUN cp -f $DCC_HOME/config/wrapper.conf $DCC_HOME/song-server/conf/
 RUN mv $DCC_HOME/song-server/logs  $DCC_HOME/song-server/logs.bak

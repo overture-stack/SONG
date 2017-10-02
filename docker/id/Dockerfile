@@ -1,10 +1,18 @@
 From java
 MAINTAINER ICGC <dcc-support@icgc.org>
 
-ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-id-server/[RELEASE]/dcc-id-server-[RELEASE]-dist.tar.gz /dcc-id.tar.gz
 
-RUN  mv dcc-id.tar.gz/dcc-id-server-* /dcc-id-server
-RUN rm -rf /dcc-id.tar.gz
+ENV TAR_BALL_LOC /dcc-id.tar.gz
+ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-id-server/[RELEASE]/dcc-id-server-[RELEASE]-dist.tar.gz ${TAR_BALL_LOC}
+
+# RUN if [ -f ${TAR_BALL}  ]; then \
+#     tar zxvf ${TAR_BALL}; mv /dcc-id-server-* /dcc-id-server; \
+#     else \
+#         mv ${TAR_BALL}/dcc-id-server-* /dcc-id-server; \
+#     fi
+
+RUN tar zxvf ${TAR_BALL_LOC} && mv /dcc-id-server-* /dcc-id-server
+RUN rm -rf ${TAR_BALL_LOC}
  
 ADD init.sh /dcc-id-server/init.sh
 
