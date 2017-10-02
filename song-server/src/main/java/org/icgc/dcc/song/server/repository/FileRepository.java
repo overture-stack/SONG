@@ -18,8 +18,6 @@
  */
 package org.icgc.dcc.song.server.repository;
 
-import java.util.List;
-
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.repository.mapper.FileMapper;
 import org.skife.jdbi.v2.sqlobject.Bind;
@@ -28,24 +26,26 @@ import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 
+import java.util.List;
+
 @RegisterMapper(FileMapper.class)
 public interface FileRepository {
 
-  @SqlUpdate("INSERT INTO File (id, analysis_id, name, study_id, size, type, md5) "
-      + "VALUES (:objectId, :analysisId,:fileName,  :studyId, :fileSize, :fileType, :fileMd5sum)")
+  @SqlUpdate("INSERT INTO File (id, analysis_id, name, study_id, size, type, md5, access) "
+      + "VALUES (:objectId, :analysisId,:fileName,  :studyId, :fileSize, :fileType, :fileMd5sum, :fileAccess)")
   int create(@BindBean File f);
 
-  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5 FROM File WHERE id=:id")
+  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5, access FROM File WHERE id=:id")
   File read(@Bind("id") String id);
 
   @SqlUpdate("UPDATE File SET name=:fileName, analysis_id=:analysisId, size=:fileSize, type=:fileType, " +
-          "md5=:fileMd5sum where id=:objectId")
+          "md5=:fileMd5sum, access=:fileAccess where id=:objectId")
   int update(@BindBean File file);
 
   @SqlUpdate("DELETE From File where id=:id")
   int delete(@Bind("id") String id);
 
-  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5 FROM File WHERE study_id=:studyId")
+  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5, access FROM File WHERE study_id=:studyId")
   List<File> readByParentId(@Bind("studyId") String study_id);
 
   @SqlQuery("SELECT id from File WHERE name=:fileName AND analysis_id=:analysisId")

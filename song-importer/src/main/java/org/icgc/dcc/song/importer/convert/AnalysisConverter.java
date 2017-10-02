@@ -66,7 +66,6 @@ public class AnalysisConverter {
         .variantCallingTool(getVariantCallingTool(portalFileMetadata))
         .type(getAnalysisType(portalFileMetadata))
         .matchedNormalSampleSubmitterId(getMatchedNormalSampleSubmitterId(portalDonorMetadata))
-        .analysisAccess(getAnalysisAccess(portalFileMetadata))
         .build();
   }
 
@@ -79,7 +78,6 @@ public class AnalysisConverter {
         .libraryStrategy(getLibraryStrategy(portalFileMetadata))
         .alignmentTool(getAlignmentTool(portalFileMetadata))
         .aligned(isAligned(portalFileMetadata))
-        .analysisAccess(getAnalysisAccess(portalFileMetadata))
         .build();
   }
 
@@ -97,7 +95,6 @@ public class AnalysisConverter {
     variantCallAnalysis.setAnalysisSubmitterId(analysisId);
     variantCallAnalysis.setStudy(variantCallAggregate.getStudyId());
     variantCallAnalysis.setInfo(NA);
-    variantCallAnalysis.setAnalysisAccess(variantCallAggregate.getAnalysisAccess());
 
     val variantCallExperiment = VariantCall.create(
         analysisId,
@@ -121,7 +118,6 @@ public class AnalysisConverter {
     sequencingReadAnalysis.setAnalysisSubmitterId(analysisId);
     sequencingReadAnalysis.setStudy(seqReadAggregate.getStudyId());
     sequencingReadAnalysis.setInfo(NA);
-    sequencingReadAnalysis.setAnalysisAccess(seqReadAggregate.getAnalysisAccess());
 
     val sequencingReadExperiment = SequencingRead.create(
         seqReadAggregate.getAnalysisId(),
@@ -185,7 +181,6 @@ public class AnalysisConverter {
     @NonNull private final String matchedNormalSampleSubmitterId;
     @NonNull private final String studyId;
     @NonNull private final String type;
-    @NonNull private final AccessTypes analysisAccess;
 
   }
 
@@ -200,7 +195,6 @@ public class AnalysisConverter {
     @NonNull private final String studyId;
     @NonNull private final String type;
     private final boolean aligned;
-    @NonNull private final AccessTypes analysisAccess;
 
   }
 

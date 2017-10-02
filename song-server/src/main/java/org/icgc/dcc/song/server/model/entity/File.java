@@ -19,16 +19,18 @@
 
 package org.icgc.dcc.song.server.model.entity;
 
-import org.icgc.dcc.song.server.model.Metadata;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.val;
+import org.icgc.dcc.song.server.model.Metadata;
+import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.enums.Constants;
 
 import java.io.Serializable;
+
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
 
 @EqualsAndHashCode(callSuper = false)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
@@ -42,9 +44,10 @@ public class File extends Metadata implements Serializable {
   private Long fileSize = -1L;
   private String fileType = "";
   private String fileMd5sum = "";
+  private String fileAccess= "";
 
   public static File create(String id, String analysisId, String name, String study, Long size,
-                            String type, String md5) {
+                            String type, String md5, AccessTypes access) {
     val f = new File();
     f.setObjectId(id);
     f.setAnalysisId(analysisId);
@@ -53,12 +56,21 @@ public class File extends Metadata implements Serializable {
     f.setFileSize(size);
     f.setFileType(type);
     f.setFileMd5sum(md5);
+    f.setFileAccess(access);
     return f;
   }
 
   public void setFileType(String type) {
     Constants.validate(Constants.FILE_TYPE, type);
     fileType = type;
+  }
+
+  public void setFileAccess(@NonNull AccessTypes access){
+    this.fileAccess = access.toString();
+  }
+
+  public void setFileAccess(@NonNull String access){
+    setFileAccess(resolveAccessType(access));
   }
 
 }

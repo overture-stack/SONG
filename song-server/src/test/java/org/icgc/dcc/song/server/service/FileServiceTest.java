@@ -31,6 +31,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -51,10 +53,11 @@ public class FileServiceTest {
     val type = "BAM";
     val size = 122333444455555L;
     val md5 = "20de2982390c60e33452bf8736c3a9f1";
+    val access = OPEN;
     val metadata = JsonUtils.fromSingleQuoted("{'info':'<XML>Not even well-formed <XML></XML>'}");
     val file = fileService.read(id);
 
-    val expected = File.create(id, analysisId, name, study, size, type, md5);
+    val expected = File.create(id, analysisId, name, study, size, type, md5, access);
     assertThat(file).isEqualToComparingFieldByField(expected);
   }
 
@@ -73,6 +76,7 @@ public class FileServiceTest {
     f.setFileType("FAI");
     f.setFileMd5sum("6bb8ee7218e96a59e0ad898b4f5360f1");
     f.setInfo(metadata);
+    f.setFileAccess(OPEN);
 
 
     val status = fileService.create("AN1",  studyId, f);
@@ -99,16 +103,17 @@ public class FileServiceTest {
     val size = 12345L;
     val type = "FASTA";
     val md5 = "md5sumaebcefghadwa";
+    val access = CONTROLLED;
     val metadata = JsonUtils.fromSingleQuoted("'language': 'English'");
 
-    val s = File.create(id, analysisId,name, sampleId, size, type, md5);
+    val s = File.create(id, analysisId,name, sampleId, size, type, md5, access);
 
 
     fileService.create("AN1", study, s);
     val id2 = s.getObjectId();
 
     val s2 = File.create(id2,  analysisId,"File 102.fai", study, 123456789L, "FAI",
-            "e1f2a096d90c2cb9e63338e41d805977");
+            "e1f2a096d90c2cb9e63338e41d805977", CONTROLLED);
     s2.setInfo(metadata);
     fileService.update(s2);
 
