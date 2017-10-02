@@ -11,6 +11,14 @@ services:
       - id
     ports:
       - "8080:8080"
+  auth:
+    build: ./auth
+    volumes:
+      - type: bind
+        source: ./data/simple-auth-data
+        target: /opt/dcc/simple-auth-data
+    ports:
+      - "8001:8000"
   db:
     build: ./song-db
   id:
