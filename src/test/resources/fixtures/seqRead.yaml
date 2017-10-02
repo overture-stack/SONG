@@ -22,8 +22,10 @@ file:
     file_name: a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz
     file_size: 376953
     file_md5sum: 61a91c4bf04ac2bd3795254104f75ad3
+    file_access: controlled
   - file_type: IDX
     file_Name: a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx
     file_size: 4840
     file_md5sum: 29594b19b079ad5731577e0495ddba63
+    file_access: controlled
 

@@ -1,7 +1,6 @@
 {
   "study" : "ABC123",
   "analysisType" : "sequencingRead",
-  "analysisAccess" : "controlled",
   "experiment" : {
     "libraryStrategy" : "WXS",
     "pairedEnd" : false,
@@ -32,11 +31,13 @@
     "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
     "fileSize" : 132394,
     "fileMd5sum" : "239d930d0ef9a9b9c0e",
+    "fileAccess" : "controlled",
     "compression" : "gzip"
   }, {
     "fileType" : "IDX",
     "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
     "fileSize" : 2394,
+    "fileAccess" : "controlled",
     "fileMd5sum" : "22de0f976538a9b7c8d93"
   } ],
   "info" : "{\"access\":\"controlled\",\"dataCategorization\":{\"dataType\":\"SGV\",\"experimentalStrategy\":\"WGS\"},\"referenceGenome\":{\"genomeBuild\":\"GRCh37\",\"referenceName\":\"hs37d5\",\"downloadUrl\":\"ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz\"},\"analysisMethod\":{\"analysisType\":\"Variant calling\",\"software\":\"Broad variant call pipeline\"},\"study\":[\"PCAWG\",\"EGA\"]}"
