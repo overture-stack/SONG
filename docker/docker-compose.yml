@@ -15,10 +15,10 @@ services:
     build: ./auth
     volumes:
       - type: bind
-        source: ./data/simple-auth-data
-        target: /opt/dcc/simple-auth-data
+        source: ./data/auth_data
+        target: /opt/dcc/auth_data
     ports:
-      - "8001:8000"
+      - "9090:9090"
   db:
     build: ./song-db
   id:
@@ -26,6 +26,7 @@ services:
     depends_on:
       - id-db
     ports:
+      - "8444:8444"
       - "8443:8443"
   id-db:
     build: ./id-db

@@ -15,6 +15,7 @@ RUN tar zxvf ${TAR_BALL_LOC} && mv /dcc-id-server-* /dcc-id-server
 RUN rm -rf ${TAR_BALL_LOC}
  
 ADD init.sh /dcc-id-server/init.sh
+ENV AUTH_PORT 9090
 
 ENV POSTGRES_HOST id-db
 ENV POSTGRES_PORT 5432
@@ -22,7 +23,7 @@ ENV POSTGRES_DB dcc_identifier
 ENV POSTGRES_USER postgres
 ENV POSTGRES_PASSWORD password
 
-ENV AUTH_SERVER_URL http://auth:8000/check_token/
+ENV AUTH_SERVER_URL http://auth:$AUTH_PORT/check_token/
 ENV AUTH_SERVER_CLIENTID 3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
 ENV AUTH_SERVER_CLIENTSECRET v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
 

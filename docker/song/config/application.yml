@@ -29,9 +29,9 @@ management:
   port: 8081
 
 id:
-  idUrl: "http://id:9090"
-  authToken: "idToken"
-  realIds: false
+  idUrl: "http://id:8443"
+  authToken: "ad83ebde-a55c-11e7-abc4-cec278b6b50a"
+  realIds: true
 
 validation:
   threads:
@@ -40,7 +40,7 @@ validation:
   queue:
     capacity: 100
 
-validation.delayMs: 3000
+validation.delayMs: 30
 
 auth:
   # Connection retries in case of connection failure
@@ -91,7 +91,7 @@ spring:
 
 auth:
   server:
-    url: "http://auth:8001//check_token"
+    url: "http://auth:9090/check_token/"
     clientId: "3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP"
     clientSecret: "v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e"
     enableStrictSSL: false
