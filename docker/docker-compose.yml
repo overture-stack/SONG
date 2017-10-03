@@ -25,5 +25,7 @@ services:
     build: ./id
     depends_on:
       - id-db
+    ports:
+      - "8443:8443"
   id-db:
     build: ./id-db
