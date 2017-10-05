@@ -55,7 +55,7 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspat
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles({"test", "dev"})
+@ActiveProfiles({"dev", "test"})
 public class InfoSearchTest {
 
   private static final String STUDY = "ABC123";
