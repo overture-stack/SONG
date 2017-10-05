@@ -85,19 +85,28 @@ public class JsonUtils {
   }
 
   @SneakyThrows
+  public static JsonNode toJsonNode(Map<String, Object> map) {
+    return mapper.convertValue(map, JsonNode.class);
+  }
+
+  @SneakyThrows
   public static String toPrettyJson(Object o) {
     return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
   @SneakyThrows
   public static <T> T fromJson(String json, Class<T> toValue) {
-    return mapper.convertValue(mapper.readTree(json), toValue);
+    return fromJson(mapper.readTree(json), toValue);
+  }
+
+  @SneakyThrows
+  public static <T> T fromJson(JsonNode json, Class<T> toValue) {
+    return mapper.convertValue(json, toValue);
   }
 
   @SuppressWarnings("unchecked")
-  public static Map<String, Object> toMap(String json)
-      throws IllegalArgumentException, IOException {
-    return mapper.convertValue(mapper.readTree(json), Map.class);
+  public static Map<String, Object> toMap(String json) throws IllegalArgumentException, IOException {
+    return fromJson(json, Map.class);
   }
 
   public static String fromSingleQuoted(String singleQuotedJson) {

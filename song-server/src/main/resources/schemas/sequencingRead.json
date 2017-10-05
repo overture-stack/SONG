@@ -46,7 +46,7 @@
           "type": "string"
         },
         "info": {
-          "type": "string"
+          "type": "object"
         }
       },
       "required": [
@@ -128,7 +128,7 @@
                 ]
               },
               "info": {
-                "type": "string"
+                "type": "object"
               }
             }
           },
@@ -147,12 +147,12 @@
                 ]
               },
               "info": {
-                "type": "string"
+                "type": "object"
               }
             }
           },
           "info": {
-            "type": "string"
+            "type": "object"
           }
         }
       }
@@ -194,7 +194,7 @@
             "type": "string"
           },
           "info": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": [
@@ -207,7 +207,7 @@
       }
     },
     "info": {
-      "type": "string"
+      "type": "object"
     }
   }
 }

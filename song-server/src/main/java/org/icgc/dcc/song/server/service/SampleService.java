@@ -51,7 +51,7 @@ public class SampleService {
     sample.setSampleId(id);
     sample.setSpecimenId(sample.getSpecimenId());
     int status = repository.create(sample);
-    infoService.create(id, sample.getInfo());
+    infoService.create(id, sample.getInfoAsString());
 
     if (status != 1) {
       throw buildServerException(MESSAGE_CONTEXT, SAMPLE_RECORD_FAILED, "Cannot create Sample: %s", sample.toString());
@@ -78,7 +78,7 @@ public class SampleService {
 
   public String update(@NonNull Sample sample) {
     repository.update(sample);
-    infoService.update(sample.getSampleId(), sample.getInfo());
+    infoService.update(sample.getSampleId(), sample.getInfoAsString());
     return OK;
   }
 

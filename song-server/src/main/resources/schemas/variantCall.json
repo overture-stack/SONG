@@ -91,7 +91,9 @@
                   "Cell line - derived from xenograft tumour"
                 ]
               },
-              "info": {}
+              "info": {
+                "type": "object"
+              }
             }
           },
           "donor": {
@@ -108,10 +110,14 @@
                   "unspecified"
                 ]
               },
-              "info": {}
+              "info": {
+                "type": "object"
+              }
             }
           },
-          "info": {}
+          "info": {
+            "type": "object"
+          }
         }
       }
     },
@@ -165,6 +171,7 @@
       }
     },
     "info": {
+      "type": "object"
     }
   }
 }

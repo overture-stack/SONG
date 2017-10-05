@@ -33,6 +33,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -54,7 +55,7 @@ public class SpecimenServiceTest {
         assertThat(s.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
         assertThat(s.getSpecimenClass()).isEqualTo("Tumour");
         assertThat(s.getSpecimenType()).isEqualTo("Recurrent tumour - solid tissue");
-
+        assertThat(getInfoName(s)).isEqualTo("specimen1");
     }
 
     @Test
@@ -67,6 +68,7 @@ public class SpecimenServiceTest {
         assertThat(specimen.getSpecimenClass()).isEqualTo("Tumour");
         assertThat(specimen.getSpecimenType()).isEqualTo("Recurrent tumour - solid tissue");
         assertThat(specimen.getSamples().size()).isEqualTo(2);
+        assertThat(getInfoName(specimen)).isEqualTo("specimen1");
 
         // Verify that we got the same samples as the sample service says we should.
         specimen.getSamples().forEach(sample -> assertThat(sample.equals(getSample(sample.getSampleId()))));

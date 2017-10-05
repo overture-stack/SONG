@@ -26,6 +26,7 @@ import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_RECORD_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
@@ -53,7 +54,7 @@ public class FileService {
     if (status != 1) {
       throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create File: %s", file.toString());
     }
-    infoService.create(id, file.getInfo());
+    infoService.create(id, file.getInfoAsString());
 
     return id;
   }
@@ -69,7 +70,7 @@ public class FileService {
 
   public String update(@NonNull File f) {
     repository.update(f);
-    infoService.update(f.getObjectId(), f.getInfo());
+    infoService.update(f.getObjectId(), f.getInfoAsString());
     return OK;
   }
 
@@ -81,15 +82,8 @@ public class FileService {
 
   public String save(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
     String fileId = repository.findByBusinessKey(analysisId, file.getFileName());
-    if (fileId == null) {
-      fileId = idService.generateFileId(analysisId, file.getFileName());
-      file.setObjectId(fileId);
-      file.setStudyId(studyId);
-      file.setAnalysisId(analysisId);
-      val status=repository.create(file);
-      if (status==-1) {
-        throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create File: %s", file.toString());
-      }
+    if (isNull(fileId)) {
+      fileId = create(analysisId, studyId, file);
     } else {
       repository.update(file);
     }
