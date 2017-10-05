@@ -46,6 +46,11 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_REPOSITORY_C
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.SongError.error;
 import static org.icgc.dcc.song.server.model.enums.IdPrefix.UPLOAD_PREFIX;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.CREATED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.SAVED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.UPDATED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RequiredArgsConstructor
@@ -75,11 +80,11 @@ public class UploadService {
 
   private void create(@NonNull String studyId, String analysisSubmitterId, @NonNull String uploadId,
                       @NonNull String jsonPayload) {
-    uploadRepository.create(uploadId, studyId, analysisSubmitterId, Upload.CREATED, jsonPayload);
+    uploadRepository.create(uploadId, studyId, analysisSubmitterId, CREATED.getText(), jsonPayload);
   }
 
   private void update(@NonNull String uploadId, @NonNull String jsonPayload) {
-    uploadRepository.update_payload(uploadId, Upload.UPDATED, jsonPayload);
+    uploadRepository.update_payload(uploadId, UPDATED.getText(), jsonPayload);
   }
 
   @SneakyThrows
@@ -141,20 +146,21 @@ public class UploadService {
     return ok(status.toString());
   }
 
+
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId) {
-    val s = read(uploadId);
-    if (s == null ){
+    val upload = read(uploadId);
+    if (upload == null ){
       return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_FOUND,
           "UploadId %s does not exist", uploadId);
     }
-    val state = s.getState();
-    if (!state.equals(Upload.VALIDATED)) {
-      return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_VALIDATED,
-          "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
-          uploadId, state, Upload.VALIDATED);
+    val uploadState = resolveState(upload.getState());
+    if (uploadState != VALIDATED && uploadState != SAVED  ) {
+        return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_VALIDATED,
+            "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
+            uploadId, uploadState.getText(), VALIDATED.getText());
     }
 
-    val json = s.getPayload();
+    val json = upload.getPayload();
     val analysis = JsonUtils.fromJson(json, Analysis.class);
 
     val analysisId = analysisService.create(studyId, analysis);
@@ -169,7 +175,7 @@ public class UploadService {
   }
 
   private void updateAsSaved(@NonNull String uploadId) {
-    uploadRepository.update(uploadId, Upload.SAVED, "");
+    uploadRepository.update(uploadId, SAVED.getText(), "");
   }
 
 }

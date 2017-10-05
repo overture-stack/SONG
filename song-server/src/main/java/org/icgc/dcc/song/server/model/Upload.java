@@ -23,7 +23,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.val;
+import org.icgc.dcc.song.server.model.enums.UploadStates;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({ "uploadId", "studyId", "state", "createdAt", "updatedAt", "errors", "payload"
@@ -40,16 +43,6 @@ import static java.util.Arrays.asList;
 
 @Data
 public class Upload {
-
-  //TODO: [DCC-5649] Should be in UploadStates enum
-  public final static String CREATED = "CREATED";
-  public final static String VALIDATED = "VALIDATED";
-  public final static String VALIDATION_ERROR = "VALIDATION_ERROR";
-  public final static String UPLOADED = "UPLOADED";
-  public final static String UPDATED="UPDATED";
-  public final static String SAVED = "SAVED";
-  public final static String PUBLISHED = "PUBLISHED";
-  public final static String SUPPRESSED = "SUPPRESSED";
 
   private String uploadId = "";
   private String studyId = "";
@@ -59,7 +52,15 @@ public class Upload {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  public static Upload create(String id, String study, String state, String errors,
+  public void setState(@NonNull UploadStates state){
+    this.state = state.getText();
+  }
+
+  public void setState(@NonNull String state){
+    setState(resolveState(state));
+  }
+
+  public static Upload create(String id, String study, UploadStates state, String errors,
       String payload, LocalDateTime created, LocalDateTime updated) {
     val u = new Upload();
 

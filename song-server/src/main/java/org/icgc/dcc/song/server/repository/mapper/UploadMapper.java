@@ -18,14 +18,22 @@
  */
 package org.icgc.dcc.song.server.repository.mapper;
 
+import org.icgc.dcc.song.server.model.Upload;
+import org.icgc.dcc.song.server.model.enums.UploadStates;
+import org.skife.jdbi.v2.StatementContext;
+import org.skife.jdbi.v2.tweak.ResultSetMapper;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.icgc.dcc.song.server.model.Upload;
-import static
-        org.icgc.dcc.song.server.repository.AttributeNames.*;
-import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.tweak.ResultSetMapper;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
+import static org.icgc.dcc.song.server.repository.AttributeNames.CREATED_AT;
+import static org.icgc.dcc.song.server.repository.AttributeNames.ERRORS;
+import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
+import static org.icgc.dcc.song.server.repository.AttributeNames.PAYLOAD;
+import static org.icgc.dcc.song.server.repository.AttributeNames.STATE;
+import static org.icgc.dcc.song.server.repository.AttributeNames.STUDY_ID;
+import static org.icgc.dcc.song.server.repository.AttributeNames.UPDATED_AT;
 
 public class UploadMapper implements ResultSetMapper<Upload> {
 
@@ -33,11 +41,17 @@ public class UploadMapper implements ResultSetMapper<Upload> {
   public Upload map(int index, ResultSet rs, StatementContext ctx) throws SQLException {
     return Upload.create(rs.getString(ID),
         rs.getString(STUDY_ID),
-        rs.getString(STATE),
+        getState(rs),
         rs.getString(ERRORS),
         rs.getString(PAYLOAD),
         rs.getTimestamp(CREATED_AT).toLocalDateTime(),
         rs.getTimestamp(UPDATED_AT).toLocalDateTime());
   }
+
+  private static UploadStates getState(ResultSet r) throws SQLException {
+    return resolveState(r.getString(STATE));
+  }
+
+
 
 }
