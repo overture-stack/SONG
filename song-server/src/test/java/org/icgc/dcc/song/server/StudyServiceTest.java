@@ -35,7 +35,7 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev","test"})
 public class StudyServiceTest {
 
   @Autowired
