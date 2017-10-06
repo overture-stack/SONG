@@ -64,7 +64,7 @@ public class SchemaValidator {
    */
   @SneakyThrows
   private void debugDelay(){
-    if (validationDelayMs > -1){
+    if (validationDelayMs > -1L){
       log.info("Sleeping for {} ms", validationDelayMs);
       Thread.sleep(validationDelayMs);
     }

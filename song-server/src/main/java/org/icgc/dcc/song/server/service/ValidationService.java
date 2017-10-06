@@ -28,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.icgc.dcc.song.server.validation.SchemaValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +35,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATION_ERROR;
 
 @Slf4j
 @Service
@@ -94,11 +95,11 @@ public class ValidationService {
 
 
   private void updateAsValid(@NonNull String uploadId) {
-    uploadRepository.update(uploadId, Upload.VALIDATED, "");
+    uploadRepository.update(uploadId, VALIDATED.getText(), "");
   }
 
   private void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
-    uploadRepository.update(uploadId, Upload.VALIDATION_ERROR, errorMessages);
+    uploadRepository.update(uploadId, VALIDATION_ERROR.getText(), errorMessages);
   }
 
 }

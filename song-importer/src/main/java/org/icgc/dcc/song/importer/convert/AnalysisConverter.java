@@ -25,8 +25,8 @@ import static org.icgc.dcc.song.importer.convert.FileConverter.getFileTypes;
 import static org.icgc.dcc.song.importer.convert.StudyConverter.getStudyId;
 import static org.icgc.dcc.song.importer.resolvers.AnalysisTypes.SEQUENCING_READ;
 import static org.icgc.dcc.song.importer.resolvers.AnalysisTypes.VARIANT_CALL;
-import static org.icgc.dcc.song.server.model.Upload.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 
 @RequiredArgsConstructor
 public class AnalysisConverter {
@@ -91,7 +91,7 @@ public class AnalysisConverter {
     val variantCallAnalysis = new VariantCallAnalysis();
     val analysisId = variantCallAggregate.getAnalysisId();
     variantCallAnalysis.setAnalysisId(analysisId);
-    variantCallAnalysis.setAnalysisState(PUBLISHED);
+    variantCallAnalysis.setAnalysisState(PUBLISHED.toString());
     variantCallAnalysis.setAnalysisSubmitterId(analysisId);
     variantCallAnalysis.setStudy(variantCallAggregate.getStudyId());
     variantCallAnalysis.setInfo(NA);
@@ -114,7 +114,7 @@ public class AnalysisConverter {
     val sequencingReadAnalysis = new SequencingReadAnalysis();
     val analysisId = seqReadAggregate.getAnalysisId();
     sequencingReadAnalysis.setAnalysisId(analysisId);
-    sequencingReadAnalysis.setAnalysisState(PUBLISHED);
+    sequencingReadAnalysis.setAnalysisState(PUBLISHED.toString());
     sequencingReadAnalysis.setAnalysisSubmitterId(analysisId);
     sequencingReadAnalysis.setStudy(seqReadAggregate.getStudyId());
     sequencingReadAnalysis.setInfo(NA);
