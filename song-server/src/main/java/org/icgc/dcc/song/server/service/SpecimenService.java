@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.composites.SpecimenWithSamples;
-import org.icgc.dcc.song.server.model.enums.IdPrefix;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,7 +57,7 @@ public class SpecimenService {
       throw buildServerException(this.getClass(), SPECIMEN_RECORD_FAILED,
           "Cannot create Specimen: %s", specimen.toString());
     }
-    infoService.create(id, specimen.getInfo());
+    infoService.create(id, specimen.getInfoAsString());
 
     return id;
   }
@@ -91,7 +90,7 @@ public class SpecimenService {
 
   public String update(@NonNull Specimen specimen) {
     repository.update(specimen);
-    infoService.update(specimen.getSpecimenId(),specimen.getInfo());
+    infoService.update(specimen.getSpecimenId(),specimen.getInfoAsString());
     return OK;
   }
 

@@ -20,7 +20,7 @@ public class CompositeEntity extends Sample {
         s.setSampleId(sample.getSampleId());
         s.setSampleSubmitterId(sample.getSampleSubmitterId());
         s.setSampleType(sample.getSampleType());
-        s.setInfo(sample.getInfo());
+        s.setInfo(sample.getInfoAsString());
         s.setSpecimenId(sample.getSpecimenId());
 
         return s;

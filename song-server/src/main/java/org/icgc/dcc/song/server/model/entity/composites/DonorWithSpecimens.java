@@ -21,13 +21,13 @@ public class DonorWithSpecimens extends Donor {
         this.setStudyId(d.getStudyId());
         this.setDonorGender(d.getDonorGender());
         this.setDonorSubmitterId(d.getDonorSubmitterId());
-        this.addInfo(d.getInfo());
+        this.addInfo(d.getInfoAsString());
     }
 
     @JsonIgnore
     public Donor getDonor() {
         val donor = Donor.create(getDonorId(),getDonorSubmitterId(),getStudyId(), getDonorGender());
-        donor.setInfo(getInfo());
+        donor.setInfo(getInfoAsString());
         return donor;
     }
 

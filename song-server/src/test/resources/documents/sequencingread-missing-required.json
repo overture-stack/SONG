@@ -43,5 +43,7 @@
       "fileMd5sum": "29594b19b079ad5731577e0495ddba63"
     }
   ],
-  "info": "{\"description\": \"This is extra info in a JSON format\"}"
+  "info": {
+    "description": "This is extra info in a JSON format"
+  }
 }

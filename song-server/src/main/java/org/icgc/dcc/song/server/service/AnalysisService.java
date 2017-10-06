@@ -63,7 +63,9 @@ public class AnalysisService {
   @Autowired
   private final AnalysisRepository repository;
   @Autowired
-  private final AnalysisInfoService infoService;
+  private final AnalysisInfoService analysisInfoService;
+  @Autowired
+  private final FileInfoService fileInfoService;
   @Autowired
   private final SequencingReadInfoService sequencingReadInfoService;
   @Autowired
@@ -88,7 +90,7 @@ public class AnalysisService {
     a.setAnalysisId(id);
     a.setStudy(studyId);
     repository.createAnalysis(a);
-    infoService.create(id, a.getInfo());
+    analysisInfoService.create(id, a.getInfoAsString());
 
     saveCompositeEntities(studyId, id, a.getSample() );
     saveFiles(id, studyId, a.getFile());
@@ -109,13 +111,13 @@ public class AnalysisService {
   public void createSequencingRead(String id, SequencingRead experiment) {
     experiment.setAnalysisId(id);
     repository.createSequencingRead(experiment);
-    sequencingReadInfoService.create(id, experiment.getInfo());
+    sequencingReadInfoService.create(id, experiment.getInfoAsString());
   }
 
   public void createVariantCall(String id, VariantCall experiment) {
     experiment.setAnalysisId(id);
     repository.createVariantCall(experiment);
-    variantCallInfoService.create(id, experiment.getInfo());
+    variantCallInfoService.create(id, experiment.getInfoAsString());
   }
 
   void saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
@@ -134,7 +136,7 @@ public class AnalysisService {
     saveCompositeEntities(studyId, id, analysis.getSample());
     repository.deleteFiles(id);
     saveFiles(id, studyId, analysis.getFile());
-    infoService.update(id, analysis.getInfo());
+    analysisInfoService.update(id, analysis.getInfoAsString());
 
     if (analysis instanceof SequencingReadAnalysis ) {
       val experiment = ((SequencingReadAnalysis) analysis).getExperiment();
@@ -149,12 +151,12 @@ public class AnalysisService {
 
   public void updateSequencingRead(String id, SequencingRead experiment) {
     repository.updateSequencingRead( experiment);
-    sequencingReadInfoService.update(id, experiment.getInfo());
+    sequencingReadInfoService.update(id, experiment.getInfoAsString());
   }
 
   public void updateVariantCall(String id, VariantCall experiment) {
     repository.updateVariantCall( experiment);
-    variantCallInfoService.update(id, experiment.getInfo());
+    variantCallInfoService.update(id, experiment.getInfoAsString());
   }
 
   /**
@@ -202,7 +204,7 @@ public class AnalysisService {
     if (analysis == null) {
       return null;
     }
-    analysis.setInfo(infoService.read(id));
+    analysis.setInfo(analysisInfoService.read(id));
 
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
@@ -239,7 +241,12 @@ public class AnalysisService {
   }
 
   public List<File> readFiles(String id) {
-    return repository.readFiles(id);
+    val files = repository.readFiles(id);
+    for (val file : files){
+      val info = fileInfoService.read(file.getObjectId());
+      file.setInfo(info);
+    }
+    return files;
   }
 
   List<CompositeEntity> readSamples(String id) {
@@ -310,7 +317,7 @@ public class AnalysisService {
     String id = analysis.getAnalysisId();
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
-    analysis.setInfo(infoService.read(id));
+    analysis.setInfo(analysisInfoService.read(id));
 
     if (analysis instanceof SequencingReadAnalysis) {
       ((SequencingReadAnalysis) analysis).setExperiment(readSequencingRead(id));

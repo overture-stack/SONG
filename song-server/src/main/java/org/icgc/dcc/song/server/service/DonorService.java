@@ -56,7 +56,7 @@ public class DonorService {
     if (status != 1) {
       throw buildServerException(this.getClass(), DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
     }
-    infoService.create(id, donor.getInfo());
+    infoService.create(id, donor.getInfoAsString());
     d.getSpecimens().forEach(s -> specimenService.create(d.getStudyId(), s));
 
     return id;
@@ -89,7 +89,7 @@ public class DonorService {
 
   public String update(@NonNull Donor donor) {
     if (donorRepository.update(donor) == 1) {
-      infoService.update(donor.getDonorId(), donor.getInfo());
+      infoService.update(donor.getDonorId(), donor.getInfoAsString());
       return "Updated";
     }
     return "Failed"; //TODO: [DCC-5644] need to properly handle this. Should an ServerException be thrown?

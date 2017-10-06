@@ -21,6 +21,7 @@ public class SearchRepository {
     searchTerms.forEach(searchQueryBuilder::add);
     val query = searchQueryBuilder.build();
     return handle.createQuery(query)
+        .cleanupHandle()
         .map(infoSearchResponseMapper)
         .list();
   }

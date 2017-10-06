@@ -25,10 +25,10 @@ import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 public interface InfoRepository {
 
   @SqlUpdate("INSERT INTO Info (id, id_type, info) VALUES(:id,:type,:info)")
-  int create(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String info);
+  int create(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String jsonInfo);
 
   @SqlUpdate("UPDATE Info set info=:info where id=:id AND id_type=:type")
-  int set(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String info);
+  int set(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String jsonInfo);
 
   @SqlQuery("SELECT info from Info where id_type=:type AND id=:id")
   String read(@Bind("id") String id, @Bind("type") String id_type);

@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
 import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
@@ -47,6 +48,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
+import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @Slf4j
 @SpringBootTest
@@ -83,7 +85,9 @@ public class AnalysisServiceTest {
     val experiment = ((SequencingReadAnalysis) created).getExperiment();
     assertThat(experiment).isNotNull();
     assertThat(experiment.getAlignmentTool().equals("BigWrench"));
-    assertThat(experiment.getInfo()).isEqualTo(JsonUtils.fromSingleQuoted("{'notes':'N/A'}"));
+    val expectedMetadata = new Metadata();
+    expectedMetadata.setInfo("notes", "N/A");
+    assertThat(experiment.getInfo()).isEqualTo(expectedMetadata.getInfo());
 
 ;    // test update
     val change="ModifiedToolName";
@@ -112,7 +116,7 @@ public class AnalysisServiceTest {
     val experiment = ((VariantCallAnalysis) created).getExperiment();
     assertThat(experiment).isNotNull();
     assertThat(experiment.getVariantCallingTool()).isEqualTo("silver bullet");
-    assertThat(experiment.getInfo()).isEqualTo(
+    assertThat(experiment.getInfoAsString()).isEqualTo(
             JsonUtils.fromSingleQuoted("{'notes':'we can put anything we want as extra JSON fields'}"));
     // test update
     val change="GoldenHammer";
@@ -125,29 +129,26 @@ public class AnalysisServiceTest {
     log.info(format("Created '%s'",toJson(created)));
   }
 
-
   @Test
   public void testRead() {
     // test sequencing read
     val id1="AN1";
-    val json1 = readFile(FILEPATH + "existingVariantCall.json");
     val analysis1 = service.read(id1);
     assertThat(analysis1.getAnalysisId()).isEqualTo("AN1");
-    //assertThat(analysis1.getAnalysisState()).isEqualTo("UNPUBLISHED");
     assertThat(analysis1.getAnalysisType()).isEqualTo("variantCall");
     assertThat(analysis1.getStudy()).isEqualTo("ABC123");
     assertThat(analysis1.getSample().size()).isEqualTo(2);
-    assertThat(analysis1.getInfo()).isEqualTo("{}");
     assertThat(analysis1.getFile().size()).isEqualTo(2);
     assertThat(analysis1).isInstanceOf(VariantCallAnalysis.class);
     val experiment1 = ((VariantCallAnalysis) analysis1).getExperiment();
     assertThat(experiment1).isNotNull();
     assertThat(experiment1.getVariantCallingTool()).isEqualTo("SuperNewVariantCallingTool");
 
+    assertThat(getInfoName(analysis1)).isEqualTo("analysis1");
+    assertThat(getInfoName(experiment1)).isEqualTo("variantCall1");
 
     // test variant call
     val id2="AN2";
-    val json2 = readFile(FILEPATH + "existingSequencingRead.json");
     val analysis2 = service.read(id2);
     assertThat(analysis2.getAnalysisId()).isEqualTo("AN2");
     //assertThat(analysis2.getAnalysisState()).isEqualTo("UNPUBLISHED");
@@ -158,6 +159,9 @@ public class AnalysisServiceTest {
     assertThat(experiment2).isNotNull();
     assertThat(experiment2.getAlignmentTool()).isEqualTo("BigWrench");
 
+    assertThat(getInfoName(analysis2)).isEqualTo("analysis2");
+    assertThat(getInfoName(experiment2)).isEqualTo("sequencingRead2");
+
     //checkRead(id2, fromJson(json2, Analysis.class));
 
     // test not found
@@ -165,7 +169,6 @@ public class AnalysisServiceTest {
     val analysis3 = service.read(id3);
     assertThat(analysis3).isNull();
   }
-
 
   @Ignore
   @Test

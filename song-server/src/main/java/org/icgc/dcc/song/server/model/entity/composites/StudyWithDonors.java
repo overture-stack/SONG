@@ -18,7 +18,7 @@ public class StudyWithDonors extends Study {
     @JsonIgnore
     public Study getStudy() {
         val s= Study.create(getStudyId(), getName(),getOrganization(), getDescription());
-        s.setInfo(getInfo());
+        s.setInfo(getInfoAsString());
         return s;
     }
 
@@ -28,7 +28,7 @@ public class StudyWithDonors extends Study {
         setName(s.getName());
         setOrganization(s.getOrganization());
         s.setDescription(s.getDescription());
-        s.addInfo(s.getInfo());
+        s.addInfo(s.getInfoAsString());
     }
 
     public void addDonor(DonorWithSpecimens d) {

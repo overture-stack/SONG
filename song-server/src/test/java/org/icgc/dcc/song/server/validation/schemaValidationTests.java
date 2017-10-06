@@ -46,7 +46,7 @@ public class schemaValidationTests {
   public void validate_submit_sequencing_read_missing_required() throws Exception {
     val errors = validate("schemas/sequencingRead.json",
             "documents/sequencingread-missing-required.json");
-    assertThat(errors.size()).isEqualTo(5);
+    assertThat(errors.size()).isEqualTo(4);
   }
 
   @Test

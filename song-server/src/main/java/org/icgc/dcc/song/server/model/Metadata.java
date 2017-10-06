@@ -19,7 +19,10 @@
 package org.icgc.dcc.song.server.model;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.val;
@@ -28,6 +31,8 @@ import org.icgc.dcc.song.core.utils.JsonUtils;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -41,18 +46,27 @@ public class Metadata {
   }
 
   @JsonSetter
-  public void setInfo(String info) {
-      addInfo(info);
+  public void setInfo(JsonNode info) {
+      setInfo(JsonUtils.toJson(info));
   }
 
-  @JsonSetter
-  public String getInfo() {
+  public void setInfo(String info) {
+    addInfo(info);
+  }
+
+  @JsonGetter
+  public JsonNode getInfo() {
+    return JsonUtils.toJsonNode(info);
+  }
+
+  @JsonIgnore
+  public String getInfoAsString() {
     return JsonUtils.toJson(info);
   }
 
   @SuppressWarnings("unchecked")
   public void addInfo(String json) {
-    if (json == null || json.equals("")) {
+    if (isNullOrEmpty(json)) {
       return;
     }
     Map<String, Object> m;
@@ -62,8 +76,8 @@ public class Metadata {
       val j = JsonUtils.ObjectNode().put("info", json);
       m = JsonUtils.convertValue(j, Map.class);
     }
-   info.putAll(m);
-  }
+    info.putAll(m);
 
+  }
 
 }
