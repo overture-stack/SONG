@@ -3,9 +3,11 @@ INIT_DB=$AUTH_INIT/db.sqlite3
 DATA_DB=$AUTH_DATA/db.sqlite3
 SIMPLE_AUTH_DB=$SIMPLE_AUTH_ROOT/db.sqlite3
 
+
 echo "INIT_DB=$INIT_DB"
 echo "DATA_DB=$DATA_DB"
 echo "SIMPLE_AUTH_DB=$SIMPLE_AUTH_DB"
+echo "SERVER_PORT=$SERVER_PORT"
 
 ## Initially, copy the init db if nothing already exists in the auth_data volume
 if [ ! -f $DATA_DB ]; then

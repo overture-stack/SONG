@@ -1,6 +1,7 @@
 FROM python:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
+ENV SERVER_PORT 9090
 ENV DCC_HOME /opt/dcc
 RUN useradd -m dcc &&  mkdir -p $DCC_HOME
 ENV AUTH_INIT $DCC_HOME/init
@@ -10,8 +11,6 @@ ENV SIMPLE_AUTH_ROOT $DCC_HOME/SimpleAuth
 ADD init $AUTH_INIT
 
 WORKDIR $DCC_HOME
-
-ENV SERVER_PORT 9090
 
 EXPOSE $SERVER_PORT
 
