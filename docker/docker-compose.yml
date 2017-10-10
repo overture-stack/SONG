@@ -4,8 +4,8 @@ services:
     build: ./song
     volumes:
       - type: bind
-        source: ./song/logs
-        target: /opt/dcc/ext_logs
+        source: ./logs/song_logs
+        target: /opt/dcc/song_logs
     depends_on:
       - db 
       - id
@@ -14,19 +14,37 @@ services:
   auth:
     build: ./auth
     volumes:
-      - type: bind
-        source: ./data/auth_data
-        target: /opt/dcc/auth_data
+      - "auth-data:/opt/dcc/auth_data"
     ports:
       - "9090:9090"
   db:
     build: ./song-db
+    volumes:
+      - "song-db-data:/var/lib/postgresql/data"
+      - type: bind
+        source: ./logs/song_db_logs
+        target: /opt/dcc/song_db_logs
   id:
     build: ./id
     depends_on:
       - id-db
+    volumes:
+      - type: bind
+        source: ./logs/id_logs
+        target: /opt/dcc/id_logs
     ports:
       - "8444:8444"
       - "8443:8443"
   id-db:
     build: ./id-db
+    volumes:
+    volumes:
+      - "id-db-data:/var/lib/postgresql/data"
+      - type: bind
+        source: ./logs/id_db_logs
+        target: /opt/dcc/id_db_logs
+
+volumes:
+    song-db-data: {}
+    id-db-data: {}
+    auth-data: {}

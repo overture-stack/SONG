@@ -1,4 +1,4 @@
-FROM postgres
+FROM postgres:9.6
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 ADD init.sql /docker-entrypoint-initdb.d/init.sql
