@@ -4,9 +4,6 @@ services:
     build: ./song
     volumes:
       - "./logs/song_logs:/opt/dcc/song_logs"
-      #- type: bind
-        #source: ./logs/song_logs
-        #target: /opt/dcc/song_logs
     depends_on:
       - db 
       - id
@@ -25,9 +22,6 @@ services:
     volumes:
       - "db-data:/var/lib/postgresql/data/pgdata"
       - "./logs/db_logs:/opt/dcc/db_logs"
-      #- type: bind
-        #source: ./logs/db_logs
-        #target: /opt/dcc/db_logs
   storage-client:
     build: ./storage-client
     depends_on:
@@ -35,16 +29,10 @@ services:
       - song
     volumes:
       - "./data/storage-client:/opt/dcc/data"
-      #- type: bind
-        #source: ./data/storage-client
-        #target: /opt/dcc/data
   minio:
     image: minio/minio:latest
     volumes:
       - "./data/minio:/opt/dcc/data"
-      #- type: bind
-        #source: ./data/minio
-        #target: /opt/dcc/data
     ports:
       - "9001:9000"
     environment:
@@ -64,18 +52,12 @@ services:
       - "5000:5000"
     volumes:
       - "./logs/storage_server_logs:/opt/dcc/storage_server_logs"
-      #- type: bind
-        #source: ./logs/storage_server_logs
-        #target: /opt/dcc/storage_server_logs
   id:
     build: ./id
     depends_on:
       - id-db
     volumes:
       - "./logs/id_logs:/opt/dcc/id_logs"
-      #- type: bind
-        #source: ./logs/id_logs
-        #target: /opt/dcc/id_logs
     ports:
       - "8444:8444"
       - "8443:8443"
@@ -84,9 +66,6 @@ services:
     volumes:
       - "id-db-data:/var/lib/postgresql/data/pgdata"
       - "./logs/id_db_logs:/opt/dcc/id_db_logs"
-      #- type: bind
-        #source: ./logs/id_db_logs
-        #target: /opt/dcc/id_db_logs
 
 volumes:
     db-data: {}
