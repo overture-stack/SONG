@@ -19,11 +19,15 @@ services:
       - "9090:9090"
   db:
     build: ./song-db
+    ports:
+      - "15432:5432"
     volumes:
-      - "song-db-data:/var/lib/postgresql/data"
+      - "song-db-data:/var/lib/postgresql/data/pgdata"
       - type: bind
         source: ./logs/song_db_logs
         target: /opt/dcc/song_db_logs
+  minio:
+    image: minio/minio
   id:
     build: ./id
     depends_on:
@@ -38,8 +42,7 @@ services:
   id-db:
     build: ./id-db
     volumes:
-    volumes:
-      - "id-db-data:/var/lib/postgresql/data"
+      - "id-db-data:/var/lib/postgresql/data/pgdata"
       - type: bind
         source: ./logs/id_db_logs
         target: /opt/dcc/id_db_logs
