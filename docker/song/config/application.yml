@@ -125,9 +125,8 @@ spring:
 spring.datasource:
   driver-class-name: org.postgresql.Driver
   url: jdbc:postgresql://db/song?stringtype=unspecified
-
-  username:
-  password:
+  username: postgres
+  password: password
   max-active: 10
   max-idle: 1
   min-idle: 1
