@@ -19,11 +19,13 @@ RUN tar zxvf $DCC_HOME/song-server.tar.gz && mv -f $DCC_HOME/song-server-*  song
 RUN rm -rf $DCC_HOME/song-server.tar.gz
 RUN cp -f $DCC_HOME/config/wrapper.conf $DCC_HOME/song-server/conf/
 RUN mv $DCC_HOME/song-server/logs  $DCC_HOME/song-server/logs.bak
-RUN ln -s $DCC_HOME/ext_logs $DCC_HOME/song-server/logs
+RUN ln -s $DCC_HOME/song_logs $DCC_HOME/song-server/logs
 
 CMD $DCC_HOME/song-server/bin/song-server start \
-	set.SPRING_CONFIG_LOCATION=$DCC_HOME/config/ \
-	set.LOGGING_PATH=$SONG_LOGS \
-	set.LOG_PATH=$SONG_LOGS \
-	set.SPRING_PROFILES_ACTIVE=dev,test; FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
+       set.SPRING_CONFIG_LOCATION=$DCC_HOME/config/ \
+       set.LOGGING_PATH=$SONG_LOGS \
+       set.LOG_PATH=$SONG_LOGS \
+       set.SPRING_PROFILES_ACTIVE=prod,secure; FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
+
+#set.SPRING_PROFILES_ACTIVE=dev,test; FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
 
