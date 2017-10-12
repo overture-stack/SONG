@@ -27,7 +27,26 @@ services:
         source: ./logs/song_db_logs
         target: /opt/dcc/song_db_logs
   minio:
-    image: minio/minio
+    image: minio/minio:latest
+    volumes:
+      - type: bind
+        source: ./dcc-storage-server/data
+        target: /opt/dcc/data
+    ports:
+      - "9001:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    deploy:
+        restart_policy:
+            delay: 10s
+            max_attempts: 10
+            window: 60s
+    command: server /opt/dcc/data
+  dcc-storage-server:
+    build: ./dcc-storage-server
+    depends_on:
+      - minio
   id:
     build: ./id
     depends_on:
