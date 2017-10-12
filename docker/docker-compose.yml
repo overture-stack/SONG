@@ -26,11 +26,27 @@ services:
       - type: bind
         source: ./logs/song_db_logs
         target: /opt/dcc/song_db_logs
+  dcc-storage-client:
+    build: ./dcc-storage-client
+    depends_on:
+      - dcc-storage-server
+      - song
+    volumes:
+      - type: bind
+        source: ./data/dcc-storage-client
+        target: /opt/dcc/data
+  icgc-storage-client:
+    image: icgc/icgc-storage-client:latest
+    volumes:
+      - type: bind
+        source: ./data/icgc-storage-client
+        target: /data
+    command: cp -r /icgc/icgc-storage-client/* /data
   minio:
     image: minio/minio:latest
     volumes:
       - type: bind
-        source: ./dcc-storage-server/data
+        source: ./data/minio
         target: /opt/dcc/data
     ports:
       - "9001:9000"
@@ -47,6 +63,8 @@ services:
     build: ./dcc-storage-server
     depends_on:
       - minio
+    ports:
+      - "5000:5000"
   id:
     build: ./id
     depends_on:
