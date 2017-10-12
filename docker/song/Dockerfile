@@ -15,11 +15,12 @@ EXPOSE 8080
 ADD config $DCC_HOME/config 
 
 ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/[RELEASE]/song-server-[RELEASE]-dist.tar.gz  $DCC_HOME/song-server.tar.gz
-RUN tar zxvf $DCC_HOME/song-server.tar.gz && mv -f $DCC_HOME/song-server-*  song-server
-RUN rm -rf $DCC_HOME/song-server.tar.gz
-RUN cp -f $DCC_HOME/config/wrapper.conf $DCC_HOME/song-server/conf/
-RUN mv $DCC_HOME/song-server/logs  $DCC_HOME/song-server/logs.bak
-RUN ln -s $DCC_HOME/song_logs $DCC_HOME/song-server/logs
+RUN tar zxvf $DCC_HOME/song-server.tar.gz &&  \
+        mv -f $DCC_HOME/song-server-*  song-server && \
+        rm -rf $DCC_HOME/song-server.tar.gz && \
+        cp -f $DCC_HOME/config/wrapper.conf $DCC_HOME/song-server/conf/ && \
+        mv $DCC_HOME/song-server/logs  $DCC_HOME/song-server/logs.bak && \
+        ln -s $DCC_HOME/song_logs $DCC_HOME/song-server/logs
 
 CMD $DCC_HOME/song-server/bin/song-server start \
        set.SPRING_CONFIG_LOCATION=$DCC_HOME/config/ \

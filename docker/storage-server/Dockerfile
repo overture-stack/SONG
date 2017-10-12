@@ -4,8 +4,6 @@ MAINTAINER ICGC <dcc-support@icgc.org>
 #
 # Configuration
 #
-
-ENV CONTAINER_NAME dcc-storage-server
 ENV DCC_HOME /opt/dcc
 ENV DCC_STORAGE_HOME $DCC_HOME/dcc-storage-server
 ENV DCC_STORAGE_LOGS $DCC_STORAGE_HOME/logs
@@ -16,7 +14,7 @@ EXPOSE 8080
 
 ADD config $DCC_HOME/config
 
-ENV TARBALL $DCC_HOME/${CONTAINER_NAME}.tar.gz
+ENV TARBALL $DCC_HOME/dcc-storage-server.tar.gz
 
 ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-storage-server/[RELEASE]/dcc-storage-server-[RELEASE]-dist.tar.gz $TARBALL
 RUN tar zxvf $TARBALL && \
@@ -24,7 +22,7 @@ RUN tar zxvf $TARBALL && \
     rm -rf $TARBALL $DCC_STORAGE_HOME/conf/application.* && \
     ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application.properties  && \
     mv $DCC_STORAGE_LOGS  ${DCC_STORAGE_LOGS}.bak  && \
-    ln -s $DCC_HOME/dcc_storage_server_logs $DCC_STORAGE_LOGS
+    ln -s $DCC_HOME/storage_server_logs $DCC_STORAGE_LOGS
 
 CMD $DCC_STORAGE_HOME/bin/dcc-storage-server start  \
     wrapper.app.parameter.5=--spring.profiles.active=collaboratory,prod,secure \
