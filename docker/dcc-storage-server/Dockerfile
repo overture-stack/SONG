@@ -22,14 +22,12 @@ ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-storag
 RUN tar zxvf $TARBALL && \
     mv -f $DCC_HOME/dcc-storage-server-*  $DCC_STORAGE_HOME && \
     rm -rf $TARBALL $DCC_STORAGE_HOME/conf/application.* && \
-    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application.properties
+    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application.properties  && \
+    mv $DCC_STORAGE_LOGS  ${DCC_STORAGE_LOGS}.bak  && \
+    ln -s $DCC_HOME/dcc_storage_server_logs $DCC_STORAGE_LOGS
 
-CMD $DCC_STORAGE_HOME/bin/dcc-storage-server start \
+CMD $DCC_STORAGE_HOME/bin/dcc-storage-server start  \
+    wrapper.app.parameter.5=--spring.profiles.active=collaboratory,prod,secure \
     ;FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
 
-# CMD $DCC_STORAGE_HOME/bin/dcc-storage-server start \
-# 	set.SPRING_CONFIG_LOCATION=$DCC_HOME/config/ \
-# 	set.LOGGING_PATH=$DCC_STORAGE_LOGS \
-# 	set.LOG_PATH=$DCC_STORAGE_LOGS \
-# 	set.SPRING_PROFILES_ACTIVE=dev,test; FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
 
