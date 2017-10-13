@@ -38,7 +38,7 @@ services:
   minio:
     image: minio/minio:latest
     volumes:
-      - "./data/minio:/opt/dcc/data"
+      - "./data/minio/oicr.icgc:/opt/dcc/data"
     ports:
       - "9001:9000"
     environment:
