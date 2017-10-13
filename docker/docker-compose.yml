@@ -1,9 +1,9 @@
 version: '3.2'
 services:
-  song:
-    build: ./song
+  server:
+    build: ./server
     volumes:
-      - "./logs/song_logs:/opt/dcc/song_logs"
+      - "./logs/server_logs:/opt/dcc/server_logs"
     depends_on:
       - db 
       - id
@@ -14,7 +14,7 @@ services:
     volumes:
       - "./data/client:/opt/dcc/data"
     depends_on:
-      - song
+      - server
   auth:
     build: ./auth
     volumes:
@@ -32,7 +32,7 @@ services:
     build: ./storage-client
     depends_on:
       - storage-server
-      - song
+      - server
     volumes:
       - "./data/storage-client:/opt/dcc/data"
   minio:
@@ -54,6 +54,7 @@ services:
     build: ./storage-server
     depends_on:
       - minio
+      - server
     ports:
       - "5000:5000"
     volumes:

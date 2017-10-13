@@ -20,7 +20,7 @@ RUN tar zxvf $DCC_HOME/song-server.tar.gz &&  \
         rm -rf $DCC_HOME/song-server.tar.gz && \
         cp -f $DCC_HOME/config/wrapper.conf $DCC_HOME/song-server/conf/ && \
         mv $DCC_HOME/song-server/logs  $DCC_HOME/song-server/logs.bak && \
-        ln -s $DCC_HOME/song_logs $DCC_HOME/song-server/logs
+        ln -s $DCC_HOME/server_logs $DCC_HOME/song-server/logs
 
 CMD $DCC_HOME/song-server/bin/song-server start \
        set.SPRING_CONFIG_LOCATION=$DCC_HOME/config/ \
