@@ -9,6 +9,12 @@ services:
       - id
     ports:
       - "8080:8080"
+  song-client:
+    build: ./song-client
+    volumes:
+      - "./data/song-client:/opt/dcc/data"
+    depends_on:
+      - song
   auth:
     build: ./auth
     volumes:
