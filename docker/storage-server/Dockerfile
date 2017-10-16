@@ -21,6 +21,9 @@ RUN tar zxvf $TARBALL && \
     mv -f $DCC_HOME/dcc-storage-server-*  $DCC_STORAGE_HOME && \
     rm -rf $TARBALL $DCC_STORAGE_HOME/conf/application.* && \
     ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application.properties  && \
+    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application-secure.properties  && \
+    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application-prod.properties  && \
+    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application-collaboratory.properties  && \
     mv $DCC_STORAGE_LOGS  ${DCC_STORAGE_LOGS}.bak  && \
     ln -s $DCC_HOME/storage_server_logs $DCC_STORAGE_LOGS
 
