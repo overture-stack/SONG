@@ -10,7 +10,7 @@ ENV DCC_STORAGE_LOGS $DCC_STORAGE_HOME/logs
 RUN useradd -m dcc &&  mkdir -p $DCC_HOME
 WORKDIR $DCC_HOME
 
-EXPOSE 8080
+EXPOSE 9000
 
 ADD config $DCC_HOME/config
 

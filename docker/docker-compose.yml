@@ -35,15 +35,19 @@ services:
       - server
     volumes:
       - "./data/storage-client:/opt/dcc/data"
+
   minio:
     image: minio/minio:latest
+    network_mode: host
     volumes:
       - "./data/minio:/opt/dcc/data"
-    ports:
-      - "9001:9000"
     environment:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio123
+    expose:
+      - "9001"
+    ports:
+      - "9001:9000"
     deploy:
         restart_policy:
             delay: 10s
