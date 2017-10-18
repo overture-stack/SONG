@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM song_base_java:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 
@@ -15,9 +15,7 @@ ENV POSTGRES_PASSWORD password
 
 ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-client/[RELEASE]/song-client-[RELEASE]-dist.tar.gz
 ADD conf $DCC_HOME/conf
-RUN apt update && \
-    apt install -y wget && \
-    wget ${DOWNLOAD_URL} -O  ${TARBALL} && \
+RUN wget ${DOWNLOAD_URL} -O  ${TARBALL} && \
     tar zxvf $TARBALL && \
     mv -f $DCC_HOME/song-client-* $DCC_HOME/song-client
 

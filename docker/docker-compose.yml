@@ -1,10 +1,15 @@
 version: '3.2'
 services:
+  base_java:
+    build: ./base_java
+  base_db:
+    build: ./base_db
   server:
     build: ./server
     volumes:
       - "./logs/server_logs:/opt/dcc/server_logs"
     depends_on:
+      - base_java
       - db 
       - id
     ports:
@@ -14,6 +19,7 @@ services:
     volumes:
       - "./data/client:/opt/dcc/data"
     depends_on:
+      - base_java
       - server
   auth:
     build: ./auth
@@ -28,6 +34,8 @@ services:
     volumes:
       - "db-data:/var/lib/postgresql/data/pgdata"
       - "./logs/db_logs:/opt/dcc/db_logs"
+    depends_on:
+      - base_db
   storage-client:
     build: ./storage-client
     depends_on:
@@ -57,6 +65,7 @@ services:
   storage-server:
     build: ./storage-server
     depends_on:
+      - base_java
       - minio
       - server
     ports:
@@ -66,6 +75,7 @@ services:
   id:
     build: ./id
     depends_on:
+      - base_java
       - id-db
     volumes:
       - "./logs/id_logs:/opt/dcc/id_logs"
@@ -77,6 +87,8 @@ services:
     volumes:
       - "id-db-data:/var/lib/postgresql/data/pgdata"
       - "./logs/id_db_logs:/opt/dcc/id_db_logs"
+    depends_on:
+      - base_db
 
 volumes:
     db-data: {}

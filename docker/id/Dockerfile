@@ -1,4 +1,4 @@
-From java
+FROM song_base_java:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 
@@ -21,9 +21,7 @@ EXPOSE 8443 8444
 
 ADD init.sh $DCC_HOME/init.sh
 ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-id-server/[RELEASE]/dcc-id-server-[RELEASE]-dist.tar.gz
-RUN apt update && \
-        apt install -y wget && \
-        wget $DOWNLOAD_URL -O $TAR_BALL_LOC && \
+RUN wget $DOWNLOAD_URL -O $TAR_BALL_LOC && \
         tar zxvf ${TAR_BALL_LOC} && \
         mv $DCC_HOME/dcc-id-server-* $ID_HOME && \
         rm -rf ${TAR_BALL_LOC} $ID_HOME/logs && \

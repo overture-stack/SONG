@@ -1,4 +1,4 @@
-FROM java:8-jre
+FROM song_base_java:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 #
@@ -14,18 +14,19 @@ EXPOSE 9000
 
 ADD config $DCC_HOME/config
 
+ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-storage-server/[RELEASE]/dcc-storage-server-[RELEASE]-dist.tar.gz
 ENV TARBALL $DCC_HOME/dcc-storage-server.tar.gz
 
-ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-storage-server/[RELEASE]/dcc-storage-server-[RELEASE]-dist.tar.gz $TARBALL
-RUN tar zxvf $TARBALL && \
-    mv -f $DCC_HOME/dcc-storage-server-*  $DCC_STORAGE_HOME && \
-    rm -rf $TARBALL $DCC_STORAGE_HOME/conf/application.* && \
-    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application.properties  && \
-    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application-secure.properties  && \
-    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application-prod.properties  && \
-    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application-collaboratory.properties  && \
-    mv $DCC_STORAGE_LOGS  ${DCC_STORAGE_LOGS}.bak  && \
-    ln -s $DCC_HOME/storage_server_logs $DCC_STORAGE_LOGS
+RUN wget $DOWNLOAD_URL -O $TARBALL && \
+	    tar zxvf $TARBALL && \
+	    mv -f $DCC_HOME/dcc-storage-server-*  $DCC_STORAGE_HOME && \
+	    rm -rf $TARBALL $DCC_STORAGE_HOME/conf/application.* && \
+	    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application.properties  && \
+	    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application-secure.properties  && \
+	    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application-prod.properties  && \
+	    ln -s $DCC_HOME/config/application.properties $DCC_STORAGE_HOME/conf/application-collaboratory.properties  && \
+	    mv $DCC_STORAGE_LOGS  ${DCC_STORAGE_LOGS}.bak  && \
+	    ln -s $DCC_HOME/storage_server_logs $DCC_STORAGE_LOGS
 
 CMD $DCC_STORAGE_HOME/bin/dcc-storage-server start  \
     wrapper.app.parameter.5=--spring.profiles.active=collaboratory,prod,secure \

@@ -1,4 +1,4 @@
-FROM java:8-jre
+FROM song_base_java:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 #
@@ -14,13 +14,15 @@ EXPOSE 8080
 
 ADD config $DCC_HOME/config 
 
-ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/[RELEASE]/song-server-[RELEASE]-dist.tar.gz  $DCC_HOME/song-server.tar.gz
-RUN tar zxvf $DCC_HOME/song-server.tar.gz &&  \
-        mv -f $DCC_HOME/song-server-*  song-server && \
-        rm -rf $DCC_HOME/song-server.tar.gz && \
-        cp -f $DCC_HOME/config/wrapper.conf $DCC_HOME/song-server/conf/ && \
-        mv $DCC_HOME/song-server/logs  $DCC_HOME/song-server/logs.bak && \
-        ln -s $DCC_HOME/server_logs $DCC_HOME/song-server/logs
+ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/[RELEASE]/song-server-[RELEASE]-dist.tar.gz  
+ENV TARBALL $DCC_HOME/song-server.tar.gz
+RUN wget $DOWNLOAD_URL -O $TARBALL && \
+	    tar zxvf $TARBALL &&  \
+	    mv -f $DCC_HOME/song-server-*  song-server && \
+	    rm -rf $TARBALL && \
+	    cp -f $DCC_HOME/config/wrapper.conf $DCC_HOME/song-server/conf/ && \
+	    mv $DCC_HOME/song-server/logs  $DCC_HOME/song-server/logs.bak && \
+	    ln -s $DCC_HOME/server_logs $DCC_HOME/song-server/logs
 
 CMD $DCC_HOME/song-server/bin/song-server start \
        set.SPRING_CONFIG_LOCATION=$DCC_HOME/config/ \
