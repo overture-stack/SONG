@@ -11,7 +11,9 @@ ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=password
 ENV POSTGRES_INIT_SQL /docker-entrypoint-initdb.d/init.sql
 
-ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-id-server/[RELEASE]/dcc-id-server-[RELEASE].jar $DCC_HOME/dcc-id-server.jar
+ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-id-server/[RELEASE]/dcc-id-server-[RELEASE].jar 
+ENV JAR $DCC_HOME/dcc-id-server.jar
 RUN apt update && \
-    apt install -y unzip && \
+    apt install -y unzip wget && \
+    wget $DOWNLOAD_URL -O $JAR && \
     unzip -p dcc-id-server.jar BOOT-INF/classes/sql/schema.sql > $POSTGRES_INIT_SQL
