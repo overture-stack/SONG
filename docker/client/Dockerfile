@@ -1,4 +1,4 @@
-From java
+FROM ubuntu:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 
@@ -13,10 +13,13 @@ ENV POSTGRES_DB dcc_identifier
 ENV POSTGRES_USER postgres
 ENV POSTGRES_PASSWORD password
 
-ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-client/[RELEASE]/song-client-[RELEASE]-dist.tar.gz  $TARBALL
+ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-client/[RELEASE]/song-client-[RELEASE]-dist.tar.gz
 ADD conf $DCC_HOME/conf
-RUN tar zxvf $TARBALL && \
-        mv -f $DCC_HOME/song-client-* $DCC_HOME/song-client
+RUN apt update && \
+    apt install -y wget && \
+    wget ${DOWNLOAD_URL} -O  ${TARBALL} && \
+    tar zxvf $TARBALL && \
+    mv -f $DCC_HOME/song-client-* $DCC_HOME/song-client
 
 CMD rm -rf $CLIENT_HOME/* && \
         cp -rf $DCC_HOME/song-client/* $CLIENT_HOME && \
