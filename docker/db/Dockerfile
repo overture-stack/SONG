@@ -1,14 +1,11 @@
-FROM song_base_db:latest
+FROM song_base-db:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
-ENV DCC_HOME /opt/dcc
-RUN useradd -m dcc &&  mkdir -p $DCC_HOME
-WORKDIR $DCC_HOME
-
+ENV POSTGRES_HOST=$DB_HOST
+ENV POSTGRES_DB=$DB_NAME
+ENV POSTGRES_USER=$DB_USER
+ENV POSTGRES_PASSWORD=$DB_PASSWORD
 ENV PGDATA /var/lib/postgresql/data/pgdata
-ENV POSTGRES_DB=song
-ENV POSTGRES_USER=postgres
-ENV POSTGRES_PASSWORD=password
 ENV POSTGRES_INIT_SQL /docker-entrypoint-initdb.d/init.sql
 
 ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/[RELEASE]/song-server-[RELEASE].jar 

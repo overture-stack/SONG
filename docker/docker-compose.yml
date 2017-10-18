@@ -1,43 +1,66 @@
 version: '3.2'
 services:
-  base_java:
-    build: ./base_java
-  base_db:
-    build: ./base_db
   server:
     build: ./server
-    volumes:
-      - "./logs/server_logs:/opt/dcc/server_logs"
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      SERVER_MANAGEMENT_PORT: ${SERVER_MANAGEMENT_PORT}
+      STORAGE_SERVER_PORT: ${STORAGE_SERVER_PORT}
+      STORAGE_SERVER_HOST: ${STORAGE_SERVER_PORT}
+      ID_PORT: ${ID_PORT}
+      ID_HOST: ${ID_HOST}
+      AUTH_TOKEN: ${AUTH_TOKEN}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      AUTH_HOST: ${AUTH_HOST}
+      AUTH_PORT: ${AUTH_PORT}
+      AUTH_ENDPOINT: ${AUTH_ENDPOINT}
+      AUTH_SERVER_CLIENTID: ${AUTH_SERVER_CLIENTID}
+      AUTH_SERVER_CLIENTSECRET: ${AUTH_SERVER_CLIENTSECRET}
+      SERVER_PORT: ${SERVER_PORT}
+      SERVER_PORT: ${SERVER_PORT}
+      SERVER_PORT: ${SERVER_PORT}
+      SERVER_PORT: ${SERVER_PORT}
     depends_on:
-      - base_java
+      - base-ubuntu
       - db 
       - id
-    ports:
-      - "8080:8080"
+    network_mode: host
+    volumes:
+      - "./logs/server_logs:/opt/dcc/server_logs"
+  base-ubuntu:
+    build: ./base-ubuntu
+  base-db:
+    build: ./base-db
+    env_file: ./env_config/common.env
   client:
     build: ./client
+    depends_on:
+      - base-ubuntu
+      - server
+    network_mode: host
     volumes:
       - "./data/client:/opt/dcc/data"
-    depends_on:
-      - base_java
-      - server
   auth:
     build: ./auth
+    env_file: ./env_config/common.env
+    network_mode: host
     volumes:
       - "auth-data:/opt/dcc/auth_data"
-    ports:
-      - "9090:9090"
   db:
     build: ./db
-    ports:
-      - "15432:5432"
+    depends_on:
+      - base-db
+    network_mode: host
     volumes:
       - "db-data:/var/lib/postgresql/data/pgdata"
       - "./logs/db_logs:/opt/dcc/db_logs"
-    depends_on:
-      - base_db
   storage-client:
     build: ./storage-client
+    env_file: ./env_config/common.env
     depends_on:
       - storage-server
       - server
@@ -47,15 +70,12 @@ services:
   minio:
     image: minio/minio:latest
     network_mode: host
+    env_file: ./env_config/common.env
     volumes:
       - "./data/minio:/opt/dcc/data"
     environment:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio123
-    expose:
-      - "9001"
-    ports:
-      - "9001:9000"
     deploy:
         restart_policy:
             delay: 10s
@@ -65,30 +85,28 @@ services:
   storage-server:
     build: ./storage-server
     depends_on:
-      - base_java
+      - base-ubuntu
       - minio
       - server
-    ports:
-      - "5000:5000"
+    network_mode: host
     volumes:
       - "./logs/storage_server_logs:/opt/dcc/storage_server_logs"
   id:
     build: ./id
     depends_on:
-      - base_java
+      - base-ubuntu
       - id-db
+    network_mode: host
     volumes:
       - "./logs/id_logs:/opt/dcc/id_logs"
-    ports:
-      - "8444:8444"
-      - "8443:8443"
   id-db:
     build: ./id-db
+    depends_on:
+      - base-db
+    network_mode: host
     volumes:
       - "id-db-data:/var/lib/postgresql/data/pgdata"
       - "./logs/id_db_logs:/opt/dcc/id_db_logs"
-    depends_on:
-      - base_db
 
 volumes:
     db-data: {}
