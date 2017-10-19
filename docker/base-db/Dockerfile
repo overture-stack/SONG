@@ -7,10 +7,10 @@ ENV DCC_CONFIG $DCC_HOME/config
 RUN apt update && \
         apt install -y wget unzip vim python3 && \
         useradd -m dcc && \
-        alias ls='ls --color' && \
-        alias ll='ls -l' && \
-        alias lr='ls -lrt' && \
-        alias la='ll -a' && \
+        echo "alias ls='ls --color'" >> ~/.bashrc && \
+        echo "alias ll='ls -l'" >> ~/.bashrc && \
+        echo "alias lr='ll -rt'" >> ~/.bashrc && \
+        echo "alias la='ll -a'" >> ~/.bashrc && \
         mkdir -p $DCC_HOME
 WORKDIR $DCC_HOME
 
