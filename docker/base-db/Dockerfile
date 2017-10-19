@@ -5,7 +5,7 @@ ENV DCC_HOME /opt/dcc
 ENV DCC_DATA $DCC_HOME/data
 ENV DCC_CONFIG $DCC_HOME/config
 RUN apt update && \
-        apt install -y wget unzip vim && \
+        apt install -y wget unzip vim python3 && \
         useradd -m dcc && \
         alias ls='ls --color' && \
         alias ll='ls -l' && \

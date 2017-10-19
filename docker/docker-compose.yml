@@ -33,12 +33,14 @@ services:
       - "auth-data:/opt/dcc/auth_data"
   db:
     build: ./db
+    env_file: ./env_config/common.env
     depends_on:
       - base-db
     network_mode: host
     volumes:
       - "db-data:/var/lib/postgresql/data/pgdata"
       - "./logs/db_logs:/opt/dcc/db_logs"
+      - "./tools:/opt/dcc/tools"
   storage-client:
     build: ./storage-client
     env_file: ./env_config/common.env
@@ -83,12 +85,14 @@ services:
       - "./logs/id_logs:/opt/dcc/id_logs"
   id-db:
     build: ./id-db
+    env_file: ./env_config/common.env
     depends_on:
       - base-db
     network_mode: host
     volumes:
       - "id-db-data:/var/lib/postgresql/data/pgdata"
       - "./logs/id_db_logs:/opt/dcc/id_db_logs"
+      - "./tools:/opt/dcc/tools"
 
 volumes:
     db-data: {}
