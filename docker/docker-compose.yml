@@ -10,13 +10,13 @@ services:
     network_mode: host
     volumes:
       - "./logs/server_logs:/opt/dcc/server_logs"
-      - "./data/server:/opt/dcc/data"
       - "./tools:/opt/dcc/tools"
   base-ubuntu:
     build: ./base-ubuntu
   base-db:
     build: ./base-db
     env_file: ./env_config/common.env
+    command: echo "do nothing"
   client:
     build: ./client
     depends_on:
@@ -72,6 +72,7 @@ services:
     network_mode: host
     volumes:
       - "./logs/storage_server_logs:/opt/dcc/storage_server_logs"
+      - "./tools:/opt/dcc/tools"
   id:
     build: ./id
     depends_on:
