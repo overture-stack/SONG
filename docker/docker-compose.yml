@@ -11,6 +11,7 @@ services:
     volumes:
       - "./logs/server_logs:/opt/dcc/server_logs"
       - "./data/server:/opt/dcc/data"
+      - "./tools:/opt/dcc/tools"
   base-ubuntu:
     build: ./base-ubuntu
   base-db:
