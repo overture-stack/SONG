@@ -7,4 +7,5 @@ ENV DCC_CONFIG $DCC_HOME/config
 RUN apt update && apt install -y wget unzip vim
 RUN useradd -m dcc &&  mkdir -p $DCC_HOME
 WORKDIR $DCC_HOME
+CMD echo "do nothing"
 
