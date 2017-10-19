@@ -12,14 +12,13 @@ ENV TARBALL $DCC_HOME/song-server.tar.gz
 ADD config $DCC_CONFIG
 
 ENV EXPAND_SCRIPT $DCC_HOME/tools/expand.py
-ENV INPUT_FILE  $SONG_HOME/conf/application.yml.template
+ENV INPUT_FILE  $DCC_CONFIG/application.yml.template
 ENV OUTPUT_FILE $SONG_HOME/conf/application.yml
 
 RUN wget $DOWNLOAD_URL -O $TARBALL && \
 	    tar zxvf $TARBALL &&  \
 	    mv -f $DCC_HOME/song-server-*  $DCC_HOME/song-server && \
 	    rm -rf $TARBALL && \
-	    cp -f $DCC_CONFIG/* $SONG_HOME/conf/ && \
 	    mv $DCC_HOME/song-server/logs  $SONG_HOME/logs.bak && \
 	    ln -s $DCC_HOME/server_logs $SONG_HOME/logs
 
