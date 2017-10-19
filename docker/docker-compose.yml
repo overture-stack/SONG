@@ -26,8 +26,10 @@ services:
       - "./data/client:/opt/dcc/data"
   auth:
     build: ./auth
-    env_file: ./env_config/common.env
-    network_mode: host
+    environment:
+      AUTH_PORT: 9090
+    ports:
+      - "9090:9090"
     volumes:
       - "auth-data:/opt/dcc/auth_data"
   db:
@@ -37,7 +39,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-        - "5433:5432"
+      - "5433:5432"
     depends_on:
       - base-db
     volumes:
