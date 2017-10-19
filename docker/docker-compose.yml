@@ -78,10 +78,21 @@ services:
       - "./tools:/opt/dcc/tools"
   id:
     build: ./id
+    environment:
+      POSTGRES_HOST: id-db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: dcc_identifier
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      AUTH_HOST: auth
+      AUTH_PORT: 9090
+      AUTH_ENDPOINT: /check_token/
+      AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
+      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
+      #AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
     depends_on:
       - base-ubuntu
       - id-db
-    network_mode: host
     volumes:
       - "./logs/id_logs:/opt/dcc/id_logs"
   id-db:
@@ -90,8 +101,6 @@ services:
       POSTGRES_DB: dcc_identifier
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-    ports:
-        - "5434:5432"
     depends_on:
       - base-db
     volumes:
