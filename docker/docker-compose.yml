@@ -15,7 +15,6 @@ services:
     build: ./base-ubuntu
   base-db:
     build: ./base-db
-    env_file: ./env_config/common.env
     command: echo "do nothing"
   client:
     build: ./client
@@ -33,14 +32,16 @@ services:
       - "auth-data:/opt/dcc/auth_data"
   db:
     build: ./db
-    env_file: ./env_config/common.env
+    environment:
+      POSTGRES_DB: song
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+        - "5433:5432"
     depends_on:
       - base-db
-    network_mode: host
     volumes:
       - "db-data:/var/lib/postgresql/data/pgdata"
-      - "./logs/db_logs:/opt/dcc/db_logs"
-      - "./tools:/opt/dcc/tools"
   storage-client:
     build: ./storage-client
     env_file: ./env_config/common.env
