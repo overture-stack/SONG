@@ -35,12 +35,18 @@ services:
     command: echo "do nothing"
   client:
     build: ./client
+    environment:
+      AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+      SERVER_HOST: localhost
+      SERVER_PORT: 8080
+      CLIENT_STUDY_ID: ABC123
+      CLIENT_DEBUG_ENABLED: "false"
     depends_on:
       - base-ubuntu
       - server
-    network_mode: host
     volumes:
       - "./data/client:/opt/dcc/data"
+      - "./tools:/opt/dcc/tools"
   auth:
     build: ./auth
     environment:

@@ -18,9 +18,9 @@
 # DCC Client Server - Default Configuration
 #
 client:
-  serverUrl: http://localhost:8080/
-  studyId: ABC123
+  serverUrl: http://${SERVER_HOST}:${SERVER_PORT}
+  studyId: ${CLIENT_STUDY_ID}
   programName: sing
-  debug: false
-  accessToken: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+  debug: ${CLIENT_DEBUG_ENABLED}
+  accessToken: ${AUTH_TOKEN}
 logging.level.org.springframework: OFF
