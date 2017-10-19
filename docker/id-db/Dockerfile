@@ -1,4 +1,4 @@
-FROM song_base_db:latest
+FROM song_base-db:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 ENV POSTGRES_DB $ID_DB_NAME

@@ -1,4 +1,4 @@
-FROM song_base_ubuntu:latest
+FROM song_base-ubuntu:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 ENV POSTGRES_HOST $ID_DB_HOST
@@ -13,7 +13,7 @@ ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/d
 
 ADD init.sh $DCC_HOME/init.sh
 
-EXPOSE $POSTGRES_PORT
+#rtisma EXPOSE $POSTGRES_PORT
 
 RUN wget $DOWNLOAD_URL -O $TARBALL && \
         tar zxvf $TARBALL && \

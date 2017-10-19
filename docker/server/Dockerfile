@@ -1,4 +1,4 @@
-FROM song_base_ubuntu:latest
+FROM song_base-ubuntu:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 #
@@ -10,6 +10,11 @@ ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/
 ENV TARBALL $DCC_HOME/song-server.tar.gz
 
 ADD config $DCC_CONFIG
+ADD tools $DCC_HOME/tools
+
+ENV EXPAND_SCRIPT $DCC_HOME/tools/expand.py
+ENV INPUT_FILE $DCC_CONFIG/application.yml.template
+ENV OUTPUT_FILE $DCC_DATA/application.yml
 
 RUN wget $DOWNLOAD_URL -O $TARBALL && \
 	    tar zxvf $TARBALL &&  \
@@ -19,10 +24,9 @@ RUN wget $DOWNLOAD_URL -O $TARBALL && \
 	    mv $DCC_HOME/song-server/logs  $DCC_HOME/song-server/logs.bak && \
 	    ln -s $DCC_HOME/server_logs $DCC_HOME/song-server/logs
 
-CMD $DCC_HOME/song-server/bin/song-server start \
-       wrapper.java.additional.6=-Dserver.port=${SERVER_PORT} \
-       wrapper.java.additional.7=-Ddcc-storage.url=http://${STORAGE_SERVER_HOST}:${STORAGE_SERVER_PORT} \
-       wrapper.java.additional.8=-Dmanagement.port=${SERVER_MANAGEMENT_PORT} \
+CMD  python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
+       ln -s $OUTPUT_FILE $DCC_CONFIG/application.yml && \
+       $DCC_HOME/song-server/bin/song-server start \
        set.SPRING_CONFIG_LOCATION=$DCC_CONFIG \
        set.LOGGING_PATH=$SONG_LOGS \
        set.LOG_PATH=$SONG_LOGS \
