@@ -13,22 +13,14 @@ def does_env_exist(env_variable):
 def extract_env_vars(line):
     return ENV_PATTERN.findall(line)
 
-def main1():
-    env_pattern = re.compile(r'\${(\w+)}')
-    line = "http://${STORAGE_SERVER_HOST}:${STORAGE_SERVER_PORT}"
-    #result = re.search("\${(\w+)}", line)
-    result = env_pattern.findall(line)
-    print("result = "+str(result))
-
 def main():
     input_filename = sys.argv[1]
     output_filename = sys.argv[2]
     if not os.path.exists(input_filename):
-        raise Exception("The filename \""+input_filename+"\" DNE")
+        raise Exception("The input filename \""+input_filename+"\" DNE")
 
     print("input_filename ="+input_filename)
     print("output_filename ="+output_filename)
-    env_pattern = re.compile(r'\${([a-zA-Z0-9]+)}')
     fo = open(output_filename, 'w')
     has_missing_env_vars = False
     with open(input_filename, "r") as ins:

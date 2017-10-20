@@ -69,12 +69,18 @@ services:
       - "db-data:/var/lib/postgresql/data/pgdata"
   storage-client:
     build: ./storage-client
-    env_file: ./env_config/common.env
+    environment:
+      AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+      SERVER_HOST: localhost
+      SERVER_PORT: 8080
+      STORAGE_SERVER_HOST: localhost
+      STORAGE_SERVER_PORT: 5555
     depends_on:
       - storage-server
       - server
     volumes:
       - "./data/storage-client:/opt/dcc/data"
+      - "./tools:/opt/dcc/tools"
   minio:
     image: minio/minio:latest
     network_mode: host
