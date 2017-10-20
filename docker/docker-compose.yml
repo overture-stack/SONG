@@ -123,7 +123,7 @@ services:
       MINIO_SECRET_KEY: minio123
       MINIO_PORT: 9999
       MINIO_HOST: localhost
-      AUTH_HOST: auth
+      AUTH_HOST: localhost
       AUTH_PORT: 9090
       AUTH_ENDPOINT: /check_token/
       AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
