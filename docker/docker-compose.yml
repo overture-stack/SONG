@@ -1,5 +1,62 @@
 version: '3.2'
 services:
+  base-ubuntu:
+    build: ./base-ubuntu
+  base-db:
+    build: ./base-db
+    command: echo "do nothing"
+  db:
+    build: ./db
+    environment:
+      POSTGRES_DB: song
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    depends_on:
+      - base-db
+    volumes:
+      - "db-data:/var/lib/postgresql/data/pgdata"
+  id-db:
+    build: ./id-db
+    environment:
+      POSTGRES_DB: dcc_identifier
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    depends_on:
+      - base-db
+    volumes:
+      - "id-db-data:/var/lib/postgresql/data/pgdata"
+  auth:
+    build: ./auth
+    environment:
+      AUTH_PORT: 9090
+    ports:
+      - "9090:9090"
+    volumes:
+      - "auth-data:/opt/dcc/auth_data"
+  id:
+    build: ./id
+    environment:
+      POSTGRES_HOST: id-db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: dcc_identifier
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      AUTH_HOST: auth
+      AUTH_PORT: 9090
+      AUTH_ENDPOINT: /check_token/
+      AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
+      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
+    depends_on:
+      - base-ubuntu
+      - id-db
+      - auth
+    expose:
+      - "8443"
+    volumes:
+      - "./logs/id_logs:/opt/dcc/id_logs"
+      - "./tools:/opt/dcc/tools"
   server:
     build: ./server
     environment:
@@ -22,17 +79,13 @@ services:
       - base-ubuntu
       - db 
       - id
+      - auth
     ports:
       - "8080:8080"
       - "8081:8081"
     volumes:
       - "./logs/server_logs:/opt/dcc/server_logs"
       - "./tools:/opt/dcc/tools"
-  base-ubuntu:
-    build: ./base-ubuntu
-  base-db:
-    build: ./base-db
-    command: echo "do nothing"
   client:
     build: ./client
     environment:
@@ -46,40 +99,6 @@ services:
       - server
     volumes:
       - "./data/client:/opt/dcc/data"
-      - "./tools:/opt/dcc/tools"
-  auth:
-    build: ./auth
-    environment:
-      AUTH_PORT: 9090
-    ports:
-      - "9090:9090"
-    volumes:
-      - "auth-data:/opt/dcc/auth_data"
-  db:
-    build: ./db
-    environment:
-      POSTGRES_DB: song
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5433:5432"
-    depends_on:
-      - base-db
-    volumes:
-      - "db-data:/var/lib/postgresql/data/pgdata"
-  storage-client:
-    build: ./storage-client
-    environment:
-      AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
-      SERVER_HOST: localhost
-      SERVER_PORT: 8080
-      STORAGE_SERVER_HOST: localhost
-      STORAGE_SERVER_PORT: 5555
-    depends_on:
-      - storage-server
-      - server
-    volumes:
-      - "./data/storage-client:/opt/dcc/data"
       - "./tools:/opt/dcc/tools"
   minio:
     image: minio/minio:latest
@@ -117,39 +136,24 @@ services:
       - base-ubuntu
       - minio
       - server
+      - auth
     volumes:
       - "./logs/storage_server_logs:/opt/dcc/storage_server_logs"
       - "./tools:/opt/dcc/tools"
-  id:
-    build: ./id
+  storage-client:
+    build: ./storage-client
     environment:
-      POSTGRES_HOST: id-db
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: dcc_identifier
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      AUTH_HOST: auth
-      AUTH_PORT: 9090
-      AUTH_ENDPOINT: /check_token/
-      AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
-      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
+      AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+      SERVER_HOST: localhost
+      SERVER_PORT: 8080
+      STORAGE_SERVER_HOST: localhost
+      STORAGE_SERVER_PORT: 5555
     depends_on:
-      - base-ubuntu
-      - id-db
-    expose:
-      - "8443"
+      - storage-server
+      - server
     volumes:
-      - "./logs/id_logs:/opt/dcc/id_logs"
-  id-db:
-    build: ./id-db
-    environment:
-      POSTGRES_DB: dcc_identifier
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    depends_on:
-      - base-db
-    volumes:
-      - "id-db-data:/var/lib/postgresql/data/pgdata"
+      - "./data/storage-client:/opt/dcc/data"
+      - "./tools:/opt/dcc/tools"
 
 volumes:
     db-data: {}
