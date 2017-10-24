@@ -25,10 +25,11 @@ RUN wget $DOWNLOAD_URL -O $TARBALL && \
 		#ln -s $DCC_STORAGE_HOME/conf/application.yml $DCC_STORAGE_HOME/conf/application-secure.yml  && \
 		#ln -s $DCC_STORAGE_HOME/conf/application.yml $DCC_STORAGE_HOME/conf/application-prod.yml  && \
 		#ln -s $DCC_STORAGE_HOME/conf/application.yml $DCC_STORAGE_HOME/conf/application-collaboratory.yml  && \
+#        wrapper.app.parameter.5=--spring.profiles.active=collaboratory,prod,secure \
 CMD python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
         $DCC_STORAGE_HOME/bin/dcc-storage-server start  \
-        wrapper.app.parameter.5=--spring.profiles.active=collaboratory,prod,secure \
         wrapper.app.parameter.6=--server.port=${STORAGE_SERVER_PORT} \
+        wrapper.app.parameter.5=--spring.profiles.active=amazon,collaboratory,prod,secure \
         ;FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
 
 

@@ -27,10 +27,11 @@ RUN apt install -y postgresql && \
 #Note: must be parameter.4 becuase parameter.4 in jar/conf/wrapper.conf has --spring.profiles=active=dev,test. 
 #      If you do not override parameter.4, you will get dev,test profiles IN ADDITION TO any other specified profiles
 #      need to override it
-CMD $WAIT_FOR_POSTGRES_SCRIPT ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASSWORD} && \
-        python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
-        $SONG_HOME/bin/song-server start \
-        wrapper.app.parameter.4=--spring.profiles.active=prod,secure \
-        set.LOGGING_PATH=$SONG_LOGS \
-        set.LOG_PATH=$SONG_LOGS; \
-        FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
+CMD chmod 755 $WAIT_FOR_POSTGRES_SCRIPT && \
+	    $WAIT_FOR_POSTGRES_SCRIPT ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASSWORD} && \
+	    python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
+	    $SONG_HOME/bin/song-server start \
+	    wrapper.app.parameter.4=--spring.profiles.active=prod,secure \
+	    set.LOGGING_PATH=$SONG_LOGS \
+	    set.LOG_PATH=$SONG_LOGS; \
+	    FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done

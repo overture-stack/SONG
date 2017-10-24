@@ -62,6 +62,11 @@ upload:
   clean.cron: "0 0 0 * * ?" 
   clean.enabled: true
 
+# Debug
+logging.level.org.icgc.dcc.storage.server: DEBUG
+logging.level.org.apache.http.wire: DEBUG
+logging.level.org.apache.http.headers: DEBUG
+
 ---
 
 ###############################################################################
@@ -104,6 +109,7 @@ bucket:
 # Profile - "collaboratory"
 ###############################################################################
 
+  #masterEncryptionKeyId: 123456789
 spring:
   profiles: collaboratory
 
@@ -111,7 +117,7 @@ s3:
   accessKey: ${MINIO_ACCESS_KEY}
   secretKey: ${MINIO_SECRET_KEY}
   endpoint: http://${MINIO_HOST}:${MINIO_PORT}
-  masterEncryptionKeyId: 123456789
+  masterEncryptionKeyId: 
 server:
   ssl:
     enabled: false
@@ -149,7 +155,7 @@ download:
 spring.profiles: prod
 
 s3:
-  secured: true
+  secured: false
 
 endpoints:
   dump.enabled: false

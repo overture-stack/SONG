@@ -6,7 +6,7 @@ ENV DCC_DATA $DCC_HOME/data
 ENV DCC_CONFIG $DCC_HOME/config
 
 RUN apt update &&  \
-    apt install -y wget git sqlite3 python3 python-pip build-essential libssl-dev python3-dev nmap vim curl && \ 
+    apt install -y wget git sqlite3 python3 python-pip build-essential libssl-dev python3-dev nmap vim curl telnet postgresql && \ 
     useradd -m dcc && \
     echo "alias ls='ls --color'" >> ~/.bashrc && \
     echo "alias ll='ls -l'" >> ~/.bashrc && \
