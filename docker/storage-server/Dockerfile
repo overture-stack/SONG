@@ -28,8 +28,8 @@ RUN wget $DOWNLOAD_URL -O $TARBALL && \
 #        wrapper.app.parameter.5=--spring.profiles.active=collaboratory,prod,secure \
 CMD python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
         $DCC_STORAGE_HOME/bin/dcc-storage-server start  \
+	wrapper.java.additional.2=-Dcom.sun.management.jmxremote.port=${STORAGE_SERVER_JMX_PORT} \
         wrapper.app.parameter.6=--server.port=${STORAGE_SERVER_PORT} \
         wrapper.app.parameter.5=--spring.profiles.active=amazon,collaboratory,prod,secure \
         ;FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
-
 

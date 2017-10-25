@@ -21,7 +21,7 @@ services:
     build: ./id-db
     network_mode: host
     environment:
-      PGPORT: 8083
+      PGPORT: 8088
       POSTGRES_DB: dcc_identifier
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -41,8 +41,10 @@ services:
     network_mode: host
     environment:
       ID_PORT: 8086
+      ID_JMX_PORT: 10017
+      ID_MANAGEMENT_PORT: 8089
       POSTGRES_HOST: localhost
-      POSTGRES_PORT: 8083
+      POSTGRES_PORT: 8088
       POSTGRES_DB: dcc_identifier
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -64,6 +66,7 @@ services:
     environment:
       SERVER_PORT: 8080
       SERVER_MANAGEMENT_PORT: 8081
+      SERVER_JMX_PORT: 10016
       AUTH_HOST: localhost
       AUTH_PORT: 8084
       AUTH_ENDPOINT: /check_token/
@@ -133,6 +136,7 @@ services:
       SERVER_PORT: 8080
       STORAGE_SERVER_HOST: localhost
       STORAGE_SERVER_PORT: 8087
+      STORAGE_SERVER_JMX_PORT: 10018
     depends_on:
       - base-ubuntu
       - minio
