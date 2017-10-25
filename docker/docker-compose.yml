@@ -7,7 +7,9 @@ services:
     command: echo "do nothing"
   db:
     build: ./db
+    network_mode: host
     environment:
+      PGPORT: 8082
       POSTGRES_DB: song
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -17,7 +19,9 @@ services:
       - "db-data:/var/lib/postgresql/data/pgdata"
   id-db:
     build: ./id-db
+    network_mode: host
     environment:
+      PGPORT: 8083
       POSTGRES_DB: dcc_identifier
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -27,21 +31,22 @@ services:
       - "id-db-data:/var/lib/postgresql/data/pgdata"
   auth:
     build: ./auth
+    network_mode: host
     environment:
       AUTH_PORT: 8084
-    ports:
-      - "8084:8084"
     volumes:
       - "auth-data:/opt/dcc/auth_data"
   id:
     build: ./id
+    network_mode: host
     environment:
-      POSTGRES_HOST: id-db
-      POSTGRES_PORT: 5432
+      ID_PORT: 8086
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 8083
       POSTGRES_DB: dcc_identifier
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      AUTH_HOST: auth
+      AUTH_HOST: localhost
       AUTH_PORT: 8084
       AUTH_ENDPOINT: /check_token/
       AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
@@ -50,37 +55,35 @@ services:
       - base-ubuntu
       - id-db
       - auth
-    expose:
-      - "8443"
     volumes:
       - "./logs/id_logs:/opt/dcc/id_logs"
       - "./tools:/opt/dcc/tools"
   server:
     build: ./server
+    network_mode: host
     environment:
-      AUTH_HOST: auth
+      SERVER_PORT: 8080
+      SERVER_MANAGEMENT_PORT: 8081
+      AUTH_HOST: localhost
       AUTH_PORT: 8084
       AUTH_ENDPOINT: /check_token/
       AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
       AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
       AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
-      ID_HOST: id
-      ID_PORT: 8443
-      DB_HOST: db
-      DB_PORT: 5432
+      ID_HOST: localhost
+      ID_PORT: 8086
+      DB_HOST: localhost
+      DB_PORT: 8082
       DB_NAME: song
       DB_USER: postgres
       DB_PASSWORD: password
       STORAGE_SERVER_HOST: localhost
-      STORAGE_SERVER_PORT: 8082
+      STORAGE_SERVER_PORT: 8087
     depends_on:
       - base-ubuntu
       - db 
       - id
       - auth
-    ports:
-      - "8080:8080"
-      - "8081:8081"
     volumes:
       - "./logs/server_logs:/opt/dcc/server_logs"
       - "./tools:/opt/dcc/tools"
@@ -107,8 +110,6 @@ services:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio123
       MINIO_PORT: 8085
-    ports:
-      - "8085:8085"
     deploy:
         restart_policy:
             delay: 10s
@@ -131,7 +132,7 @@ services:
       SERVER_HOST: localhost
       SERVER_PORT: 8080
       STORAGE_SERVER_HOST: localhost
-      STORAGE_SERVER_PORT: 8082
+      STORAGE_SERVER_PORT: 8087
     depends_on:
       - base-ubuntu
       - minio
@@ -147,7 +148,7 @@ services:
       SERVER_HOST: localhost
       SERVER_PORT: 8080
       STORAGE_SERVER_HOST: localhost
-      STORAGE_SERVER_PORT: 8082
+      STORAGE_SERVER_PORT: 8087
     depends_on:
       - storage-server
       - server

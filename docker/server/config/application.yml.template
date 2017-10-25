@@ -19,14 +19,14 @@
 #
 
 server:
-  port: 8080
+  port: ${SERVER_PORT}
 
 dcc-storage:
   url: "http://${STORAGE_SERVER_HOST}:${STORAGE_SERVER_PORT}"
 
 # Management
 management:
-  port: 8081
+  port: ${SERVER_MANAGEMENT_PORT}
 
 id:
   idUrl: "http://${ID_HOST}:${ID_PORT}"
