@@ -8,8 +8,11 @@ ENV DCC_STORAGE_HOME $DCC_HOME/dcc-storage-server
 ENV DCC_STORAGE_LOGS $DCC_STORAGE_HOME/logs
 ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-storage-server/[RELEASE]/dcc-storage-server-[RELEASE]-dist.tar.gz
 ENV TARBALL $DCC_HOME/dcc-storage-server.tar.gz
+ENV DCC_SCRIPTS $DCC_HOME/scripts
 
 ADD config $DCC_CONFIG
+ADD scripts $DCC_SCRIPTS
+
 
 ENV EXPAND_SCRIPT $DCC_HOME/tools/expand.py
 ENV INPUT_FILE $DCC_CONFIG/application.yml.template
@@ -27,6 +30,7 @@ RUN wget $DOWNLOAD_URL -O $TARBALL && \
 		#ln -s $DCC_STORAGE_HOME/conf/application.yml $DCC_STORAGE_HOME/conf/application-collaboratory.yml  && \
 #        wrapper.app.parameter.5=--spring.profiles.active=collaboratory,prod,secure \
 CMD python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
+	/bin/bash -c $DCC_SCRIPTS/create-buckets.sh && \
         $DCC_STORAGE_HOME/bin/dcc-storage-server start  \
 	wrapper.java.additional.2=-Dcom.sun.management.jmxremote.port=${STORAGE_SERVER_JMX_PORT} \
         wrapper.app.parameter.6=--server.port=${STORAGE_SERVER_PORT} \

@@ -140,7 +140,7 @@ services:
       STORAGE_SERVER_DATA_BUCKET: oicr.icgc
       STORAGE_SERVER_STATE_BUCKET: oicr.icgc
       STORAGE_SERVER_DATA_DIR: data
-      STORAGE_SERVER_OBJECT_SENTINAL: heliograph
+      STORAGE_SERVER_OBJECT_SENTINEL: heliograph
     depends_on:
       - base-ubuntu
       - minio
@@ -149,6 +149,7 @@ services:
     volumes:
       - "./logs/storage_server_logs:/opt/dcc/storage_server_logs"
       - "./tools:/opt/dcc/tools"
+      - "./data:/opt/dcc/data"
   storage-client:
     build: ./storage-client
     environment:
@@ -163,20 +164,20 @@ services:
     volumes:
       - "./data/storage-client:/opt/dcc/data"
       - "./tools:/opt/dcc/tools"
-  create-buckets:
-    build: ./create-buckets
-    network_mode: host
-    environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
-      MINIO_PORT: 8085
-      MINIO_HOST: localhost
-      STORAGE_SERVER_DATA_BUCKET: oicr.icgc
-      STORAGE_SERVER_STATE_BUCKET: oicr.icgc
-      STORAGE_SERVER_DATA_DIR: data
-      STORAGE_SERVER_OBJECT_SENTINAL: heliograph
-    volumes:
-      - "./create-buckets/scripts:/opt/dcc/scripts"
+  #create-buckets:
+  #  build: ./create-buckets
+  #  network_mode: host
+  #  environment:
+  #    MINIO_ACCESS_KEY: minio
+  #    MINIO_SECRET_KEY: minio123
+  #    MINIO_PORT: 8085
+  #    MINIO_HOST: localhost
+  #    STORAGE_SERVER_DATA_BUCKET: oicr.icgc
+  #    STORAGE_SERVER_STATE_BUCKET: oicr.icgc
+  #    STORAGE_SERVER_DATA_DIR: data
+  #    STORAGE_SERVER_OBJECT_SENTINEL: heliograph
+  #  volumes:
+  #    - "./create-buckets/scripts:/opt/dcc/scripts"
 
 volumes:
     db-data: {}

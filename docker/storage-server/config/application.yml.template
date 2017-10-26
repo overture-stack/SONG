@@ -43,7 +43,7 @@ bucket:
   size.key: 2 
 
 object:
-  sentinel: ${STORAGE_SERVER_OBJECT_SENTINAL}
+  sentinel: ${STORAGE_SERVER_OBJECT_SENTINEL}
   
 collaboratory:
   upload.directory: upload
