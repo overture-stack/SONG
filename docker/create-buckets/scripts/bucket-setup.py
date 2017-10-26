@@ -1,5 +1,6 @@
 
 import boto3
+import os
 
 class S3Client:
     def __init__(self, host, port, access_key, secret_key, data_bucket, state_bucket, sentinal_key):
@@ -18,12 +19,12 @@ class S3Client:
         self.__buckets = self.__client.list_buckets()
 
     def __get_url(self):
-        return 'http://'+host+':'+port
+        return 'http://'+self.__host+':'+self.__port
 
     def __connect(self):
         return boto3.client('s3',
-                aws_access_key=access_key,
-                aws_secret_access_key=secret_key,
+                aws_access_key_id=self.__access_key,
+                aws_secret_access_key=self.__secret_key,
                 use_ssl=False,
                 endpoint_url=self.__get_url())
 
@@ -76,7 +77,11 @@ def main():
     secret_key = get_env('MINIO_SECRET_KEY')
     data_bucket = get_env('STORAGE_SERVER_DATA_BUCKET')
     state_bucket = get_env('STORAGE_SERVER_STATE_BUCKET')
-    sentinal_key = get_env('STORAGE_SERVER_SENTINAL_KEY')
+    object_sentinal = get_env('STORAGE_SERVER_OBJECT_SENTINAL')
+    data_dir = get_env('STORAGE_SERVER_DATA_DIR')
+
+    sentinal_key = data_dir+'/'+object_sentinal
+
     s3Client = S3Client( host,
             port,
             access_key,
