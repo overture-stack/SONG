@@ -7,9 +7,8 @@ ENV SIMPLE_AUTH_ROOT $DCC_HOME/SimpleAuth
 
 ADD init $AUTH_INIT
 
-RUN pip install --upgrade pip  && \
-	git clone https://github.com/andricDu/SimpleAuth $SIMPLE_AUTH_ROOT && \
-	pip install -r $SIMPLE_AUTH_ROOT/requirements.txt
+RUN git clone https://github.com/andricDu/SimpleAuth $SIMPLE_AUTH_ROOT && \
+	pip3 install -r $SIMPLE_AUTH_ROOT/requirements.txt
 
 CMD $AUTH_INIT/run.sh $AUTH_PORT
 

@@ -19,5 +19,5 @@ rm -f $SIMPLE_AUTH_DB
 ln -s $DATA_DB $SIMPLE_AUTH_DB
 
 ## Run the server
-python $SIMPLE_AUTH_ROOT/manage.py runserver  0.0.0.0:$AUTH_PORT ; FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
+python3 $SIMPLE_AUTH_ROOT/manage.py runserver  0.0.0.0:$AUTH_PORT ; FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
 
