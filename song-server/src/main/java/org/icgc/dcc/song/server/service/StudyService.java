@@ -67,7 +67,7 @@ public class StudyService {
   public int saveStudy(Study study) {
     val id = study.getStudyId();
     val status= studyRepository.create(id, study.getName(), study.getDescription(), study.getOrganization());
-    infoService.create(id,study.getInfo());
+    infoService.create(id,study.getInfoAsString());
     return status;
   }
 

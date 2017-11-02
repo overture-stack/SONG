@@ -42,40 +42,40 @@ public class RepositoryDao {
 
   public void createDonor(@NonNull Donor donor) {
     donorRepository.create(donor);
-    infoRepository.create(donor.getDonorId(), DONOR.toString(), donor.getInfo());
+    infoRepository.create(donor.getDonorId(), DONOR.toString(), donor.getInfoAsString());
   }
 
   public void createStudy(@NonNull Study study) {
     studyRepository.create(study.getStudyId(), study.getName(), study.getOrganization(), study.getDescription());
-    infoRepository.create(study.getStudyId(), STUDY.toString(), study.getInfo());
+    infoRepository.create(study.getStudyId(), STUDY.toString(), study.getInfoAsString());
   }
 
   public void createSpecimen(@NonNull Specimen specimen) {
     specimenRepository.create(specimen);
-    infoRepository.create(specimen.getSpecimenId(), SPECIMEN.toString(), specimen.getInfo());
+    infoRepository.create(specimen.getSpecimenId(), SPECIMEN.toString(), specimen.getInfoAsString());
   }
 
   public void createSample(@NonNull Sample sample) {
     sampleRepository.create(sample);
-    infoRepository.create(sample.getSampleId(), SAMPLE.toString(), sample.getInfo());
+    infoRepository.create(sample.getSampleId(), SAMPLE.toString(), sample.getInfoAsString());
   }
 
   public void createSequencingReadAnalysis(@NonNull SequencingReadAnalysis analysis) {
     analysisRepository.createAnalysis(analysis);
-    infoRepository.create(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfo());
+    infoRepository.create(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfoAsString());
 
     val sequencingRead = analysis.getExperiment();
     analysisRepository.createSequencingRead(sequencingRead);
-    infoRepository.create(sequencingRead.getAnalysisId(), SEQUENCING_READ.toString(), sequencingRead.getInfo());
+    infoRepository.create(sequencingRead.getAnalysisId(), SEQUENCING_READ.toString(), sequencingRead.getInfoAsString());
   }
 
   public void createVariantCallAnalysis(@NonNull VariantCallAnalysis analysis) {
     analysisRepository.createAnalysis(analysis);
-    infoRepository.create(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfo());
+    infoRepository.create(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfoAsString());
 
     val sequencingRead = analysis.getExperiment();
     analysisRepository.createVariantCall(sequencingRead);
-    infoRepository.create(sequencingRead.getAnalysisId(), VARIANT_CALL.toString(), sequencingRead.getInfo());
+    infoRepository.create(sequencingRead.getAnalysisId(), VARIANT_CALL.toString(), sequencingRead.getInfoAsString());
   }
 
   public void createSampleSet(@NonNull SampleSet sampleSet) {
@@ -84,7 +84,7 @@ public class RepositoryDao {
 
   public void createFile(@NonNull File file) {
     fileRepository.create(file);
-    infoRepository.create(file.getObjectId(), FILE.toString(), file.getInfo());
+    infoRepository.create(file.getObjectId(), FILE.toString(), file.getInfoAsString());
   }
 
 }

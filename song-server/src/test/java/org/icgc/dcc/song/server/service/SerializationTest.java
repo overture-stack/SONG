@@ -73,7 +73,7 @@ public class SerializationTest {
     assertThat(donor.getStudyId()).isEqualTo(study);
     assertThat(donor.getDonorGender()).isEqualTo(gender);
     assertThat(donor.getSpecimens()).isEqualTo(Collections.emptyList());
-    assertThat(donor.getInfo()).isEqualTo(metadata);
+    assertThat(donor.getInfoAsString()).isEqualTo(metadata);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class SerializationTest {
 
     val expected =
         "{'donorId':'','donorSubmitterId':'','studyId':'','donorGender':'',"
-            + "'info':'{}'}";
+            + "'info':{}}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
   }
@@ -96,7 +96,7 @@ public class SerializationTest {
     System.err.printf("json='%s'\n", json);
     val expected =
         "{'donorId':null,'donorSubmitterId':'','studyId':'','donorGender':'',"
-            + "'info':'{}'}";
+            + "'info':{}}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
   }
@@ -116,7 +116,7 @@ public class SerializationTest {
 
     val expected = String.format(
         "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
-            + "'info':'{%s}'}",
+            + "'info':{%s}}",
         id, submitterId, studyId, gender, metadata);
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
@@ -157,7 +157,7 @@ public class SerializationTest {
     val json = JsonUtils.toJson(sequencingRead);
 
     val expected = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
-            "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s,'referenceGenome':'%s','info':'{%s}'}",
+            "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s,'referenceGenome':'%s','info':{%s}}",
             id, aligned, alignmentTool, insertSize, libraryStrategy, pairedEnd, genome, metadata);
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
@@ -179,7 +179,7 @@ public class SerializationTest {
             libraryStrategy, pairedEnd, genome);
 
     val singleQuotedJson = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
-                    "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s, 'referenceGenome': '%s', 'info':'{%s}'}", id, aligned, alignmentTool,
+                    "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s, 'referenceGenome': '%s', 'info':{%s}}", id, aligned, alignmentTool,
             insertSize, libraryStrategy, pairedEnd, genome, metadata);
     val json = JsonUtils.fromSingleQuoted(singleQuotedJson);
 

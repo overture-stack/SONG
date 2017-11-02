@@ -34,6 +34,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -46,6 +47,7 @@ public class DonorServiceTest {
   @Autowired
   SpecimenService specimenService;
 
+
   @Test
   public void testReadDonor() {
     // check for data that we know exists in the H2 database already
@@ -55,6 +57,7 @@ public class DonorServiceTest {
     assertThat(d.getDonorGender()).isEqualTo("male");
     assertThat(d.getDonorSubmitterId()).isEqualTo("Subject-X23Alpha7");
     assertThat(d.getSpecimens().size()).isEqualTo(2);
+    assertThat(getInfoName(d.getDonor())).isEqualTo("donor1");
 
     // Just check that each specimen object that we get is the same as the one we get from the
     // specimen service. Let the specimen service tests verify that the contents are right.

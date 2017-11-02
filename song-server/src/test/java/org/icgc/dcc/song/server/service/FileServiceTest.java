@@ -37,7 +37,6 @@ import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-//@FlywayTest
 @ActiveProfiles("dev")
 public class FileServiceTest {
 
@@ -58,6 +57,7 @@ public class FileServiceTest {
     val file = fileService.read(id);
 
     val expected = File.create(id, analysisId, name, study, size, type, md5, access);
+    expected.setInfo("name", "file1");
     assertThat(file).isEqualToComparingFieldByField(expected);
   }
 

@@ -16,11 +16,10 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.server.service;
+package org.icgc.dcc.song.server;
 
 import lombok.val;
-import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.model.entity.Sample;
+import org.icgc.dcc.song.server.service.StudyService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,61 +34,24 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
-@ActiveProfiles("dev")
-public class SampleServiceTest {
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
+@ActiveProfiles({"dev","test"})
+public class StudyServiceTest {
 
   @Autowired
-  SampleService sampleService;
+  StudyService service;
 
   @Test
-  public void testReadSample() {
-    val id = "SA1";
-    val sample = sampleService.read(id);
-    assertThat(sample.getSampleId()).isEqualTo(id);
-    assertThat(sample.getSampleSubmitterId()).isEqualTo("T285-G7-A5");
-    assertThat(sample.getSampleType()).isEqualTo("DNA");
-    assertThat(getInfoName(sample)).isEqualTo("sample1");
-  }
+  public void testReadStudy() {
+    // check for data that we know exists in the H2 database already
+    val study = service.read("ABC123");
+    assertThat(study).isNotNull();
+    assertThat(study.getStudyId()).isEqualTo("ABC123");
+    assertThat(study.getName()).isEqualTo("X1-CA");
+    assertThat(study.getDescription()).isEqualTo("A fictional study");
+    assertThat(study.getOrganization()).isEqualTo("Sample Data Research Institute");
+    assertThat(getInfoName(study)).isEqualTo("study1");
 
-  @Test
-  public void testCreateAndDeleteSample() {
-    val specimenId = "SP2";
-    val metadata = JsonUtils.fromSingleQuoted("{'ageCategory': 3, 'species': 'human'}");
-    val s = Sample.create("", "101-IP-A", specimenId, "Amplified DNA");
-    s.setInfo(metadata);
-
-    val status = sampleService.create("Study123", s);
-    val id = s.getSampleId();
-
-    assertThat(id).startsWith("SA");
-    assertThat(status).isEqualTo(id);
-
-    Sample check = sampleService.read(id);
-    assertThat(check).isEqualToComparingFieldByField(s);
-
-    sampleService.delete(id);
-    Sample check2 = sampleService.read(id);
-    assertThat(check2).isNull();
-  }
-
-  @Test
-  public void testUpdateSample() {
-
-    val specimenId = "SP2";
-    val s = Sample.create("", "102-CBP-A", specimenId, "RNA");
-
-    sampleService.create("Study123", s);
-
-    val id = s.getSampleId();
-
-    val metadata = JsonUtils.fromSingleQuoted("{'species': 'Canadian Beaver'}");
-    val s2 = Sample.create(id, "Sample 102", s.getSpecimenId(), "FFPE RNA");
-    s2.setInfo(metadata);
-    sampleService.update(s2);
-
-    val s3 = sampleService.read(id);
-    assertThat(s3).isEqualToComparingFieldByField(s2);
   }
 
 }

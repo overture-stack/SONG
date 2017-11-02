@@ -18,14 +18,19 @@
  */
 package org.icgc.dcc.song.client.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import lombok.Data;
 import lombok.NonNull;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 @Data
 public class Manifest {
+
+  // Refer to [DCC-5706] for two tabs reason
+  private static final String TWO_TABS = "\t\t";
+  private static final String NEWLINE = "\n";
+  private static final String EMPTY = "";
 
   final String analysisId;
   final Collection<ManifestEntry> entries;
@@ -41,7 +46,12 @@ public class Manifest {
 
   @Override
   public String toString() {
-    return analysisId + "\n" + entries.stream().map(e -> e.toString() + "\n").reduce("", (a, b) -> a + b);
+    return analysisId +
+        TWO_TABS +
+        NEWLINE +
+        entries.stream()
+            .map(e -> e.toString() + NEWLINE)
+            .reduce(EMPTY, (a, b) -> a + b);
   }
 
   public void addAll(@NonNull Collection<? extends ManifestEntry> collect) {

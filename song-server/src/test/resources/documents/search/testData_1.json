@@ -8,7 +8,9 @@
     "aligned" : true,
     "alignmentTool" : "MUSE variant call pipeline",
     "referenceGenome" : "hs37d5",
-    "info" : "{\"marginOfError\" : \"0.01%\"}"
+    "info" : {
+      "marginOfError" : "0.01%"
+    }
   },
   "sample" : [ {
     "sampleSubmitterId" : "internal_sample_123456789_01",
@@ -40,5 +42,24 @@
     "fileAccess" : "controlled",
     "fileMd5sum" : "22de0f976538a9b7c8d93"
   } ],
-  "info" : "{\"access\":\"controlled\",\"dataCategorization\":{\"dataType\":\"SGV\",\"experimentalStrategy\":\"WGS\"},\"referenceGenome\":{\"genomeBuild\":\"GRCh37\",\"referenceName\":\"hs37d5\",\"downloadUrl\":\"ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz\"},\"analysisMethod\":{\"analysisType\":\"Variant calling\",\"software\":\"Broad variant call pipeline\"},\"study\":[\"PCAWG\",\"EGA\"]}"
+  "info": {
+    "access": "controlled",
+    "dataCategorization": {
+      "dataType": "SGV",
+      "experimentalStrategy": "WGS"
+    },
+    "referenceGenome": {
+      "genomeBuild": "GRCh37",
+      "referenceName": "hs37d5",
+      "downloadUrl": "ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz"
+    },
+    "analysisMethod": {
+      "analysisType": "Variant calling",
+      "software": "Broad variant call pipeline"
+    },
+    "study": [
+      "PCAWG",
+      "EGA"
+    ]
+  }
 }
