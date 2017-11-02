@@ -93,8 +93,8 @@ spring:
 auth:
   server:
     url: "http://localhost:8000/check_token/"
-    clientId: "3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP"
-    clientSecret: "v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e"
+    clientId: "clientId"
+    clientSecret: "clientSecret"
     enableStrictSSL: false
     enableHttpLogging: false
     suffix: "upload"
