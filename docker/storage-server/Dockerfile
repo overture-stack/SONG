@@ -6,7 +6,11 @@ MAINTAINER ICGC <dcc-support@icgc.org>
 #
 ENV DCC_STORAGE_HOME $DCC_HOME/dcc-storage-server
 ENV DCC_STORAGE_LOGS $DCC_STORAGE_HOME/logs
-ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-storage-server/[RELEASE]/dcc-storage-server-[RELEASE]-dist.tar.gz
+
+#rtisma-20171002 Temp Hack untill new release
+#ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-storage-server/[RELEASE]/dcc-storage-server-[RELEASE]-dist.tar.gz
+ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-snapshot/org/icgc/dcc/dcc-storage-server/1.0.24-SNAPSHOT/dcc-storage-server-1.0.24-20171102.202102-7-dist.tar.gz
+
 ENV TARBALL $DCC_HOME/dcc-storage-server.tar.gz
 ENV DCC_SCRIPTS $DCC_HOME/scripts
 
