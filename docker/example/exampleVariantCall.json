@@ -1,0 +1,74 @@
+{
+  "study": "ABC123",
+  "analysisType": "variantCall",
+  "experiment": {
+    "variantCallingTool": "silver bullet",
+    "matchedNormalSampleSubmitterId": "sample x24-11a",
+    "randomField14" : "we can define any EXPERIMENT field. For example, randomField14",
+    "randomField15" : "as a second example, we can define another random EXPERIMENT field called randomField15",
+    "info" : {
+        "randomField16" : "alternatively, put some extra EXPERIMENT fields here"
+    }
+  },
+  "sample": [
+    {
+      "sampleSubmitterId": "internal_sample_98024759826836",
+      "sampleType": "Total RNA",
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
+        "specimenClass": "Tumour",
+        "specimenType": "Primary tumour - other",
+        "randomField1" : "we can define any SPECIMEN field. For example, randomField1",
+        "randomField2" : "as a second example, we can define another random SPECIMEN field called randomField2",
+        "info" : {
+            "randomField3" : "alternatively, put some extra SPECIMEN fields here"
+        }
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789-00",
+        "donorGender": "female",
+        "randomField4" : "we can define any DONOR field. For example, randomField4",
+        "randomField5" : "as a second example, we can define another random DONOR field called randomField5",
+        "info" : {
+            "randomField6" : "alternatively, put some extra DONOR fields here"
+        }
+      },
+      "randomField7" : "we can define any SAMPLE field. For example, randomField7",
+      "randomField8" : "as a second example, we can define another random SAMPLE field called randomField8",
+      "info" : {
+          "randomField9" : "alternatively, put some extra SAMPLE fields here"
+      }
+    }
+  ],
+  "file": [
+    {
+      "fileName": "example.vcf.gz",
+      "fileSize": 52,
+      "fileMd5sum": "9a793e90d0d1e11301ea8da996446e59",
+      "fileAccess" : "open",
+      "fileType": "VCF",
+      "randomField10" : "we can define any FILE field. For example, randomField10",
+      "randomField11" : "as a second example, we can define another random FILE field called randomField11",
+      "info" : {
+          "randomField12" : "alternatively, put some extra FILE fields here"
+      }
+    },
+    {
+      "fileName": "example.vcf.gz.idx",
+      "fileSize": 25,
+      "fileMd5sum": "c03274816eb4907a92b8e5632cd6eb81",
+      "fileAccess" : "open",
+      "fileType": "IDX",
+      "randomField10" : "we can define any FILE field. For example, randomField10",
+      "randomField13" : "as a second example, we can define another random FILE field called randomField13",
+      "info" : {
+          "randomField12" : "alternatively, put some extra FILE fields here"
+      }
+    }
+  ],
+  "randomField17" : "we can define any ANALYSIS field. For example, randomField17",
+  "randomField18" : "as a second example, we can define another random ANALYSIS field called randomField18",
+  "info" : {
+      "randomField19" : "alternatively, put some extra ANALYSIS fields here"
+  }
+}

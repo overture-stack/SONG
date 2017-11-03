@@ -1,0 +1,8 @@
+STORAGE_CLIENT_EXE=../data/storage-client/bin/icgc-storage-client
+if [ -f $STORAGE_CLIENT_EXE ]; then
+    $STORAGE_CLIENT_EXE $@
+    exit 0
+else
+    echo "The storage-client (icgc-storage-client) does not exist. Did you run 'docker-compose build; docker-compose up' ?"
+    exit 1
+fi

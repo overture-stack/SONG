@@ -19,19 +19,19 @@
 #
 
 server:
-  port: 8080
+  port: ${SERVER_PORT}
 
 dcc-storage:
-  url: "https://storage.cancercollaboratory.org"
+  url: "http://${STORAGE_SERVER_HOST}:${STORAGE_SERVER_PORT}"
 
 # Management
 management:
-  port: 8081
+  port: ${SERVER_MANAGEMENT_PORT}
 
 id:
-  idUrl: "http://id:9090"
-  authToken: "idToken"
-  realIds: false
+  idUrl: "http://${ID_HOST}:${ID_PORT}"
+  authToken: "${AUTH_TOKEN}"
+  realIds: true
 
 validation:
   threads:
@@ -40,10 +40,7 @@ validation:
   queue:
     capacity: 100
 
-flyway:
-  baselineOnMigrate: true
-
-validation.delayMs: 3000
+validation.delayMs: 30
 
 auth:
   # Connection retries in case of connection failure
@@ -60,28 +57,32 @@ auth:
     multiplier: 2.0
 
 ---
+spring.profiles: test
+spring:
+  profiles:
+    include: [dev]
+---
 spring.profiles: dev
 spring:
   profiles:
     include: [fastTest]
+  datasource:
+    initialize: true
 
 auth:
   server:
-    uploadScope: "upload"
+    suffix: "upload"
 
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://db/song?stringtype=unspecified
-  
-  username: postgres
-  password: password
+  url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?stringtype=unspecified
+  username: ${DB_USER}
+  password: ${DB_PASSWORD}
   max-active: 10
   max-idle: 1
   min-idle: 1
 
-flyway:
-  locations: db/migration/{vendor},db/migration/data
 ---
 
 spring:
@@ -89,12 +90,12 @@ spring:
 
 auth:
   server:
-    url: "http://auth:8000/check_token/"
-    clientId: "clientId"
-    clientSecret: "clientSecret"
+    url: "http://${AUTH_HOST}:${AUTH_PORT}/${AUTH_ENDPOINT}"
+    clientId: "${AUTH_SERVER_CLIENTID}"
+    clientSecret: "${AUTH_SERVER_CLIENTSECRET}"
     enableStrictSSL: false
     enableHttpLogging: false
-    uploadScope: "upload"
+    suffix: "upload"
 ---
 
 spring:
@@ -116,20 +117,18 @@ auth:
 
 spring:
   profiles: prod
-  
+  datasource:
+    initialize: false
+
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://db/song
-
-  username:
-  password:
+  url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?stringtype=unspecified
+  username: ${DB_USER}
+  password: ${DB_PASSWORD}
   max-active: 10
   max-idle: 1
   min-idle: 1
-
-flyway:
-  locations: db/migration/{vendor}
 
 ---
 spring:
