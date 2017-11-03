@@ -2,16 +2,18 @@
 import boto3
 import os
 
+
 class S3Client:
-    def __init__(self, host, port, access_key, secret_key, data_bucket, state_bucket, sentinel_key):
+    def __init__(self, host, port, access_key,
+                 secret_key, data_bucket, state_bucket, sentinel_key):
 
         self.__host = host
         self.__port = port
-        self.__access_key=access_key
-        self.__secret_key=secret_key
-        self.__data_bucket=data_bucket
-        self.__state_bucket=state_bucket
-        self.__sentinel_key=sentinel_key
+        self.__access_key = access_key
+        self.__secret_key = secret_key
+        self.__data_bucket = data_bucket
+        self.__state_bucket = state_bucket
+        self.__sentinel_key = sentinel_key
         self.__sentinel_temp_path = 'empty_file.txt'
 
         # state
@@ -23,10 +25,10 @@ class S3Client:
 
     def __connect(self):
         return boto3.client('s3',
-                aws_access_key_id=self.__access_key,
-                aws_secret_access_key=self.__secret_key,
-                use_ssl=False,
-                endpoint_url=self.__get_url())
+                            aws_access_key_id=self.__access_key,
+                            aws_secret_access_key=self.__secret_key,
+                            use_ssl=False,
+                            endpoint_url=self.__get_url())
 
     def setup(self):
         self.setup_data_bucket()
@@ -37,7 +39,6 @@ class S3Client:
 
     def setup_state_bucket(self):
         self.__setup_bucket(self.__state_bucket)
-
 
     def __get_local_sentinel_pathname(self):
         if not os.path.exists(self.__sentinel_temp_path):
@@ -52,7 +53,8 @@ class S3Client:
     def __setup_sentinel(self, bucket_name):
         if not self.__sentinel_exists(bucket_name):
             local_sentinel_path = self.__get_local_sentinel_pathname()
-            self.__client.upload_file(local_sentinel_path, bucket_name, self.__sentinel_key)
+            self.__client.upload_file(local_sentinel_path,
+                                      bucket_name, self.__sentinel_key)
 
     def __bucket_exists(self, name):
         return name in self.__buckets
@@ -60,7 +62,8 @@ class S3Client:
     def __sentinel_exists(self, bucket_name):
         bucket = self.__client.Bucket(bucket_name)
         objs = list(bucket.objects.filter(Prefix=self.__sentinel_key))
-        return len(objs)>0 and objs[0].key == self.__sentinel_key
+        return len(objs) > 0 and objs[0].key == self.__sentinel_key
+
 
 def get_env(env_name):
     value = os.environ[env_name]
@@ -82,13 +85,13 @@ def main():
 
     sentinel_key = data_dir+'/'+object_sentinel
 
-    s3Client = S3Client( host,
-            port,
-            access_key,
-            secret_key,
-            data_bucket,
-            state_bucket,
-            sentinel_key)
+    s3Client = S3Client(host,
+                        port,
+                        access_key,
+                        secret_key,
+                        data_bucket,
+                        state_bucket,
+                        sentinel_key)
     s3Client.setup()
 
 
