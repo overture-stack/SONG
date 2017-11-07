@@ -1,3 +1,4 @@
+#! /bin/bash
 
 INIT_DB=$AUTH_INIT/db.sqlite3
 DATA_DB=$AUTH_DATA/db.sqlite3
