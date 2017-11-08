@@ -22,14 +22,14 @@ server:
   port: ${SERVER_PORT}
 
 dcc-storage:
-  url: "http://${STORAGE_SERVER_HOST}:${STORAGE_SERVER_PORT}"
+  url: "${STORAGE_SERVER_URL}"
 
 # Management
 management:
   port: ${SERVER_MANAGEMENT_PORT}
 
 id:
-  idUrl: "http://${ID_HOST}:${ID_PORT}"
+  idUrl: "${ID_URL}"
   authToken: "${AUTH_TOKEN}"
   realIds: true
 
@@ -90,7 +90,7 @@ spring:
 
 auth:
   server:
-    url: "http://${AUTH_HOST}:${AUTH_PORT}/${AUTH_ENDPOINT}"
+    url: "${AUTH_SERVER_URL}"
     clientId: "${AUTH_SERVER_CLIENTID}"
     clientSecret: "${AUTH_SERVER_CLIENTSECRET}"
     enableStrictSSL: false

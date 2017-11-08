@@ -18,7 +18,7 @@
 # DCC Client Server - Default Configuration
 #
 client:
-  serverUrl: http://${SERVER_HOST}:${SERVER_PORT}
+  serverUrl: ${SERVER_URL}
   studyId: ${CLIENT_STUDY_ID}
   programName: sing
   debug: ${CLIENT_DEBUG_ENABLED}

@@ -42,7 +42,7 @@
   ],
   "file": [
     {
-      "fileName": "example.vcf.gz",
+      "fileName": "../example/example.vcf.gz",
       "fileSize": 52,
       "fileMd5sum": "9a793e90d0d1e11301ea8da996446e59",
       "fileAccess" : "open",
@@ -54,7 +54,7 @@
       }
     },
     {
-      "fileName": "example.vcf.gz.idx",
+      "fileName": "../example/example.vcf.gz.idx",
       "fileSize": 25,
       "fileMd5sum": "c03274816eb4907a92b8e5632cd6eb81",
       "fileAccess" : "open",
