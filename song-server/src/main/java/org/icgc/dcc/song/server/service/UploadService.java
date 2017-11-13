@@ -40,6 +40,7 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
@@ -68,6 +69,9 @@ public class UploadService {
   private final AnalysisService analysisService;
   @Autowired
   private final UploadRepository uploadRepository;
+
+  @Autowired
+  private final StudyService studyService;
 
   public Upload read(@NonNull String uploadId) {
     val upload = uploadRepository.get(uploadId);
@@ -127,9 +131,15 @@ public class UploadService {
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
 
-      //TODO: Should we do this for all respository calls in the other services???
-      return error(MESSAGE_CONTEXT, UPLOAD_REPOSITORY_CREATE_RECORD,
-          "Unable to create record in upload repository");
+      if (studyService.isStudyExist(studyId)){
+        //TODO: Should we do this for all respository calls in the other services???
+        return error(MESSAGE_CONTEXT, UPLOAD_REPOSITORY_CREATE_RECORD,
+            "Unable to create record in upload repository");
+      } else {
+        return error(MESSAGE_CONTEXT, STUDY_ID_DOES_NOT_EXIST,
+            "Unable to create record in upload repository since studyId '%s' does not exist",
+            studyId);
+      }
 
     } catch (JsonProcessingException jpe){
       log.error(jpe.getCause().getMessage());
