@@ -18,6 +18,8 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
@@ -25,10 +27,9 @@ import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-
 import java.util.List;
+
+import static java.util.Objects.isNull;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +53,11 @@ public class StudyService {
     val info = infoService.read(studyId);
     study.setInfo(info);
     return study;
+  }
+
+  public boolean isStudyExist(String studyId){
+    val study = studyRepository.read(studyId);
+    return !isNull(study);
   }
 
   @SneakyThrows
