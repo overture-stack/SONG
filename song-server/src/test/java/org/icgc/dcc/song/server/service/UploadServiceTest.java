@@ -18,11 +18,18 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Upload;
+import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +40,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 
 import static java.lang.String.format;
@@ -50,6 +58,9 @@ public class UploadServiceTest {
 
   @Autowired
   UploadService uploadService;
+
+  @Autowired
+  AnalysisService analysisService;
 
   @Test
   public void testAsyncSequencingRead(){
@@ -144,6 +155,108 @@ public class UploadServiceTest {
     // test save
     val response = uploadService.save(study,uploadId);
     assertThat(response.getStatusCode()).isEqualTo(OK);
+  }
+
+
+  @Test
+  @Ignore
+  public void testDonorUpdate(){
+    val referencePayloadFilename = "documents/updating/with-analysisSubmitterId/variantcall-reference.json";
+    val updatedPayloadFilename =
+        "documents/updating/with-analysisSubmitterId/variantcall-updated-donorSubmitterId.json";
+    val analysisPair = updatePayload(referencePayloadFilename, updatedPayloadFilename);
+    log.info("done");
+  }
+
+  @Test
+  @Ignore
+  public void testSpecimenUpdate(){
+    val referencePayloadFilename = "documents/updating/without-analysisSubmitterId/variantcall-reference.json";
+    val updatedPayloadFilename =
+        "documents/updating/without-analysisSubmitterId/variantcall-updated-specimenSubmitterId.json";
+    val analysisPair = updatePayload(referencePayloadFilename, updatedPayloadFilename);
+    log.info("done");
+  }
+
+  @Test
+  @Ignore
+  public void testSampleUpdate(){
+    val referencePayloadFilename = "documents/updating/without-analysisSubmitterId/variantcall-reference.json";
+    val updatedPayloadFilename =
+        "documents/updating/without-analysisSubmitterId/variantcall-updated-sampleSubmitterId.json";
+    val analysisPair = updatePayload(referencePayloadFilename, updatedPayloadFilename);
+    log.info("done");
+
+  }
+
+  @SneakyThrows
+  private AnalysisPair updatePayload(String referencePayloadFilename, String updatedPayloadFilename ){
+    val study="ABC123";
+    val referencePayload = getJsonNodeFromClasspath(referencePayloadFilename);
+    val updatedPayload = getJsonNodeFromClasspath(updatedPayloadFilename);
+
+    // Upload reference
+    val referenceUploadStatus = uploadService.upload(study, JsonUtils.toJson(referencePayload), false );
+    val referenceStatus = fromStatus(referenceUploadStatus, "status");
+    val referenceUploadId = fromStatus(referenceUploadStatus,"uploadId");
+    assertThat(referenceStatus).isEqualTo("ok");
+
+    // Upload updated
+    val updatedUploadStatus = uploadService.upload(study,JsonUtils.toJson(updatedPayload), false);
+    val updatedStatus = fromStatus(updatedUploadStatus, "status");
+    val updatedUploadId = fromStatus(updatedUploadStatus, "uploadId");
+    if (updatedUploadId.equals(referenceUploadId)){
+      assertThat(updatedStatus).contains("WARNING: replaced content for");
+    } else {
+      assertThat(updatedStatus).isEqualTo("ok");
+    }
+
+    // Read updatedUploadId and verify
+//    val readUpdatedUpload = JsonUtils.readTree(uploadService.read(updatedUploadId).getPayload());
+
+    // Save reference upload
+    val referenceAnalysisStatus = uploadService.save(study,referenceUploadId);
+    val referenceAnalysisId = fromStatus(referenceAnalysisStatus, "analysisId");
+    val referenceAnalysis =  analysisService.read(referenceAnalysisId);
+
+    // Save updated upload
+    val updatedAnalysisStatus = uploadService.save(study,updatedUploadId);
+    val updatedAnalysisId = fromStatus(updatedAnalysisStatus, "analysisId");
+    val updatedAnalysis =  analysisService.read(updatedAnalysisId);
+    return new AnalysisPair(referenceUploadId, updatedUploadId,referenceAnalysis,updatedAnalysis);
+  }
+
+  @Value
+  public static class AnalysisPair {
+    @NonNull private final String referenceUploadId;
+    @NonNull private final String updatedUploadId;
+    @NonNull private final Analysis referenceAnalysis;
+    @NonNull private final Analysis updatedAnalysis;
+  }
+
+  protected JsonNode getJsonNodeFromClasspath(String name) throws Exception {
+    InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode node = mapper.readTree(is1);
+    return node;
+  }
+
+
+  private static String getDonorSubmitterId(JsonNode j, int sampleIdx){
+   return j.path("sample").path(sampleIdx).path("donor").path("donorSubmitterId").textValue();
+  }
+
+  private static JsonNode updateDonorSubmitterId(JsonNode j, int sampleIdx, String newDonorSubmitterId){
+    val node = (ObjectNode)j.path("sample").path(sampleIdx).path("donor");
+    node.put("donorSubmitterId", newDonorSubmitterId);
+    return j;
+  }
+
+  @SneakyThrows
+  private static String updateDonorSubmitterIdString(String json, int sampleIdx, String newDonorSubmittedId){
+    val j = JsonUtils.readTree(json);
+    updateDonorSubmitterId(j, 0, newDonorSubmittedId);
+    return JsonUtils.toJson(j);
   }
 
   @SneakyThrows
