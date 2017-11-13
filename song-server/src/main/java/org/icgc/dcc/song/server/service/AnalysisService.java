@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_STATE_UPDATE_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
@@ -256,12 +257,15 @@ public class AnalysisService {
 
   public ResponseEntity<String> publish(@NonNull String accessToken, @NonNull String id) {
     val files = readFiles(id);
-    val missing = files.stream().filter(f -> !confirmUploaded(accessToken,f.getObjectId())).count();
+    val missingFileIds = files.stream()
+        .filter(f -> !confirmUploaded(accessToken, f.getObjectId()))
+        .collect(toImmutableList());
+    val isMissingFiles = missingFileIds.size() > 0;
 
-    if (missing > 0) {
+    if (isMissingFiles) {
       return error(UNPUBLISHED_FILE_IDS,
           "The following file ids must be published before analysisId %s can be published: %s",
-          id, files);
+          id, COMMA.join(missingFileIds));
     }
 
     checkedUpdateState(id, PUBLISHED);
