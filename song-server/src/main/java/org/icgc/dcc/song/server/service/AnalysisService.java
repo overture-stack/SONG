@@ -22,6 +22,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.server.kafka.Sender;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
@@ -70,19 +71,18 @@ public class AnalysisService {
   private final SequencingReadInfoService sequencingReadInfoService;
   @Autowired
   private final VariantCallInfoService variantCallInfoService;
-
   @Autowired
   private final IdService idService;
   @Autowired
   private final CompositeEntityService compositeEntityService;
-
   @Autowired
   private final FileService fileService;
   @Autowired
   private final ExistenceService existence;
-
   @Autowired
   private final SearchRepository searchRepository;
+  @Autowired
+  private final Sender sender;
 
 
   public String create(String studyId, Analysis a) {
@@ -105,6 +105,7 @@ public class AnalysisService {
      // shouldn't be possible if we validated our JSON first...
      throw new IllegalArgumentException("Invalid analysis type");
    }
+   sender.send(String.format("{\"analysis_id\": %s, \"state\": \"UNPUBLISHED\"}", id));
    return id;
   }
 
@@ -267,6 +268,7 @@ public class AnalysisService {
     }
     if (missingUploads.isEmpty()) {
       checkedUpdateState(id, PUBLISHED);
+      sender.send(String.format("{\"analysis_id\": %s, \"state\": \"PUBLISHED\"}", id));
       return ok("AnalysisId %s successfully published", id);
     }
     return error(UNPUBLISHED_FILE_IDS,
