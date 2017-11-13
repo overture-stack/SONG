@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "Starting ID Server..."
 echo '$ID_HOME='$ID_HOME
 echo '$ID_PORT='$ID_PORT
