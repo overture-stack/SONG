@@ -23,8 +23,8 @@
 # Defines the ICGC access token for authorized access to data
 #
 accessToken=${AUTH_TOKEN}
-storage.url=http://${STORAGE_SERVER_HOST}:${STORAGE_SERVER_PORT}
-metadata.url=http://${SERVER_HOST}:${SERVER_PORT}
+storage.url=${STORAGE_SERVER_URL}
+metadata.url=${SERVER_URL}
 logging.file=./logs/storage-client.log
 
 #

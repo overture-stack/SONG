@@ -32,6 +32,7 @@ server:
   
 s3:
   secured: true
+  sigV4Enabled: true
   
   #amazon
   endpoint: s3-external-1.amazonaws.com
@@ -47,7 +48,7 @@ object:
   
 collaboratory:
   upload.directory: upload
-  upload.expiration: 7
+  upload.expiration: 6
   data.directory: ${STORAGE_SERVER_DATA_DIR}
     
   # COL-131: Change pre-signed URLs TTL to 1 day max
@@ -114,9 +115,10 @@ spring:
   profiles: collaboratory
 
 s3:
-  accessKey: ${MINIO_ACCESS_KEY}
-  secretKey: ${MINIO_SECRET_KEY}
-  endpoint: http://${MINIO_HOST}:${MINIO_PORT}
+  accessKey: ${OBJECT_STORAGE_ACCESS_KEY}
+  secretKey: ${OBJECT_STORAGE_SECRET_KEY}
+  endpoint: ${OBJECT_STORAGE_URL}
+  sigV4Enabled: true
   masterEncryptionKeyId: 
 server:
   ssl:
@@ -164,7 +166,7 @@ endpoints:
 
 # Metadata server
 metadata:
-  url: http://${SERVER_HOST}:${SERVER_PORT}
+  url: ${SERVER_URL}
 
 ---
 
@@ -177,7 +179,7 @@ spring.profiles: secure
 # OAuth authentication server
 auth:
   server:
-    url: http://${AUTH_HOST}:${AUTH_PORT}/${AUTH_ENDPOINT}
+    url: ${AUTH_SERVER_URL}
     clientId: ${AUTH_SERVER_CLIENTID}
     clientSecret: ${AUTH_SERVER_CLIENTSECRET}
     uploadScope: collab.upload
@@ -200,6 +202,7 @@ s3:
   endpoint: localhost:9444/s3
   accessKey: AKIAIOSFODNN7EXAMPLE 
   secretKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  sigV4Enabled: true
 
 # Server
 server:

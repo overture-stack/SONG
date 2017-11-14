@@ -1,8 +1,0 @@
-SING_EXE=../data/client/bin/sing
-if [ -f $SING_EXE ]; then
-    $SING_EXE $@
-    exit 0
-else
-    echo "The song-client (sing) does not exist. Did you run 'docker-compose build; docker-compose up' ?"
-    exit 1
-fi
