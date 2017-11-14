@@ -41,11 +41,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_STATE_UPDATE_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
@@ -242,38 +242,36 @@ public class AnalysisService {
   }
 
   public List<File> readFiles(String id) {
-    val files = repository.readFiles(id);
-    for (val file : files){
-      val info = fileInfoService.read(file.getObjectId());
-      file.setInfo(info);
-    }
-    return files;
+    return repository.readFiles(id).stream()
+        .map(f -> {
+          f.setInfo(fileInfoService.read(f.getObjectId()));
+          return f; // Return file with info set.
+        })
+        .collect(toImmutableList());
   }
 
   List<CompositeEntity> readSamples(String id) {
-    val samples = new ArrayList<CompositeEntity>();
-    for(val sampleId: repository.findSampleIds(id)) {
-      samples.add(compositeEntityService.read(sampleId));
-    }
-    return samples;
+    return repository.findSampleIds(id).stream()
+        .map(sampleId -> compositeEntityService.read(sampleId))
+        .collect(toImmutableList());
   }
 
   public ResponseEntity<String> publish(@NonNull String accessToken, @NonNull String id) {
     val files = readFiles(id);
-    List<String> missingUploads=new ArrayList<>();
-    for (val f: files) {
-       if ( !confirmUploaded(accessToken,f.getObjectId()) ) {
-         missingUploads.add(f.getObjectId());
-       }
+    val missingFileIds = files.stream()
+        .filter(f -> !confirmUploaded(accessToken, f.getObjectId()))
+        .collect(toImmutableList());
+    val isMissingFiles = missingFileIds.size() > 0;
+
+    if (isMissingFiles) {
+      return error(UNPUBLISHED_FILE_IDS,
+          "The following file ids must be published before analysisId %s can be published: %s",
+          id, COMMA.join(missingFileIds));
     }
-    if (missingUploads.isEmpty()) {
-      checkedUpdateState(id, PUBLISHED);
-      sender.send(String.format("{\"analysis_id\": %s, \"state\": \"PUBLISHED\"}", id));
-      return ok("AnalysisId %s successfully published", id);
-    }
-    return error(UNPUBLISHED_FILE_IDS,
-        "The following file ids must be published before analysisId %s can be published: %s",
-        id, files);
+
+    checkedUpdateState(id, PUBLISHED);
+    sender.send(String.format("{\"analysis_id\": %s, \"state\": \"PUBLISHED\"}", id));
+    return ok("AnalysisId %s successfully published", id);
   }
 
   public ResponseEntity<String> suppress(String id) {
