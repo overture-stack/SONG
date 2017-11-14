@@ -28,17 +28,18 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import java.util.Collections;
 import java.util.Set;
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static org.icgc.dcc.common.core.util.Joiners.DOT;
 
 @Slf4j
 public class StudyScopeStrategy {
 
-  private static final String END_USER_SCOPE_STRATEGY = "song.%s.%s";
-  private static final String SYSTEM_SCOPE_STRATEGY = "song.%s";
+  @Value("${auth.server.prefix}")
+  protected String scopePrefix;
 
   @Value("${auth.server.suffix}")
-  protected String scope;
+  protected String scopeSuffix;
+
 
   public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
     log.info("Checking authorization with study id {}", studyId);
@@ -53,30 +54,22 @@ public class StudyScopeStrategy {
     return verify(grantedScopes, studyId);
   }
 
-  protected void setAuthorizeScope(String scopeStr) {
-    scope = scopeStr;
-  }
-
-  protected String getAuthorizeScope() {
-    return scope;
-  }
-
   private Set<String> getScopes(@NonNull OAuth2Authentication o2auth) {
     return o2auth.getOAuth2Request().getScope();
   }
 
   private boolean isGranted(String tokenScope, String studyId) {
-    log.info(format("Checking token's scope '%s', studyId '%s', server's scope='%s'", tokenScope, studyId, scope));
-    val systemScope = format(SYSTEM_SCOPE_STRATEGY, scope);
-    if (systemScope.equals(tokenScope)) {
-      return true;
-    }
+    log.info("Checking token's scope '{}', server's scopePrefix='{}', studyId '{}', scopeSuffix='{}'",
+        tokenScope, scopePrefix, studyId, scopeSuffix);
+    return getSystemScope().equals(tokenScope) || getEndUserScope(studyId).equals(tokenScope); //short-circuit
+  }
 
-    val endUserScope = format(END_USER_SCOPE_STRATEGY, studyId.toUpperCase(), scope);
-    if (endUserScope.equals(tokenScope)) {
-      return true;
-    }
-    return false;
+  private String getEndUserScope(String studyId){
+    return DOT.join(scopePrefix, studyId.toUpperCase(), scopeSuffix);
+  }
+
+  private String getSystemScope(){
+    return DOT.join(scopePrefix,scopeSuffix);
   }
 
   private boolean verify(@NonNull Set<String> grantedScopes, @NonNull final String studyId) {
