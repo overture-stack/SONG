@@ -54,4 +54,12 @@ public class StudyServiceTest {
 
   }
 
+  @Test
+  public void testStudyCheck(){
+    val existentStudyId = "ABC123";
+    assertThat(service.isStudyExist(existentStudyId)).isTrue();
+    val nonExistentStudyId = System.currentTimeMillis()+"something_different";
+    assertThat(service.isStudyExist(nonExistentStudyId)).isFalse();
+  }
+
 }
