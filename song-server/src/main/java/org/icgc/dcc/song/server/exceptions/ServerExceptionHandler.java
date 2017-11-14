@@ -5,6 +5,7 @@ import lombok.val;
 import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.core.exceptions.SongError;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -20,6 +21,7 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static org.icgc.dcc.common.core.util.Splitters.NEWLINE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 
 @Slf4j
@@ -35,6 +37,22 @@ public class ServerExceptionHandler {
     songError.setRequestUrl(generateRequestUrlWithParams(request));
     log.error(songError.toPrettyJson());
     return songError.getResponseEntity();
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<String> handleAccessDeniedException(HttpServletRequest request, HttpServletResponse response,
+      AccessDeniedException ex){
+    val error = new SongError();
+    error.setRequestUrl(generateRequestUrlWithParams(request));
+    error.setTimestamp(System.currentTimeMillis());
+    error.setHttpStatus(UNAUTHORIZED_TOKEN.getHttpStatus());
+    error.setErrorId(UNAUTHORIZED_TOKEN.getErrorId());
+    error.setMessage(ex.getMessage());
+    val rootCause = getRootCause(ex);
+    error.setDebugMessage(format("[ROOT_CAUSE] -> %s: %s", rootCause.getClass().getName(), rootCause.getMessage()));
+    error.setStackTrace(getFullStackTraceList(ex));
+    log.error(error.toPrettyJson());
+    return error.getResponseEntity();
   }
 
   @ExceptionHandler(Throwable.class)

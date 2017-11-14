@@ -11,12 +11,17 @@ import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -141,6 +146,13 @@ public class SongError {
   public static SongError parseErrorResponse(ResponseEntity<String> responseEntity){
     val httpStatus = responseEntity.getStatusCode();
     val body = responseEntity.getBody();
+    return parseErrorResponse(httpStatus, body);
+  }
+
+  public static SongError parseErrorResponse(ClientHttpResponse response) throws IOException {
+    val httpStatus = response.getStatusCode();
+    val br = new BufferedReader(new InputStreamReader(response.getBody()));
+    val body = br.lines().collect(Collectors.joining(""));
     return parseErrorResponse(httpStatus, body);
   }
 
