@@ -99,7 +99,7 @@ public class ClientMain implements CommandLineRunner {
           songError = createSongError(UNKNOWN_ERROR,
               "Unknown error: %s", e.getMessage());
         }
-        command.err(errorStatusHeader.getSongServerErrorOutput(songError));
+        command.err(errorStatusHeader.getSongClientErrorOutput(songError));
       } else {
         command.err(errorStatusHeader.createMessage("The SONG server may not be running on '%s'", config.getServerUrl()));
       }

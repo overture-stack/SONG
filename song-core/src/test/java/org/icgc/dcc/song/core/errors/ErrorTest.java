@@ -7,23 +7,26 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.extractErrorId;
-import static org.icgc.dcc.song.core.utils.Debug.getCallingStackTrace;
+import static org.icgc.dcc.song.core.utils.Debug.streamCallingStackTrace;
 import static org.springframework.http.HttpStatus.CONFLICT;
 
 public class ErrorTest {
 
   @Test
   public void testSongErrorJsonParsing(){
-    val expectedError  = new SongError();
-    expectedError.setDebugMessage("d1");
-    expectedError.setErrorId("something.else");
-    expectedError.setHttpStatus(CONFLICT);
-    expectedError.setMessage("this message");
-    expectedError.setRequestUrl("some url");
-    expectedError.setStackTraceElementList(getCallingStackTrace());
-    expectedError.setTimestamp(System.currentTimeMillis());
+    val expectedError  = SongError.builder()
+        .debugMessage("d1")
+        .errorId("something.else")
+        .httpStatusName(CONFLICT.name())
+        .httpStatusCode(CONFLICT.value())
+        .message("this message")
+        .requestUrl("some url")
+        .stackTrace(streamCallingStackTrace().map(StackTraceElement::toString).collect(toImmutableList()))
+        .timestamp(System.currentTimeMillis())
+        .build();
 
     val actualError = JsonUtils.fromJson(expectedError.toJson(), SongError.class);
     assertThat(actualError).isEqualTo(expectedError);

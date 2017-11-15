@@ -25,7 +25,7 @@ public class SpringAppTest extends AbstractClientMainTest{
   @SneakyThrows
   @Ignore
   public void testUpload(){
-    val jsonPath = Paths.get("../sequencingRead.json");
+    val jsonPath = Paths.get("../src/test/resources/fixtures/sequencingRead.json");
     assertThat(jsonPath).exists();
     executeMain("upload", "-f", jsonPath.toString());
     log.info("sdf");

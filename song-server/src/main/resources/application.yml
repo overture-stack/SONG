@@ -70,6 +70,7 @@ spring:
 
 auth:
   server:
+    prefix: "song"
     suffix: "upload"
 
 validation.delayMs: 3000
@@ -97,6 +98,7 @@ auth:
     clientSecret: "clientSecret"
     enableStrictSSL: false
     enableHttpLogging: false
+    prefix: "song"
     suffix: "upload"
 ---
 
