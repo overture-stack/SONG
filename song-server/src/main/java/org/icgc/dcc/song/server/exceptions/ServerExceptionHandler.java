@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.core.exceptions.SongError;
-import org.icgc.dcc.song.core.utils.LombokBuilderCloner;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -24,7 +23,6 @@ import static org.icgc.dcc.common.core.util.Splitters.NEWLINE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
-import static org.icgc.dcc.song.core.utils.LombokBuilderCloner.createLombokBuilderCloner;
 
 @Slf4j
 @ControllerAdvice
@@ -32,8 +30,6 @@ public class ServerExceptionHandler {
 
   private static final String AMPERSAND = "&";
   private static final String QUESTION_MARK= "?";
-  private static final LombokBuilderCloner<SongError,SongError.SongErrorBuilder> SONG_ERROR_CLONER =
-      createLombokBuilderCloner(SongError.class, SongError::builder);
 
   @ExceptionHandler(ServerException.class)
   public ResponseEntity<String> handleServerException(HttpServletRequest request, HttpServletResponse response, ServerException ex){
