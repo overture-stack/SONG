@@ -3,10 +3,11 @@ package org.icgc.dcc.song.core.exceptions;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
-import static lombok.AccessLevel.NONE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 import static org.icgc.dcc.song.core.utils.Debug.streamCallingStackTrace;
@@ -37,8 +37,10 @@ import static org.icgc.dcc.song.core.utils.Responses.contextMessage;
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({ "errorId", "httpStatusCode", "httpStatusName",
     "requestUrl", "datetime", "timestamp",  "message", "debugMessage", "stackTrace" })
+@Builder
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class SongError {
 
   private static final String NOT_AVAILABLE = "N/A";
@@ -53,17 +55,15 @@ public class SongError {
   private String requestUrl;
   private String debugMessage;
   private long timestamp;
-  @Setter(NONE) private String datetime;
 
   public void setHttpStatus(HttpStatus httpStatus){
     this.httpStatusCode = httpStatus.value();
     this.httpStatusName = httpStatus.name();
   }
 
-  public void setTimestamp(long timestamp){
-    this.timestamp = timestamp;
+  public String getDatetime(){
     val instant = Instant.ofEpochMilli(timestamp);
-    this.datetime = ZonedDateTime.ofInstant(instant, ZONE_ID).format(DATE_TIME_FORMATTER);
+    return ZonedDateTime.ofInstant(instant, ZONE_ID).format(DATE_TIME_FORMATTER);
   }
 
   @Override
@@ -113,18 +113,26 @@ public class SongError {
   }
 
   public static SongError createSongError(@NonNull ServerError serverError, @NonNull String formattedMessage, Object...args){
+    return createSongError(serverError, NOT_AVAILABLE, NOT_AVAILABLE, formattedMessage, args);
+  }
+
+  public static SongError createSongError(@NonNull ServerError serverError,
+      @NonNull String requestUrl, @NonNull String debugMessage,
+      @NonNull String formattedMessage, Object...args){
     val st = streamCallingStackTrace()
         .skip(1)
+        .map(Object::toString)
         .collect(toImmutableList());
-    val error = new SongError();
-    error.setMessage(format(formattedMessage, args));
-    error.setErrorId(serverError.getErrorId());
-    error.setHttpStatus(serverError.getHttpStatus());
-    error.setStackTraceElementList(st);
-    error.setTimestamp(currentTimeMillis());
-    error.setRequestUrl(NOT_AVAILABLE);
-    error.setDebugMessage(NOT_AVAILABLE);
-    return error;
+    return SongError.builder()
+        .message(format(formattedMessage, args))
+        .errorId(serverError.getErrorId())
+        .httpStatusCode(serverError.getHttpStatus().value())
+        .httpStatusName(serverError.getHttpStatus().name())
+        .stackTrace(st)
+        .timestamp(currentTimeMillis())
+        .requestUrl(requestUrl)
+        .debugMessage(debugMessage)
+        .build();
   }
 
   public static ResponseEntity<String> error(ServerError serverError, String formattedMessage, Object... args){

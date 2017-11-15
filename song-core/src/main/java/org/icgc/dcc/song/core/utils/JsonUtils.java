@@ -18,6 +18,8 @@
  */
 package org.icgc.dcc.song.core.utils;
 
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,9 +91,22 @@ public class JsonUtils {
     return mapper.convertValue(map, JsonNode.class);
   }
 
+
+  public static class SongPrettyPrinter extends DefaultPrettyPrinter{
+    public static final SongPrettyPrinter instance = new SongPrettyPrinter(4);
+
+    public SongPrettyPrinter(int indentSize) {
+      val sb = new StringBuilder();
+      for (int i=0; i<indentSize; i++){
+        sb.append(' ');
+      }
+      indentArraysWith(new DefaultIndenter(sb.toString(), DefaultIndenter.SYS_LF));
+    }
+  }
+
   @SneakyThrows
   public static String toPrettyJson(Object o) {
-    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(o);
+    return mapper.writer(SongPrettyPrinter.instance).writeValueAsString(o);
   }
 
   @SneakyThrows
