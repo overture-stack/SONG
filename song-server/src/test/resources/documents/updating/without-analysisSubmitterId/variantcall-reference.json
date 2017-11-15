@@ -1,0 +1,43 @@
+{
+  "study": "ABC123",
+  "analysisType": "variantCall",
+  "experiment": {
+
+    "variantCallingTool": "silver bullet",
+    "matchedNormalSampleSubmitterId": "sample x24-11a"
+  },
+  "sample": [
+    {
+      "sampleSubmitterId": "internal_sample_98024759826836",
+      "sampleType": "Total RNA",
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
+        "specimenClass": "Tumour",
+        "specimenType": "Primary tumour - other"
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789-00",
+        "donorGender": "female"
+      }
+    }
+  ],
+  "file": [
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "fileSize": 376953,
+      "fileMd5sum": "61a91c4bf04ac2bd3795254104f75ad3",
+      "fileAccess" : "open",
+      "fileType": "VCF"
+    },
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+      "fileSize": 4840,
+      "fileMd5sum": "29594b19b079ad5731577e0495ddba63",
+      "fileAccess" : "open",
+      "fileType": "IDX"
+    }
+  ],
+  "info": {
+    "description": "This is extra info in a JSON format"
+  }
+}
