@@ -61,6 +61,9 @@ public class IdService {
     }
   }
 
+  public String generateAnalysisId(String analysisSubmitterId) {
+
+  }
   public String generateAnalysisId() {
     val opt = idClient.getAnalysisId();
     if (opt.isPresent()) {

@@ -45,6 +45,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_STATE_UPDATE_FAILED;
@@ -84,9 +85,17 @@ public class AnalysisService {
   @Autowired
   private final Sender sender;
 
+  private String createAnalysisId(Analysis a){
+    val analysisSubmitterId = a.getAnalysisSubmitterId();
+    if (isNullOrEmpty(analysisSubmitterId)){
+      return idService.generateAnalysisId();
+    } else {
+      return analysisSubmitterId;
+    }
+  }
 
   public String create(String studyId, Analysis a) {
-    val id = idService.generateAnalysisId();
+    val id = createAnalysisId(a);
     a.setAnalysisId(id);
     a.setStudy(studyId);
     repository.createAnalysis(a);
