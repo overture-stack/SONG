@@ -37,8 +37,8 @@ import java.util.List;
 @RegisterMapper(FileMapper.class)
 public interface AnalysisRepository {
 
-  @SqlUpdate("INSERT INTO Analysis (id, study_id, submitter_id, type, state) " +
-          "VALUES (:analysisId, :study, :analysisSubmitterId, :analysisType, :analysisState)")
+  @SqlUpdate("INSERT INTO Analysis (id, study_id, type, state) " +
+          "VALUES (:analysisId, :study, :analysisType, :analysisState)")
   void createAnalysis(@BindBean Analysis analysis );
 
   @SqlUpdate("Update Analysis set state=:state where id=:analysisId")
@@ -59,7 +59,7 @@ public interface AnalysisRepository {
   void createVariantCall(@BindBean VariantCall c);
 
   @RegisterMapper(AnalysisMapper.class)
-  @SqlQuery("SELECT id, study_id, submitter_id, type, state FROM Analysis WHERE id=:id")
+  @SqlQuery("SELECT id, study_id, type, state FROM Analysis WHERE id=:id")
   Analysis read(@Bind("id") String id);
 
   @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5, access FROM File WHERE analysis_id=:id")
@@ -96,7 +96,7 @@ public interface AnalysisRepository {
           "matched_normal_sample_submitter_id=:matchedNormalSampleSubmitterId WHERE id=:analysisId")
   void updateVariantCall(@BindBean VariantCall variantCall);
 
-  @SqlQuery("SELECT id from Analysis where study_id=:studyId AND submitter_id=:key")
+  @SqlQuery("SELECT id from Analysis where study_id=:studyId analysis_id=:key")
   String findByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
 
   @RegisterMapper(AnalysisMapper.class)

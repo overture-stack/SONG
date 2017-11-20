@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
+import static org.icgc.dcc.song.server.repository.AttributeNames.ANALYSIS_ID;
 import static org.icgc.dcc.song.server.repository.AttributeNames.CREATED_AT;
 import static org.icgc.dcc.song.server.repository.AttributeNames.ERRORS;
 import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
@@ -41,6 +42,7 @@ public class UploadMapper implements ResultSetMapper<Upload> {
   public Upload map(int index, ResultSet rs, StatementContext ctx) throws SQLException {
     return Upload.create(rs.getString(ID),
         rs.getString(STUDY_ID),
+        rs.getString(ANALYSIS_ID),
         getState(rs),
         rs.getString(ERRORS),
         rs.getString(PAYLOAD),

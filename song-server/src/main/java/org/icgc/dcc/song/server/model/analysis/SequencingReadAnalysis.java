@@ -17,11 +17,10 @@ public class SequencingReadAnalysis extends Analysis {
         return "sequencingRead";
     }
 
-    public static SequencingReadAnalysis create(String id, String study, String submitter_id, String state ) {
+    public static SequencingReadAnalysis create(String id, String study, String state ) {
         val s = new SequencingReadAnalysis();
         s.setAnalysisId(id);
         s.setStudy(study);
-        s.setAnalysisSubmitterId(submitter_id);
         s.setAnalysisState(state);
         return s;
     }

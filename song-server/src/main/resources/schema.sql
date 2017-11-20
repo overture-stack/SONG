@@ -73,7 +73,7 @@ CREATE TABLE Sample(id VARCHAR(36) PRIMARY KEY, specimen_id VARCHAR(36) referenc
     type SAMPLE_TYPE);
 
 DROP TABLE IF EXISTS Analysis CASCADE;
-CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT,
+CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study,
     type ANALYSIS_TYPE, state ANALYSIS_STATE);
 
 DROP TABLE IF EXISTS File CASCADE;
@@ -90,7 +90,7 @@ DROP TABLE IF EXISTS VariantCall CASCADE;
 CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT, tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT);
 
 DROP TABLE IF EXISTS Upload CASCADE;
-CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study, analysis_submitter_id TEXT, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP NOT NULL DEFAULT now(), updated_at TIMESTAMP NOT NULL DEFAULT now());
+CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study, analysis_id TEXT, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP NOT NULL DEFAULT now(), updated_at TIMESTAMP NOT NULL DEFAULT now());
 
 drop TYPE if exists id_type CASCADE;
 create TYPE id_type as ENUM('Study','Donor','Specimen','Sample','File','Analysis','SequencingRead','VariantCall');

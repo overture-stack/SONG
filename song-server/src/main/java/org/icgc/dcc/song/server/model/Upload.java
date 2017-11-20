@@ -38,7 +38,7 @@ import static java.util.Arrays.asList;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
-@JsonPropertyOrder({ "uploadId", "studyId", "state", "createdAt", "updatedAt", "errors", "payload"
+@JsonPropertyOrder({ "analysisId", "uploadId", "studyId", "state", "createdAt", "updatedAt", "errors", "payload"
 })
 
 @Data
@@ -47,6 +47,7 @@ public class Upload {
   private String uploadId = "";
   private String studyId = "";
   private String state = "";
+  private String analysisId = "";
   private List<String> errors = new ArrayList<>();
   private String payload = "";
   private LocalDateTime createdAt;
@@ -60,18 +61,18 @@ public class Upload {
     setState(resolveState(state));
   }
 
-  public static Upload create(String id, String study, UploadStates state, String errors,
+  public static Upload create(String id, String study, String analysisId, UploadStates state, String errors,
       String payload, LocalDateTime created, LocalDateTime updated) {
     val u = new Upload();
 
     u.setUploadId(id);
     u.setStudyId(study);
+    u.setAnalysisId(analysisId);
     u.setState(state);
     u.setErrors(errors);
     u.setPayload(payload);
     u.setCreatedAt(created);
     u.setUpdatedAt(updated);
-
     return u;
   }
 

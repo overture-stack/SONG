@@ -45,12 +45,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_STATE_UPDATE_FAILED;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.exceptions.SongError.error;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
@@ -85,17 +87,16 @@ public class AnalysisService {
   @Autowired
   private final Sender sender;
 
-  private String createAnalysisId(Analysis a){
-    val analysisSubmitterId = a.getAnalysisSubmitterId();
-    if (isNullOrEmpty(analysisSubmitterId)){
-      return idService.generateAnalysisId();
-    } else {
-      return analysisSubmitterId;
-    }
+  public boolean doesAnalysisIdExist(String id){
+    return !isNull(repository.read(id));
   }
 
-  public String create(String studyId, Analysis a) {
-    val id = createAnalysisId(a);
+  public String create(String studyId, Analysis a, boolean ignoreAnalysisIdCollisions) {
+    val candidateAnalysisId = a.getAnalysisId();
+    val id = idService.resolveAnalysisId(candidateAnalysisId, ignoreAnalysisIdCollisions);
+    checkServer(!doesAnalysisIdExist(id), this.getClass(), DUPLICATE_ANALYSIS_ATTEMPT,
+        "Attempted to create a duplicate analysis. Please "
+            + "delete the analysis for analysisId '%s' and re-save", id);
     a.setAnalysisId(id);
     a.setStudy(studyId);
     repository.createAnalysis(a);

@@ -77,7 +77,7 @@ public class AnalysisServiceTest {
     val study="ABC123";
     val json = readFile(FILEPATH + "sequencingRead.json");
     val analysis = fromJson(json, Analysis.class);
-    val analysisId=service.create(study, analysis);
+    val analysisId=service.create(study, analysis, false);
 
     val created = service.read(analysisId);
     assertThat(created.getAnalysisId()).isEqualTo(analysisId);
@@ -108,7 +108,7 @@ public class AnalysisServiceTest {
     val study="ABC123";
     val json = readFile(FILEPATH + "variantCall.json");
     val analysis = fromJson(json, Analysis.class);
-    val analysisId=service.create(study, analysis);
+    val analysisId=service.create(study, analysis, false);
 
     val created = service.read(analysisId);
     assertThat(created.getAnalysisId()).isEqualTo(analysisId);
@@ -215,17 +215,17 @@ public class AnalysisServiceTest {
   }
 
   @Test
-  public void testDefinedAnalysisSubmitterIdToFileObjectId(){
+  public void testCustomAnalysisId(){
     val study="ABC123";
-    val analysisSubmitterId = "AN-1234";
-    val expectedObjectIdMap =Maps.newHashMap();
+    val expectedAnalysisId = "AN-1234";
+    val expectedObjectIdMap = Maps.newHashMap();
     expectedObjectIdMap.put("a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz", "0794ae66-80df-5b70-bc22-e49309bfba2a");
     expectedObjectIdMap.put("a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx", "a2449e0a-7020-5f2d-8610-9f58aafd467a" );
 
-    val json = TestFiles.getJsonNodeFromClasspath("documents/sequencingread-valid-analysis-submitter-id.json");
+    val json = TestFiles.getJsonNodeFromClasspath("documents/sequencingread-custom-analysis-id.json");
     val analysis = fromJson(json, Analysis.class);
-    val actualAnalysisId=service.create(study, analysis);
-    assertThat(actualAnalysisId).isEqualTo(analysisSubmitterId);
+    val actualAnalysisId=service.create(study, analysis, false);
+    assertThat(actualAnalysisId).isEqualTo(expectedAnalysisId);
     for (val file : analysis.getFile()){
       val filename = file.getFileName();
       assertThat(expectedObjectIdMap).containsKey(filename);
