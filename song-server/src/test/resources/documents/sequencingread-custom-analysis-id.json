@@ -1,7 +1,7 @@
 {
   "study": "ABC123",
   "analysisType": "sequencingRead",
-  "analysisSubmitterId" : "AN-1234",
+  "analysisId" : "AN-1235",
   "experiment": {
     "libraryStrategy": "WXS",
     "pairedEnd": false,
