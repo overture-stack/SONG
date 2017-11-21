@@ -1,6 +1,5 @@
 package org.icgc.dcc.song.importer;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -11,10 +10,8 @@ import org.icgc.dcc.song.importer.convert.SampleSetConverter;
 import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter;
 import org.icgc.dcc.song.importer.convert.StudyConverter;
 import org.icgc.dcc.song.importer.download.DownloadIterator;
-import org.icgc.dcc.song.importer.download.PortalDownloadIterator;
 import org.icgc.dcc.song.importer.download.fetcher.DataFetcher;
 import org.icgc.dcc.song.importer.download.fetcher.DonorFetcher;
-import org.icgc.dcc.song.importer.download.fetcher.FileFetcher;
 import org.icgc.dcc.song.importer.filters.FileFilter;
 import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.DccMetadata;
@@ -23,23 +20,15 @@ import org.icgc.dcc.song.importer.persistence.PersistenceFactory;
 import org.icgc.dcc.song.importer.persistence.filerestorer.impl.ObjectFileRestorer;
 import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
 
-import java.util.ArrayList;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static java.util.stream.Collectors.toList;
-import static org.icgc.dcc.song.importer.Config.COLLAB_REPO_NAME;
 import static org.icgc.dcc.song.importer.Config.PERSISTED_DIR_PATH;
 import static org.icgc.dcc.song.importer.Config.PORTAL_API;
 import static org.icgc.dcc.song.importer.Config.PROBLEMATIC_SPECIMEN_IDS;
 import static org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.createSpecimenSampleConverter;
 import static org.icgc.dcc.song.importer.download.PortalDonorIdFetcher.createPortalDonorIdFetcher;
-import static org.icgc.dcc.song.importer.download.PortalDownloadIterator.createDefaultPortalDownloadIterator;
 import static org.icgc.dcc.song.importer.download.fetcher.DataFetcher.createDataFetcher;
 import static org.icgc.dcc.song.importer.download.fetcher.DonorFetcher.createDonorFetcher;
-import static org.icgc.dcc.song.importer.download.fetcher.FileFetcher.convertToPortalFileMetadata;
-import static org.icgc.dcc.song.importer.download.fetcher.FileFetcher.createFileFetcher;
-import static org.icgc.dcc.song.importer.download.urlgenerator.impl.FilePortalUrlGenerator.createFilePortalUrlGenerator;
 import static org.icgc.dcc.song.importer.filters.FileFilter.createFileFilter;
 import static org.icgc.dcc.song.importer.filters.IdFilter.createIdFilter;
 import static org.icgc.dcc.song.importer.persistence.PersistenceFactory.createPersistenceFactory;
@@ -62,37 +51,6 @@ public class Factory {
 
   public static final ObjectFileRestorer<DataContainer> DATA_CONTAINER_FILE_RESTORER =
       createObjectFileRestorer (PERSISTED_DIR_PATH, DataContainer.class);
-
-  private static PortalDownloadIterator buildFilePortalDownloader(){
-    val urlGen = createFilePortalUrlGenerator(PORTAL_API, COLLAB_REPO_NAME);
-    return createDefaultPortalDownloadIterator(urlGen);
-  }
-
-  private static ArrayList<PortalFileMetadata> downloadAndConvertPortalFiles(){
-    val downloader = buildFilePortalDownloader();
-    return (ArrayList<PortalFileMetadata>) downloader.stream()
-        .map(x -> convertToPortalFileMetadata(x, COLLAB_REPO_NAME))
-        .collect(toList());
-  }
-
-  private static <T> ArrayList<T> downloadAndConvert(PortalDownloadIterator downloadIterator,
-      Function<ObjectNode, T> convertFunction){
-    return (ArrayList<T>) downloadIterator.stream()
-        .map(convertFunction)
-        .collect(toList());
-  }
-
-
-  public static FileFetcher buildFileFetcher(){
-    log.info("Creating FilePortalUrlGenerator for url '{}' and repoName '{}'", PORTAL_API, COLLAB_REPO_NAME);
-    val urlGenerator = createFilePortalUrlGenerator(PORTAL_API, COLLAB_REPO_NAME);
-
-    log.info("Creating PortalDownloadIterator for FilePortalUrlGenerator");
-    val portalDownloadIterator = createDefaultPortalDownloadIterator(urlGenerator);
-
-    log.info("Creating FileFetcher");
-    return createFileFetcher(portalDownloadIterator);
-  }
 
   public static DonorFetcher buildDonorFetcher(){
     log.info("Creating PortalDonorIdFetcher for url: {}", PORTAL_API);

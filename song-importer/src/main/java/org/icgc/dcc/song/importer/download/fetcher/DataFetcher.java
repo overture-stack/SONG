@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataCachedDao.createDccMetadataCachedDao;
+import static org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataMemoryDao.createDccMetadataMemoryDao;
 import static org.icgc.dcc.song.importer.download.fetcher.DccMetadataFetcher.createDccMetadataFetcher;
 import static org.icgc.dcc.song.importer.model.DataContainer.createDataContainer;
 
@@ -64,7 +64,7 @@ public class DataFetcher {
   private Set<File> fetchDccMetadataFiles(List<PortalFileMetadata> portalFileMetadatas){
     val allDccMetadatas = dccMetadataDownloadIterator.stream()
         .collect(toImmutableSet());
-    val dccMetadataDao = createDccMetadataCachedDao(allDccMetadatas);
+    val dccMetadataDao = createDccMetadataMemoryDao(allDccMetadatas);
     val dccMetadataFetcher = createDccMetadataFetcher(dccMetadataDao, simpleDccStorageClient);
     return dccMetadataFetcher.fetchDccMetadataFiles(portalFileMetadatas);
   }

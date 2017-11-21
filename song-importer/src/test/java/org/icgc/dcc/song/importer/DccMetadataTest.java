@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.common.core.util.stream.Collectors;
-import org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataCachedDao;
+import org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataMemoryDao;
 import org.icgc.dcc.song.importer.persistence.ObjectPersistance;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class DccMetadataTest {
     val urlConverter  = createDccMetadataUrlConverter();
     val downloadIterator = createDownloadIterator(urlConverter,urlGenerator, 2000, 2000, 0);
     val datas = downloadIterator.stream().collect(Collectors.toImmutableSet());
-    val dao = DccMetadataCachedDao.createDccMetadataCachedDao(datas);
+    val dao = DccMetadataMemoryDao.createDccMetadataMemoryDao(datas);
     val results = dao.findByMultiObjectIds(Sets.newHashSet("0185e7b8-fc93-5fde-999d-614884f4f798",
         "01864257-6b3a-5493-85b8-9d9e805c9c41"));
     log.info("sdf");

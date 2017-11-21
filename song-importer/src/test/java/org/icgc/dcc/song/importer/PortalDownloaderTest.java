@@ -320,17 +320,4 @@ public class PortalDownloaderTest {
 
   }
 
-  @Test
-  @Ignore
-  public void testPortalFileMetadataDownloadIteratorOrig(){
-    val url = "https://dcc.icgc.org";
-    val repoName =  "Collaboratory - Toronto";
-    val urlConverter= createPortalUrlConverter(repoName);
-    val urlGenertator = createFilePortalUrlGenerator(url, repoName);
-    val downloadIterator = DownloadIterator.createDownloadIterator(urlConverter,urlGenertator,100,100,1);
-    val originalFiles = Factory.buildFileFetcher().fetchPortalFileMetadatas(repoName);
-    val newFiles = downloadIterator.stream().collect(toImmutableList());
-    log.info("sdfsdf");
-  }
-
 }
