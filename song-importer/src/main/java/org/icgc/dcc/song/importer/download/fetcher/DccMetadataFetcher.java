@@ -5,13 +5,10 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.importer.convert.DccMetadataConverter;
 import org.icgc.dcc.song.importer.dao.dcc.DccMetadataDao;
-import org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataDbDao;
 import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
 import java.util.Collection;
@@ -25,13 +22,12 @@ import static org.icgc.dcc.song.importer.convert.FileConverter.convertToFile;
 import static org.icgc.dcc.song.importer.measurement.CounterMonitor.newMonitor;
 import static org.icgc.dcc.song.importer.storage.SimpleDccStorageClient.calcMd5Sum;
 
-@Component
 public class DccMetadataFetcher {
 
-  @Autowired private final DccMetadataDao dccMetadataDao;
-  @Autowired private final SimpleDccStorageClient simpleDccStorageClient;
+  private final SimpleDccStorageClient simpleDccStorageClient;
+  private final DccMetadataDao dccMetadataDao;
 
-  public DccMetadataFetcher(@NonNull DccMetadataDbDao dccMetadataDao, @NonNull SimpleDccStorageClient
+  public DccMetadataFetcher(@NonNull DccMetadataDao dccMetadataDao, @NonNull SimpleDccStorageClient
       simpleDccStorageClient) {
     this.dccMetadataDao = dccMetadataDao;
     this.simpleDccStorageClient = simpleDccStorageClient;
@@ -78,5 +74,8 @@ public class DccMetadataFetcher {
         .collect(groupingBy(DccMetadataConverter::getId));
   }
 
-
+  public static DccMetadataFetcher createDccMetadataFetcher(@NonNull DccMetadataDao dccMetadataDao,
+      @NonNull SimpleDccStorageClient simpleDccStorageClient) {
+    return new DccMetadataFetcher(dccMetadataDao, simpleDccStorageClient);
+  }
 }

@@ -92,7 +92,6 @@ public class AnalysisConverter {
     val analysisId = variantCallAggregate.getAnalysisId();
     variantCallAnalysis.setAnalysisId(analysisId);
     variantCallAnalysis.setAnalysisState(PUBLISHED.toString());
-    variantCallAnalysis.setAnalysisSubmitterId(analysisId);
     variantCallAnalysis.setStudy(variantCallAggregate.getStudyId());
     variantCallAnalysis.setInfo(NA);
 
@@ -115,7 +114,6 @@ public class AnalysisConverter {
     val analysisId = seqReadAggregate.getAnalysisId();
     sequencingReadAnalysis.setAnalysisId(analysisId);
     sequencingReadAnalysis.setAnalysisState(PUBLISHED.toString());
-    sequencingReadAnalysis.setAnalysisSubmitterId(analysisId);
     sequencingReadAnalysis.setStudy(seqReadAggregate.getStudyId());
     sequencingReadAnalysis.setInfo(NA);
 

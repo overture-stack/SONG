@@ -27,16 +27,16 @@ dcc-storage:
   bypassMd5Check: true
   forceDownload: false
   outputDir: "dcc-storage-output"
-  token:
+  token:  <token with collab.download scope>
 
 dcc-metadata:
-  db:
-    name: "dcc-metadata"
-    collection: "Entity"
-    host: "http://localhost:27017"
-    username:
-    password:
+  url: "https://meta.icgc.org"
+  fetchSize: 2000
 
+portal:
+  url: "https://dcc.icgc.org"
+  repoName: "Collaboratory - Toronto"
+  fetchSize: 100
 
 # Management
 management:
@@ -46,6 +46,7 @@ id:
   idUrl: "http://localhost:9090"
   authToken: "idToken"
   realIds: false
+  persistInMemory: false
 
 validation:
   threads:
@@ -54,7 +55,6 @@ validation:
   queue:
     capacity: 100
 
-validation.delayMs: 3000
 
 auth:
   # Connection retries in case of connection failure
@@ -85,7 +85,10 @@ spring:
 
 auth:
   server:
+    prefix: "song"
     suffix: "upload"
+
+validation.delayMs: 3000
 
 # Datasource
 spring.datasource:
@@ -110,6 +113,7 @@ auth:
     clientSecret: "clientSecret"
     enableStrictSSL: false
     enableHttpLogging: false
+    prefix: "song"
     suffix: "upload"
 ---
 
@@ -146,9 +150,19 @@ spring.datasource:
   max-idle: 1
   min-idle: 1
 
+validation.delayMs: 30
+
 ---
 spring:
   profiles: test
   autoconfigure.exclude: SecurityConfig.class
 
+id.persistInMemory: true
 
+---
+spring:
+  profiles: kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    template:
+      default-topic: song

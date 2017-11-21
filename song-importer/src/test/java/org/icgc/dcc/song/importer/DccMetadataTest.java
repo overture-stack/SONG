@@ -1,15 +1,22 @@
 package org.icgc.dcc.song.importer;
 
+import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.common.core.util.stream.Collectors;
+import org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataCachedDao;
 import org.icgc.dcc.song.importer.persistence.ObjectPersistance;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.importer.convert.DccMetadataUrlConverter.createDccMetadataUrlConverter;
+import static org.icgc.dcc.song.importer.download.DownloadIterator.createDownloadIterator;
+import static org.icgc.dcc.song.importer.download.urlgenerator.impl.DccMetadataUrlGenerator.createDccMetadataUrlGenerator;
 import static org.icgc.dcc.song.importer.model.DccMetadata.createDccMetadata;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
 
@@ -19,12 +26,26 @@ public class DccMetadataTest {
   @Test
   @SneakyThrows
   public void testDccMetadataSerialization(){
-    val expectedDccMetadata = createDccMetadata("myCls","myId", OPEN, 23423423, "myFilename", "myGnosId", "myProjectCode");
+    val expectedDccMetadata = createDccMetadata("myId", OPEN, 23423423, "myFilename", "myGnosId", "myProjectCode");
     val path = Paths.get("./testDccMetadata.dat");
     ObjectPersistance.store(expectedDccMetadata, path );
     val actualDccMetadata = ObjectPersistance.restore(path);
     assertThat(actualDccMetadata).isEqualTo(expectedDccMetadata);
     Files.deleteIfExists(path);
+  }
+
+  @Test
+  @Ignore
+  public void testDccMetadataDownloader(){
+    val urlGenerator = createDccMetadataUrlGenerator("https://meta.icgc.org");
+    val urlConverter  = createDccMetadataUrlConverter();
+    val downloadIterator = createDownloadIterator(urlConverter,urlGenerator, 2000, 2000, 0);
+    val datas = downloadIterator.stream().collect(Collectors.toImmutableSet());
+    val dao = DccMetadataCachedDao.createDccMetadataCachedDao(datas);
+    val results = dao.findByMultiObjectIds(Sets.newHashSet("0185e7b8-fc93-5fde-999d-614884f4f798",
+        "01864257-6b3a-5493-85b8-9d9e805c9c41"));
+    log.info("sdf");
+
   }
 
 

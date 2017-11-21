@@ -1,56 +1,38 @@
 package org.icgc.dcc.song.importer.config;
 
-import com.mongodb.MongoClientURI;
 import lombok.Getter;
-import org.icgc.dcc.song.importer.dao.dcc.DccMetadataQueryBuilder;
-import org.icgc.dcc.song.importer.dao.dcc.impl.DccMetadataDbDao;
-import org.icgc.dcc.song.importer.download.fetcher.DccMetadataFetcher;
-import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
+import lombok.val;
+import org.icgc.dcc.song.importer.download.DownloadIterator;
+import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+
+import static org.icgc.dcc.song.importer.convert.DccMetadataUrlConverter.createDccMetadataUrlConverter;
+import static org.icgc.dcc.song.importer.download.DownloadIterator.createDownloadIterator;
+import static org.icgc.dcc.song.importer.download.urlgenerator.impl.DccMetadataUrlGenerator.createDccMetadataUrlGenerator;
 
 @Configuration
 @Lazy
 @Getter
 public class DccMetadataConfig {
 
+  private static final int DCC_METADATA_MAX_FETCH_SIZE = 2000;
+  private static final int DCC_METADATA_INITIAL_FROM = 0;
 
-  @Value("${dcc-metadata.db.host}")
-  private String host;
+  @Value("${dcc-metadata.url}")
+  private String url;
 
-  @Value("${dcc-metadata.db.name}")
-  private String name;
-
-  @Value("${dcc-metadata.db.collection}")
-  private String collection;
-
-  @Value("${dcc-metadata.db.username}")
-  private String username;
-
-  @Value("${dcc-metadata.db.password}")
-  private String password;
+  @Value("${dcc-metadata.fetchSize}")
+  private int fetchSize;
 
   @Bean
-  public DccMetadataDbDao dccMetadataDbDao(DccMetadataConfig dccMetadataConfig,
-      DccMetadataQueryBuilder dccMetadataQueryBuilder){
-    return new DccMetadataDbDao(dccMetadataConfig, dccMetadataQueryBuilder);
-  }
-
-  @Bean
-  public DccMetadataQueryBuilder dccMetadataQueryBuilder(){
-    return new DccMetadataQueryBuilder();
-  }
-
-  @Bean
-  public DccMetadataFetcher dccMetadataFetcher(DccMetadataDbDao dccMetadataDbDao,
-      SimpleDccStorageClient simpleDccStorageClient){
-    return new DccMetadataFetcher(dccMetadataDbDao,simpleDccStorageClient);
-  }
-
-  public MongoClientURI getMongoClientURI(){
-    return new MongoClientURI(String.format("mongodb://%s:%s@%s/%s", username,password,host, name));
+  public DownloadIterator<DccMetadata> dccMetadataDownloadIterator(){
+    val urlGenerator = createDccMetadataUrlGenerator(url);
+    val urlConverter = createDccMetadataUrlConverter();
+    return createDownloadIterator(urlConverter,urlGenerator, fetchSize,
+        DCC_METADATA_MAX_FETCH_SIZE, DCC_METADATA_INITIAL_FROM);
   }
 
 }

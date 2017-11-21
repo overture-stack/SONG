@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.SpecimenSampleTuple;
+import org.icgc.dcc.song.importer.download.DownloadIterator;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.resolvers.FileTypes;
@@ -32,6 +33,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.importer.Config.PROBLEMATIC_SPECIMEN_IDS;
 import static org.icgc.dcc.song.importer.Factory.DATA_CONTAINER_FILE_RESTORER;
@@ -43,7 +45,9 @@ import static org.icgc.dcc.song.importer.Factory.SPECIMEN_SAMPLE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.STUDY_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.buildFileFilter;
 import static org.icgc.dcc.song.importer.convert.AnalysisConverter.createAnalysisConverter;
+import static org.icgc.dcc.song.importer.convert.PortalUrlConverter.createPortalUrlConverter;
 import static org.icgc.dcc.song.importer.dao.DonorDao.createDonorDao;
+import static org.icgc.dcc.song.importer.download.urlgenerator.impl.FilePortalUrlGenerator.createFilePortalUrlGenerator;
 import static org.icgc.dcc.song.importer.persistence.PersistenceFactory.createPersistenceFactory;
 import static org.icgc.dcc.song.importer.resolvers.FileTypes.BAM;
 import static org.icgc.dcc.song.importer.resolvers.FileTypes.VCF;
@@ -314,6 +318,19 @@ public class PortalDownloaderTest {
       log.info("Done waiting for {}", name);
     }
 
+  }
+
+  @Test
+  @Ignore
+  public void testPortalFileMetadataDownloadIteratorOrig(){
+    val url = "https://dcc.icgc.org";
+    val repoName =  "Collaboratory - Toronto";
+    val urlConverter= createPortalUrlConverter(repoName);
+    val urlGenertator = createFilePortalUrlGenerator(url, repoName);
+    val downloadIterator = DownloadIterator.createDownloadIterator(urlConverter,urlGenertator,100,100,1);
+    val originalFiles = Factory.buildFileFetcher().fetchPortalFileMetadatas(repoName);
+    val newFiles = downloadIterator.stream().collect(toImmutableList());
+    log.info("sdfsdf");
   }
 
 }
