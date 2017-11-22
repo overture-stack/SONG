@@ -19,7 +19,6 @@
 package org.icgc.dcc.song.server.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.service.SpecimenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -65,14 +63,17 @@ public class SpecimenController {
     return specimenService.read(id);
   }
 
-  @PutMapping(value = "/specimens/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
-                       @RequestBody Specimen specimen) {
-    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
-    return specimenService.update(specimen);
-  }
+  /**
+   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is implemented
+   */
+//  @PutMapping(value = "/specimens/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+//  @ResponseBody
+//  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+//  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
+//                       @RequestBody Specimen specimen) {
+//    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
+//    return specimenService.update(specimen);
+//  }
 
   @DeleteMapping(value = "/specimens/{ids}")
   @ResponseBody
