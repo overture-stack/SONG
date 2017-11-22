@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -66,13 +65,16 @@ public class DonorController {
     return donorService.read(id);
   }
 
-  @PutMapping(value = "/donors/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String update(@PathVariable("study") String studyId, @PathVariable("id") String id, @RequestBody Donor donor) {
-    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
-    return donorService.update(donor);
-  }
+  /**
+   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is implemented
+   */
+//  @PutMapping(value = "/donors/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+//  @ResponseBody
+//  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+//  public String update(@PathVariable("study") String studyId, @PathVariable("id") String id, @RequestBody Donor donor) {
+//    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
+//    return donorService.update(donor);
+//  }
 
   @DeleteMapping(value = "/donors/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")

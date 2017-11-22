@@ -66,12 +66,15 @@ public class AnalysisController {
     return analysisService.getAnalysis(studyId);
   }
 
-  @PutMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @SneakyThrows
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> modifyAnalysis(@PathVariable("studyId") String studyId, @RequestBody Analysis analysis) {
-    return analysisService.updateAnalysis(studyId, analysis);
-  }
+  /**
+   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is implemented
+   */
+//  @PutMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+//  @SneakyThrows
+//  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+//  public ResponseEntity<String> modifyAnalysis(@PathVariable("studyId") String studyId, @RequestBody Analysis analysis) {
+//    return analysisService.updateAnalysis(studyId, analysis);
+//  }
 
   @PutMapping(value="/publish/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @SneakyThrows
