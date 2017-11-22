@@ -72,8 +72,8 @@ public class Registry {
     return restClient.get(accessToken, url);
   }
 
-  public Status save(String studyId, String uploadId) {
-    val url = endpoint.saveById(studyId, uploadId);
+  public Status save(String studyId, String uploadId, boolean ignoreAnalysisIdCollisions) {
+    val url = endpoint.saveById(studyId, uploadId, ignoreAnalysisIdCollisions);
     return restClient.postAuth(accessToken, url);
   }
 

@@ -30,7 +30,6 @@ public abstract class Analysis extends Metadata {
 
     private String analysisId="";
     private String study="";
-    private String analysisSubmitterId="";
     private String analysisState = UNPUBLISHED.name();
 
     private List<CompositeEntity> sample;

@@ -32,7 +32,6 @@ import java.sql.SQLException;
 import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STATE;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STUDY_ID;
-import static org.icgc.dcc.song.server.repository.AttributeNames.SUBMITTER_ID;
 import static org.icgc.dcc.song.server.repository.AttributeNames.TYPE;
 
 public class AnalysisMapper implements ResultSetMapper<Analysis> {
@@ -41,17 +40,16 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
   @SneakyThrows
   public Analysis map(int index, ResultSet r, StatementContext ctx) throws SQLException {
     val id = r.getString(ID);
-    val submitter_id = r.getString(SUBMITTER_ID);
     val study = r.getString(STUDY_ID );
     val type = r.getString(TYPE);
     val state = r.getString(STATE);
 
 
     if (type.equals("sequencingRead")) {
-      return SequencingReadAnalysis.create(id, study, submitter_id, state);
+      return SequencingReadAnalysis.create(id, study, state);
     }
     if (type.equals("variantCall")) {
-      return VariantCallAnalysis.create(id, study, submitter_id, state);
+      return VariantCallAnalysis.create(id, study, state);
     }
 
     return null;

@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
@@ -82,9 +83,9 @@ public class UploadService {
     return upload;
   }
 
-  private void create(@NonNull String studyId, String analysisSubmitterId, @NonNull String uploadId,
+  private void create(@NonNull String studyId, String analysisId, @NonNull String uploadId,
                       @NonNull String jsonPayload) {
-    uploadRepository.create(uploadId, studyId, analysisSubmitterId, CREATED.getText(), jsonPayload);
+    uploadRepository.create(uploadId, studyId, analysisId, CREATED.getText(), jsonPayload);
   }
 
   private void update(@NonNull String uploadId, @NonNull String jsonPayload) {
@@ -99,33 +100,33 @@ public class UploadService {
     status.put("status","ok");
 
     try {
-      val analysisSubmitterId=JsonUtils.readTree(payload).at("/analysisSubmitterId").asText();
+      val analysisId=JsonUtils.readTree(payload).at("/analysisId").asText();
       List<String> ids;
 
-      if (analysisSubmitterId.equals("")) {
-        // Our business rules say that we always want to create a new record if no analysisSubmitterId is set,
+      if (isNullOrEmpty(analysisId)) {
+        // Our business rules say that we always want to create a new record if no analysisId is set,
         // even if the rest of the content is duplicated.
         ids = Collections.emptyList();
       } else {
-        ids = uploadRepository.findByBusinessKey(studyId, analysisSubmitterId);
+        ids = uploadRepository.findByBusinessKey(studyId, analysisId);
       }
 
       if (ids == null || ids.isEmpty()) {
         uploadId = id.generate(UPLOAD_PREFIX);
-        create(studyId, analysisSubmitterId, uploadId, payload);
+        create(studyId, analysisId, uploadId, payload);
       } else if (ids.size() == 1) {
         uploadId = ids.get(0);
         val previousUpload = uploadRepository.get(uploadId);
         status.put("status",
-                format("WARNING: replaced content for analysisSubmitterId '%s'",
-                        analysisSubmitterId));
+                format("WARNING: replaced content for analysisId '%s'",
+                        analysisId));
         status.put("replaced", previousUpload.getPayload());
         update(uploadId, payload);
 
       } else {
         return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_FOUND,
-                "Multiple upload ids found for analysisSubmitterId='%s', study='%s'",
-                analysisSubmitterId, studyId);
+                "Multiple upload ids found for analysisId='%s', study='%s'",
+                analysisId, studyId);
       }
       analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     } catch (UnableToExecuteStatementException jdbie) {
@@ -157,7 +158,8 @@ public class UploadService {
   }
 
 
-  public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId) {
+  public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId,
+      final boolean ignoreAnalysisIdCollisions) {
     val upload = read(uploadId);
     if (upload == null ){
       return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_FOUND,
@@ -173,7 +175,7 @@ public class UploadService {
     val json = upload.getPayload();
     val analysis = JsonUtils.fromJson(json, Analysis.class);
 
-    val analysisId = analysisService.create(studyId, analysis);
+    val analysisId = analysisService.create(studyId, analysis, ignoreAnalysisIdCollisions);
     if (analysisId == null) {
       return error(MESSAGE_CONTEXT, ANALYSIS_ID_NOT_CREATED,
           "Could not create analysisId for upload id '%s",uploadId);

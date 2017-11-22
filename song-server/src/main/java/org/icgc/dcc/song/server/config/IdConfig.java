@@ -36,10 +36,13 @@ public class IdConfig {
   private String idUrl;
   private String authToken;
   private boolean realIds;
+  private boolean persistInMemory = false;
 
   @Bean
   public IdClient createIdClient() {
-    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new HashIdClient();
+    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new HashIdClient(persistInMemory);
   }
+
+
 
 }

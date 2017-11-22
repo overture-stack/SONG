@@ -1,16 +1,11 @@
-package org.icgc.dcc.song.importer.download.fetcher;
+package org.icgc.dcc.song.importer.convert;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Lombok;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.icgc.dcc.song.importer.download.PortalDownloadIterator;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 
-import java.util.ArrayList;
-
-import static java.util.stream.Collectors.toList;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toPrettyJson;
 import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getAccess;
 import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getDataType;
@@ -42,19 +37,10 @@ import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getSubmitte
 import static org.icgc.dcc.song.importer.parser.FilePortalJsonParser.getSubmittedSpecimenIds;
 
 @Slf4j
-@RequiredArgsConstructor
-public class FileFetcher {
+@NoArgsConstructor
+public class PortalFileMetadataConverter {
 
-  private final PortalDownloadIterator portalDownloadIterator;
-
-
-  public ArrayList<PortalFileMetadata> fetchPortalFileMetadatas(@NonNull String repoName){
-    return (ArrayList<PortalFileMetadata>)portalDownloadIterator.stream()
-        .map(x -> FileFetcher.convertToPortalFileMetadata(x, repoName))
-        .collect(toList());
-  }
-
-  public static PortalFileMetadata convertToPortalFileMetadata(ObjectNode o, String repoName){
+  public static PortalFileMetadata convertToPortalFileMetadata(JsonNode o, String repoName){
     try {
       return PortalFileMetadata.builder()
           .access              (getAccess(o))
@@ -92,8 +78,5 @@ public class FileFetcher {
     }
   }
 
-  public static FileFetcher createFileFetcher(PortalDownloadIterator portalDownloadIterator) {
-    return new FileFetcher(portalDownloadIterator);
-  }
 
 }

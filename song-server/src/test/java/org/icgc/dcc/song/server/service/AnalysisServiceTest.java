@@ -20,6 +20,7 @@ package org.icgc.dcc.song.server.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -30,6 +31,7 @@ import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.utils.TestFiles;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +60,7 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 public class AnalysisServiceTest {
 
   private static final String FILEPATH = "src/test/resources/fixtures/";
+  private static final String TEST_FILEPATH = "src/test/resources/documents/";
 
   @Autowired
   FileService fileService;
@@ -74,7 +77,7 @@ public class AnalysisServiceTest {
     val study="ABC123";
     val json = readFile(FILEPATH + "sequencingRead.json");
     val analysis = fromJson(json, Analysis.class);
-    val analysisId=service.create(study, analysis);
+    val analysisId=service.create(study, analysis, false);
 
     val created = service.read(analysisId);
     assertThat(created.getAnalysisId()).isEqualTo(analysisId);
@@ -105,7 +108,7 @@ public class AnalysisServiceTest {
     val study="ABC123";
     val json = readFile(FILEPATH + "variantCall.json");
     val analysis = fromJson(json, Analysis.class);
-    val analysisId=service.create(study, analysis);
+    val analysisId=service.create(study, analysis, false);
 
     val created = service.read(analysisId);
     assertThat(created.getAnalysisId()).isEqualTo(analysisId);
@@ -209,6 +212,29 @@ public class AnalysisServiceTest {
 
     Assertions.assertThat(files).containsAll(expectedFiles);
     assertThat(expectedFiles).containsAll(files);
+  }
+
+  @Test
+  public void testCustomAnalysisId(){
+    val study="ABC123";
+    val expectedAnalysisId = "AN-1234";
+    val expectedObjectIdMap = Maps.newHashMap();
+    expectedObjectIdMap.put("a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz", "0794ae66-80df-5b70-bc22-e49309bfba2a");
+    expectedObjectIdMap.put("a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx", "a2449e0a-7020-5f2d-8610-9f58aafd467a" );
+
+    val json = TestFiles.getJsonNodeFromClasspath("documents/sequencingread-custom-analysis-id.json");
+    val analysis = fromJson(json, Analysis.class);
+    val actualAnalysisId=service.create(study, analysis, false);
+    assertThat(actualAnalysisId).isEqualTo(expectedAnalysisId);
+    for (val file : analysis.getFile()){
+      val filename = file.getFileName();
+      assertThat(expectedObjectIdMap).containsKey(filename);
+      val expectedObjectId = expectedObjectIdMap.get(filename);
+      val actualObjectId = file.getObjectId();
+      val actualFileAnalysisId = file.getAnalysisId();
+      assertThat(actualObjectId).isEqualTo(expectedObjectId);
+      assertThat(actualFileAnalysisId).isEqualTo(actualAnalysisId);
+    }
   }
 
 }

@@ -34,6 +34,10 @@ public class SaveCommand extends Command {
   @Parameter(names = { "-u", "--upload-id" })
   private String uploadId;
 
+  @Parameter(names = { "-i", "--ignore-id-collisions" },
+      description = "Ignores analysisId collisions with ids from the IdService")
+  boolean ignoreAnalysisIdCollisions = false;
+
   @NonNull
   private Registry registry;
 
@@ -45,7 +49,7 @@ public class SaveCommand extends Command {
     if (uploadId == null) {
       uploadId = getJson().at("/uploadId").asText("");
     }
-    val status = registry.save(config.getStudyId(), uploadId);
+    val status = registry.save(config.getStudyId(), uploadId, ignoreAnalysisIdCollisions);
     save(status);
   }
 

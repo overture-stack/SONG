@@ -43,8 +43,8 @@ public class Endpoint {
     }
   }
 
-  public String saveById(String studyId, String uploadId) {
-    return format("%s/upload/%s/save/%s", serverUrl, studyId, uploadId);
+  public String saveById(String studyId, String uploadId, boolean ignoreAnalysisIdCollisions) {
+    return format("%s/upload/%s/save/%s?ignoreAnalysisIdCollisions=%s", serverUrl, studyId, uploadId, ignoreAnalysisIdCollisions);
   }
 
   public String status(String studyId, String uploadId) {

@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -78,8 +79,9 @@ public class UploadController {
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> save(@PathVariable("studyId") String studyId,
-      @PathVariable("uploadId") String uploadId) {
-    return uploadService.save(studyId, uploadId);
+      @PathVariable("uploadId") String uploadId,
+      @RequestParam(value = "ignoreAnalysisIdCollisions", defaultValue = "false") boolean ignoreAnalysisIdCollisions ) {
+    return uploadService.save(studyId, uploadId, ignoreAnalysisIdCollisions);
   }
 
 }

@@ -11,7 +11,7 @@ import java.util.Set;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 @RequiredArgsConstructor
-public class DccMetadataCachedDao implements DccMetadataDao {
+public class DccMetadataMemoryDao implements DccMetadataDao {
 
   @NonNull private final Set<DccMetadata> data;
 
@@ -29,8 +29,8 @@ public class DccMetadataCachedDao implements DccMetadataDao {
         .collect(toImmutableSet());
   }
 
-  public static DccMetadataCachedDao createDccMetadataCachedDao(Set<DccMetadata> data) {
-    return new DccMetadataCachedDao(data);
+  public static DccMetadataMemoryDao createDccMetadataMemoryDao(Set<DccMetadata> data) {
+    return new DccMetadataMemoryDao(data);
   }
 
 }

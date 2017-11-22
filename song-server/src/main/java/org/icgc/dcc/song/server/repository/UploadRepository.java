@@ -31,13 +31,14 @@ import java.util.List;
 @RegisterMapper(UploadMapper.class)
 public interface UploadRepository {
 
-  @SqlUpdate("INSERT INTO upload (id, study_id, analysis_submitter_id, state, payload, updated_at) " +
-          "VALUES (:id, :studyId, :submitterId, :state, :payload, now())")
-  int create(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("submitterId") String submitterId,
+  @SqlUpdate("INSERT INTO upload (id, study_id, analysis_id, state, payload, updated_at) " +
+          "VALUES (:id, :studyId, :analysisId, :state, :payload, now())")
+  int create(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("analysisId") String analysisId,
              @Bind("state") String state, @Bind("payload") String jsonPayload);
 
-  @SqlQuery("SELECT id from upload where study_id=:studyId AND analysis_submitter_id=:submitterId")
-  List<String> findByBusinessKey(@Bind("studyId") String studyId, @Bind("submitterId") String analysisSubmitterId);
+  @SqlQuery("SELECT id from upload where study_id=:studyId AND analysis_id=:analysisId")
+  List<String> findByBusinessKey(@Bind("studyId") String studyId,
+      @Bind("analysisId") String analysisId);
 
   @SqlUpdate("UPDATE upload set payload=:payload, state=:state, updated_at = now() WHERE id=:id")
   int update_payload(@Bind("id") String id, @Bind("state") String state, @Bind("payload") String payload);
@@ -46,7 +47,7 @@ public interface UploadRepository {
   @SqlUpdate("UPDATE upload SET state = :state, errors = :errors, updated_at = now() WHERE id = :id")
   int update(@Bind("id") String id, @Bind("state") String state, @Bind("errors") String errors);
 
-  @SqlQuery("SELECT id, study_id, state, created_at, updated_at, errors, payload FROM upload WHERE id = :uploadId")
+  @SqlQuery("SELECT id, analysis_id, study_id, state, created_at, updated_at, errors, payload FROM upload WHERE id = :uploadId")
   Upload get(@Bind("uploadId") String id);
 
 }

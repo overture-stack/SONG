@@ -208,6 +208,9 @@
     },
     "info": {
       "type": "object"
+    },
+    "analysisId": {
+      "type": "string"
     }
   }
 }

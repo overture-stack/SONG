@@ -28,7 +28,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_ALREADY_EXISTS;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
 @Service
 @RequiredArgsConstructor
@@ -61,17 +64,46 @@ public class IdService {
     }
   }
 
-  public String generateAnalysisId() {
-    val opt = idClient.getAnalysisId();
-    if (opt.isPresent()) {
-      return opt.get();
-    } else {
-      throw new IllegalStateException("Generating AnalysisId should not yield missing value.");
-    }
-  }
-
   public String generate(IdPrefix prefix) {
     return format("%s-%s", prefix.toString(), UUID.randomUUID());
+  }
+
+  /**
+   * Resolves the analysisId. An analysisId can only created if it doesn't already exist.
+   * If the user wants to use a custom submitted analysisId but the analysisId already
+   * exists (a collision), the ignoreAnalysisIdCollisions parameter must be set to true.
+   * If it is not, a ServerError is thrown.
+   * The following analysisId state stable summarizes the intended functionality:
+   * +---------+--------+-------------------+----------------------------------------+
+   * | DEFINED | EXISTS | IGNORE_COLLISIONS |            OUTPUT                      |
+   * +---------+--------+-------------------+----------------------------------------+
+   * |    0    |   x    |        x          | create a random unique analysisId      |
+   * |         |        |                   |                                        |
+   * |    1    |   0    |        x          | create user submitted analysisId       |
+   * |         |        |                   |                                        |
+   * |    1    |   1    |        0          | collision detected, throw server error |
+   * |         |        |                   |                                        |
+   * |    1    |   1    |        1          | reuse the submitted analysisId         |
+   * +---------+--------+-------------------+----------------------------------------+
+   * @param analysisId can be null/empty
+   * @param ignoreAnalysisIdCollisions
+   * @return
+   */
+  public String resolveAnalysisId(String analysisId, final boolean ignoreAnalysisIdCollisions){
+    if (isNullOrEmpty(analysisId)) {
+      return idClient.createRandomAnalysisId();
+    }else {
+      val opt = idClient.getAnalysisId(analysisId);
+      val doesIdExist = opt.isPresent();
+      if (doesIdExist){
+        checkServer(ignoreAnalysisIdCollisions, this.getClass(), ANALYSIS_ID_ALREADY_EXISTS,
+            "Collision detected for analysisId '%s'. To ignore collisions, rerun with "
+                + "ignoreAnalysisIdCollisions = true" , analysisId);
+        return opt.get();
+      } else {
+        return idClient.createAnalysisId(analysisId);
+      }
+    }
   }
 
 }

@@ -125,6 +125,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-guava</artifactId>
             <version>${assertj-guava.version}</version>
@@ -197,7 +202,8 @@
 
         <!-- Spring Security oath2 -->
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
-        <dcc-id.version>5.1.1</dcc-id.version>
+        <!--<dcc-id.version>5.1.1</dcc-id.version>-->
+        <dcc-id.version>5.1.1-20171120.153740-6</dcc-id.version>
     </properties>
 
 </project>

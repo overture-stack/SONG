@@ -1,6 +1,7 @@
 package org.icgc.dcc.song.importer.config;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,7 @@ import static org.icgc.dcc.song.importer.storage.SimpleDccStorageClient.createSi
 
 @Configuration
 @Getter
+@Setter
 public class DccStorageConfig {
 
   @Value("${dcc-storage.token}")
@@ -33,6 +35,10 @@ public class DccStorageConfig {
   @Bean
   public SimpleDccStorageClient simpleDccStorageClient(DccStorageConfig dccStorageConfig){
     return createSimpleDccStorageClient(dccStorageConfig);
+  }
+
+  public SimpleDccStorageClient buildSimpleDccStorageClient(){
+    return createSimpleDccStorageClient(this);
   }
 
 }
