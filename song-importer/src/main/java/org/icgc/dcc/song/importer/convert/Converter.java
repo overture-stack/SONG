@@ -1,6 +1,7 @@
 package org.icgc.dcc.song.importer.convert;
 
-public interface Converter<IN, OUT> {
+public interface Converter<I, O> {
 
-  OUT convert(IN in);
+  O convert(I in);
+
 }

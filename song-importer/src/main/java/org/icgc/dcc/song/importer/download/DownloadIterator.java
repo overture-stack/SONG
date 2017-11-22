@@ -18,21 +18,12 @@ import static java.lang.Math.min;
 @Slf4j
 public class DownloadIterator<T> implements Iterator<List<T>> {
 
+  /**
+   * Config
+   */
   private final UrlGenerator urlGenerator;
   private final Converter<URL, List<T>> urlConverter;
-  private final int initialFrom;
-
   private final int fetchSize;
-
-  public DownloadIterator(@NonNull Converter<URL, List<T>> urlConverter,
-      @NonNull UrlGenerator urlGenerator, final int fetchSize,
-      final int maxFetchSize, final int initialFrom) {
-    this.urlGenerator = urlGenerator;
-    this.fetchSize =  resolveFetchSize(fetchSize, maxFetchSize);
-    this.urlConverter = urlConverter;
-    this.initialFrom = initialFrom;
-    this.from = initialFrom;
-  }
 
   /**
    * State
@@ -42,6 +33,15 @@ public class DownloadIterator<T> implements Iterator<List<T>> {
   private int prevHitsSize = -1;
   private int iterationCount = 0;
   private int totalHitCount = 0;
+
+  public DownloadIterator(@NonNull Converter<URL, List<T>> urlConverter,
+      @NonNull UrlGenerator urlGenerator, final int fetchSize,
+      final int maxFetchSize, final int initialFrom) {
+    this.urlGenerator = urlGenerator;
+    this.fetchSize =  resolveFetchSize(fetchSize, maxFetchSize);
+    this.urlConverter = urlConverter;
+    this.from = initialFrom;
+  }
 
   public Stream<T> stream(){
     return Streams.stream(this)

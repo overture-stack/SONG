@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
@@ -102,7 +103,7 @@ public class UploadService {
       val analysisId=JsonUtils.readTree(payload).at("/analysisId").asText();
       List<String> ids;
 
-      if (analysisId.equals("")) {
+      if (isNullOrEmpty(analysisId)) {
         // Our business rules say that we always want to create a new record if no analysisId is set,
         // even if the rest of the content is duplicated.
         ids = Collections.emptyList();
