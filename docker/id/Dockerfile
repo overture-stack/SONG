@@ -1,10 +1,11 @@
 FROM song_base-ubuntu:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
+ENV ID_RELEASE_VERSION 5.1.1
 ENV ID_HOME $DCC_HOME/dcc-id-server
 ENV ID_SCRIPTS $DCC_HOME/scripts
 ENV TARBALL $DCC_HOME/dcc-id-server.tar.gz
-ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-id-server/[RELEASE]/dcc-id-server-[RELEASE]-dist.tar.gz
+ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/dcc-id-server/${ID_RELEASE_VERSION}/dcc-id-server-${ID_RELEASE_VERSION}-dist.tar.gz
 
 ADD config $DCC_CONFIG
 ADD scripts $ID_SCRIPTS
