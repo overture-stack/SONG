@@ -1,8 +1,9 @@
 FROM song_base-ubuntu:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
+ENV CLIENT_RELEASE_VERSION 0.3.4
 ENV CLIENT_HOME $DCC_DATA
-ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-client/[RELEASE]/song-client-[RELEASE]-dist.tar.gz
+ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-client/${CLIENT_RELEASE_VERSION}/song-client-${CLIENT_RELEASE_VERSION}-dist.tar.gz
 ENV TARBALL $DCC_HOME/download.tar.gz
 
 ADD config $DCC_CONFIG
