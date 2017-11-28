@@ -94,6 +94,19 @@ public class AnalysisService {
   public String create(String studyId, Analysis a, boolean ignoreAnalysisIdCollisions) {
     val candidateAnalysisId = a.getAnalysisId();
     val id = idService.resolveAnalysisId(candidateAnalysisId, ignoreAnalysisIdCollisions);
+    /**
+     * [Summary]: Guard from misleading response
+     * [Details]: If user attempts to save an uploadId a second time, an error is thrown.
+     * This restricts the user from doing updates to the uploadId after saving, and then
+     * re-saving. The following edge case explains why an error is thrown instead of returning
+     * the existing analysisId:
+     *  - user does upload1 which defines the analysisId field as AN123
+     *  - user does save for upload1 and gets analysisId AN123
+     *  - user realizes a mistake, and corrects upload1 which has the analysisId AN123 as explicitly stated
+     *  - user re-uploads upload1, returning the same uploadId since the analysisId has not changed
+     *  - user re-saves upload1 and gets the existing analysisId AN123 back.
+     *  - user thinks they updated the analysis with the re-upload.
+     */
     checkServer(!doesAnalysisIdExist(id), this.getClass(), DUPLICATE_ANALYSIS_ATTEMPT,
         "Attempted to create a duplicate analysis. Please "
             + "delete the analysis for analysisId '%s' and re-save", id);

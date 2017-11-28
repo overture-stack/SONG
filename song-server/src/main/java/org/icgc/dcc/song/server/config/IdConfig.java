@@ -18,6 +18,7 @@
  */
 package org.icgc.dcc.song.server.config;
 
+import lombok.Data;
 import org.icgc.dcc.id.client.core.IdClient;
 import org.icgc.dcc.id.client.http.HttpIdClient;
 import org.icgc.dcc.id.client.util.CachingIdClient;
@@ -25,8 +26,6 @@ import org.icgc.dcc.id.client.util.HashIdClient;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import lombok.Data;
 
 @Configuration
 @Data
