@@ -30,10 +30,33 @@ import org.junit.Test;
 import java.io.InputStream;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 public class schemaValidationTests {
+
+  private static final String ANALYSIS_ID = "analysisId";
+  private static final String PROPERTIES = "properties";
+  private static final String TYPE = "type";
+  private static final String STRING = "string";
+  private static final String PATTERN = "pattern";
+
+  @Test
+  public void validate_analysis_id_regex() throws Exception {
+    val schemaFiles = newArrayList("schemas/sequencingRead.json", "schemas/variantCall.json");
+    for (val schemaFile : schemaFiles){
+      val schema = getJsonNodeFromClasspath( schemaFile );
+      assertThat(schema.has(PROPERTIES)).isTrue();
+      val propertiesSchema = schema.path(PROPERTIES);
+      assertThat(propertiesSchema.has(ANALYSIS_ID)).isTrue();
+      val analysisIdSchema = propertiesSchema.path(ANALYSIS_ID);
+      assertThat(analysisIdSchema.has(TYPE)).isTrue();
+      assertThat(analysisIdSchema.has(PATTERN)).isTrue();
+      assertThat(analysisIdSchema.path(TYPE).textValue()).isEqualTo(STRING);
+      assertThat(analysisIdSchema.path(PATTERN).textValue()).isEqualTo("^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{2,511}$");
+    }
+  }
 
   @Test
   public void validate_submit_sequencing_read_happy_path() throws Exception {
