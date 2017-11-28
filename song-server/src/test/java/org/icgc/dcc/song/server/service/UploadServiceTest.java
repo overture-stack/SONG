@@ -172,7 +172,7 @@ public class UploadServiceTest {
     val uploadStatus2 = uploadService.upload(DEFAULT_STUDY, json2, false);
     val uploadId2 =  fromStatus(uploadStatus2,"uploadId");
     val status2 = fromStatus(uploadStatus2, "status");
-    assertThat(status2).isEqualTo("WARNING: replaced content for analysisId 'VariantCall X24Alpha'");
+    assertThat(status2).isEqualTo("WARNING: replaced content for analysisId 'VariantCall-X24Alpha'");
 
 
     val upload = uploadService.read(uploadId2);
