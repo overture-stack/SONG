@@ -50,7 +50,7 @@ public class SpecimenService {
 
 
   public String create(@NonNull String studyId, @NonNull Specimen specimen) {
-    val id = idService.generateSpecimenId(studyId, specimen.getSpecimenSubmitterId());
+    val id = idService.generateSpecimenId( specimen.getSpecimenSubmitterId(), studyId);
     specimen.setSpecimenId(id);
     int status = repository.create(specimen);
     if (status != 1) {
