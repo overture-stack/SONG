@@ -1,5 +1,4 @@
 {
-  "study": "ABC123",
   "analysisType": "variantCall",
   "experiment": {
     "variantCallingTool": null,
