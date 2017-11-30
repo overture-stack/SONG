@@ -105,7 +105,7 @@ public class schemaValidationTests {
   }
 
   @Test
-  public void VariantCallDeserialization(){
+  public void testVariantCallDeserialization(){
     val a1 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/variantcall-deserialize1.json"),
         Analysis.class);
     val sa1 = ((VariantCallAnalysis) a1).getExperiment();
