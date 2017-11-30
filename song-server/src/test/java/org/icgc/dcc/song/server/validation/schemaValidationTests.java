@@ -25,6 +25,7 @@ import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.common.core.util.stream.Streams;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
@@ -36,6 +37,7 @@ import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 
 @Slf4j
@@ -56,11 +58,18 @@ public class schemaValidationTests {
       val propertiesSchema = schema.path(PROPERTIES);
       assertThat(propertiesSchema.has(ANALYSIS_ID)).isTrue();
       val analysisIdSchema = propertiesSchema.path(ANALYSIS_ID);
-      assertThat(analysisIdSchema.has(TYPE)).isTrue();
       assertThat(analysisIdSchema.has(PATTERN)).isTrue();
-      assertThat(analysisIdSchema.path(TYPE).textValue()).isEqualTo(STRING);
+      assertThat(getTypes(analysisIdSchema)).contains(STRING);
       assertThat(analysisIdSchema.path(PATTERN).textValue()).isEqualTo("^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{2,511}$");
     }
+  }
+
+  private static Set<String> getTypes(JsonNode node){
+    assertThat(node.has(TYPE)).isTrue();
+    return Streams.stream(node.path(TYPE).iterator())
+        .filter(x -> !x.isArray())
+        .map(JsonNode::textValue)
+        .collect(toImmutableSet());
   }
 
   @Test
@@ -94,7 +103,7 @@ public class schemaValidationTests {
   public void validate_submit_variant_call_missing_required() throws Exception {
     val errors =
         validate("schemas/variantCall.json", "documents/variantcall-missing-required.json");
-    assertThat(errors.size()).isEqualTo(3);
+    assertThat(errors.size()).isEqualTo(5);
   }
 
   @Test

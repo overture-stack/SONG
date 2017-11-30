@@ -3,6 +3,7 @@ package org.icgc.dcc.song.server.repository.search;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
@@ -11,7 +12,6 @@ import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Arrays.stream;
-import static java.util.Collections.EMPTY_LIST;
 import static org.icgc.dcc.common.core.util.Splitters.DOT;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEARCH_TERM_SYNTAX;
@@ -24,6 +24,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 public class SearchTerm {
 
   private static final Splitter EQUALS_SPLITTER = Splitter.on('=');
+  private static final List<String> EMPTY_STRING_LIST = ImmutableList.of();
 
   @NonNull @Getter private String key;
   @NonNull @Getter private String value;
@@ -51,7 +52,7 @@ public class SearchTerm {
   @JsonIgnore
   public List<String> getNonLeafKeys() {
     if (keyChain.size() < 1){
-      return EMPTY_LIST;
+      return EMPTY_STRING_LIST;
     } else {
       return keyChain.stream()
           .limit(keyChain.size() - 1)

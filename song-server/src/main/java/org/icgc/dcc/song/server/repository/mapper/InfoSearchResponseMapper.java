@@ -18,7 +18,6 @@
  */
 package org.icgc.dcc.song.server.repository.mapper;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
@@ -37,7 +36,7 @@ import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.crea
 @RequiredArgsConstructor
 public class InfoSearchResponseMapper implements ResultSetMapper<InfoSearchResponse> {
 
-  @NonNull private final boolean includeInfo;
+  private final boolean includeInfo;
 
   @Override
   @SneakyThrows
