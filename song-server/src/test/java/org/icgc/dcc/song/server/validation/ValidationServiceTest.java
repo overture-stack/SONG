@@ -18,11 +18,9 @@
  */
 package org.icgc.dcc.song.server.validation;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.SneakyThrows;
+import com.fasterxml.jackson.databind.JsonNode;;
 import lombok.val;
 import org.icgc.dcc.song.server.service.ValidationService;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +30,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.icgc.dcc.common.core.util.Joiners.PATH;
-
-import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
 @SpringBootTest
@@ -49,7 +42,7 @@ public class ValidationServiceTest {
   public static final String VAR_CALL="VariantCall";
 
   @Autowired
-  ValidationService service;
+  private ValidationService service;
 
   @Test
   public void testValidateValidSequencingRead() {

@@ -45,7 +45,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.TreeSet;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
