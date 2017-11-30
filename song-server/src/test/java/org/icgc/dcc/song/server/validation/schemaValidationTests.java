@@ -89,7 +89,7 @@ public class schemaValidationTests {
   public void validate_submit_variant_call_missing_required() throws Exception {
     val errors =
         validate("schemas/variantCall.json", "documents/variantcall-missing-required.json");
-    assertThat(errors.size()).isEqualTo(3);
+    assertThat(errors.size()).isEqualTo(2);
   }
 
   @Test

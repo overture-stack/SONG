@@ -218,7 +218,6 @@ public class SerializationTest {
 
     System.out.printf("*** Analysis object='%s'\n",analysis);
     assertThat(analysis.getAnalysisType()).isEqualTo("sequencingRead");
-    assertThat(analysis.getStudy()).isEqualTo("ABC123");
     assertThat(analysis.getFile().size()).isEqualTo(2);
     assertThat(analysis.getSample().get(0).getDonor().getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00");
 
@@ -240,8 +239,7 @@ public class SerializationTest {
     assertThat(analysis).isInstanceOf(VariantCallAnalysis.class);
     VariantCallAnalysis v = (VariantCallAnalysis) analysis;
     System.out.printf("VariantCall object='%s'\n", v);
-
-    assertThat(analysis.getStudy()).isEqualTo("ABC123");
+    
     assertThat(analysis.getFile().size()).isEqualTo(2);
     assertThat(analysis.getSample().get(0).getDonor().getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00");
   }
