@@ -17,13 +17,13 @@
       "type": "object",
       "properties": {
         "aligned": {
-          "type": "boolean"
+          "type": ["boolean", "null"]
         },
         "alignmentTool": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "insertSize": {
-          "type": "integer"
+          "type": ["integer", "null"]
         },
         "libraryStrategy": {
           "type": "string",
@@ -40,22 +40,17 @@
           ]
         },
         "pairedEnd": {
-          "type": "boolean"
+          "type": ["boolean" , "null"]
         },
         "referenceGenome": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "info": {
           "type": "object"
         }
       },
       "required": [
-        "aligned",
-        "alignmentTool",
-        "insertSize",
         "libraryStrategy",
-        "pairedEnd",
-        "referenceGenome"
       ]
     },
     "sample": {

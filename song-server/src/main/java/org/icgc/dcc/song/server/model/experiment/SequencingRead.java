@@ -19,15 +19,14 @@
 
 package org.icgc.dcc.song.server.model.experiment;
 
-import static org.icgc.dcc.song.server.model.enums.Constants.LIBRARY_STRATEGY;
-import static org.icgc.dcc.song.server.model.enums.Constants.validate;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+
+import static org.icgc.dcc.song.server.model.enums.Constants.LIBRARY_STRATEGY;
+import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
 @EqualsAndHashCode(callSuper=false)
 @JsonPropertyOrder({ "analysisId", "aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "referenceGenome", "info" })
@@ -35,15 +34,15 @@ import lombok.val;
 @Data
 public class SequencingRead extends Experiment {
   private String analysisId;
-  private boolean aligned;
+  private Boolean aligned;
   private String alignmentTool;
   private Long insertSize;
   private String libraryStrategy;
-  private boolean pairedEnd;
+  private Boolean pairedEnd;
   private String referenceGenome;
 
-  public static SequencingRead create(String id, boolean aligned, String tool, Long size, String strategy,
-                               boolean isPaired, String genome) {
+  public static SequencingRead create(String id, Boolean aligned, String tool, Long size, String strategy,
+                               Boolean isPaired, String genome) {
     val s = new SequencingRead();
     s.setAnalysisId(id);
     s.setAligned(aligned);
