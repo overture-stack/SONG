@@ -18,7 +18,7 @@
  */
 package org.icgc.dcc.song.server.validation;
 
-import com.fasterxml.jackson.databind.JsonNode;;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.val;
 import org.icgc.dcc.song.server.service.ValidationService;
 import org.junit.Test;
@@ -38,8 +38,8 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles({"dev","test"})
 public class ValidationServiceTest {
-  public static final String SEQ_READ="SequencingRead";
-  public static final String VAR_CALL="VariantCall";
+  private static final String SEQ_READ="SequencingRead";
+  private static final String VAR_CALL="VariantCall";
 
   @Autowired
   private ValidationService service;
@@ -73,7 +73,6 @@ public class ValidationServiceTest {
   }
 
   private JsonNode getJsonFile(String name) {
-    val json = getJsonNodeFromClasspath("documents/validation/"+name);
-    return json;
+    return getJsonNodeFromClasspath("documents/validation/" + name);
   }
 }
