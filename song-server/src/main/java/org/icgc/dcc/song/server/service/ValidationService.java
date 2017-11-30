@@ -68,29 +68,47 @@ public class ValidationService {
   public void syncValidate(@NonNull String uploadId, @NonNull String payload, String analysisType) {
     log.info("Validating payload for upload Id=" + uploadId + "payload=" + payload);
     log.info(format("Analysis type='%s'",analysisType));
+    val errors = validate(payload, analysisType);
+    update(uploadId,errors);
+  }
+
+  public String validate(@NonNull String payload, String analysisType) {
+    String errors;
+
+    log.info(format("Analysis type='%s'",analysisType));
     try {
       val jsonNode = JsonUtils.readTree(payload);
 
-      if (analysisType == null) {
-        updateAsInvalid(uploadId, "Uploaded JSON document does not contain a valid analysis type");
+      if (jsonNode.has("study")) {
+        errors =  "Uploaded JSON document must not contain a study field";
+      } else if (analysisType == null) {
+        errors =  "Uploaded JSON document does not contain a valid analysis type";
       } else {
         val schemaId = "upload" + upperCaseFirstLetter(analysisType);
         val response = validator.validate(schemaId, jsonNode);
 
         if (response.isValid()) {
-          updateAsValid(uploadId);
+          errors = null;
         } else {
-          updateAsInvalid(uploadId, response.getValidationErrors());
+          errors =  response.getValidationErrors();
         }
       }
     } catch (JsonProcessingException jpe) {
       log.error(jpe.getMessage());
-      updateAsInvalid(uploadId, format("Invalid JSON document submitted: %s", jpe.getMessage()));
+      errors =  format("Invalid JSON document submitted: %s", jpe.getMessage());
     } catch (Exception e) {
       log.error(e.getMessage());
-      updateAsInvalid(uploadId, format("Unknown processing problem: %s", e.getMessage()));
+      errors =  format("Unknown processing problem: %s", e.getMessage());
     }
+    return errors;
+  }
 
+  public void update(@NonNull String uploadId, String errorMessages) {
+    if (errorMessages == null) {
+      updateAsValid(uploadId);
+    } else {
+      updateAsInvalid(uploadId, errorMessages);
+    }
   }
 
 
