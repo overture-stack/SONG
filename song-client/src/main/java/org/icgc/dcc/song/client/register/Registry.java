@@ -19,8 +19,8 @@
 package org.icgc.dcc.song.client.register;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.NonNull;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
@@ -31,23 +31,19 @@ import org.springframework.stereotype.Component;
 public class Registry {
 
   @Setter
-  private RestClient restClient;
-  private ObjectMapper mapper;
-  private Endpoint endpoint;
-  private String accessToken;
+  private final RestClient restClient;
+  private final ObjectMapper mapper;
+  private final Endpoint endpoint;
+  private final String accessToken;
+  private final String studyId;
 
   @Autowired
-  public Registry(Config config, RestClient restClient) {
+  public Registry(@NonNull Config config, @NonNull RestClient restClient) {
     this.mapper = new ObjectMapper();
     this.restClient = restClient;
     this.endpoint = new Endpoint(config.getServerUrl());
     this.accessToken = config.getAccessToken();
-  }
-
-  @SneakyThrows
-  private String getStudyId(String json) {
-    val node = mapper.readTree(json);
-    return node.get("study").asText();
+    this.studyId = config.getStudyId();
   }
 
   /**
@@ -57,7 +53,7 @@ public class Registry {
    * @return The analysisId that the server returned, or null if an error occurred.
    */
   public Status upload(String json, boolean isAsyncValidation) {
-    val url = endpoint.upload(getStudyId(json), isAsyncValidation);
+    val url = endpoint.upload(studyId, isAsyncValidation);
     return restClient.postAuth(accessToken, url, json);
   }
 
