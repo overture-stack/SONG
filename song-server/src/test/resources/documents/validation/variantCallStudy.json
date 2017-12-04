@@ -1,5 +1,5 @@
 {
-  "study": "ABC123",
+  "study" : "ABC123",
   "analysisType": "variantCall",
   "experiment": {
     "variantCallingTool": "silver bullet",

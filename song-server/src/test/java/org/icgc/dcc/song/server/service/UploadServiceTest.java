@@ -30,6 +30,7 @@ import org.icgc.dcc.id.client.core.IdClient;
 import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Upload;
+import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -64,6 +66,9 @@ public class UploadServiceTest {
   UploadService uploadService;
 
   @Autowired
+  AnalysisService analysisService;
+
+  @Autowired
   IdClient idClient;
 
   @Test
@@ -74,6 +79,40 @@ public class UploadServiceTest {
   @Test
   public void testSyncSequencingRead(){
     testSequencingRead(false);
+  }
+
+  @Test
+  public void testNullSyncSequencingRead(){
+    val filename1 = "documents/deserialization/sequencingread-deserialize1.json";
+    val uploadId1 = uploadFromTestDir(DEFAULT_STUDY, filename1, false);
+    val saveStatus1 = uploadService.save(DEFAULT_STUDY, uploadId1, false);
+    val analysisStatus1 = fromStatus(saveStatus1, "status");
+    assertThat(analysisStatus1).isEqualTo("ok");
+    val analysisId1 = fromStatus(saveStatus1, "analysisId");
+    val a1 =  analysisService.read(analysisId1);
+    val sa1 = ((SequencingReadAnalysis) a1).getExperiment();
+    assertThat(sa1.getAligned()).isNull();
+    assertThat(sa1.getAlignmentTool()).isNull();
+    assertThat(sa1.getInsertSize()).isNull();
+    assertThat(sa1.getLibraryStrategy()).isEqualTo("WXS");
+    assertThat(sa1.getPairedEnd()).isNull();
+    assertThat(sa1.getReferenceGenome()).isNull();
+    assertThat(sa1.getInfo().path("random").isNull()).isTrue();
+
+    val filename2 = "documents/deserialization/sequencingread-deserialize2.json";
+    val uploadId2 = uploadFromTestDir(DEFAULT_STUDY, filename2, false);
+    val saveStatus2 = uploadService.save(DEFAULT_STUDY, uploadId2, false);
+    val analysisStatus2 = fromStatus(saveStatus2, "status");
+    assertThat(analysisStatus2).isEqualTo("ok");
+    val analysisId2 = fromStatus(saveStatus2, "analysisId");
+    val a2 =  analysisService.read(analysisId2);
+    val sa2 = ((SequencingReadAnalysis) a2).getExperiment();
+    assertThat(sa2.getAligned()).isNull();
+    assertThat(sa2.getAlignmentTool()).isNull();
+    assertThat(sa2.getInsertSize()).isNull();
+    assertThat(sa2.getLibraryStrategy()).isEqualTo("WXS");
+    assertThat(sa2.getPairedEnd()).isTrue();
+    assertThat(sa2.getReferenceGenome()).isNull();
   }
 
   @Test
@@ -219,6 +258,12 @@ public class UploadServiceTest {
   private String uploadFromFixtureDir(String study, String fileName, boolean
       isAsyncValidation){
     val json = readFile(fileName);
+    return upload(study, json, isAsyncValidation);
+  }
+
+  @SneakyThrows
+  private String uploadFromTestDir(String study, String fileName, boolean isAsyncValidation){
+    val json = getJsonStringFromClasspath(fileName);
     return upload(study, json, isAsyncValidation);
   }
 

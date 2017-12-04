@@ -80,7 +80,7 @@ public class DonorServiceTest {
     json.put("species", "human");
 
     DonorWithSpecimens d = JsonUtils.mapper().convertValue(json, DonorWithSpecimens.class);
-    assertThat(d.getDonorId()).isEqualTo("");
+    assertThat(d.getDonorId()).isNull();
 
     val status = service.create(d);
     val id = d.getDonorId();

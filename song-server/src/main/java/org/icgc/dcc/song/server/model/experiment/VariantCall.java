@@ -26,7 +26,7 @@ import lombok.val;
 
 @EqualsAndHashCode(callSuper=false)
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class VariantCall extends Experiment {
 
   private String analysisId;

@@ -18,12 +18,18 @@
  */
 package org.icgc.dcc.song.core.utils;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -36,6 +42,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
+import static com.google.common.base.Strings.emptyToNull;
+
 /**
  * Utility functions related to deal with JSON
  */
@@ -47,13 +55,22 @@ public class JsonUtils {
   protected static final ObjectMapper mapper = mapper();
 
   public static ObjectMapper mapper() {
+    val specialModule = new SimpleModule();
+    specialModule.addDeserializer(String.class, SpecialStringJsonDeserializer.instance);
+
     val mapper = new ObjectMapper().registerModule(new ParameterNamesModule())
         .registerModule(new Jdk8Module())
+        .registerModule(specialModule)
         .registerModule(new JavaTimeModule());
+
     mapper.disable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
     mapper.disable(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS);
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+
+    // Doesn't work! Fields with the value '""' (empty string) are not being deserialized as null.
+    // mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+
     mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
     return mapper;
@@ -130,6 +147,26 @@ public class JsonUtils {
 
   public static <T> T convertValue(Object fromValue, Class<T> toValue) {
     return mapper().convertValue(fromValue, toValue);
+  }
+
+  /**
+   * Since the ACCEPT_EMPTY_STRING_AS_NULL_OBJECT DeserializationFeature is not working properly,
+   * created custom string deserialization handling of empty string.
+   */
+  public static class SpecialStringJsonDeserializer extends StdDeserializer<String> {
+    public static final SpecialStringJsonDeserializer instance = new SpecialStringJsonDeserializer();
+
+    public SpecialStringJsonDeserializer() {
+      super(String.class);
+    }
+
+    @Override
+    public String deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
+        throws IOException, JsonProcessingException {
+      val result = StringDeserializer.instance.deserialize(jsonParser, deserializationContext);
+      return emptyToNull(result);
+    }
+
   }
 
 }

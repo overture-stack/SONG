@@ -19,30 +19,36 @@
 package org.icgc.dcc.song.server.repository.mapper;
 
 import lombok.SneakyThrows;
-import lombok.val;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
-import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
-import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
-import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static org.icgc.dcc.song.server.repository.AttributeNames.ALIGNED;
+import static org.icgc.dcc.song.server.repository.AttributeNames.ALIGNMENT_TOOL;
+import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
+import static org.icgc.dcc.song.server.repository.AttributeNames.INSERT_SIZE;
+import static org.icgc.dcc.song.server.repository.AttributeNames.LIBRARY_STRATEGY;
+import static org.icgc.dcc.song.server.repository.AttributeNames.PAIRED_END;
+import static org.icgc.dcc.song.server.repository.AttributeNames.REFERENCE_GENOME;
+import static org.icgc.dcc.song.server.repository.mapper.ResultSets.getWrappedBoolean;
+import static org.icgc.dcc.song.server.repository.mapper.ResultSets.getWrappedLong;
+
 public class SequencingReadMapper implements ResultSetMapper<SequencingRead> {
 
   @Override
   @SneakyThrows
   public SequencingRead map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-    return SequencingRead.create(r.getString(ID),
-            r.getBoolean(ALIGNED),
-            r.getString(ALIGNMENT_TOOL),
-            r.getLong(INSERT_SIZE),
-            r.getString(LIBRARY_STRATEGY),
-            r.getBoolean(PAIRED_END),
-            r.getString(REFERENCE_GENOME));
+    return SequencingRead.create(
+        r.getString(ID),
+        getWrappedBoolean(r,ALIGNED),
+        r.getString(ALIGNMENT_TOOL),
+        getWrappedLong(r,INSERT_SIZE),
+        r.getString(LIBRARY_STRATEGY),
+        getWrappedBoolean(r, PAIRED_END),
+        r.getString(REFERENCE_GENOME));
   }
 
 }

@@ -68,7 +68,7 @@ public class ValidationServiceTest {
   @Test
   public void testValidateVariantCallWithStudy() {
     val payload=getJsonFile("variantCallStudy.json").toString();
-    val results=service.validate(payload,SEQ_READ);
+    val results=service.validate(payload,VAR_CALL);
     assertThat(results).isEqualTo("Uploaded JSON document must not contain a study field");
   }
 

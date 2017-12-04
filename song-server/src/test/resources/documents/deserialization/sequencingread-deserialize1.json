@@ -2,26 +2,27 @@
   "analysisType": "sequencingRead",
   "experiment": {
     "libraryStrategy": "WXS",
-    "pairedEnd": false,
-    "insertSize": 900,
-    "aligned": true,
-    "alignmentTool": "MUSE variant call pipeline",
-    "referenceGenome": "hs37d5",
-    "marginOfError": "0.01%"
+    "pairedEnd": null,
+    "referenceGenome": "",
+    "info": {
+      "marginOfError": "0.01%",
+      "random" : null
+    }
   },
   "sample": [
     {
       "sampleSubmitterId": "internal_sample_98024759826836",
-      "sampleType": "Like, totally RNA",
+      "sampleType": "Total RNA",
       "tissueCollectionMethod": "IV",
-      "specimen": {
+      "specimen":
+      {
         "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
-        "specimenClass": "Normal-ish",
-        "specimenType": "Normal - used tissue"
+        "specimenClass": "Normal",
+        "specimenType": "Normal - solid tissue"
       },
       "donor": {
         "donorSubmitterId": "internal_donor_123456789-00",
-        "donorGender": "who knows?",
+        "donorGender": "female",
         "ageCategory": "18-25",
         "riskCategory": "3b"
       }
@@ -33,16 +34,19 @@
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
       "fileSize": 376953,
       "fileMd5sum": "61a91c4bf04ac2bd3795254104f75ad3",
-      "fileAccess" : "CoNtRoLlEd",
+      "fileAccess" : "controlled",
       "compression": "gzip"
     },
     {
       "fileType": "IDX",
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
       "fileSize": 4840,
-      "fileAccess" : "CoNtRoLlEd",
+      "fileAccess" : "controlled",
       "fileMd5sum": "29594b19b079ad5731577e0495ddba63"
     }
   ],
-  "description": "This is extra info in a JSON format"
+  "info": {
+    "description": "This is extra info in a JSON format"
+  }
 }
+
