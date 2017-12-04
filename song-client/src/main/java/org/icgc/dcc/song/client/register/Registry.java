@@ -18,7 +18,6 @@
  */
 package org.icgc.dcc.song.client.register;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.val;
@@ -32,14 +31,12 @@ public class Registry {
 
   @Setter
   private final RestClient restClient;
-  private final ObjectMapper mapper;
   private final Endpoint endpoint;
   private final String accessToken;
   private final String studyId;
 
   @Autowired
   public Registry(@NonNull Config config, @NonNull RestClient restClient) {
-    this.mapper = new ObjectMapper();
     this.restClient = restClient;
     this.endpoint = new Endpoint(config.getServerUrl());
     this.accessToken = config.getAccessToken();
