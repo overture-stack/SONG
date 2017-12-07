@@ -41,7 +41,6 @@ validation:
   queue:
     capacity: 100
 
-validation.delayMs: 30
 
 auth:
   # Connection retries in case of connection failure
@@ -74,6 +73,8 @@ auth:
   server:
     prefix: "song"
     suffix: "upload"
+
+validation.delayMs: 3000
 
 # Datasource
 spring.datasource:
@@ -132,6 +133,8 @@ spring.datasource:
   max-active: 10
   max-idle: 1
   min-idle: 1
+
+validation.delayMs: 30
 
 ---
 spring:

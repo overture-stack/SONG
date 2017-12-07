@@ -4,7 +4,7 @@ MAINTAINER ICGC <dcc-support@icgc.org>
 #
 # Configuration
 #
-ENV SERVER_RELEASE_VERSION 0.3.4
+ENV SERVER_RELEASE_VERSION 0.3.7
 ENV SONG_HOME $DCC_HOME/song-server
 ENV SONG_LOGS $DCC_HOME/song-server/logs
 ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/${SERVER_RELEASE_VERSION}/song-server-${SERVER_RELEASE_VERSION}-dist.tar.gz  
@@ -34,7 +34,7 @@ CMD chmod 755 $WAIT_FOR_POSTGRES_SCRIPT && \
 	    python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
 	    $SONG_HOME/bin/song-server start \
             wrapper.java.additional.2=-Dcom.sun.management.jmxremote.port=${SERVER_JMX_PORT} \
-	    wrapper.app.parameter.4=--spring.profiles.active=prod,secure \
+	    wrapper.app.parameter.4=--spring.profiles.active=prod,secure,default \
 	    set.LOGGING_PATH=$SONG_LOGS \
 	    set.LOG_PATH=$SONG_LOGS; \
 	    FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done
