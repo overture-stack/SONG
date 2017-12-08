@@ -98,7 +98,7 @@ services:
       - "./data/client:/opt/dcc/data"
       - "./tools:/opt/dcc/tools"
   object-storage:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2017-11-22T19-55-46Z
     network_mode: host
     volumes:
       - "./data/minio:/opt/dcc/data"
