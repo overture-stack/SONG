@@ -20,8 +20,8 @@ stores the actual data files.
 - The metadata files you upload must be written according to the JSON schemas located in the directory song-server/main/resources/schemas 
 
 **Metadata Upload Rules**
-- If you don't include a unique "analysisSubmitterId" in your JSON file, we will create a new upload id (and new analysis) for each submitter. 
+- If you don't include a unique "analysisId" in your JSON file, we will create a new upload id (and new analysis) for each submitter. 
 - Every field in the analysis metadata has to be included with every upload; no partial uploads are allowed.
-- When you upload metadata with the same analysisSubmitterId as a previous upload, we will replace the metadata with the new version, and the reply message will include a warning message and the previous version of the metadata. 
+- When you upload metadata with the same analysisId as a previous upload, we will replace the metadata with the new version, and the reply message will include a warning message and the previous version of the metadata. 
 - You cannot change any existing sample/specimen/donor parent-child relationships when you publish an analysis; and we will return an error if you try.
 
