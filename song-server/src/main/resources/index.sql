@@ -1,3 +1,45 @@
+---------------------------------------------------------------
+--            Drop Indices
+---------------------------------------------------------------
+DROP INDEX IF EXISTS file_id_index;
+DROP INDEX IF EXISTS file_analysis_id_uindex;
+DROP INDEX IF EXISTS file_id_analysis_id_uindex;
+DROP INDEX IF EXISTS file_study_id_uindex;
+DROP INDEX IF EXISTS file_name_analysis_id_uindex;
+DROP INDEX IF EXISTS sample_id_uindex;
+DROP INDEX IF EXISTS sample_submitter_id_uindex;
+DROP INDEX IF EXISTS sample_specimen_id_uindex;
+DROP INDEX IF EXISTS sample_id_specimen_id_uindex;
+DROP INDEX IF EXISTS sample_submitter_id_specimen_id_uindex;
+DROP INDEX IF EXISTS donor_id_uindex;
+DROP INDEX IF EXISTS donor_submitter_id_uindex;
+DROP INDEX IF EXISTS donor_study_id_uindex;
+DROP INDEX IF EXISTS donor_id_study_id_uindex;
+DROP INDEX IF EXISTS donor_submitter_id_study_id_uindex;
+DROP INDEX IF EXISTS specimen_id_uindex;
+DROP INDEX IF EXISTS specimen_submitter_id_uindex;
+DROP INDEX IF EXISTS specimen_donor_id_uindex;
+DROP INDEX IF EXISTS specimen_id_donor_id_uindex;
+DROP INDEX IF EXISTS specimen_submitter_id_donor_id_uindex;
+DROP INDEX IF EXISTS analysis_id_uindex;
+DROP INDEX IF EXISTS analysis_study_id_uindex;
+DROP INDEX IF EXISTS analysis_id_study_id_uindex;
+DROP INDEX IF EXISTS sampleset_sample_id_uindex;
+DROP INDEX IF EXISTS sampleset_analysis_id_uindex;
+DROP INDEX IF EXISTS sampleset_sample_id_analysis_id_uindex;
+DROP INDEX IF EXISTS sequencingread_id_uindex;
+DROP INDEX IF EXISTS variantcall_id_uindex;
+DROP INDEX IF EXISTS study_id_uindex;
+DROP INDEX IF EXISTS upload_id_uindex;
+DROP INDEX IF EXISTS upload_study_id_analysis_id_uindex;
+DROP INDEX IF EXISTS info_id_uindex;
+DROP INDEX IF EXISTS info_id_type_uindex;
+DROP INDEX IF EXISTS info_id_id_type_uindex;
+
+
+---------------------------------------------------------------
+--            Create Indices
+---------------------------------------------------------------
 CREATE UNIQUE INDEX file_id_index ON public.file (id);
 CREATE INDEX file_analysis_id_uindex ON public.file (analysis_id);
 CREATE UNIQUE INDEX file_id_analysis_id_uindex ON public.file (id, analysis_id);
