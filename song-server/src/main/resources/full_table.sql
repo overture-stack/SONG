@@ -23,9 +23,9 @@ SELECT
   u.state AS upload_state,
   u.errors AS upload_errors
 FROM sample AS sa
-  INNER JOIN specimen AS sp  ON sp.id = sa.specimen_id
-  INNER JOIN donor AS d ON d.id = sp.donor_id
-  INNER JOIN sampleset AS ss ON ss.sample_id = sa.id
-  INNER JOIN analysis AS a ON a.id = ss.analysis_id
-  INNER JOIN file AS f ON f.analysis_id = a.id
-  INNER JOIN upload AS u ON u.analysis_id = a.id;
+  FULL JOIN specimen AS sp  ON sp.id = sa.specimen_id
+  FULL JOIN donor AS d ON d.id = sp.donor_id
+  FULL JOIN sampleset AS ss ON ss.sample_id = sa.id
+  FULL JOIN analysis AS a ON a.id = ss.analysis_id
+  FULL JOIN file AS f ON f.analysis_id = a.id
+  FULL JOIN upload AS u ON u.analysis_id = a.id;
