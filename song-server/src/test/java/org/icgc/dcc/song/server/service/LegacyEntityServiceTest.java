@@ -42,12 +42,6 @@ public class LegacyEntityServiceTest {
   @Autowired
   LegacyEntityService legacyEntityService;
 
-  @Autowired
-  FileService fileService;
-
-  @Autowired
-  AnalysisService analysisService;
-
   @Test
   public void testGetLegacyEntityByGnosId() {
     val analysisId = "AN1";
