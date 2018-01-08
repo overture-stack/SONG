@@ -159,6 +159,7 @@ public class AnalysisService {
     repository.deleteCompositeEntities(id);
     saveCompositeEntities(studyId, id, analysis.getSample());
     repository.deleteFiles(id);
+    analysis.getFile().forEach(f -> fileInfoService.delete(f.getObjectId()));
     saveFiles(id, studyId, analysis.getFile());
     analysisInfoService.update(id, analysis.getInfoAsString());
 
