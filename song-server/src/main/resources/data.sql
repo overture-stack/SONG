@@ -43,5 +43,5 @@ insert into File(id, analysis_id, study_id, name, size, type, md5, access) value
 
 insert into Info(id, id_type, info) values ('FI1', 'File', '{"name":"file1"}' );
 insert into Info(id, id_type, info) values ('FI2', 'File', '{"name":"file2"}' );
-insert into Info(id, id_type, info) values ('FI2', 'File', '{"name":"file3"}' );
+insert into Info(id, id_type, info) values ('FI3', 'File', '{"name":"file3"}' );
 insert into Info(id, id_type, info) values ('FI4', 'File', '{"name":"file4"}' );
