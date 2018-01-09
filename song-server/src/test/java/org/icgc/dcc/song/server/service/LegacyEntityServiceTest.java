@@ -46,7 +46,7 @@ public class LegacyEntityServiceTest {
   public void testGetLegacyEntityByGnosId() {
     val analysisId = "AN1";
     val gnosId = analysisId;
-    val entities = legacyEntityService.getEntityByGnosId(gnosId,2000, 0);
+    val entities = legacyEntityService.getEntitiesByGnosId(gnosId,2000, 0).getContent();
     assertThat(entities).hasSize(2);
     LegacyEntity entity1;
     LegacyEntity entity2;

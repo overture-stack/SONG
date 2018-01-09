@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.LegacyEntity;
 import org.icgc.dcc.song.server.service.LegacyEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,16 +28,17 @@ public class LegacyEntityController {
 
   @GetMapping(value = "/{id}")
   @ResponseBody
-  public LegacyEntity read(@PathVariable("id") String id) {
-    return legacyEntityService.getEntity(id);
+  public ResponseEntity<LegacyEntity> read(@PathVariable("id") String id) {
+    return ok(legacyEntityService.getEntity(id));
   }
 
   @GetMapping
   @ResponseBody
-  public List<LegacyEntity> readGnosId(@RequestParam(value = "gnosId", required = true) String gnosId,
+  public ResponseEntity<Page<LegacyEntity>> readGnosId(
+      @RequestParam(value = "gnosId", required = true) String gnosId,
       @RequestParam(value = "size", required = false, defaultValue = "2000") int size,
       @RequestParam(value = "page", required = false, defaultValue = "0") int page ) {
-    return legacyEntityService.getEntityByGnosId(gnosId, size, page);
+    return ok(legacyEntityService.getEntitiesByGnosId(gnosId,size,page));
   }
 
 }
