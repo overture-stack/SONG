@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LegacyEntityServiceTest {
 
   @Autowired
-  LegacyEntityService legacyEntityService;
+  private LegacyEntityService legacyEntityService;
 
   @Test
   public void testGetLegacyEntityByGnosId() {
