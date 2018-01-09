@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MetadataAdapterModel {
+public class LegacyEntity {
 
   private String id;
   private String gnosId;
