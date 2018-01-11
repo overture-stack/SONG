@@ -27,6 +27,7 @@ from __future__ import absolute_import, division, print_function, \
     unicode_literals
 
 from song.client import Client
+from song.client import Config
 
 
 def client(*args, **kwargs):
