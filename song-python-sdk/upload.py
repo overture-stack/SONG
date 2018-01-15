@@ -35,7 +35,7 @@ def run():
     """
     Show an example of a uploading, status checking, and saving an analysis in using the Song python sdk
     """
-    client = song.client("https://song.cancercollaboratory.org", 'ABC123', 'myAccessToken123', debug=True)
+    client = song.api("https://song.cancercollaboratory.org", 'ABC123', 'myAccessToken123', debug=True)
     print('ServerUrl: '+client.get_server_url())
 
 

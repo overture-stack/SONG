@@ -1,19 +1,28 @@
 import json
-import os
 import logging
+import os
 
 import song.utils as utils
-from song.rest import Rest
-
+from song.model import Study, ManifestEntry, Manifest
+from song.utils import SongClientException
+from song.rest import BeanRest
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")
+
+
+def beanify(original_function):
+    def new_function(*args, **kwargs):
+        response = original_function(*args, **kwargs)
+        return utils.to_bean(response)
+    return new_function
+
 
 class Api(object):
 
     def __init__(self, config):
         self.__config = config
-        self.__rest = Rest(config.access_token, debug=config.debug)
+        self.__rest = BeanRest(access_token=config.access_token, debug=config.debug)
         self.__endpoints = Endpoints(config.server_url)
 
     @property
@@ -21,28 +30,27 @@ class Api(object):
         return self.__config
 
     def upload(self, json_payload, is_async_validation=False):
-        response = self.__rest.post(
+        return self.__rest.post(
             self.__endpoints.upload(
                 self.config.study_id,
                 is_async_validation=is_async_validation), data=json_payload)
-        return response.json()
 
     def status(self, upload_id):
         endpoint = self.__endpoints.status(self.config.study_id, upload_id)
-        return self.__rest.get(endpoint).json()
+        return self.__rest.get(endpoint)
 
     def save(self, upload_id, ignore_analysis_id_collisions=False):
         endpoint = self.__endpoints.save_by_id(
             self.config.study_id, upload_id, ignore_analysis_id_collisions=ignore_analysis_id_collisions)
-        return self.__rest.post(endpoint).json()
+        return self.__rest.post(endpoint)
 
     def get_analysis_files(self, analysis_id):
         endpoint = self.__endpoints.get_analysis_files(self.config.study_id, analysis_id)
-        return self.__rest.get(endpoint).json()
+        return self.__rest.get(endpoint)
 
     def get_analysis(self, analysis_id):
         endpoint = self.__endpoints.get_analysis(self.config.study_id, analysis_id)
-        return self.__rest.get(endpoint).json()
+        return self.__rest.get(endpoint)
 
     def is_alive(self):
         endpoint = self.__endpoints.is_alive()
@@ -51,75 +59,96 @@ class Api(object):
 
     def publish(self, analysis_id):
         endpoint = self.__endpoints.publish(self.config.study_id, analysis_id)
-        return self.__rest.put(endpoint).json()
+        return self.__rest.put(endpoint)
 
     def suppress(self, analysis_id):
         endpoint = self.__endpoints.suppress(self.config.study_id, analysis_id)
-        return self.__rest.put(endpoint).json()
+        return self.__rest.put(endpoint)
 
     def id_search(self, sample_id=None, specimen_id=None, donor_id=None, file_id=None):
         endpoint = self.__endpoints.id_search(
             self.config.study_id, sample_id=sample_id, specimen_id=specimen_id, donor_id=donor_id, file_id=file_id)
-        return self.__rest.get(endpoint).json()
+        return self.__rest.get(endpoint)
 
     def info_search(self, is_include_info, **search_terms):
         endpoint = self.__endpoints.info_search(self.config.study_id, is_include_info, **search_terms)
-        return self.__rest.get(endpoint).json()
+        return self.__rest.get(endpoint)
 
     def get_study(self, study_id):
         endpoint = self.__endpoints.get_study(study_id)
-        return self.__rest.get(endpoint).json()
+        return self.__rest.get(endpoint)
 
     def get_entire_study(self, study_id):
         endpoint = self.__endpoints.get_entire_study(study_id)
-        return self.__rest.get(endpoint).json()
+        return self.__rest.get(endpoint)
+
+    def get_all_studies(self):
+        endpoint = self.__endpoints.get_all_studies()
+        return self.__rest.get(endpoint)
 
     def save_study(self, study):
         endpoint = self.__endpoints.save_study(study.studyId)
-        return self.__rest.post(endpoint, utils.to_json_string(study)).json()
+        return self.__rest.post(endpoint, utils.to_json_string(study))
 
 
 class StudyClient(object):
 
     def __init__(self, api):
         if not isinstance(api, Api):
-            raise Exception("The argument must be an instance of Api")
+            raise SongClientException('study.client', "The argument must be an instance of Api")
         self.__api = api
 
-    def create_study(self, study):
+    def create(self, study):
         return self.__api.save_study(study) == '1'
 
-    def has_study(self, study_id):
+    def has(self, study_id):
         val = self.__api.get_study(study_id)
         return val[0] is not None
+
+    def read(self, study_id, recursive=False):
+        # [Issue #146]: disabled since the song-server has a bug in the /studies/{studyId}/all
+        # endpoint (https://github.com/overture-stack/SONG/issues/146)
+        #
+        # if recursive:
+        #     val = self.__api.get_entire_study(study_id)
+        #     if val is None:
+        #         raise SongClientException('study.client.entire', "The study_id '{}' does not exist".format(study_id))
+        #     return val
+        val = self.__api.get_study(study_id)
+        if val[0] is None:
+            raise SongClientException('study.client.get', "The study_id '{}' does not exist".format(study_id))
+        return Study.create_from_raw(val[0])
 
 
 class UploadClient(object):
 
     def __init__(self, api):
         if not isinstance(api, Api):
-            raise Exception("The argument must be an instance of Api")
+            raise SongClientException('upload.client', "The argument must be an instance of Api")
         self.__api = api
 
     def upload_file(self, file_path, is_async_validation=False):
         if not os.path.exists(file_path):
-            raise Exception("The file {} does not exist".format(file_path))
+            raise SongClientException('upload.client', "The file {} does not exist".format(file_path))
 
         with open(file_path, 'r') as file_content:
             json_data = json.loads(file_content)  # just to validate the json
             return self.__api.upload(json_data, is_async_validation=is_async_validation)
 
 
-class Manifest(object):
+class ManifestClient(object):
 
     def __init__(self, api):
         if not isinstance(api, Api):
-            raise Exception("The argument must be an instance of Api")
+            raise SongClientException("manifest.service", "The argument must be an instance of Api")
         self.__api = api
 
     def create_manifest(self, analysis_id, output_file_path):
-        utils.setup_output_file_path(output_file_path)
-        self.__api.get_analysis_files(analysis_id)
+        manifest = Manifest(analysis_id)
+        for file_bean in self.__api.get_analysis_files(analysis_id):
+            manifest_entry = ManifestEntry.create_manifest_entry(file_bean)
+            manifest.add_entry(manifest_entry)
+        utils.write_object(manifest, output_file_path, overwrite=True)
 
 
 class Endpoints(object):
@@ -173,6 +202,9 @@ class Endpoints(object):
 
     def get_entire_study(self, study_id):
         return "{}/studies/{}/all".format(self.__server_url, study_id)
+
+    def get_all_studies(self):
+        return "{}/studies/all".format(self.__server_url)
 
     def get_study(self, study_id):
         return "{}/studies/{}".format(self.__server_url, study_id)
