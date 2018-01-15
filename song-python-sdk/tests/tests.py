@@ -109,6 +109,19 @@ class SongTests(unittest.TestCase):
 
         study_client = StudyClient(api)
         upload_client = UploadClient(api)
+        sequencing_read_filename = '/Users/rtisma/Documents/workspace/song_overture/src/test/resources/fixtures/sequencingRead.json'
+        if not study_client.has(study_id):
+            study_client.create(Study(study_id, "none", "ICGC", "Soemthing"))
+
+        upload_response = upload_client.upload_file(sequencing_read_filename, is_async_validation=False)
+        if upload_response.status == 'ok':
+            status = upload_client.check_upload_status(upload_response.uploadId)
+
+        print("sdfsdfsf")
+
+
+
+
 
 
 if __name__ == '__main__':

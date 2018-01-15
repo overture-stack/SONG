@@ -58,9 +58,9 @@ class Rest(object):
         param_string = '&'.join(self.__convert_params(**kwargs))
         return self.get(url+'?'+param_string)
 
-    def post(self, url, payload):
+    def post(self, url, json=None):
         return self._intercept(requests.post)\
-            (url, data=payload, headers=self.__header_generator.get_json_header())
+            (url, json=json, headers=self.__header_generator.get_json_header())
 
     def put(self, url):
         return self._intercept(requests.put)\

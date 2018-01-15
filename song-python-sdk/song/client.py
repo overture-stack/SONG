@@ -33,7 +33,7 @@ class Api(object):
         return self.__rest.post(
             self.__endpoints.upload(
                 self.config.study_id,
-                is_async_validation=is_async_validation), data=json_payload)
+                is_async_validation=is_async_validation), json=json_payload )
 
     def status(self, upload_id):
         endpoint = self.__endpoints.status(self.config.study_id, upload_id)
@@ -54,8 +54,7 @@ class Api(object):
 
     def is_alive(self):
         endpoint = self.__endpoints.is_alive()
-        response = self.__rest.get(endpoint)
-        return response.content == 'true'
+        return self.__rest.get(endpoint)
 
     def publish(self, analysis_id):
         endpoint = self.__endpoints.publish(self.config.study_id, analysis_id)
@@ -132,8 +131,12 @@ class UploadClient(object):
             raise SongClientException('upload.client', "The file {} does not exist".format(file_path))
 
         with open(file_path, 'r') as file_content:
-            json_data = json.loads(file_content)  # just to validate the json
+            json_data = json.load(file_content)  # just to validate the json
             return self.__api.upload(json_data, is_async_validation=is_async_validation)
+
+    def check_upload_status(self, upload_id):
+        return self.__api.status(upload_id)
+
 
 
 class ManifestClient(object):
