@@ -137,6 +137,11 @@ class UploadClient(object):
     def check_upload_status(self, upload_id):
         return self.__api.status(upload_id)
 
+    def save(self, upload_id, ignore_analysis_id_collisions=False):
+        return self.__api.save(upload_id, ignore_analysis_id_collisions=ignore_analysis_id_collisions)
+
+    def publish(self, analysis_id):
+        return self.__api.publish(analysis_id)
 
 
 class ManifestClient(object):

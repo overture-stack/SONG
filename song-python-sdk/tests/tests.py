@@ -117,6 +117,10 @@ class SongTests(unittest.TestCase):
         if upload_response.status == 'ok':
             status = upload_client.check_upload_status(upload_response.uploadId)
 
+        save_response = upload_client.save(status.uploadId)
+
+        upload_client.publish(save_response.analysisId)
+
         print("sdfsdfsf")
 
 
