@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import time
 
 
@@ -58,6 +58,32 @@ def to_bean(item):
             return item
 
     return convert(item)
+
+def check_song_state(expression, id, formatted_message, *args):
+
+    if not expression:
+        raise SongClientException(id, formatted_message.format(*args))
+
+def check_state(expression, formatted_message, *args):
+
+    if not expression:
+        raise Exception(formatted_message.format(*args))
+
+
+def check_file(filename):
+    check_state(os.path.exists(filename), "The path {}' does not exist", filename)
+    check_state(os.path.isfile(filename), "The path '{}' is not a file ", filename)
+
+
+def check_dir(dirname):
+    check_state(os.path.exists(dirname), "The path {}' does not exist", dirname)
+    check_state(os.path.isdir(dirname), "The path '{}' is not a directory ", dirname)
+
+
+def check_type(instance, class_type):
+    check_state(isinstance(instance, class_type.__class__),
+                "The input instance is not of type '{}'",
+                class_type.__class__.__name__)
 
 
 class SongClientException(Exception):

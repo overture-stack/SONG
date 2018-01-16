@@ -93,8 +93,7 @@ class Api(object):
 class StudyClient(object):
 
     def __init__(self, api):
-        if not isinstance(api, Api):
-            raise SongClientException('study.client', "The argument must be an instance of Api")
+        utils.check_type(api, Api)
         self.__api = api
 
     def create(self, study):
@@ -114,8 +113,8 @@ class StudyClient(object):
         #         raise SongClientException('study.client.entire', "The study_id '{}' does not exist".format(study_id))
         #     return val
         val = self.__api.get_study(study_id)
-        if val[0] is None:
-            raise SongClientException('study.client.get', "The study_id '{}' does not exist".format(study_id))
+        utils.check_song_state(val[0] is not None, 'study.client.get',
+                               "The study_id '{}' does not exist".format(study_id))
         return Study.create_from_raw(val[0])
 
 

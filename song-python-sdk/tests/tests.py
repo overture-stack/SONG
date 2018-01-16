@@ -8,6 +8,7 @@ from song.client import ManifestClient
 import song.utils as utils
 import os, time
 import hashlib
+from song.tools import EGAUploader, FileUploadState
 
 
 class TestFile(object):
@@ -95,6 +96,27 @@ class SongTests(unittest.TestCase):
         manifest.write(actual_test_file.name, overwrite=True)
         self.assertTrue(actual_test_file.md5_compare(expected_test_file))
         self.file_storage.clean()
+
+    def test_upload_state_comparisons(self):
+
+        def verif_compare(lower_state, higher_state):
+            self.assertGreater(higher_state, lower_state)
+            self.assertGreaterEqual(higher_state, lower_state)
+            self.assertLess(lower_state, higher_state)
+            self.assertLessEqual(lower_state, higher_state)
+            self.assertNotEqual(lower_state, higher_state)
+
+        verif_compare(FileUploadState.UNKNOWN, FileUploadState.NOT_UPLOADED)
+        verif_compare(FileUploadState.NOT_UPLOADED, FileUploadState.SUBMITTED)
+        verif_compare(FileUploadState.SUBMITTED, FileUploadState.VALIDATION_ERROR)
+        verif_compare(FileUploadState.VALIDATION_ERROR, FileUploadState.VALIDATED)
+        verif_compare(FileUploadState.VALIDATED, FileUploadState.SAVED)
+        verif_compare(FileUploadState.SAVED, FileUploadState.PUBLISHED)
+
+        self.assertLessEqual(FileUploadState.VALIDATED, FileUploadState.PUBLISHED)
+        self.assertLess(FileUploadState.VALIDATED, FileUploadState.PUBLISHED)
+        self.assertGreaterEqual(FileUploadState.PUBLISHED, FileUploadState.VALIDATED)
+        self.assertGreater(FileUploadState.PUBLISHED, FileUploadState.VALIDATED)
 
     def test_example(self):
         url = 'http://rtisma-server:8080'
