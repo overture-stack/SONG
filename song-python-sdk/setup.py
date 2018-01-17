@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights
+# Copyright (c) 2018 The Ontario Institute for Cancer Research. All rights
 # reserved.
 #
 # This program and the accompanying materials are made available under the

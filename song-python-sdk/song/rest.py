@@ -1,3 +1,23 @@
+# Copyright (c) 2018 The Ontario Institute for Cancer Research. All rights
+# reserved.
+#
+# This program and the accompanying materials are made available under the
+# terms of the GNU Public License v3.0. You should have received a copy of
+# the GNU General Public License along with
+# this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING,BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
 
 import logging
 
@@ -10,7 +30,6 @@ import song.utils as utils
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.rest")
-
 
 
 def intercept_response(orig_function, debug=False, convert_to_json=False, convert_to_bean=False):
@@ -55,7 +74,7 @@ class Rest(object):
             (url, headers=self.__header_generator.get_json_header())
 
     def get_with_params(self, url, **kwargs):
-        param_string = '&'.join(self.__convert_params(**kwargs))
+        param_string = '&'.join(Rest.__convert_params(**kwargs))
         return self.get(url+'?'+param_string)
 
     def post(self, url, json=None):
@@ -66,7 +85,8 @@ class Rest(object):
         return self._intercept(requests.put)\
             (url, headers=self.__header_generator.get_json_header())
 
-    def __convert_params(self, **kwargs):
+    @classmethod
+    def __convert_params(cls, **kwargs):
         param_list = []
         for k,v in kwargs.items():
             param_list.append(k+'='+v)
@@ -94,6 +114,7 @@ class BeanRest(Rest):
         return intercept_response(method,
                                   debug=self.debug,
                                   convert_to_bean=True)
+
 
 class HeaderGenerator(object):
 
