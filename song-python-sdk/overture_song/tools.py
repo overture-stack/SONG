@@ -26,10 +26,10 @@ import time
 from enum import unique, Enum
 import logging
 
-from song import utils as utils
-from song.client import Api, StudyClient
-from song.utils import SongClientException
-from song.model import ApiConfig, Study, SongError
+from overture_song import utils as utils
+from overture_song.client import Api, StudyClient
+from overture_song.utils import SongClientException
+from overture_song.model import ApiConfig, Study, SongError
 import json
 
 logging.basicConfig(level=logging.INFO)

@@ -23,10 +23,10 @@ import json
 import logging
 import os
 
-import song.utils as utils
-from song.model import Study, ManifestEntry, Manifest
-from song.utils import SongClientException
-from song.rest import BeanRest
+import overture_song.utils as utils
+from overture_song.model import Study, ManifestEntry, Manifest
+from overture_song.utils import SongClientException
+from overture_song.rest import BeanRest
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")

@@ -119,8 +119,7 @@ class SongTests(unittest.TestCase):
     def test_upload_state_comparisons(self):
 
         def verif_compare(lower_state, higher_state):
-            self.assertGreater(higher_state, lower_state)
-            self.assertGreaterEqual(higher_state, lower_state)
+            self.assertGreater(higher_state, lower_state) self.assertGreaterEqual(higher_state, lower_state)
             self.assertLess(lower_state, higher_state)
             self.assertLessEqual(lower_state, higher_state)
             self.assertNotEqual(lower_state, higher_state)

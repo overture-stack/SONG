@@ -24,8 +24,8 @@ import logging
 import json
 import requests
 
-from song.model import SongError
-import song.utils as utils
+from overture_song.model import SongError
+import overture_song.utils as utils
 
 
 logging.basicConfig(level=logging.INFO)

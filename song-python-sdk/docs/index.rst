@@ -19,7 +19,7 @@ Here's an example that shows you how easy it is to get started!
 Installation
 ------------
 You can install song using *pip* by running:
-    **pip install song**
+    **pip install overture-song**
 
 If you prefer, you can also download the source code from the url below.
 

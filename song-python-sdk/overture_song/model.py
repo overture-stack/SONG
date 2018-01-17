@@ -21,8 +21,8 @@
 
 import logging
 
-from song import utils
-from song.utils import SongClientException
+from overture_song import utils
+from overture_song.utils import SongClientException
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.model")

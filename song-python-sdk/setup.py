@@ -46,12 +46,12 @@ def run():
         long_description = file_.read()
 
     setup(
-        name='song',
+        name='overture-song',
         # Versions should comply with PEP440.  For a discussion on
         # single-sourcing the version across setup.py and the project code,
         # see
         # https://packaging.python.org/en/latest/single_source_version.html
-        version='0.0.1',
+        version='0.0.3',
         description="A Python library interface to the SONG REST Server",
         long_description=long_description,
 
@@ -89,12 +89,12 @@ def run():
         ],
 
         # What does your project relate to?
-        keywords='song rest-client python-sdk song metadata',
+        keywords='overture_song rest-client python-sdk song metadata',
 
         # You can just specify the packages manually here if your project is
         # simple. Or you can use find_packages().
         # packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-        packages=['song'],
+        packages=['overture_song'],
 
         # Alternatively, if you want to distribute just a my_module.py,
         # uncomment this:

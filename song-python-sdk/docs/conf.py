@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'song'
+project = u'overture_song'
 copyright = u'2018, The Ontario Institute For Cancer Research'
 author = u'The Ontario Institute For Cancer Research'
 
