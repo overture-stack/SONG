@@ -87,7 +87,8 @@ class Api(object):
 
     def save_study(self, study):
         endpoint = self.__endpoints.save_study(study.studyId)
-        return self.__rest.post(endpoint, utils.to_json_string(study))
+        # study_json = json.loads(study)
+        return self.__rest.post(endpoint, json=study.__dict__)
 
 
 class StudyClient(object):

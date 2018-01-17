@@ -10,6 +10,8 @@ import os, time
 import hashlib
 from song.tools import EGAUploader, FileUploadState
 
+import logging
+
 
 class TestFile(object):
 
@@ -106,7 +108,7 @@ class SongTests(unittest.TestCase):
             self.assertLessEqual(lower_state, higher_state)
             self.assertNotEqual(lower_state, higher_state)
 
-        verif_compare(FileUploadState.UNKNOWN, FileUploadState.NOT_UPLOADED)
+        verif_compare(FileUploadState.UNKNOWN_ERROR, FileUploadState.NOT_UPLOADED)
         verif_compare(FileUploadState.NOT_UPLOADED, FileUploadState.SUBMITTED)
         verif_compare(FileUploadState.SUBMITTED, FileUploadState.VALIDATION_ERROR)
         verif_compare(FileUploadState.VALIDATION_ERROR, FileUploadState.VALIDATED)
@@ -118,32 +120,24 @@ class SongTests(unittest.TestCase):
         self.assertGreaterEqual(FileUploadState.PUBLISHED, FileUploadState.VALIDATED)
         self.assertGreater(FileUploadState.PUBLISHED, FileUploadState.VALIDATED)
 
-    def test_example(self):
-        url = 'http://rtisma-server:8080'
-        study_id = 'BRCA-EU'
+    def test_ega_upload(self):
+        ega_data_dir = './myPayloadData'
+
+        url = 'https://song-server:8080'
+        study_id = 'ABC123'
         access_token = 'token'
-        debug = False
+        debug = True
 
         config = ApiConfig(url, study_id, access_token, debug=debug)
         api = Api(config)
 
-        self.assertEquals(api.is_alive(), True)
-
-        study_client = StudyClient(api)
-        upload_client = UploadClient(api)
-        sequencing_read_filename = '/Users/rtisma/Documents/workspace/song_overture/src/test/resources/fixtures/sequencingRead.json'
-        if not study_client.has(study_id):
-            study_client.create(Study(study_id, "none", "ICGC", "Soemthing"))
-
-        upload_response = upload_client.upload_file(sequencing_read_filename, is_async_validation=False)
-        if upload_response.status == 'ok':
-            status = upload_client.check_upload_status(upload_response.uploadId)
-
-        save_response = upload_client.save(status.uploadId)
-
-        upload_client.publish(save_response.analysisId)
-
-        print("sdfsdfsf")
+        uploader = EGAUploader(url, access_token, ega_data_dir, debug=debug)
+        print("Running.....")
+        uploader.upload_all()
+        uploader.status_all()
+        uploader.save_all()
+        # uploader.publish_all()
+        uploader.print_upload_states()
 
 
 

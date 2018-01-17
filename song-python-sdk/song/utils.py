@@ -34,6 +34,10 @@ def write_object(obj, output_file_path, overwrite=False):
         fh.write(str(obj))
 
 
+def to_json(obj):
+    return json.loads(to_dict(obj))
+
+
 def to_dict(obj):
     return obj.__dict__
 
@@ -81,7 +85,8 @@ def check_dir(dirname):
 
 
 def check_type(instance, class_type):
-    check_state(isinstance(instance, class_type.__class__),
+    check_state(isinstance(class_type, type), "The right input argument must be of class type")
+    check_state(isinstance(instance, class_type),
                 "The input instance is not of type '{}'",
                 class_type.__class__.__name__)
 
