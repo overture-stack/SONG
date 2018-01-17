@@ -21,13 +21,13 @@
 
 import unittest
 
-from song.model import ApiConfig, ManifestEntry, Manifest
-from song.client import Api
-import song.utils as utils
 import os
 import time
 import hashlib
-from song.tools import EGAUploader, FileUploadState
+from overture_song.tools import EGAUploader, FileUploadState
+from overture_song.model import ApiConfig, ManifestEntry, Manifest
+from overture_song.client import Api
+import overture_song.utils as utils
 
 
 class TestFile(object):
@@ -43,8 +43,20 @@ class TestFile(object):
         if not self.is_exists():
             raise Exception("File '{}' DNE and cannot calculate md5".format(self.name))
         m = hashlib.md5()
+        with open(self.name, 'rb') as f:
+            while True:
+                data = f.read(4096)
+                if not data:
+                    break
+                m.update(data)
+        return m.digest()
+
+    def get_md5_old(self):
+        if not self.is_exists():
+            raise Exception("File '{}' DNE and cannot calculate md5".format(self.name))
+        m = hashlib.md5()
         with open(self.name, 'r') as f:
-            for chunk in iter(lambda : f.read(4096), b""):
+            for chunk in iter(lambda: f.read(4096), b""):
                 m.update(chunk)
         return m.hexdigest()
 
@@ -119,15 +131,20 @@ class SongTests(unittest.TestCase):
     def test_upload_state_comparisons(self):
 
         def verif_compare(lower_state, higher_state):
-            self.assertGreater(higher_state, lower_state) self.assertGreaterEqual(higher_state, lower_state)
+            self.assertGreater(higher_state, lower_state)
+            self.assertGreaterEqual(higher_state, lower_state)
             self.assertLess(lower_state, higher_state)
             self.assertLessEqual(lower_state, higher_state)
             self.assertNotEqual(lower_state, higher_state)
 
+        verif_compare(FileUploadState.UPLOAD_ERROR, FileUploadState.STATUS_ERROR)
+        verif_compare(FileUploadState.STATUS_ERROR, FileUploadState.VALIDATION_ERROR)
+        verif_compare(FileUploadState.VALIDATION_ERROR, FileUploadState.SAVE_ERROR)
+        verif_compare(FileUploadState.SAVE_ERROR, FileUploadState.PUBLISH_ERROR)
+        verif_compare(FileUploadState.PUBLISH_ERROR, FileUploadState.UNKNOWN_ERROR)
         verif_compare(FileUploadState.UNKNOWN_ERROR, FileUploadState.NOT_UPLOADED)
         verif_compare(FileUploadState.NOT_UPLOADED, FileUploadState.SUBMITTED)
-        verif_compare(FileUploadState.SUBMITTED, FileUploadState.VALIDATION_ERROR)
-        verif_compare(FileUploadState.VALIDATION_ERROR, FileUploadState.VALIDATED)
+        verif_compare(FileUploadState.SUBMITTED, FileUploadState.SAVED)
         verif_compare(FileUploadState.VALIDATED, FileUploadState.SAVED)
         verif_compare(FileUploadState.SAVED, FileUploadState.PUBLISHED)
 
@@ -136,6 +153,7 @@ class SongTests(unittest.TestCase):
         self.assertGreaterEqual(FileUploadState.PUBLISHED, FileUploadState.VALIDATED)
         self.assertGreater(FileUploadState.PUBLISHED, FileUploadState.VALIDATED)
 
+    """
     def test_ega_upload(self):
         ega_data_dir = './myPayloadData'
 
@@ -154,6 +172,7 @@ class SongTests(unittest.TestCase):
         uploader.save_all()
         # uploader.publish_all()
         uploader.print_upload_states()
+    """
 
 
 if __name__ == '__main__':
