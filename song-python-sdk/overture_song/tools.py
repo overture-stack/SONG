@@ -90,7 +90,7 @@ class EGAUploader(object):
                 print ("study_id = {}    files= {} ".format(study_id, files))
                 self.__setup_study(study_id)
 
-                filtered_file_list = filter(lambda f: f.endswith('.json'), files)
+                filtered_file_list = list(filter(lambda f: f.endswith('.json'), files))
                 total_size = len(filtered_file_list)
                 file_count = 0
                 for file in filtered_file_list:
@@ -104,7 +104,7 @@ class EGAUploader(object):
         for root, dirs, files in os.walk(self.payload_dir):
             use_root_dir, study_id = self.__use_root_dir(root)
             if use_root_dir:
-                filtered_file_list = filter(lambda f: f.endswith('.json'), files)
+                filtered_file_list = list(filter(lambda f: f.endswith('.json'), files))
                 total_size = len(filtered_file_list)
                 file_count = 0
                 # TODO: refactor this repitition out
@@ -119,7 +119,7 @@ class EGAUploader(object):
         for root, dirs, files in os.walk(self.payload_dir):
             use_root_dir, study_id = self.__use_root_dir(root)
             if use_root_dir:
-                filtered_file_list = filter(lambda f: f.endswith('.json'), files)
+                filtered_file_list = list(filter(lambda f: f.endswith('.json'), files))
                 total_size = len(filtered_file_list)
                 file_count = 0
                 for file in filtered_file_list:
@@ -133,7 +133,7 @@ class EGAUploader(object):
         for root, dirs, files in os.walk(self.payload_dir):
             use_root_dir, study_id = self.__use_root_dir(root)
             if use_root_dir:
-                filtered_file_list = filter(lambda f: f.endswith('.json'), files)
+                filtered_file_list = list(filter(lambda f: f.endswith('.json'), files))
                 total_size = len(filtered_file_list)
                 file_count = 0
                 for file in filtered_file_list:
@@ -163,7 +163,7 @@ class EGAUploader(object):
 
     def get_files(self, study_id):
         if study_id in self.__upload_status_map:
-            return self.__upload_status_map[study_id].values()
+            return list(self.__upload_status_map[study_id].values())
         return []
 
     def get_all_files(self):
@@ -253,13 +253,13 @@ class FileUploadClient(object):
                 self.upload_state = FileUploadState.SUBMITTED
                 self.upload_id = upload_response.uploadId
             except SongClientException as se:
-                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.id, se.timestamp, se.message)
+                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id, se.timestamp, se.message)
                 self.upload_state = FileUploadState.UPLOAD_ERROR
             except SongError as ex:
                 self.upload_errors = ex
                 self.upload_state = FileUploadState.UPLOAD_ERROR
             except Exception as e:
-                self.upload_errors = "[{}] : ".format(e.__class__.__name__, e.message)
+                self.upload_errors = "[{}] : {}".format(e.__class__.__name__, e.message)
                 self.upload_state = FileUploadState.UNKNOWN_ERROR
 
     def update_status(self):
@@ -288,7 +288,7 @@ class FileUploadClient(object):
                 else:
                     self.upload_state = FileUploadState.UNKNOWN_ERROR
             except SongClientException as se:
-                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.id, se.timestamp, se.message)
+                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id, se.timestamp, se.message)
                 self.upload_state = FileUploadState.STATUS_ERROR
             except SongError as ex:
                 self.upload_errors = ex
@@ -319,7 +319,7 @@ class FileUploadClient(object):
                 self.upload_state = FileUploadState.SAVED
                 self.analysis_id = save_response.analysisId
             except SongClientException as se:
-                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.id, se.timestamp, se.message)
+                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id, se.timestamp, se.message)
                 self.upload_state = FileUploadState.SAVE_ERROR
             except SongError as ex:
                 self.upload_errors = ex
@@ -343,7 +343,7 @@ class FileUploadClient(object):
                                   self.analysis_id, self.filename, self.upload_id,  publish_response.__dict__)
                 self.upload_state = FileUploadState.PUBLISHED
             except SongClientException as se:
-                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.id, se.timestamp, se.message)
+                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id, se.timestamp, se.message)
                 self.upload_state = FileUploadState.PUBLISH_ERROR
             except SongError as ex:
                 self.upload_errors = ex

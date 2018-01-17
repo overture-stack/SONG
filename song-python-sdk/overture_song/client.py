@@ -172,11 +172,15 @@ class ManifestClient(object):
             raise SongClientException("manifest.service", "The argument must be an instance of Api")
         self.__api = api
 
-    def create_manifest(self, analysis_id, output_file_path):
+    def create_manifest(self, analysis_id):
         manifest = Manifest(analysis_id)
         for file_bean in self.__api.get_analysis_files(analysis_id):
             manifest_entry = ManifestEntry.create_manifest_entry(file_bean)
             manifest.add_entry(manifest_entry)
+        return manifest
+
+    def write_manifest(self, analysis_id, output_file_path):
+        manifest = self.create_manifest(analysis_id)
         utils.write_object(manifest, output_file_path, overwrite=True)
 
 

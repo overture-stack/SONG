@@ -152,15 +152,15 @@ class ManifestEntry(object):
 class Manifest(object):
 
     def __init__(self, analysis_id, manifest_entries=[]):
-        self.__analysis_id = analysis_id
-        self.__entries = manifest_entries
+        self.analysis_id = analysis_id
+        self.entries = manifest_entries
 
     def add_entry(self, manifest_entry):
-        self.__entries.append(manifest_entry)
+        self.entries.append(manifest_entry)
 
     def write(self, output_file_path, overwrite=False):
         utils.write_object(self, output_file_path, overwrite=overwrite)
 
     def __str__(self):
-        return "{}\t\t\n".format(self.__analysis_id) + \
-               "\n".join(map(lambda x: str(x), self.__entries))
+        return "{}\t\t\n".format(self.analysis_id) + \
+               "\n".join(map(lambda x: str(x), self.entries))

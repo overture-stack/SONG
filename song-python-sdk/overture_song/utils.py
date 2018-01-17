@@ -48,9 +48,19 @@ def to_json_string(obj):
 
 def write_object(obj, output_file_path, overwrite=False):
     setup_output_file_path(output_file_path)
-    if not overwrite and os.path.exists(output_file_path):
-        raise SongClientException('existing.file',
-                                  "The file '{}' already exists and overwriting is disabled".format(output_file_path))
+    if os.path.exists(output_file_path):
+        if os.path.isfile(output_file_path):
+            if overwrite:
+                os.remove(output_file_path)
+            else:
+                raise SongClientException(
+                    'existing.file',
+                    "The file '{}' already exists and overwriting is disabled".format(output_file_path))
+        else:
+            raise SongClientException(
+                'not.a.file',
+                "The path '{}' is not a file".format(output_file_path))
+
     with open(output_file_path, 'w') as fh:
         fh.write(str(obj))
 
@@ -85,10 +95,10 @@ def to_bean(item):
     return convert(item)
 
 
-def check_song_state(expression, id, formatted_message, *args):
+def check_song_state(expression, error_id, formatted_message, *args):
 
     if not expression:
-        raise SongClientException(id, formatted_message.format(*args))
+        raise SongClientException(error_id, formatted_message.format(*args))
 
 
 def check_state(expression, formatted_message, *args):
@@ -116,10 +126,10 @@ def check_type(instance, class_type):
 
 class SongClientException(Exception):
 
-    def __init__(self, id, message):
+    def __init__(self, error_id, message):
         self.message = message
-        self.id = id
+        self.error_id = error_id
         self.timestamp = int(time.time())
 
     def __str__(self):
-        return "[SONG_CLIENT_EXCEPTION {} @ {}]: {}".format(self.id, self.timestamp, self.message)
+        return "[SONG_CLIENT_EXCEPTION {} @ {}]: {}".format(self.error_id, self.timestamp, self.message)
