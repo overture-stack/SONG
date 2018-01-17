@@ -125,8 +125,8 @@ class EGAUploader(object):
                     print("Published ( {} / {} ) [{}]:  {}".format(file_count, total_size, study_id, filename))
 
     def get_file(self, study_id, filename):
-        if self.__upload_status_map.has_key(study_id):
-            if self.__upload_status_map[study_id].has_key(filename):
+        if study_id in self.__upload_status_map:
+            if filename in self.__upload_status_map[study_id]:
                 return self.__upload_status_map[study_id][filename]
         else:
             self.__upload_status_map[study_id] = {}
@@ -143,7 +143,7 @@ class EGAUploader(object):
         return self.__upload_status_map.keys()
 
     def get_files(self, study_id):
-        if self.__upload_status_map.has_key(study_id):
+        if study_id in self.__upload_status_map:
             return self.__upload_status_map[study_id].values()
         return []
 

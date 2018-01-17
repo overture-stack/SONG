@@ -12,11 +12,11 @@ log = logging.getLogger("song.model")
 ###############################
 
 def get_optional_field(dic, field):
-    return dic[field] if dic.has_key(field) else None
+    return dic[field] if field in dic else None
 
 
 def get_required_field(dic, field):
-    if dic.has_key(field):
+    if field in dic:
         return dic[field]
     else:
         raise SongClientException("study.id.dne", "The field '{}' does not exist in {}".format(field, str(dic)))
@@ -73,7 +73,7 @@ class SongError(Exception):
     @classmethod
     def is_song_error(cls, data):
         for field in SongError.FIELDS:
-            if not data.has_key(field):
+            if field not in data:
                 return False
         return True
 

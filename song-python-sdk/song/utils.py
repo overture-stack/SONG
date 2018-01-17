@@ -52,7 +52,7 @@ def to_bean(item):
     """
     def convert(item):
         if isinstance(item, dict):
-            return type('jo', (), {k: convert(v) for k, v in item.iteritems()})
+            return type('bean', (), {k: convert(v) for k, v in item.items()})
         if isinstance(item, list):
             def yield_convert(item):
                 for index, value in enumerate(item):
