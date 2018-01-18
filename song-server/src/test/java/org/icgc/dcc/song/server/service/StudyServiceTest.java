@@ -18,6 +18,7 @@
  */
 package org.icgc.dcc.song.server;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.service.StudyService;
 import org.junit.Test;
@@ -32,6 +33,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
+@Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
@@ -60,6 +62,34 @@ public class StudyServiceTest {
     assertThat(service.isStudyExist(existentStudyId)).isTrue();
     val nonExistentStudyId = System.currentTimeMillis()+"something_different";
     assertThat(service.isStudyExist(nonExistentStudyId)).isFalse();
+  }
+
+  @Test
+  public void testReadWithChildren(){
+    val d = service.readWithChildren("ABC123");
+    assertThat(d.getDonors()).hasSize(1);
+
+    val donorWithSpecimens = d.getDonors().get(0);
+    assertThat(donorWithSpecimens.getDonor().getDonorId()).isEqualTo("DO1");
+    assertThat(donorWithSpecimens.getSpecimens()).hasSize(2);
+
+    val specimenWithSamples1 = donorWithSpecimens.getSpecimens().get(0);
+    assertThat(specimenWithSamples1.getSpecimen().getSpecimenId()).isEqualTo("SP1");
+    assertThat(specimenWithSamples1.getSamples()).hasSize(2);
+
+    val sample11 = specimenWithSamples1.getSamples().get(0);
+    assertThat(sample11.getSampleId()).isEqualTo("SA1");
+
+    val sample12 = specimenWithSamples1.getSamples().get(1);
+    assertThat(sample12.getSampleId()).isEqualTo("SA11");
+
+
+    val specimenWithSamples2 = donorWithSpecimens.getSpecimens().get(1);
+    assertThat(specimenWithSamples2.getSpecimen().getSpecimenId()).isEqualTo("SP2");
+    assertThat(specimenWithSamples2.getSamples()).hasSize(1);
+
+    val sample21 = specimenWithSamples2.getSamples().get(0);
+    assertThat(sample21.getSampleId()).isEqualTo("SA21");
   }
 
 }

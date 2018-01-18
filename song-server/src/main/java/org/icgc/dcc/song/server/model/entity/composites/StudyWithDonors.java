@@ -36,8 +36,8 @@ public class StudyWithDonors extends Study {
     }
 
     public void setDonors(List<DonorWithSpecimens> donors) {
-        donors.clear();
-        donors.addAll(donors);
+        this.donors.clear();
+        this.donors.addAll(donors);
     }
 
 }
