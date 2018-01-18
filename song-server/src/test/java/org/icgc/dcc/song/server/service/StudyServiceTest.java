@@ -67,10 +67,11 @@ public class StudyServiceTest {
   @Test
   public void testReadWithChildren(){
     val d = service.readWithChildren("ABC123");
-    assertThat(d.getDonors()).hasSize(1);
+    assertThat(d.getDonors().size()).isGreaterThanOrEqualTo(1);
 
-    val donorWithSpecimens = d.getDonors().get(0);
-    assertThat(donorWithSpecimens.getDonor().getDonorId()).isEqualTo("DO1");
+    val opt = d.getDonors().stream().filter(x -> x.getDonor().getDonorId().equals("DO1")).findFirst();
+    assertThat(opt.isPresent()).isTrue();
+    val donorWithSpecimens = opt.get();
     assertThat(donorWithSpecimens.getSpecimens()).hasSize(2);
 
     val specimenWithSamples1 = donorWithSpecimens.getSpecimens().get(0);
