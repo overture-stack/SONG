@@ -47,16 +47,13 @@ public class LegacyEntityServiceTest {
     val analysisId = "AN1";
     val gnosId = analysisId;
     val entities = legacyEntityService.getEntitiesByGnosId(gnosId,2000, 0).getContent();
-    assertThat(entities).hasSize(2);
-    LegacyEntity entity1;
-    LegacyEntity entity2;
-    if (entities.get(0).getId().equals("FI1")){
-      entity1 = entities.get(0);
-      entity2 = entities.get(1);
-    } else {
-      entity2 = entities.get(0);
-      entity1 = entities.get(1);
-    }
+    assertThat(entities.size()).isGreaterThanOrEqualTo(2);
+    val opt1 = entities.stream().filter(x -> x.getId().equals("FI1")).findFirst();
+    val opt2 = entities.stream().filter(x -> x.getId().equals("FI2")).findFirst();
+    assertThat(opt1.isPresent()).isTrue();
+    assertThat(opt2.isPresent()).isTrue();
+    LegacyEntity entity1 = opt1.get();
+    LegacyEntity entity2 = opt2.get();
 
     assertThat(entity1.getAccess()).isEqualTo("open");
     assertThat(entity1.getFileName()).isEqualTo("ABC-TC285G7-A5-ae3458712345.bam");
