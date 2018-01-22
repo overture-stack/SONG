@@ -22,6 +22,7 @@
 import json
 import os
 import time
+from enum import Enum
 
 
 def convert_to_url_param_list(delimeter='=', **kwargs):
@@ -77,22 +78,91 @@ def to_pretty_json_string(json_data_string):
     return json.dumps(json.loads(json_data_string), indent=4, sort_keys=True)
 
 
-def to_bean(item):
+def repeat(value, repeat_number):
+    out = ""
+    for i in range(0, repeat_number):
+        out += value
+    return out
+
+
+def tab_repeat(repeat_number):
+    return repeat("\t", repeat_number)
+
+
+def whitespace_repeat(repeat_number):
+    return repeat(" ", repeat_number)
+
+
+class Stack:
+    def __init__(self):
+        self.items = []
+
+    def isEmpty(self):
+        return self.items == []
+
+    def push(self, item):
+        self.items.append(item)
+
+    def pop(self):
+        return self.items.pop()
+
+    def peek(self):
+        return self.items[len(self.items) - 1]
+
+    def size(self):
+        return len(self.items)
+
+
+class BeanType(type):
+
+    def __call__(self, *args, **kwds):
+        out = super().__call__(*args, **kwds)
+        type_name = args[0]
+        self.__class__.__name__ = type_name
+        return out
+
+
+class DataType(Enum):
+    DICT = 0,
+    LIST = 1,
+    STRING = 3,
+    NUMBER = 4
+
+
+    @classmethod
+    def resolve(cls, raw_data):
+        if isinstance(raw_data, dict):
+            return DataType.DICT
+        elif isinstance(raw_data, list):
+            return DataType.LIST
+        elif isinstance(raw_data, "".__class__):
+            return DataType.STRING
+        elif raw_data >= 0 or raw_data < 0:
+            return DataType.NUMBER
+        else:
+            raise Exception("should not be here: {}".format(raw_data))
+
+
+def to_bean(type_name, object):
     """
     Convert a dictionary to an object (recursive).
     """
-    def convert(item):
+    def convert(type_name, item):
         if isinstance(item, dict):
-            return type('bean', (), {k: convert(v) for k, v in item.items()})
+            obj = BeanType(type_name, (), {k: convert(create_type_name(k), v) for k, v in item.items()})
+            return obj
         if isinstance(item, list):
             def yield_convert(item):
                 for index, value in enumerate(item):
-                    yield convert(value)
+                    yield convert(type_name+"_"+str(index), value)
             return list(yield_convert(item))
         else:
             return item
 
-    return convert(item)
+    def create_type_name(key_text):
+        return "_".join( word[0].upper() + word[1:] for word in key_text.split())
+
+    return convert(type_name, object)
 
 
 def check_song_state(expression, error_id, formatted_message, *args):
