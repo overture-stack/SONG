@@ -121,6 +121,36 @@ class BeanType(type):
         self.__class__.__name__ = type_name
         return out
 
+    def to_dict(self):
+        out = {}
+        for k,v in self.__dict__.items():
+            if not k.startswith("__"):
+                out[k] = self._proc(v)
+        return out
+
+    def _proc(self, item ):
+        if isinstance(item, BeanType):
+            return item.to_dict()
+        elif isinstance(item, list):
+            out = []
+            for x in item:
+                out.append(self._proc(x))
+            return out
+        else:
+            return item
+
+    def __repr__(self):
+        return self.to_pretty_string()
+
+    def __str__(self):
+        return self.to_pretty_string()
+
+    def to_pretty_string(self):
+        return json.dumps(self.to_dict(), indent=4)
+
+    def display(self):
+        print(self.to_pretty_string())
+
 
 class DataType(Enum):
     DICT = 0,
