@@ -23,7 +23,7 @@ import logging
 from abc import abstractmethod
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from overture_song import utils
 from overture_song.utils import check_state
@@ -255,6 +255,13 @@ class DataField(object):
                         self.name, t, type(value), value)
 
 
+"""
+    Validation decorator that intercepts "setting" of properties/attributes defined by the @dataclass decorator. 
+    Once intercepted, it validates the input value to set against predefined rules, encapsulated in a DataField class
+"""
+
+#TODO: Update implementation to process dataclass definition. Should extract properties, their types, if they are a
+# list or not, if they are required or optional
 class validation(object):
     def __init__(self, *datafields):
         self.datafields = list(datafields)
@@ -262,6 +269,7 @@ class validation(object):
         check_state(len(self.datafields) > 0, "Must define atleast one datafield")
         self.name_type_map = {}
         for datafield in self.datafields:
+            utils.check_type(datafield, DataField)
             if datafield.name not in self.name_type_map:
                 self.name_type_map[datafield.name] = {}
             for t in datafield.types:
@@ -307,7 +315,16 @@ class validation(object):
                 if datafield_name in name_type_map:
                     for t, d in name_type_map[datafield_name].items():
                         d.validate(value)
-                object.__setattr__(self, datafield_name, value)
+                if datafield_name.startswith('_'):
+                    object.__setattr__(self, datafield_name, value)
+                else:
+                    if datafield_name not in Cls.__dict__.keys():
+                        raise AttributeError(
+                            "The field '{}' is not an attribute of '{}'".format(datafield_name, Cls.__name__))
+                    instance = object.__getattribute__(self, '_instance')
+                    object.__setattr__(instance, datafield_name, value)
+
+
 
             def __str__(self):
                 return str(self._instance)
@@ -325,10 +342,10 @@ class Analysis(Entity, Validatable):
     analysisState: str = None
 
     # TODO: add typing to this. should be a list of type Sample
-    sample: list = None
+    sample: list = field(repr=True, default=[])
 
     # TODO: add typing to this. should be a list of type File
-    file: list = None
+    file: list = field(repr=True, default=[])
 
     @classmethod
     def builder(cls):
