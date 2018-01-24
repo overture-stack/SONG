@@ -219,6 +219,9 @@ class Entity(object):
     def to_json(self):
         return json.dumps(self.__dict__)
 
+    def __str__(self):
+        return self.to_json()
+
 
 class DataField(object):
     def __init__(self, name, *types, required=True, multiple=False):
@@ -285,20 +288,20 @@ class validation(object):
         name_type_map = self.name_type_map
         datafields = self.datafields
 
-        class Validator(object):
+        class Validator(Cls):
 
             SPECIAL_FIELD = '__dataclass_fields__'
+            _INTERNAL_DICT = Cls.__dict__[SPECIAL_FIELD]
 
             def __init__(self, *args, **kwargs):
 
-                self._instance = Cls(*args, **kwargs)
+                Cls.__init__(self, *args, **kwargs)
                 check_state(Validator.SPECIAL_FIELD in Cls.__dict__,
                             "Decorator can only process dataclasses")
-                self._internal_dict = Cls.__dict__[Validator.SPECIAL_FIELD]
                 self._check_validator()
 
             def _check_validator(self):
-                available_fields = self._internal_dict.keys()
+                available_fields = Validator._INTERNAL_DICT.keys()
                 undefined_set = set()
 
                 for d in datafields:
@@ -315,19 +318,11 @@ class validation(object):
                 if datafield_name in name_type_map:
                     for t, d in name_type_map[datafield_name].items():
                         d.validate(value)
-                if datafield_name.startswith('_'):
-                    object.__setattr__(self, datafield_name, value)
-                else:
-                    if datafield_name not in Cls.__dict__.keys():
-                        raise AttributeError(
-                            "The field '{}' is not an attribute of '{}'".format(datafield_name, Cls.__name__))
-                    instance = object.__getattribute__(self, '_instance')
-                    object.__setattr__(instance, datafield_name, value)
+                if datafield_name not in Cls.__dict__.keys():
+                    raise AttributeError(
+                        "The field '{}' is not an attribute of '{}'".format(datafield_name, Cls.__name__))
+                object.__setattr__(self, datafield_name, value)
 
-
-
-            def __str__(self):
-                return str(self._instance)
 
         return Validator
 
@@ -342,10 +337,10 @@ class Analysis(Entity, Validatable):
     analysisState: str = None
 
     # TODO: add typing to this. should be a list of type Sample
-    sample: list = field(repr=True, default=[])
+    sample: list = field(repr=True, default=None)
 
     # TODO: add typing to this. should be a list of type File
-    file: list = field(repr=True, default=[])
+    file: list = field(repr=True, default=None)
 
     @classmethod
     def builder(cls):
