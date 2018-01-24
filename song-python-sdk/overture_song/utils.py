@@ -22,6 +22,7 @@
 import json
 import os
 import time
+from collections import OrderedDict
 from enum import Enum
 
 
@@ -91,6 +92,52 @@ def tab_repeat(repeat_number):
 
 def whitespace_repeat(repeat_number):
     return repeat(" ", repeat_number)
+
+
+"""
+    ###############
+    ## Description
+    ###############
+    Builder class that takes a class decorated with the @dataclass decorator, and automatically 
+    generates 'with_<member_variable>(self, value)' setter methods. The construction of the input class type 
+    (the dataclass) is constructed and returned when the 'build()' method is called.
+    
+    ###############
+    ## Issues
+    ###############
+    Since the methods are generated dynamically and after PyCharm indexes class attributes (i.e method names),
+    the intellisense feature in PyCharm (and possibly any other IDE) will not work for Builder object. For instance, 
+    the builder for a simple dataclass such as  Person(first_name:str, last_name:str), would not have intellisense
+    available for Builder(Person).with_first_name("my first_name"), however would run as expected. 
+    Instead, the developer would have to reference the Person class definition and deduce the with_ setter name.  
+"""
+class Builder(object):
+
+    def __init__(self, class_type : type):
+        self.__members = OrderedDict()
+        self.__class_type = class_type
+        if '__dataclass_fields__' in class_type.__dict__:
+            dd = class_type.__dict__['__dataclass_fields__']
+            self.__generate_with_methods(dd)
+
+    def __generate_docs(self, dataclass_fields_dict):
+        a = ", ".join(list(map(lambda x: "with_"+x.name+":"+x.type.__name__, dataclass_fields_dict.values())))
+        self.__doc__ = "Builder({})".format(a)
+
+    def __generate_with_methods(self, dataclass_fields_dict):
+        for k,v in dataclass_fields_dict.items():
+            method_name = "with_"+k
+            self.__members[k] = None
+            def new_func(key):
+                def setter(value):
+                    self.__members[key] = value
+                    return self
+                return setter
+            setattr(self, method_name, new_func(k))
+
+    def build(self):
+        return self.__class_type(*(list(self.__members.values())))
+
 
 
 class Stack:
@@ -222,6 +269,10 @@ def check_type(instance, class_type):
     check_state(isinstance(instance, class_type),
                 "The input instance is not of type '{}'",
                 class_type.__class__.__name__)
+
+
+def is_none_or_empty(value:str):
+    return value is '' or value is None
 
 
 class SongClientException(Exception):

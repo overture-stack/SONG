@@ -20,9 +20,15 @@
 #
 
 import logging
+from abc import abstractmethod
+
+import json
+from dataclasses import dataclass
 
 from overture_song import utils
-from overture_song.utils import SongClientException
+from overture_song.utils import check_state
+from overture_song.utils import SongClientException, Builder
+from typing import *
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.model")
@@ -42,13 +48,13 @@ def get_required_field(dic, field):
     else:
         raise SongClientException("study.id.dne", "The field '{}' does not exist in {}".format(field, str(dic)))
 
+
 ################################
 #  Models
 ################################
 
 
 class Study(object):
-
     def __init__(self, studyId=None, name=None, organization=None, description=None):
         self.studyId = studyId
         self.name = name
@@ -69,7 +75,6 @@ class Study(object):
 
 
 class SongError(Exception):
-
     FIELDS = ['stackTrace',
               'errorId',
               'httpStatusName',
@@ -106,7 +111,6 @@ class SongError(Exception):
 
 
 class ApiConfig(object):
-
     def __init__(self, server_url, study_id, access_token, debug=False):
         self.__server_url = server_url
         self.__study_id = study_id
@@ -131,7 +135,6 @@ class ApiConfig(object):
 
 
 class ManifestEntry(object):
-
     def __init__(self, fileId, fileName, md5sum):
         self.fileId = fileId
         self.fileName = fileName
@@ -150,7 +153,6 @@ class ManifestEntry(object):
 
 
 class Manifest(object):
-
     def __init__(self, analysis_id, manifest_entries=[]):
         self.analysis_id = analysis_id
         self.entries = manifest_entries
@@ -164,3 +166,236 @@ class Manifest(object):
     def __str__(self):
         return "{}\t\t\n".format(self.analysis_id) + \
                "\n".join(map(lambda x: str(x), self.entries))
+
+
+class Validatable(object):
+    @abstractmethod
+    def validate(self):
+        pass
+
+    @classmethod
+    def validate_string(cls, value: str):
+        utils.check_type(value, str)
+
+    @classmethod
+    def validate_int(cls, value: int):
+        utils.check_type(value, int)
+
+    @classmethod
+    def validate_float(cls, value: float):
+        utils.check_type(value, float)
+
+    @classmethod
+    def validate_not_none(cls, value: float):
+        check_state(value is not None, "The input value cannot be None")
+
+    @classmethod
+    def validate_string_not_empty_or_none(cls, value: str):
+        Validatable.validate_string(value)
+        Validatable.validate_not_none(value)
+        check_state(value, "The input string value cannot be empty")
+
+    @classmethod
+    def validate_required_string(cls, value: str):
+        Validatable.validate_string_not_empty_or_none(value)
+
+    def required(cls, original_function):
+        def new_function(value):
+            out = original_function(value)
+            check_state(out is not None, "The input value cannot be None")
+
+        return new_function
+
+    def string(cls, original_function):
+        def new_function(value):
+            out = original_function(value)
+            check_state(out is not None, "The input value cannot be None")
+
+        return new_function
+
+
+class Entity(object):
+
+    def to_json(self):
+        return json.dumps(self.__dict__)
+
+
+class DataField(object):
+    def __init__(self, name, *types, required=True, multiple=False):
+        self.types = types
+        self.name = name
+        self.required = required
+        self.multiple = multiple
+
+    def validate(self, value):
+        if self.multiple:
+            self._validate_single(list, value)
+            if self.required:
+                check_state(len(value) > 0,
+                            "The required list datafield '{}' was supplied an empty array",
+                            self.name)
+            for t in self.types:
+                for item in value:
+                    self._validate_single(t, item)
+        else:
+            for t in self.types:
+                self._validate_single(t, value)
+
+    def _validate_single(self, t, value):
+        if self.required:
+            check_state(value is not None, "The datafield '{}' is required", self.name)
+
+        if value is not None:
+            if self.required:
+                if t is str:
+                    check_state(value, "The required string datafield '{}' was supplied an empty string ",
+                                self.name)
+            check_state(isinstance(value, t),
+                        "The datafield '{}' is of '{}' type, but was supplied a value of type '{}' with value '{}'",
+                        self.name, t, type(value), value)
+
+
+class validation(object):
+    def __init__(self, *datafields):
+        self.datafields = list(datafields)
+        utils.check_type(self.datafields, list)
+        check_state(len(self.datafields) > 0, "Must define atleast one datafield")
+        self.name_type_map = {}
+        for datafield in self.datafields:
+            if datafield.name not in self.name_type_map:
+                self.name_type_map[datafield.name] = {}
+            for t in datafield.types:
+                t_name = t.__name__
+
+                if t_name in self.name_type_map[datafield.name]:
+                    raise Exception(
+                        "Collision: The datafield definition '{}' already exists as '{}' for the type '{}'".format(
+                            datafield, self.name_type_map[datafield.name][t_name], t_name))
+                self.name_type_map[datafield.name][t_name] = datafield
+
+    def __call__(self, Cls):
+        name_type_map = self.name_type_map
+        datafields = self.datafields
+
+        class Validator(object):
+
+            SPECIAL_FIELD = '__dataclass_fields__'
+
+            def __init__(self, *args, **kwargs):
+
+                self._instance = Cls(*args, **kwargs)
+                check_state(Validator.SPECIAL_FIELD in Cls.__dict__,
+                            "Decorator can only process dataclasses")
+                self._internal_dict = Cls.__dict__[Validator.SPECIAL_FIELD]
+                self._check_validator()
+
+            def _check_validator(self):
+                available_fields = self._internal_dict.keys()
+                undefined_set = set()
+
+                for d in datafields:
+                    if d.name not in available_fields:
+                        undefined_set.add(d.name)
+                num_undefined = len(undefined_set)
+                check_state(num_undefined == 0,
+                            "The {} datafields [{}] do not exist in the class definition for '{}'",
+                            num_undefined,
+                            ",".join(undefined_set),
+                            Cls.__name__)
+
+            def __setattr__(self, datafield_name, value):
+                if datafield_name in name_type_map:
+                    for t, d in name_type_map[datafield_name].items():
+                        d.validate(value)
+                object.__setattr__(self, datafield_name, value)
+
+            def __str__(self):
+                return str(self._instance)
+
+        return Validator
+
+
+@validation(
+    DataField("analysisId", str),
+    DataField("file", str, multiple=True))
+@dataclass(frozen=False)
+class Analysis(Entity, Validatable):
+    analysisId: str = None
+    study: str = None
+    analysisState: str = None
+
+    # TODO: add typing to this. should be a list of type Sample
+    sample: list = None
+
+    # TODO: add typing to this. should be a list of type File
+    file: list = None
+
+    @classmethod
+    def builder(cls):
+        return Builder(Analysis)
+
+    @classmethod
+    def from_json(cls, json_string):
+        pass
+
+    def validate(self):
+        pass
+
+
+class Metadata(object):
+    def __init__(self):
+        self._info = {}
+
+    def set_info(self, key: str, value: Any):
+        self._info[key] = value
+
+    def add_info(self, data: dict):
+        if utils.is_none_or_empty(data):
+            return
+        self._info.update(data)
+
+    @property
+    def info(self):
+        return self._info
+
+
+class Experiment(Metadata):
+    pass
+
+
+@dataclass(frozen=False)
+class VariantCall(Experiment, Validatable):
+    analysisId: str = None
+    variantCallingTool: str = None
+    matchedNormalSampleSubmitterId: str = None
+
+    @classmethod
+    def builder(cls):
+        return Builder(Analysis)
+
+    def validate(self):
+        pass
+
+
+@dataclass(frozen=False)
+class SequencingRead(Experiment, Validatable):
+    analysisId: str = None
+    aligned: bool = None
+    alignmentTool: str = None
+    insertSize: int = None
+    libraryStrategy: str = None
+    pairedEnd: bool = None
+    referenceGenome: str = None
+
+    @classmethod
+    def builder(cls):
+        return Builder(Analysis)
+
+    def validate(self):
+        pass
+
+
+@dataclass(frozen=False)
+class SequencingReadAnalysis(Analysis):
+    # TODO: add typing to this. should be a list of type File
+    experiment: SequencingRead = None
