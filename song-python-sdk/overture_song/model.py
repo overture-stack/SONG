@@ -21,6 +21,8 @@
 
 import logging
 
+from dataclasses import dataclass
+
 from overture_song import utils
 from overture_song.utils import SongClientException
 
@@ -84,35 +86,19 @@ class SongError(Exception):
             return "[SONG_SERVER_ERROR] {} @ {}: {}".format(self.errorId, self.timestamp, self.message)
 
 
+@dataclass(frozen=True)
 class ApiConfig(object):
-    def __init__(self, server_url, study_id, access_token, debug=False):
-        self.__server_url = server_url
-        self.__study_id = study_id
-        self.__access_token = access_token
-        self.__debug = debug
-
-    @property
-    def server_url(self):
-        return self.__server_url
-
-    @property
-    def study_id(self):
-        return self.__study_id or 'ABC123'
-
-    @property
-    def access_token(self):
-        return self.__access_token
-
-    @property
-    def debug(self):
-        return self.__debug
+    server_url: str
+    study_id: str
+    access_token: str
+    debug: bool = False
 
 
+@dataclass(frozen=True)
 class ManifestEntry(object):
-    def __init__(self, fileId, fileName, md5sum):
-        self.fileId = fileId
-        self.fileName = fileName
-        self.md5sum = md5sum
+    fileId: str
+    fileName: str
+    md5sum: str
 
     @classmethod
     def create_manifest_entry(cls, data):
