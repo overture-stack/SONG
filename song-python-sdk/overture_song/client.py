@@ -26,16 +26,16 @@ import os
 import overture_song.utils as utils
 from overture_song.model import Study, ManifestEntry, Manifest
 from overture_song.utils import SongClientException
-from overture_song.rest import BeanRest
+from overture_song.rest import ObjectRest
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")
 
 
-def beanify(original_function):
+def objectize(original_function):
     def new_function(*args, **kwargs):
         response = original_function(*args, **kwargs)
-        return utils.to_bean(response)
+        return utils.to_generic_object(response)
     return new_function
 
 
@@ -43,7 +43,7 @@ class Api(object):
 
     def __init__(self, config):
         self.__config = config
-        self.__rest = BeanRest(access_token=config.access_token, debug=config.debug)
+        self.__rest = ObjectRest(access_token=config.access_token, debug=config.debug)
         self.__endpoints = Endpoints(config.server_url)
 
     @property
@@ -174,8 +174,8 @@ class ManifestClient(object):
 
     def create_manifest(self, analysis_id):
         manifest = Manifest(analysis_id)
-        for file_bean in self.__api.get_analysis_files(analysis_id):
-            manifest_entry = ManifestEntry.create_manifest_entry(file_bean)
+        for file_object in self.__api.get_analysis_files(analysis_id):
+            manifest_entry = ManifestEntry.create_manifest_entry(file_object)
             manifest.add_entry(manifest_entry)
         return manifest
 

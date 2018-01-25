@@ -224,9 +224,10 @@ class DataField(object):
                 check_state(len(value) > 0,
                             "The required list datafield '{}' was supplied an empty array",
                             self.name)
-            for t in self.types:
-                for item in value:
-                    self._validate_single(t, item)
+            if value is not None:
+                for t in self.types:
+                    for item in value:
+                        self._validate_single(t, item)
         else:
             for t in self.types:
                 self._validate_single(t, value)

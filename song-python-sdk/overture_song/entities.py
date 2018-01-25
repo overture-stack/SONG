@@ -35,7 +35,7 @@ class Metadata(Entity):
         self.info[key] = value
 
     def add_info(self, data: dict):
-        if utils.is_none_or_empty(data):
+        if data is None:
             return
         self.info.update(data)
 

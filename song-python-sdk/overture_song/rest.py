@@ -32,13 +32,13 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.rest")
 
 
-def intercept_response(orig_function, debug=False, convert_to_json=False, convert_to_bean=False):
+def intercept_response(orig_function, debug=False, convert_to_json=False, convert_to_generic_object=False):
 
     def new_function(*args, **kwargs):
         response = orig_function(*args, **kwargs)
         if response.ok:
-            if convert_to_bean:
-                return utils.to_bean(response.json())
+            if convert_to_generic_object:
+                return utils.to_generic_object(response.json())
             elif convert_to_json:
                 return response.json()
             else:
@@ -67,7 +67,7 @@ class Rest(object):
         return intercept_response(method,
                                   debug=self.debug,
                                   convert_to_json=False,
-                                  convert_to_bean=False)
+                                  convert_to_generic_object=False)
 
     def get(self, url):
         return self._intercept(requests.get)\
@@ -102,10 +102,10 @@ class JsonRest(Rest):
         return intercept_response(method,
                                   debug=self.debug,
                                   convert_to_json=True,
-                                  convert_to_bean=False)
+                                  convert_to_generic_object=False)
 
 
-class BeanRest(Rest):
+class ObjectRest(Rest):
 
     def __init__(self, *args, **kwargs):
         Rest.__init__(self,*args, **kwargs)
@@ -113,7 +113,7 @@ class BeanRest(Rest):
     def _intercept(self, method):
         return intercept_response(method,
                                   debug=self.debug,
-                                  convert_to_bean=True)
+                                  convert_to_generic_object=True)
 
 
 class HeaderGenerator(object):

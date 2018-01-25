@@ -23,7 +23,6 @@ import json
 import os
 import time
 from collections import OrderedDict
-from enum import Enum
 
 
 def convert_to_url_param_list(delimeter='=', **kwargs):
@@ -65,14 +64,6 @@ def write_object(obj, output_file_path, overwrite=False):
 
     with open(output_file_path, 'w') as fh:
         fh.write(str(obj))
-
-
-def to_json(obj):
-    return json.loads(to_dict(obj))
-
-
-def to_dict(obj):
-    return obj.__dict__
 
 
 def to_pretty_json_string(json_data_string):
@@ -139,7 +130,6 @@ class Builder(object):
         return self.__class_type(*(list(self.__members.values())))
 
 
-
 class Stack:
     def __init__(self):
         self.items = []
@@ -160,7 +150,7 @@ class Stack:
         return len(self.items)
 
 
-class BeanType(type):
+class GenericObjectType(type):
 
     def __call__(self, *args, **kwds):
         out = super().__call__(*args, **kwds)
@@ -176,7 +166,7 @@ class BeanType(type):
         return out
 
     def _proc(self, item ):
-        if isinstance(item, BeanType):
+        if isinstance(item, GenericObjectType):
             return item.to_dict()
         elif isinstance(item, list):
             out = []
@@ -199,34 +189,13 @@ class BeanType(type):
         print(self.to_pretty_string())
 
 
-class DataType(Enum):
-    DICT = 0,
-    LIST = 1,
-    STRING = 3,
-    NUMBER = 4
-
-
-    @classmethod
-    def resolve(cls, raw_data):
-        if isinstance(raw_data, dict):
-            return DataType.DICT
-        elif isinstance(raw_data, list):
-            return DataType.LIST
-        elif isinstance(raw_data, "".__class__):
-            return DataType.STRING
-        elif raw_data >= 0 or raw_data < 0:
-            return DataType.NUMBER
-        else:
-            raise Exception("should not be here: {}".format(raw_data))
-
-
-def to_bean(type_name, object):
+def to_generic_object(type_name, object):
     """
     Convert a dictionary to an object (recursive).
     """
     def convert(type_name, item):
         if isinstance(item, dict):
-            obj = BeanType(type_name, (), {k: convert(create_type_name(k), v) for k, v in item.items()})
+            obj = GenericObjectType(type_name, (), {k: convert(create_type_name(k), v) for k, v in item.items()})
             return obj
         if isinstance(item, list):
             def yield_convert(item):
@@ -269,10 +238,6 @@ def check_type(instance, class_type):
     check_state(isinstance(instance, class_type),
                 "The input instance is not of type '{}'",
                 class_type.__class__.__name__)
-
-
-def is_none_or_empty(value:str):
-    return value is '' or value is None
 
 
 class SongClientException(Exception):
