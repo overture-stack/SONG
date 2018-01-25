@@ -207,6 +207,7 @@ class SongTests(unittest.TestCase):
         file.fileType = "VCF"
         file.objectId = "myObjectId"
         file.set_info("randomField", "someValue")
+        file.sdfsdfsdf = 234243
 
         actual_dict = json.loads(file.to_json())
         self.assertDictEqual(actual_dict, expected_dict)
@@ -464,6 +465,86 @@ class SongTests(unittest.TestCase):
 
         actual_dict = json.loads(a.to_json())
         self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_person_missing_fields(self):
+        error = False
+        try:
+            s = PersonMissingFields()
+        except Exception as e:
+            print("\nException: {}".format(e))
+            error = True
+        self.assertTrue(error)
+
+    def test_strict_person_age_is_string(self):
+        error = False
+        s = StrictPerson()
+        try:
+            s.firstName = "John"
+            s.lastName = "Doe"
+            s.age = "sdf"
+        except Exception as e:
+            print("\nException: {}".format(e))
+            error = True
+        self.assertTrue(error)
+
+    def test_strict_person_non_defined_prop(self):
+        error = False
+        s = StrictPerson()
+        try:
+            s.firstName = "John"
+            s.lastName = "Doe"
+            s.age = 23
+            s.cars = ["mazda"]
+            s.non_defined_prop = "something"
+        except Exception as e:
+            print("\nException: {}".format(e))
+            error = True
+        self.assertTrue(error)
+
+    def test_lazy_person_non_defined_prop(self):
+        p = LazyPerson()
+        p.lastName = 234
+        p.non_defined_group = "something"
+
+
+
+
+
+
+@validation(
+    DataField("firstName", str, required=True),
+    DataField("age", int, required=False),
+    DataField("cars", str, required=False, multiple=True),
+    DataField("lastName", str, required=True))
+@dataclass(frozen=False)
+class PersonMissingFields(object):
+    cars: str = None
+
+
+
+
+@validation(
+    DataField("firstName", str, required=True),
+    DataField("age", int, required=False),
+    DataField("cars", str, required=False, multiple=True),
+    DataField("lastName", str, required=True))
+@dataclass(frozen=False, init=False)
+class StrictPerson(object):
+    firstName: str = None
+    lastName: str = None
+    cars: str = None
+    age: int = None
+
+
+
+
+
+class LazyPerson(object):
+    firstName: str = None
+    lastName: str = None
+    cars: str = None
+    age: int = None
+
 
 
 if __name__ == '__main__':
