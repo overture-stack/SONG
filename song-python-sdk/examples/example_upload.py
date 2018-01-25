@@ -61,37 +61,37 @@ def upload(config):
     file2.set_info("randomFile2Field", "someFile2Value")
 
     #SequencingRead
-    sr = SequencingRead()
-    sr.analysisId = "an1"
-    sr.aligned = True
-    sr.alignmentTool = "myAlignmentTool"
-    sr.pairedEnd = True
-    sr.insertSize = 0
-    sr.libraryStrategy = "WXS"
-    sr.referenceGenome = "GR37"
-    sr.set_info("randomSRField", "someSRValue")
+    sequencing_read_experiment = SequencingRead()
+    sequencing_read_experiment.analysisId = "an1"
+    sequencing_read_experiment.aligned = True
+    sequencing_read_experiment.alignmentTool = "myAlignmentTool"
+    sequencing_read_experiment.pairedEnd = True
+    sequencing_read_experiment.insertSize = 0
+    sequencing_read_experiment.libraryStrategy = "WXS"
+    sequencing_read_experiment.referenceGenome = "GR37"
+    sequencing_read_experiment.set_info("randomSRField", "someSRValue")
 
-    builder = SimplePayloadBuilder(donor,specimen, sample, [file1, file2], sr)
+    builder = SimplePayloadBuilder(donor,specimen, sample, [file1, file2], sequencing_read_experiment)
 
-    print("Uploading payload...")
+    print("-----------------------Uploading payload-------------------------")
     upload_response = api.upload(json_payload=builder.to_dict(),is_async_validation=False)
     print("upload_response: \n{}".format(upload_response))
     sleep(4)
 
-    print("\n\n\nCheck status....")
+    print("\n\n\n-------------------Check status----------------------------")
     status_response = api.status(upload_response.uploadId)
     print("status_response: \n{}".format(status_response))
     sleep(4)
 
-    print("\n\n\nSaving...")
+    print("\n\n\n----------------------Saving-------------------------------")
     save_response = api.save(status_response.uploadId, ignore_analysis_id_collisions=True)
     print("save_response: \n{}".format(save_response))
     sleep(4)
 
     manifest_client = ManifestClient(api)
-    print("\n\n\nCreating manifest....")
+    print("\n\n\n-----------------Creating manifest-------------------------")
     manifest = manifest_client.create_manifest(save_response.analysisId)
-    print("manifest: \n{}".format(manifest))
+    print("manifest_file_contents: \n{}".format(manifest))
 
 
 
