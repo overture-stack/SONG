@@ -1,13 +1,12 @@
 import json
 from typing import Any, Type
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from overture_song import utils
 from overture_song.validation import Validatable
 from overture_song.utils import Builder
-from abc import abstractmethod
 from typing import List
+from dataclasses import _isdataclass, asdict
 
 
 class Entity(object):
@@ -15,9 +14,11 @@ class Entity(object):
     def to_json(self):
         return json.dumps(self.to_dict(), indent=4)
 
-    @abstractmethod
     def to_dict(self):
-        pass
+        if _isdataclass(self):
+            return asdict(self)
+        else:
+            raise NotImplemented("not implemented for non-dataclass object")
 
     def __str__(self):
         return self.to_json()
@@ -38,8 +39,6 @@ class Metadata(Entity):
             return
         self.info.update(data)
 
-    def to_dict(self):
-        return { "info" : self.info }
 
 @dataclass(frozen=False)
 class Study(Metadata, Validatable):
@@ -69,17 +68,6 @@ class Study(Metadata, Validatable):
             description=study_obj.description,
             organization=study_obj.organization)
 
-    def to_dict(self):
-        this_dict = {
-            "studyId" : self.studyId,
-            "name" : self.name,
-            "organization" : self.organization,
-            "description" : self.description
-        }
-        this_dict.update(super().to_dict())
-        return this_dict
-
-
 
 @dataclass(frozen=False)
 class File(Metadata, Validatable):
@@ -95,20 +83,6 @@ class File(Metadata, Validatable):
     def validate(self):
         raise NotImplemented("not implemented")
 
-    def to_dict(self):
-        this_dict = {
-            "objectId": self.objectId,
-            "analysisId": self.analysisId,
-            "fileName": self.fileName,
-            "studyId": self.studyId,
-            "fileSize": self.fileSize,
-            "fileType": self.fileType,
-            "fileMd5sum": self.fileMd5sum,
-            "fileAccess": self.fileAccess,
-        }
-        this_dict.update(super().to_dict())
-        return this_dict
-
 
 @dataclass(frozen=False)
 class Sample(Metadata, Validatable):
@@ -119,17 +93,6 @@ class Sample(Metadata, Validatable):
 
     def validate(self):
         raise NotImplemented("not implemented")
-
-    def to_dict(self):
-        info_dict = super().to_dict()
-        this_dict = {
-            "sampleId" : self.sampleId,
-            "specimenId" : self.specimenId,
-            "sampleSubmitterId" : self.sampleSubmitterId,
-            "sampleType" : self.sampleType,
-        }
-        this_dict.update(info_dict)
-        return this_dict
 
 
 @dataclass(frozen=False)
@@ -143,18 +106,6 @@ class Specimen(Metadata, Validatable):
     def validate(self):
         raise NotImplemented("not implemented")
 
-    def to_dict(self):
-        info_dict = super().to_dict()
-        this_dict = {
-            "specimenId" : self.specimenId,
-            "donorId" : self.donorId,
-            "specimenSubmitterId" : self.specimenSubmitterId,
-            "specimenClass" : self.specimenClass,
-            "specimenType" : self.specimenType,
-        }
-        this_dict.update(info_dict)
-        return this_dict
-
 
 @dataclass(frozen=False)
 class Donor(Metadata, Validatable):
@@ -165,18 +116,6 @@ class Donor(Metadata, Validatable):
 
     def validate(self):
         raise NotImplemented("not implemented")
-
-    def to_dict(self):
-        info_dict = super().to_dict()
-        this_dict = {
-            "donorId" : self.donorId,
-            "donorSubmitterId" : self.donorSubmitterId,
-            "studyId" : self.studyId,
-            "donorGender" : self.donorGender,
-        }
-        this_dict.update(info_dict)
-        return this_dict
-
 
 
 @dataclass(frozen=False)
@@ -197,14 +136,6 @@ class CompositeEntity(Sample):
         s.specimenId = sample.specimenId
         return s
 
-    def to_dict(self):
-        this_dict = {}
-        this_dict.update(super().to_dict())
-        this_dict["specimen"] = self.specimen.to_dict()
-        this_dict["donor"] = self.donor.to_dict()
-        return this_dict
-
-
 
 @dataclass(frozen=False)
 class Experiment(Metadata):
@@ -219,15 +150,6 @@ class VariantCall(Experiment, Validatable):
 
     def validate(self):
         raise NotImplemented("not implemented")
-
-    def to_dict(self):
-        out = {
-            "analysisId" : self.analysisId,
-            "variantCallingTool" : self.variantCallingTool,
-            "matchedNormalSampleSubmitterId" : self.matchedNormalSampleSubmitterId,
-        }
-        out.update(super().to_dict())
-        return out
 
 
 @dataclass(frozen=False)
@@ -246,20 +168,6 @@ class SequencingRead(Experiment, Validatable):
 
     def validate(self):
         raise NotImplemented("not implemented")
-
-    def to_dict(self):
-        out = {
-            "analysisId" : self.analysisId,
-            "aligned" : self.aligned,
-            "alignmentTool" : self.alignmentTool,
-            "insertSize" : self.insertSize,
-            "libraryStrategy" : self.libraryStrategy,
-            "pairedEnd" : self.pairedEnd,
-            "referenceGenome" : self.referenceGenome,
-        }
-        out.update(super().to_dict())
-        return out
-
 
 
 # @validation(
@@ -292,15 +200,6 @@ class Analysis(Entity, Validatable):
     def validate(self):
         raise NotImplemented("not implemented")
 
-    def to_dict(self):
-        return {
-            "analysisId": self.analysisId,
-            "study": self.study,
-            "analysisState": self.analysisState,
-            "sample": list(map(lambda s: s.to_dict(), self.sample)),
-            "file": list(map(lambda f: f.to_dict(), self.file))
-        }
-
 
 @dataclass(frozen=False)
 class SequencingReadAnalysis(Analysis):
@@ -308,14 +207,6 @@ class SequencingReadAnalysis(Analysis):
 
     # TODO: add typing to this. should be a list of type File
     experiment: Type[SequencingRead] = None
-
-    def to_dict(self):
-        out = {
-            "experiment": self.experiment.to_dict(),
-            "analysisType" : self.analysisType
-        }
-        out.update(super().to_dict())
-        return out
 
 
 @dataclass(frozen=False)
@@ -325,10 +216,3 @@ class VariantCallAnalysis(Analysis):
     # TODO: add typing to this. should be a list of type File
     experiment: Type[VariantCall] = None
 
-    def to_dict(self):
-        out = {
-            "experiment": self.experiment.to_dict(),
-            "analysisType" : self.analysisType,
-        }
-        out.update(super().to_dict())
-        return out

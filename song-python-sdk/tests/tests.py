@@ -530,6 +530,48 @@ class SongTests(unittest.TestCase):
         s.cars = ["mazda", "something"]
         print("dict = {}".format(asdict(s)))
 
+    def test_to_dict_recursion(self):
+        d = Donor()
+        d.donorId = "DO1"
+        d.studyId = "Study1"
+        d.donorGender = "male"
+        d.donorSubmitterId = "dsId1"
+        d.set_info("randomDonorField", "someDonorValue")
+
+        sp = Specimen()
+        sp.specimenId = "sp1"
+        sp.donorId = "DO1"
+        sp.specimenClass = "Tumour"
+        sp.specimenSubmitterId = "sp_sub_1"
+        sp.specimenType = "Normal - EBV immortalized"
+        sp.set_info("randomSpecimenField", "someSpecimenValue")
+
+        sample = Sample()
+        sample.sampleId = "sa1"
+        sample.sampleSubmitterId = "ssId1"
+        sample.sampleType = "RNA"
+        sample.specimenId = "sp1"
+        sample.set_info("randomSampleField", "someSampleValue")
+
+        c = CompositeEntity.create_from_sample(sample)
+        c.specimen = sp
+        c.donor = d
+        c.set_info("randomCEField", "someCEValue")
+
+        recursive_dict = c.to_dict()
+        error = False
+        try :
+            non_recursive_dict = json.dumps(c.__dict__)
+        except Exception as e:
+            error = True
+            print("\nException: {}".format(e))
+
+        self.assertTrue(error)
+
+
+
+
+
 
 
 @validation(
