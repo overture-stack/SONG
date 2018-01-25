@@ -249,3 +249,19 @@ class SongClientException(Exception):
 
     def __str__(self):
         return "[SONG_CLIENT_EXCEPTION {} @ {}]: {}".format(self.error_id, self.timestamp, self.message)
+
+
+def _objectize2(name):
+    def wrap(original_function):
+        def new_function(*args, **kwargs):
+            response = original_function(*args, **kwargs)
+            return to_generic_object(name, response)
+        return new_function
+    return wrap
+
+def objectize(original_function):
+    name = GenericObjectType.__name__
+    def new_function(*args, **kwargs):
+        response = original_function(*args, **kwargs)
+        return to_generic_object(name, response)
+    return new_function

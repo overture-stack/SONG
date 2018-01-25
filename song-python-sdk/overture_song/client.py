@@ -24,20 +24,13 @@ import logging
 import os
 
 import overture_song.utils as utils
-from overture_song.model import ManifestEntry, Manifest
-from overture_song.utils import SongClientException
-from overture_song.rest import ObjectRest
 from overture_song.entities import Study
+from overture_song.model import ManifestEntry, Manifest
+from overture_song.rest import ObjectRest
+from overture_song.utils import SongClientException
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")
-
-
-def objectize(original_function):
-    def new_function(*args, **kwargs):
-        response = original_function(*args, **kwargs)
-        return utils.to_generic_object(response)
-    return new_function
 
 
 class Api(object):

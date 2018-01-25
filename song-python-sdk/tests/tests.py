@@ -22,13 +22,13 @@
 import hashlib
 import unittest
 
+from dataclasses import *
+
 from overture_song.entities import *
 from overture_song.model import *
-from overture_song.tools import FileUploadState, SimplePayloadBuilder
+from overture_song.tools import FileUploadState
 from overture_song.utils import *
 from overture_song.validation import DataField, validation
-from overture_song.client import Api, StudyClient
-from dataclasses import *
 from overture_song.validation import non_null
 
 
@@ -590,137 +590,103 @@ class SongTests(unittest.TestCase):
     ##################
     # Failing NON_NULL Tests
     ##################
+    @non_null(exclude=["c"])
+    def function_c(self, a,b,c):
+        pass
 
-#FAILING     @non_null(exclude=["c"])
-#FAILING     def function_c(self, a,b,c):
-#FAILING         pass
-#FAILING
-#FAILING     @non_null(exclude=["b"])
-#FAILING     def function_b(self, a,b,c):
-#FAILING         pass
-#FAILING
-#FAILING     @non_null(exclude=["a","c"])
-#FAILING     def function_a_c(self, a,b,c):
-#FAILING         pass
-#FAILING
-#FAILING     def test_non_null_c(self):
-#FAILING         self.function_c("1", "2", "3")
-#FAILING         self.function_c("1", "2", None)
-#FAILING         error_c = False
-#FAILING         try:
-#FAILING             self.function_c("1", None, "sdf")
-#FAILING         except Exception as e:
-#FAILING             print("Exception: {}".format(e))
-#FAILING             error_c = True
-#FAILING         self.assertTrue(error_c)
-#FAILING
-#FAILING     def test_non_null_b(self):
-#FAILING         self.function_b("1", "2", "3")
-#FAILING         self.function_b("1", None, "3")
-#FAILING         error = False
-#FAILING         try:
-#FAILING             self.function_b("1", "2", None)
-#FAILING         except Exception as e:
-#FAILING             print("Exception: {}".format(e))
-#FAILING             error = True
-#FAILING         self.assertTrue(error)
-#FAILING
-#FAILING     def test_non_null_a_c(self):
-#FAILING         self.function_a_c("1", "2", "3")
-#FAILING         self.function_a_c(None, "2", None)
-#FAILING         error = False
-#FAILING         try:
-#FAILING             self.function_a_c("1", None, "sdf")
-#FAILING         except Exception as e:
-#FAILING             print("Exception: {}".format(e))
-#FAILING             error = True
-#FAILING         self.assertTrue(error)
+    @non_null(exclude=["b"])
+    def function_b(self, a,b,c):
+        pass
 
+    @non_null(exclude=["a","c"])
+    def function_a_c(self, a,b,c):
+        pass
 
-    def test_song(self):
-        server_url = "some_server"
-        study_id = 'ABC123'
-        access_token = 'some token'
-        debug = True
+    def test_non_null_c(self):
+        self.function_c("1", "2", "3")
+        self.function_c("1", "2", None)
+        error_c = False
+        try:
+            self.function_c("1", None, "sdf")
+        except Exception as e:
+            print("Exception: {}".format(e))
+            error_c = True
+        self.assertTrue(error_c)
 
+    def test_non_null_b(self):
+        self.function_b("1", "2", "3")
+        self.function_b("1", None, "3")
+        error = False
+        try:
+            self.function_b("1", "2", None)
+        except Exception as e:
+            print("Exception: {}".format(e))
+            error = True
+        self.assertTrue(error)
 
-        config = ApiConfig(server_url,study_id, access_token, debug)
-        api = Api(config)
-        self.assertTrue(api.is_alive())
-        study_client = StudyClient(api)
-        if not study_client.has('ABC123'):
-            study_client.create(Study.create('ABC123'))
+    def test_non_null_a_c(self):
+        self.function_a_c("1", "2", "3")
+        self.function_a_c(None, "2", None)
+        error = False
+        try:
+            self.function_a_c("1", None, "sdf")
+        except Exception as e:
+            print("Exception: {}".format(e))
+            error = True
+        self.assertTrue(error)
 
-        donor = Donor()
-        donor.donorId = "DO1"
-        donor.studyId = "Study1"
-        donor.donorGender = "male"
-        donor.donorSubmitterId = "dsId1"
-        donor.set_info("randomDonorField", "someDonorValue")
+    def test_objectize(self):
+        obj = self.example_of_objectize()
+        error = False
+        try:
+            obj.not_defined_attribute
+        except Exception as e:
+            print('Exception: {}'.format(e))
+            error=True
+        self.assertTrue(error)
 
-        specimen = Specimen()
-        specimen.specimenId = "sp1"
-        specimen.donorId = "DO1"
-        specimen.specimenClass = "Tumour"
-        specimen.specimenSubmitterId = "sp_sub_1"
-        specimen.specimenType = "Normal - EBV immortalized"
-        specimen.set_info("randomSpecimenField", "someSpecimenValue")
+        print(obj.firstName)
+        print(obj.addresses[0])
+        print(obj.addresses[0].country)
+        print(obj.addresses[0].coordinates.longitude)
+        print("dump the object: \n{}".format(obj))
 
-        sample = Sample()
-        sample.sampleId = "sa1"
-        sample.sampleSubmitterId = "ssId1"
-        sample.sampleType = "RNA"
-        sample.specimenId = "sp1"
-        sample.set_info("randomSample1Field", "someSample1Value")
-
-        #File 1
-        file1 = File()
-        file1.analysisId = "an1"
-        file1.fileName = "myFilename1.txt"
-        file1.studyId = "Study1"
-        file1.fileAccess = "controlled"
-        file1.fileMd5sum = "myMd51"
-        file1.fileSize = 1234561
-        file1.fileType = "VCF"
-        file1.objectId = "myObjectId1"
-        file1.set_info("randomFile1Field", "someFile1Value")
-
-        #File 2
-        file2 = File()
-        file2.analysisId = "an1"
-        file2.fileName = "myFilename2.txt"
-        file2.studyId = "Study1"
-        file2.fileAccess = "controlled"
-        file2.fileMd5sum = "myMd52"
-        file2.fileSize = 1234562
-        file2.fileType = "VCF"
-        file2.objectId = "myObjectId2"
-        file2.set_info("randomFile2Field", "someFile2Value")
-
-        #SequencingRead
-        sr = SequencingRead()
-        sr.analysisId = "an1"
-        sr.aligned = True
-        sr.alignmentTool = "myAlignmentTool"
-        sr.pairedEnd = True
-        sr.insertSize = 0
-        sr.libraryStrategy = "WXS"
-        sr.referenceGenome = "GR37"
-        sr.set_info("randomSRField", "someSRValue")
+    @objectize
+    def example_of_objectize(self):
+        return {
+            "firstName" : "Rob",
+            "last_name" : "T",
+            "addresses" : [
+                {
+                    "country" : "canada",
+                    "coordinates": {
+                        "longitude" : 23,
+                        "latitude" : 9.03
+                    }
+                },
+                {
+                    "country" : "serbia",
+                    "coordinates": {
+                        "longitude" : 32,
+                        "latitude" : 73
+                    }
+                },
+                {
+                    "country" : "cuba",
+                    "coordinates": {
+                        "longitude" : 18,
+                        "latitude" : 7
+                    }
+                }
+            ]
+        }
 
 
-        builder = SimplePayloadBuilder(donor,specimen, sample, [file1, file2], sr)
-
-
-        upload_response = api.upload(json_payload=builder.to_dict(),is_async_validation=False)
-        status_response = api.status(upload_response.uploadId)
-        save_response = api.save(status_response.uploadId, ignore_analysis_id_collisions=True)
-
-        print("sdsfd")
-
-
-
-
+#####################################
+#   Classes to test the @validation
+#   decorator and the
+#   @dataclass decorator
+#####################################
 
 
 @validation(
