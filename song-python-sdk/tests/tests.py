@@ -29,6 +29,7 @@ from overture_song.utils import *
 from overture_song.validation import DataField, validation
 from overture_song.client import Api, StudyClient
 from dataclasses import *
+from overture_song.validation import non_null
 
 
 class TestFile(object):
@@ -407,6 +408,7 @@ class SongTests(unittest.TestCase):
         actual_dict = json.loads(a.to_json())
         self.assertDictEqual(actual_dict, expected_dict)
 
+
     def test_variant_call_analysis(self):
         expected_dict = self.load_json_as_dict("expected_variant_call_analysis.json")
 
@@ -469,6 +471,10 @@ class SongTests(unittest.TestCase):
         actual_dict = json.loads(a.to_json())
         self.assertDictEqual(actual_dict, expected_dict)
 
+    #################################3
+    # @validation Validation Tests
+    #################################3
+
     def test_person_missing_fields(self):
         error = False
         try:
@@ -508,6 +514,18 @@ class SongTests(unittest.TestCase):
         p = LazyPerson()
         p.lastName = 234
         p.non_defined_group = "something"
+
+    def test_dataclass_person(self):
+        p = DataClassPerson()
+        p.firstName = "Rob"
+        p.lastName = 3234
+        p.age = "something"
+        p.cars = ['mazda', 'vw']
+        p.non_defined_group = "this aint good..."
+
+        print ("\nconverted to a dictionary automatically: \n{}".format(asdict(p)))
+
+
 
 
     def test_constructor_person(self):
@@ -559,7 +577,6 @@ class SongTests(unittest.TestCase):
         c.donor = d
         c.set_info("randomCEField", "someCEValue")
 
-        recursive_dict = c.to_dict()
         error = False
         try :
             non_recursive_dict = json.dumps(c.__dict__)
@@ -568,7 +585,138 @@ class SongTests(unittest.TestCase):
             print("\nException: {}".format(e))
 
         self.assertTrue(error)
+        print("\nRecursive dictionary generation with dataclasses: \n{}".format(json.dumps(c.to_dict(), indent=4)))
 
+    ##################
+    # Failing NON_NULL Tests
+    ##################
+
+#FAILING     @non_null(exclude=["c"])
+#FAILING     def function_c(self, a,b,c):
+#FAILING         pass
+#FAILING
+#FAILING     @non_null(exclude=["b"])
+#FAILING     def function_b(self, a,b,c):
+#FAILING         pass
+#FAILING
+#FAILING     @non_null(exclude=["a","c"])
+#FAILING     def function_a_c(self, a,b,c):
+#FAILING         pass
+#FAILING
+#FAILING     def test_non_null_c(self):
+#FAILING         self.function_c("1", "2", "3")
+#FAILING         self.function_c("1", "2", None)
+#FAILING         error_c = False
+#FAILING         try:
+#FAILING             self.function_c("1", None, "sdf")
+#FAILING         except Exception as e:
+#FAILING             print("Exception: {}".format(e))
+#FAILING             error_c = True
+#FAILING         self.assertTrue(error_c)
+#FAILING
+#FAILING     def test_non_null_b(self):
+#FAILING         self.function_b("1", "2", "3")
+#FAILING         self.function_b("1", None, "3")
+#FAILING         error = False
+#FAILING         try:
+#FAILING             self.function_b("1", "2", None)
+#FAILING         except Exception as e:
+#FAILING             print("Exception: {}".format(e))
+#FAILING             error = True
+#FAILING         self.assertTrue(error)
+#FAILING
+#FAILING     def test_non_null_a_c(self):
+#FAILING         self.function_a_c("1", "2", "3")
+#FAILING         self.function_a_c(None, "2", None)
+#FAILING         error = False
+#FAILING         try:
+#FAILING             self.function_a_c("1", None, "sdf")
+#FAILING         except Exception as e:
+#FAILING             print("Exception: {}".format(e))
+#FAILING             error = True
+#FAILING         self.assertTrue(error)
+
+
+    def test_song(self):
+        server_url = "some_server"
+        study_id = 'ABC123'
+        access_token = 'some token'
+        debug = True
+
+
+        config = ApiConfig(server_url,study_id, access_token, debug)
+        api = Api(config)
+        self.assertTrue(api.is_alive())
+        study_client = StudyClient(api)
+        if not study_client.has('ABC123'):
+            study_client.create(Study.create('ABC123'))
+
+        donor = Donor()
+        donor.donorId = "DO1"
+        donor.studyId = "Study1"
+        donor.donorGender = "male"
+        donor.donorSubmitterId = "dsId1"
+        donor.set_info("randomDonorField", "someDonorValue")
+
+        specimen = Specimen()
+        specimen.specimenId = "sp1"
+        specimen.donorId = "DO1"
+        specimen.specimenClass = "Tumour"
+        specimen.specimenSubmitterId = "sp_sub_1"
+        specimen.specimenType = "Normal - EBV immortalized"
+        specimen.set_info("randomSpecimenField", "someSpecimenValue")
+
+        sample = Sample()
+        sample.sampleId = "sa1"
+        sample.sampleSubmitterId = "ssId1"
+        sample.sampleType = "RNA"
+        sample.specimenId = "sp1"
+        sample.set_info("randomSample1Field", "someSample1Value")
+
+        #File 1
+        file1 = File()
+        file1.analysisId = "an1"
+        file1.fileName = "myFilename1.txt"
+        file1.studyId = "Study1"
+        file1.fileAccess = "controlled"
+        file1.fileMd5sum = "myMd51"
+        file1.fileSize = 1234561
+        file1.fileType = "VCF"
+        file1.objectId = "myObjectId1"
+        file1.set_info("randomFile1Field", "someFile1Value")
+
+        #File 2
+        file2 = File()
+        file2.analysisId = "an1"
+        file2.fileName = "myFilename2.txt"
+        file2.studyId = "Study1"
+        file2.fileAccess = "controlled"
+        file2.fileMd5sum = "myMd52"
+        file2.fileSize = 1234562
+        file2.fileType = "VCF"
+        file2.objectId = "myObjectId2"
+        file2.set_info("randomFile2Field", "someFile2Value")
+
+        #SequencingRead
+        sr = SequencingRead()
+        sr.analysisId = "an1"
+        sr.aligned = True
+        sr.alignmentTool = "myAlignmentTool"
+        sr.pairedEnd = True
+        sr.insertSize = 0
+        sr.libraryStrategy = "WXS"
+        sr.referenceGenome = "GR37"
+        sr.set_info("randomSRField", "someSRValue")
+
+
+        builder = SimplePayloadBuilder(donor,specimen, sample, [file1, file2], sr)
+
+
+        upload_response = api.upload(json_payload=builder.to_dict(),is_async_validation=False)
+        status_response = api.status(upload_response.uploadId)
+        save_response = api.save(status_response.uploadId, ignore_analysis_id_collisions=True)
+
+        print("sdsfd")
 
 
 
@@ -613,15 +761,18 @@ class ConstructorStrictPerson(object):
     age: int = None
 
 
-
-
-
 class LazyPerson(object):
     firstName: str = None
     lastName: str = None
     cars: str = None
     age: int = None
 
+@dataclass
+class DataClassPerson(object):
+    firstName: str = None
+    lastName: str = None
+    cars: str = None
+    age: int = None
 
 
 if __name__ == '__main__':

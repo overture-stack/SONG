@@ -2,6 +2,8 @@ from abc import abstractmethod
 
 from overture_song import utils
 from overture_song.utils import check_state
+from collections import OrderedDict
+import inspect
 
 
 class Validatable(object):
@@ -153,3 +155,22 @@ class validation(object):
                 object.__setattr__(self, datafield_name, value)
 
         return Validator
+
+## [BUG] : cannot process functions that have @classmethod annotation
+def non_null(exclude=[]):
+    def wrap(func):
+        inspected_args = OrderedDict.fromkeys(inspect.signature(func).parameters.keys(), True)
+        is_self = False
+        if "self" in inspected_args.keys():
+            is_self = True
+            inspected_args.pop("self")
+        def new_func(*args, **kwargs):
+            count = 1 if is_self else 0
+            for a in inspected_args.keys():
+                if a not in exclude:
+                    check_state(args[count] is not None, "The argument '{}' must be non-null", a)
+                count += 1
+            return func(*args, **kwargs)
+        return new_func
+    return wrap
+

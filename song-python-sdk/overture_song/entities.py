@@ -7,6 +7,8 @@ from overture_song.validation import Validatable
 from overture_song.utils import Builder
 from typing import List
 from dataclasses import _isdataclass, asdict
+from overture_song.utils import check_type, check_state
+from overture_song.validation import non_null
 
 
 class Entity(object):
@@ -84,6 +86,22 @@ class File(Metadata, Validatable):
     def validate(self):
         raise NotImplemented("not implemented")
 
+    @classmethod
+    def create(cls,fileName, fileSize, fileType, fileMd5sum,
+               fileAccess, studyId=None, analysisId=None, objectId=None, info={}):
+        f = File()
+        f.objectId = objectId
+        f.analysisId = analysisId
+        f.studyId = studyId
+        f.fileType = fileType
+        f.fileSize = fileSize
+        f.info = info
+        f.fileMd5sum = fileMd5sum
+        f.fileAccess = fileAccess
+        f.fileName = fileName
+        return f
+
+
 
 @dataclass(frozen=False)
 class Sample(Metadata, Validatable):
@@ -94,6 +112,17 @@ class Sample(Metadata, Validatable):
 
     def validate(self):
         raise NotImplemented("not implemented")
+
+    @classmethod
+    def create(cls, specimenId, sampleSubmitterId,
+               sampleType, sampleId=None , info={}):
+        s = Sample()
+        s.info = info
+        s.specimenId = specimenId
+        s.sampleType = sampleType
+        s.sampleSubmitterId = sampleSubmitterId
+        s.sampleId = sampleId
+        return s
 
 
 @dataclass(frozen=False)
@@ -107,6 +136,18 @@ class Specimen(Metadata, Validatable):
     def validate(self):
         raise NotImplemented("not implemented")
 
+    @classmethod
+    def create(cls, donorId, specimenSubmitterId, specimenClass, specimenType,
+               specimenId=None, info={} ):
+        s = Specimen()
+        s.info = info
+        s.specimenId = specimenId
+        s.donorId = donorId
+        s.specimenType = specimenType
+        s.specimenClass = specimenClass
+        s.specimenSubmitterId = specimenSubmitterId
+        return s
+
 
 @dataclass(frozen=False)
 class Donor(Metadata, Validatable):
@@ -117,6 +158,16 @@ class Donor(Metadata, Validatable):
 
     def validate(self):
         raise NotImplemented("not implemented")
+
+    @classmethod
+    def create(cls, donorSubmitterId, studyId, donorGender, donorId=None , info={}):
+        d = Donor()
+        d.donorId = donorId
+        d.info = info
+        d.studyId = studyId
+        d.donorSubmitterId = donorSubmitterId
+        d.donorGender = donorGender
+        return d
 
 
 @dataclass(frozen=False)
@@ -140,6 +191,8 @@ class CompositeEntity(Sample):
     @classmethod
     def create(cls, donor, specimen, sample):
         c = CompositeEntity.base_on_sample(sample)
+        check_type(donor, Donor)
+        check_type(specimen, Specimen)
         c.donor = donor
         c.specimen = specimen
         return c
@@ -159,6 +212,14 @@ class VariantCall(Experiment, Validatable):
     def validate(self):
         raise NotImplemented("not implemented")
 
+    @classmethod
+    def create(cls, variantCallingTool, matchedNormalSampleSubmitterId, analysisId=None):
+        s = VariantCall()
+        s.analysisId = analysisId
+        s.variantCallingTool = variantCallingTool
+        s.matchedNormalSampleSubmitterId = matchedNormalSampleSubmitterId
+        return s
+
 
 @dataclass(frozen=False)
 class SequencingRead(Experiment, Validatable):
@@ -177,12 +238,29 @@ class SequencingRead(Experiment, Validatable):
     def validate(self):
         raise NotImplemented("not implemented")
 
+    @classmethod
+    def create(cls, aligned, alignmentTool, insertSize,
+               libraryStrategy, pairedEnd, referenceGenome, analysisId=None):
+        s = SequencingRead()
+        s.alignmentTool = alignmentTool
+        s.aligned = aligned
+        s.analysisId = analysisId
+        s.libraryStrategy = libraryStrategy
+        s.insertSize = insertSize
+        s.pairedEnd = pairedEnd
+        s.referenceGenome = referenceGenome
+        return s
+
+
+
+
+
 
 # @validation(
 #     DataField("analysisId", str),
 #     DataField("file", str, multiple=True))
 @dataclass(frozen=False)
-class Analysis(Entity, Validatable):
+class Analysis(Entity):
     analysisId: str = None
     study: str = None
     analysisState: str = "UNPUBLISHED"
@@ -205,22 +283,66 @@ class Analysis(Entity, Validatable):
     def from_json(cls, json_string):
         pass
 
-    def validate(self):
-        raise NotImplemented("not implemented")
+
 
 
 @dataclass(frozen=False)
-class SequencingReadAnalysis(Analysis):
+class SequencingReadAnalysis(Analysis, Validatable):
     analysisType: str = "sequencingRead"
 
     # TODO: add typing to this. should be a list of type File
     experiment: Type[SequencingRead] = None
 
+    @classmethod
+    def create(cls, experiment, analysisId=None, study=None, analysisState="UNPUBLISHED", sample=[], file=[], info={}):
+        check_type(experiment, SequencingRead)
+        check_state(sample is not None and len(sample) > 0, "Atleast one sample must be defined")
+        check_state(file is not None and len(file) > 0, "Atleast one file must be defined")
+        for s in sample:
+            check_type(s, CompositeEntity)
+        for f in file:
+            check_type(f, File)
+        s = SequencingReadAnalysis()
+        s.experiment = experiment
+        s.analysisId = analysisId
+        s.study = study
+        s.analysisState = analysisState
+        s.sample = sample
+        s.file = file
+        s.info = info
+        return s
+
+    def validate(self):
+        raise NotImplemented("not implemented")
+
 
 @dataclass(frozen=False)
-class VariantCallAnalysis(Analysis):
+class VariantCallAnalysis(Analysis, Validatable):
     analysisType: str = 'variantCall'
 
     # TODO: add typing to this. should be a list of type File
     experiment: Type[VariantCall] = None
+
+    @classmethod
+    def create(cls, experiment, analysisId=None, study=None, analysisState="UNPUBLISHED", sample=[], file=[], info={}):
+        check_type(experiment, VariantCall)
+        check_state(sample is not None and len(sample) > 0, "Atleast one sample must be defined")
+        check_state(file is not None and len(file) > 0, "Atleast one file must be defined")
+        for s in sample:
+            check_type(s, CompositeEntity)
+        for f in file:
+            check_type(f, File)
+
+        s = VariantCallAnalysis()
+        s.experiment = experiment
+        s.analysisId = analysisId
+        s.study = study
+        s.analysisState = analysisState
+        s.sample = sample
+        s.file = file
+        s.info = info
+        return s
+
+    def validate(self):
+        raise NotImplemented("not implemented")
 
