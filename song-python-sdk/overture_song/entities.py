@@ -58,6 +58,7 @@ class Study(Metadata, Validatable):
         s.name = name
         s.description = description
         s.organization = organization
+        return s
 
 
     @classmethod

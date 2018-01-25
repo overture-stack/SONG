@@ -48,24 +48,24 @@ def get_required_field(dic, field):
 ################################
 
 
-class Study(object):
-    def __init__(self, studyId=None, name=None, organization=None, description=None):
-        self.studyId = studyId
-        self.name = name
-        self.organization = organization
-        self.description = description
-
-    def __str__(self):
-        return utils.to_json_string(self)
-
-    @classmethod
-    def create_from_raw(cls, study_obj):
-        study_dict = study_obj.__dict__
-        study_id = get_required_field(study_dict, 'studyId')
-        study_name = get_optional_field(study_dict, 'name')
-        study_description = get_optional_field(study_dict, 'description')
-        study_organization = get_optional_field(study_dict, 'organization')
-        return Study(study_id, study_name, study_organization, study_description)
+#rtisma  class Study(object):
+#rtisma      def __init__(self, studyId=None, name=None, organization=None, description=None):
+#rtisma          self.studyId = studyId
+#rtisma          self.name = name
+#rtisma          self.organization = organization
+#rtisma          self.description = description
+#rtisma
+#rtisma      def __str__(self):
+#rtisma          return utils.to_json_string(self)
+#rtisma
+#rtisma      @classmethod
+#rtisma      def create_from_raw(cls, study_obj):
+#rtisma          study_dict = study_obj.__dict__
+#rtisma          study_id = get_required_field(study_dict, 'studyId')
+#rtisma          study_name = get_optional_field(study_dict, 'name')
+#rtisma          study_description = get_optional_field(study_dict, 'description')
+#rtisma          study_organization = get_optional_field(study_dict, 'organization')
+#rtisma          return Study(study_id, study_name, study_organization, study_description)
 
 
 class SongError(Exception):

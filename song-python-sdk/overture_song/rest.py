@@ -38,7 +38,7 @@ def intercept_response(orig_function, debug=False, convert_to_json=False, conver
         response = orig_function(*args, **kwargs)
         if response.ok:
             if convert_to_generic_object:
-                return utils.to_generic_object(response.json())
+                return utils.to_generic_object('RestResponse',response.json())
             elif convert_to_json:
                 return response.json()
             else:
