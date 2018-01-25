@@ -4,7 +4,7 @@ from typing import Any, Type
 from dataclasses import dataclass, field
 
 from overture_song import utils
-from overture_song.model import Validatable
+from overture_song.validation import Validatable
 from overture_song.utils import Builder
 from abc import abstractmethod
 from typing import List
@@ -25,7 +25,6 @@ class Entity(object):
 
 @dataclass(frozen=False)
 class Metadata(Entity):
-
     info: dict = None
 
     def __post_init__(self):
@@ -41,6 +40,44 @@ class Metadata(Entity):
 
     def to_dict(self):
         return { "info" : self.info }
+
+@dataclass(frozen=False)
+class Study(Metadata, Validatable):
+    studyId: str = None
+    name: str = None
+    organization: str = None
+    description: str = None
+
+    def validate(self):
+        raise NotImplemented("not implemented")
+
+
+    @classmethod
+    def create(cls, studyId, name=None, description=None, organization=None):
+        s = Study()
+        s.studyId = studyId
+        s.name = name
+        s.description = description
+        s.organization = organization
+
+
+    @classmethod
+    def create_from_raw(cls, study_obj):
+        return Study.create(
+            study_obj.studyId,
+            name=study_obj.name,
+            description=study_obj.description,
+            organization=study_obj.organization)
+
+    def to_dict(self):
+        this_dict = {
+            "studyId" : self.studyId,
+            "name" : self.name,
+            "organization" : self.organization,
+            "description" : self.description
+        }
+        this_dict.update(super().to_dict())
+        return this_dict
 
 
 
@@ -267,13 +304,10 @@ class Analysis(Entity, Validatable):
 
 @dataclass(frozen=False)
 class SequencingReadAnalysis(Analysis):
+    analysisType: str = "sequencingRead"
 
     # TODO: add typing to this. should be a list of type File
     experiment: Type[SequencingRead] = None
-
-    @property
-    def analysisType(self):
-        return "sequencingRead"
 
     def to_dict(self):
         out = {
@@ -286,13 +320,10 @@ class SequencingReadAnalysis(Analysis):
 
 @dataclass(frozen=False)
 class VariantCallAnalysis(Analysis):
+    analysisType: str = 'variantCall'
 
     # TODO: add typing to this. should be a list of type File
     experiment: Type[VariantCall] = None
-
-    @property
-    def analysisType(self):
-        return "variantCall"
 
     def to_dict(self):
         out = {

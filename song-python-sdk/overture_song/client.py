@@ -24,9 +24,10 @@ import logging
 import os
 
 import overture_song.utils as utils
-from overture_song.model import Study, ManifestEntry, Manifest
+from overture_song.model import ManifestEntry, Manifest
 from overture_song.utils import SongClientException
 from overture_song.rest import ObjectRest
+from overture_song.entities import Study
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")

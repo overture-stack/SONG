@@ -29,14 +29,15 @@ import logging
 from overture_song import utils as utils
 from overture_song.client import Api, StudyClient
 from overture_song.utils import SongClientException
-from overture_song.model import ApiConfig, Study, SongError
+from overture_song.model import ApiConfig, SongError
+from overture_song.entities import Study
 import json
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.tools")
 
 
-class EGAUploader(object):
+class BatchUploader(object):
 
     def __init__(self, server_url, access_token, payload_dir, debug=False):
 
@@ -79,7 +80,7 @@ class EGAUploader(object):
     def __setup_study(self, study_id):
         study_client = self.__build_study_client(study_id)
         if not study_client.has(study_id):
-            study = Study(studyId=study_id, name="N/A", organization="ICGC", description="None")
+            study = Study.create(study_id, name="N/A", organization="ICGC", description="None")
             study_client.create(study)
 
     def upload_all(self):
