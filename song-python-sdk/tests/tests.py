@@ -509,7 +509,26 @@ class SongTests(unittest.TestCase):
         p.non_defined_group = "something"
 
 
+    def test_constructor_person(self):
+        p_good = ConstructorStrictPerson("John", "Doe")
+        error = False
+        try:
+            p_wrong_type = ConstructorStrictPerson("John", 230)
+        except Exception as e:
+            print("\nException: {}".format(e))
+            error = True
+        self.assertTrue(error)
+        p_good_same = ConstructorStrictPerson("John", "Doe")
+        self.assertTrue(p_good  is not p_good_same)
+        self.assertTrue(p_good  == p_good_same)
 
+    def test_strict_person_as_dict(self):
+        s = StrictPerson()
+        s.firstName = "John"
+        s.lastName = "Doe"
+        s.age = 23
+        s.cars = ["mazda", "something"]
+        print("dict = {}".format(asdict(s)))
 
 
 
@@ -534,6 +553,19 @@ class PersonMissingFields(object):
 class StrictPerson(object):
     firstName: str = None
     lastName: str = None
+    cars: str = None
+    age: int = None
+
+
+@validation(
+    DataField("firstName", str, required=True),
+    DataField("lastName", str, required=True),
+    DataField("age", int, required=False),
+    DataField("cars", str, required=False, multiple=True) )
+@dataclass(frozen=False, init=True)
+class ConstructorStrictPerson(object):
+    firstName: str
+    lastName: str
     cars: str = None
     age: int = None
 
