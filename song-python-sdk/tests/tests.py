@@ -19,15 +19,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+import hashlib
 import unittest
 
-import os
-import time
-import hashlib
-from overture_song.tools import EGAUploader, FileUploadState
-from overture_song.model import ApiConfig, ManifestEntry, Manifest
-from overture_song.client import Api
-import overture_song.utils as utils
+from overture_song.entities import *
+from overture_song.model import *
+from overture_song.tools import FileUploadState
+from overture_song.utils import *
 
 
 class TestFile(object):
@@ -112,6 +110,7 @@ class SongTests(unittest.TestCase):
         super(SongTests, self).__init__(methodName)
         self.fixture_dir = "./fixtures"
         self.file_storage = TempFileStorage("./tempTestFiles")
+        self.maxDiff = None #To see all diffs
 
     def _get_fixture_filename(self, filename):
         return self.fixture_dir+os.sep+filename
@@ -153,26 +152,318 @@ class SongTests(unittest.TestCase):
         self.assertGreaterEqual(FileUploadState.PUBLISHED, FileUploadState.VALIDATED)
         self.assertGreater(FileUploadState.PUBLISHED, FileUploadState.VALIDATED)
 
-    """
-    def test_ega_upload(self):
-        ega_data_dir = './myPayloadData'
+    def load_json_as_dict(self, json_fixture_filename):
+        expected_test_file = TestFile(self._get_fixture_filename(json_fixture_filename))
+        return json.load(open(expected_test_file.name, 'r'))
 
-        url = 'https://song-server:8080'
-        study_id = 'ABC123'
-        access_token = 'token'
-        debug = True
+    def test_sequencing_read(self):
+        expected_dict  = self.load_json_as_dict("expected_sequencing_read.json")
 
-        config = ApiConfig(url, study_id, access_token, debug=debug)
-        api = Api(config)
+        sr = SequencingRead()
+        sr.analysisId = "an1"
+        sr.aligned = True
+        sr.alignmentTool = "myAlignmentTool"
+        sr.pairedEnd = True
+        sr.insertSize = 0
+        sr.libraryStrategy = "WXS"
+        sr.referenceGenome = "GR37"
+        sr.set_info("randomField", "someValue")
 
-        uploader = EGAUploader(url, access_token, ega_data_dir, debug=debug)
-        print("Running.....")
-        uploader.upload_all()
-        uploader.status_all()
-        uploader.save_all()
-        # uploader.publish_all()
-        uploader.print_upload_states()
-    """
+        actual_dict = json.loads(sr.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_metadata(self):
+        expected_dict  = self.load_json_as_dict("expected_metadata.json")
+
+        metadata = Metadata()
+        metadata.add_info({ "someField1" : "someValue1", "someField2" : "someValue2"})
+        metadata.set_info("someField3", "someValue3")
+
+        actual_dict = json.loads(metadata.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_variant_call(self):
+        expected_dict  = self.load_json_as_dict("expected_variant_call.json")
+
+        variant_call = VariantCall()
+        variant_call.analysisId = "an1"
+        variant_call.matchedNormalSampleSubmitterId = "matched1"
+        variant_call.variantCallingTool = "smuffin"
+        variant_call.set_info("randomField", "someValue")
+
+        actual_dict = json.loads(variant_call.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_file(self):
+        expected_dict  = self.load_json_as_dict("expected_file.json")
+
+        file = File()
+        file.analysisId = "an1"
+        file.fileName = "myFilename"
+        file.studyId = "myStudyId"
+        file.fileAccess = "controlled"
+        file.fileMd5sum = "myMd5"
+        file.fileSize = 123456
+        file.fileType = "VCF"
+        file.objectId = "myObjectId"
+        file.set_info("randomField", "someValue")
+
+        actual_dict = json.loads(file.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_sample(self):
+        expected_dict  = self.load_json_as_dict("expected_sample.json")
+
+        sample = Sample()
+        sample.sampleId = "sa1"
+        sample.sampleSubmitterId = "ssId1"
+        sample.sampleType = "RNA"
+        sample.specimenId = "sp1"
+        sample.set_info("randomField", "someValue")
+
+        actual_dict = json.loads(sample.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_specimen(self):
+        expected_dict  = self.load_json_as_dict("expected_specimen.json")
+
+        sp = Specimen()
+        sp.specimenId = "sp1"
+        sp.donorId = "DO1"
+        sp.specimenClass = "Tumour"
+        sp.specimenSubmitterId = "sp_sub_1"
+        sp.specimenType = "Normal - EBV immortalized"
+        sp.set_info("randomField", "someValue")
+
+        actual_dict = json.loads(sp.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_donor(self):
+        expected_dict  = self.load_json_as_dict("expected_donor.json")
+
+        d = Donor()
+        d.donorId = "DO1"
+        d.studyId = "S1"
+        d.donorGender = "male"
+        d.donorSubmitterId = "sub1"
+        d.set_info("randomField", "someValue")
+
+        actual_dict = json.loads(d.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_composite_entity(self):
+        expected_dict = self.load_json_as_dict("expected_composite.json")
+
+        d = Donor()
+        d.donorId = "DO1"
+        d.studyId = "Study1"
+        d.donorGender = "male"
+        d.donorSubmitterId = "dsId1"
+        d.set_info("randomDonorField", "someDonorValue")
+
+        sp = Specimen()
+        sp.specimenId = "sp1"
+        sp.donorId = "DO1"
+        sp.specimenClass = "Tumour"
+        sp.specimenSubmitterId = "sp_sub_1"
+        sp.specimenType = "Normal - EBV immortalized"
+        sp.set_info("randomSpecimenField", "someSpecimenValue")
+
+        sample = Sample()
+        sample.sampleId = "sa1"
+        sample.sampleSubmitterId = "ssId1"
+        sample.sampleType = "RNA"
+        sample.specimenId = "sp1"
+        sample.set_info("randomSampleField", "someSampleValue")
+
+        c = CompositeEntity.create_from_sample(sample)
+        c.specimen = sp
+        c.donor = d
+        c.set_info("randomCEField", "someCEValue")
+
+        actual_dict = json.loads(c.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_analysis(self):
+        expected_dict = self.load_json_as_dict("expected_analysis.json")
+
+        #Sample 1
+        sample1 = Sample()
+        sample1.sampleId = "sa1"
+        sample1.sampleSubmitterId = "ssId1"
+        sample1.sampleType = "RNA"
+        sample1.specimenId = "sp1"
+        sample1.set_info("randomSample1Field", "someSample1Value")
+
+        #Sample 2
+        sample2 = Sample()
+        sample2.sampleId = "sa2"
+        sample2.sampleSubmitterId = "ssId2"
+        sample2.sampleType = "RNA"
+        sample2.specimenId = "sp1"
+        sample2.set_info("randomSample2Field", "someSample2Value")
+
+        #File 1
+        file1 = File()
+        file1.analysisId = "an1"
+        file1.fileName = "myFilename1.txt"
+        file1.studyId = "Study1"
+        file1.fileAccess = "controlled"
+        file1.fileMd5sum = "myMd51"
+        file1.fileSize = 1234561
+        file1.fileType = "VCF"
+        file1.objectId = "myObjectId1"
+        file1.set_info("randomFile1Field", "someFile1Value")
+
+        #File 2
+        file2 = File()
+        file2.analysisId = "an1"
+        file2.fileName = "myFilename2.txt"
+        file2.studyId = "Study1"
+        file2.fileAccess = "controlled"
+        file2.fileMd5sum = "myMd52"
+        file2.fileSize = 1234562
+        file2.fileType = "VCF"
+        file2.objectId = "myObjectId2"
+        file2.set_info("randomFile2Field", "someFile2Value")
+
+        a = Analysis()
+        a.analysisId = "an1"
+        a.study = "Study1"
+        a.analysisState = 'UNPUBLISHED'
+        a.sample += [sample1, sample2]
+        a.file += [file1, file2]
+
+        actual_dict = json.loads(a.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_sequencing_read_analysis(self):
+        expected_dict = self.load_json_as_dict("expected_sequencing_read_analysis.json")
+
+        #Sample 1
+        sample1 = Sample()
+        sample1.sampleId = "sa1"
+        sample1.sampleSubmitterId = "ssId1"
+        sample1.sampleType = "RNA"
+        sample1.specimenId = "sp1"
+        sample1.set_info("randomSample1Field", "someSample1Value")
+
+        #Sample 2
+        sample2 = Sample()
+        sample2.sampleId = "sa2"
+        sample2.sampleSubmitterId = "ssId2"
+        sample2.sampleType = "RNA"
+        sample2.specimenId = "sp1"
+        sample2.set_info("randomSample2Field", "someSample2Value")
+
+        #File 1
+        file1 = File()
+        file1.analysisId = "an1"
+        file1.fileName = "myFilename1.txt"
+        file1.studyId = "Study1"
+        file1.fileAccess = "controlled"
+        file1.fileMd5sum = "myMd51"
+        file1.fileSize = 1234561
+        file1.fileType = "VCF"
+        file1.objectId = "myObjectId1"
+        file1.set_info("randomFile1Field", "someFile1Value")
+
+        #File 2
+        file2 = File()
+        file2.analysisId = "an1"
+        file2.fileName = "myFilename2.txt"
+        file2.studyId = "Study1"
+        file2.fileAccess = "controlled"
+        file2.fileMd5sum = "myMd52"
+        file2.fileSize = 1234562
+        file2.fileType = "VCF"
+        file2.objectId = "myObjectId2"
+        file2.set_info("randomFile2Field", "someFile2Value")
+
+        #SequencingRead
+        sr = SequencingRead()
+        sr.analysisId = "an1"
+        sr.aligned = True
+        sr.alignmentTool = "myAlignmentTool"
+        sr.pairedEnd = True
+        sr.insertSize = 0
+        sr.libraryStrategy = "WXS"
+        sr.referenceGenome = "GR37"
+        sr.set_info("randomSRField", "someSRValue")
+
+        #SequencingReadAnalysis
+        a = SequencingReadAnalysis()
+        a.analysisId = "an1"
+        a.study = "Study1"
+        a.analysisState = 'UNPUBLISHED'
+        a.sample += [sample1, sample2]
+        a.file += [file1, file2]
+        a.experiment = sr
+
+        actual_dict = json.loads(a.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
+
+    def test_variant_call_analysis(self):
+        expected_dict = self.load_json_as_dict("expected_variant_call_analysis.json")
+
+        #Sample 1
+        sample1 = Sample()
+        sample1.sampleId = "sa1"
+        sample1.sampleSubmitterId = "ssId1"
+        sample1.sampleType = "RNA"
+        sample1.specimenId = "sp1"
+        sample1.set_info("randomSample1Field", "someSample1Value")
+
+        #Sample 2
+        sample2 = Sample()
+        sample2.sampleId = "sa2"
+        sample2.sampleSubmitterId = "ssId2"
+        sample2.sampleType = "RNA"
+        sample2.specimenId = "sp1"
+        sample2.set_info("randomSample2Field", "someSample2Value")
+
+        #File 1
+        file1 = File()
+        file1.analysisId = "an1"
+        file1.fileName = "myFilename1.txt"
+        file1.studyId = "Study1"
+        file1.fileAccess = "controlled"
+        file1.fileMd5sum = "myMd51"
+        file1.fileSize = 1234561
+        file1.fileType = "VCF"
+        file1.objectId = "myObjectId1"
+        file1.set_info("randomFile1Field", "someFile1Value")
+
+        #File 2
+        file2 = File()
+        file2.analysisId = "an1"
+        file2.fileName = "myFilename2.txt"
+        file2.studyId = "Study1"
+        file2.fileAccess = "controlled"
+        file2.fileMd5sum = "myMd52"
+        file2.fileSize = 1234562
+        file2.fileType = "VCF"
+        file2.objectId = "myObjectId2"
+        file2.set_info("randomFile2Field", "someFile2Value")
+
+        #VariantCall
+        variant_call = VariantCall()
+        variant_call.analysisId = "an1"
+        variant_call.matchedNormalSampleSubmitterId = "matched1"
+        variant_call.variantCallingTool = "smuffin"
+        variant_call.set_info("randomVCField", "someVCValue")
+
+        #VariantCallAnalysis
+        a = VariantCallAnalysis()
+        a.analysisId = "an1"
+        a.study = "Study1"
+        a.analysisState = 'UNPUBLISHED'
+        a.sample += [sample1, sample2]
+        a.file += [file1, file2]
+        a.experiment = variant_call
+
+        actual_dict = json.loads(a.to_json())
+        self.assertDictEqual(actual_dict, expected_dict)
 
 
 if __name__ == '__main__':

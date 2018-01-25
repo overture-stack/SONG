@@ -22,13 +22,9 @@
 import logging
 from abc import abstractmethod
 
-import json
-from dataclasses import dataclass, field
-
 from overture_song import utils
+from overture_song.utils import SongClientException
 from overture_song.utils import check_state
-from overture_song.utils import SongClientException, Builder
-from typing import *
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.model")
@@ -214,15 +210,6 @@ class Validatable(object):
         return new_function
 
 
-class Entity(object):
-
-    def to_json(self):
-        return json.dumps(self.__dict__)
-
-    def __str__(self):
-        return self.to_json()
-
-
 class DataField(object):
     def __init__(self, name, *types, required=True, multiple=False):
         self.types = types
@@ -327,87 +314,6 @@ class validation(object):
         return Validator
 
 
-@validation(
-    DataField("analysisId", str),
-    DataField("file", str, multiple=True))
-@dataclass(frozen=False)
-class Analysis(Entity, Validatable):
-    analysisId: str = None
-    study: str = None
-    analysisState: str = None
-
-    # TODO: add typing to this. should be a list of type Sample
-    sample: list = field(repr=True, default=None)
-
-    # TODO: add typing to this. should be a list of type File
-    file: list = field(repr=True, default=None)
-
-    @classmethod
-    def builder(cls):
-        return Builder(Analysis)
-
-    @classmethod
-    def from_json(cls, json_string):
-        pass
-
-    def validate(self):
-        pass
 
 
-class Metadata(object):
-    def __init__(self):
-        self._info = {}
 
-    def set_info(self, key: str, value: Any):
-        self._info[key] = value
-
-    def add_info(self, data: dict):
-        if utils.is_none_or_empty(data):
-            return
-        self._info.update(data)
-
-    @property
-    def info(self):
-        return self._info
-
-
-class Experiment(Metadata):
-    pass
-
-
-@dataclass(frozen=False)
-class VariantCall(Experiment, Validatable):
-    analysisId: str = None
-    variantCallingTool: str = None
-    matchedNormalSampleSubmitterId: str = None
-
-    @classmethod
-    def builder(cls):
-        return Builder(Analysis)
-
-    def validate(self):
-        pass
-
-
-@dataclass(frozen=False)
-class SequencingRead(Experiment, Validatable):
-    analysisId: str = None
-    aligned: bool = None
-    alignmentTool: str = None
-    insertSize: int = None
-    libraryStrategy: str = None
-    pairedEnd: bool = None
-    referenceGenome: str = None
-
-    @classmethod
-    def builder(cls):
-        return Builder(Analysis)
-
-    def validate(self):
-        pass
-
-
-@dataclass(frozen=False)
-class SequencingReadAnalysis(Analysis):
-    # TODO: add typing to this. should be a list of type File
-    experiment: SequencingRead = None

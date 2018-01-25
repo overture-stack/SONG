@@ -1,0 +1,7 @@
+{
+  "donorId":  "DO1",
+  "studyId":  "S1",
+  "donorGender":  "male",
+  "donorSubmitterId":  "sub1",
+  "info" : { "randomField" : "someValue" }
+}

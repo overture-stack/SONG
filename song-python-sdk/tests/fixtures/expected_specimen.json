@@ -1,0 +1,8 @@
+{
+  "specimenId":  "sp1",
+  "donorId":  "DO1",
+  "specimenClass":  "Tumour",
+  "specimenSubmitterId":  "sp_sub_1",
+  "specimenType":  "Normal - EBV immortalized",
+  "info" : { "randomField" : "someValue" }
+}

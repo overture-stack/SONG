@@ -1,0 +1,6 @@
+{
+  "analysisId" :  "an1",
+  "variantCallingTool" : "smuffin",
+  "matchedNormalSampleSubmitterId" : "matched1",
+  "info" : { "randomField" : "someValue" }
+}
