@@ -24,9 +24,10 @@ import unittest
 
 from overture_song.entities import *
 from overture_song.model import *
-from overture_song.tools import FileUploadState
+from overture_song.tools import FileUploadState, SimplePayloadBuilder
 from overture_song.utils import *
 from overture_song.validation import DataField, validation
+from overture_song.client import Api, StudyClient
 from dataclasses import *
 
 
@@ -279,7 +280,7 @@ class SongTests(unittest.TestCase):
         sample.specimenId = "sp1"
         sample.set_info("randomSampleField", "someSampleValue")
 
-        c = CompositeEntity.create_from_sample(sample)
+        c = CompositeEntity.base_on_sample(sample)
         c.specimen = sp
         c.donor = d
         c.set_info("randomCEField", "someCEValue")
@@ -553,7 +554,7 @@ class SongTests(unittest.TestCase):
         sample.specimenId = "sp1"
         sample.set_info("randomSampleField", "someSampleValue")
 
-        c = CompositeEntity.create_from_sample(sample)
+        c = CompositeEntity.base_on_sample(sample)
         c.specimen = sp
         c.donor = d
         c.set_info("randomCEField", "someCEValue")

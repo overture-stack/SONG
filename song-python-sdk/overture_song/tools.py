@@ -31,6 +31,9 @@ from overture_song.client import Api, StudyClient
 from overture_song.utils import SongClientException
 from overture_song.model import ApiConfig, SongError
 from overture_song.entities import Study
+from dataclasses import dataclass
+from overture_song.utils import check_state, check_type
+from overture_song.entities import *
 import json
 
 logging.basicConfig(level=logging.INFO)
@@ -352,4 +355,64 @@ class FileUploadClient(object):
             except Exception as e:
                 self.upload_errors = "[{}] : ".format(e.__class__.__name__, e.message)
                 self.upload_state = FileUploadState.UNKNOWN_ERROR
+
+
+@dataclass
+class SimplePayloadBuilder(object):
+    donor: Type[Donor]
+    specimen: Type[Specimen]
+    sample: Type[Sample]
+    files: List[File]
+    experiment: object
+    analysisId: str = None
+
+    def __post_init__(self):
+        self._analysisType = None
+        check_state(self.donor is not None, "donor must be defined")
+        check_state(self.specimen is not None, "specimen must be defined")
+        check_state(self.sample is not None, "sample must be defined")
+        check_state(self.experiment is not None, "experiment must be defined")
+        check_type(self.donor, Donor)
+        check_type(self.specimen, Specimen)
+        check_type(self.sample, Sample)
+        check_type(self.files, list)
+        check_state(len(self.files)>0, "Must have atleast one file for the upload payload")
+        for f in self.files:
+            check_type(f, File)
+
+        if isinstance(self.experiment, SequencingRead):
+            self._is_seq_read = True
+            self._analysisType = "sequencingRead"
+        elif isinstance(self.experiment, VariantCall):
+            self._is_seq_read = False
+            self._analysisType = "variantCall"
+
+    def to_dict(self):
+
+        composite_entity = CompositeEntity.create(self.donor,self.specimen, self.sample)
+        analysis = None
+        if self._is_seq_read:
+            analysis = SequencingReadAnalysis()
+            utils.check_type(self.experiment, SequencingRead)
+        else:
+            analysis = VariantCallAnalysis()
+            utils.check_type(self.experiment, VariantCall)
+
+        analysis.experiment = self.experiment
+        analysis.sample.append(composite_entity)
+        analysis.analysisType = self._analysisType
+        analysis.file.extend(self.files)
+        if self.analysisId is not None and self.analysisId:
+            analysis.analysisId = self.analysisId
+
+        out_dict = analysis.to_dict()
+        out_dict.pop('study')
+        if self.analysisId is None:
+            out_dict.pop('analysisId')
+
+        return out_dict
+
+
+
+
 

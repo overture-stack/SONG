@@ -128,7 +128,7 @@ class CompositeEntity(Sample):
         raise NotImplemented("not implemented")
 
     @classmethod
-    def create_from_sample(cls, sample):
+    def base_on_sample(cls, sample):
         s = CompositeEntity()
         s.sampleId = sample.sampleId
         s.sampleSubmitterId = sample.sampleSubmitterId
@@ -136,6 +136,13 @@ class CompositeEntity(Sample):
         s.info = sample.info
         s.specimenId = sample.specimenId
         return s
+
+    @classmethod
+    def create(cls, donor, specimen, sample):
+        c = CompositeEntity.base_on_sample(sample)
+        c.donor = donor
+        c.specimen = specimen
+        return c
 
 
 @dataclass(frozen=False)
@@ -178,7 +185,7 @@ class SequencingRead(Experiment, Validatable):
 class Analysis(Entity, Validatable):
     analysisId: str = None
     study: str = None
-    analysisState: str = None
+    analysisState: str = "UNPUBLISHED"
 
     # TODO: add typing to this. should be a list of type Sample
     sample: List[CompositeEntity] = None
