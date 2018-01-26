@@ -36,7 +36,7 @@ def upload(config):
     sample.specimenId = "sp1"
     sample.set_info("randomSample1Field", "someSample1Value")
 
-    #File 1
+    # File 1
     file1 = File()
     file1.analysisId = "an1"
     file1.fileName = "myFilename1.txt"
@@ -48,7 +48,7 @@ def upload(config):
     file1.objectId = "myObjectId1"
     file1.set_info("randomFile1Field", "someFile1Value")
 
-    #File 2
+    # File 2
     file2 = File()
     file2.analysisId = "an1"
     file2.fileName = "myFilename2.txt"
@@ -60,7 +60,7 @@ def upload(config):
     file2.objectId = "myObjectId2"
     file2.set_info("randomFile2Field", "someFile2Value")
 
-    #SequencingRead
+    # SequencingRead
     sequencing_read_experiment = SequencingRead()
     sequencing_read_experiment.analysisId = "an1"
     sequencing_read_experiment.aligned = True
@@ -71,10 +71,10 @@ def upload(config):
     sequencing_read_experiment.referenceGenome = "GR37"
     sequencing_read_experiment.set_info("randomSRField", "someSRValue")
 
-    builder = SimplePayloadBuilder(donor,specimen, sample, [file1, file2], sequencing_read_experiment)
+    builder = SimplePayloadBuilder(donor, specimen, sample, [file1, file2], sequencing_read_experiment)
 
     print("-----------------------Uploading payload-------------------------")
-    upload_response = api.upload(json_payload=builder.to_dict(),is_async_validation=False)
+    upload_response = api.upload(json_payload=builder.to_dict(), is_async_validation=False)
     print("upload_response: \n{}".format(upload_response))
     sleep(4)
 
@@ -94,11 +94,9 @@ def upload(config):
     print("manifest_file_contents: \n{}".format(manifest))
 
 
-
 def main():
-    api_config = ApiConfig("my_server_url", 'ABC123', "my_access_token", debug=True)
+    api_config = ApiConfig("http://rtisma-server:8080", 'ABC123', "b2b85f22-d1c8-425a-ada2-7c5955fb912c", debug=True)
     upload(api_config)
 
 if __name__ == '__main__':
     main()
-

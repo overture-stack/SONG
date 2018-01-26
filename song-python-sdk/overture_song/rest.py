@@ -25,20 +25,18 @@ import json
 import requests
 
 from overture_song.model import SongError
-import overture_song.utils as utils
-
+from overture_song.utils import to_generic_object
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.rest")
 
 
 def intercept_response(orig_function, debug=False, convert_to_json=False, convert_to_generic_object=False):
-
     def new_function(*args, **kwargs):
         response = orig_function(*args, **kwargs)
         if response.ok:
             if convert_to_generic_object:
-                return utils.to_generic_object('RestResponse',response.json())
+                return to_generic_object('RestResponse', response.json())
             elif convert_to_json:
                 return response.json()
             else:
@@ -50,10 +48,10 @@ def intercept_response(orig_function, debug=False, convert_to_json=False, conver
                 log.error(song_error)
                 raise song_error
             else:
-                message = "Not a song error. Response Code: {}, Response Message: {}".format(response.status_code, response.content)
+                message = "Not a song error. Response Code: {}, Response Message: {}".format(response.status_code,
+                                                                                             response.content)
                 log.error(message)
                 raise Exception(message)
-
     return new_function
 
 
@@ -70,45 +68,29 @@ class Rest(object):
                                   convert_to_generic_object=False)
 
     def get(self, url):
-        return self._intercept(requests.get)\
-            (url, headers=self.__header_generator.get_json_header())
+        return self._intercept(requests.get)(url, headers=self.__header_generator.get_json_header())
 
     def get_with_params(self, url, **kwargs):
         param_string = '&'.join(Rest.__convert_params(**kwargs))
         return self.get(url+'?'+param_string)
 
-    def post(self, url, json=None):
-        return self._intercept(requests.post)\
-            (url, json=json, headers=self.__header_generator.get_json_header())
+    def post(self, url, dict_data=None):
+        return self._intercept(requests.post)(url, json=dict_data, headers=self.__header_generator.get_json_header())
 
     def put(self, url):
-        return self._intercept(requests.put)\
-            (url, headers=self.__header_generator.get_json_header())
+        return self._intercept(requests.put)(url, headers=self.__header_generator.get_json_header())
 
     @classmethod
     def __convert_params(cls, **kwargs):
         param_list = []
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             param_list.append(k+'='+v)
         return param_list
 
 
-class JsonRest(Rest):
-
-    def __init__(self, *args, **kwargs):
-        Rest.__init__(self,*args, **kwargs)
-
-    def _intercept(self, method):
-        return intercept_response(method,
-                                  debug=self.debug,
-                                  convert_to_json=True,
-                                  convert_to_generic_object=False)
-
-
 class ObjectRest(Rest):
-
     def __init__(self, *args, **kwargs):
-        Rest.__init__(self,*args, **kwargs)
+        Rest.__init__(self, *args, **kwargs)
 
     def _intercept(self, method):
         return intercept_response(method,

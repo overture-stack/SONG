@@ -23,8 +23,7 @@ import logging
 
 from dataclasses import dataclass
 
-from overture_song import utils
-from overture_song.utils import SongClientException
+from overture_song.utils import SongClientException, default_value, to_pretty_json_string, write_object
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.model")
@@ -81,7 +80,7 @@ class SongError(Exception):
 
     def __str__(self):
         if self.__debug:
-            return utils.to_pretty_json_string(self.response.content)
+            return to_pretty_json_string(self.response.content)
         else:
             return "[SONG_SERVER_ERROR] {} @ {}: {}".format(self.errorId, self.timestamp, self.message)
 
@@ -103,33 +102,26 @@ class ManifestEntry(object):
     @classmethod
     def create_manifest_entry(cls, data):
         d = data.__dict__
-        fileId = get_required_field(d, 'objectId')
-        fileName = get_required_field(d, 'fileName')
+        file_id = get_required_field(d, 'objectId')
+        file_name = get_required_field(d, 'fileName')
         md5sum = get_required_field(d, 'fileMd5sum')
-        return ManifestEntry(fileId, fileName, md5sum)
+        return ManifestEntry(file_id, file_name, md5sum)
 
     def __str__(self):
         return "{}\t{}\t{}".format(self.fileId, self.fileName, self.md5sum)
 
 
 class Manifest(object):
-    def __init__(self, analysis_id, manifest_entries=[]):
+    def __init__(self, analysis_id, manifest_entries=None):
         self.analysis_id = analysis_id
-        self.entries = manifest_entries
+        self.entries = default_value(manifest_entries, [])
 
     def add_entry(self, manifest_entry):
         self.entries.append(manifest_entry)
 
     def write(self, output_file_path, overwrite=False):
-        utils.write_object(self, output_file_path, overwrite=overwrite)
+        write_object(self, output_file_path, overwrite=overwrite)
 
     def __str__(self):
         return "{}\t\t\n".format(self.analysis_id) + \
                "\n".join(map(lambda x: str(x), self.entries))
-
-
-
-
-
-
-

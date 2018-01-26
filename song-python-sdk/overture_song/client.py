@@ -23,11 +23,12 @@ import json
 import logging
 import os
 
-import overture_song.utils as utils
+
 from overture_song.entities import Study
 from overture_song.model import ManifestEntry, Manifest
 from overture_song.rest import ObjectRest
-from overture_song.utils import SongClientException
+from overture_song.utils import SongClientException, convert_to_url_param_list, \
+    check_type, check_song_state, write_object
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")
@@ -48,7 +49,7 @@ class Api(object):
         return self.__rest.post(
             self.__endpoints.upload(
                 self.config.study_id,
-                is_async_validation=is_async_validation), json=json_payload )
+                is_async_validation=is_async_validation), dict_data=json_payload)
 
     def status(self, upload_id):
         endpoint = self.__endpoints.status(self.config.study_id, upload_id)
@@ -102,14 +103,13 @@ class Api(object):
 
     def save_study(self, study):
         endpoint = self.__endpoints.save_study(study.studyId)
-        # study_json = json.loads(study)
-        return self.__rest.post(endpoint, json=study.__dict__)
+        return self.__rest.post(endpoint, dict_data=study.__dict__)
 
 
 class StudyClient(object):
 
     def __init__(self, api):
-        utils.check_type(api, Api)
+        check_type(api, Api)
         self.__api = api
 
     def create(self, study):
@@ -120,17 +120,12 @@ class StudyClient(object):
         return val[0] is not None
 
     def read(self, study_id, recursive=False):
-        # [Issue #146]: disabled since the song-server has a bug in the /studies/{studyId}/all
-        # endpoint (https://github.com/overture-stack/SONG/issues/146)
-        #
-        # if recursive:
-        #     val = self.__api.get_entire_study(study_id)
-        #     if val is None:
-        #         raise SongClientException('study.client.entire', "The study_id '{}' does not exist".format(study_id))
-        #     return val
+        if recursive:
+            val = self.__api.get_entire_study(study_id)
+            check_song_state(val is not None, "study.client.entire", "The study_id '{}' does not exist", study_id)
+            return val
         val = self.__api.get_study(study_id)
-        utils.check_song_state(val[0] is not None, 'study.client.get',
-                               "The study_id '{}' does not exist".format(study_id))
+        check_song_state(val[0] is not None, 'study.client.get', "The study_id '{}' does not exist".format(study_id))
         return Study.create_from_raw(val[0])
 
 
@@ -175,7 +170,7 @@ class ManifestClient(object):
 
     def write_manifest(self, analysis_id, output_file_path):
         manifest = self.create_manifest(analysis_id)
-        utils.write_object(manifest, output_file_path, overwrite=True)
+        write_object(manifest, output_file_path, overwrite=True)
 
 
 class Endpoints(object):
@@ -223,9 +218,9 @@ class Endpoints(object):
         return "{}/studies/{}/analysis/search/id?{}".format(self.__server_url, study_id, params)
 
     def info_search(self, study_id, is_include_info, **search_terms):
-        params = '&'.join(utils.convert_to_url_param_list(**search_terms))
+        params = '&'.join(convert_to_url_param_list(**search_terms))
         return "{}/studies/{}/analysis/search/info?includeInfo={}&{}".format(
-            self.__server_url,study_id, is_include_info, params)
+            self.__server_url, study_id, is_include_info, params)
 
     def get_entire_study(self, study_id):
         return "{}/studies/{}/all".format(self.__server_url, study_id)

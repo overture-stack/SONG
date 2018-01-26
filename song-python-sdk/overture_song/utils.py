@@ -27,7 +27,7 @@ from collections import OrderedDict
 
 def convert_to_url_param_list(delimeter='=', **kwargs):
     param_list = []
-    for k,v in kwargs.items():
+    for k, v in kwargs.items():
         param_list.append(k+delimeter+v)
     return param_list
 
@@ -41,10 +41,6 @@ def setup_output_file_path(file_path):
 def create_dir(dir_path):
     if not os.path.exists(dir_path):
         return os.makedirs(dir_path)
-
-
-def to_json_string(obj):
-    return json.dumps(to_dict(obj), default=lambda o: o.__dict__)
 
 
 def write_object(obj, output_file_path, overwrite=False):
@@ -89,22 +85,24 @@ def whitespace_repeat(repeat_number):
     ###############
     ## Description
     ###############
-    Builder class that takes a class decorated with the @dataclass decorator, and automatically 
-    generates 'with_<member_variable>(self, value)' setter methods. The construction of the input class type 
+    Builder class that takes a class decorated with the @dataclass decorator, and automatically
+    generates 'with_<member_variable>(self, value)' setter methods. The construction of the input class type
     (the dataclass) is constructed and returned when the 'build()' method is called.
-    
+
     ###############
     ## Issues
     ###############
     Since the methods are generated dynamically and after PyCharm indexes class attributes (i.e method names),
-    the intellisense feature in PyCharm (and possibly any other IDE) will not work for Builder object. For instance, 
+    the intellisense feature in PyCharm (and possibly any other IDE) will not work for Builder object. For instance,
     the builder for a simple dataclass such as  Person(first_name:str, last_name:str), would not have intellisense
-    available for Builder(Person).with_first_name("my first_name"), however would run as expected. 
-    Instead, the developer would have to reference the Person class definition and deduce the with_ setter name.  
+    available for Builder(Person).with_first_name("my first_name"), however would run as expected.
+    Instead, the developer would have to reference the Person class definition and deduce the with_ setter name.
 """
+
+
 class Builder(object):
 
-    def __init__(self, class_type : type):
+    def __init__(self, class_type: type):
         self.__members = OrderedDict()
         self.__class_type = class_type
         if '__dataclass_fields__' in class_type.__dict__:
@@ -116,9 +114,10 @@ class Builder(object):
         self.__doc__ = "Builder({})".format(a)
 
     def __generate_with_methods(self, dataclass_fields_dict):
-        for k,v in dataclass_fields_dict.items():
+        for k, v in dataclass_fields_dict.items():
             method_name = "with_"+k
             self.__members[k] = None
+
             def new_func(key):
                 def setter(value):
                     self.__members[key] = value
@@ -134,7 +133,7 @@ class Stack:
     def __init__(self):
         self.items = []
 
-    def isEmpty(self):
+    def is_empty(self):
         return self.items == []
 
     def push(self, item):
@@ -152,26 +151,26 @@ class Stack:
 
 class GenericObjectType(type):
 
-    def __call__(self, *args, **kwds):
-        out = super().__call__(*args, **kwds)
+    def __call__(cls, *args, **kwargs):
+        out = super().__call__(*args, **kwargs)
         type_name = args[0]
-        self.__class__.__name__ = type_name
+        cls.__class__.__name__ = type_name
         return out
 
     def to_dict(self):
         out = {}
-        for k,v in self.__dict__.items():
+        for k, v in self.__dict__.items():
             if not k.startswith("__"):
-                out[k] = self._proc(v)
+                out[k] = self._process(v)
         return out
 
-    def _proc(self, item ):
+    def _process(self, item):
         if isinstance(item, GenericObjectType):
             return item.to_dict()
         elif isinstance(item, list):
             out = []
             for x in item:
-                out.append(self._proc(x))
+                out.append(self._process(x))
             return out
         else:
             return item
@@ -189,26 +188,26 @@ class GenericObjectType(type):
         print(self.to_pretty_string())
 
 
-def to_generic_object(type_name, object):
+def to_generic_object(type_name, input_object):
     """
     Convert a dictionary to an object (recursive).
     """
-    def convert(type_name, item):
+    def convert(type_name_arg, item):
         if isinstance(item, dict):
-            obj = GenericObjectType(type_name, (), {k: convert(create_type_name(k), v) for k, v in item.items()})
+            obj = GenericObjectType(type_name_arg, (), {k: convert(create_type_name(k), v) for k, v in item.items()})
             return obj
         if isinstance(item, list):
-            def yield_convert(item):
-                for index, value in enumerate(item):
-                    yield convert(type_name+"_"+str(index), value)
+            def yield_convert(item_arg):
+                for index, value in enumerate(item_arg):
+                    yield convert(type_name_arg+"_"+str(index), value)
             return list(yield_convert(item))
         else:
             return item
 
     def create_type_name(key_text):
-        return "_".join( word[0].upper() + word[1:] for word in key_text.split())
+        return "_".join(word[0].upper() + word[1:] for word in key_text.split())
 
-    return convert(type_name, object)
+    return convert(type_name, input_object)
 
 
 def check_song_state(expression, error_id, formatted_message, *args):
@@ -240,6 +239,10 @@ def check_type(instance, class_type):
                 class_type.__class__.__name__)
 
 
+def default_value(value, init):
+    return init if value is None else value
+
+
 class SongClientException(Exception):
 
     def __init__(self, error_id, message):
@@ -259,8 +262,10 @@ def _objectize2(name):
         return new_function
     return wrap
 
+
 def objectize(original_function):
     name = GenericObjectType.__name__
+
     def new_function(*args, **kwargs):
         response = original_function(*args, **kwargs)
         return to_generic_object(name, response)

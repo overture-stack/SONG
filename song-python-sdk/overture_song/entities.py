@@ -4,11 +4,10 @@ from typing import Any, Type
 from dataclasses import dataclass
 
 from overture_song.validation import Validatable
-from overture_song.utils import Builder
+from overture_song.utils import Builder, default_value
 from typing import List
 from dataclasses import _isdataclass, asdict
 from overture_song.utils import check_type, check_state
-from overture_song.validation import non_null
 
 
 class Entity(object):
@@ -52,7 +51,6 @@ class Study(Metadata, Validatable):
     def validate(self):
         raise NotImplemented("not implemented")
 
-
     @classmethod
     def create(cls, studyId, name=None, description=None, organization=None):
         s = Study()
@@ -61,7 +59,6 @@ class Study(Metadata, Validatable):
         s.description = description
         s.organization = organization
         return s
-
 
     @classmethod
     def create_from_raw(cls, study_obj):
@@ -87,20 +84,19 @@ class File(Metadata, Validatable):
         raise NotImplemented("not implemented")
 
     @classmethod
-    def create(cls,fileName, fileSize, fileType, fileMd5sum,
-               fileAccess, studyId=None, analysisId=None, objectId=None, info={}):
+    def create(cls, fileName, fileSize, fileType, fileMd5sum,
+               fileAccess, studyId=None, analysisId=None, objectId=None, info=None):
         f = File()
         f.objectId = objectId
         f.analysisId = analysisId
         f.studyId = studyId
         f.fileType = fileType
         f.fileSize = fileSize
-        f.info = info
+        f.info = default_value(info, {})
         f.fileMd5sum = fileMd5sum
         f.fileAccess = fileAccess
         f.fileName = fileName
         return f
-
 
 
 @dataclass(frozen=False)
@@ -115,9 +111,9 @@ class Sample(Metadata, Validatable):
 
     @classmethod
     def create(cls, specimenId, sampleSubmitterId,
-               sampleType, sampleId=None , info={}):
+               sampleType, sampleId=None, info=None):
         s = Sample()
-        s.info = info
+        s.info = default_value(info, {})
         s.specimenId = specimenId
         s.sampleType = sampleType
         s.sampleSubmitterId = sampleSubmitterId
@@ -138,9 +134,9 @@ class Specimen(Metadata, Validatable):
 
     @classmethod
     def create(cls, donorId, specimenSubmitterId, specimenClass, specimenType,
-               specimenId=None, info={} ):
+               specimenId=None, info=None):
         s = Specimen()
-        s.info = info
+        s.info = default_value(info, {})
         s.specimenId = specimenId
         s.donorId = donorId
         s.specimenType = specimenType
@@ -160,10 +156,10 @@ class Donor(Metadata, Validatable):
         raise NotImplemented("not implemented")
 
     @classmethod
-    def create(cls, donorSubmitterId, studyId, donorGender, donorId=None , info={}):
+    def create(cls, donorSubmitterId, studyId, donorGender, donorId=None, info=None):
         d = Donor()
         d.donorId = donorId
-        d.info = info
+        d.info = default_value(info, {})
         d.studyId = studyId
         d.donorSubmitterId = donorSubmitterId
         d.donorGender = donorGender
@@ -252,13 +248,6 @@ class SequencingRead(Experiment, Validatable):
         return s
 
 
-
-
-
-
-# @validation(
-#     DataField("analysisId", str),
-#     DataField("file", str, multiple=True))
 @dataclass(frozen=False)
 class Analysis(Entity):
     analysisId: str = None
@@ -284,8 +273,6 @@ class Analysis(Entity):
         pass
 
 
-
-
 @dataclass(frozen=False)
 class SequencingReadAnalysis(Analysis, Validatable):
     analysisType: str = "sequencingRead"
@@ -294,22 +281,25 @@ class SequencingReadAnalysis(Analysis, Validatable):
     experiment: Type[SequencingRead] = None
 
     @classmethod
-    def create(cls, experiment, analysisId=None, study=None, analysisState="UNPUBLISHED", sample=[], file=[], info={}):
+    def create(cls, experiment, sample, file, analysisId=None, study=None, analysisState="UNPUBLISHED", info=None):
         check_type(experiment, SequencingRead)
-        check_state(sample is not None and len(sample) > 0, "Atleast one sample must be defined")
-        check_state(file is not None and len(file) > 0, "Atleast one file must be defined")
+        check_state(sample is not None and isinstance(sample, list) and len(sample) > 0,
+                    "Atleast one sample must be defined")
+        check_state(file is not None and isinstance(file, list) and len(file) > 0,
+                    "Atleast one file must be defined")
         for s in sample:
             check_type(s, CompositeEntity)
         for f in file:
             check_type(f, File)
+
         s = SequencingReadAnalysis()
+        s.sample = sample
+        s.file = file
+        s.info = default_value(info, {})
         s.experiment = experiment
         s.analysisId = analysisId
         s.study = study
         s.analysisState = analysisState
-        s.sample = sample
-        s.file = file
-        s.info = info
         return s
 
     def validate(self):
@@ -324,10 +314,12 @@ class VariantCallAnalysis(Analysis, Validatable):
     experiment: Type[VariantCall] = None
 
     @classmethod
-    def create(cls, experiment, analysisId=None, study=None, analysisState="UNPUBLISHED", sample=[], file=[], info={}):
+    def create(cls, experiment, sample, file, analysisId=None, study=None, analysisState="UNPUBLISHED", info=None):
         check_type(experiment, VariantCall)
-        check_state(sample is not None and len(sample) > 0, "Atleast one sample must be defined")
-        check_state(file is not None and len(file) > 0, "Atleast one file must be defined")
+        check_state(sample is not None and isinstance(sample, list) and len(sample) > 0,
+                    "Atleast one sample must be defined")
+        check_state(file is not None and isinstance(file, list) and len(file) > 0,
+                    "Atleast one file must be defined")
         for s in sample:
             check_type(s, CompositeEntity)
         for f in file:
@@ -340,9 +332,8 @@ class VariantCallAnalysis(Analysis, Validatable):
         s.analysisState = analysisState
         s.sample = sample
         s.file = file
-        s.info = info
+        s.info = default_value(info, {})
         return s
 
     def validate(self):
         raise NotImplemented("not implemented")
-

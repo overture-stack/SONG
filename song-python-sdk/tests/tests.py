@@ -22,8 +22,6 @@
 import hashlib
 import unittest
 
-from dataclasses import *
-
 from overture_song.entities import *
 from overture_song.model import *
 from overture_song.tools import FileUploadState
@@ -35,7 +33,7 @@ from overture_song.validation import non_null
 class TestFile(object):
 
     def __init__(self, filename):
-        self.name =  filename
+        self.name = filename
         self.m = hashlib.md5()
 
     def is_exists(self):
@@ -76,7 +74,7 @@ class TempFileStorage(object):
 
     def __init__(self, test_dir):
         self.test_dir = test_dir
-        utils.create_dir(test_dir)
+        create_dir(test_dir)
         self.file_map = {}
         self.file_prefix = "tmp_{}_".format(int(time.time()))
         self.count = 0
@@ -114,7 +112,7 @@ class SongTests(unittest.TestCase):
         super(SongTests, self).__init__(methodName)
         self.fixture_dir = "./fixtures"
         self.file_storage = TempFileStorage("./tempTestFiles")
-        self.maxDiff = None #To see all diffs
+        self.maxDiff = None
 
     def _get_fixture_filename(self, filename):
         return self.fixture_dir+os.sep+filename
@@ -123,9 +121,9 @@ class SongTests(unittest.TestCase):
         expected_test_file = TestFile(self._get_fixture_filename("expected_test_manifest_generation.txt"))
         actual_test_file = self.file_storage.get_test_file()
         analysis_id = "AN1"
-        manifest_entry_1 = ManifestEntry("fileId_1","myFileName1.txt", "12345qwert_1")
-        manifest_entry_2 = ManifestEntry("fileId_2","myFileName2.txt", "12345qwert_2")
-        manifest_entry_3 = ManifestEntry("fileId_3","myFileName3.txt", "12345qwert_3")
+        manifest_entry_1 = ManifestEntry("fileId_1", "myFileName1.txt", "12345qwert_1")
+        manifest_entry_2 = ManifestEntry("fileId_2", "myFileName2.txt", "12345qwert_2")
+        manifest_entry_3 = ManifestEntry("fileId_3", "myFileName3.txt", "12345qwert_3")
         manifest = Manifest(analysis_id, [manifest_entry_1, manifest_entry_2, manifest_entry_3])
         manifest.write(actual_test_file.name, overwrite=True)
         self.assertTrue(actual_test_file.md5_compare(expected_test_file))
@@ -161,7 +159,7 @@ class SongTests(unittest.TestCase):
         return json.load(open(expected_test_file.name, 'r'))
 
     def test_sequencing_read(self):
-        expected_dict  = self.load_json_as_dict("expected_sequencing_read.json")
+        expected_dict = self.load_json_as_dict("expected_sequencing_read.json")
 
         sr = SequencingRead()
         sr.analysisId = "an1"
@@ -177,17 +175,17 @@ class SongTests(unittest.TestCase):
         self.assertDictEqual(actual_dict, expected_dict)
 
     def test_metadata(self):
-        expected_dict  = self.load_json_as_dict("expected_metadata.json")
+        expected_dict = self.load_json_as_dict("expected_metadata.json")
 
         metadata = Metadata()
-        metadata.add_info({ "someField1" : "someValue1", "someField2" : "someValue2"})
+        metadata.add_info({"someField1": "someValue1", "someField2": "someValue2"})
         metadata.set_info("someField3", "someValue3")
 
         actual_dict = json.loads(metadata.to_json())
         self.assertDictEqual(actual_dict, expected_dict)
 
     def test_variant_call(self):
-        expected_dict  = self.load_json_as_dict("expected_variant_call.json")
+        expected_dict = self.load_json_as_dict("expected_variant_call.json")
 
         variant_call = VariantCall()
         variant_call.analysisId = "an1"
@@ -199,7 +197,7 @@ class SongTests(unittest.TestCase):
         self.assertDictEqual(actual_dict, expected_dict)
 
     def test_file(self):
-        expected_dict  = self.load_json_as_dict("expected_file.json")
+        expected_dict = self.load_json_as_dict("expected_file.json")
 
         file = File()
         file.analysisId = "an1"
@@ -217,7 +215,7 @@ class SongTests(unittest.TestCase):
         self.assertDictEqual(actual_dict, expected_dict)
 
     def test_sample(self):
-        expected_dict  = self.load_json_as_dict("expected_sample.json")
+        expected_dict = self.load_json_as_dict("expected_sample.json")
 
         sample = Sample()
         sample.sampleId = "sa1"
@@ -230,7 +228,7 @@ class SongTests(unittest.TestCase):
         self.assertDictEqual(actual_dict, expected_dict)
 
     def test_specimen(self):
-        expected_dict  = self.load_json_as_dict("expected_specimen.json")
+        expected_dict = self.load_json_as_dict("expected_specimen.json")
 
         sp = Specimen()
         sp.specimenId = "sp1"
@@ -244,7 +242,7 @@ class SongTests(unittest.TestCase):
         self.assertDictEqual(actual_dict, expected_dict)
 
     def test_donor(self):
-        expected_dict  = self.load_json_as_dict("expected_donor.json")
+        expected_dict = self.load_json_as_dict("expected_donor.json")
 
         d = Donor()
         d.donorId = "DO1"
@@ -292,7 +290,7 @@ class SongTests(unittest.TestCase):
     def test_analysis(self):
         expected_dict = self.load_json_as_dict("expected_analysis.json")
 
-        #Sample 1
+        # Sample 1
         sample1 = Sample()
         sample1.sampleId = "sa1"
         sample1.sampleSubmitterId = "ssId1"
@@ -300,7 +298,7 @@ class SongTests(unittest.TestCase):
         sample1.specimenId = "sp1"
         sample1.set_info("randomSample1Field", "someSample1Value")
 
-        #Sample 2
+        # Sample 2
         sample2 = Sample()
         sample2.sampleId = "sa2"
         sample2.sampleSubmitterId = "ssId2"
@@ -308,7 +306,7 @@ class SongTests(unittest.TestCase):
         sample2.specimenId = "sp1"
         sample2.set_info("randomSample2Field", "someSample2Value")
 
-        #File 1
+        # File 1
         file1 = File()
         file1.analysisId = "an1"
         file1.fileName = "myFilename1.txt"
@@ -320,7 +318,7 @@ class SongTests(unittest.TestCase):
         file1.objectId = "myObjectId1"
         file1.set_info("randomFile1Field", "someFile1Value")
 
-        #File 2
+        # File 2
         file2 = File()
         file2.analysisId = "an1"
         file2.fileName = "myFilename2.txt"
@@ -345,7 +343,7 @@ class SongTests(unittest.TestCase):
     def test_sequencing_read_analysis(self):
         expected_dict = self.load_json_as_dict("expected_sequencing_read_analysis.json")
 
-        #Sample 1
+        # Sample 1
         sample1 = Sample()
         sample1.sampleId = "sa1"
         sample1.sampleSubmitterId = "ssId1"
@@ -353,7 +351,7 @@ class SongTests(unittest.TestCase):
         sample1.specimenId = "sp1"
         sample1.set_info("randomSample1Field", "someSample1Value")
 
-        #Sample 2
+        # Sample 2
         sample2 = Sample()
         sample2.sampleId = "sa2"
         sample2.sampleSubmitterId = "ssId2"
@@ -361,7 +359,7 @@ class SongTests(unittest.TestCase):
         sample2.specimenId = "sp1"
         sample2.set_info("randomSample2Field", "someSample2Value")
 
-        #File 1
+        # File 1
         file1 = File()
         file1.analysisId = "an1"
         file1.fileName = "myFilename1.txt"
@@ -373,7 +371,7 @@ class SongTests(unittest.TestCase):
         file1.objectId = "myObjectId1"
         file1.set_info("randomFile1Field", "someFile1Value")
 
-        #File 2
+        # File 2
         file2 = File()
         file2.analysisId = "an1"
         file2.fileName = "myFilename2.txt"
@@ -385,7 +383,7 @@ class SongTests(unittest.TestCase):
         file2.objectId = "myObjectId2"
         file2.set_info("randomFile2Field", "someFile2Value")
 
-        #SequencingRead
+        # SequencingRead
         sr = SequencingRead()
         sr.analysisId = "an1"
         sr.aligned = True
@@ -396,7 +394,7 @@ class SongTests(unittest.TestCase):
         sr.referenceGenome = "GR37"
         sr.set_info("randomSRField", "someSRValue")
 
-        #SequencingReadAnalysis
+        # SequencingReadAnalysis
         a = SequencingReadAnalysis()
         a.analysisId = "an1"
         a.study = "Study1"
@@ -408,11 +406,10 @@ class SongTests(unittest.TestCase):
         actual_dict = json.loads(a.to_json())
         self.assertDictEqual(actual_dict, expected_dict)
 
-
     def test_variant_call_analysis(self):
         expected_dict = self.load_json_as_dict("expected_variant_call_analysis.json")
 
-        #Sample 1
+        # Sample 1
         sample1 = Sample()
         sample1.sampleId = "sa1"
         sample1.sampleSubmitterId = "ssId1"
@@ -420,7 +417,7 @@ class SongTests(unittest.TestCase):
         sample1.specimenId = "sp1"
         sample1.set_info("randomSample1Field", "someSample1Value")
 
-        #Sample 2
+        # Sample 2
         sample2 = Sample()
         sample2.sampleId = "sa2"
         sample2.sampleSubmitterId = "ssId2"
@@ -428,7 +425,7 @@ class SongTests(unittest.TestCase):
         sample2.specimenId = "sp1"
         sample2.set_info("randomSample2Field", "someSample2Value")
 
-        #File 1
+        # File 1
         file1 = File()
         file1.analysisId = "an1"
         file1.fileName = "myFilename1.txt"
@@ -440,7 +437,7 @@ class SongTests(unittest.TestCase):
         file1.objectId = "myObjectId1"
         file1.set_info("randomFile1Field", "someFile1Value")
 
-        #File 2
+        # File 2
         file2 = File()
         file2.analysisId = "an1"
         file2.fileName = "myFilename2.txt"
@@ -452,14 +449,14 @@ class SongTests(unittest.TestCase):
         file2.objectId = "myObjectId2"
         file2.set_info("randomFile2Field", "someFile2Value")
 
-        #VariantCall
+        # VariantCall
         variant_call = VariantCall()
         variant_call.analysisId = "an1"
         variant_call.matchedNormalSampleSubmitterId = "matched1"
         variant_call.variantCallingTool = "smuffin"
         variant_call.set_info("randomVCField", "someVCValue")
 
-        #VariantCallAnalysis
+        # VariantCallAnalysis
         a = VariantCallAnalysis()
         a.analysisId = "an1"
         a.study = "Study1"
@@ -471,14 +468,13 @@ class SongTests(unittest.TestCase):
         actual_dict = json.loads(a.to_json())
         self.assertDictEqual(actual_dict, expected_dict)
 
-    #################################3
-    # @validation Validation Tests
-    #################################3
-
+    """
+    @validation Validation Tests
+    """
     def test_person_missing_fields(self):
         error = False
         try:
-            s = PersonMissingFields()
+            PersonMissingFields()
         except Exception as e:
             print("\nException: {}".format(e))
             error = True
@@ -514,6 +510,7 @@ class SongTests(unittest.TestCase):
         p = LazyPerson()
         p.lastName = 234
         p.non_defined_group = "something"
+        self.assertTrue(True)
 
     def test_dataclass_person(self):
         p = DataClassPerson()
@@ -521,25 +518,22 @@ class SongTests(unittest.TestCase):
         p.lastName = 3234
         p.age = "something"
         p.cars = ['mazda', 'vw']
-        p.non_defined_group = "this aint good..."
-
-        print ("\nconverted to a dictionary automatically: \n{}".format(asdict(p)))
-
-
-
+        p.non_defined_group = "this aint good"
+        print("\nconverted to a dictionary automatically: \n{}".format(asdict(p)))
+        self.assertTrue(p.non_defined_group == "this aint good")
 
     def test_constructor_person(self):
         p_good = ConstructorStrictPerson("John", "Doe")
         error = False
         try:
-            p_wrong_type = ConstructorStrictPerson("John", 230)
+            ConstructorStrictPerson("John", 230)
         except Exception as e:
             print("\nException: {}".format(e))
             error = True
         self.assertTrue(error)
         p_good_same = ConstructorStrictPerson("John", "Doe")
-        self.assertTrue(p_good  is not p_good_same)
-        self.assertTrue(p_good  == p_good_same)
+        self.assertTrue(p_good is not p_good_same)
+        self.assertTrue(p_good == p_good_same)
 
     def test_strict_person_as_dict(self):
         s = StrictPerson()
@@ -548,6 +542,7 @@ class SongTests(unittest.TestCase):
         s.age = 23
         s.cars = ["mazda", "something"]
         print("dict = {}".format(asdict(s)))
+        self.assertTrue(True)
 
     def test_to_dict_recursion(self):
         d = Donor()
@@ -578,8 +573,8 @@ class SongTests(unittest.TestCase):
         c.set_info("randomCEField", "someCEValue")
 
         error = False
-        try :
-            non_recursive_dict = json.dumps(c.__dict__)
+        try:
+            json.dumps(c.__dict__)
         except Exception as e:
             error = True
             print("\nException: {}".format(e))
@@ -587,19 +582,19 @@ class SongTests(unittest.TestCase):
         self.assertTrue(error)
         print("\nRecursive dictionary generation with dataclasses: \n{}".format(json.dumps(c.to_dict(), indent=4)))
 
-    ##################
-    # Failing NON_NULL Tests
-    ##################
+    """
+    Failing NON_NULL Tests
+    """
     @non_null(exclude=["c"])
-    def function_c(self, a,b,c):
+    def function_c(self, a, b, c):
         pass
 
     @non_null(exclude=["b"])
-    def function_b(self, a,b,c):
+    def function_b(self, a, b, c):
         pass
 
-    @non_null(exclude=["a","c"])
-    def function_a_c(self, a,b,c):
+    @non_null(exclude=["a", "c"])
+    def function_a_c(self, a, b, c):
         pass
 
     def test_non_null_c(self):
@@ -642,7 +637,7 @@ class SongTests(unittest.TestCase):
             obj.not_defined_attribute
         except Exception as e:
             print('Exception: {}'.format(e))
-            error=True
+            error = True
         self.assertTrue(error)
 
         print(obj.firstName)
@@ -654,28 +649,28 @@ class SongTests(unittest.TestCase):
     @objectize
     def example_of_objectize(self):
         return {
-            "firstName" : "Rob",
-            "last_name" : "T",
-            "addresses" : [
+            "firstName": "Rob",
+            "last_name": "T",
+            "addresses": [
                 {
-                    "country" : "canada",
+                    "country": "canada",
                     "coordinates": {
-                        "longitude" : 23,
-                        "latitude" : 9.03
+                        "longitude": 23,
+                        "latitude": 9.03
                     }
                 },
                 {
-                    "country" : "serbia",
+                    "country": "serbia",
                     "coordinates": {
-                        "longitude" : 32,
-                        "latitude" : 73
+                        "longitude": 32,
+                        "latitude": 73
                     }
                 },
                 {
-                    "country" : "cuba",
+                    "country": "cuba",
                     "coordinates": {
-                        "longitude" : 18,
-                        "latitude" : 7
+                        "longitude": 18,
+                        "latitude": 7
                     }
                 }
             ]
@@ -699,8 +694,6 @@ class PersonMissingFields(object):
     cars: str = None
 
 
-
-
 @validation(
     DataField("firstName", str, required=True),
     DataField("age", int, required=False),
@@ -718,7 +711,7 @@ class StrictPerson(object):
     DataField("firstName", str, required=True),
     DataField("lastName", str, required=True),
     DataField("age", int, required=False),
-    DataField("cars", str, required=False, multiple=True) )
+    DataField("cars", str, required=False, multiple=True))
 @dataclass(frozen=False, init=True)
 class ConstructorStrictPerson(object):
     firstName: str
@@ -732,6 +725,7 @@ class LazyPerson(object):
     lastName: str = None
     cars: str = None
     age: int = None
+
 
 @dataclass
 class DataClassPerson(object):

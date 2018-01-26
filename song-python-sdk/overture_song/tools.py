@@ -26,9 +26,8 @@ import time
 from enum import unique, Enum
 import logging
 
-from overture_song import utils as utils
 from overture_song.client import Api, StudyClient
-from overture_song.utils import SongClientException
+from overture_song.utils import SongClientException, check_file, check_dir, check_song_state
 from overture_song.model import ApiConfig, SongError
 from overture_song.entities import *
 import json
@@ -56,9 +55,9 @@ class BatchUploader(object):
         self.__api = None
 
         # Check
-        utils.check_dir(self.payload_dir)
+        check_dir(self.payload_dir)
 
-    def __calc_depth(self, root_path ):
+    def __calc_depth(self, root_path):
         rel_root_path = os.path.realpath(root_path).replace(self.payload_dir, '')
         return len(rel_root_path.split(os.sep)) - 1
 
@@ -88,7 +87,7 @@ class BatchUploader(object):
             use_root_dir, study_id = self.__use_root_dir(root)
 
             if use_root_dir:
-                print ("study_id = {}    files= {} ".format(study_id, files))
+                print("study_id = {}    files= {} ".format(study_id, files))
                 self.__setup_study(study_id)
 
                 filtered_file_list = list(filter(lambda f: f.endswith('.json'), files))
@@ -108,7 +107,7 @@ class BatchUploader(object):
                 filtered_file_list = list(filter(lambda f: f.endswith('.json'), files))
                 total_size = len(filtered_file_list)
                 file_count = 0
-                # TODO: refactor this repitition out
+                # TODO: refactor this repetition out
                 for file in filtered_file_list:
                     filename = root+os.sep+file
                     file_upload_obj = self.get_file(study_id, filename)
@@ -175,7 +174,7 @@ class BatchUploader(object):
 
     def print_upload_states(self):
         for file_upload in self.get_all_files():
-            print("{}\t{}\t{}".format(file_upload.study_id, file_upload.upload_state , file_upload.filename ))
+            print("{}\t{}\t{}".format(file_upload.study_id, file_upload.upload_state, file_upload.filename))
 
 
 @unique
@@ -196,14 +195,14 @@ class FileUploadState(Enum):
         return self.value == other.value
 
     def __lt__(self, other):
-        utils.check_type(other, FileUploadState)
+        check_type(other, FileUploadState)
         return self.value < other.value
 
     def __gt__(self, other):
         return other.__lt__(self)
 
     def __eq__(self, other):
-        utils.check_type(other, FileUploadState)
+        check_type(other, FileUploadState)
         return self.__equals(other)
 
     def __le__(self, other):
@@ -238,29 +237,30 @@ class FileUploadClient(object):
         self.analysis_id = None
 
         # Check
-        utils.check_type(api, Api)
-        utils.check_file(filename)
+        check_type(api, Api)
+        check_file(filename)
 
     def upload(self):
         if self.upload_state > FileUploadState.NOT_UPLOADED:
-            log.warn("The file '{}' has already been uploaded".format(self.filename))
+            log.warning("The file '{}' has already been uploaded".format(self.filename))
         else:
             with open(self.filename, 'r') as file_content:
                 json_data = json.load(file_content)  # just to validate the json
             try:
                 upload_response = self.__api.upload(json_data, is_async_validation=self.is_async_validation)
-                utils.check_song_state(upload_response.status == 'ok' or 'WARNING' in upload_response.status, 'file.upload.fail',
-                                       "The upload for file '{}' was unsuccessful", self.filename)
+                check_song_state(upload_response.status == 'ok' or 'WARNING' in upload_response.status,
+                                 'file.upload.fail', "The upload for file '{}' was unsuccessful", self.filename)
                 self.upload_state = FileUploadState.SUBMITTED
                 self.upload_id = upload_response.uploadId
             except SongClientException as se:
-                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id, se.timestamp, se.message)
+                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id,
+                                                                                   se.timestamp, se.message)
                 self.upload_state = FileUploadState.UPLOAD_ERROR
             except SongError as ex:
                 self.upload_errors = ex
                 self.upload_state = FileUploadState.UPLOAD_ERROR
             except Exception as e:
-                self.upload_errors = "[{}] : {}".format(e.__class__.__name__, e.message)
+                self.upload_errors = "[{}] : {}".format(e.__class__.__name__, e)
                 self.upload_state = FileUploadState.UNKNOWN_ERROR
 
     def update_status(self):
@@ -269,7 +269,7 @@ class FileUploadClient(object):
                                                                                       self.upload_id,
                                                                                       self.upload_errors))
         elif self.upload_state == FileUploadState.NOT_UPLOADED:
-            log.warn("Status undefined for file '{}' as it was not uploaded".format(self.filename))
+            log.warning("Status undefined for file '{}' as it was not uploaded".format(self.filename))
         elif self.upload_state == FileUploadState.SUBMITTED:
             # actually calculate the status
             try:
@@ -289,68 +289,71 @@ class FileUploadClient(object):
                 else:
                     self.upload_state = FileUploadState.UNKNOWN_ERROR
             except SongClientException as se:
-                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id, se.timestamp, se.message)
+                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id,
+                                                                                   se.timestamp, se.message)
                 self.upload_state = FileUploadState.STATUS_ERROR
             except SongError as ex:
                 self.upload_errors = ex
                 self.upload_state = FileUploadState.STATUS_ERROR
             except Exception as e:
-                self.upload_errors = "[{}] : ".format(e.__class__.__name__, e.message)
+                self.upload_errors = "[{}] : {}".format(e.__class__.__name__, e)
                 self.upload_state = FileUploadState.UNKNOWN_ERROR
 
         elif FileUploadState.VALIDATED < self.upload_state < FileUploadState.PUBLISHED:
             log.info(
                 "The file '{}' with upload_id '{}' has already been validated and has state '{}'".format(
-                    self.filename, self.upload_id, self.upload_state.__class__.__name__ ))
+                    self.filename, self.upload_id, self.upload_state.__class__.__name__))
 
     def save(self):
-        utils.check_state(self.upload_state >= FileUploadState.VALIDATED,
-                          "Need to VALIDATE upload_id '{}' for file '{}' before SAVING",
-                          self.upload_id, self.filename)
+        check_state(self.upload_state >= FileUploadState.VALIDATED,
+                    "Need to VALIDATE upload_id '{}' for file '{}' before SAVING",
+                    self.upload_id, self.filename)
         if self.upload_state >= FileUploadState.SAVED:
-            log.warn("The file '{}' with upload_id '{}' was already saved with analysis_id '{}'".format(
+            log.warning("The file '{}' with upload_id '{}' was already saved with analysis_id '{}'".format(
                 self.filename, self.upload_id, self.analysis_id))
         else:
             try:
                 save_response = self.__api.save(self.upload_id,
                                                 ignore_analysis_id_collisions=self.ignore_analysis_id_collisions)
-                utils.check_state(save_response.status == 'ok',
-                                  "The save for upload_id '{}' for file '{}' was unsuccessfull: {}",
-                                  self.upload_id, self.filename, save_response.__dict__ )
+                check_state(save_response.status == 'ok',
+                            "The save for upload_id '{}' for file '{}' was unsuccessfull: {}",
+                            self.upload_id, self.filename, save_response.__dict__)
                 self.upload_state = FileUploadState.SAVED
                 self.analysis_id = save_response.analysisId
             except SongClientException as se:
-                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id, se.timestamp, se.message)
+                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id,
+                                                                                   se.timestamp, se.message)
                 self.upload_state = FileUploadState.SAVE_ERROR
             except SongError as ex:
                 self.upload_errors = ex
                 self.upload_state = FileUploadState.SAVE_ERROR
             except Exception as e:
-                self.upload_errors = "[{}] : ".format(e.__class__.__name__, e.message)
+                self.upload_errors = "[{}] : {}".format(e.__class__.__name__, e)
                 self.upload_state = FileUploadState.UNKNOWN_ERROR
 
     def publish(self):
-        utils.check_state(self.upload_state >= FileUploadState.SAVED,
-                          "Need to SAVE upload_id '{}' for file '{}' before PUBLISHING",
-                          self.upload_id, self.filename)
+        check_state(self.upload_state >= FileUploadState.SAVED,
+                    "Need to SAVE upload_id '{}' for file '{}' before PUBLISHING",
+                    self.upload_id, self.filename)
         if self.upload_state >= FileUploadState.PUBLISHED:
-            log.warn("The file '{}' with upload_id '{}' was already published with analysis_id '{}'".format(
+            log.warning("The file '{}' with upload_id '{}' was already published with analysis_id '{}'".format(
                 self.filename, self.upload_id, self.analysis_id))
         else:
             try:
                 publish_response = self.__api.publish(self.analysis_id)
-                utils.check_state(publish_response.status == 'ok',
-                                  "The publish for analysis_id '{}' for file '{}' and upload_id '{}' was unsuccessfull: {}",
-                                  self.analysis_id, self.filename, self.upload_id,  publish_response.__dict__)
+                check_state(publish_response.status == 'ok',
+                            "The publish for analysis_id '{}' for file '{}' and upload_id '{}' was unsuccessfull: {}",
+                            self.analysis_id, self.filename, self.upload_id,  publish_response.__dict__)
                 self.upload_state = FileUploadState.PUBLISHED
             except SongClientException as se:
-                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id, se.timestamp, se.message)
+                self.upload_errors = "[SONG_CLIENT_EXCEPTION] {} @ {} : {}".format(se.error_id,
+                                                                                   se.timestamp, se.message)
                 self.upload_state = FileUploadState.PUBLISH_ERROR
             except SongError as ex:
                 self.upload_errors = ex
                 self.upload_state = FileUploadState.PUBLISH_ERROR
             except Exception as e:
-                self.upload_errors = "[{}] : ".format(e.__class__.__name__, e.message)
+                self.upload_errors = "[{}] : {}".format(e.__class__.__name__, e)
                 self.upload_state = FileUploadState.UNKNOWN_ERROR
 
 
@@ -373,7 +376,7 @@ class SimplePayloadBuilder(object):
         check_type(self.specimen, Specimen)
         check_type(self.sample, Sample)
         check_type(self.files, list)
-        check_state(len(self.files)>0, "Must have atleast one file for the upload payload")
+        check_state(len(self.files) > 0, "Must have atleast one file for the upload payload")
         for f in self.files:
             check_type(f, File)
 
@@ -385,15 +388,13 @@ class SimplePayloadBuilder(object):
             self._analysisType = "variantCall"
 
     def to_dict(self):
-
-        composite_entity = CompositeEntity.create(self.donor,self.specimen, self.sample)
-        analysis = None
+        composite_entity = CompositeEntity.create(self.donor, self.specimen, self.sample)
         if self._is_seq_read:
             analysis = SequencingReadAnalysis()
-            utils.check_type(self.experiment, SequencingRead)
+            check_type(self.experiment, SequencingRead)
         else:
             analysis = VariantCallAnalysis()
-            utils.check_type(self.experiment, VariantCall)
+            check_type(self.experiment, VariantCall)
 
         analysis.experiment = self.experiment
         analysis.sample.append(composite_entity)
@@ -408,8 +409,3 @@ class SimplePayloadBuilder(object):
             out_dict.pop('analysisId')
 
         return out_dict
-
-
-
-
-

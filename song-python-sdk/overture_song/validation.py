@@ -1,55 +1,15 @@
 from abc import abstractmethod
 
-from overture_song import utils
-from overture_song.utils import check_state
+from overture_song.utils import check_state, default_value, check_type
 from collections import OrderedDict
 import inspect
 
 
 class Validatable(object):
+
     @abstractmethod
     def validate(self):
         pass
-
-    @classmethod
-    def validate_string(cls, value: str):
-        utils.check_type(value, str)
-
-    @classmethod
-    def validate_int(cls, value: int):
-        utils.check_type(value, int)
-
-    @classmethod
-    def validate_float(cls, value: float):
-        utils.check_type(value, float)
-
-    @classmethod
-    def validate_not_none(cls, value: float):
-        check_state(value is not None, "The input value cannot be None")
-
-    @classmethod
-    def validate_string_not_empty_or_none(cls, value: str):
-        Validatable.validate_string(value)
-        Validatable.validate_not_none(value)
-        check_state(value, "The input string value cannot be empty")
-
-    @classmethod
-    def validate_required_string(cls, value: str):
-        Validatable.validate_string_not_empty_or_none(value)
-
-    def required(cls, original_function):
-        def new_function(value):
-            out = original_function(value)
-            check_state(out is not None, "The input value cannot be None")
-
-        return new_function
-
-    def string(cls, original_function):
-        def new_function(value):
-            out = original_function(value)
-            check_state(out is not None, "The input value cannot be None")
-
-        return new_function
 
 
 class DataField(object):
@@ -99,16 +59,15 @@ class DataField(object):
 class validation(object):
     def __init__(self, *datafields):
         self.datafields = list(datafields)
-        utils.check_type(self.datafields, list)
+        check_type(self.datafields, list)
         check_state(len(self.datafields) > 0, "Must define atleast one datafield")
         self.name_type_map = {}
         for datafield in self.datafields:
-            utils.check_type(datafield, DataField)
+            check_type(datafield, DataField)
             if datafield.name not in self.name_type_map:
                 self.name_type_map[datafield.name] = {}
             for t in datafield.types:
                 t_name = t.__name__
-
                 if t_name in self.name_type_map[datafield.name]:
                     raise Exception(
                         "Collision: The datafield definition '{}' already exists as '{}' for the type '{}'".format(
@@ -129,9 +88,10 @@ class validation(object):
                 Cls.__init__(self, *args, **kwargs)
                 check_state(Validator.SPECIAL_FIELD in Cls.__dict__,
                             "Decorator can only process dataclasses")
-                self._check_validator()
+                Validator._check_validator()
 
-            def _check_validator(self):
+            @classmethod
+            def _check_validator(cls):
                 available_fields = Validator._INTERNAL_DICT.keys()
                 undefined_set = set()
 
@@ -156,14 +116,18 @@ class validation(object):
 
         return Validator
 
-## [BUG] : cannot process functions that have @classmethod annotation
-def non_null(exclude=[]):
+
+# [BUG] : cannot process functions that have @classmethod annotation
+def non_null(exclude=None):
+    exclude = default_value(exclude, [])
+
     def wrap(func):
         inspected_args = OrderedDict.fromkeys(inspect.signature(func).parameters.keys(), True)
         is_self = False
         if "self" in inspected_args.keys():
             is_self = True
             inspected_args.pop("self")
+
         def new_func(*args, **kwargs):
             count = 1 if is_self else 0
             for a in inspected_args.keys():
@@ -173,4 +137,3 @@ def non_null(exclude=[]):
             return func(*args, **kwargs)
         return new_func
     return wrap
-
