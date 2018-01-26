@@ -119,11 +119,7 @@ class StudyClient(object):
         val = self.__api.get_study(study_id)
         return val[0] is not None
 
-    def read(self, study_id, recursive=False):
-        if recursive:
-            val = self.__api.get_entire_study(study_id)
-            check_song_state(val is not None, "study.client.entire", "The study_id '{}' does not exist", study_id)
-            return val
+    def read(self, study_id):
         val = self.__api.get_study(study_id)
         check_song_state(val[0] is not None, 'study.client.get', "The study_id '{}' does not exist".format(study_id))
         return Study.create_from_raw(val[0])
