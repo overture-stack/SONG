@@ -175,6 +175,12 @@ class GenericObjectType(type):
         else:
             return item
 
+    def __getattribute__(self, name: str):
+        try:
+            return object.__getattribute__(self, name)
+        except:
+            return None
+
     def __repr__(self):
         return self.to_pretty_string()
 
@@ -270,3 +276,16 @@ def objectize(original_function):
         response = original_function(*args, **kwargs)
         return to_generic_object(name, response)
     return new_function
+
+
+def get_optional_field(dic, field):
+    return dic[field] if field in dic else None
+
+
+def get_required_field(dic, field):
+    if field in dic:
+        return dic[field]
+    else:
+        raise SongClientException("study.id.dne", "The field '{}' does not exist in {}".format(field, str(dic)))
+
+

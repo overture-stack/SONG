@@ -23,32 +23,16 @@ import logging
 
 from dataclasses import dataclass
 
-from overture_song.utils import SongClientException, default_value, to_pretty_json_string, write_object
+from overture_song.utils import default_value, to_pretty_json_string, write_object, \
+    get_required_field
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.model")
 
 
-###############################
-# Utility Functions for Models
-###############################
-
-def get_optional_field(dic, field):
-    return dic[field] if field in dic else None
-
-
-def get_required_field(dic, field):
-    if field in dic:
-        return dic[field]
-    else:
-        raise SongClientException("study.id.dne", "The field '{}' does not exist in {}".format(field, str(dic)))
-
-
 ################################
 #  Models
 ################################
-
-
 class SongError(Exception):
     FIELDS = ['stackTrace',
               'errorId',

@@ -22,6 +22,8 @@
 import hashlib
 import unittest
 
+from overture_song.client import Api, StudyClient
+
 from overture_song.entities import *
 from overture_song.model import *
 from overture_song.tools import FileUploadState
@@ -630,15 +632,17 @@ class SongTests(unittest.TestCase):
             error = True
         self.assertTrue(error)
 
+    def test_generic_object(self):
+        obj = self.example_of_objectize()
+        r1 = obj.undefined_attribute_1235
+        r2 = obj.firstName
+        self.assertTrue(r1 is None)
+        self.assertTrue(r2 is not None)
+
     def test_objectize(self):
         obj = self.example_of_objectize()
-        error = False
-        try:
-            obj.not_defined_attribute
-        except Exception as e:
-            print('Exception: {}'.format(e))
-            error = True
-        self.assertTrue(error)
+        r = obj.not_defined_attribute
+        self.assertTrue(r is None)
 
         print(obj.firstName)
         print(obj.addresses[0])
