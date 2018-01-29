@@ -1,0 +1,62 @@
+{
+    "experiment": {
+        "analysisId": "an1",
+        "variantCallingTool": "smuffin",
+        "matchedNormalSampleSubmitterId": "matched1",
+        "info": {
+            "randomVCField": "someVCValue"
+        }
+    },
+    "analysisId": "an1",
+    "study": "Study1",
+    "analysisState": "UNPUBLISHED",
+    "analysisType" : "variantCall",
+    "sample": [
+        {
+            "sampleId": "sa1",
+            "specimenId": "sp1",
+            "sampleSubmitterId": "ssId1",
+            "sampleType": "RNA",
+            "info": {
+                "randomSample1Field": "someSample1Value"
+            }
+        },
+        {
+            "sampleId": "sa2",
+            "specimenId": "sp1",
+            "sampleSubmitterId": "ssId2",
+            "sampleType": "RNA",
+            "info": {
+                "randomSample2Field": "someSample2Value"
+            }
+        }
+    ],
+    "file": [
+        {
+            "objectId": "myObjectId1",
+            "analysisId": "an1",
+            "fileName": "myFilename1.txt",
+            "studyId": "Study1",
+            "fileSize": 1234561,
+            "fileType": "VCF",
+            "fileMd5sum": "myMd51",
+            "fileAccess": "controlled",
+            "info": {
+                "randomFile1Field": "someFile1Value"
+            }
+        },
+        {
+            "objectId": "myObjectId2",
+            "analysisId": "an1",
+            "fileName": "myFilename2.txt",
+            "studyId": "Study1",
+            "fileSize": 1234562,
+            "fileType": "VCF",
+            "fileMd5sum": "myMd52",
+            "fileAccess": "controlled",
+            "info": {
+                "randomFile2Field": "someFile2Value"
+            }
+        }
+    ]
+}

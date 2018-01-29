@@ -1,0 +1,11 @@
+{
+  "analysisId" :  "an1",
+  "fileName":  "myFilename",
+  "studyId":  "myStudyId",
+  "fileAccess":  "controlled",
+  "fileMd5sum":  "myMd5",
+  "fileSize":  123456,
+  "fileType":  "VCF",
+  "objectId":  "myObjectId",
+  "info" : { "randomField" : "someValue" }
+}

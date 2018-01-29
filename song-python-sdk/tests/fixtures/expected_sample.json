@@ -1,0 +1,7 @@
+{
+  "sampleId":  "sa1",
+  "sampleSubmitterId":  "ssId1",
+  "sampleType":  "RNA",
+  "specimenId":  "sp1",
+  "info" : { "randomField" : "someValue" }
+}
