@@ -22,8 +22,6 @@
 import hashlib
 import unittest
 
-from overture_song.client import Api, StudyClient
-
 from overture_song.entities import *
 from overture_song.model import *
 from overture_song.tools import FileUploadState
