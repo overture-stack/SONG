@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static org.icgc.dcc.song.core.utils.Responses.OK;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -52,13 +54,14 @@ public class SampleController {
   @PostMapping(value = "/samples", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(@PathVariable("studyId") String studyId, @RequestBody Sample sample) {
+  public String create(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId, @RequestBody Sample sample) {
     return sampleService.create(studyId, sample);
   }
 
   @GetMapping(value = "/samples/{id}")
   @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public Sample read(@PathVariable("id") String id) {
     return sampleService.read(id);
   }
@@ -78,7 +81,9 @@ public class SampleController {
   @DeleteMapping(value = "/samples/{ids}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
+  public String delete(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(sampleService::delete);
     return OK;
   }

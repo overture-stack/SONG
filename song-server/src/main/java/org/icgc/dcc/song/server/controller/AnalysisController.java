@@ -28,7 +28,6 @@ import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
@@ -46,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static org.icgc.dcc.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -61,8 +61,8 @@ public class AnalysisController {
   private final AnalysisService analysisService;
 
   @GetMapping(value = "")
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public List<Analysis> getAnalysis(@PathVariable("studyId") String studyId) {
+  public List<Analysis> getAnalysis(
+      @PathVariable("studyId") String studyId) {
     return analysisService.getAnalysis(studyId);
   }
 
@@ -80,8 +80,8 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> publishAnalysis(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
-      @RequestHeader(value = HttpHeaders.AUTHORIZATION) final String accessToken,
       @PathVariable("id") String id) {
     return analysisService.publish(accessToken,id);
   }
@@ -89,7 +89,9 @@ public class AnalysisController {
   @PutMapping(value="/suppress/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> suppressAnalysis(@PathVariable("studyId") String studyId,
+  public ResponseEntity<String> suppressAnalysis(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     return analysisService.suppress(id);
   }
@@ -100,8 +102,9 @@ public class AnalysisController {
    * @return A JSON object representing this analysis
    */
   @GetMapping(value = "/{id}")
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public Analysis read(@PathVariable("studyId") String studyId, @PathVariable("id") String id) {
+  public Analysis read(
+      @PathVariable("studyId") String studyId,
+      @PathVariable("id") String id) {
     return analysisService.read(id);
   }
 
@@ -117,7 +120,6 @@ public class AnalysisController {
 
 
   @GetMapping(value = "/search/id")
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public List<Analysis> idSearch(@PathVariable("studyId") String studyId,
       @RequestParam(value = "donorId",required = false) String donorIds,
       @RequestParam(value = "sampleId",required = false) String sampleIds,
@@ -129,13 +131,11 @@ public class AnalysisController {
 
   @PostMapping(value = "/search/id", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public List<Analysis> idSearch(@PathVariable("studyId") String studyId, @RequestBody IdSearchRequest request) {
     return analysisService.idSearch(studyId, request);
   }
 
   @GetMapping(value = "/search/info")
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public List<InfoSearchResponse> search(@PathVariable("studyId") String studyId,
       @RequestParam(value = "includeInfo") boolean includeInfo,
       @RequestParam MultiValueMap<String, String> multiValueMap ) {
@@ -144,7 +144,6 @@ public class AnalysisController {
   }
 
   @PostMapping(value = "/search/info")
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public List<InfoSearchResponse> search(@PathVariable("studyId") String studyId,
       @RequestBody InfoSearchRequest request){
     return analysisService.infoSearch(studyId, request);

@@ -26,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static org.icgc.dcc.song.core.utils.Responses.OK;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,7 +49,6 @@ public class FileController {
 
   @GetMapping(value = "/files/{id}")
   @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public File read(@PathVariable("id") String id) {
     return fileService.read(id);
   }
@@ -66,7 +67,9 @@ public class FileController {
   @DeleteMapping(value = "/files/{ids}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
+  public String delete(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
     ids.forEach(fileService::delete);
     return OK;
   }
