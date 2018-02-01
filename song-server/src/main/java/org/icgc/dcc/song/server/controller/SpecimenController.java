@@ -18,6 +18,9 @@
  */
 package org.icgc.dcc.song.server.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.service.SpecimenService;
@@ -43,6 +46,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
+@Api(tags = "Specimen", description = "Create,read and delete specimens")
 public class SpecimenController {
 
   /**
@@ -51,6 +55,7 @@ public class SpecimenController {
   @Autowired
   private final SpecimenService specimenService;
 
+  @ApiOperation(value = "CreateSpecimen", notes = "Creates a specimen")
   @PostMapping(value = "/specimens", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -60,6 +65,7 @@ public class SpecimenController {
     return specimenService.create(studyId, specimen);
   }
 
+  @ApiOperation(value = "ReadSpecimen", notes = "Retrieves specimen data for a specimenId")
   @GetMapping(value = "/specimens/{id}")
   @ResponseBody
   public Specimen read(@PathVariable("id") String id) {
@@ -78,12 +84,15 @@ public class SpecimenController {
 //    return specimenService.update(specimen);
 //  }
 
+  @ApiOperation(value = "DeleteSpecimens", notes = "Deletes specimen data and all dependent samples for specimenIds")
   @DeleteMapping(value = "/specimens/{ids}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
+      @PathVariable("studyId") String studyId,
+      @PathVariable("ids") @ApiParam(value = "Comma separated list of specimenIds", required = true)
+      List<String> ids) {
     ids.forEach(specimenService::delete);
     return OK;
   }

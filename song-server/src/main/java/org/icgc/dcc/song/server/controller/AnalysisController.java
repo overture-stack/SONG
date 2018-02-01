@@ -18,6 +18,9 @@
  */
 package org.icgc.dcc.song.server.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -52,6 +55,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}/analysis")
+@Api(tags = "Analysis", description = "Read, publish, suppress and search analyses")
 public class AnalysisController {
 
   /**
@@ -60,6 +64,7 @@ public class AnalysisController {
   @Autowired
   private final AnalysisService analysisService;
 
+  @ApiOperation(value = "GetAnalysesForStudy", notes = "Retrieve all analysis objects for a studyId")
   @GetMapping(value = "")
   public List<Analysis> getAnalysis(
       @PathVariable("studyId") String studyId) {
@@ -76,6 +81,9 @@ public class AnalysisController {
 //    return analysisService.updateAnalysis(studyId, analysis);
 //  }
 
+  @ApiOperation(value = "PublishAnalysis",
+      notes = "Publish an analysis. This checks to see if the files associated "
+      + "with the input analysisId exist in the storage server")
   @PutMapping(value="/publish/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -86,6 +94,8 @@ public class AnalysisController {
     return analysisService.publish(accessToken,id);
   }
 
+  @ApiOperation(value = "SuppressAnalysis", notes = "Suppress an analysis. Used if a previously published analysis is"
+      + " no longer needed. Instead of removing the analysis, it is marked as \"suppressed\"")
   @PutMapping(value="/suppress/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -101,6 +111,7 @@ public class AnalysisController {
    * @param id An analysis id
    * @return A JSON object representing this analysis
    */
+  @ApiOperation(value = "ReadAnalysis", notes = "Retrieve the analysis object for an analysisId")
   @GetMapping(value = "/{id}")
   public Analysis read(
       @PathVariable("studyId") String studyId,
@@ -113,12 +124,15 @@ public class AnalysisController {
    * @param id The analysis id
    * @return A list of all the files in this analysis analysisId's fileset.
    */
+  @ApiOperation(value = "ReadAnalysisFiles", notes = "Retrieve the file objects for an analysisId")
   @GetMapping(value = "/{id}/files")
   public List<File> getFilesById(@PathVariable("id") String id) {
     return analysisService.readFiles(id);
   }
 
 
+  @ApiOperation(value = "IdSearch", notes = "Search for analysis objects by specifying regex patterns for the "
+      + "donorIds, sampleIds, specimenIds, or fileIds request parameters")
   @GetMapping(value = "/search/id")
   public List<Analysis> idSearch(@PathVariable("studyId") String studyId,
       @RequestParam(value = "donorId",required = false) String donorIds,
@@ -129,24 +143,34 @@ public class AnalysisController {
     return analysisService.idSearch(studyId, request);
   }
 
+  @ApiOperation(value = "IdSearch", notes = "Search for analysis objects by specifying an IdSearchRequest" )
   @PostMapping(value = "/search/id", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   public List<Analysis> idSearch(@PathVariable("studyId") String studyId, @RequestBody IdSearchRequest request) {
     return analysisService.idSearch(studyId, request);
   }
 
+  @ApiOperation(value = "InfoSearch", notes = "Retrieve analysis objects by searching for key-value "
+      + "terms specifying the analysis info field. ",hidden = true)
   @GetMapping(value = "/search/info")
   public List<InfoSearchResponse> search(@PathVariable("studyId") String studyId,
-      @RequestParam(value = "includeInfo") boolean includeInfo,
-      @RequestParam MultiValueMap<String, String> multiValueMap ) {
-    multiValueMap.remove("includeInfo"); //Always added to map, but is redundant
-    return analysisService.infoSearch(studyId,includeInfo, multiValueMap);
+      @RequestParam(value = "includeInfo")
+          @ApiParam(value = "When true, includes the info field in the response, otherwise it is excluded"
+              + "analysisId", required = true)
+          boolean includeInfo,
+      @RequestParam
+      @ApiParam(value = "A search terms has the format {key}={value}, where key is a non-whitespace word, and value is"
+          + " a regex pattern. Multiple search terms must be joined by an '&'", required = true)
+          MultiValueMap<String, String> searchTerms ) {
+    searchTerms.remove("includeInfo"); //Always added to map, but is redundant
+    return analysisService.infoSearch(studyId,includeInfo, searchTerms);
   }
 
+  @ApiOperation(value = "InfoSearch", notes = "Retrieve analysis objects by specifying an InfoSearchRequest")
   @PostMapping(value = "/search/info")
   public List<InfoSearchResponse> search(@PathVariable("studyId") String studyId,
-      @RequestBody InfoSearchRequest request){
-    return analysisService.infoSearch(studyId, request);
+      @RequestBody InfoSearchRequest infoSearchRequest){
+    return analysisService.infoSearch(studyId, infoSearchRequest);
   }
 
 }

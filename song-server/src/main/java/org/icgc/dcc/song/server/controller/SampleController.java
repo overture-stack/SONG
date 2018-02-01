@@ -18,6 +18,9 @@
  */
 package org.icgc.dcc.song.server.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.service.SampleService;
@@ -43,6 +46,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
+@Api(tags = "Sample", description = "Create,read and delete samples")
 public class SampleController {
 
   /**
@@ -51,6 +55,7 @@ public class SampleController {
   @Autowired
   private final SampleService sampleService;
 
+  @ApiOperation(value = "CreateSample", notes = "Creates a sample")
   @PostMapping(value = "/samples", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -60,6 +65,7 @@ public class SampleController {
     return sampleService.create(studyId, sample);
   }
 
+  @ApiOperation(value = "ReadSample", notes = "Retrieves sample data for a sampleId")
   @GetMapping(value = "/samples/{id}")
   @ResponseBody
   public Sample read(@PathVariable("id") String id) {
@@ -78,12 +84,15 @@ public class SampleController {
 //    return sampleService.update(sample);
 //  }
 
+  @ApiOperation(value = "DeleteSamples", notes = "Deletes sample data for sampleIds")
   @DeleteMapping(value = "/samples/{ids}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
+      @PathVariable("studyId") String studyId,
+      @PathVariable("ids") @ApiParam(value = "Comma separated list of sampleIds", required = true)
+          List<String> ids) {
     ids.forEach(sampleService::delete);
     return OK;
   }

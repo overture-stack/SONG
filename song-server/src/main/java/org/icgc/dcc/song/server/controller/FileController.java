@@ -18,6 +18,9 @@
  */
 package org.icgc.dcc.song.server.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.service.FileService;
@@ -39,6 +42,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
+@Api(tags = "File", description = "Read and delete files")
 public class FileController {
 
   /**
@@ -47,6 +51,7 @@ public class FileController {
   @Autowired
   private final FileService fileService;
 
+  @ApiOperation(value = "ReadFile", notes = "Retrieves file data for a fileId")
   @GetMapping(value = "/files/{id}")
   @ResponseBody
   public File read(@PathVariable("id") String id) {
@@ -64,12 +69,15 @@ public class FileController {
 //    return fileService.update(file);
 //  }
 
+  @ApiOperation(value = "DeleteFiles", notes = "Deletes file data for fileIds")
   @DeleteMapping(value = "/files/{ids}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
+      @PathVariable("studyId") String studyId,
+      @PathVariable("ids") @ApiParam(value = "Comma separated list of fileIds", required = true)
+          List<String> ids) {
     ids.forEach(fileService::delete);
     return OK;
   }

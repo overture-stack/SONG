@@ -18,6 +18,9 @@
  */
 package org.icgc.dcc.song.server.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
@@ -44,6 +47,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
+@Api(tags = "Donor", description = "Create, read and delete donors")
 public class DonorController {
 
   /**
@@ -52,6 +56,7 @@ public class DonorController {
   @Autowired
   private final DonorService donorService;
 
+  @ApiOperation(value = "CreateDonor", notes = "Creates a donor")
   @PostMapping(value = "/donors", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -63,6 +68,7 @@ public class DonorController {
 
   }
 
+  @ApiOperation(value = "ReadDonor", notes = "Retrieves donor data for a donorId")
   @GetMapping(value = "/donors/{id}")
   @ResponseBody
   public Donor read(@PathVariable("id") String id) {
@@ -80,11 +86,15 @@ public class DonorController {
 //    return donorService.update(donor);
 //  }
 
+  @ApiOperation(value = "DeleteDonors",
+      notes = "Deletes donor data and all dependent specimens and samples for donorIds")
   @DeleteMapping(value = "/donors/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public String delete(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
+      @PathVariable("studyId") String studyId,
+      @PathVariable("ids") @ApiParam(value = "Comma separated list of donorIds", required = true)
+          List<String> ids) {
     ids.forEach(id -> donorService.delete(studyId, id));
     return OK;
   }
