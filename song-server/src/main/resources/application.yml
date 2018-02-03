@@ -29,6 +29,9 @@ dcc-storage:
 management:
   port: 8081
 
+swagger:
+  alternateUrl: "/api-docs"
+
 id:
   idUrl: "http://localhost:9090"
   authToken: "idToken"

@@ -19,6 +19,7 @@
 
 package org.icgc.dcc.song.server.config;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +39,10 @@ public class SwaggerConfig {
 
   @Value("${server.version}")
   private String serverVersion;
+
+  @Value("${swagger.alternateUrl:/swagger}")
+  @Getter
+  private String alternateSwaggerUrl;
 
   @Bean
   public Docket api() {
