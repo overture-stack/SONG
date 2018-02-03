@@ -166,7 +166,26 @@ public class AnalysisController {
     return analysisService.infoSearch(studyId,includeInfo, searchTerms);
   }
 
-  @ApiOperation(value = "InfoSearch", notes = "Retrieve analysis objects by specifying an InfoSearchRequest")
+  private static final String EXAMPLE_JSON = "{\n"
+      + "  \"info\" : {\n"
+      + "    \"extra_donor_info\" : {\n"
+      + "      \"physical\" : {\n"
+      + "        \"eye_colour\" : \"blue\",\n"
+      + "        \"hair_colour\" : \"brown\"\n"
+      + "      },\n"
+      + "      \"occupation\" : \"engineer\"\n"
+      + "    }\n"
+      + "  }\n"
+      + "}";
+
+
+  @ApiOperation(value = "InfoSearch", notes = "Retrieve analysis objects by specifying an InfoSearchRequest and "
+      + "searching the info field of all analyses for a study. The effective query is the logical AND of all search "
+      + "term queries. Child keys are accessed using the '.' character. "
+      + "For instance, if the analysis has the data: \n"
+      + EXAMPLE_JSON
+      + "\n then to search by 'eye_colour', the key of the search term would be "
+      + "\n 'extra_donor_info.physical.eye_colour'")
   @PostMapping(value = "/search/info")
   public List<InfoSearchResponse> search(@PathVariable("studyId") String studyId,
       @RequestBody InfoSearchRequest infoSearchRequest){
