@@ -21,7 +21,6 @@ package org.icgc.dcc.song.server.config;
 import lombok.Data;
 import org.icgc.dcc.id.client.core.IdClient;
 import org.icgc.dcc.id.client.http.HttpIdClient;
-import org.icgc.dcc.id.client.util.CachingIdClient;
 import org.icgc.dcc.id.client.util.HashIdClient;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -39,7 +38,9 @@ public class IdConfig {
 
   @Bean
   public IdClient createIdClient() {
-    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new HashIdClient(persistInMemory);
+    // [SONG-167]: Temporarily removed cacheId client due to bug in DCC-ID-12: https://github.com/icgc-dcc/dcc-id/issues/12
+    return realIds ? new HttpIdClient(idUrl, "", authToken) : new HashIdClient(persistInMemory);
+//    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new HashIdClient(persistInMemory);
   }
 
 
