@@ -18,6 +18,9 @@
  */
 package org.icgc.dcc.song.server.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.service.FileService;
@@ -26,6 +29,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,10 +37,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static org.icgc.dcc.song.core.utils.Responses.OK;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
+@Api(tags = "File", description = "Read and delete files")
 public class FileController {
 
   /**
@@ -45,9 +51,9 @@ public class FileController {
   @Autowired
   private final FileService fileService;
 
+  @ApiOperation(value = "ReadFile", notes = "Retrieves file data for a fileId")
   @GetMapping(value = "/files/{id}")
   @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public File read(@PathVariable("id") String id) {
     return fileService.read(id);
   }
@@ -63,10 +69,15 @@ public class FileController {
 //    return fileService.update(file);
 //  }
 
+  @ApiOperation(value = "DeleteFiles", notes = "Deletes file data for fileIds")
   @DeleteMapping(value = "/files/{ids}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
+  public String delete(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @PathVariable("ids") @ApiParam(value = "Comma separated list of fileIds", required = true)
+          List<String> ids) {
     ids.forEach(fileService::delete);
     return OK;
   }

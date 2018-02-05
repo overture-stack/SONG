@@ -18,6 +18,9 @@
  */
 package org.icgc.dcc.song.server.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,12 +40,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static org.icgc.dcc.song.core.utils.Responses.OK;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
+@Api(tags = "Donor", description = "Create, read and delete donors")
 public class DonorController {
 
   /**
@@ -50,17 +56,21 @@ public class DonorController {
   @Autowired
   private final DonorService donorService;
 
+  @ApiOperation(value = "CreateDonor", notes = "Creates a donor")
   @PostMapping(value = "/donors", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(@PathVariable("studyId") String studyId, @RequestBody DonorWithSpecimens donor) {
+  public String create(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @RequestBody DonorWithSpecimens donor) {
     return donorService.create(donor);
 
   }
 
+  @ApiOperation(value = "ReadDonor", notes = "Retrieves donor data for a donorId")
   @GetMapping(value = "/donors/{id}")
   @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public Donor read(@PathVariable("id") String id) {
     return donorService.read(id);
   }
@@ -76,9 +86,15 @@ public class DonorController {
 //    return donorService.update(donor);
 //  }
 
+  @ApiOperation(value = "DeleteDonors",
+      notes = "Deletes donor data and all dependent specimens and samples for donorIds")
   @DeleteMapping(value = "/donors/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String delete(@PathVariable("studyId") String studyId, @PathVariable("ids") List<String> ids) {
+  public String delete(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @PathVariable("ids") @ApiParam(value = "Comma separated list of donorIds", required = true)
+          List<String> ids) {
     ids.forEach(id -> donorService.delete(studyId, id));
     return OK;
   }
