@@ -19,26 +19,38 @@
 
 package org.icgc.dcc.song.server.config;
 
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import springfox.documentation.swagger.web.UiConfiguration;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import static springfox.documentation.builders.PathSelectors.any;
+import static springfox.documentation.builders.RequestHandlerSelectors.basePackage;
 
 @EnableSwagger2
 @Configuration
 public class SwaggerConfig {
 
+  @Value("${server.version}")
+  private String serverVersion;
+
+  @Value("${swagger.alternateUrl:/swagger}")
+  @Getter
+  private String alternateSwaggerUrl;
+
   @Bean
   public Docket api() {
     return new Docket(DocumentationType.SWAGGER_2)
+        .apiInfo(apiInfo())
         .select()
-        .apis(RequestHandlerSelectors.basePackage("org.icgc.dcc.song.server.controller"))
-        .paths(PathSelectors.any())
+        .apis(basePackage("org.icgc.dcc.song.server.controller"))
+        .paths(any())
         .build()
         .pathMapping("/");
   }
@@ -54,6 +66,17 @@ public class SwaggerConfig {
         false,
         true,
         60000L);
+  }
+
+  private ApiInfo apiInfo() {
+    return new ApiInfoBuilder()
+        .title("Song API")
+        .description("Song API reference for developers. SONG is an open source system for validating and "
+            + "tracking metadata about raw data submissions, assigning "
+            + "identifiers to entities of interest, and managing the state "
+            + "of the raw data with regards to publication and access")
+        .version(serverVersion)
+        .build();
   }
 
 }

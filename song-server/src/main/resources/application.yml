@@ -19,6 +19,7 @@
 #
 
 server:
+  version: 1.0
   port: 8080
 
 dcc-storage:
@@ -27,6 +28,9 @@ dcc-storage:
 # Management
 management:
   port: 8081
+
+swagger:
+  alternateUrl: "/api-docs"
 
 id:
   idUrl: "http://localhost:9090"

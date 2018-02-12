@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
@@ -27,6 +28,8 @@ public class SearchTerm {
   private static final List<String> EMPTY_STRING_LIST = ImmutableList.of();
 
   @NonNull @Getter private String key;
+
+  @ApiModelProperty(notes = "Regex pattern")
   @NonNull @Getter private String value;
 
   private List<String> keyChain;

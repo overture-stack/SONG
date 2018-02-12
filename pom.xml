@@ -19,7 +19,7 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
     <groupId>org.icgc.dcc</groupId>
     <artifactId>song</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.9-SNAPSHOT</version>
+    <version>0.3.10-SNAPSHOT</version>
     <modules>
         <module>song-core</module>
         <module>song-server</module>

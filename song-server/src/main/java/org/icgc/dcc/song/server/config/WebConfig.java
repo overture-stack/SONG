@@ -18,18 +18,27 @@
  */
 package org.icgc.dcc.song.server.config;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {
 
+  @Autowired
+  private SwaggerConfig swaggerConfig;
+
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
     configurer.defaultContentType(APPLICATION_JSON);
+  }
+
+  @Override public void addViewControllers(ViewControllerRegistry registry) {
+    registry.addRedirectViewController(swaggerConfig.getAlternateSwaggerUrl(), "/swagger-ui.html");
   }
 
 }

@@ -2,6 +2,7 @@ package org.icgc.dcc.song.server.repository.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.val;
@@ -14,7 +15,9 @@ import static com.google.common.collect.Lists.newArrayList;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InfoSearchRequest {
 
+  @ApiModelProperty(notes = "If true, include the info field in the response, otherwise exclude it")
   private boolean includeInfo;
+
   @NonNull private List<SearchTerm> searchTerms;
 
   @JsonIgnore
