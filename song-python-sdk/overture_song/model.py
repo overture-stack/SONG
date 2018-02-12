@@ -18,11 +18,17 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+.. module:: model_1
+    :platform: Unix
+    :synopsis: A useful module
+
+"""
 
 import logging
 
 from dataclasses import dataclass, fields
-from overture_song.utils import  check_state
+from overture_song.utils import check_state
 
 from overture_song.utils import default_value, to_pretty_json_string, write_object, \
     get_required_field
@@ -112,6 +118,8 @@ class SongError2(Exception):
 @dataclass(frozen=True)
 class ApiConfig(object):
     """
+    Configuration object for the SONG :py:class:`Api <overture_song.client.Api>`
+
     :param str server_url: URL of a running song-server
     :param str study_id: StudyId to interact with
     :param str access_token: access token used to authorize the song-server api
@@ -127,9 +135,12 @@ class ApiConfig(object):
 @dataclass(frozen=True)
 class ManifestEntry(object):
     """
-    :var str fileId: ObjectId of the file
-    :var str fileName: name of the file. Should not include directories
-    :var str md5sum: MD5 checksum of the file
+    Represents a line in the manifest file pertaining to a file.
+    The string representation of this object is the TSV of the 3 field values
+
+    :param str fileId: ObjectId of the file
+    :param str fileName: name of the file. Should not include directories
+    :param str md5sum: MD5 checksum of the file
 
     """
     fileId: str
@@ -138,6 +149,12 @@ class ManifestEntry(object):
 
     @classmethod
     def create_manifest_entry(cls, data):
+        """
+        Creates a :class:`ManifestEntry <overture_song.model.ManifestEntry>` object
+
+        :param data: Any object with members named 'objectId', 'fileName', 'fileMd5sum'.
+        :return: :class:`ManifestEntry <overture_song.model.ManifestEntry>` object
+        """
         d = data.__dict__
         file_id = get_required_field(d, 'objectId')
         file_name = get_required_field(d, 'fileName')
@@ -149,6 +166,12 @@ class ManifestEntry(object):
 
 
 class Manifest(object):
+    """
+    Object representing the contents of a manifest file
+
+    :param str analysis_id: analysisId associated with a collection of :py:class:`ManifestEntry <overture_song.model.ManifestEntry>`
+
+    """
     def __init__(self, analysis_id, manifest_entries=None):
         self.analysis_id = analysis_id
         self.entries = default_value(manifest_entries, [])
