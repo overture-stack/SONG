@@ -33,6 +33,7 @@ from os import path
 
 # Always prefer setuptools over distutils
 from setuptools import setup
+SONG_VERSION = '0.3.9'
 
 
 def run():
@@ -51,7 +52,7 @@ def run():
         # single-sourcing the version across setup.py and the project code,
         # see
         # https://packaging.python.org/en/latest/single_source_version.html
-        version='0.0.3',
+        version=SONG_VERSION,
         description="A Python library interface to the SONG REST Server",
         long_description=long_description,
 

@@ -21,7 +21,8 @@
 
 import logging
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
+from overture_song.utils import  check_state
 
 from overture_song.utils import default_value, to_pretty_json_string, write_object, \
     get_required_field
@@ -33,6 +34,7 @@ log = logging.getLogger("song.model")
 ################################
 #  Models
 ################################
+"""Some song error"""
 class SongError(Exception):
     FIELDS = ['stackTrace',
               'errorId',
@@ -68,9 +70,54 @@ class SongError(Exception):
         else:
             return "[SONG_SERVER_ERROR] {} @ {}: {}".format(self.errorId, self.timestamp, self.message)
 
+@dataclass(frozen=True)
+class SongError2(Exception):
+    stackTrace : str
+    errorId : str
+    httpStatusName : str
+    httpStatusCode : int
+    message : str
+    requestUrl : str
+    debugMessage : str
+    timestamp : str
+    response : str = None
+    debug : bool = False
+
+    @classmethod
+    def create_song_error(cls, data, response, debug=False):
+        check_state(isinstance(data, dict), "input data must be of type dict")
+        check_state(SongError2.is_song_error(data),
+                    "The input data fields \n'{}'\n are not the same as the data fields in SongError \n'{}'\n",
+                    data.keys(), SongError2.get_field_names())
+        args = []
+        for field in SongError2.get_field_names():
+            args.append(data[field])
+        out = SongError2(*args)
+        out.response = response
+        out.debug = debug
+        return out
+
+    @classmethod
+    def is_song_error(cls, data):
+        for field in SongError2.get_field_names():
+            if field not in data:
+                return  False
+        return True
+
+    @classmethod
+    def get_field_names(cls):
+        return list(fields(SongError2).keys())
+
 
 @dataclass(frozen=True)
 class ApiConfig(object):
+    """
+    :param str server_url: URL of a running song-server
+    :param str study_id: StudyId to interact with
+    :param str access_token: access token used to authorize the song-server api
+    :keyword bool debug: Enable debug mode
+
+    """
     server_url: str
     study_id: str
     access_token: str
@@ -79,6 +126,12 @@ class ApiConfig(object):
 
 @dataclass(frozen=True)
 class ManifestEntry(object):
+    """
+    :var str fileId: ObjectId of the file
+    :var str fileName: name of the file. Should not include directories
+    :var str md5sum: MD5 checksum of the file
+
+    """
     fileId: str
     fileName: str
     md5sum: str
