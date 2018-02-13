@@ -33,6 +33,15 @@ dcc-metadata:
   url: "https://meta.icgc.org"
   fetchSize: 2000
 
+filters:
+  specimen:
+    enable: true
+    isGoodIds: false
+    ids:
+      - "SP99323"
+      - "SP99331"
+      - "SP99319"
+
 portal:
   url: "https://dcc.icgc.org"
   repoName: "Collaboratory - Toronto"

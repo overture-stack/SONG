@@ -24,13 +24,10 @@ import java.util.function.Supplier;
 
 import static org.icgc.dcc.song.importer.Config.PERSISTED_DIR_PATH;
 import static org.icgc.dcc.song.importer.Config.PORTAL_API;
-import static org.icgc.dcc.song.importer.Config.PROBLEMATIC_SPECIMEN_IDS;
 import static org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.createSpecimenSampleConverter;
 import static org.icgc.dcc.song.importer.download.PortalDonorIdFetcher.createPortalDonorIdFetcher;
 import static org.icgc.dcc.song.importer.download.fetcher.DataFetcher.createDataFetcher;
 import static org.icgc.dcc.song.importer.download.fetcher.DonorFetcher.createDonorFetcher;
-import static org.icgc.dcc.song.importer.filters.FileFilter.createFileFilter;
-import static org.icgc.dcc.song.importer.filters.IdFilter.createIdFilter;
 import static org.icgc.dcc.song.importer.persistence.PersistenceFactory.createPersistenceFactory;
 import static org.icgc.dcc.song.importer.persistence.filerestorer.impl.ObjectFileRestorer.createObjectFileRestorer;
 
@@ -48,6 +45,7 @@ public class Factory {
   private final SimpleDccStorageClient simpleDccStorageClient;
   private final DownloadIterator<DccMetadata> dccMetadataDownloadIterator;
   private final DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator;
+  private final FileFilter specimenFileFilter;
 
   public static final ObjectFileRestorer<DataContainer> DATA_CONTAINER_FILE_RESTORER =
       createObjectFileRestorer (PERSISTED_DIR_PATH, DataContainer.class);
@@ -62,22 +60,12 @@ public class Factory {
 
   public DataFetcher buildDataFetcher(){
 
-    log.info("Building FileFilter...");
-    val fileFilter = buildFileFilter();
-
     log.info("Building DonorFetcher");
     val donorFetcher = buildDonorFetcher();
 
     log.info("Creating DataFetcher");
-    return createDataFetcher(donorFetcher, fileFilter, dccMetadataDownloadIterator,
+    return createDataFetcher(donorFetcher, specimenFileFilter, dccMetadataDownloadIterator,
         simpleDccStorageClient, portalFileMetadataDownloadIterator );
-  }
-
-  public static FileFilter buildFileFilter(){
-    log.info("Creating specimenIdFilter for problematic specimenIDs: {}", PROBLEMATIC_SPECIMEN_IDS);
-    val specimenIdFilter = createIdFilter(PROBLEMATIC_SPECIMEN_IDS, false);
-    log.info("Creating FileFilter using specimenIdFilter");
-    return createFileFilter(specimenIdFilter);
   }
 
   public static PersistenceFactory<DataContainer, String>  buildPersistenceFactory(Supplier<DataContainer> supplier){

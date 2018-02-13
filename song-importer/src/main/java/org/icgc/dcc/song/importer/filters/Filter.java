@@ -42,4 +42,13 @@ public interface Filter<T> {
         .filter(this::isFail);
   }
 
+  static <T> Filter<T> passThrough(){
+    return new Filter<T>() {
+
+      @Override public boolean isPass(T t) {
+        return true;
+      }
+    };
+
+  }
 }
