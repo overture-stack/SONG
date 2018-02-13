@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Lazy;
 
 import static org.icgc.dcc.song.importer.convert.PortalUrlConverter.createPortalUrlConverter;
 import static org.icgc.dcc.song.importer.download.DownloadIterator.createDownloadIterator;
+import static org.icgc.dcc.song.importer.download.queries.impl.DummyPortalQuery.createDummyPortalQuery;
 import static org.icgc.dcc.song.importer.download.urlgenerator.impl.FilePortalUrlGenerator.createFilePortalUrlGenerator;
 
 @Configuration
@@ -31,15 +32,16 @@ public class PortalConfig {
   @Value("${portal.fetchSize}")
   private int fetchSize;
 
-  @Bean
   public UrlGenerator portalUrlGenerator(){
-    return createFilePortalUrlGenerator(url, repoName);
+    val portalQuery = createDefaultPortalQuery(repoName);
+    return createFilePortalUrlGenerator(url, portalQuery);
   }
 
   @Bean
-  public DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator(UrlGenerator portalUrlGenerator){
+  public DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator(){
+    val portalUrlGenerator = portalUrlGenerator();
     val urlConverter = createPortalUrlConverter(repoName);
-    return createDownloadIterator(urlConverter,portalUrlGenerator, fetchSize,
+    return createDownloadIterator(urlConverter, portalUrlGenerator, fetchSize,
         PORTAL_MAX_FETCH_SIZE, PORTAL_INITIAL_FROM);
   }
 

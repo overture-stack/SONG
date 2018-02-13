@@ -1,15 +1,16 @@
 package org.icgc.dcc.song.importer.download.urlgenerator.impl;
 
 import com.google.common.base.Joiner;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.icgc.dcc.song.importer.download.queries.PortalQuery;
 import org.icgc.dcc.song.importer.download.urlgenerator.UrlGenerator;
 
 import java.net.URL;
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.icgc.dcc.song.importer.download.PortalFilterQuerys.buildRepoFilter;
 
 @RequiredArgsConstructor
 public class FilePortalUrlGenerator implements UrlGenerator {
@@ -18,8 +19,9 @@ public class FilePortalUrlGenerator implements UrlGenerator {
   private static final String INCLUDE_PARAM = "include=facets";
   private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
 
-  private final String serverUrl;
-  private final String repoName;
+  @NonNull private final String serverUrl;
+  @NonNull private final PortalQuery portalQuery;
+
 
   @Override
   @SneakyThrows
@@ -31,10 +33,6 @@ public class FilePortalUrlGenerator implements UrlGenerator {
             getFromParam(from),
             INCLUDE_PARAM,
             getSizeParam(size)));
-  }
-
-  public static FilePortalUrlGenerator createFilePortalUrlGenerator(String serverUrl, String repoName){
-    return new FilePortalUrlGenerator(serverUrl, repoName);
   }
 
   private static String getSizeParam(int size){
@@ -50,8 +48,11 @@ public class FilePortalUrlGenerator implements UrlGenerator {
 
   @SneakyThrows
   private String encodeFilter(){
-    return encode(buildRepoFilter(repoName).toString(), UTF_8.name());
+    return encode(portalQuery.buildQuery().toString(), UTF_8.name());
   }
 
+  public static FilePortalUrlGenerator createFilePortalUrlGenerator(String serverUrl, PortalQuery portalQuery) {
+    return new FilePortalUrlGenerator(serverUrl, portalQuery);
+  }
 
 }
