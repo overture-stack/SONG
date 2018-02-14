@@ -4,7 +4,7 @@
 ## Quick Start
 ### 1. Prerequisites
 #### Mandatory
-* [Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) version17.09.0-ce or higher
+* [Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) version 17.09.0-ce or higher
 * Linux docker host machine (cannot run on `Docker for Mac` or `Docker for Windows`)
 * [Docker-compose](https://docs.docker.com/compose/install/#install-compose) version 1.16.1 and up
 * Ports 8080 to 8089 on localhost are unused
