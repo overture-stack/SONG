@@ -116,7 +116,7 @@ Upload the manifest file to `icgc-dcc-storage` server using the [icgc-storage-cl
   
 * Storage and song clients are automatically downloaded, configured and mounted to the docker host via the `./data` directory
 
-* Minio (s3 object storage) data is also mounted via the ./data directory. Files can be uploaded by simply copying into ./data/minio
+* Minio (s3 object storage) data is also mounted via the `./data` directory. Files can be uploaded by simply copying into `./data/minio`
 
 
 * Uses base-ubuntu and base-db images to minimize pulling and building of docker images, and maximize reuse
