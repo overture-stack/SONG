@@ -93,7 +93,9 @@ Upload the manifest file to `icgc-dcc-storage` server using the [icgc-storage-cl
 * If a port is occupied on the localhost, it can be reconfigured by changing the value of the environment variable defining it
     * I.e SERVER_PORT, PGPORT, ID_PORT ... etc
 
-### Service Architecture
+### Microservice Architecture
+* Each box represents a docker container, and the lines connecting them indicate a TCP/IP connection.
+* Each Postgres database is its own docker container.
 * `storage-client` and `song-client` are command line tools and used locally. They are used to communicate with the `storage-server` and `song-server`, respectively
 
 ![image](song-docker-service-architecture.svg)
