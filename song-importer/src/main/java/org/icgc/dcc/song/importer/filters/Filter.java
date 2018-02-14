@@ -1,5 +1,7 @@
 package org.icgc.dcc.song.importer.filters;
 
+import lombok.val;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -51,4 +53,22 @@ public interface Filter<T> {
     };
 
   }
+
+  static <T> Filter<T> cascade(Filter<T> ...filters){
+    return new Filter<T>() {
+
+      @Override
+      public boolean isPass(T t) {
+        for (val filter : filters){
+          val result = filter.isPass(t);
+          if (!result){
+            return false;
+          }
+        }
+        return true;
+      }
+    };
+  }
+
+
 }

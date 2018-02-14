@@ -2,8 +2,8 @@ package org.icgc.dcc.song.importer.config;
 
 import lombok.Getter;
 import lombok.val;
-import org.icgc.dcc.song.importer.filters.FileFilter;
 import org.icgc.dcc.song.importer.filters.Filter;
+import org.icgc.dcc.song.importer.filters.impl.SpecimenFileFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +13,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.icgc.dcc.song.importer.filters.FileFilter.createFileFilter;
-import static org.icgc.dcc.song.importer.filters.IdFilter.createIdFilter;
+import static org.icgc.dcc.song.importer.filters.impl.IdFilter.createIdFilter;
+import static org.icgc.dcc.song.importer.filters.impl.SpecimenFileFilter.createSpecimenFileFilter;
 
 @Configuration
 @ConfigurationProperties(prefix = "filters.specimen")
@@ -30,9 +30,9 @@ public class SpecimenFilterConfig {
   private List<String> ids = newArrayList();
 
   @Bean
-  public FileFilter specimenFileFilter(){
+  public SpecimenFileFilter specimenFileFilter(){
     val specimenIdFilter = enable ? createIdFilter(newHashSet(ids), isGoodIds) : Filter.<String>passThrough();
-    return createFileFilter(specimenIdFilter);
+    return createSpecimenFileFilter(specimenIdFilter);
   }
 
 }

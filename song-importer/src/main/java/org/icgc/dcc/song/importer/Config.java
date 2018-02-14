@@ -18,7 +18,7 @@
 package org.icgc.dcc.song.importer;
 
 import org.icgc.dcc.song.importer.download.DownloadIterator;
-import org.icgc.dcc.song.importer.filters.FileFilter;
+import org.icgc.dcc.song.importer.filters.impl.SpecimenFileFilter;
 import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
@@ -47,7 +47,7 @@ public class Config {
   private DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator;
 
   @Autowired
-  private FileFilter specimenFileFilter;
+  private SpecimenFileFilter specimenFileFilter;
 
   public static final String PORTAL_API = "https://dcc.icgc.org";
   public static final Path PERSISTED_DIR_PATH = Paths.get("persisted");
