@@ -4,9 +4,9 @@
 ## Quick Start
 ### 1. Prerequisites
 #### Mandatory
-* Docker version17.09.0-ce or higher
+* [Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) version17.09.0-ce or higher
 * Linux docker host machine (cannot run on `Docker for Mac` or `Docker for Windows`)
-* Docker-compose version 1.16.1 and up
+* [Docker-compose](https://docs.docker.com/compose/install/#install-compose) version 1.16.1 and up
 * Ports 8080 to 8089 on localhost are unused
 
 #### Optional
@@ -84,9 +84,6 @@ Upload the manifest file to `icgc-dcc-storage` server using the [icgc-storage-cl
     ./data/client/bin/sing search -a <analysisId>    |  jq ‘.analysisState’
     ```
 
-
----
-
 ---
 
 ## Additional Info
@@ -125,15 +122,15 @@ Upload the manifest file to `icgc-dcc-storage` server using the [icgc-storage-cl
 * If you decide to go to production, the databases from the volumes can be easily dumped, and the data from minio can be uploaded directly
 
 
-* **Bonus:** can manage Minio and OAuth using their UIs\!
+* **Bonus:** can manage [Minio](https://www.minio.io/) and [OAuth2](https://django-oauth-toolkit.readthedocs.io/en/latest/) using their UIs\!
 
 ### Bonus
-1. Minio UI
+1. [Minio](https://www.minio.io/) UI
     * Url: [http://localhost:8085](http://localhost:8085)
     * AccessKey: `minio`
     * SecretKey: `minio123`
 
-2. OAuth2 UI
+2. [OAuth2](https://django-oauth-toolkit.readthedocs.io/en/latest/) UI
     * Adapted from the wonderful [dandric/simpleauth](https://github.com/andricDu/SimpleAuth) docker container
     * Url: [http://localhost:8084/admin](http://localhost:8084/admin)
     * Username: `john.doe`
