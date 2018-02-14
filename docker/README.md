@@ -1,5 +1,5 @@
 
-![image](coollogo_com-321768_2.gif)
+![image](song-logo2.gif)
 
 ## Quick Start
 ### 1. Prerequisites
