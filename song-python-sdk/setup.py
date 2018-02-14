@@ -120,6 +120,8 @@ def run():
         package_data={
         },
 
+        python_requires='>=3.6',
+
         # Although 'package_data' is the preferred approach, in some case you
         # may need to place data files outside of your packages. See:
         # http://docs.python.org/3.4/distutils/
