@@ -1,6 +1,7 @@
 package org.icgc.dcc.song.importer.config;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.importer.download.DownloadIterator;
 import org.icgc.dcc.song.importer.model.DccMetadata;
@@ -13,6 +14,7 @@ import static org.icgc.dcc.song.importer.convert.DccMetadataUrlConverter.createD
 import static org.icgc.dcc.song.importer.download.DownloadIterator.createDownloadIterator;
 import static org.icgc.dcc.song.importer.download.urlgenerator.impl.DccMetadataUrlGenerator.createDccMetadataUrlGenerator;
 
+@Slf4j
 @Configuration
 @Lazy
 @Getter
@@ -29,6 +31,7 @@ public class DccMetadataConfig {
 
   @Bean
   public DownloadIterator<DccMetadata> dccMetadataDownloadIterator(){
+    log.info("Building DccMetadata DownloadIterator with url: {} and fetchSize: {}", url, fetchSize);
     val urlGenerator = createDccMetadataUrlGenerator(url);
     val urlConverter = createDccMetadataUrlConverter();
     return createDownloadIterator(urlConverter,urlGenerator, fetchSize,

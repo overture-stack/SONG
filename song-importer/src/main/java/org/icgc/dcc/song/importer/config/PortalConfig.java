@@ -1,6 +1,7 @@
 package org.icgc.dcc.song.importer.config;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.importer.download.DownloadIterator;
 import org.icgc.dcc.song.importer.download.urlgenerator.UrlGenerator;
@@ -12,9 +13,10 @@ import org.springframework.context.annotation.Lazy;
 
 import static org.icgc.dcc.song.importer.convert.PortalUrlConverter.createPortalUrlConverter;
 import static org.icgc.dcc.song.importer.download.DownloadIterator.createDownloadIterator;
-import static org.icgc.dcc.song.importer.download.queries.impl.DefaultPortalQuery.createDefaultPortalQuery;
+import static org.icgc.dcc.song.importer.download.queries.impl.DummyPortalQuery.createDummyPortalQuery;
 import static org.icgc.dcc.song.importer.download.urlgenerator.impl.FilePortalUrlGenerator.createFilePortalUrlGenerator;
 
+@Slf4j
 @Configuration
 @Lazy
 @Getter
@@ -39,6 +41,8 @@ public class PortalConfig {
 
   @Bean
   public DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator(){
+    log.info("Building PortalFileMetadata DownloadIterator for repoName: {} and portal.url: {} with fetchSize: {}",
+        repoName, url, fetchSize);
     val portalUrlGenerator = portalUrlGenerator();
     val urlConverter = createPortalUrlConverter(repoName);
     return createDownloadIterator(urlConverter, portalUrlGenerator, fetchSize,

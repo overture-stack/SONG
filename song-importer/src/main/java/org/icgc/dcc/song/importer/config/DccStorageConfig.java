@@ -2,6 +2,7 @@ package org.icgc.dcc.song.importer.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 import static org.icgc.dcc.song.importer.storage.SimpleDccStorageClient.createSimpleDccStorageClient;
 
+@Slf4j
 @Configuration
 @Getter
 @Setter
@@ -34,11 +36,9 @@ public class DccStorageConfig {
 
   @Bean
   public SimpleDccStorageClient simpleDccStorageClient(DccStorageConfig dccStorageConfig){
+    log.info("Building SimpleDccStorageClient with url: {}, persist: {}, bypassMd5Check: {}, outputDir: {}, "
+        + "forceDownload: {}", url, persist, bypassMd5Check, outputDir, forceDownload);
     return createSimpleDccStorageClient(dccStorageConfig);
-  }
-
-  public SimpleDccStorageClient buildSimpleDccStorageClient(){
-    return createSimpleDccStorageClient(this);
   }
 
 }
