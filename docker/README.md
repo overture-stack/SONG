@@ -26,7 +26,7 @@ docker-compose up
 ### 3. Example
 #### Stage 1: SONG Upload
 
-1. Check the song server is running
+1. Check that the song server is running
     
     ```bash
     ./data/client/bin/sing status -p
