@@ -21,7 +21,7 @@ docker-compose build
 docker-compose up
 ```
 
-**Note:** An internet connection is only needed for the `docker-compose build` command. No external services are required for running this demo.
+**Note:** An internet connection is only needed for the `docker-compose build` command. No external services are required for the `docker-compose up` command.
 
 ### 3. Example
 #### Stage 1: SONG Upload
