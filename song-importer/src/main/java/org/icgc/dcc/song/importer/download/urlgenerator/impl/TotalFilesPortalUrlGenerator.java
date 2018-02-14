@@ -4,13 +4,13 @@ import com.google.common.base.Joiner;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.icgc.dcc.song.importer.download.queries.PortalQuery;
 import org.icgc.dcc.song.importer.download.urlgenerator.UrlGenerator;
 
 import java.net.URL;
 
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.icgc.dcc.song.importer.download.PortalFilterQuerys.buildRepoFilter;
 
 @RequiredArgsConstructor
 public class TotalFilesPortalUrlGenerator implements UrlGenerator {
@@ -19,7 +19,7 @@ public class TotalFilesPortalUrlGenerator implements UrlGenerator {
   private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
 
   @NonNull private final String serverUrl;
-  @NonNull private final String repoName;
+  @NonNull private final PortalQuery portalQuery;
 
   @Override
   @SneakyThrows
@@ -31,18 +31,18 @@ public class TotalFilesPortalUrlGenerator implements UrlGenerator {
         ));
   }
 
-  public static TotalFilesPortalUrlGenerator createTotalFilesPortalUrlGenerator(String serverUrl, String repoName){
-    return new TotalFilesPortalUrlGenerator(serverUrl, repoName);
-  }
-
-
   private String getFiltersParam(){
     return "filters="+encodeFilter();
   }
 
   @SneakyThrows
   private String encodeFilter(){
-    return encode(buildRepoFilter(repoName).toString(), UTF_8.name());
+    return encode(portalQuery.toString(), UTF_8.name());
+  }
+
+  public static TotalFilesPortalUrlGenerator createTotalFilesPortalUrlGenerator(String serverUrl,
+      PortalQuery portalQuery) {
+    return new TotalFilesPortalUrlGenerator(serverUrl, portalQuery);
   }
 
 }

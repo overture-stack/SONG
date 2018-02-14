@@ -18,6 +18,7 @@
 package org.icgc.dcc.song.importer;
 
 import org.icgc.dcc.song.importer.download.DownloadIterator;
+import org.icgc.dcc.song.importer.filters.impl.SpecimenFileFilter;
 import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
@@ -45,14 +46,17 @@ public class Config {
   @Autowired
   private DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator;
 
+  @Autowired
+  private SpecimenFileFilter specimenFileFilter;
+
   public static final String PORTAL_API = "https://dcc.icgc.org";
-  public static final String COLLAB_REPO_NAME = "Collaboratory - Toronto";
   public static final Path PERSISTED_DIR_PATH = Paths.get("persisted");
   public static final Set<String> PROBLEMATIC_SPECIMEN_IDS = newHashSet("SP99323", "SP99331", "SP99319");
 
+
   @Bean
   public Factory factory(){
-    return new Factory(simpleDccStorageClient, dccMetadataDownloadIterator, portalFileMetadataDownloadIterator);
+    return new Factory(simpleDccStorageClient, dccMetadataDownloadIterator, portalFileMetadataDownloadIterator, specimenFileFilter);
   }
 
 }

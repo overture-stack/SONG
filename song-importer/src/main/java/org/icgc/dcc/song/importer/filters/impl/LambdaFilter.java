@@ -1,14 +1,16 @@
-package org.icgc.dcc.song.importer.filters;
+package org.icgc.dcc.song.importer.filters.impl;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.icgc.dcc.song.importer.filters.Filter;
 
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class LambdaFilter<T,R> implements  Filter<T>{
+public class LambdaFilter<T,R> implements Filter<T> {
 
-  private final Filter<R> internalFilter;
-  private final Function<T, R> function;
+  @NonNull private final Filter<R> internalFilter;
+  @NonNull private final Function<T, R> function;
 
   @Override public boolean isPass(T t) {
     return internalFilter.isPass(function.apply(t));

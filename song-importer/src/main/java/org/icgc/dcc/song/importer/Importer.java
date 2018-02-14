@@ -3,6 +3,7 @@ package org.icgc.dcc.song.importer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.importer.config.SpecimenFilterConfig;
 import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.SpecimenSampleTuple;
 import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
@@ -37,6 +38,9 @@ public class Importer implements  Runnable {
 
   @Autowired
   private Factory factory;
+
+  @Autowired
+  private SpecimenFilterConfig specimenFilterConfig;
 
   @Override
   public void run() {
