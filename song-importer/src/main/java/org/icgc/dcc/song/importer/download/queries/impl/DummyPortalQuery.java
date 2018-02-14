@@ -19,8 +19,7 @@ public class DummyPortalQuery implements PortalQuery{
         .with("file",
             object()
                 .with("repoName", createIs(repoName))
-                .with("fileFormat", createIs("BAM"))
-                .with("projectCode", createIs("LIHM-FR"))
+                .with("projectCode", createIs("LICA-FR"))
                 .with("specimenType", createIs("Normal - tissue adjacent to primary"))
         )
         .end();
