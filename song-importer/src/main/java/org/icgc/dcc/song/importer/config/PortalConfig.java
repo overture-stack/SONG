@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Lazy;
 
 import static org.icgc.dcc.song.importer.convert.PortalUrlConverter.createPortalUrlConverter;
 import static org.icgc.dcc.song.importer.download.DownloadIterator.createDownloadIterator;
-import static org.icgc.dcc.song.importer.download.queries.impl.DummyPortalQuery.createDummyPortalQuery;
+import static org.icgc.dcc.song.importer.download.queries.impl.DefaultPortalQuery.createDefaultPortalQuery;
 import static org.icgc.dcc.song.importer.download.urlgenerator.impl.FilePortalUrlGenerator.createFilePortalUrlGenerator;
 
 @Slf4j

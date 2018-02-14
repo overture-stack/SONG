@@ -11,7 +11,7 @@ import java.util.Set;
 public class IdFilter implements Filter<String> {
 
   @NonNull private final Set<String> ids;
-  @NonNull private final boolean isGoodIds;
+  private final boolean isGoodIds;
 
   @Override public boolean isPass(String id) {
     val isContains = ids.contains(id);
