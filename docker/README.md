@@ -32,21 +32,21 @@ docker-compose up
     ./data/client/bin/sing status -p
     ```
 
-2. Upload the example VariantCall payload. This contains the metadata
+2. Upload the example VariantCall payload, which contains the metadata. The response will contain the `uploadId`
 
     ```bash
     ./data/client/bin/sing upload -f  ./example/exampleVariantCall.json
     ```
 
-3. Check the status of the upload, using the uploadId. Ensure the response has the state `VALIDATED`
+3. Check the status of the upload, using the `uploadId`. Ensure the response has the state `VALIDATED`
     ```bash
     ./data/client/bin/sing status -u <uploadId>
     ```
 
-4. Record or remember the uploadId from the response for the next phase
+4. Record or remember the `uploadId` from the response for the next phase
 
 #### Stage 2: Song Saving and Manifest Generation
-1. Save or commit the finalized metadata. The response will contain the analysisId
+1. Save or commit the finalized metadata. The response will contain the `analysisId`
     ```bash
     ./data/client/bin/sing save -u <uploadId>
     ```
@@ -56,7 +56,7 @@ docker-compose up
     ./data/client/bin/sing search -a <analysisId>
     ```
 
-3. Optionally, if you have `jq` installed, you can pipe the output of the search, and filter out the `analysisType` field
+3. Optionally, if you have `jq` installed, you can pipe the output of the search, and filter out the `analysisState` field
     ```bash
     ./data/client/bin/sing search -a <analysisId>    |  jq ‘.analysisState’
     ```
@@ -74,12 +74,12 @@ Upload the manifest file to `icgc-dcc-storage` server using the [icgc-storage-cl
 
 #### Stage 4: SONG Publish
 
-1. Using the same analysisId as before, publish it. Essentially, this is the handshake between the metadata stored in the SONG server (via the analysisIds) and the files stored in the icgc-storage-server (the files described by the analysisId)
+1. Using the same `analysisId` as before, publish it. Essentially, this is the handshake between the metadata stored in the SONG server (via the analysisIds) and the files stored in the `icgc-storage-server` (the files described by the `analysisId`)
     ```bash
     ./data/client/bin/sing publish -a <analysisId>
     ```
 
-2. Search the analysisId, pipe it to jq and filter for `analysisState`, and observe the analysis has finally been **published** \!\!\!
+2. Search the `analysisId`, pipe it to jq and filter for `analysisState`, and observe the analysis has finally been **published** \!\!\!
     ```bash
     ./data/client/bin/sing search -a <analysisId>    |  jq ‘.analysisState’
     ```
@@ -92,7 +92,7 @@ Upload the manifest file to `icgc-dcc-storage` server using the [icgc-storage-cl
 ## Additional Info
 
 ### Configuration
-* All contained within the docker-compose.yml
+* All contained within the [docker-compose.yml](https://github.com/overture-stack/SONG/blob/develop/docker/docker-compose.yml)
 * If a port is occupied on the localhost, it can be reconfigured by changing the value of the environment variable defining it
     * I.e SERVER_PORT, PGPORT, ID_PORT ... etc
 
@@ -101,17 +101,17 @@ Upload the manifest file to `icgc-dcc-storage` server using the [icgc-storage-cl
 
 ![image](song-docker-service-architecture.svg)
 
-### Song for Docker Features
-* Turn-key bring up of song, dcc-storage and auth environment
+### Docker for Song Features
+* Turn-key bring up of song, dcc-storage and the dcc-auth services
   
   
 * Completely configurable via docker-compose environment variables (i.e change ports, jmx ports, hosts, credentials, and other important data fields). Values are injected into configurations using a custom python script
   
   
-* Data from databases (song-db and id-db) and auth service are saved in volumes.
+* Data from databases (`song-db` and `id-db`) and auth service are saved in volumes.
   
   
-* Logs from song-server, dcc-storage-server and id-server are mounted to the docker host for easy viewing via the `./logs` directory
+* Logs from the `song-server`, `dcc-storage-server` and `dcc-id-server` are mounted to the docker host for easy viewing via the `./logs` directory
   
   
 * Storage and song clients are automatically downloaded, configured and mounted to the docker host via the `./data` directory
@@ -119,10 +119,10 @@ Upload the manifest file to `icgc-dcc-storage` server using the [icgc-storage-cl
 * Minio (s3 object storage) data is also mounted via the `./data` directory. Files can be uploaded by simply copying into `./data/minio`
 
 
-* Uses base-ubuntu and base-db images to minimize pulling and building of docker images, and maximize reuse
+* Uses `base-ubuntu` and `base-db` images to minimize pulling and building of docker images, and maximize reuse
 
 
-* If decide to go to production, the databases from the volumes can be easily dumped, and the data from minio can be uploaded directly
+* If you decide to go to production, the databases from the volumes can be easily dumped, and the data from minio can be uploaded directly
 
 
 * **Bonus:** can manage Minio and OAuth using their UIs\!
