@@ -1,5 +1,6 @@
 
-# Docker for Song Demo
+# Docker for Song
+![image](coollogo_com-282451812.gif)
 
 ## Quick Start
 ### 1. Prerequisites
