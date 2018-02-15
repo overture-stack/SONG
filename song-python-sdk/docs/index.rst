@@ -4,8 +4,6 @@
 The SONG Python REST SDK 3
 ============================
 
-[![Documentation Status](https://readthedocs.org/projects/song-python/badge/?version=develop)](http://song-python.readthedocs.io/en/develop/?badge=develop)
-
 The SONG REST client is a simple python module that allows you to interact with a SONG server through Python, with a minimum of coding effort.
 
 
