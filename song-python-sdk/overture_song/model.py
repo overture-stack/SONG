@@ -38,6 +38,23 @@ log = logging.getLogger("song.model")
 
 @dataclass(frozen=True)
 class SongError(Exception, Entity):
+    """
+    Object containing data related to a song server error
+
+    :param str errorId: The id for the song server error. Used to give more meaning to errors instead
+                        of just using http status codes.
+
+    :param str httpStatusName: Standard http status name for a http status code
+
+    :param int httpStatusCode: Standard `http status code <https://httpstatuses.com>`_
+
+    :param str message: Text describing the error
+    :param str requestUrl: The request url that caused this error
+    :param str debugMessage: Additional text describing the error
+    :param str timestamp: Epoch time of when this error occurred
+    :param tuple stackTrace: Server stacktrace of this error
+
+    """
     errorId : str
     httpStatusName : str
     httpStatusCode : int
@@ -49,6 +66,12 @@ class SongError(Exception, Entity):
 
     @classmethod
     def create_song_error(cls, data):
+        """
+        Creates a new song error object. Used to convert a json/dict server error response to a python object
+
+        :param dict data: input dictionary containing all the fields neccessary to create a song server error
+        :rtype: :class:`SongError <overture_song.model.SongError>`
+        """
         check_state(isinstance(data, dict), "input data must be of type dict")
         check_state(SongError.is_song_error(data),
                     "The input data fields \n'{}'\n are not the same as the data fields in SongError \n'{}'\n",
@@ -65,6 +88,13 @@ class SongError(Exception, Entity):
 
     @classmethod
     def is_song_error(cls, data):
+        """
+        Determine if the input dictionary contains all the fields defined in a SongError
+
+        :param dict data: input dictionary containing all the fields neccessary to create a song server error
+        :return: true if the data contains all the fields, otherwise false
+        :rtype: boolean
+        """
         for field in SongError.get_field_names():
             if field not in data:
                 return False
@@ -72,6 +102,11 @@ class SongError(Exception, Entity):
 
     @classmethod
     def get_field_names(cls):
+        """
+        Get the field names associated with a :class:`SongError <overture_song.model.SongError>`
+
+        :rtype: List[str]
+        """
         return list(fields(SongError).keys())
 
 
@@ -129,17 +164,40 @@ class Manifest(object):
     """
     Object representing the contents of a manifest file
 
-    :param str analysis_id: analysisId associated with a collection of :py:class:`ManifestEntry <overture_song.model.ManifestEntry>`
+    :param str analysis_id: analysisId associated with a
+                            collection of :py:class:`ManifestEntry <overture_song.model.ManifestEntry>`
+
+    :keyword manifest_entries: optionally initialize a manifest with an existing list
+                                of :class:`ManifestEntry <overture_song.model.ManifestEntry>`
+
+    :type manifest_entries: List[:class:`ManifestEntry <overture_song.model.ManifestEntry>`] or None
 
     """
+
     def __init__(self, analysis_id, manifest_entries=None):
         self.analysis_id = analysis_id
         self.entries = default_value(manifest_entries, [])
 
     def add_entry(self, manifest_entry):
+        """
+        Add a :class:`ManifestEntry <overture_song.model.ManifestEntry>` to this manifest
+
+        :param manifest_entry: entry to add
+        :type manifest_entry: :class:`ManifestEntry <overture_song.model.ManifestEntry>`
+
+        :return: None
+        """
         self.entries.append(manifest_entry)
 
     def write(self, output_file_path, overwrite=False):
+        """
+        Write this manifest entry to a file
+
+        :param str output_file_path: output file to write to
+        :param boolean overwrite: if true, overwrite the file if it exists
+        :raises SongClientException: throws this exception if the file exists and overwrite is False
+        :return: None
+        """
         write_object(self, output_file_path, overwrite=overwrite)
 
     def __str__(self):
