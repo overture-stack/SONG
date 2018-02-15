@@ -44,8 +44,8 @@ def intercept_response(orig_function, debug=False, convert_to_json=False, conver
         else:
             json_data = dict(json.loads(response.content))
             if SongError.is_song_error(json_data):
-                song_error = SongError(json_data, response, debug=debug)
-                log.error(song_error)
+                song_error = SongError.create_song_error(json_data)
+                log.error(song_error.to_json())
                 raise song_error
             else:
                 message = "Not a song error. Response Code: {}, Response Message: {}".format(response.status_code,

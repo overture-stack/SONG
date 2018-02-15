@@ -18,17 +18,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-"""
-.. module:: model_1
-    :platform: Unix
-    :synopsis: A useful module
-
-"""
 
 import logging
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, field, asdict
 from overture_song.utils import check_state
+from overture_song.entities import Entity
 
 from overture_song.utils import default_value, to_pretty_json_string, write_object, \
     get_required_field
@@ -40,45 +35,9 @@ log = logging.getLogger("song.model")
 ################################
 #  Models
 ################################
-"""Some song error"""
-class SongError(Exception):
-    FIELDS = ['stackTrace',
-              'errorId',
-              'httpStatusName',
-              'httpStatusCode',
-              'message',
-              'requestUrl',
-              'debugMessage',
-              'timestamp']
-
-    def __init__(self, data, response, debug=False):
-        self.stackTrace = data[SongError.FIELDS[0]]
-        self.errorId = data[SongError.FIELDS[1]]
-        self.httpStatusName = data[SongError.FIELDS[2]]
-        self.httpStatusCode = data[SongError.FIELDS[3]]
-        self.message = data[SongError.FIELDS[4]]
-        self.requestUrl = data[SongError.FIELDS[5]]
-        self.debugMessage = data[SongError.FIELDS[6]]
-        self.timestamp = data[SongError.FIELDS[7]]
-        self.response = response
-        self.__debug = debug
-
-    @classmethod
-    def is_song_error(cls, data):
-        for field in SongError.FIELDS:
-            if field not in data:
-                return False
-        return True
-
-    def __str__(self):
-        if self.__debug:
-            return to_pretty_json_string(self.response.content)
-        else:
-            return "[SONG_SERVER_ERROR] {} @ {}: {}".format(self.errorId, self.timestamp, self.message)
 
 @dataclass(frozen=True)
-class SongError2(Exception):
-    stackTrace : str
+class SongError(Exception, Entity):
     errorId : str
     httpStatusName : str
     httpStatusCode : int
@@ -86,33 +45,34 @@ class SongError2(Exception):
     requestUrl : str
     debugMessage : str
     timestamp : str
-    response : str = None
-    debug : bool = False
+    stackTrace : tuple = field(default_factory=tuple)
 
     @classmethod
-    def create_song_error(cls, data, response, debug=False):
+    def create_song_error(cls, data):
         check_state(isinstance(data, dict), "input data must be of type dict")
-        check_state(SongError2.is_song_error(data),
+        check_state(SongError.is_song_error(data),
                     "The input data fields \n'{}'\n are not the same as the data fields in SongError \n'{}'\n",
-                    data.keys(), SongError2.get_field_names())
+                    data.keys(), SongError.get_field_names())
         args = []
-        for field in SongError2.get_field_names():
-            args.append(data[field])
-        out = SongError2(*args)
-        out.response = response
-        out.debug = debug
+        for field in SongError.get_field_names():
+            result = data[field]
+            if isinstance(result, list):
+                args.append(tuple(result))
+            else:
+                args.append(result)
+        out = SongError(*args)
         return out
 
     @classmethod
     def is_song_error(cls, data):
-        for field in SongError2.get_field_names():
+        for field in SongError.get_field_names():
             if field not in data:
-                return  False
+                return False
         return True
 
     @classmethod
     def get_field_names(cls):
-        return list(fields(SongError2).keys())
+        return list(fields(SongError).keys())
 
 
 @dataclass(frozen=True)
