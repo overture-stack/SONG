@@ -33,6 +33,7 @@ from os import path
 
 # Always prefer setuptools over distutils
 from setuptools import setup
+SONG_VERSION = '0.3.9'
 
 
 def run():
@@ -51,7 +52,7 @@ def run():
         # single-sourcing the version across setup.py and the project code,
         # see
         # https://packaging.python.org/en/latest/single_source_version.html
-        version='0.3.9',
+        version=SONG_VERSION,
         description="A Python library interface to the SONG REST Server",
         long_description=long_description,
 
@@ -118,6 +119,8 @@ def run():
         # these have to be included in MANIFEST.in as well.
         package_data={
         },
+
+        python_requires='>=3.6',
 
         # Although 'package_data' is the preferred approach, in some case you
         # may need to place data files outside of your packages. See:
