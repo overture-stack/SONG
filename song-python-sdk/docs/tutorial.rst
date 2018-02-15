@@ -2,45 +2,212 @@
 Song Tutorial
 ==============
 
-Step 1 Getting Set Up
+Step 1 - Getting Set Up
 =========================
 
-Getting Daco
----------------
-sdfsdfsdfsdf
+Getting DACO Access
+---------------------
+SONG servers use the `auth.icgc.org <https://auth.icgc.org>`_ OAuth2 authorization service to authorize secure API requests.
+In order to create the neccessary access tokens to interact with the song-python-sdk and the song server,
+the user **must** have DACO access. For more information on obtaining DACO access, please visit the instructions for
+`DACO Cloud Access <http://docs.icgc.org/cloud/guide/#daco-cloud-access>`_
 
-Creating an access token
+.. _access-token-ref:
+
+Creating an Access Token
 -------------------------
+With proper DACO access, the user can create an access token, using
+the `Access Tokens <http://docs.icgc.org/cloud/guide/#access-tokens>`_
+and `Token Manager <http://docs.icgc.org/cloud/guide/#token-manager>`_ instructions.
 
-linkg to instuctions
+For each cloud environment, there is a specific authorization scope that is needed:
+
+* For the **Collaboratory - Toronto** SONG Server (https://song.cancercollaboratory.org), the required authorization scope needed is **collab.upload**.
+* For the **AWS - Virginia** SONG Server (https://virginia.song.icgc.org), the required authorization scope needed is **aws.upload**.
 
 Installing Song
 ----------------
-pip install
+The official SONG Python SDK is publically hosted on `PyPi <https://pypi.python.org/pypi/overture-song>`_. To install it, just run the command below:
+
+.. code-block:: bash
+
+    pip install overture-song
+
+
+.. warning::
+    Python **3.6** or higher is required
+
 
 Installing icgc-storage-client
 -------------------------------
-link from other stuff
+No info yet
 
-Step 2 - Usage
+Step 2 - Example Usage
 =======================
+This section outlines demonstrates example usage of the `overture-song` sdk.
+After completing this example, you will have uploaded your first SONG metadata payload\!
 
 Configuration
 ---------------
-Create config
-Create APi instance
+
+Create an :class:`ApiConfig <overture_song.model.ApiConfig>` object. This object contains the `serverUrl`, `accessToken`, and `studyId`
+that will be used to interact with the SONG API. In this example we will use https://song.cancercollaboratory.org for
+the serverUrl, 'BRCA-EU' for the studyId. For the access token, please refer to :ref:`access-token-ref`
+
+.. code-block:: python
+
+    from overture_song.model import ApiConfig
+    api_config = ApiConfig('https://song.cancercollaboratory.org', 'BRCA-EU', <my_access_token>)
 
 
-Create a study
+Next you need to instantiate the main API client in order to interact with the SONG server
+
+.. code-block:: python
+
+    from overture_song.client import Api
+    api = Api(api_config)
+
+As a sanity check, ensure that the server is running. If the response is `true`, then you may proceed with the next
+section, otherwise the server is not running
+
+    >>> api.is_alive()
+    true
+
+
+Create a Study
 -----------------
-Create the simple StudyClient, and check if the studyExists, if not create it
 
-Create a payload
------------------
-Create your payload
+If the studyId 'BRCA-EU' does not exist, then the :class:`StudyClient <overture_song.client.StudyClient>` must be
+instantiated in order to read and create studies.
 
-Upload the payload
+First create a study client,
+
+.. code-block:: python
+
+    from overture_song.client import StudyClient
+    study_client = StudyClient(api)
+
+
+If the study you submitting a payload to does not exist, then create
+a :class:`Study <overture_song.entities.Study>` entity,
+
+.. code-block:: python
+
+   from overture_song.entities import Study
+   if not study_client.has(api_config.study_id):
+        study = Study.create(api_config.study_id, "myStudyName", "myStudyDescription", "myStudyOrganization")
+        study_client.create(study)
+
+
+Create a Simple Payload
+--------------------------
+Now that the study exists, you can create your first payload\!
+In this example, a :class:`SequencingReadAnalysis <overture_song.entities.SequencingRead>` will be created.
+It follows the
+`SequencingRead JsonSchema <https://github.com/overture-stack/SONG/tree/develop/song-server/src/main/resources/schemas/sequencingRead.json>`_.
+
+.. seealso::
+    Similarily, for the :class:`VariantCallAnalysis <overture_song.entities.VariantCallAnalysis>`, you can refer to the
+    `VariantCall JsonSchema <https://github.com/overture-stack/SONG/tree/develop/song-server/src/main/resources/schemas/variantCall.json>`_.
+
+Firstly, import all the entities to minimize the import statements
+
+.. code-block:: python
+
+    from overture_song.entities import *
+
+Next, create an example :class:`Donor <overture_song.entities.Donor>` entity:
+
+.. code-block:: python
+
+    donor = Donor()
+    donor.donorId = "DO1"
+    donor.studyId = api_config.study_id
+    donor.donorGender = "male"
+    donor.donorSubmitterId = "dsId1"
+    donor.set_info("randomDonorField", "someDonorValue")
+
+Create an example :class:`Specimen <overture_song.entities.Specimen>` entity:
+
+.. code-block:: python
+
+    specimen = Specimen()
+    specimen.specimenId = "sp1"
+    specimen.donorId = "DO1"
+    specimen.specimenClass = "Tumour"
+    specimen.specimenSubmitterId = "sp_sub_1"
+    specimen.specimenType = "Normal - EBV immortalized"
+    specimen.set_info("randomSpecimenField", "someSpecimenValue")
+
+
+Create an example :class:`Sample <overture_song.entities.Sample>` entity:
+
+.. code-block:: python
+
+    sample = Sample()
+    sample.sampleId = "sa1"
+    sample.sampleSubmitterId = "ssId1"
+    sample.sampleType = "RNA"
+    sample.specimenId = "sp1"
+    sample.set_info("randomSample1Field", "someSample1Value")
+
+
+Create 1 or more example :class:`File <overture_song.entities.File>` entities:
+
+.. code-block:: python
+
+    # File 1
+    file1 = File()
+    file1.analysisId = "an1"
+    file1.fileName = "myFilename1.txt"
+    file1.studyId = api_config.study_id
+    file1.fileAccess = "controlled"
+    file1.fileMd5sum = "myMd51"
+    file1.fileSize = 1234561
+    file1.fileType = "VCF"
+    file1.objectId = "myObjectId1"
+    file1.set_info("randomFile1Field", "someFile1Value")
+
+    # File 2
+    file2 = File()
+    file2.analysisId = "an1"
+    file2.fileName = "myFilename2.txt"
+    file2.studyId = api_config.study_id
+    file2.fileAccess = "controlled"
+    file2.fileMd5sum = "myMd52"
+    file2.fileSize = 1234562
+    file2.fileType = "VCF"
+    file2.objectId = "myObjectId2"
+    file2.set_info("randomFile2Field", "someFile2Value")
+
+Create an example :class:`SequencingRead <overture_song.entities.SequencingRead>` experiment entity:
+
+.. code-block:: python
+
+    # SequencingRead
+    sequencing_read_experiment = SequencingRead()
+    sequencing_read_experiment.analysisId = "an1"
+    sequencing_read_experiment.aligned = True
+    sequencing_read_experiment.alignmentTool = "myAlignmentTool"
+    sequencing_read_experiment.pairedEnd = True
+    sequencing_read_experiment.insertSize = 0
+    sequencing_read_experiment.libraryStrategy = "WXS"
+    sequencing_read_experiment.referenceGenome = "GR37"
+    sequencing_read_experiment.set_info("randomSRField", "someSRValue")
+
+Finally, use the :class:`SimplePayloadBuilder <overture_song.tools.SimplePayloadBuilder>` class along with the previously
+create entities to create your payload.
+
+.. code-block:: python
+
+    from overture_song.tools import SimplePayloadBuilder
+    builder = SimplePayloadBuilder(donor, specimen, sample, [file1, file2], sequencing_read_experiment)
+    payload = builder.to_dict()
+
+
+Upload the Payload
 -------------------
+
 Upload the payload
 
 Check the status of the upload
