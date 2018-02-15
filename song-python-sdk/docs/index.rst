@@ -10,13 +10,20 @@ The SONG REST client is a simple python module that allows you to interact with 
 It lets you upload payloads synchronously or asynchronously, check their status and create analyses.
 From there, you can use the power of Python to process and analyze the data within those objects however you see fit.
 
-Example
+Tutorial
 ------------
-Here's an example that shows you how easy it is to get started!
+Here's a example that shows you how easy it is to get started!
+
+.. toctree::
+  :maxdepth: 4
+
+  tutorial
+
 
 Installation
 ------------
 You can install song using *pip* by running:
+
     **pip install overture-song**
 
 If you prefer, you can also download the source code from the url below.
