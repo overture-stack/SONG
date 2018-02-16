@@ -207,26 +207,154 @@ create entities to create your payload.
 
 Upload the Payload
 -------------------
+With the payload built, the data can now be uploaded to the SONG server for validation. There are 2 modes for validation:
 
-Upload the payload
+a. **Synchronous** - uploads are valididated SYNCHRONOUSLY. Although this is the default mode, it can be selected by setting the kwarg ``is_async_validation`` to ``false`` from the :func:`upload <overture_song.client.Api.upload>` method
+b. **Asynchronously** - uploads are validated ASYNCHRONOUSLY. This allows the user to upload a batch of payloads. This mode can be selected by setting ``is_async_validation`` to ``true``
 
-Check the status of the upload
+After calling the :func:`upload <overture_song.client.Api.upload>` method, the payload will be sent to the SONG server for validation, and a response will be returned:
+
+.. code-block:: python
+
+    >>> api.upload(json_payload=payload, is_async_validation=False)
+    {
+        "status": "ok",
+        "uploadId": "UP-c49742d0-1fc8-4b45-9a1c-ea58d282ac58"
+    }
+
+If the ``status`` field from the response is ``ok``, this means the payload was successfully submitted to the SONG server for validation, and returned a randomly generated ``uploadId``, which is a reciept for the upload request.
+
+Check the Status of the Upload
 -------------------------------
-Check the status
 
-Save the analysis
+Before continuing, the previous upload's status must be checked in order to ensure the payload was successfully validated.
+Using the previous ``uploadId``, the status of the upload can be requested and will return the following response:
+
+.. code-block:: python
+
+    >>> api.status('UP-c49742d0-1fc8-4b45-9a1c-ea58d282ac58')
+    {
+        "analysisId": "",
+        "uploadId": "UP-c49742d0-1fc8-4b45-9a1c-ea58d282ac58",
+        "studyId": "ABC123",
+        "state": "VALIDATED",
+        "createdAt": [
+            2018,
+            2,
+            16,
+            0,
+            54,
+            31,
+            73774000
+        ],
+        "updatedAt": [
+            2018,
+            2,
+            16,
+            0,
+            54,
+            31,
+            75476000
+        ],
+        "errors": [
+            ""
+        ],
+        "payload": {
+            "analysisState": "UNPUBLISHED",
+            "sample": [
+                {
+                    "info": {
+                        "randomSample1Field": "someSample1Value"
+                    },
+                    "sampleId": "sa1",
+                    "specimenId": "sp1",
+                    "sampleSubmitterId": "ssId1",
+                    "sampleType": "RNA",
+                    "specimen": {
+                        "info": {
+                            "randomSpecimenField": "someSpecimenValue"
+                        },
+                        "specimenId": "sp1",
+                        "donorId": "DO1",
+                        "specimenSubmitterId": "sp_sub_1",
+                        "specimenClass": "Tumour",
+                        "specimenType": "Normal - EBV immortalized"
+                    },
+                    "donor": {
+                        "info": {
+                            "randomDonorField": "someDonorValue"
+                        },
+                        "donorId": "DO1",
+                        "donorSubmitterId": "dsId1",
+                        "studyId": "Study1",
+                        "donorGender": "male"
+                    }
+                }
+            ],
+            "file": [
+                {
+                    "info": {
+                        "randomFile1Field": "someFile1Value"
+                    },
+                    "objectId": "myObjectId1",
+                    "analysisId": "an1",
+                    "fileName": "myFilename1.txt",
+                    "studyId": "Study1",
+                    "fileSize": 1234561,
+                    "fileType": "VCF",
+                    "fileMd5sum": "myMd51",
+                    "fileAccess": "controlled"
+                },
+                {
+                    "info": {
+                        "randomFile2Field": "someFile2Value"
+                    },
+                    "objectId": "myObjectId2",
+                    "analysisId": "an1",
+                    "fileName": "myFilename2.txt",
+                    "studyId": "Study1",
+                    "fileSize": 1234562,
+                    "fileType": "VCF",
+                    "fileMd5sum": "myMd52",
+                    "fileAccess": "controlled"
+                }
+            ],
+            "analysisType": "sequencingRead",
+            "experiment": {
+                "info": {
+                    "randomSRField": "someSRValue"
+                },
+                "analysisId": "an1",
+                "aligned": true,
+                "alignmentTool": "myAlignmentTool",
+                "insertSize": 0,
+                "libraryStrategy": "WXS",
+                "pairedEnd": true,
+                "referenceGenome": "GR37"
+            }
+        }
+    }
+
+
+In order to continue with the next section, the ``state`` field **MUST** have the value ``VALIDATED``, which indicates
+the upload was validated and there were no errors. If there were errors, the ``state`` field would have the value
+``VALIDATION_ERROR``, and the field ``errors`` would contains details of the validation issues. If there is an error,
+the user can simply correct the payload, re-upload and check the status.
+
+
+Save the Analysis
 ------------------
-Save the analysis
+Once the upload is successfully validated, the upload must be saved. The SONG server generates ids using the id server.
 
-Generate the manifest
+Generate the Manifest
 ----------------------
 Generate a manifest file
 
-Upload object files
---------------------
+Upload the Object Files
+-------------------------
 Storage client file upload using manifest file
 
-Publish the analysis
+Publish the Analysis
 ---------------------
 Publish analysis
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 sphinx-autobuild \
 -b html \
--j 2 \
+-H localhost \
 --watch  ../overture_song --watch src \
 --ignore "*.swp" \
 --ignore "*.pdf" \
