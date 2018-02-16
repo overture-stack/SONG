@@ -29,6 +29,14 @@ dcc-storage:
   outputDir: "dcc-storage-output"
   token:  <token with collab.download scope>
 
+pcawg-sample-sheet:
+  enable: true
+  url: http://pancancer.info/data_releases/latest/pcawg_sample_sheet.tsv
+  tempDir: /tmp
+  hasHeader: true
+  persist: true
+  separator: \t
+
 dcc-metadata:
   url: "https://meta.icgc.org"
   fetchSize: 2000

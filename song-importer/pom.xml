@@ -53,7 +53,12 @@
             <version>${h2.version}</version>
         </dependency>
 
-
+        <!-- CSV Processing -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+            <version>${jackson-csv.version}</version>
+        </dependency>
 
         <!-- Utilities -->
         <dependency>
@@ -116,6 +121,7 @@
         <postgresql.version>9.4.1208-jdbc42-atlassian-hosted</postgresql.version>
         <springfox.version>2.7.0</springfox.version>
         <mongodb.version>3.5.0</mongodb.version>
+        <jackson-csv.version>2.9.0</jackson-csv.version>
 
         <!-- Spring Security oath2 -->
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
