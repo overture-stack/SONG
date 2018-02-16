@@ -227,7 +227,9 @@ If the ``status`` field from the response is ``ok``, this means the payload was 
 Check the Status of the Upload
 -------------------------------
 
-Before continuing, the previous upload's status must be checked in order to ensure the payload was successfully validated.
+Before continuing, the previous upload's status must be checked using the
+:func:`status <overture_song.client.Api.status>`
+method, in order to ensure the payload was successfully validated.
 Using the previous ``uploadId``, the status of the upload can be requested and will return the following response:
 
 .. code-block:: python
@@ -344,7 +346,22 @@ the user can simply correct the payload, re-upload and check the status.
 
 Save the Analysis
 ------------------
-Once the upload is successfully validated, the upload must be saved. The SONG server generates ids using the id server.
+Once the upload is successfully validated, the upload must be saved using the
+:func:`save <overture_song.client.Api.save>`
+method.  This generates the following response:
+
+
+.. code-block:: python
+
+    >>> api.save(status_response.uploadId, ignore_analysis_id_collisions=False)
+    {
+        "analysisId": "23c61f55-12b4-11e8-b46b-23a48c7b1324",
+        "status": "ok"
+    }
+
+The repo
+
+The SONG server then generates unique ids using the id server. By default, the request **DOES NOT IGNORE** analysis
 
 Generate the Manifest
 ----------------------
