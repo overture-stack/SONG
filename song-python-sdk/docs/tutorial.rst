@@ -8,9 +8,9 @@ Step 1 - Getting Set Up
 Getting DACO Access
 ---------------------
 SONG servers use the `auth.icgc.org <https://auth.icgc.org>`_ OAuth2 authorization service to authorize secure API requests.
-In order to create the neccessary access tokens to interact with the song-python-sdk and the song server,
-the user **must** have DACO access. For more information on obtaining DACO access, please visit the instructions for
-`DACO Cloud Access <http://docs.icgc.org/cloud/guide/#daco-cloud-access>`_
+In order to create the neccessary access tokens to interact with the song-python-sdk and the SONG server,
+the user **must** have DACO access. For more information about obtaining DACO access, please visit the instructions for
+`DACO Cloud Access <http://docs.icgc.org/cloud/guide/#daco-cloud-access>`_.
 
 .. _access-token-ref:
 
@@ -35,7 +35,7 @@ The official SONG Python SDK is publically hosted on `PyPi <https://pypi.python.
 
 
 .. warning::
-    Python ``3.6`` or higher is **required**
+    Python ``3.6`` or higher is **required**.
 
 
 Installing and Configuring the icgc-storage-client
@@ -48,7 +48,7 @@ is used to upload files to an authorized storage server. There are a few storage
 
 * In **AWS - Virginia** , the https://virginia.cloud.icgc.org storage servers are used and require ``aws.upload`` scope for uploading files.
 
-For installation, please see `Installing icgc-storage-client from Tarball <http://docs.icgc.org/cloud/guide/#install-from-tarball>`_ instructions
+For installation, please see `Installing icgc-storage-client from Tarball <http://docs.icgc.org/cloud/guide/#install-from-tarball>`_ instructions.
 
 
 For configuration, after un-archiving the tarball, modify the ``./conf/application.properties`` by adding the line:
@@ -57,35 +57,38 @@ For configuration, after un-archiving the tarball, modify the ``./conf/applicati
 
     accessToken=<my_access_token>
 
-where the accessToken has the correct scope.
+where the accessToken has the appropriate scope.
 
 Step 2 - Example Usage
 =======================
-This section outlines demonstrates example usage of the `overture-song` sdk.
+This section demonstrates example usage of the ``overture-song`` sdk.
 After completing this example, you will have uploaded your first SONG metadata payload\!
+
+For the impatient, the code used below can be
+found in `examples/example_upload.py <https://github.com/overture-stack/SONG/blob/develop/song-python-sdk/examples/example_upload.py>`_.
 
 Configuration
 ---------------
 
-Create an :class:`ApiConfig <overture_song.model.ApiConfig>` object. This object contains the `serverUrl`, `accessToken`, and `studyId`
+Create an :class:`ApiConfig <overture_song.model.ApiConfig>` object. This object contains the ``serverUrl``, ``accessToken``, and ``studyId``
 that will be used to interact with the SONG API. In this example we will use https://song.cancercollaboratory.org for
-the serverUrl, 'BRCA-EU' for the studyId. For the access token, please refer to :ref:`access-token-ref`
+the serverUrl and 'ABC123' for the studyId. For the access token, please refer to :ref:`access-token-ref`.
 
 .. code-block:: python
 
     from overture_song.model import ApiConfig
-    api_config = ApiConfig('https://song.cancercollaboratory.org', 'BRCA-EU', <my_access_token>)
+    api_config = ApiConfig('https://song.cancercollaboratory.org', 'ABC123', <my_access_token>)
 
 
-Next you need to instantiate the main API client in order to interact with the SONG server
+Next the main API client needs to be instantiated in order to interact with the SONG server.
 
 .. code-block:: python
 
     from overture_song.client import Api
     api = Api(api_config)
 
-As a sanity check, ensure that the server is running. If the response is `true`, then you may proceed with the next
-section, otherwise the server is not running
+As a sanity check, ensure that the server is running. If the response is ``True``, then you may proceed with the next
+section, otherwise the server is not running.
 
     >>> api.is_alive()
     True
@@ -94,7 +97,7 @@ section, otherwise the server is not running
 Create a Study
 -----------------
 
-If the studyId 'BRCA-EU' does not exist, then the :class:`StudyClient <overture_song.client.StudyClient>` must be
+If the studyId 'ABC123' does not exist, then the :class:`StudyClient <overture_song.client.StudyClient>` must be
 instantiated in order to read and create studies.
 
 First create a study client,
@@ -105,7 +108,7 @@ First create a study client,
     study_client = StudyClient(api)
 
 
-If the study you submitting a payload to does not exist, then create
+If the study associated with the payload does not exist, then create
 a :class:`Study <overture_song.entities.Study>` entity,
 
 .. code-block:: python
@@ -124,10 +127,10 @@ It follows the
 `SequencingRead JsonSchema <https://github.com/overture-stack/SONG/tree/develop/song-server/src/main/resources/schemas/sequencingRead.json>`_.
 
 .. seealso::
-    Similarily, for the :class:`VariantCallAnalysis <overture_song.entities.VariantCallAnalysis>`, you can refer to the
+    Similarly, for the :class:`VariantCallAnalysis <overture_song.entities.VariantCallAnalysis>`, refer to the
     `VariantCall JsonSchema <https://github.com/overture-stack/SONG/tree/develop/song-server/src/main/resources/schemas/variantCall.json>`_.
 
-Firstly, import all the entities to minimize the import statements
+Firstly, import all the entities to minimize the import statements.
 
 .. code-block:: python
 
@@ -203,7 +206,7 @@ Create an example :class:`SequencingRead <overture_song.entities.SequencingRead>
     sequencing_read_experiment.set_info("randomSRField", "someSRValue")
 
 Finally, use the :class:`SimplePayloadBuilder <overture_song.tools.SimplePayloadBuilder>` class along with the previously
-create entities to create your payload.
+create entities to create a payload.
 
 .. code-block:: python
 
@@ -213,9 +216,9 @@ create entities to create your payload.
 
 Use a Custom AnalysisId
 --------------------------
-In some situations, the user may prefer to use a custom ``analysisId``, which if not specified in the payload is
-automatically generated by the song server during the :ref:`save-the-analysis-ref` step.
-Although this tutorial uses the ``analysisId`` generated by the song server, a custom ``analysisId`` can be set
+In some situations, the user may prefer to use a custom ``analysisId``. If not specified in the payload, it is
+automatically generated by the SONG server during the :ref:`save-the-analysis-ref` step.
+Although this tutorial uses the ``analysisId`` generated by the SONG server, a custom ``analysisId`` can be set
 as follows:
 
 .. code-block:: python
@@ -227,8 +230,8 @@ Upload the Payload
 -------------------
 With the payload built, the data can now be uploaded to the SONG server for validation. There are 2 modes for validation:
 
-a. **Synchronous** - uploads are valididated SYNCHRONOUSLY. Although this is the default mode, it can be selected by setting the kwarg ``is_async_validation`` to ``false`` from the :func:`upload <overture_song.client.Api.upload>` method
-b. **Asynchronously** - uploads are validated ASYNCHRONOUSLY. This allows the user to upload a batch of payloads. This mode can be selected by setting ``is_async_validation`` to ``true``
+a. **Synchronous** - uploads are validated SYNCHRONOUSLY. Although this is the default mode, it can be selected by setting the kwarg ``is_async_validation`` to ``False`` from the :func:`upload <overture_song.client.Api.upload>` method.
+b. **Asynchronously** - uploads are validated ASYNCHRONOUSLY. This allows the user to upload a batch of payloads. This mode can be selected by setting ``is_async_validation`` to ``True``.
 
 After calling the :func:`upload <overture_song.client.Api.upload>` method, the payload will be sent to the SONG server for validation, and a response will be returned:
 
@@ -240,7 +243,7 @@ After calling the :func:`upload <overture_song.client.Api.upload>` method, the p
         "uploadId": "UP-c49742d0-1fc8-4b45-9a1c-ea58d282ac58"
     }
 
-If the ``status`` field from the response is ``ok``, this means the payload was successfully submitted to the SONG server for validation, and returned a randomly generated ``uploadId``, which is a reciept for the upload request.
+If the ``status`` field from the response is ``ok``, this means the payload was successfully submitted to the SONG server for validation, and returned a randomly generated ``uploadId``, which is a receipt for the upload request.
 
 Check the Status of the Upload
 -------------------------------
@@ -349,7 +352,7 @@ Using the previous ``uploadId``, the status of the upload can be requested and w
 In order to continue with the next section, the ``state`` field **MUST** have the value ``VALIDATED``, which indicates
 the upload was validated and there were no errors. If there were errors, the ``state`` field would have the value
 ``VALIDATION_ERROR``, and the field ``errors`` would contains details of the validation issues. If there is an error,
-the user can simply correct the payload, re-upload and check the status.
+the user can simply correct the payload, re-upload and check the status again.
 
 
 .. _save-the-analysis-ref:
@@ -373,16 +376,16 @@ method.  This generates the following response:
 
 The value of ``ok`` in the ``status`` field of the response indicates that an analysis was successfully created. The analysis
 will contain the same data as the payload, with the addition of server-side generated ids, which are generated by an
-id server. By default, the request **DOES NOT IGNORE** analysisId
+centralized id server. By default, the request **DOES NOT IGNORE** analysisId
 collisions, however by setting the save method parameter ``ignore_analysis_id_collisions`` to ``True``, collisions will
 be ignored. This mechanism is considered an override and is heavily discouraged, however it is necessary considering the
-complexities associated with genomic data.
+complexities associated with managing genomic data.
 
 Observe the UNPUBLISHED Analysis
 ---------------------------------
 Verify the analysis is **unpublished** by observing the value of the ``analysisState`` field in the response for the
 :func:`get_analysis <overture_song.client.Api.get_analysis>` call. The value should be ``UNPUBLISHED``. Also, observe that
-the song server generated an unique sampleId, specimenId, analysisId and objectId:
+the SONG server generated an unique sampleId, specimenId, analysisId and objectId:
 
 .. code-block:: python
 
@@ -465,11 +468,12 @@ the song server generated an unique sampleId, specimenId, analysisId and objectI
 
 Generate the Manifest
 ----------------------
-With an analysis created, a manifest file must be created using
+With an analysis created, a manifest file must be generated using the
 :class:`ManifestClient <overture_song.client.ManifestClient>`
-, the analysisId from the previously generated analysis, and an output file path. The client generates a
-:class:`Manifest <overture_song.model.Manifest>` object and then writes it to a file.
-This step is required for the next section involving the upload of the object files
+, the analysisId from the previously generated analysis, and an output file path. By calling the
+:func:`write_manifest <overture_song.client.ManifestClient.write_manifest>` method, a
+:class:`Manifest <overture_song.model.Manifest>` object is generated and then written to a file.
+This step is required for the next section involving the upload of the object files to the storage server.
 
 .. code-block:: python
 
@@ -490,7 +494,7 @@ After successful execution, a ``manifest.txt`` file will be generated and will h
 Upload the Object Files
 -------------------------
 
-Upload the manifest file to storage server using the `icgc-storage-client`.
+Upload the object files specified in the payload, using the `icgc-storage-client` and the manifest file.
 This will upload the files specified in the ``manifest.txt`` file, which should all be located in the same directory.
 
 For **Collaboratory - Toronto**:
@@ -507,7 +511,7 @@ For **AWS - Virginia**:
 
 .. seealso::
 
-    For more information about the **icgc-storage-client** usage, visit the `usage guide <http://docs.icgc.org/cloud/guide/#storage-client-usage>`_
+    For more information about the **icgc-storage-client** usage, visit the `usage guide <http://docs.icgc.org/cloud/guide/#storage-client-usage>`_.
 
 Publish the Analysis
 ---------------------
