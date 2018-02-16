@@ -30,14 +30,20 @@ public class PcawgSampleSheetFetcher {
   private final boolean persist;
   private final ObjectReader objectReader;
 
+  @SneakyThrows
+  public List<PcawgSampleBean> fetch(){
+    val file = downloadFile();
+    MappingIterator<PcawgSampleBean> it = objectReader.readValues(file);
+    return it.readAll();
+  }
 
   @SneakyThrows
   private File downloadFile(){
     val urlObject = new URL(url);
     val tempFilePath = getTempPath();
     if (persist && exists(tempFilePath)){
-        checkArgument(isRegularFile(tempFilePath),
-            "The path '%s' exists and is not a file", tempFilePath);
+      checkArgument(isRegularFile(tempFilePath),
+          "The path '%s' exists and is not a file", tempFilePath);
     } else {
       copy(urlObject.openStream(), tempFilePath, REPLACE_EXISTING);
     }
@@ -48,13 +54,6 @@ public class PcawgSampleSheetFetcher {
     return Paths.get(tempDir+File.separator+TEMP_FILE_NAME);
   }
 
-  @SneakyThrows
-  public List<PcawgSampleBean> fetch(){
-    val file = downloadFile();
-    MappingIterator<PcawgSampleBean> it = objectReader
-        .readValues(file);
-    return it.readAll();
-  }
 
   public static PcawgSampleSheetFetcher createPcawgSampleSheetFetcher(String url, String tempDir, boolean persist,
       ObjectReader pcawgSampleSheetReader) {
