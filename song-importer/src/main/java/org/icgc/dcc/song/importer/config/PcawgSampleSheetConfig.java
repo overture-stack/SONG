@@ -2,6 +2,7 @@ package org.icgc.dcc.song.importer.config;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.val;
 import org.icgc.dcc.song.importer.download.fetcher.PcawgSampleSheetFetcher;
 import org.icgc.dcc.song.importer.model.PcawgSampleBean;
@@ -34,9 +35,8 @@ public class PcawgSampleSheetConfig {
 
   public static ObjectReader pcawgSampleSheetReader(boolean hasHeader, char separator){
     val csvMapper = new CsvMapper();
-    val csvSchema = csvMapper
-        .schemaFor(PcawgSampleBean.class)
-        .withUseHeader(hasHeader)
+    val csvSchema = CsvSchema.emptySchema()
+        .withHeader()
         .withColumnSeparator(separator);
     return csvMapper
         .readerFor(PcawgSampleBean.class)
