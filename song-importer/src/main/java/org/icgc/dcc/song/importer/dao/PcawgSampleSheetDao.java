@@ -22,14 +22,10 @@ public class PcawgSampleSheetDao {
   @NonNull private final Map<String, List<PcawgSampleBean>> donorMap;
 
   /**
-   * State
-   */
-
-  /**
    * Note: This function is very pessimistic and constrains the search significantly to avoid duplicates or any
    * other unexpected collisions
    */
-  public String findNormalSubmitterSampleId(
+  public PcawgSampleBean findNormal(
       @NonNull String icgc_donor_id,
       @NonNull String dcc_project_code,
       @NonNull String library_strategy){
@@ -49,9 +45,15 @@ public class PcawgSampleSheetDao {
         "There is more than 1 result (%s) for the query: "
             + "icgc_donor_id=%s, dcc_procject_code=%s, library_strategy=%s",
         list.size(), icgc_donor_id, dcc_project_code, library_strategy);
-    return list.get(0).getSubmitter_sample_id();
+    return list.get(0);
   }
 
+  public String findNormalSubmitterSampleId(
+      @NonNull String icgc_donor_id,
+      @NonNull String dcc_project_code,
+      @NonNull String library_strategy){
+    return findNormal(icgc_donor_id, dcc_project_code, library_strategy).getSubmitter_sample_id();
+  }
 
   public static PcawgSampleSheetDao createPcawgSampleSheetDao(List<PcawgSampleBean> beans) {
     return new PcawgSampleSheetDao(beans.stream().collect(groupingBy(PcawgSampleBean::getIcgc_donor_id)));
