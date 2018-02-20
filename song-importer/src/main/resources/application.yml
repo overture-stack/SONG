@@ -35,7 +35,11 @@ pcawg-sample-sheet:
   tempDir: /tmp
   hasHeader: true
   persist: true
-  separator: \t
+  separator: "\t"
+
+importer:
+  updateMatchedNormalSubmitterSamples: true
+  disableSSL: false
 
 dcc-metadata:
   url: "https://meta.icgc.org"
