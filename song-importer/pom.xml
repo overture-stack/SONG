@@ -23,12 +23,6 @@
             <version>0.3.10-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>${mongodb.version}</version>
-        </dependency>
-
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -120,7 +114,6 @@
         <flyway-spring-test.version>4.1.0</flyway-spring-test.version>
         <postgresql.version>9.4.1208-jdbc42-atlassian-hosted</postgresql.version>
         <springfox.version>2.7.0</springfox.version>
-        <mongodb.version>3.5.0</mongodb.version>
         <jackson-csv.version>2.9.0</jackson-csv.version>
 
         <!-- Spring Security oath2 -->
