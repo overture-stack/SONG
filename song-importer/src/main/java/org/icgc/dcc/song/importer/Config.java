@@ -17,21 +17,20 @@
  */
 package org.icgc.dcc.song.importer;
 
+import lombok.Getter;
 import org.icgc.dcc.song.importer.download.DownloadIterator;
 import org.icgc.dcc.song.importer.filters.impl.SpecimenFileFilter;
 import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 @Configuration
 @Lazy
@@ -49,9 +48,17 @@ public class Config {
   @Autowired
   private SpecimenFileFilter specimenFileFilter;
 
+  @Getter
+  @Value("${importer.updateMatchedNormalSubmitterSamples}")
+  private Boolean updateMatchedNormalSubmitterSamples;
+
+  @Getter
+  @Value("${importer.disableSSL}")
+  private boolean disableSSL;
+
   public static final String PORTAL_API = "https://dcc.icgc.org";
   public static final Path PERSISTED_DIR_PATH = Paths.get("persisted");
-  public static final Set<String> PROBLEMATIC_SPECIMEN_IDS = newHashSet("SP99323", "SP99331", "SP99319");
+  public static final String DATA_CONTAINER_PERSISTENCE_FN = "dataContainer.dat";
 
 
   @Bean

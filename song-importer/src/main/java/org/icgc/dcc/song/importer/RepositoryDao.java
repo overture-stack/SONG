@@ -20,6 +20,7 @@ import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.ANALYSIS;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.DONOR;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.FILE;
@@ -73,9 +74,28 @@ public class RepositoryDao {
     analysisRepository.createAnalysis(analysis);
     infoRepository.create(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfoAsString());
 
-    val sequencingRead = analysis.getExperiment();
-    analysisRepository.createVariantCall(sequencingRead);
-    infoRepository.create(sequencingRead.getAnalysisId(), VARIANT_CALL.toString(), sequencingRead.getInfoAsString());
+    val variantCall = analysis.getExperiment();
+    analysisRepository.createVariantCall(variantCall);
+    infoRepository.create(variantCall.getAnalysisId(), VARIANT_CALL.toString(), variantCall.getInfoAsString());
+  }
+
+  public void updateVariantCallAnalysis(@NonNull VariantCallAnalysis analysis) {
+    if (isNull(analysisRepository.read(analysis.getAnalysisId()))) {
+      analysisRepository.createAnalysis(analysis);
+      infoRepository.create(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfoAsString());
+    } else {
+      infoRepository.set(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfoAsString());
+    }
+
+    val variantCall = analysis.getExperiment();
+    if(isNull(analysisRepository.readVariantCall(analysis.getAnalysisId()))){
+      analysisRepository.createVariantCall(variantCall);
+      infoRepository.create(variantCall.getAnalysisId(), VARIANT_CALL.toString(), variantCall.getInfoAsString());
+    } else {
+      analysisRepository.updateVariantCall(variantCall);
+      infoRepository.set(variantCall.getAnalysisId(), VARIANT_CALL.toString(), variantCall.getInfoAsString());
+    }
+
   }
 
   public void createSampleSet(@NonNull SampleSet sampleSet) {

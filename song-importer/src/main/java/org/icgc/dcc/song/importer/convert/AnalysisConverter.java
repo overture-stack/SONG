@@ -5,8 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.val;
-import org.icgc.dcc.song.importer.dao.DonorDao;
-import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
+import org.icgc.dcc.song.importer.strategies.PcawgSampleSheetStrategy;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.resolvers.AnalysisTypes;
 import org.icgc.dcc.song.importer.resolvers.FileTypes;
@@ -17,8 +16,11 @@ import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
 
 import java.util.List;
+import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.importer.convert.FileConverter.getFileTypes;
@@ -36,7 +38,7 @@ public class AnalysisConverter {
   private static final long NULL_INSERT_SIZE = -1;
   private static final boolean DEFAULT_SEQUENCING_READ_IS_PAIRED = false;
 
-  private final DonorDao donorDao;
+  private final PcawgSampleSheetStrategy pcawgSampleSheetStrategy;
 
   public List<SequencingReadAnalysis> convertSequencingReads(@NonNull List<PortalFileMetadata> portalFileMetadatas){
     val aggSet = portalFileMetadatas.stream()
@@ -58,14 +60,25 @@ public class AnalysisConverter {
         .collect(toImmutableList());
   }
 
+  public String getMatchedNormalSampleSubmitterId(@NonNull PortalFileMetadata portalFileMetadata){
+    checkArgument(portalFileMetadata.getSubmittedSampleIds().size() == 1,
+        "Assumption that file '%s' belongs to 1 sample files. File has samples: %s",
+        portalFileMetadata.getFileId(), COMMA.join(portalFileMetadata .getSubmittedSampleIds()));
+
+    return pcawgSampleSheetStrategy.getNormalSubmitterSampleId(
+        portalFileMetadata.getDonorId(),
+        portalFileMetadata.getProjectCode(),
+        portalFileMetadata.getSubmittedSampleIds().get(0),
+        portalFileMetadata.getExperimentalStrategy());
+  }
+
   private VariantCallAggregate buildVariantCallAggregate(PortalFileMetadata portalFileMetadata){
-    val portalDonorMetadata = donorDao.getPortalDonorMetadata(portalFileMetadata.getDonorId());
     return VariantCallAggregate.builder()
         .studyId(getStudyId(portalFileMetadata))
         .analysisId(getAnalysisId(portalFileMetadata))
-        .variantCallingTool(getVariantCallingTool(portalFileMetadata))
+        .variantCallingTool(getVariantCallingTool(portalFileMetadata).orElse(null))
         .type(getAnalysisType(portalFileMetadata))
-        .matchedNormalSampleSubmitterId(getMatchedNormalSampleSubmitterId(portalDonorMetadata))
+        .matchedNormalSampleSubmitterId(getMatchedNormalSampleSubmitterId(portalFileMetadata))
         .build();
   }
 
@@ -74,9 +87,9 @@ public class AnalysisConverter {
         .analysisId(getAnalysisId(portalFileMetadata))
         .type(getAnalysisType(portalFileMetadata))
         .studyId(getStudyId(portalFileMetadata))
-        .referenceGenome(getReferenceGenome(portalFileMetadata))
+        .referenceGenome(getReferenceGenome(portalFileMetadata).orElse(null))
         .libraryStrategy(getLibraryStrategy(portalFileMetadata))
-        .alignmentTool(getAlignmentTool(portalFileMetadata))
+        .alignmentTool(getAlignmentTool(portalFileMetadata).orElse(null))
         .aligned(isAligned(portalFileMetadata))
         .build();
   }
@@ -142,7 +155,7 @@ public class AnalysisConverter {
     return AnalysisTypes.resolve(FileTypes.resolve(portalFileMetadata)).getAnalysisTypeName();
   }
 
-  public static String getReferenceGenome(@NonNull PortalFileMetadata portalFileMetadata){
+  public static Optional<String> getReferenceGenome(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getGenomeBuild();
   }
 
@@ -150,24 +163,20 @@ public class AnalysisConverter {
     return portalFileMetadata.getExperimentalStrategy();
   }
 
-  public static String getAlignmentTool(@NonNull PortalFileMetadata portalFileMetadata){
+  public static Optional<String> getAlignmentTool(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getSoftware();
   }
 
-  public static String getVariantCallingTool(@NonNull PortalFileMetadata portalFileMetadata){
+  public static Optional<String> getVariantCallingTool(@NonNull PortalFileMetadata portalFileMetadata){
     return portalFileMetadata.getSoftware();
-  }
-
-  public static String getMatchedNormalSampleSubmitterId(@NonNull PortalDonorMetadata portalDonorMetadata){
-    return portalDonorMetadata.getNormalAnalyzedId();
   }
 
   public static AccessTypes getAnalysisAccess(@NonNull PortalFileMetadata portalFileMetadata){
     return resolveAccessType(portalFileMetadata.getAccess());
   }
 
-  public static AnalysisConverter createAnalysisConverter(DonorDao donorDao) {
-    return new AnalysisConverter(donorDao);
+  public static AnalysisConverter createAnalysisConverter(PcawgSampleSheetStrategy pcawgSampleSheetStrategy) {
+    return new AnalysisConverter(pcawgSampleSheetStrategy);
   }
 
   @Builder
@@ -175,7 +184,7 @@ public class AnalysisConverter {
   public static class VariantCallAggregate {
 
     @NonNull private final String analysisId;
-    @NonNull private final String variantCallingTool;
+    private final String variantCallingTool;
     @NonNull private final String matchedNormalSampleSubmitterId;
     @NonNull private final String studyId;
     @NonNull private final String type;
@@ -188,8 +197,8 @@ public class AnalysisConverter {
 
     @NonNull private final String analysisId;
     @NonNull private final String libraryStrategy;
-    @NonNull private final String alignmentTool;
-    @NonNull private final String referenceGenome;
+    private final String alignmentTool;
+    private final String referenceGenome;
     @NonNull private final String studyId;
     @NonNull private final String type;
     private final boolean aligned;

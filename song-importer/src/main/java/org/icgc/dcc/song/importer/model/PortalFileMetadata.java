@@ -24,7 +24,7 @@ public class PortalFileMetadata implements Serializable {
   @NonNull private final String fileMd5sum;
   @NonNull private final String fileName;
   private final long fileSize;
-  @NonNull private final String genomeBuild;
+  private final String genomeBuild;
   private final String indexFileFileFormat;
   private final String indexFileFileMd5sum;
   private final String indexFileFileName;
@@ -39,7 +39,7 @@ public class PortalFileMetadata implements Serializable {
   @NonNull private final String submittedDonorId;
   @NonNull private final List<String> submittedSampleIds;
   @NonNull private final List<String> submittedSpecimenIds;
-  @NonNull private final String software;
+  private final String software;
 
   public Optional<String> getIndexFileFileFormat(){
     return Optional.ofNullable(indexFileFileFormat);
@@ -63,6 +63,14 @@ public class PortalFileMetadata implements Serializable {
 
   public Optional<String> getIndexFileObjectId(){
     return Optional.ofNullable(indexFileObjectId);
+  }
+
+  public Optional<String> getSoftware(){
+    return Optional.ofNullable(software);
+  }
+
+  public Optional<String> getGenomeBuild(){
+    return Optional.ofNullable(genomeBuild);
   }
 
   public boolean isIndexFileComplete(){
