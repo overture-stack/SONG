@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.common.core.security.SSLCertificateValidation;
 import org.icgc.dcc.song.importer.config.PcawgSampleSheetConfig;
+import org.icgc.dcc.song.importer.convert.AnalysisConverter;
 import org.icgc.dcc.song.importer.convert.SpecimenSampleConverter.SpecimenSampleTuple;
 import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.icgc.dcc.song.importer.Config.DATA_CONTAINER_PERSISTENCE_FN;
 import static org.icgc.dcc.song.importer.Factory.DONOR_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.FILE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.SAMPLE_SET_CONVERTER;
@@ -59,15 +61,15 @@ public class Importer implements  Runnable {
     log.info("Building PersistenceFactory...");
     val persistenceFactory = buildPersistenceFactory(dataFetcher::fetchData);
 
-    log.info("Getting DataContainer object {}...", Config.DATA_CONTAINER_PERSISTENCE_FN);
-    val dataContainer = persistenceFactory.getObject(Config.DATA_CONTAINER_PERSISTENCE_FN);
+    log.info("Getting DataContainer object {}...", DATA_CONTAINER_PERSISTENCE_FN);
+    val dataContainer = persistenceFactory.getObject(DATA_CONTAINER_PERSISTENCE_FN);
 
     val portalFileMetadatas = dataContainer.getPortalFileMetadataList();
     val portalDonorMetadatas = dataContainer.getPortalDonorMetadataSet();
     val dccMetadataFiles = dataContainer.getDccMetadataFiles();
 
     if (config.getUpdateMatchedNormalSubmitterSamples()){
-      updateMatchedNormalSubmitterSampleId(portalFileMetadatas);
+      onlyUpdateMatchedNormalSubmitterSample(portalFileMetadatas);
     } else {
       processStudies(portalDonorMetadatas);
       processDonors(portalDonorMetadatas);
@@ -78,7 +80,17 @@ public class Importer implements  Runnable {
     }
   }
 
-  public void updateMatchedNormalSubmitterSampleId(List<PortalFileMetadata> portalFileMetadataList ) {
+  public void onlyUpdateMatchedNormalSubmitterSample(List<PortalFileMetadata> portalFileMetadataList ) {
+    val analysisConverter = buildAnalysisConverter();
+
+    log.info("Converting VariantCalls...");
+    val variantCallList = analysisConverter.convertVariantCalls(portalFileMetadataList);
+
+    log.info("Updating analysisRepository with {} VariantCalls", variantCallList.size());
+    variantCallList.forEach(repositoryDao::updateVariantCallAnalysis);
+  }
+
+  private AnalysisConverter buildAnalysisConverter(){
     log.info("Fetching pcawgSampleSheet data...");
     val pcawgSampleSheets = pcawgSampleSheetConfig.pcawgSampleSheetFetcher().fetch();
 
@@ -86,13 +98,7 @@ public class Importer implements  Runnable {
     val pcawgSampleSheetDao = createPcawgSampleSheetDao(pcawgSampleSheets);
 
     log.info("Creating AnalysisConverter using PcawgSampleSheetDao");
-    val analysisConverter = createAnalysisConverter(pcawgSampleSheetDao);
-
-    log.info("Converting VariantCalls...");
-    val variantCallList = analysisConverter.convertVariantCalls(portalFileMetadataList);
-
-    log.info("Updating analysisRepository with {} VariantCalls", variantCallList.size());
-    variantCallList.forEach(repositoryDao::updateVariantCallAnalysis);
+    return createAnalysisConverter(pcawgSampleSheetDao);
   }
 
   private void processStudies( Set<PortalDonorMetadata> portalDonorMetadataSet){
@@ -153,15 +159,7 @@ public class Importer implements  Runnable {
   }
 
   private void processAnalysis(DataContainer dataContainer){
-
-    log.info("Fetching pcawgSampleSheet data...");
-    val pcawgSampleSheets = pcawgSampleSheetConfig.pcawgSampleSheetFetcher().fetch();
-
-    log.info("Creating pcawgSampleSheet DAO...");
-    val pcawgSampleSheetDao = createPcawgSampleSheetDao(pcawgSampleSheets);
-
-    log.info("Creating AnalysisConverter using PcawgSampleSheetDao");
-    val analysisConverter = createAnalysisConverter(pcawgSampleSheetDao);
+    val analysisConverter = buildAnalysisConverter();
 
     log.info("Converting SequencingReads...");
     val seqReadAnalysisList = analysisConverter.convertSequencingReads(dataContainer.getPortalFileMetadataList());
