@@ -38,7 +38,7 @@ pcawg-sample-sheet:
   separator: "\t"
 
 importer:
-  updateMatchedNormalSubmitterSamples: true
+  updateMatchedNormalSubmitterSamples: false
   disableSSL: false
 
 dcc-metadata:
