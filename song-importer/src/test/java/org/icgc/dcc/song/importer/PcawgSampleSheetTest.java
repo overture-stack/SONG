@@ -22,8 +22,10 @@ public class PcawgSampleSheetTest {
     val fetcher = createPcawgSampleSheetFetcher(url, tempUrl, persist, reader);
     val data = fetcher.fetch();
     val dao = createPcawgSampleSheetStrategy(data);
+    val tumourSubmitterSampleId = "C0021RT";
     val expectedMatchedNormalSubmitterSampleId = "C0021RA";
-    val actualMatchedNormalSubmitterSampleId = dao.getNormalSubmitterSampleId("DO46877", "RECA-EU", "RNA-Seq"  );
+    val actualMatchedNormalSubmitterSampleId = dao.getNormalSubmitterSampleId(
+        "DO46877", "RECA-EU", tumourSubmitterSampleId, "RNA-Seq"  );
     assertThat(actualMatchedNormalSubmitterSampleId).isEqualTo(expectedMatchedNormalSubmitterSampleId);
   }
 
