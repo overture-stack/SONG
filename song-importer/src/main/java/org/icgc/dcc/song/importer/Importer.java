@@ -27,7 +27,7 @@ import static org.icgc.dcc.song.importer.Factory.SPECIMEN_SAMPLE_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.STUDY_CONVERTER;
 import static org.icgc.dcc.song.importer.Factory.buildPersistenceFactory;
 import static org.icgc.dcc.song.importer.convert.AnalysisConverter.createAnalysisConverter;
-import static org.icgc.dcc.song.importer.dao.PcawgSampleSheetDao.createPcawgSampleSheetDao;
+import static org.icgc.dcc.song.importer.strategies.PcawgSampleSheetStrategy.createPcawgSampleSheetStrategy;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -95,9 +95,9 @@ public class Importer implements  Runnable {
     val pcawgSampleSheets = pcawgSampleSheetConfig.pcawgSampleSheetFetcher().fetch();
 
     log.info("Creating pcawgSampleSheet DAO...");
-    val pcawgSampleSheetDao = createPcawgSampleSheetDao(pcawgSampleSheets);
+    val pcawgSampleSheetDao = createPcawgSampleSheetStrategy(pcawgSampleSheets);
 
-    log.info("Creating AnalysisConverter using PcawgSampleSheetDao");
+    log.info("Creating AnalysisConverter using PcawgSampleSheetStrategy");
     return createAnalysisConverter(pcawgSampleSheetDao);
   }
 

@@ -5,7 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.val;
-import org.icgc.dcc.song.importer.dao.PcawgSampleSheetDao;
+import org.icgc.dcc.song.importer.strategies.PcawgSampleSheetStrategy;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.resolvers.AnalysisTypes;
 import org.icgc.dcc.song.importer.resolvers.FileTypes;
@@ -18,7 +18,9 @@ import org.icgc.dcc.song.server.model.experiment.VariantCall;
 import java.util.List;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.importer.convert.FileConverter.getFileTypes;
@@ -36,7 +38,7 @@ public class AnalysisConverter {
   private static final long NULL_INSERT_SIZE = -1;
   private static final boolean DEFAULT_SEQUENCING_READ_IS_PAIRED = false;
 
-  private final PcawgSampleSheetDao pcawgSampleSheetDao;
+  private final PcawgSampleSheetStrategy pcawgSampleSheetStrategy;
 
   public List<SequencingReadAnalysis> convertSequencingReads(@NonNull List<PortalFileMetadata> portalFileMetadatas){
     val aggSet = portalFileMetadatas.stream()
@@ -59,9 +61,14 @@ public class AnalysisConverter {
   }
 
   public String getMatchedNormalSampleSubmitterId(@NonNull PortalFileMetadata portalFileMetadata){
-    return pcawgSampleSheetDao.findNormalSubmitterSampleId(
+    checkArgument(portalFileMetadata.getSubmittedSampleIds().size() == 1,
+        "Assumption that file '%s' belongs to 1 sample files. File has samples: %s",
+        portalFileMetadata.getFileId(), COMMA.join(portalFileMetadata .getSubmittedSampleIds()));
+
+    return pcawgSampleSheetStrategy.getNormalSubmitterSampleId(
         portalFileMetadata.getDonorId(),
         portalFileMetadata.getProjectCode(),
+        portalFileMetadata.getSubmittedSampleIds().get(0),
         portalFileMetadata.getExperimentalStrategy());
   }
 
@@ -168,8 +175,8 @@ public class AnalysisConverter {
     return resolveAccessType(portalFileMetadata.getAccess());
   }
 
-  public static AnalysisConverter createAnalysisConverter(PcawgSampleSheetDao pcawgSampleSheetDao) {
-    return new AnalysisConverter(pcawgSampleSheetDao);
+  public static AnalysisConverter createAnalysisConverter(PcawgSampleSheetStrategy pcawgSampleSheetStrategy) {
+    return new AnalysisConverter(pcawgSampleSheetStrategy);
   }
 
   @Builder

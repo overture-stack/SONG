@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.importer.config.PcawgSampleSheetConfig.pcawgSampleSheetReader;
-import static org.icgc.dcc.song.importer.dao.PcawgSampleSheetDao.createPcawgSampleSheetDao;
+import static org.icgc.dcc.song.importer.strategies.PcawgSampleSheetStrategy.createPcawgSampleSheetStrategy;
 import static org.icgc.dcc.song.importer.download.fetcher.PcawgSampleSheetFetcher.createPcawgSampleSheetFetcher;
 
 public class PcawgSampleSheetTest {
@@ -21,9 +21,9 @@ public class PcawgSampleSheetTest {
     val reader = pcawgSampleSheetReader(hasHeader, separator);
     val fetcher = createPcawgSampleSheetFetcher(url, tempUrl, persist, reader);
     val data = fetcher.fetch();
-    val dao = createPcawgSampleSheetDao(data);
+    val dao = createPcawgSampleSheetStrategy(data);
     val expectedMatchedNormalSubmitterSampleId = "C0021RA";
-    val actualMatchedNormalSubmitterSampleId = dao.findNormalSubmitterSampleId("DO46877", "RECA-EU", "RNA-Seq"  );
+    val actualMatchedNormalSubmitterSampleId = dao.getNormalSubmitterSampleId("DO46877", "RECA-EU", "RNA-Seq"  );
     assertThat(actualMatchedNormalSubmitterSampleId).isEqualTo(expectedMatchedNormalSubmitterSampleId);
   }
 
