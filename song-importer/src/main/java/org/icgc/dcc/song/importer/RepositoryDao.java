@@ -215,7 +215,7 @@ public class RepositoryDao {
 
   private boolean hasSampleSet(SampleSet sampleSet){
     return !isNull(analysisRepository.read(sampleSet.getAnalysisId()))
-        || !isNull(sampleRepository.read(sampleSet.getSampleId()));
+        && !isNull(sampleRepository.read(sampleSet.getSampleId()));
   }
 
   public void createSampleSet(@NonNull SampleSet sampleSet) {
