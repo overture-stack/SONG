@@ -185,7 +185,8 @@ public class RepositoryDao {
 
   @Deprecated
   public void updateVariantCallAnalysis(@NonNull VariantCallAnalysis analysis) {
-    if (isNull(analysisRepository.read(analysis.getAnalysisId()))) {
+    if (!hasAnalysis(analysis)){
+      log.info("Creating new analysis {}", analysis.getAnalysisId());
       analysisRepository.createAnalysis(analysis);
       infoRepository.create(analysis.getAnalysisId(), ANALYSIS.toString(), analysis.getInfoAsString());
     } else {
@@ -193,12 +194,17 @@ public class RepositoryDao {
     }
 
     val variantCall = analysis.getExperiment();
-    if(isNull(analysisRepository.readVariantCall(analysis.getAnalysisId()))){
+    if(!hasVariantCall(variantCall)){
+      log.info("Creating new variantCall {}", variantCall.getAnalysisId());
       analysisRepository.createVariantCall(variantCall);
       infoRepository.create(variantCall.getAnalysisId(), VARIANT_CALL.toString(), variantCall.getInfoAsString());
     } else {
-      analysisRepository.updateVariantCall(variantCall);
-      infoRepository.set(variantCall.getAnalysisId(), VARIANT_CALL.toString(), variantCall.getInfoAsString());
+      val storedVC = analysisRepository.readVariantCall(variantCall.getAnalysisId());
+      if (!storedVC.equals(variantCall)){
+        log.warn("UPDATING variantCall {}", variantCall.getAnalysisId());
+        analysisRepository.updateVariantCall(variantCall);
+        infoRepository.set(variantCall.getAnalysisId(), VARIANT_CALL.toString(), variantCall.getInfoAsString());
+      }
     }
 
   }

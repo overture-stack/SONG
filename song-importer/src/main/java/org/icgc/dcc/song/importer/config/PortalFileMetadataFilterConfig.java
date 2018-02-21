@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.importer.config;
 
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -67,12 +68,20 @@ public class PortalFileMetadataFilterConfig {
   @Bean
   @SneakyThrows
   public DataBundleFileFilter dataBundleFileFilter(){
-    log.info("Building DataBundleFileFilter({}) for inputFile: {}", getEnabledText(enableDataBundle), dataBundleInputFilePath);
-    val path = Paths.get(dataBundleInputFilePath);
-    checkState(!enableDataBundle || (exists(path) && isRegularFile(path)),
-        "The file '%s' does not exist", path );
+    List<String> dataBundleIds = null;
+    if (enableDataBundle) {
+      log.info("Building DataBundleFileFilter({}) for inputFile: {}", getEnabledText(enableDataBundle),
+          dataBundleInputFilePath);
+      val path = Paths.get(dataBundleInputFilePath);
+      checkState(exists(path) && isRegularFile(path),
+          "The file '%s' does not exist", path);
 
-    val dataBundleIds = readAllLines(Paths.get(dataBundleInputFilePath));
+      dataBundleIds = readAllLines(Paths.get(dataBundleInputFilePath));
+    } else {
+      log.info("Skipping building of DataBundleFileFilter for inputFile: {}", getEnabledText(enableDataBundle),
+          dataBundleInputFilePath);
+      dataBundleIds = ImmutableList.<String>of();
+    }
     val dataBundleIdFilter = createDataBundleIdFilter(enableDataBundle, newHashSet(dataBundleIds),isDataBundleGoodIds);
     return createDataBundleFileFilter(dataBundleIdFilter);
   }
