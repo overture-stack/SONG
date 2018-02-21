@@ -30,11 +30,19 @@ from __future__ import print_function, absolute_import
 # To use a consistent encoding
 from codecs import open as open_
 from os import path
+import sys
 
 # Always prefer setuptools over distutils
 from setuptools import setup
 SONG_VERSION = '0.3.9'
+REQUIRED_PY_VERSION = (3, 6, 0)
 
+def get_required_py_version_string():
+    return ".".join(map(lambda x : str(x), REQUIRED_PY_VERSION))
+
+def get_current_py_version_string():
+    v = sys.version_info
+    return ".".join([str(v.major), str(v.minor), str(v.micro)])
 
 def run():
     """
@@ -45,6 +53,11 @@ def run():
     # Get the long description from the README file
     with open_(path.join(here, 'docs/index.rst'), encoding='utf-8') as file_:
         long_description = file_.read()
+
+    if sys.version_info < REQUIRED_PY_VERSION:
+        raise Exception(
+            "[UNSUPPORTED_PY_VERSION]: Installation requires python >= {}, "
+            "but the current version is {}".format(get_required_py_version_string(), get_current_py_version_string()))
 
     setup(
         name='overture-song',
@@ -105,7 +118,7 @@ def run():
         # when your project is installed. For an analysis of
         # "install_requires" vs pip's requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
-        install_requires=['requests'],
+        install_requires=['requests>=2.18.4', 'dataclasses>=0.4'],
 
         # List additional groups of dependencies here (e.g. development
         # dependencies). You can install these using the following syntax,
@@ -120,7 +133,7 @@ def run():
         package_data={
         },
 
-        python_requires='>=3.6',
+        python_requires=">={}".format(get_required_py_version_string()),
 
         # Although 'package_data' is the preferred approach, in some case you
         # may need to place data files outside of your packages. See:

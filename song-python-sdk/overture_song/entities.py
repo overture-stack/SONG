@@ -6,17 +6,18 @@ from dataclasses import dataclass
 from overture_song.validation import Validatable
 from overture_song.utils import Builder, default_value
 from typing import List
-from dataclasses import _isdataclass, asdict
+from dataclasses import is_dataclass, asdict
 from overture_song.utils import check_type, check_state
 
 
 class Entity(object):
 
     def to_json(self):
+
         return json.dumps(self.to_dict(), indent=4)
 
     def to_dict(self):
-        if _isdataclass(self):
+        if is_dataclass(self):
             return asdict(self)
         else:
             raise NotImplemented("not implemented for non-dataclass object")
