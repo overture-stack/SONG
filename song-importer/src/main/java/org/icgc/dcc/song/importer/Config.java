@@ -19,7 +19,8 @@ package org.icgc.dcc.song.importer;
 
 import lombok.Getter;
 import org.icgc.dcc.song.importer.download.DownloadIterator;
-import org.icgc.dcc.song.importer.filters.impl.SpecimenFileFilter;
+import org.icgc.dcc.song.importer.filters.Filter;
+import org.icgc.dcc.song.importer.filters.impl.DataBundleFileFilter;
 import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
 import org.icgc.dcc.song.importer.storage.SimpleDccStorageClient;
@@ -46,7 +47,10 @@ public class Config {
   private DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator;
 
   @Autowired
-  private SpecimenFileFilter specimenFileFilter;
+  private Filter<PortalFileMetadata> portalFileMetadataFilter;
+
+  @Autowired
+  private DataBundleFileFilter dataBundleFileFilter;
 
   @Getter
   @Value("${importer.updateMatchedNormalSubmitterSamples}")
@@ -63,7 +67,8 @@ public class Config {
 
   @Bean
   public Factory factory(){
-    return new Factory(simpleDccStorageClient, dccMetadataDownloadIterator, portalFileMetadataDownloadIterator, specimenFileFilter);
+    return new Factory(simpleDccStorageClient, dccMetadataDownloadIterator,
+        portalFileMetadataDownloadIterator, portalFileMetadataFilter, dataBundleFileFilter);
   }
 
 }

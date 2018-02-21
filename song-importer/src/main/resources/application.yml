@@ -53,6 +53,10 @@ filters:
       - "SP99323"
       - "SP99331"
       - "SP99319"
+  dataBundle:
+    enable: false
+    isGoodIds: true
+    inputFilePath: ./gnos_id_on_portal.icgc.txt
 
 portal:
   url: "https://dcc.icgc.org"

@@ -20,7 +20,6 @@ import static org.icgc.dcc.song.importer.parser.DonorPortalJsonParser.getGender;
 import static org.icgc.dcc.song.importer.parser.DonorPortalJsonParser.getProjectId;
 import static org.icgc.dcc.song.importer.parser.DonorPortalJsonParser.getProjectName;
 import static org.icgc.dcc.song.importer.parser.DonorPortalJsonParser.getSubmittedDonorId;
-import static org.icgc.dcc.song.importer.parser.NormalSpecimenParser.createNormalSpecimenParser;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -62,18 +61,12 @@ public class DonorFetcher {
 
   public static PortalDonorMetadata convertToPortalDonorMetadata(JsonNode donor){
     try{
-      val parser = createNormalSpecimenParser(donor);
       return PortalDonorMetadata.builder()
           .donorId(getDonorId(donor))
           .projectId(getProjectId(donor))
           .projectName(getProjectName(donor))
           .submittedDonorId(getSubmittedDonorId(donor))
           .gender(getGender(donor))
-          .normalAnalyzedId(parser.getNormalAnalyzedId())
-          .normalSampleId(parser.getNormalSampleId())
-          .normalSpecimenId(parser.getNormalSpecimenId())
-          .normalSpecimenType(parser.getNormalSpecimenType())
-          .normalSubmittedSpecimenId(parser.getNormalSubmittedSpecimenId())
           .build();
     } catch(Throwable t){
       log.info("Error: {}\nOBJECT_DATA_DUMP:\n{}", t.getMessage(), toPrettyJson(donor));
