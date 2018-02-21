@@ -54,9 +54,9 @@ public class Importer implements  Runnable {
       SSLCertificateValidation.enable();
     }
 
-
     log.info("Building DataFetcher...");
     val dataFetcher = factory.buildDataFetcher();
+
 
     log.info("Building PersistenceFactory...");
     val persistenceFactory = buildPersistenceFactory(dataFetcher::fetchData);

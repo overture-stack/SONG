@@ -4,11 +4,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.importer.filters.Filter;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
+import org.springframework.stereotype.Component;
 
 /**
  * Filters out files that map to blacklisted specimen Ids.
  */
 @RequiredArgsConstructor
+@Component
 public class SpecimenFileFilter implements Filter<PortalFileMetadata> {
 
   @NonNull private final Filter<String> specimenIdFilter;

@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.common.core.util.Joiners;
 import org.icgc.dcc.song.importer.download.DownloadIterator;
 import org.icgc.dcc.song.importer.filters.Filter;
+import org.icgc.dcc.song.importer.filters.impl.DataBundleFileFilter;
 import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalDonorMetadata;
@@ -29,11 +31,13 @@ import static org.icgc.dcc.song.importer.model.DataContainer.createDataContainer
 @RequiredArgsConstructor
 public class DataFetcher {
 
+
   @NonNull private final DonorFetcher donorFetcher;
   @NonNull private final Filter<PortalFileMetadata> portalFileMetadataFilter;
   @NonNull private final DownloadIterator<DccMetadata> dccMetadataDownloadIterator;
   @NonNull private final SimpleDccStorageClient simpleDccStorageClient;
   @NonNull private final DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator;
+  @NonNull private final DataBundleFileFilter dataBundleFileFilter;
 
   @SneakyThrows
   public DataContainer fetchData() {
@@ -47,7 +51,7 @@ public class DataFetcher {
     val goodDonorIds = getGoodDonorIdsOnly(portalDonorMetadatas);
 
     // Filter portalFileMetadatas by ignoring files belonging to potato donors (errored donorIds), and files matching
-    // the fileFilter criteria
+    // the portalFileMetadataFilter criteria
     val portalFileMetadatas = filterPortalFileMetadata(portalFileMetadataListCandidate, goodDonorIds);
 
     // Calculate and log some stats
@@ -77,10 +81,17 @@ public class DataFetcher {
 
   private List<PortalFileMetadata> filterPortalFileMetadata(List<PortalFileMetadata> portalFileMetadataListCandidate,
       Set<String> goodDonorIds){
-    return portalFileMetadataListCandidate.stream()
+    val result = portalFileMetadataListCandidate.stream()
         .filter(x -> goodDonorIds.contains(x.getDonorId()))
         .filter(portalFileMetadataFilter::isPass)
         .collect(toList());
+    val unProcessedIds = dataBundleFileFilter
+        .getDataBundleIdFilter()
+        .getUnProcessedIds();
+    log.warn("[DATA_BUNDLE_FILE_FILTER] The following {} dataBundleIds were not processed: "
+            + "\n{}",
+        unProcessedIds.size(), Joiners.NEWLINE.join(unProcessedIds));
+    return result;
   }
 
   private Set<PortalDonorMetadata> fetchPortalDonorMetadata(List<PortalFileMetadata> portalFileMetadataListCandidate){
@@ -96,8 +107,9 @@ public class DataFetcher {
       Filter<PortalFileMetadata> portalFileMetadataFilter,
       DownloadIterator<DccMetadata> dccMetadataDownloadIterator,
       SimpleDccStorageClient simpleDccStorageClient,
-      DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator) {
+      DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator,
+      DataBundleFileFilter dataBundleFileFilter ) {
     return new DataFetcher(donorFetcher, portalFileMetadataFilter, dccMetadataDownloadIterator,
-        simpleDccStorageClient, portalFileMetadataDownloadIterator);
+        simpleDccStorageClient, portalFileMetadataDownloadIterator, dataBundleFileFilter);
   }
 }

@@ -12,7 +12,8 @@ import org.icgc.dcc.song.importer.convert.StudyConverter;
 import org.icgc.dcc.song.importer.download.DownloadIterator;
 import org.icgc.dcc.song.importer.download.fetcher.DataFetcher;
 import org.icgc.dcc.song.importer.download.fetcher.DonorFetcher;
-import org.icgc.dcc.song.importer.filters.impl.SpecimenFileFilter;
+import org.icgc.dcc.song.importer.filters.Filter;
+import org.icgc.dcc.song.importer.filters.impl.DataBundleFileFilter;
 import org.icgc.dcc.song.importer.model.DataContainer;
 import org.icgc.dcc.song.importer.model.DccMetadata;
 import org.icgc.dcc.song.importer.model.PortalFileMetadata;
@@ -45,7 +46,8 @@ public class Factory {
   private final SimpleDccStorageClient simpleDccStorageClient;
   private final DownloadIterator<DccMetadata> dccMetadataDownloadIterator;
   private final DownloadIterator<PortalFileMetadata> portalFileMetadataDownloadIterator;
-  private final SpecimenFileFilter specimenFileFilter;
+  private final Filter<PortalFileMetadata> portalFileMetadataFilter;
+  private final DataBundleFileFilter dataBundleFileFilter;
 
   public static final ObjectFileRestorer<DataContainer> DATA_CONTAINER_FILE_RESTORER =
       createObjectFileRestorer (PERSISTED_DIR_PATH, DataContainer.class);
@@ -64,8 +66,8 @@ public class Factory {
     val donorFetcher = buildDonorFetcher();
 
     log.info("Creating DataFetcher");
-    return createDataFetcher(donorFetcher, specimenFileFilter, dccMetadataDownloadIterator,
-        simpleDccStorageClient, portalFileMetadataDownloadIterator );
+    return createDataFetcher(donorFetcher, portalFileMetadataFilter, dccMetadataDownloadIterator,
+        simpleDccStorageClient, portalFileMetadataDownloadIterator, dataBundleFileFilter);
   }
 
   public static PersistenceFactory<DataContainer, String>  buildPersistenceFactory(Supplier<DataContainer> supplier){

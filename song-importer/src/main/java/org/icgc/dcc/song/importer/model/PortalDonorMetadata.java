@@ -16,11 +16,6 @@ public class PortalDonorMetadata implements Serializable{
   @NonNull private final String submittedDonorId;
   private final String projectName;
   private final String gender;
-  @NonNull private final String normalSpecimenId; //Assume that every donor has one donor
-  @NonNull private final String normalSubmittedSpecimenId;
-  @NonNull private final String normalSpecimenType;
-  @NonNull private final String normalSampleId; //Assume theres only one sample
-  @NonNull private final String normalAnalyzedId; //Assume theres only one sample
 
   public Optional<String> getGender() {
     return Optional.of(gender);
