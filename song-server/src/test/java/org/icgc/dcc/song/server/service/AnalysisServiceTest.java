@@ -25,8 +25,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import org.icgc.dcc.song.core.exceptions.ServerError;
-import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
@@ -48,15 +46,14 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
+import static org.icgc.dcc.song.server.utils.ErrorTesting.assertSongError;
 import static org.icgc.dcc.song.server.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
@@ -249,14 +246,6 @@ public class AnalysisServiceTest {
       assertThat(actualObjectId).isEqualTo(expectedObjectId);
       assertThat(actualFileAnalysisId).isEqualTo(actualAnalysisId);
     }
-  }
-
-  private static <T> void assertSongError(Supplier<T> supplier, ServerError expectedServerError){
-    val thrown = catchThrowable(supplier::get);
-    assertThat(thrown).isInstanceOf(ServerException.class);
-    val songError = ((ServerException)thrown).getSongError();
-    assertThat(songError.getErrorId()).isEqualTo(expectedServerError.getErrorId());
-    assertThat(songError.getHttpStatusCode()).isEqualTo(expectedServerError.getHttpStatus().value());
   }
 
   @Test
