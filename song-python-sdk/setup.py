@@ -38,7 +38,8 @@ SONG_VERSION = '0.3.9'
 REQUIRED_PY_VERSION = (3, 6, 0)
 
 def get_required_py_version_string():
-    return ".".join(map(lambda x : str(x), REQUIRED_PY_VERSION))
+    return ".".join([str(i) for i in REQUIRED_PY_VERSION])
+
 
 def get_current_py_version_string():
     v = sys.version_info
