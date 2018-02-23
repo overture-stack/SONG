@@ -37,6 +37,7 @@ import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
 import org.icgc.dcc.song.server.repository.search.SearchRepository;
+import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -50,12 +51,14 @@ import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_REPOSITORY_CREATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_STATE_UPDATE_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
@@ -91,9 +94,28 @@ public class AnalysisService {
   private final SearchRepository searchRepository;
   @Autowired
   private final Sender sender;
+  @Autowired
+  private final StudyService studyService;
 
   public boolean doesAnalysisIdExist(String id){
     return !isNull(repository.read(id));
+  }
+
+  private void handleCreateAnalysis(Analysis a){
+    try{
+      repository.createAnalysis(a);
+    } catch (UnableToExecuteStatementException jdbie){
+      log.error(jdbie.getCause().getMessage());
+      // Defer checking of studyId only on postgres error
+      if (studyService.isStudyExist(a.getStudy())){
+        throw buildServerException(getClass(), ANALYSIS_REPOSITORY_CREATE_RECORD,
+            "Unable to save analysis with analysisId '%s' to repository: %s", a.getAnalysisId(), jdbie);
+      } else {
+        throw buildServerException(getClass(), STUDY_ID_DOES_NOT_EXIST,
+            "Unable to save analysis with analysisId '%s' since studyId '%s' does not exist",
+            a.getAnalysisId(), a.getStudy());
+      }
+    }
   }
 
   public String create(String studyId, Analysis a, boolean ignoreAnalysisIdCollisions) {
@@ -117,7 +139,7 @@ public class AnalysisService {
             + "delete the analysis for analysisId '%s' and re-save", id);
     a.setAnalysisId(id);
     a.setStudy(studyId);
-    repository.createAnalysis(a);
+    handleCreateAnalysis(a);
     analysisInfoService.create(id, a.getInfoAsString());
 
     saveCompositeEntities(studyId, id, a.getSample() );

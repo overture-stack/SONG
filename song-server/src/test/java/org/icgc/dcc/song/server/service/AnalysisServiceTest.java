@@ -72,7 +72,7 @@ public class AnalysisServiceTest {
   @Autowired
   AnalysisService service;
 
-  private final RandomGenerator randomGenerator = createRandomGenerator();
+  private final RandomGenerator randomGenerator = createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
 
   @SneakyThrows
   private String readFile(String name) {

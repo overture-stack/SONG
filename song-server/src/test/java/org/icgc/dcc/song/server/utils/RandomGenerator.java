@@ -16,6 +16,7 @@ public class RandomGenerator {
 
   private static final String STRING_FOR_GENERATION = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+  @NonNull @Getter private final String id;
   @NonNull private final Random random;
   @Getter private final long seed;
 
@@ -33,14 +34,14 @@ public class RandomGenerator {
     return random.nextInt();
   }
 
-  public static RandomGenerator createRandomGenerator(long seed) {
-    return new RandomGenerator(new Random(seed), seed);
+  public static RandomGenerator createRandomGenerator(String id, long seed) {
+    return new RandomGenerator(id, new Random(seed), seed);
   }
 
-  public static RandomGenerator createRandomGenerator() {
+  public static RandomGenerator createRandomGenerator(String id) {
     val seed = System.currentTimeMillis();
-    log.info("Random seed for RandomGenerator: {}", seed);
-    return createRandomGenerator(seed);
+    log.info("Random seed for RandomGenerator[{}]: {}", id ,seed);
+    return createRandomGenerator(id, seed);
   }
 
 
