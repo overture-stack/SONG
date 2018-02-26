@@ -36,9 +36,17 @@ def intercept_response(orig_function, debug=False, convert_to_json=False, conver
         response = orig_function(*args, **kwargs)
         if response.ok:
             if convert_to_generic_object:
-                return to_generic_object('RestResponse', response.json())
+                try:
+                    json_response = response.json()
+                    return to_generic_object('RestResponse', json_response)
+                except:
+                    return str(response.text)
             elif convert_to_json:
-                return response.json()
+                try:
+                    json_response = response.json()
+                    return json_response
+                except:
+                    return str(response.text)
             else:
                 return response
         else:
@@ -53,7 +61,6 @@ def intercept_response(orig_function, debug=False, convert_to_json=False, conver
                 log.error(message)
                 raise Exception(message)
     return new_function
-
 
 class Rest(object):
 
