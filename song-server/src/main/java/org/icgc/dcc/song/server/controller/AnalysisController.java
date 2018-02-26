@@ -96,7 +96,7 @@ public class AnalysisController {
   @ApiOperation(value = "PublishAnalysis",
       notes = "Publish an analysis. This checks to see if the files associated "
       + "with the input analysisId exist in the storage server")
-  @PutMapping(value="/publish/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PutMapping(value="/publish/{id}")
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> publishAnalysis(
@@ -108,7 +108,7 @@ public class AnalysisController {
 
   @ApiOperation(value = "SuppressAnalysis", notes = "Suppress an analysis. Used if a previously published analysis is"
       + " no longer needed. Instead of removing the analysis, it is marked as \"suppressed\"")
-  @PutMapping(value="/suppress/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PutMapping(value="/suppress/{id}")
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> suppressAnalysis(
