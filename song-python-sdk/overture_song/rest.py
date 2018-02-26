@@ -35,20 +35,17 @@ def intercept_response(orig_function, debug=False, convert_to_json=False, conver
     def new_function(*args, **kwargs):
         response = orig_function(*args, **kwargs)
         if response.ok:
-            if convert_to_generic_object:
-                try:
-                    json_response = response.json()
-                    return to_generic_object('RestResponse', json_response)
-                except:
-                    return str(response.text)
-            elif convert_to_json:
-                try:
-                    json_response = response.json()
-                    return json_response
-                except:
-                    return str(response.text)
-            else:
+            if not convert_to_generic_object and not convert_to_json:
                 return response
+            else:
+                try:
+                    json_response = response.json()
+                    if convert_to_generic_object:
+                        return to_generic_object('RestResponse', json_response)
+                    elif convert_to_json:
+                        return json_response
+                except:
+                    return str(response.text)
         else:
             json_data = dict(json.loads(response.content))
             if SongError.is_song_error(json_data):
