@@ -107,7 +107,7 @@ class SongError(Exception, Entity):
 
         :rtype: List[str]
         """
-        return list(fields(SongError).keys())
+        return [x.name for x in fields(SongError)]
 
 
 @dataclass(frozen=True)
