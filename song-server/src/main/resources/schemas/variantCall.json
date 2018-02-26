@@ -32,7 +32,9 @@
         "type": "object",
         "required": [
           "sampleSubmitterId",
-          "sampleType"
+          "sampleType",
+          "specimen",
+          "donor"
         ],
         "properties": {
           "sampleSubmitterId": {
