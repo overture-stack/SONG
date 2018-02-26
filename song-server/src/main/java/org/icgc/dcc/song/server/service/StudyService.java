@@ -77,7 +77,8 @@ public class StudyService {
     return status;
   }
 
-    public List<String> findAllStudies() {
-      return studyRepository.findAllStudies();
-    }
+  public List<String> findAllStudies() {
+    return studyRepository.findAllStudies();
+  }
+
 }

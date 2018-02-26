@@ -8,6 +8,8 @@ import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static java.util.Objects.isNull;
+
 @Service
 @AllArgsConstructor
 public class CompositeEntityService {
@@ -23,7 +25,7 @@ public class CompositeEntityService {
 
   public String save(String studyId, CompositeEntity s) {
     String id = sampleService.findByBusinessKey(studyId, s.getSampleSubmitterId());
-    if (id == null) {
+    if (isNull(id)) {
       s.setSpecimenId(getSampleParent(studyId, s));
       id = sampleService.create(studyId, s);
     } else {
@@ -36,7 +38,7 @@ public class CompositeEntityService {
   private String getSampleParent(String studyId, CompositeEntity s) {
     val specimen = s.getSpecimen();
     String id = specimenService.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
-    if (id == null) {
+    if (isNull(id)) {
       specimen.setDonorId(getSpecimenParent(studyId, s));
       id = specimenService.create(studyId, specimen);
     } else {

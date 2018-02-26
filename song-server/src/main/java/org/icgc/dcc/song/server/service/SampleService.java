@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_RECORD_FAILED;
-import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
 @RequiredArgsConstructor
@@ -53,9 +53,8 @@ public class SampleService {
     int status = repository.create(sample);
     infoService.create(id, sample.getInfoAsString());
 
-    if (status != 1) {
-      throw buildServerException(MESSAGE_CONTEXT, SAMPLE_RECORD_FAILED, "Cannot create Sample: %s", sample.toString());
-    }
+    checkServer(status == 1,this.getClass(),
+        SAMPLE_RECORD_FAILED, "Cannot create Sample: %s", sample.toString());
 
     return id;
   }
