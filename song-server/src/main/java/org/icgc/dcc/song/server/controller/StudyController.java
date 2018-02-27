@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
 import org.icgc.dcc.song.server.service.StudyService;
+import org.icgc.dcc.song.server.service.StudyWithDonorsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +54,9 @@ public class StudyController {
   @Autowired
   private final StudyService studyService;
 
+  @Autowired
+  private final StudyWithDonorsService studyWithDonorsService;
+
   @ApiOperation(value = "GetStudy",
       notes = "Retrieves information for a study. If the study does not exist, an empty array is returned")
   @GetMapping("/{studyId}")
@@ -65,7 +69,7 @@ public class StudyController {
   @GetMapping("/{studyId}/all")
   public StudyWithDonors getEntireStudy(
       @PathVariable("studyId") String studyId) {
-    return studyService.readWithChildren(studyId);
+    return studyWithDonorsService.readWithChildren(studyId);
   }
 
   @ApiOperation(value = "GetAllStudyIds", notes = "Retrieves all studyIds")
