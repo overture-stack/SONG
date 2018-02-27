@@ -16,11 +16,11 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package org.icgc.dcc.song.server;
+package org.icgc.dcc.song.server.service;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.service.StudyService;
+import org.icgc.dcc.song.server.utils.RandomGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +31,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static org.icgc.dcc.song.server.utils.ErrorTesting.assertSongError;
+import static org.icgc.dcc.song.server.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @Slf4j
@@ -43,9 +47,11 @@ public class StudyServiceTest {
   @Autowired
   StudyService service;
 
+  private final RandomGenerator randomGenerator = createRandomGenerator(StudyServiceTest.class.getSimpleName());
+
   @Test
   public void testReadStudy() {
-    // check for data that we know exists in the H2 database already
+    // check for data that we know exists in the database already
     val study = service.read("ABC123");
     assertThat(study).isNotNull();
     assertThat(study.getStudyId()).isEqualTo("ABC123");
@@ -53,44 +59,32 @@ public class StudyServiceTest {
     assertThat(study.getDescription()).isEqualTo("A fictional study");
     assertThat(study.getOrganization()).isEqualTo("Sample Data Research Institute");
     assertThat(getInfoName(study)).isEqualTo("study1");
+  }
 
+  @Test
+  public void testDuplicateSaveStudyError(){
+    val existentStudyId = "ABC123";
+    assertThat(service.isStudyExist(existentStudyId)).isTrue();
+    val study = service.read(existentStudyId);
+    assertSongError(() -> service.saveStudy(study), STUDY_ALREADY_EXISTS);
+  }
+
+  @Test
+  public void testReadStudyError(){
+    val nonExistentStudyId = genStudyId();
+    assertSongError(() -> service.read(nonExistentStudyId), STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
   public void testStudyCheck(){
     val existentStudyId = "ABC123";
     assertThat(service.isStudyExist(existentStudyId)).isTrue();
-    val nonExistentStudyId = System.currentTimeMillis()+"something_different";
+    val nonExistentStudyId = genStudyId();
     assertThat(service.isStudyExist(nonExistentStudyId)).isFalse();
   }
 
-  @Test
-  public void testReadWithChildren(){
-    val d = service.readWithChildren("ABC123");
-    assertThat(d.getDonors().size()).isGreaterThanOrEqualTo(1);
-
-    val opt = d.getDonors().stream().filter(x -> x.getDonor().getDonorId().equals("DO1")).findFirst();
-    assertThat(opt.isPresent()).isTrue();
-    val donorWithSpecimens = opt.get();
-    assertThat(donorWithSpecimens.getSpecimens()).hasSize(2);
-
-    val specimenWithSamples1 = donorWithSpecimens.getSpecimens().get(0);
-    assertThat(specimenWithSamples1.getSpecimen().getSpecimenId()).isEqualTo("SP1");
-    assertThat(specimenWithSamples1.getSamples()).hasSize(2);
-
-    val sample11 = specimenWithSamples1.getSamples().get(0);
-    assertThat(sample11.getSampleId()).isEqualTo("SA1");
-
-    val sample12 = specimenWithSamples1.getSamples().get(1);
-    assertThat(sample12.getSampleId()).isEqualTo("SA11");
-
-
-    val specimenWithSamples2 = donorWithSpecimens.getSpecimens().get(1);
-    assertThat(specimenWithSamples2.getSpecimen().getSpecimenId()).isEqualTo("SP2");
-    assertThat(specimenWithSamples2.getSamples()).hasSize(1);
-
-    val sample21 = specimenWithSamples2.getSamples().get(0);
-    assertThat(sample21.getSampleId()).isEqualTo("SA21");
+  private String genStudyId(){
+    return randomGenerator.generateRandomAsciiString(15);
   }
 
 }

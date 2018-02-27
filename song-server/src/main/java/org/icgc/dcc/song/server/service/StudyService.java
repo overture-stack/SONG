@@ -18,18 +18,22 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
-import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
 import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static java.lang.Thread.currentThread;
 import static java.util.Objects.isNull;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
 @Service
 @RequiredArgsConstructor
@@ -41,15 +45,11 @@ public class StudyService {
   @Autowired
   StudyInfoService infoService;
 
-  @Autowired
-  DonorService donorService;
-
   @SneakyThrows
   public Study read(String studyId) {
     val study = studyRepository.read(studyId);
-    if (study == null) {
-      return study;
-    }
+    checkServer(!isNull(study), getClass(), STUDY_ID_DOES_NOT_EXIST,
+        "The studyId '%s' does not exist", studyId);
     val info = infoService.readNullableInfo(studyId);
     study.setInfo(info);
     return study;
@@ -60,18 +60,11 @@ public class StudyService {
     return !isNull(study);
   }
 
-  @SneakyThrows
-  public StudyWithDonors readWithChildren(String studyId) {
-    val study = new StudyWithDonors();
-    val s = read(studyId);
-
-    study.setStudy(s);
-    study.setDonors(donorService.readByParentId(studyId));
-    return study;
-  }
-
   public int saveStudy(Study study) {
     val id = study.getStudyId();
+    checkServer(!isStudyExist(id), getClass(), STUDY_ALREADY_EXISTS,
+        "The studyId '%s' already exists. Cannot save the study: %s " ,
+        id,study);
     val status= studyRepository.create(id, study.getName(), study.getDescription(), study.getOrganization());
     infoService.create(id,study.getInfoAsString());
     return status;
@@ -79,6 +72,13 @@ public class StudyService {
 
   public List<String> findAllStudies() {
     return studyRepository.findAllStudies();
+  }
+
+  @SneakyThrows
+  public void checkStudyExist(@NonNull String studyId){
+    val previousCallingClass = Class.forName(currentThread().getStackTrace()[2].getClassName());
+    checkServer(isStudyExist(studyId), previousCallingClass, STUDY_ID_DOES_NOT_EXIST,
+        "The studyId '%s' does not exist", studyId);
   }
 
 }
