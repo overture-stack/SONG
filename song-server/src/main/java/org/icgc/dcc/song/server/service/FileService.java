@@ -64,7 +64,7 @@ public class FileService {
     if (f==null) {
       return null;
     }
-    f.setInfo(infoService.read(id));
+    f.setInfo(infoService.readNullableInfo(id));
     return f;
   }
 

@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.server.utils;
 
+import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.core.exceptions.ServerError;
 import org.icgc.dcc.song.core.exceptions.ServerException;
@@ -12,13 +13,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class ErrorTesting {
+  private static final Object EMPTY_OBJECT = new Object();
+
+  public static <T> void assertSongError(Runnable runnable, ServerError expectedServerError){
+    assertSongError(runnable, expectedServerError, null);
+  }
 
   public static <T> void assertSongError(Supplier<T> supplier, ServerError expectedServerError){
     assertSongError(supplier, expectedServerError, null);
   }
 
-  public static <T> void assertSongError(Supplier<T> supplier, ServerError
-      expectedServerError, String formattedFailMessage, Object...objects){
+  public static <T> void assertSongError(@NonNull Runnable runnable, ServerError expectedServerError,
+      String formattedFailMessage, Object...objects){
+    assertSongError(() -> {
+      runnable.run();
+      return EMPTY_OBJECT;
+    }, expectedServerError, formattedFailMessage, objects);
+  }
+
+  public static <T> void assertSongError(@NonNull Supplier<T> supplier,
+      @NonNull ServerError expectedServerError, String formattedFailMessage, Object...objects){
     val thrown = catchThrowable(supplier::get);
 
     val assertion = assertThat(thrown);

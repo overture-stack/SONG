@@ -1,6 +1,10 @@
 package org.icgc.dcc.song.server.model.enums;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 
 @RequiredArgsConstructor
 public enum InfoTypes {
@@ -20,7 +24,15 @@ public enum InfoTypes {
   }
 
   public String toString(){
-  return text;
- }
+    return text;
+  }
+
+  public static InfoTypes resolveInfoType(@NonNull String infoTypeValue){
+    return stream(values())
+        .filter(x -> x.toString().equals(infoTypeValue))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException(format("The info type '%s' cannot be resolved",
+            infoTypeValue)));
+  }
 
 }

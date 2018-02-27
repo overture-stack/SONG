@@ -269,7 +269,7 @@ public class AnalysisService {
 
   public Analysis read(String id) {
     val analysis = checkAnalysis(id);
-    analysis.setInfo(analysisInfoService.read(id));
+    analysis.setInfo(analysisInfoService.readNullableInfo(id));
 
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
@@ -289,7 +289,7 @@ public class AnalysisService {
     val experiment = repository.readSequencingRead(id);
     checkServer(!isNull(experiment), this.getClass(), SEQUENCING_READ_NOT_FOUND,
         "The SequencingRead with analysisId '%s' was not found", id);
-    experiment.setInfo(sequencingReadInfoService.read(id));
+    experiment.setInfo(sequencingReadInfoService.readNullableInfo(id));
     return experiment;
   }
 
@@ -297,14 +297,14 @@ public class AnalysisService {
     val experiment = repository.readVariantCall(id);
     checkServer(!isNull(experiment), this.getClass(), VARIANT_CALL_NOT_FOUND,
         "The VariantCall with analysisId '%s' was not found", id);
-    experiment.setInfo(variantCallInfoService.read(id));
+    experiment.setInfo(variantCallInfoService.readNullableInfo(id));
     return experiment;
   }
 
   public List<File> readFiles(String id) {
     val files = repository.readFiles(id).stream()
         .map(f -> {
-          f.setInfo(fileInfoService.read(f.getObjectId()));
+          f.setInfo(fileInfoService.readNullableInfo(f.getObjectId()));
           return f; // Return file with info set.
         })
         .collect(toImmutableList());
@@ -384,7 +384,7 @@ public class AnalysisService {
     String id = analysis.getAnalysisId();
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
-    analysis.setInfo(analysisInfoService.read(id));
+    analysis.setInfo(analysisInfoService.readNullableInfo(id));
 
     if (analysis instanceof SequencingReadAnalysis) {
       ((SequencingReadAnalysis) analysis).setExperiment(readSequencingRead(id));

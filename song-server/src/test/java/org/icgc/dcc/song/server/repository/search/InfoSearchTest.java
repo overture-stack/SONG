@@ -109,7 +109,7 @@ public class InfoSearchTest {
     assertThat(upload.getState()).isEqualTo("VALIDATED");
     val resp = uploadService.save(study, uploadId, false);
     val analysisId = fromStatus(resp,"analysisId");
-    val info = infoRepository.read(analysisId, "Analysis");
+    val info = infoRepository.readInfo(analysisId, "Analysis");
     return createWithInfo(analysisId, JsonUtils.readTree(info) );
   }
 

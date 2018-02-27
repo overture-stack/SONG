@@ -64,7 +64,7 @@ public class SampleService {
     if (sample == null) {
       return null;
     }
-    val info = infoService.read(id);
+    val info = infoService.readNullableInfo(id);
     sample.setInfo(info);
 
     return sample;

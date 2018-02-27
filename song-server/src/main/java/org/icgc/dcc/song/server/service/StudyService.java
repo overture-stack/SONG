@@ -50,7 +50,7 @@ public class StudyService {
     if (study == null) {
       return study;
     }
-    val info = infoService.read(studyId);
+    val info = infoService.readNullableInfo(studyId);
     study.setInfo(info);
     return study;
   }

@@ -67,7 +67,7 @@ public class DonorService {
     if (donor == null) {
       return null;
     }
-    donor.setInfo(infoService.read(id));
+    donor.setInfo(infoService.readNullableInfo(id));
     return donor;
   }
 

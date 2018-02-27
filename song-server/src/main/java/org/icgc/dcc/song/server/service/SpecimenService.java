@@ -67,7 +67,7 @@ public class SpecimenService {
     if (specimen == null) {
       return null;
     }
-    specimen.setInfo(infoService.read(id));
+    specimen.setInfo(infoService.readNullableInfo(id));
 
     return specimen;
   }

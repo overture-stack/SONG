@@ -31,9 +31,12 @@ public interface InfoRepository {
   int set(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String jsonInfo);
 
   @SqlQuery("SELECT info from Info where id_type=:type AND id=:id")
-  String read(@Bind("id") String id, @Bind("type") String id_type);
+  String readInfo(@Bind("id") String id, @Bind("type") String id_type);
 
-  @SqlUpdate("DELETE from Info where id=:id")
-  int delete(@Bind("id") String id);
+  @SqlQuery("SELECT id_type from Info where id_type=:type AND id=:id")
+  String readType(@Bind("id") String id, @Bind("type") String id_type);
+
+  @SqlUpdate("DELETE from Info where id=:id AND id_type=:type")
+  int delete(@Bind("id") String id, @Bind("type") String id_type);
 
 }
