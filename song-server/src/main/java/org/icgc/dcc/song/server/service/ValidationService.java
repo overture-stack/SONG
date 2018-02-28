@@ -35,6 +35,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATED;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATION_ERROR;
 
@@ -43,6 +44,7 @@ import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATION_ERROR
 @RequiredArgsConstructor
 public class ValidationService {
 
+  private static final String STUDY = "study";
   @Autowired
   private SchemaValidator validator;
 
@@ -79,9 +81,9 @@ public class ValidationService {
     try {
       val jsonNode = JsonUtils.readTree(payload);
 
-      if (jsonNode.has("study")) {
+      if (jsonNode.has(STUDY)) {
         errors =  "Uploaded JSON document must not contain a study field";
-      } else if (analysisType == null) {
+      } else if (isNull(analysisType)) {
         errors =  "Uploaded JSON document does not contain a valid analysis type";
       } else {
         val schemaId = "upload" + upperCaseFirstLetter(analysisType);
@@ -104,7 +106,7 @@ public class ValidationService {
   }
 
   public void update(@NonNull String uploadId, String errorMessages) {
-    if (errorMessages == null) {
+    if (isNull(errorMessages)) {
       updateAsValid(uploadId);
     } else {
       updateAsInvalid(uploadId, errorMessages);
