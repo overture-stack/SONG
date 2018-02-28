@@ -21,12 +21,11 @@ package org.icgc.dcc.song.server.service;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.id.client.util.HashIdClient;
-import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.junit.Test;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static org.icgc.dcc.song.server.utils.ErrorTesting.assertSongError;
 
 @Slf4j
 public class IdServiceTest {
@@ -60,6 +59,7 @@ public class IdServiceTest {
     val id2 = idService.resolveAnalysisId(SUBMITTER_ID_2,false);
     assertThat(id2).isEqualTo(SUBMITTER_ID_2);
     assertThat(id1).isNotEqualTo(id2);
+
   }
 
   @Test
@@ -80,17 +80,11 @@ public class IdServiceTest {
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
     assertThat(id1).isEqualTo(SUBMITTER_ID_1);
-    try{
-      val id2 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
-    } catch(ServerException e){
-      val songError = e.getSongError();
-      assertThat(songError.getErrorId()).isEqualTo("analysis.id.already.exists");
-      assertThat(songError.getHttpStatusCode()).isEqualTo(409);
-      assertThat(songError.getHttpStatusName()).isEqualTo("CONFLICT");
-      assertThat(songError.getMessage()).contains(format("[IdService] - Collision detected for analysisId '%s'",SUBMITTER_ID_1));
-      return;
-    }
-    fail("No exception was thrown, but should have been thrown since ignoreAnalysisIdCollisions=false and"
+    assertSongError(
+        () -> idService.resolveAnalysisId(SUBMITTER_ID_1,false),
+        ANALYSIS_ID_COLLISION,
+        "No exception was thrown, but should have been thrown "
+            + "since ignoreAnalysisIdCollisions=false and"
         + " the same id was attempted to be created");
   }
 

@@ -30,7 +30,7 @@ import java.util.UUID;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_ALREADY_EXISTS;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
 @Service
@@ -94,18 +94,15 @@ public class IdService {
       return idClient.createRandomAnalysisId();
     }else {
       val opt = idClient.getAnalysisId(analysisId); // IdServer also validates analysisId format
-      if (!ignoreAnalysisIdCollisions){
-        val doesIdExist = opt.isPresent();
-          if (doesIdExist){
-            checkServer(ignoreAnalysisIdCollisions, this.getClass(), ANALYSIS_ID_ALREADY_EXISTS,
-                "Collision detected for analysisId '%s'. To ignore collisions, rerun with "
-                    + "ignoreAnalysisIdCollisions = true" , analysisId);
-            return opt.get();
-          } else {
-            return idClient.createAnalysisId(analysisId);
-          }
+      val doesIdExist = opt.isPresent();
+      if (doesIdExist){
+        checkServer(ignoreAnalysisIdCollisions, this.getClass(), ANALYSIS_ID_COLLISION,
+            "Collision detected for analysisId '%s'. To ignore collisions, rerun with "
+                + "ignoreAnalysisIdCollisions = true" , analysisId);
+        return opt.get();
+      }else {
+        return idClient.createAnalysisId(analysisId);
       }
-      return analysisId;
     }
   }
 
