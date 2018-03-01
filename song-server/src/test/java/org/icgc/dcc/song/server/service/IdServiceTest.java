@@ -86,6 +86,19 @@ public class IdServiceTest {
         "No exception was thrown, but should have been thrown "
             + "since ignoreAnalysisIdCollisions=false and"
         + " the same id was attempted to be created");
+
+    /*
+     * Test that if ignoreAnalysisIdCollisions is true and the analysisId does not exist, the
+     * analysisId is still created. SUBMITTER_ID_2 should not exist for first call
+     */
+    val id2 = idService.resolveAnalysisId(SUBMITTER_ID_2,true);
+    assertThat(id2).isEqualTo(SUBMITTER_ID_2);
+    assertSongError(
+        () -> idService.resolveAnalysisId(SUBMITTER_ID_2,false),
+        ANALYSIS_ID_COLLISION,
+        "No exception was thrown, but should have been thrown "
+            + "since ignoreAnalysisIdCollisions=false and"
+            + " the same id was attempted to be created");
   }
 
   private static final IdService createHashIdService(){
