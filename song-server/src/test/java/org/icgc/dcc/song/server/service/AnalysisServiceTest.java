@@ -31,7 +31,7 @@ import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.utils.RandomGenerator;
+import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.utils.TestFiles;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -54,7 +54,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_E
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.server.utils.ErrorTesting.assertSongError;
-import static org.icgc.dcc.song.server.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @Slf4j
