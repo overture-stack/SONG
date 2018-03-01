@@ -10,10 +10,10 @@ import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator
 
 public class RandomGeneratorTest {
 
-  private static final Random random = new Random();
+  private static final Random RANDOM = new Random();
 
   private static long generateRandomSeed(){
-    return random.nextLong();
+    return RANDOM.nextLong();
   }
 
   @Test
