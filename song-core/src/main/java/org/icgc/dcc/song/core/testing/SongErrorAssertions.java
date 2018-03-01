@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.utils;
+package org.icgc.dcc.song.core.testing;
 
 import lombok.NonNull;
 import lombok.val;
@@ -12,7 +12,7 @@ import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-public class ErrorTesting {
+public class SongErrorAssertions {
   private static final Object EMPTY_OBJECT = new Object();
 
   public static <T> void assertSongError(Runnable runnable, ServerError expectedServerError){

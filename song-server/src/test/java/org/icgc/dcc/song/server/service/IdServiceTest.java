@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static org.icgc.dcc.song.server.utils.ErrorTesting.assertSongError;
+import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 
 @Slf4j
 public class IdServiceTest {

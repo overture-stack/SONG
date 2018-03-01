@@ -52,8 +52,8 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
+import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
-import static org.icgc.dcc.song.server.utils.ErrorTesting.assertSongError;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
