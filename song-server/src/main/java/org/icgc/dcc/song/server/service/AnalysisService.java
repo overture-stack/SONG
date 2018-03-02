@@ -53,7 +53,6 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
-import static org.icgc.dcc.song.core.exceptions.SongError.error;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
@@ -287,11 +286,10 @@ public class AnalysisService {
         .collect(toImmutableList());
     val isMissingFiles = missingFileIds.size() > 0;
 
-    if (isMissingFiles) {
-      return error(UNPUBLISHED_FILE_IDS,
-          "The following file ids must be published before analysisId %s can be published: %s",
-          id, COMMA.join(missingFileIds));
-    }
+
+    checkServer(!isMissingFiles,getClass(),UNPUBLISHED_FILE_IDS,
+        "The following file ids must be published before analysisId %s can be published: %s",
+        id, COMMA.join(missingFileIds));
 
     checkedUpdateState(id, PUBLISHED);
     sender.send(String.format("{\"analysis_id\": %s, \"state\": \"PUBLISHED\"}", id));
