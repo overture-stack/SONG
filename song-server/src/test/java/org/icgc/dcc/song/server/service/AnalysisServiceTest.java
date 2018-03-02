@@ -36,16 +36,19 @@ import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.utils.TestFiles;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -63,6 +66,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
+import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @Slf4j
@@ -74,19 +78,33 @@ public class AnalysisServiceTest {
 
   private static final String FILEPATH = "src/test/resources/fixtures/";
   private static final String TEST_FILEPATH = "src/test/resources/documents/";
-  private static final int DCC_STORAGE_TEST_PORT = 8087;
 
   @Rule
-  public WireMockRule wireMockRule = new WireMockRule(options().port(DCC_STORAGE_TEST_PORT));
+  public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 
   @Autowired
   FileService fileService;
   @Autowired
   AnalysisService service;
 
+  @Autowired
+  private RetryTemplate retryTemplate;
+
   @SneakyThrows
   private String readFile(String name) {
     return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
+  }
+
+  /**
+   * This is dirty, but since the existenceService is so easy to construct
+   * and the storage url port is randomly assigned, it's worth it.
+   */
+  @Before
+  public void init(){
+    val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
+    val testExistenceService = createExistenceService(retryTemplate,testStorageUrl);
+    ReflectionTestUtils.setField(service, "existence", testExistenceService);
+    log.info("ExistenceService configured to endpoint: {}",testStorageUrl );
   }
 
   @Test
