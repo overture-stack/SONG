@@ -68,6 +68,7 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
+import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @SpringBootTest
@@ -213,6 +214,7 @@ public class AnalysisServiceTest {
     wireMockRule.resetAll();
     wireMockRule.stubFor(get(urlMatching("/upload/.*"))
         .willReturn(aResponse()
+            .withStatus(OK.value())
             .withBody(Boolean.toString(expectedResult))));
   }
 
