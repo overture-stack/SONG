@@ -24,6 +24,7 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Set;
@@ -32,6 +33,7 @@ import static java.util.stream.Collectors.toList;
 import static org.icgc.dcc.common.core.util.Joiners.DOT;
 
 @Slf4j
+@Component
 public class StudyScopeStrategy {
 
   @Value("${auth.server.prefix}")
