@@ -67,6 +67,12 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -146,6 +152,8 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
         <logback.version>1.1.7</logback.version>
         <!-- Versions - Spring Boot - H2 -->
         <h2.version>1.4.192</h2.version>
+
+        <lombok.version>1.16.14</lombok.version>
 
         <jdbi.version>2.41</jdbi.version>
 
