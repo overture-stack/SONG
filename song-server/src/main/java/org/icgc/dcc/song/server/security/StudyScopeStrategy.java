@@ -22,6 +22,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ import static org.icgc.dcc.common.core.util.Joiners.DOT;
 
 @Slf4j
 @Component
+@Profile("legacy")
 public class StudyScopeStrategy implements StudyStrategyInterface {
 
   @Value("${auth.server.prefix}")

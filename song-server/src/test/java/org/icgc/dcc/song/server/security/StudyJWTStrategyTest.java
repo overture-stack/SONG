@@ -5,8 +5,6 @@ import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,11 +15,12 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,11 +28,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles({"dev", "legacy"})
-public class StudyScopeStrategyTest {
+@ActiveProfiles("dev")
+public class StudyJWTStrategyTest {
 
     @Autowired
-    StudyScopeStrategy studyScopeStrategy;
+    StudyJWTStrategy studyJWTStrategy;
 
     String clientId = "client";
     String studyId = "study001";
@@ -41,14 +40,14 @@ public class StudyScopeStrategyTest {
     @Test
     public void testGoodOAuth2Authentication() throws Exception {
         val auth = getOAuth2Authentication("song.STUDY001.upload");
-        val isVerified = studyScopeStrategy.authorize(auth, studyId);
+        val isVerified = studyJWTStrategy.authorize(auth, studyId);
         assertThat(isVerified).isTrue();
     }
 
     @Test
     public void testBadOAuth2Authentication() throws Exception {
         val auth = getOAuth2Authentication("song.STUDY002.upload");
-        val isVerified = studyScopeStrategy.authorize(auth, studyId);
+        val isVerified = studyJWTStrategy.authorize(auth, studyId);
         assertThat(isVerified).isFalse();
     }
 

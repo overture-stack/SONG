@@ -18,7 +18,7 @@
  */
 package org.icgc.dcc.song.server.config;
 
-import org.icgc.dcc.song.server.security.StudyJWTStrategy;
+import org.icgc.dcc.song.server.security.StudyScopeStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.ApplicationContext;
@@ -31,11 +31,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler;
 
-@Profile({"secure", "!legacy"})
+@Profile({"secure", "legacy"})
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+public class MethodSecurityConfigLegacy extends GlobalMethodSecurityConfiguration {
 
   /**
    * Refer:
@@ -58,8 +58,8 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
   }
 
   @Bean
-  public StudyJWTStrategy studySecurity() {
-    return new StudyJWTStrategy();
+  public StudyScopeStrategy studySecurity() {
+    return new StudyScopeStrategy();
   }
 
 }
