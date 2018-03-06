@@ -34,7 +34,7 @@ import static org.icgc.dcc.common.core.util.Joiners.DOT;
 
 @Slf4j
 @Component
-public class StudyScopeStrategy {
+public class StudyScopeStrategy implements StudyStrategyInterface {
 
   @Value("${auth.server.prefix}")
   protected String scopePrefix;
