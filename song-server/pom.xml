@@ -62,9 +62,8 @@
 
         <!-- JDBC -->
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
         </dependency>
 
         <!-- JDBI -->
@@ -211,7 +210,6 @@
 
     <properties>
         <wiremock.version>2.14.0</wiremock.version>
-        <postgresql.version>9.4.1208-jdbc42-atlassian-hosted</postgresql.version>
         <springfox.version>2.7.0</springfox.version>
 
         <!-- Spring Security oath2 -->

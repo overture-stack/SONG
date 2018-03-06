@@ -37,9 +37,8 @@
 
         <!-- JDBC -->
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -112,7 +111,6 @@
         <song.version>0.1.3-SNAPSHOT</song.version>
         <flywaydb.version>4.2.0</flywaydb.version>
         <flyway-spring-test.version>4.1.0</flyway-spring-test.version>
-        <postgresql.version>9.4.1208-jdbc42-atlassian-hosted</postgresql.version>
         <springfox.version>2.7.0</springfox.version>
         <jackson-csv.version>2.9.0</jackson-csv.version>
 
