@@ -122,6 +122,12 @@
 
         <!-- Testing -->
         <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>${wiremock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -204,6 +210,7 @@
     </build>
 
     <properties>
+        <wiremock.version>2.14.0</wiremock.version>
         <postgresql.version>9.4.1208-jdbc42-atlassian-hosted</postgresql.version>
         <springfox.version>2.7.0</springfox.version>
 

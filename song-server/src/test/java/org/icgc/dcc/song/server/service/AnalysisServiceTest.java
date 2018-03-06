@@ -20,11 +20,15 @@ package org.icgc.dcc.song.server.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.Maps;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
+import org.icgc.dcc.song.core.exceptions.ServerError;
+import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
@@ -32,44 +36,76 @@ import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.utils.TestFiles;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
+import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
+import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev", "test"})
 public class AnalysisServiceTest {
 
   private static final String FILEPATH = "src/test/resources/fixtures/";
   private static final String TEST_FILEPATH = "src/test/resources/documents/";
+
+  @Rule
+  public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 
   @Autowired
   FileService fileService;
   @Autowired
   AnalysisService service;
 
+  @Autowired
+  private RetryTemplate retryTemplate;
+
   @SneakyThrows
   private String readFile(String name) {
     return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
+  }
+
+  /**
+   * This is dirty, but since the existenceService is so easy to construct
+   * and the storage url port is randomly assigned, it's worth it.
+   */
+  @Before
+  public void init(){
+    val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
+    val testExistenceService = createExistenceService(retryTemplate,testStorageUrl);
+    ReflectionTestUtils.setField(service, "existence", testExistenceService);
+    log.info("ExistenceService configured to endpoint: {}",testStorageUrl );
   }
 
   @Test
@@ -174,16 +210,31 @@ public class AnalysisServiceTest {
     assertThat(analysis3).isNull();
   }
 
-  @Ignore
+  private void setUpDccStorageMockService(boolean expectedResult){
+    wireMockRule.resetAll();
+    wireMockRule.stubFor(get(urlMatching("/upload/.*"))
+        .willReturn(aResponse()
+            .withStatus(OK.value())
+            .withBody(Boolean.toString(expectedResult))));
+  }
+
   @Test
   public void testPublish() {
-    // TODO: Figure out how to test this
+    setUpDccStorageMockService(true);
     val token = "mockToken";
     val id = "AN1";
     service.publish(token, id);
 
     val analysis = service.read(id);
     assertThat(analysis.getAnalysisState()).isEqualTo("PUBLISHED");
+  }
+
+  @Test
+  public void testPublishError() {
+    setUpDccStorageMockService(false);
+    val token = "mockToken";
+    val id = "AN1";
+    assertSongErrorTemp(() -> service.publish(token, id), UNPUBLISHED_FILE_IDS, null);
   }
 
 
@@ -239,6 +290,22 @@ public class AnalysisServiceTest {
       assertThat(actualObjectId).isEqualTo(expectedObjectId);
       assertThat(actualFileAnalysisId).isEqualTo(actualAnalysisId);
     }
+  }
+
+  //TODO: This code is temporarily copied from another branch being worked on in parallel. Refactor later
+  private static <T> void assertSongErrorTemp(@NonNull Supplier<T> supplier,
+      @NonNull ServerError expectedServerError, String formattedFailMessage, Object...objects){
+    val thrown = catchThrowable(supplier::get);
+
+    val assertion = assertThat(thrown);
+    if (!isNull(formattedFailMessage)){
+      assertion.describedAs(format(formattedFailMessage, objects));
+    }
+    assertion.isInstanceOf(ServerException.class);
+
+    val songError = ((ServerException)thrown).getSongError();
+    assertThat(songError.getErrorId()).isEqualTo(expectedServerError.getErrorId());
+    assertThat(songError.getHttpStatusCode()).isEqualTo(expectedServerError.getHttpStatus().value());
   }
 
 }
