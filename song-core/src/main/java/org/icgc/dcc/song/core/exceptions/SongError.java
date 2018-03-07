@@ -99,7 +99,7 @@ public class SongError {
   }
 
   public static ResponseEntity<String> error(String context, ServerError serverError, String format, Object... args){
-    return error(serverError, contextMessage(context, format, args));
+    return error(serverError, contextMessage(context+"::"+serverError.getErrorId(), format, args));
   }
 
   public static SongError createSongError(Class<?> clazz, ServerError serverError,
@@ -109,7 +109,7 @@ public class SongError {
 
   public static SongError createSongError(String context, ServerError serverError,
       String formattedMessage, Object... args){
-    return createSongError(serverError, contextMessage( context, formattedMessage, args));
+    return createSongError(serverError, contextMessage( context+"::"+serverError.getErrorId(), formattedMessage, args));
   }
 
   public static SongError createSongError(@NonNull ServerError serverError, @NonNull String formattedMessage, Object...args){
