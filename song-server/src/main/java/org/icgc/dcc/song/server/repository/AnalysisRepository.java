@@ -39,7 +39,7 @@ public interface AnalysisRepository {
 
   @SqlUpdate("INSERT INTO Analysis (id, study_id, type, state) " +
           "VALUES (:analysisId, :study, :analysisType, :analysisState)")
-  void createAnalysis(@BindBean Analysis analysis );
+  int createAnalysis(@BindBean Analysis analysis );
 
   @SqlUpdate("Update Analysis set state=:state where id=:analysisId")
   int updateState(@Bind("analysisId") String id, @Bind("state") String state);
@@ -52,11 +52,11 @@ public interface AnalysisRepository {
 
   @SqlUpdate("INSERT INTO SequencingRead (id, library_strategy, paired_end, insert_size,aligned,alignment_tool, reference_genome) "
           + "VALUES (:analysisId, :libraryStrategy, :pairedEnd, :insertSize, :aligned, :alignmentTool, :referenceGenome)")
-  void createSequencingRead(@BindBean SequencingRead s);
+  int createSequencingRead(@BindBean SequencingRead s);
 
   @SqlUpdate("INSERT INTO VariantCall (id, variant_calling_tool, matched_normal_sample_submitter_id) " +
           "VALUES (:analysisId, :variantCallingTool, :matchedNormalSampleSubmitterId)")
-  void createVariantCall(@BindBean VariantCall c);
+  int createVariantCall(@BindBean VariantCall c);
 
   @RegisterMapper(AnalysisMapper.class)
   @SqlQuery("SELECT id, study_id, type, state FROM Analysis WHERE id=:id")
@@ -81,6 +81,12 @@ public interface AnalysisRepository {
   @SqlQuery("SELECT id, library_strategy, paired_end, insert_size,aligned,alignment_tool,reference_genome " +
           "FROM SequencingRead where id=:id")
   SequencingRead readSequencingRead(@Bind("id") String id);
+
+  @SqlUpdate("DELETE FROM SequencingRead WHERE id=:id" )
+  void deleteSequencingRead(@Bind("id") String id);
+
+  @SqlUpdate("DELETE FROM VariantCall WHERE id=:id" )
+  void deleteVariantCall(@Bind("id") String id);
 
   @SqlUpdate("UPDATE SequencingRead SET library_strategy=:libraryStrategy, paired_end=:pairedEnd, " +
           "insert_size=:insertSize, aligned=:aligned, alignment_tool=:alignmentTool, " +

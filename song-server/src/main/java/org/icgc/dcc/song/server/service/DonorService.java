@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_RECORD_FAILED;
-import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
 @RequiredArgsConstructor
@@ -46,16 +46,18 @@ public class DonorService {
   private final IdService idService;
   @Autowired
   private final SpecimenService specimenService;
+  @Autowired
+  private final StudyService studyService;
 
   public String create(@NonNull DonorWithSpecimens d) {
+    studyService.checkStudyExist(d.getStudyId());
     val id = idService.generateDonorId(d.getDonorSubmitterId(), d.getStudyId());
     d.setDonorId(id);
     val donor = d.getDonor();
 
     val status = donorRepository.create(donor);
-    if (status != 1) {
-      throw buildServerException(this.getClass(), DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
-    }
+    checkServer(status == 1, this.getClass(),
+        DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
     infoService.create(id, donor.getInfoAsString());
     d.getSpecimens().forEach(s -> specimenService.create(d.getStudyId(), s));
 
@@ -95,7 +97,18 @@ public class DonorService {
     return "Failed"; //TODO: [DCC-5644] need to properly handle this. Should an ServerException be thrown?
   }
 
+  public String delete(@NonNull String studyId, @NonNull List<String> ids) {
+    studyService.checkStudyExist(studyId);
+    ids.forEach(x -> internalDelete(studyId, x));
+    return OK;
+  }
+
   public String delete(@NonNull String studyId, @NonNull String id) {
+    studyService.checkStudyExist(studyId);
+    return internalDelete(studyId, id);
+  }
+
+  private String internalDelete(@NonNull String studyId, @NonNull String id) {
     specimenService.deleteByParentId(id);
     donorRepository.delete(studyId, id);
     infoService.delete(id);

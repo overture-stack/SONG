@@ -22,7 +22,7 @@ insert into Info(id, id_type, info) values ('SA21', 'Sample', '{"name":"sample3"
 
 
 insert into Analysis(id, study_id, state, type) values('AN1','ABC123', 'UNPUBLISHED', 'variantCall');
-insert into VariantCall(id, variant_calling_tool) values ('AN1','SuperNewVariantCallingTool');
+insert into VariantCall(id, variant_calling_tool, matched_normal_sample_submitter_id ) values ('AN1','SuperNewVariantCallingTool', 'myMatchedNormalSampleSubmitterId');
 insert into Info(id, id_type, info) values ('AN1',  'Analysis',       '{"name":"analysis1"}' );
 insert into Info(id, id_type, info) values ('AN1',  'VariantCall', '{"name":"variantCall1"}' );
 

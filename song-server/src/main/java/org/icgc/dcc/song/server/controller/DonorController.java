@@ -39,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static org.icgc.dcc.song.core.utils.Responses.OK;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -95,8 +94,7 @@ public class DonorController {
       @PathVariable("studyId") String studyId,
       @PathVariable("ids") @ApiParam(value = "Comma separated list of donorIds", required = true)
           List<String> ids) {
-    ids.forEach(id -> donorService.delete(studyId, id));
-    return OK;
+    return donorService.delete(studyId, ids);
   }
 
 }

@@ -52,7 +52,6 @@ abstract class InfoService {
   private final InfoRepository infoRepository;
 
   public Optional<String> readInfo(@NonNull String id) {
-    checkInfoExists(id);
     return Optional.ofNullable(infoRepository.readInfo(id, type.toString()));
   }
 

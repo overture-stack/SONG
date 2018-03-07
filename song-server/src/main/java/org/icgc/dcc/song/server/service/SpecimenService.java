@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_RECORD_FAILED;
-import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 import static org.icgc.dcc.song.server.model.enums.IdPrefix.SPECIMEN_PREFIX;
 
@@ -47,16 +47,17 @@ public class SpecimenService {
   private final SpecimenInfoService infoService;
   @Autowired
   private final SpecimenRepository repository;
+  @Autowired
+  private final StudyService studyService;
 
 
   public String create(@NonNull String studyId, @NonNull Specimen specimen) {
+    studyService.checkStudyExist(studyId);
     val id = idService.generateSpecimenId( specimen.getSpecimenSubmitterId(), studyId);
     specimen.setSpecimenId(id);
     int status = repository.create(specimen);
-    if (status != 1) {
-      throw buildServerException(this.getClass(), SPECIMEN_RECORD_FAILED,
+    checkServer(status == 1, this.getClass(), SPECIMEN_RECORD_FAILED,
           "Cannot create Specimen: %s", specimen.toString());
-    }
     infoService.create(id, specimen.getInfoAsString());
 
     return id;

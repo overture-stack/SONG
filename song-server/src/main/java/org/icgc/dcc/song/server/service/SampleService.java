@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_RECORD_FAILED;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_REPOSITORY_CREATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
@@ -38,15 +38,19 @@ public class SampleService {
   private static final String MESSAGE_CONTEXT = SampleService.class.getSimpleName();
 
   @Autowired
-  SampleRepository repository;
+  private final SampleRepository repository;
 
   @Autowired
-  SampleInfoService infoService;
+  private final SampleInfoService infoService;
 
   @Autowired
-  IdService idService;
+  private final IdService idService;
+
+  @Autowired
+  private final StudyService studyService;
 
   public String create(@NonNull String studyId, @NonNull Sample sample) {
+    studyService.checkStudyExist(studyId);
     val id = idService.generateSampleId(sample.getSampleSubmitterId(), studyId);
     sample.setSampleId(id);
     sample.setSpecimenId(sample.getSpecimenId());
@@ -54,7 +58,7 @@ public class SampleService {
     infoService.create(id, sample.getInfoAsString());
 
     checkServer(status == 1,this.getClass(),
-        SAMPLE_RECORD_FAILED, "Cannot create Sample: %s", sample.toString());
+        SAMPLE_REPOSITORY_CREATE_RECORD, "Cannot create Sample: %s", sample.toString());
 
     return id;
   }
@@ -103,6 +107,7 @@ public class SampleService {
   }
 
   public String save(@NonNull String studyId, @NonNull Sample sample) {
+    studyService.checkStudyExist(studyId);
     String sampleId = repository.findByBusinessKey(studyId, sample.getSampleSubmitterId());
     if (sampleId == null) {
       sampleId = idService.generateSampleId(sample.getSampleSubmitterId(), studyId);
