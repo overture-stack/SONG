@@ -59,6 +59,41 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
         </repository>
     </repositories>
 
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-guava</artifactId>
+                <version>${assertj-guava.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
         <defaultGoal>install</defaultGoal>
         <pluginManagement>
@@ -136,17 +171,21 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
         <!-- Versions - Spring Boot - H2 -->
         <h2.version>1.4.192</h2.version>
 
+        <lombok.version>1.16.14</lombok.version>
+
         <jdbi.version>2.41</jdbi.version>
 
         <!-- Versions - Spring Boot - Jackson -->
         <jackson.version>2.9.4</jackson.version>
 
+        <postgresql.version>42.2.1</postgresql.version>
         <networknt.version>0.1.5</networknt.version>
 
         <!-- Plugins -->
         <test.redirectTestOutputToFile>true</test.redirectTestOutputToFile>
         <test.useFile>true</test.useFile>
         <assertj.version>3.5.2</assertj.version>
+        <junit.version>4.12</junit.version>
         <assertj-guava.version>3.1.0</assertj-guava.version>
     </properties>
 
