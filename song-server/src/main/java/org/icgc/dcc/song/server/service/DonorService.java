@@ -115,8 +115,10 @@ public class DonorService {
       donorId = idService.generateDonorId(donor.getDonorSubmitterId(), studyId);
       donor.setDonorId(donorId);
       donorRepository.create(donor);
+      infoService.create(donorId, donor.getInfoAsString());
     } else {
       donorRepository.update(donor);
+      infoService.update(donorId, donor.getInfoAsString());
     }
     return donorId;
   }
