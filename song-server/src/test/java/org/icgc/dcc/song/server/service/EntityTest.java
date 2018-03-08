@@ -1,8 +1,10 @@
 package org.icgc.dcc.song.server.service;
 
 import lombok.val;
+import org.icgc.dcc.song.server.model.LegacyEntity;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
+import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.Sample;
@@ -215,6 +217,290 @@ public class EntityTest {
   @Test
   public void testUpload(){
     fail("");
+  }
+
+  @Test
+  public void testLegacyEntity(){
+    val e1 = LegacyEntity.builder()
+        .access("open")
+        .fileName("f1")
+        .gnosId("g1")
+        .id("i1")
+        .projectCode("p1")
+        .build();
+
+    val e1_same = LegacyEntity.builder()
+        .access("open")
+        .fileName("f1")
+        .gnosId("g1")
+        .id("i1")
+        .projectCode("p1")
+        .build();
+
+    assertEntitiesEqual(e1, e1_same, true);
+
+    val e2 = LegacyEntity.builder()
+        .access("open")
+        .fileName("f2")
+        .gnosId("g2")
+        .id("i2")
+        .projectCode("p2")
+        .build();
+    assertEntitiesNotEqual(e1, e2);
+
+    // Test getters
+    assertThat(e1.getAccess()).isEqualTo("open");
+    assertThat(e1.getFileName()).isEqualTo("f1");
+    assertThat(e1.getGnosId()).isEqualTo("g1");
+    assertThat(e1.getId()).isEqualTo("i1");
+    assertThat(e1.getProjectCode()).isEqualTo("p1");
+  }
+
+  @Test
+  public void testVariantCallAnalysis(){
+    val v1 = VariantCall.create("a1", "c1", "b1");
+    val v2 = VariantCall.create("a2", "c2", "b2");
+
+    val donor1 = Donor.create("myDonor1", "myDonorSubmitter1", DEFAULT_STUDY_ID, "male");
+    val donor2 = Donor.create("myDonor2", "myDonorSubmitter2", DEFAULT_STUDY_ID, "female");
+
+    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
+        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
+    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
+        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+
+    val sample1 = Sample.create("mySample1", "mySubmitterSample1", "mySpecimen1",
+        SAMPLE_TYPES.get(2));
+    val sample2 = Sample.create("mySample2", "mySubmitterSample2", "mySpecimen2",
+        SAMPLE_TYPES.get(3));
+
+    val compositeEntity11 = CompositeEntity.create(sample1);
+    compositeEntity11.setDonor(donor1);
+    compositeEntity11.setSpecimen(specimen2);
+
+    val compositeEntity12 = CompositeEntity.create(sample1);
+    compositeEntity12.setDonor(donor2);
+    compositeEntity12.setSpecimen(specimen1);
+
+    val compositeGroup1 = newArrayList(compositeEntity11, compositeEntity12);
+
+    val compositeEntity21 = CompositeEntity.create(sample2);
+    compositeEntity21.setDonor(donor1);
+    compositeEntity21.setSpecimen(specimen2);
+
+    val compositeEntity22 = CompositeEntity.create(sample2);
+    compositeEntity22.setDonor(donor2);
+    compositeEntity22.setSpecimen(specimen1);
+
+    val compositeGroup2 = newArrayList(compositeEntity21, compositeEntity22);
+
+    val file11 = File.create("d11", "a11",
+        "c11", "e11", 113L,
+        FILE_TYPES.get(0), "b11", CONTROLLED);
+
+    val file12 = File.create("d12", "a12",
+        "c12", "e12", 114L,
+        FILE_TYPES.get(0), "b12", CONTROLLED);
+
+    val fileGroup1 = newArrayList(file11, file12);
+
+    val file21 = File.create("d21", "a21",
+        "c21", "e21", 213L,
+        FILE_TYPES.get(1), "b21", CONTROLLED);
+
+    val file22 = File.create("d22", "a22",
+        "c22", "e22", 224L,
+        FILE_TYPES.get(1), "b22", CONTROLLED);
+
+    val fileGroup2 = newArrayList(file21, file22);
+
+    val a1 = new VariantCallAnalysis();
+    a1.setAnalysisId("a1");
+    a1.setAnalysisState(PUBLISHED.toString());
+    a1.setStudy("b1");
+
+    val a1_same = new VariantCallAnalysis();
+    a1_same.setAnalysisId("a1");
+    a1_same.setAnalysisState(PUBLISHED.toString());
+    a1_same.setStudy("b1");
+
+    assertEntitiesEqual(a1, a1_same, true);
+
+    val a2 = new VariantCallAnalysis();
+    a2.setAnalysisId("a2");
+    a2.setAnalysisState(UNPUBLISHED.toString());
+    a2.setStudy("b2");
+
+    val a2_same = new VariantCallAnalysis();
+    a2_same.setAnalysisId("a2");
+    a2_same.setAnalysisState(UNPUBLISHED.toString());
+    a2_same.setStudy("b2");
+
+    assertEntitiesEqual(a2, a2_same, true);
+
+    // 0000 - matchingSamples=0, matchingFile=0, matchingExperiment=0,  matchingSelf=0
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a2.setExperiment(v2);
+    a2.setFile(fileGroup2);
+    a2.setSample(compositeGroup2);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 0001 - matchingSamples=0, matchingFile=0, matchingExperiment=0,  matchingSelf=1
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a1_same.setExperiment(v2);
+    a1_same.setFile(fileGroup2);
+    a1_same.setSample(compositeGroup2);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 0010 - matchingSamples=0, matchingFile=0, matchingExperiment=1,  matchingSelf=0
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a2.setExperiment(v1);
+    a2.setFile(fileGroup2);
+    a2.setSample(compositeGroup2);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 0011 - matchingSamples=0, matchingFile=0, matchingExperiment=1,  matchingSelf=1
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a1_same.setExperiment(v1);
+    a1_same.setFile(fileGroup2);
+    a1_same.setSample(compositeGroup2);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 0100 - matchingSamples=0, matchingFile=1, matchingExperiment=0,  matchingSelf=0
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a2.setExperiment(v2);
+    a2.setFile(fileGroup1);
+    a2.setSample(compositeGroup2);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 0101 - matchingSamples=0, matchingFile=1, matchingExperiment=0,  matchingSelf=1
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a1_same.setExperiment(v2);
+    a1_same.setFile(fileGroup1);
+    a1_same.setSample(compositeGroup2);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 0110 - matchingSamples=0, matchingFile=1, matchingExperiment=1,  matchingSelf=0
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a2.setExperiment(v1);
+    a2.setFile(fileGroup1);
+    a2.setSample(compositeGroup2);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 0111 - matchingSamples=0, matchingFile=1, matchingExperiment=1,  matchingSelf=1
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a1_same.setExperiment(v1);
+    a1_same.setFile(fileGroup1);
+    a1_same.setSample(compositeGroup2);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 1000 - matchingSamples=1, matchingFile=0, matchingExperiment=0,  matchingSelf=0
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a2.setExperiment(v2);
+    a2.setFile(fileGroup2);
+    a2.setSample(compositeGroup1);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 1001 - matchingSamples=1, matchingFile=0, matchingExperiment=0,  matchingSelf=1
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a1_same.setExperiment(v2);
+    a1_same.setFile(fileGroup2);
+    a1_same.setSample(compositeGroup1);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 1010 - matchingSamples=1, matchingFile=0, matchingExperiment=1,  matchingSelf=0
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a2.setExperiment(v1);
+    a2.setFile(fileGroup2);
+    a2.setSample(compositeGroup1);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 1011 - matchingSamples=1, matchingFile=0, matchingExperiment=1,  matchingSelf=1
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a1_same.setExperiment(v1);
+    a1_same.setFile(fileGroup2);
+    a1_same.setSample(compositeGroup1);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 1100 - matchingSamples=1, matchingFile=1, matchingExperiment=0,  matchingSelf=0
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a2.setExperiment(v2);
+    a2.setFile(fileGroup1);
+    a2.setSample(compositeGroup1);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 1101 - matchingSamples=1, matchingFile=1, matchingExperiment=0,  matchingSelf=1
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a1_same.setExperiment(v2);
+    a1_same.setFile(fileGroup1);
+    a1_same.setSample(compositeGroup1);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 1110 - matchingSamples=1, matchingFile=1, matchingExperiment=1,  matchingSelf=0
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a2.setExperiment(v1);
+    a2.setFile(fileGroup1);
+    a2.setSample(compositeGroup1);
+    assertEntitiesNotEqual(a1, a2);
+
+    // 1111 - matchingSamples=1, matchingFile=1, matchingExperiment=1,  matchingSelf=1
+    a1.setExperiment(v1);
+    a1.setFile(fileGroup1);
+    a1.setSample(compositeGroup1);
+
+    a1_same.setExperiment(v1);
+    a1_same.setFile(fileGroup1);
+    a1_same.setSample(compositeGroup1);
+    assertEntitiesEqual(a1, a1_same, true);
+
+    a1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
+    a1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
+    assertEntitiesEqual(a1, a1_same, false);
   }
 
   @Test
@@ -465,11 +751,6 @@ public class EntityTest {
   }
 
   @Test
-  public void testVariantCallAnalysis(){
-    fail("");
-  }
-
-  @Test
   public void testSequencingRead(){
     val s1 = new SequencingRead();
     s1.setAnalysisId("a1");
@@ -602,7 +883,7 @@ public class EntityTest {
     assertThat(s1.getSpecimenSubmitterId()).isEqualTo("c1");
     assertThat(s1.getSpecimenId()).isEqualTo("b1");
     assertThat(s1.getDonorId()).isEqualTo("a1");
-    assertInfoKVPair(s1, "key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
+    assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
   private static void assertEntitiesEqual(Object actual, Object expected, boolean checkFieldByField){
