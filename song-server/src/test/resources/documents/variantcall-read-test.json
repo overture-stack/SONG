@@ -1,0 +1,75 @@
+{
+  "analysisType": "variantCall",
+  "experiment": {
+    "variantCallingTool": "silver bullet ex01",
+    "matchedNormalSampleSubmitterId": "sample x24-11a",
+    "extraExperimentInfo": "some more data for a experiment ex01"
+  },
+  "sample": [
+    {
+      "sampleSubmitterId": "internal_sample_98024759826836_fs01",
+      "sampleType": "Total RNA",
+      "extraSampleInfo": "some more data for a sample_fs01",
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fs01",
+        "specimenClass": "Tumour",
+        "specimenType": "Primary tumour - other",
+        "extraSpecimenInfo_0": "first for a specimen_fs01",
+        "extraSpecimenInfo_1": "second data for a specimen_fs01"
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789-00_fs01",
+        "donorGender": "male",
+        "extraDonorInfo": "some more data for a donor_fs01"
+      }
+    },
+    {
+      "sampleSubmitterId": "internal_sample_98024759826836_fs02",
+      "sampleType": "Total RNA",
+      "extraSampleInfo": "some more data for a sample_fs02",
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fs02",
+        "specimenClass": "Tumour",
+        "specimenType": "Primary tumour - other",
+        "extraSpecimenInfo": "some more data for a specimen_fs02"
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789-00_fs02",
+        "donorGender": "female",
+        "extraDonorInfo_0": "first data for a donor_fs02",
+        "extraDonorInfo_1": "second data for a donor_fs02"
+      }
+    }
+  ],
+  "file": [
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "fileSize": 376953,
+      "fileMd5sum": "61a91c4bf04ac2bd3795254104f75ad3",
+      "fileAccess" : "controlled",
+      "fileType": "VCF",
+      "extraFileInfo_0" : "first data for file_fn1",
+      "extraFileInfo_1" : "second data for file_fn1"
+    },
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "fileSize": 983820,
+      "fileMd5sum": "039bcef03029b079ad5731577e049563",
+      "fileAccess" : "open",
+      "fileType": "VCF",
+      "extraFileInfo" : "some more data for file_fn2"
+    },
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+      "fileSize": 4840,
+      "fileMd5sum": "93719374bcefda835731577e04988a63",
+      "fileAccess" : "open",
+      "fileType": "IDX",
+      "extraFileInfo" : "some more data for file_fn3"
+    }
+  ],
+  "info": {
+    "description1": "description1 for this analysis an01",
+    "description2": "description2 for this analysis an01"
+  }
+}
