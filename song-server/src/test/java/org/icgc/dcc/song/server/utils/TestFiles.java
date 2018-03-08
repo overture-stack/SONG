@@ -42,7 +42,7 @@ public class TestFiles {
   }
 
   public static void assertInfoKVPair(@NonNull Metadata metadata, @NonNull String key, @NonNull Object expectedValue){
-      assertThat(metadata.getInfo().has(key)).isTrue();
+      assertThat(metadata.getInfo().has(key)).as("The input metadata does not have the key '%s'", key).isTrue();
       val actualValue  = metadata.getInfo().path(key).textValue();
       assertThat(actualValue)
           .as("Failed since field '%s' has actual=%s and expected=%s", key, actualValue, expectedValue)
