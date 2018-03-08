@@ -18,6 +18,7 @@
  */
 package org.icgc.dcc.song.server.config;
 
+import org.icgc.dcc.song.server.jwt.JWTMethodSecurityExpressionHandler;
 import org.icgc.dcc.song.server.security.StudyJWTStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -37,29 +38,29 @@ import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecur
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
-  /**
-   * Refer:
-   * http://stackoverflow.com/questions/29328124/no-bean-resolver-registered-in-the-context-to-resolve-access-to-bean
-   *
-   * The following lines are a workaround suggested here:
-   * https://github.com/spring-projects/spring-security-oauth/issues/730
-   * 
-   * Apparently a bug in Spring's OAuth2 stuff - BeanResolver is not being set in the Application Context, so attempting
-   * to evaluate a bean lookup @beanName blows up
-   */
-  @Autowired
-  private ApplicationContext context;
+    /**
+     * Refer:
+     * http://stackoverflow.com/questions/29328124/no-bean-resolver-registered-in-the-context-to-resolve-access-to-bean
+     *
+     * The following lines are a workaround suggested here:
+     * https://github.com/spring-projects/spring-security-oauth/issues/730
+     *
+     * Apparently a bug in Spring's OAuth2 stuff - BeanResolver is not being set in the Application Context, so attempting
+     * to evaluate a bean lookup @beanName blows up
+     */
+    @Autowired
+    private ApplicationContext context;
 
-  @Override
-  protected MethodSecurityExpressionHandler createExpressionHandler() {
-    OAuth2MethodSecurityExpressionHandler handler = new OAuth2MethodSecurityExpressionHandler();
-    handler.setApplicationContext(context);
-    return handler;
-  }
+    @Override
+    protected MethodSecurityExpressionHandler createExpressionHandler() {
+        JWTMethodSecurityExpressionHandler handler = new JWTMethodSecurityExpressionHandler();
+        handler.setApplicationContext(context);
+        return handler;
+    }
 
-  @Bean
-  public StudyJWTStrategy studySecurity() {
-    return new StudyJWTStrategy();
-  }
+    @Bean
+    public StudyJWTStrategy studySecurity() {
+        return new StudyJWTStrategy();
+    }
 
 }

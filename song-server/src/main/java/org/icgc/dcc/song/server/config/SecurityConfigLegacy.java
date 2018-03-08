@@ -18,6 +18,7 @@
  */
 package org.icgc.dcc.song.server.config;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -27,13 +28,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 
-import lombok.SneakyThrows;
-
 @Configuration
-@Profile("secure")
+@Profile({"secure", "legacy"})
 @EnableWebSecurity
 @EnableResourceServer
-public class SecurityConfig extends ResourceServerConfigurerAdapter {
+public class SecurityConfigLegacy extends ResourceServerConfigurerAdapter {
 
     @Value("${auth.server.suffix}")
     private String uploadScope;
