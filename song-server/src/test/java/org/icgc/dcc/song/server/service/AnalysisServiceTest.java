@@ -72,6 +72,7 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertInfoKVPair;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
+import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -175,11 +176,116 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  public void testReadVariantCall(){
+    val json = TestFiles.getJsonStringFromClasspath("documents/variantcall-read-test.json");
+    val analysisRaw = fromJson(json, VariantCallAnalysis.class);
+    val analysisId = service.create(DEFAULT_STUDY_ID, analysisRaw, false);
+    val a = (VariantCallAnalysis)service.read(analysisId);
+
+    //Asserting Analysis
+    assertThat(a.getAnalysisState()).isEqualTo("UNPUBLISHED");
+    assertThat(a.getAnalysisType()).isEqualTo("variantCall");
+    assertThat(a.getStudy()).isEqualTo(DEFAULT_STUDY_ID);
+    assertInfoKVPair(a, "description1","description1 for this variantCall analysis an01" );
+    assertInfoKVPair(a, "description2","description2 for this variantCall analysis an01" );
+
+    val experiment = a.getExperiment();
+    assertThat(experiment.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(experiment.getVariantCallingTool()).isEqualTo("silver bullet ex01");
+    assertThat(experiment.getMatchedNormalSampleSubmitterId()).isEqualTo("sample x24-11a");
+    assertInfoKVPair(experiment, "extraExperimentInfo","some more data for a variantCall experiment ex01");
+
+    //Asserting Sample
+    assertThat(a.getSample()).hasSize(2);
+    val sample0 = a.getSample().get(0);
+    assertThat(sample0.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fs01");
+    assertThat(sample0.getSampleType()).isEqualTo("Total RNA");
+    assertInfoKVPair(sample0, "extraSampleInfo","some more data for a variantCall sample_fs01");
+
+    val donor00 = sample0.getDonor();
+    assertThat(donor00.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(donor00.getDonorGender()).isEqualTo("male");
+    assertThat(donor00.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fs01");
+    assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a variantCall donor_fs01");
+
+    val specimen00 = sample0.getSpecimen();
+    assertThat(specimen00.getDonorId()).isEqualTo(donor00.getDonorId());
+    assertThat(specimen00.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen00.getSpecimenType()).isEqualTo("Primary tumour - other");
+    assertThat(sample0.getSpecimenId()).isEqualTo(specimen00.getSpecimenId());
+    assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a variantCall specimen_fs01");
+    assertInfoKVPair(specimen00, "extraSpecimenInfo_1", "second data for a variantCall specimen_fs01");
+
+    val sample1 = a.getSample().get(1);
+    assertThat(sample1.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fs02");
+    assertThat(sample1.getSampleType()).isEqualTo("Total RNA");
+    assertInfoKVPair(sample1, "extraSampleInfo","some more data for a variantCall sample_fs02");
+
+    val donor01 = sample1.getDonor();
+    assertThat(donor01.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(donor01.getDonorGender()).isEqualTo("female");
+    assertThat(donor01.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fs02");
+    assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a variantCall donor_fs02");
+    assertInfoKVPair(donor01, "extraDonorInfo_1","second data for a variantCall donor_fs02");
+
+    val specimen01 = sample1.getSpecimen();
+    assertThat(specimen01.getDonorId()).isEqualTo(donor01.getDonorId());
+    assertThat(specimen01.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen01.getSpecimenType()).isEqualTo("Primary tumour - other");
+    assertThat(sample1.getSpecimenId()).isEqualTo(specimen01.getSpecimenId());
+    assertInfoKVPair(specimen01, "extraSpecimenInfo", "some more data for a variantCall specimen_fs02");
+
+    assertThat(a.getFile()).hasSize(3);
+    val file0 = a.getFile().get(0);
+    val file1 = a.getFile().get(1);
+    val file2 = a.getFile().get(2);
+    assertThat(file0.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file1.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file2.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file0.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file1.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file2.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+
+    val fileName0 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz";
+    val fileName1 ="a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz";
+    val fileName2 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx";
+
+    for (val file : a.getFile()){
+      if (file.getFileName().equals(fileName0)){
+        assertThat(file.getFileName()).isEqualTo(fileName0);
+        assertThat(file.getFileSize()).isEqualTo(376953);
+        assertThat(file.getFileMd5sum()).isEqualTo("652b2e2b7133229a89650de27ad7fc41");
+        assertThat(file.getFileAccess()).isEqualTo("controlled");
+        assertThat(file.getFileType()).isEqualTo("VCF");
+        assertInfoKVPair(file, "extraFileInfo_0", "first data for variantCall file_fn1");
+        assertInfoKVPair(file, "extraFileInfo_1", "second data for variantCall file_fn1");
+      } else if (file.getFileName().equals(fileName1)){
+        assertThat(file.getFileName()).isEqualTo(fileName1);
+        assertThat(file.getFileSize()).isEqualTo(983820);
+        assertThat(file.getFileMd5sum()).isEqualTo("b8b743a499e461922accad58fdbf25d2");
+        assertThat(file.getFileAccess()).isEqualTo("open");
+        assertThat(file.getFileType()).isEqualTo("VCF");
+        assertInfoKVPair(file, "extraFileInfo", "some more data for variantCall file_fn2");
+
+      } else if (file.getFileName().equals(fileName2)){
+        assertThat(file.getFileName()).isEqualTo(fileName2);
+        assertThat(file.getFileSize()).isEqualTo(4840);
+        assertThat(file.getFileMd5sum()).isEqualTo("2b80298c2f312df7db482105053f889b");
+        assertThat(file.getFileAccess()).isEqualTo("open");
+        assertThat(file.getFileType()).isEqualTo("IDX");
+        assertInfoKVPair(file, "extraFileInfo", "some more data for variantCall file_fn3");
+      } else {
+        fail(format("the fileName %s is not recognized", file.getFileName()));
+      }
+    }
+  }
+
+  @Test
   public void testReadSequencingRead(){
     val json = TestFiles.getJsonStringFromClasspath("documents/sequencingread-read-test.json");
     val analysisRaw = fromJson(json, SequencingReadAnalysis.class);
     val analysisId = service.create(DEFAULT_STUDY_ID, analysisRaw, false);
-    val a = service.read(analysisId);
+    val a = (SequencingReadAnalysis)service.read(analysisId);
 
     //Asserting Analysis
     assertThat(a.getAnalysisState()).isEqualTo("UNPUBLISHED");
@@ -187,6 +293,17 @@ public class AnalysisServiceTest {
     assertThat(a.getStudy()).isEqualTo(DEFAULT_STUDY_ID);
     assertInfoKVPair(a, "description1","description1 for this sequencingRead analysis an01" );
     assertInfoKVPair(a, "description2","description2 for this sequencingRead analysis an01" );
+
+    val experiment = a.getExperiment();
+    assertThat(experiment.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(experiment.getLibraryStrategy()).isEqualTo("WXS");
+    assertThat(experiment.getPairedEnd()).isFalse();
+    assertThat(experiment.getInsertSize()).isEqualTo(92736);
+    assertThat(experiment.getAligned()).isTrue();
+    assertThat(experiment.getAlignmentTool()).isEqualTo("myCool Sequence ReadingTool");
+    assertThat(experiment.getReferenceGenome()).isEqualTo("someSeq Genome");
+    assertInfoKVPair(experiment, "extraExperimentInfo", "some more data for a sequencingRead experiment ex02");
+
 
     //Asserting Sample
     assertThat(a.getSample()).hasSize(2);
