@@ -1,0 +1,74 @@
+{
+  "analysisType": "sequencingRead",
+  "experiment": {
+    "libraryStrategy": "WXS",
+    "extraExperimentInfo": "some more data for a sequencingRead experiment ex02"
+  },
+  "sample": [
+    {
+      "sampleSubmitterId": "internal_sample_98024759826836_fr01",
+      "sampleType": "Total RNA",
+      "extraSampleInfo": "some more data for a sample_fr01",
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fr01",
+        "specimenClass": "Tumour",
+        "specimenType": "Primary tumour - other",
+        "extraSpecimenInfo_0": "first for a sequencingRead specimen_fr01",
+        "extraSpecimenInfo_1": "second data for a sequencingRead specimen_fr01"
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789-00_fr01",
+        "donorGender": "male",
+        "extraDonorInfo": "some more data for a sequencingRead donor_fr01"
+      }
+    },
+    {
+      "sampleSubmitterId": "internal_sample_98024759826836_fr02",
+      "sampleType": "Total RNA",
+      "extraSampleInfo": "some more data for a sequencingRead sample_fr02",
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fr02",
+        "specimenClass": "Tumour",
+        "specimenType": "Primary tumour - other",
+        "extraSpecimenInfo": "some more data for a sequencingRead specimen_fr02"
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789-00_fr02",
+        "donorGender": "female",
+        "extraDonorInfo_0": "first data for a sequencingRead donor_fr02",
+        "extraDonorInfo_1": "second data for a sequencingRead donor_fr02"
+      }
+    }
+  ],
+  "file": [
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.bam",
+      "fileSize": 1212121,
+      "fileMd5sum": "34846342313253483026458201734",
+      "fileAccess" : "controlled",
+      "fileType": "BAM",
+      "extraFileInfo_0" : "first data for sequencingRead file_fn1",
+      "extraFileInfo_1" : "second data for sequencingRead file_fn1"
+    },
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.bam",
+      "fileSize": 34343,
+      "fileMd5sum": "39193746593843645378294364921",
+      "fileAccess" : "open",
+      "fileType": "BAM",
+      "extraFileInfo" : "some more data for sequencingRead file_fn2"
+    },
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.bam.bai",
+      "fileSize": 4840,
+      "fileMd5sum": "937836264940271be12803",
+      "fileAccess" : "open",
+      "fileType": "BAI",
+      "extraFileInfo" : "some more data for sequencingRead file_fn3"
+    }
+  ],
+  "info": {
+    "description1": "description1 for this sequencingRead analysis an01",
+    "description2": "description2 for this sequencingRead analysis an01"
+  }
+}
