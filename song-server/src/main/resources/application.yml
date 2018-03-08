@@ -60,6 +60,10 @@ auth:
     # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
     multiplier: 2.0
 
+  # EGO
+  jwt:
+    publicKeyUrl: "https://demo.ego.kfdrc.org/oauth/token/public_key"
+
 ---
 spring.profiles: test
 spring:

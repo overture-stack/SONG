@@ -60,6 +60,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- JWT -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-jwt</artifactId>
+        </dependency>
+
+
         <!-- JDBC -->
         <dependency>
             <groupId>postgresql</groupId>

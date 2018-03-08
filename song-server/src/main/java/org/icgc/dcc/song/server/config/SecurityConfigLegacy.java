@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 
 @Configuration
-@Profile({"secure", "legacy"})
+@Profile("legacy")
 @EnableWebSecurity
 @EnableResourceServer
 public class SecurityConfigLegacy extends ResourceServerConfigurerAdapter {
