@@ -20,6 +20,7 @@ package org.icgc.dcc.song.server.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.Maps;
 import lombok.NonNull;
@@ -55,6 +56,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
+import static com.fasterxml.uuid.Generators.timeBasedGenerator;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -63,10 +65,12 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
+import static org.icgc.dcc.song.server.utils.TestFiles.assertInfoKVPair;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -76,6 +80,8 @@ import static org.springframework.http.HttpStatus.OK;
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles({"dev", "test"})
 public class AnalysisServiceTest {
+
+  private static final String DEFAULT_STUDY_ID = "ABC123";
 
   private static final String FILEPATH = "src/test/resources/fixtures/";
   private static final String TEST_FILEPATH = "src/test/resources/documents/";
@@ -110,7 +116,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testCreateAndUpdate() {
-    val study="ABC123";
+    val study=DEFAULT_STUDY_ID;
     val json = readFile(FILEPATH + "sequencingRead.json");
     val analysis = fromJson(json, Analysis.class);
     val analysisId=service.create(study, analysis, false);
@@ -141,7 +147,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testCreateAndUpdateVariantCall() {
-    val study="ABC123";
+    val study=DEFAULT_STUDY_ID;
     val json = readFile(FILEPATH + "variantCall.json");
     val analysis = fromJson(json, Analysis.class);
     val analysisId=service.create(study, analysis, false);
@@ -168,6 +174,105 @@ public class AnalysisServiceTest {
     log.info(format("Created '%s'",toJson(created)));
   }
 
+  @Test
+  public void testReadSequencingRead(){
+    val json = TestFiles.getJsonStringFromClasspath("documents/sequencingread-read-test.json");
+    val analysisRaw = fromJson(json, SequencingReadAnalysis.class);
+    val analysisId = service.create(DEFAULT_STUDY_ID, analysisRaw, false);
+    val a = service.read(analysisId);
+
+    //Asserting Analysis
+    assertThat(a.getAnalysisState()).isEqualTo("UNPUBLISHED");
+    assertThat(a.getAnalysisType()).isEqualTo("sequencingRead");
+    assertThat(a.getStudy()).isEqualTo(DEFAULT_STUDY_ID);
+    assertInfoKVPair(a, "description1","description1 for this sequencingRead analysis an01" );
+    assertInfoKVPair(a, "description2","description2 for this sequencingRead analysis an01" );
+
+    //Asserting Sample
+    assertThat(a.getSample()).hasSize(2);
+    val sample0 = a.getSample().get(0);
+    assertThat(sample0.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr01");
+    assertThat(sample0.getSampleType()).isEqualTo("Total RNA");
+    assertInfoKVPair(sample0, "extraSampleInfo","some more data for a sequencingRead sample_fr01");
+
+    val donor00 = sample0.getDonor();
+    assertThat(donor00.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(donor00.getDonorGender()).isEqualTo("male");
+    assertThat(donor00.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fr01");
+    assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a sequencingRead donor_fr01");
+
+    val specimen00 = sample0.getSpecimen();
+    assertThat(specimen00.getDonorId()).isEqualTo(donor00.getDonorId());
+    assertThat(specimen00.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen00.getSpecimenType()).isEqualTo("Primary tumour - other");
+    assertThat(sample0.getSpecimenId()).isEqualTo(specimen00.getSpecimenId());
+    assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a sequencingRead specimen_fr01");
+    assertInfoKVPair(specimen00, "extraSpecimenInfo_1", "second data for a sequencingRead specimen_fr01");
+
+    val sample1 = a.getSample().get(1);
+    assertThat(sample1.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr02");
+    assertThat(sample1.getSampleType()).isEqualTo("Total RNA");
+    assertInfoKVPair(sample1, "extraSampleInfo","some more data for a sequencingRead sample_fr02");
+
+    val donor01 = sample1.getDonor();
+    assertThat(donor01.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(donor01.getDonorGender()).isEqualTo("female");
+    assertThat(donor01.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fr02");
+    assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a sequencingRead donor_fr02");
+    assertInfoKVPair(donor01, "extraDonorInfo_1","second data for a sequencingRead donor_fr02");
+
+    val specimen01 = sample1.getSpecimen();
+    assertThat(specimen01.getDonorId()).isEqualTo(donor01.getDonorId());
+    assertThat(specimen01.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen01.getSpecimenType()).isEqualTo("Primary tumour - other");
+    assertThat(sample1.getSpecimenId()).isEqualTo(specimen01.getSpecimenId());
+    assertInfoKVPair(specimen01, "extraSpecimenInfo", "some more data for a sequencingRead specimen_fr02");
+
+    assertThat(a.getFile()).hasSize(3);
+    val file0 = a.getFile().get(0);
+    val file1 = a.getFile().get(1);
+    val file2 = a.getFile().get(2);
+    assertThat(file0.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file1.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file2.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file0.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file1.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file2.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+
+    val fileName0 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.bam";
+    val fileName1 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.bam";
+    val fileName2 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.bam.bai";
+
+    for (val file : a.getFile()){
+      if (file.getFileName().equals(fileName0)){
+        assertThat(file.getFileName()).isEqualTo(fileName0);
+        assertThat(file.getFileSize()).isEqualTo(1212121);
+        assertThat(file.getFileMd5sum()).isEqualTo("e2324667df8085eddfe95742047e153f");
+        assertThat(file.getFileAccess()).isEqualTo("controlled");
+        assertThat(file.getFileType()).isEqualTo("BAM");
+        assertInfoKVPair(file, "extraFileInfo_0", "first data for sequencingRead file_fn1");
+        assertInfoKVPair(file, "extraFileInfo_1", "second data for sequencingRead file_fn1");
+      } else if (file.getFileName().equals(fileName1)){
+        assertThat(file.getFileName()).isEqualTo(fileName1);
+        assertThat(file.getFileSize()).isEqualTo(34343);
+        assertThat(file.getFileMd5sum()).isEqualTo("8b5379a29aac642d6fe1808826bd9e49");
+        assertThat(file.getFileAccess()).isEqualTo("open");
+        assertThat(file.getFileType()).isEqualTo("BAM");
+        assertInfoKVPair(file, "extraFileInfo", "some more data for sequencingRead file_fn2");
+
+      } else if (file.getFileName().equals(fileName2)){
+        assertThat(file.getFileName()).isEqualTo(fileName2);
+        assertThat(file.getFileSize()).isEqualTo(4840);
+        assertThat(file.getFileMd5sum()).isEqualTo("61da923f32863a9c5fa3d2a0e19bdee3");
+        assertThat(file.getFileAccess()).isEqualTo("open");
+        assertThat(file.getFileType()).isEqualTo("BAI");
+        assertInfoKVPair(file, "extraFileInfo", "some more data for sequencingRead file_fn3");
+      } else {
+        fail(format("the fileName %s is not recognized", file.getFileName()));
+      }
+    }
+  }
+
   @Ignore // When mvn runs this test, we get three files, not two. IntelliJ doesn't.
   @Test
   public void testRead() {
@@ -176,7 +281,7 @@ public class AnalysisServiceTest {
     val analysis1 = service.read(id1);
     assertThat(analysis1.getAnalysisId()).isEqualTo("AN1");
     assertThat(analysis1.getAnalysisType()).isEqualTo("variantCall");
-    assertThat(analysis1.getStudy()).isEqualTo("ABC123");
+    assertThat(analysis1.getStudy()).isEqualTo(DEFAULT_STUDY_ID);
     assertThat(analysis1.getSample().size()).isEqualTo(2);
     assertThat(analysis1.getFile().size()).isEqualTo(2);
     assertThat(analysis1).isInstanceOf(VariantCallAnalysis.class);
@@ -271,7 +376,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testCustomAnalysisId(){
-    val study="ABC123";
+    val study=DEFAULT_STUDY_ID;
     val expectedAnalysisId = "AN-1234";
     val expectedObjectIdMap = Maps.newHashMap();
     expectedObjectIdMap.put("a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz", "0794ae66-80df-5b70-bc22-e49309bfba2a");
