@@ -31,10 +31,6 @@ public class DonorWithSpecimens extends Donor {
         return donor;
     }
 
-    public void addSpecimen(SpecimenWithSamples s) {
-        specimens.add(s);
-    }
-
     public void setSpecimens(List<SpecimenWithSamples> s) {
         specimens.clear();
         specimens.addAll(s);

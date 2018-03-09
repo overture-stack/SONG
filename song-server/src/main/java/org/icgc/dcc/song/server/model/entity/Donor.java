@@ -19,17 +19,15 @@
 
 package org.icgc.dcc.song.server.model.entity;
 
-import static org.icgc.dcc.song.server.model.enums.Constants.DONOR_GENDER;
-import static org.icgc.dcc.song.server.model.enums.Constants.validate;
-
-import org.icgc.dcc.song.server.model.Metadata;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.val;
+import org.icgc.dcc.song.server.model.Metadata;
+
+import static org.icgc.dcc.song.server.model.enums.Constants.DONOR_GENDER;
+import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
