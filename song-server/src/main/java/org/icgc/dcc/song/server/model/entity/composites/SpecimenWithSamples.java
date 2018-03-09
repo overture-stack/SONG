@@ -2,7 +2,6 @@ package org.icgc.dcc.song.server.model.entity.composites;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 
@@ -21,13 +20,6 @@ public class SpecimenWithSamples extends Specimen {
         setSpecimenType(s.getSpecimenType());
 
         addInfo(s.getInfoAsString());
-    }
-
-    public Specimen getSpecimen() {
-        val s= Specimen.create(getSpecimenId(),getDonorId(),getSpecimenSubmitterId(), getSpecimenClass(),
-                getSpecimenType());
-        s.setInfo(getInfoAsString());
-        return s;
     }
 
     public void addSample(Sample s) {
