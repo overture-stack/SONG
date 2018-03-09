@@ -199,6 +199,7 @@ public class EntityTest {
     assertThat(d1.getDonorId()).isEqualTo(donor1.getDonorId());
     assertThat(d1.getStudyId()).isEqualTo(donor1.getStudyId());
     assertThat(d1.getSpecimens()).containsExactlyInAnyOrder(specimenWithSample1, specimenWithSample2);
+    assertThat(d1.createDonor()).isEqualTo(donor1);
     assertInfoKVPair(d1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
