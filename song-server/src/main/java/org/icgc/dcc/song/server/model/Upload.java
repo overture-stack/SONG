@@ -18,7 +18,6 @@
  */
 package org.icgc.dcc.song.server.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRawValue;
@@ -90,7 +89,7 @@ public class Upload {
   }
 
   public void addErrors(Collection<String> errors) {
-    errors.addAll(errors);
+    this.errors.addAll(errors);
   }
 
 }

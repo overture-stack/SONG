@@ -9,7 +9,7 @@ import org.icgc.dcc.song.server.model.entity.Donor;
 import java.util.ArrayList;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 @Value
 public class DonorWithSpecimens extends Donor {
     private List<SpecimenWithSamples> specimens = new ArrayList<>();

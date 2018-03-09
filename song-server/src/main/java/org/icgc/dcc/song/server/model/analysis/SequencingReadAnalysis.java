@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SequencingReadAnalysis extends Analysis {

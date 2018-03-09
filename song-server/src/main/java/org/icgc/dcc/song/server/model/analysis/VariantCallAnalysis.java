@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.val;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VariantCallAnalysis extends Analysis {
