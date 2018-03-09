@@ -3,6 +3,7 @@ package org.icgc.dcc.song.server.service;
 import lombok.val;
 import org.icgc.dcc.song.server.model.LegacyEntity;
 import org.icgc.dcc.song.server.model.Metadata;
+import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
@@ -11,15 +12,19 @@ import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
+import org.icgc.dcc.song.server.model.entity.composites.SpecimenWithSamples;
+import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
+import org.icgc.dcc.song.server.model.enums.UploadStates;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
@@ -111,17 +116,352 @@ public class EntityTest {
 
   @Test
   public void testDonorWithSpecimens(){
-    fail("");
+    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
+        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
+    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
+        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+
+    val sample11 = Sample.create("mySample11", "mySubmitterSample11", "mySpecimen11",
+        SAMPLE_TYPES.get(2));
+    val sample12 = Sample.create("mySample12", "mySubmitterSample12", "mySpecimen12",
+        SAMPLE_TYPES.get(2));
+
+    val sampleGroup1 = newArrayList(sample11, sample12);
+
+    val sample21 = Sample.create("mySample21", "mySubmitterSample21", "mySpecimen21",
+        SAMPLE_TYPES.get(3));
+    val sample22 = Sample.create("mySample22", "mySubmitterSample22", "mySpecimen22",
+        SAMPLE_TYPES.get(3));
+
+    val sampleGroup2 = newArrayList(sample21, sample22);
+
+    val specimenWithSample1 = new SpecimenWithSamples();
+    specimenWithSample1.setSpecimen(specimen1);
+    specimenWithSample1.setSamples(sampleGroup1);
+
+    val specimenWithSample2 = new SpecimenWithSamples();
+    specimenWithSample2.setSpecimen(specimen2);
+    specimenWithSample2.setSamples(sampleGroup2);
+
+    val specimenWSampleGroup1 = newArrayList(specimenWithSample1, specimenWithSample2);
+    val specimenWSampleGroup2 = newArrayList(specimenWithSample1);
+
+
+    val donor1 = Donor.create("myDonor1", "myDonorSubmitter1", DEFAULT_STUDY_ID, "male");
+    val donor2 = Donor.create("myDonor2", "myDonorSubmitter2", DEFAULT_STUDY_ID, "female");
+
+    val d1 = new DonorWithSpecimens();
+    d1.setDonorGender(donor1.getDonorGender());
+    d1.setDonorId(donor1.getDonorId());
+    d1.setDonorSubmitterId(donor1.getDonorSubmitterId());
+    d1.setStudyId(donor1.getStudyId());
+
+    val d2 =  new DonorWithSpecimens();
+    d2.setDonor(donor1);
+
+    assertEntitiesEqual(d1, d2, true);
+
+    //00 - matchingDonors=0   matchingSpecimenGroups=0
+    d1.setDonor(donor1);
+    d1.setSpecimens(specimenWSampleGroup1);
+    d2.setDonor(donor2);
+    d2.setSpecimens(specimenWSampleGroup2);
+    assertEntitiesNotEqual(d1, d2);
+
+    //01 - matchingDonors=0   matchingSpecimenGroups=1
+    d1.setDonor(donor1);
+    d1.setSpecimens(specimenWSampleGroup1);
+    d2.setDonor(donor2);
+    d2.setSpecimens(specimenWSampleGroup1);
+    assertEntitiesNotEqual(d1, d2);
+
+    //10 - matchingDonors=1   matchingSpecimenGroups=0
+    d1.setDonor(donor1);
+    d1.setSpecimens(specimenWSampleGroup1);
+    d2.setDonor(donor1);
+    d2.setSpecimens(specimenWSampleGroup2);
+    assertEntitiesNotEqual(d1, d2);
+
+    //11 - matchingDonors=1   matchingSpecimenGroups=1
+    d1.setDonor(donor1);
+    d1.setSpecimens(specimenWSampleGroup1);
+    d2.setDonor(donor1);
+    d2.setSpecimens(specimenWSampleGroup1);
+    assertEntitiesEqual(d1, d2, true);
+
+    d1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
+    d2.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
+    assertEntitiesEqual(d1, d2, false);
+
+    //Test getters
+    assertThat(d1.getDonorGender()).isEqualTo(donor1.getDonorGender());
+    assertThat(d1.getDonorSubmitterId()).isEqualTo(donor1.getDonorSubmitterId());
+    assertThat(d1.getDonorId()).isEqualTo(donor1.getDonorId());
+    assertThat(d1.getStudyId()).isEqualTo(donor1.getStudyId());
+    assertThat(d1.getSpecimens()).containsExactlyInAnyOrder(specimenWithSample1, specimenWithSample2);
+    assertInfoKVPair(d1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
   @Test
   public void testSpecimenWithSamples(){
-    fail("");
+    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
+        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
+    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
+        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+
+    val sample11 = Sample.create("mySample11", "mySubmitterSample11", "mySpecimen11",
+        SAMPLE_TYPES.get(2));
+    val sample12 = Sample.create("mySample12", "mySubmitterSample12", "mySpecimen12",
+        SAMPLE_TYPES.get(2));
+
+    val sampleGroup1 = newArrayList(sample11, sample12);
+
+    val sample21 = Sample.create("mySample21", "mySubmitterSample21", "mySpecimen21",
+        SAMPLE_TYPES.get(3));
+    val sample22 = Sample.create("mySample22", "mySubmitterSample22", "mySpecimen22",
+        SAMPLE_TYPES.get(3));
+
+    val sampleGroup2 = newArrayList(sample21, sample22);
+
+    val s1 = new SpecimenWithSamples();
+    s1.setDonorId(specimen1.getDonorId());
+    s1.setSpecimenClass(specimen1.getSpecimenClass());
+    s1.setSpecimenSubmitterId(specimen1.getSpecimenSubmitterId());
+    s1.setSpecimenId(specimen1.getSpecimenId());
+    s1.setSpecimenType(specimen1.getSpecimenType());
+
+    val s2 = new SpecimenWithSamples();
+    s2.setSpecimen(specimen1);
+
+    assertEntitiesEqual(s1, s2, true);
+
+    // 00 - matchingSampleGroup=0   matchingSpecimen=0
+    s1.setSpecimen(specimen1);
+    s1.setSamples(sampleGroup1);
+    s2.setSpecimen(specimen2);
+    s2.setSamples(sampleGroup2);
+    assertEntitiesNotEqual(s1, s2);
+
+    // 01 - matchingSampleGroup=0   matchingSpecimen=1
+    s1.setSpecimen(specimen1);
+    s1.setSamples(sampleGroup1);
+    s2.setSpecimen(specimen1);
+    s2.setSamples(sampleGroup2);
+    assertEntitiesNotEqual(s1, s2);
+
+    // 10 - matchingSampleGroup=1   matchingSpecimen=0
+    s1.setSpecimen(specimen1);
+    s1.setSamples(sampleGroup1);
+    s2.setSpecimen(specimen2);
+    s2.setSamples(sampleGroup1);
+    assertEntitiesNotEqual(s1, s2);
+
+    // 11 - matchingSampleGroup=1   matchingSpecimen=1
+    s1.setSpecimen(specimen1);
+    s1.setSamples(sampleGroup1);
+    s2.setSpecimen(specimen1);
+    s2.setSamples(sampleGroup1);
+    assertEntitiesEqual(s1, s2, true);
+
+    s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
+    s2.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
+    assertEntitiesEqual(s1,s2, false);
+
+    //Test getters
+    assertThat(s1.getDonorId()).isEqualTo(specimen1.getDonorId());
+    assertThat(s1.getSpecimenClass()).isEqualTo(specimen1.getSpecimenClass());
+    assertThat(s1.getSpecimenSubmitterId()).isEqualTo(specimen1.getSpecimenSubmitterId());
+    assertThat(s1.getSpecimenType()).isEqualTo(specimen1.getSpecimenType());
+    assertThat(s1.getSpecimenId()).isEqualTo(specimen1.getSpecimenId());
+    assertThat(s1.getSamples()).containsExactlyInAnyOrder(sample11, sample12);
+    assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
+
+
+
   }
+
+  /*
+  private static Sample createDummySample(int groupNum, int id){
+    return Sample.create(format("mySample%d%d", groupNum, id),
+       format( "mySubmitterSample%d%d", groupNum, id),
+        format("mySpecimen%d%d", groupNum, id),
+        SAMPLE_TYPES.get(2));
+  }
+
+  private static Specimen createDummySpecimen(int groupNum, int id){
+    return Specimen.create(format("mySpecimen%d%d",groupNum, id),
+        format("mySpecimenSubmitter%d%d", groupNum, id),
+        format("myDonor%d%d", groupNum, id),
+        SPECIMEN_CLASSES.get(groupNum*id % SPECIMEN_CLASSES.size()),
+        SPECIMEN_TYPES.get(groupNum*id % SPECIMEN_TYPES.size()));
+  }
+
+  private static Donor createDummyDonor(int groupNum, int id){
+    return Donor.create(format("myDonor%d%d", groupNum, id),
+        format("myDonorSubmitter%d%d", groupNum, id),
+        DEFAULT_STUDY_ID,
+        groupNum*id % 2 == 0 ? "male" : "female");
+  }
+
+  private static List<Specimen> createSpecimenGroup(int groupNum, int numberOfIds){
+    val list = ImmutableList.<Specimen>builder();
+    for (int i=0; i<numberOfIds; i++){
+      list.add(createDummySpecimen(groupNum, i));
+    }
+    return list.build();
+  }
+
+  private static List<Sample> createSampleGroup(int groupNum, int numberOfIds, int idOffset){
+    val list = ImmutableList.<Sample>builder();
+    for (int i=0; i<numberOfIds; i++){
+      list.add(createDummySample(groupNum, (groupNum*i)+idOffset));
+    }
+    return list.build();
+  }
+
+  private static SpecimenWithSamples createDummySpecimenWithSamples(int groupNum, int id, int numSamples){
+    val s = new SpecimenWithSamples();
+    s.setSpecimen(createDummySpecimen(groupNum, id));
+    val sampleGrp = createSampleGroup(groupNum, numSamples, id);
+    s.setSamples(sampleGrp);
+    return s;
+  }
+
+  private static List<SpecimenWithSamples> createSpecimenWithSamplesGroup(int groupNum, int idOffset, int numSpecimens,
+      int numSamplesPerSpecimen){
+    val list = ImmutableList.<SpecimenWithSamples>builder();
+    for (int i=0; i<numSpecimens; i++){
+      list.add(createDummySpecimenWithSamples(groupNum, idOffset, numSamplesPerSpecimen ));
+    }
+    return list.build();
+  }
+
+  private static DonorWithSpecimens createDummyDonorWithSpecimens(int groupNum, int id, int numSpecimens){
+    val d = new DonorWithSpecimens();
+    val donor = createDummyDonor(groupNum, id);
+    d.setDonor(donor);
+    d.setSpecimens(createSpecimenWithSamplesGroup(groupNum, id, numSpecimens,2));
+    return d;
+  }
+
+  private static Study createDummyStudy(int groupNum, int id){
+    return Study.create(
+        format("studyId%d%d", groupNum, id),
+        format("studyName%d%d", groupNum, id),
+        format("studyOrg%d%d", groupNum, id),
+        format("studyDesc%d%d", groupNum, id));
+  }
+  */
 
   @Test
   public void testStudyWithDonors(){
-    fail("");
+    val study1 = Study.create("d1", "b1", "c1", "a1");
+    val study2 = Study.create("d2", "b2", "c2", "a2");
+
+    val s1 = new StudyWithDonors();
+    s1.setStudy(study1);
+
+    val s1_same = new StudyWithDonors();
+    s1_same.setName(study1.getName());
+    s1_same.setOrganization(study1.getOrganization());
+    s1_same.setStudyId(study1.getStudyId());
+    s1_same.setDescription(study1.getDescription());
+    assertEntitiesEqual(s1, s1_same, true);
+
+    val s2 = new StudyWithDonors();
+    s2.setStudy(study2);
+    assertEntitiesNotEqual(s1,s2);
+
+    //---------------
+
+    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
+        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
+    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
+        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+
+    val sample11 = Sample.create("mySample11", "mySubmitterSample11", "mySpecimen11",
+        SAMPLE_TYPES.get(2));
+    val sample12 = Sample.create("mySample12", "mySubmitterSample12", "mySpecimen12",
+        SAMPLE_TYPES.get(2));
+
+    val sampleGroup1 = newArrayList(sample11, sample12);
+
+    val sample21 = Sample.create("mySample21", "mySubmitterSample21", "mySpecimen21",
+        SAMPLE_TYPES.get(3));
+    val sample22 = Sample.create("mySample22", "mySubmitterSample22", "mySpecimen22",
+        SAMPLE_TYPES.get(3));
+
+    val sampleGroup2 = newArrayList(sample21, sample22);
+
+    val specimenWithSample1 = new SpecimenWithSamples();
+    specimenWithSample1.setSpecimen(specimen1);
+    specimenWithSample1.setSamples(sampleGroup1);
+
+    val specimenWithSample2 = new SpecimenWithSamples();
+    specimenWithSample2.setSpecimen(specimen2);
+    specimenWithSample2.setSamples(sampleGroup2);
+
+    val specimenWSampleGroup1 = newArrayList(specimenWithSample1, specimenWithSample2);
+    val specimenWSampleGroup2 = newArrayList(specimenWithSample1);
+
+
+    val donor1 = Donor.create("myDonor1", "myDonorSubmitter1", DEFAULT_STUDY_ID, "male");
+    val donor2 = Donor.create("myDonor2", "myDonorSubmitter2", DEFAULT_STUDY_ID, "female");
+
+    val d1 = new DonorWithSpecimens();
+    d1.setDonor(donor1);
+    d1.setSpecimens(specimenWSampleGroup1);
+
+    val d2 =  new DonorWithSpecimens();
+    d2.setDonor(donor2);
+    d2.setSpecimens(specimenWSampleGroup2);
+
+    // 00 -- matchingDonorGroup=0    matchingStudy=0
+    s1.setStudy(study1);
+    s1.setDonors(newArrayList(d1));
+    s2.setStudy(study2);
+    s2.setDonors(newArrayList(d2));
+    assertEntitiesNotEqual(s1,s2);
+
+    // 01 -- matchingDonorGroup=0    matchingStudy=1
+    s1.setStudy(study1);
+    s1.setDonors(newArrayList(d1));
+    s2.setStudy(study1);
+    s2.setDonors(newArrayList(d2));
+    assertEntitiesNotEqual(s1,s2);
+
+    // 10 -- matchingDonorGroup=1    matchingStudy=0
+    s1.setStudy(study1);
+    s1.setDonors(newArrayList(d1));
+    s2.setStudy(study2);
+    s2.setDonors(newArrayList(d1));
+    assertEntitiesNotEqual(s1,s2);
+
+    // 11 -- matchingDonorGroup=1    matchingStudy=1
+    s1.setStudy(study1);
+    s1.setDonors(newArrayList(d1));
+    s2.setStudy(study1);
+    s2.setDonors(newArrayList(d1));
+    assertEntitiesEqual(s1, s2, true);
+
+    s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
+    s2.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
+    assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
+    assertEntitiesEqual(s1,s2, false);
+
+    s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
+    s2.setInfo("key1", "6329334b-dcd5-53c8-98fd-9812ac386d30");
+    assertEntitiesEqual(s1,s2, false);
+
+
+    //Test getters
+    assertThat(s1.getDescription()).isEqualTo(study1.getDescription());
+    assertThat(s1.getName()).isEqualTo(study1.getName());
+    assertThat(s1.getOrganization()).isEqualTo(study1.getOrganization());
+    assertThat(s1.getStudyId()).isEqualTo(study1.getStudyId());
+    assertThat(s1.getStudy()).isNotSameAs(study1);
+    assertThat(s1.getDonors()).containsExactlyInAnyOrder(d1);
+    assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
 
@@ -216,7 +556,41 @@ public class EntityTest {
 
   @Test
   public void testUpload(){
-    fail("");
+    val u1 = new Upload();
+    u1.setAnalysisId("an1");
+    u1.setCreatedAt(LocalDateTime.MAX);
+    u1.setErrors("error1");
+    u1.setPayload("payload1");
+    u1.setState(UploadStates.CREATED);
+    u1.setStudyId(DEFAULT_STUDY_ID);
+    u1.setUpdatedAt(LocalDateTime.MIN);
+    u1.setUploadId("uploadId1");
+
+    val u1_same = Upload.create("uploadId1", DEFAULT_STUDY_ID, "an1", UploadStates.CREATED,
+        "error1", "payload1", LocalDateTime.MAX, LocalDateTime.MIN);
+    assertEntitiesEqual(u1, u1_same, true);
+
+    val u2 = Upload.create("uploadId2", "study333", "an2", UploadStates.VALIDATION_ERROR,
+        "error2", "payload2", LocalDateTime.MIN, LocalDateTime.MAX);
+    assertEntitiesNotEqual(u1,u2);
+
+    //Test getters
+    assertThat(u1.getAnalysisId()).isEqualTo("an1");
+    assertThat(u1.getCreatedAt()).isEqualTo(LocalDateTime.MAX);
+    assertThat(u1.getErrors()).isEqualTo(newArrayList("error1"));
+    assertThat(u1.getPayload()).isEqualTo("payload1");
+    assertThat(u1.getState()).isEqualTo(UploadStates.CREATED.getText());
+    assertThat(u1.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(u1.getUpdatedAt()).isEqualTo(LocalDateTime.MIN);
+    assertThat(u1.getUploadId()).isEqualTo("uploadId1");
+
+    u1.setErrors("error1|error2|error3");
+    assertThat(u1.getErrors()).containsExactlyInAnyOrder("error1", "error2", "error3");
+    assertThat(u1.getErrors()).hasSize(3);
+
+    u1.addErrors(newArrayList("error4", "error5"));
+    assertThat(u1.getErrors()).containsExactlyInAnyOrder("error1", "error2", "error3", "error4", "error5");
+    assertThat(u1.getErrors()).hasSize(5);
   }
 
   @Test
