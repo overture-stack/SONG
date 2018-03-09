@@ -25,7 +25,7 @@ public class DonorWithSpecimens extends Donor {
     }
 
     @JsonIgnore
-    public Donor getDonor() {
+    public Donor createDonor() {
         val donor = Donor.create(getDonorId(),getDonorSubmitterId(),getStudyId(), getDonorGender());
         donor.setInfo(getInfoAsString());
         return donor;

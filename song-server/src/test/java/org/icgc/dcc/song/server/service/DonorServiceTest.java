@@ -57,7 +57,7 @@ public class DonorServiceTest {
     assertThat(d.getDonorGender()).isEqualTo("male");
     assertThat(d.getDonorSubmitterId()).isEqualTo("Subject-X23Alpha7");
     assertThat(d.getSpecimens().size()).isEqualTo(2);
-    assertThat(getInfoName(d.getDonor())).isEqualTo("donor1");
+    assertThat(getInfoName(d)).isEqualTo("donor1");
 
     // Just check that each specimen object that we get is the same as the one we get from the
     // specimen service. Let the specimen service tests verify that the contents are right.
