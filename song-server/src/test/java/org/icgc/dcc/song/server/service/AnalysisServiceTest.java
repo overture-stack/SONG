@@ -18,9 +18,6 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.Maps;
 import lombok.NonNull;
@@ -36,7 +33,7 @@ import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.utils.TestFiles;
+import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -51,12 +48,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
-import static com.fasterxml.uuid.Generators.timeBasedGenerator;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -71,7 +66,7 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertInfoKVPair;
-import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
+import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -85,7 +80,6 @@ public class AnalysisServiceTest {
   private static final String DEFAULT_STUDY_ID = "ABC123";
 
   private static final String FILEPATH = "src/test/resources/fixtures/";
-  private static final String TEST_FILEPATH = "src/test/resources/documents/";
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
@@ -177,7 +171,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadVariantCall(){
-    val json = TestFiles.getJsonStringFromClasspath("documents/variantcall-read-test.json");
+    val json = getJsonStringFromClasspath("documents/variantcall-read-test.json");
     val analysisRaw = fromJson(json, VariantCallAnalysis.class);
     val analysisId = service.create(DEFAULT_STUDY_ID, analysisRaw, false);
     val a = (VariantCallAnalysis)service.read(analysisId);
@@ -282,7 +276,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadSequencingRead(){
-    val json = TestFiles.getJsonStringFromClasspath("documents/sequencingread-read-test.json");
+    val json = getJsonStringFromClasspath("documents/sequencingread-read-test.json");
     val analysisRaw = fromJson(json, SequencingReadAnalysis.class);
     val analysisId = service.create(DEFAULT_STUDY_ID, analysisRaw, false);
     val a = (SequencingReadAnalysis)service.read(analysisId);
@@ -304,10 +298,13 @@ public class AnalysisServiceTest {
     assertThat(experiment.getReferenceGenome()).isEqualTo("someSeq Genome");
     assertInfoKVPair(experiment, "extraExperimentInfo", "some more data for a sequencingRead experiment ex02");
 
+    val sampleMap = Maps.<String, CompositeEntity>newHashMap();
+
 
     //Asserting Sample
     assertThat(a.getSample()).hasSize(2);
     val sample0 = a.getSample().get(0);
+    sampleMap.put(sample0.getSampleId(), sample0);
     assertThat(sample0.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr01");
     assertThat(sample0.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample0, "extraSampleInfo","some more data for a sequencingRead sample_fr01");
@@ -327,6 +324,7 @@ public class AnalysisServiceTest {
     assertInfoKVPair(specimen00, "extraSpecimenInfo_1", "second data for a sequencingRead specimen_fr01");
 
     val sample1 = a.getSample().get(1);
+    sampleMap.put(sample1.getSampleId(), sample1);
     assertThat(sample1.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr02");
     assertThat(sample1.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample1, "extraSampleInfo","some more data for a sequencingRead sample_fr02");
@@ -359,8 +357,10 @@ public class AnalysisServiceTest {
     val fileName0 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.bam";
     val fileName1 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.bam";
     val fileName2 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.bam.bai";
+    val fileMap = Maps.<String, File>newHashMap();
 
     for (val file : a.getFile()){
+      fileMap.put(file.getFileName(), file);
       if (file.getFileName().equals(fileName0)){
         assertThat(file.getFileName()).isEqualTo(fileName0);
         assertThat(file.getFileSize()).isEqualTo(1212121);
@@ -388,48 +388,20 @@ public class AnalysisServiceTest {
         fail(format("the fileName %s is not recognized", file.getFileName()));
       }
     }
-  }
 
-  @Ignore // When mvn runs this test, we get three files, not two. IntelliJ doesn't.
-  @Test
-  public void testRead() {
-    // test sequencing read
-    val id1="AN1";
-    val analysis1 = service.read(id1);
-    assertThat(analysis1.getAnalysisId()).isEqualTo("AN1");
-    assertThat(analysis1.getAnalysisType()).isEqualTo("variantCall");
-    assertThat(analysis1.getStudy()).isEqualTo(DEFAULT_STUDY_ID);
-    assertThat(analysis1.getSample().size()).isEqualTo(2);
-    assertThat(analysis1.getFile().size()).isEqualTo(2);
-    assertThat(analysis1).isInstanceOf(VariantCallAnalysis.class);
-    val experiment1 = ((VariantCallAnalysis) analysis1).getExperiment();
-    assertThat(experiment1).isNotNull();
-    assertThat(experiment1.getVariantCallingTool()).isEqualTo("SuperNewVariantCallingTool");
+    // Test the readFiles method
+    for (val file : service.readFiles(analysisId)){
+      assertThat(fileMap).containsKeys(file.getFileName());
+      assertThat(file).isEqualTo(fileMap.get(file.getFileName()));
+    }
 
-    assertThat(getInfoName(analysis1)).isEqualTo("analysis1");
-    assertThat(getInfoName(experiment1)).isEqualTo("variantCall1");
+    // Test readSample method
+    for (val compositeEntity: service.readSamples(analysisId)){
+      assertThat(sampleMap).containsKeys(compositeEntity.getSampleId());
+      assertThat(compositeEntity).isEqualTo(sampleMap.get(compositeEntity.getSampleId()));
+    }
 
-    // test variant call
-    val id2="AN2";
-    val analysis2 = service.read(id2);
-    assertThat(analysis2.getAnalysisId()).isEqualTo("AN2");
-    //assertThat(analysis2.getAnalysisState()).isEqualTo("UNPUBLISHED");
-    assertThat(analysis2.getAnalysisType()).isEqualTo("sequencingRead");
-    assertThat(analysis2.getFile().size()).isEqualTo(2);
-    assertThat(analysis2).isInstanceOf(SequencingReadAnalysis.class);
-    val experiment2 = ((SequencingReadAnalysis) analysis2).getExperiment();
-    assertThat(experiment2).isNotNull();
-    assertThat(experiment2.getAlignmentTool()).isEqualTo("BigWrench");
-
-    assertThat(getInfoName(analysis2)).isEqualTo("analysis2");
-    assertThat(getInfoName(experiment2)).isEqualTo("sequencingRead2");
-
-    //checkRead(id2, fromJson(json2, Analysis.class));
-
-    // test not found
-    val id3="ANDOESNTEXIST";
-    val analysis3 = service.read(id3);
-    assertThat(analysis3).isNull();
+    assertThat(service.readSequencingRead(analysisId)).isEqualTo(experiment);
   }
 
   private void setUpDccStorageMockService(boolean expectedResult){
@@ -469,13 +441,6 @@ public class AnalysisServiceTest {
     assertThat(analysis.getAnalysisState()).isEqualTo("SUPPRESSED");
   }
 
-  public String getJsonNodeFromClasspath(String name) throws Exception {
-    InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode node = mapper.readTree(is1);
-    return mapper.writeValueAsString(node);
-  }
-
   @Ignore // when we run this with IntelliJ, it works. Mvn gets a third file, with a different object id. We don't
           // know why...
   @Test
@@ -499,7 +464,7 @@ public class AnalysisServiceTest {
     expectedObjectIdMap.put("a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz", "0794ae66-80df-5b70-bc22-e49309bfba2a");
     expectedObjectIdMap.put("a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx", "a2449e0a-7020-5f2d-8610-9f58aafd467a" );
 
-    val json = TestFiles.getJsonNodeFromClasspath("documents/sequencingread-custom-analysis-id.json");
+    val json = getJsonNodeFromClasspath("documents/sequencingread-custom-analysis-id.json");
     val analysis = fromJson(json, Analysis.class);
     val actualAnalysisId=service.create(study, analysis, false);
     assertThat(actualAnalysisId).isEqualTo(expectedAnalysisId);
