@@ -1,6 +1,7 @@
 package org.icgc.dcc.song.server.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
@@ -34,5 +35,19 @@ public class TestFiles {
     assertThat(info.has(NAME)).isTrue();
     return metadata.getInfo().get(NAME).textValue();
   }
+
+  public static String getInfoValue(@NonNull Metadata metadata, @NonNull String key) {
+    assertThat(metadata.getInfo().has(key)).isTrue();
+    return metadata.getInfo().path(key).textValue();
+  }
+
+  public static void assertInfoKVPair(@NonNull Metadata metadata, @NonNull String key, @NonNull Object expectedValue){
+    assertThat(metadata.getInfo().has(key)).isTrue();
+    val actualValue  = metadata.getInfo().path(key).textValue();
+    assertThat(actualValue)
+        .as("Failed since field '%s' has actual=%s and expected=%s", key, actualValue, expectedValue)
+        .isEqualTo (expectedValue);
+  }
+
 
 }
