@@ -33,7 +33,7 @@ import java.io.Serializable;
 
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
 
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @ToString(callSuper = true)
 @Data

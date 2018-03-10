@@ -26,7 +26,7 @@ import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
 
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
 @ToString(callSuper = true)

@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @Data
 @ToString(callSuper = true)
 @JsonInclude(JsonInclude.Include.ALWAYS)

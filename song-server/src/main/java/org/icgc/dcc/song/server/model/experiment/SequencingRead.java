@@ -29,7 +29,7 @@ import lombok.val;
 import static org.icgc.dcc.song.server.model.enums.Constants.LIBRARY_STRATEGY;
 import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 @JsonPropertyOrder({ "analysisId", "aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "referenceGenome", "info" })
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @ToString(callSuper = true)

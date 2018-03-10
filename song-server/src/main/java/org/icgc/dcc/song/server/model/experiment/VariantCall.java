@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.val;
 
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
 @ToString(callSuper = true)
 @Data
 @JsonInclude(JsonInclude.Include.NON_ABSENT)

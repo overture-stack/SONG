@@ -20,7 +20,6 @@
 package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -33,7 +32,7 @@ import static org.icgc.dcc.song.server.model.enums.Constants.SPECIMEN_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class Specimen extends Metadata {
