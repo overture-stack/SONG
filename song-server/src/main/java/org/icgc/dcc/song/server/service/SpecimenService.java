@@ -31,9 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_RECORD_FAILED;
-import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
-import static org.icgc.dcc.song.server.model.enums.IdPrefix.SPECIMEN_PREFIX;
 
 @RequiredArgsConstructor
 @Service
@@ -53,10 +52,8 @@ public class SpecimenService {
     val id = idService.generateSpecimenId( specimen.getSpecimenSubmitterId(), studyId);
     specimen.setSpecimenId(id);
     int status = repository.create(specimen);
-    if (status != 1) {
-      throw buildServerException(this.getClass(), SPECIMEN_RECORD_FAILED,
+    checkServer(status == 1, this.getClass(), SPECIMEN_RECORD_FAILED,
           "Cannot create Specimen: %s", specimen.toString());
-    }
     infoService.create(id, specimen.getInfoAsString());
 
     return id;
@@ -112,19 +109,6 @@ public class SpecimenService {
 
   public String findByBusinessKey(@NonNull String studyId, @NonNull String submitterId) {
     return repository.findByBusinessKey(studyId, submitterId);
-  }
-
-  public String save(@NonNull String studyId, @NonNull Specimen specimen) {
-    String specimenId = repository.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
-    if (specimenId == null) {
-      specimenId = idService.generate(SPECIMEN_PREFIX);
-      specimen.setSpecimenId(specimenId);
-      repository.create(specimen);
-    } else {
-      specimen.setSpecimenId(specimenId);
-      repository.update(specimen);
-    }
-    return specimenId;
   }
 
 }

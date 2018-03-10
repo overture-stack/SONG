@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_RECORD_FAILED;
-import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
 @RequiredArgsConstructor
@@ -53,9 +53,8 @@ public class DonorService {
     val donor = d.getDonor();
 
     val status = donorRepository.create(donor);
-    if (status != 1) {
-      throw buildServerException(this.getClass(), DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
-    }
+    checkServer(status == 1, this.getClass(),
+        DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
     infoService.create(id, donor.getInfoAsString());
     d.getSpecimens().forEach(s -> specimenService.create(d.getStudyId(), s));
 

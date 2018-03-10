@@ -54,7 +54,7 @@ public class SampleService {
     infoService.create(id, sample.getInfoAsString());
 
     checkServer(status == 1,this.getClass(),
-        SAMPLE_RECORD_FAILED, "Cannot create Sample: %s", sample.toString());
+        SAMPLE_REPOSITORY_CREATE_RECORD, "Cannot create Sample: %s", sample.toString());
 
     return id;
   }
@@ -102,17 +102,5 @@ public class SampleService {
     return repository.findByBusinessKey(study, submitterId);
   }
 
-  public String save(@NonNull String studyId, @NonNull Sample sample) {
-    String sampleId = repository.findByBusinessKey(studyId, sample.getSampleSubmitterId());
-    if (sampleId == null) {
-      sampleId = idService.generateSampleId(sample.getSampleSubmitterId(), studyId);
-      sample.setSampleId(sampleId);
-      repository.create(sample);
-    } else {
-      sample.setSampleId(sampleId);
-      repository.update(sample);
-    }
-    return sampleId;
-  }
 
 }
