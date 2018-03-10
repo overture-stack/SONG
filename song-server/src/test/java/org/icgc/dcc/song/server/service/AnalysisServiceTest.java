@@ -66,6 +66,7 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 public class AnalysisServiceTest {
 
   private static final String FILEPATH = "src/test/resources/fixtures/";
+  private static final String DEFAULT_STUDY_ID = "ABC123";
   private static final String TEST_FILEPATH = "src/test/resources/documents/";
 
   @Autowired
@@ -82,7 +83,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testCreateAndUpdate() {
-    val study="ABC123";
+    val study=DEFAULT_STUDY_ID;
     val json = readFile(FILEPATH + "sequencingRead.json");
     val analysis = fromJson(json, Analysis.class);
     val analysisId=service.create(study, analysis, false);
@@ -113,7 +114,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testCreateAndUpdateVariantCall() {
-    val study="ABC123";
+    val study=DEFAULT_STUDY_ID;
     val json = readFile(FILEPATH + "variantCall.json");
     val analysis = fromJson(json, Analysis.class);
     val analysisId=service.create(study, analysis, false);
@@ -148,7 +149,7 @@ public class AnalysisServiceTest {
     val analysis1 = service.read(id1);
     assertThat(analysis1.getAnalysisId()).isEqualTo("AN1");
     assertThat(analysis1.getAnalysisType()).isEqualTo("variantCall");
-    assertThat(analysis1.getStudy()).isEqualTo("ABC123");
+    assertThat(analysis1.getStudy()).isEqualTo(DEFAULT_STUDY_ID);
     assertThat(analysis1.getSample().size()).isEqualTo(2);
     assertThat(analysis1.getFile().size()).isEqualTo(2);
     assertThat(analysis1).isInstanceOf(VariantCallAnalysis.class);
@@ -228,7 +229,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testCustomAnalysisId(){
-    val study="ABC123";
+    val study=DEFAULT_STUDY_ID;
     val expectedAnalysisId = "AN-1234";
     val expectedObjectIdMap = Maps.newHashMap();
     expectedObjectIdMap.put("a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz", "0794ae66-80df-5b70-bc22-e49309bfba2a");
