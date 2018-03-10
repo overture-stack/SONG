@@ -3,6 +3,7 @@ package org.icgc.dcc.song.server.model.entity.composites;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
 
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper=true)
+@ToString(callSuper = true)
 @Data
 public class StudyWithDonors extends Study {
 

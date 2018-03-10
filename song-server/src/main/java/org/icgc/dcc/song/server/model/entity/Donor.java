@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
 
@@ -31,6 +32,7 @@ import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
+@ToString(callSuper = true)
 @JsonPropertyOrder({ "donorId", "donorSubmitterId", "studyId", "donorGender", "specimens", "info" })
 @JsonInclude(JsonInclude.Include.ALWAYS)
 

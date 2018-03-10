@@ -2,6 +2,7 @@ package org.icgc.dcc.song.server.model.entity.composites;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.Value;
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Donor;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper=true)
+@ToString(callSuper = true)
 @Value
 public class DonorWithSpecimens extends Donor {
     private List<SpecimenWithSamples> specimens = new ArrayList<>();

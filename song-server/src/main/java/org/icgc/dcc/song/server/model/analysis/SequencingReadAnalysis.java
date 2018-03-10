@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 
 @EqualsAndHashCode(callSuper=true)
+@ToString(callSuper = true)
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SequencingReadAnalysis extends Analysis {

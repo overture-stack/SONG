@@ -19,12 +19,13 @@
 package org.icgc.dcc.song.server.model.experiment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.val;
 
 @EqualsAndHashCode(callSuper=false)
+@ToString(callSuper = true)
 @Data
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class VariantCall extends Experiment {

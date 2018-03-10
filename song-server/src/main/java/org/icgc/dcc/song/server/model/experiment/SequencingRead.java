@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.val;
 
 import static org.icgc.dcc.song.server.model.enums.Constants.LIBRARY_STRATEGY;
@@ -31,6 +32,7 @@ import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 @EqualsAndHashCode(callSuper=false)
 @JsonPropertyOrder({ "analysisId", "aligned", "alignmentTool", "insertSize", "libraryStrategy", "pairedEnd", "referenceGenome", "info" })
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
+@ToString(callSuper = true)
 @Data
 public class SequencingRead extends Experiment {
   private String analysisId;

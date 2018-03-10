@@ -1,6 +1,7 @@
 package org.icgc.dcc.song.server.model.entity.composites;
 
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.Value;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
@@ -8,6 +9,7 @@ import org.icgc.dcc.song.server.model.entity.Specimen;
 import java.util.ArrayList;
 import java.util.List;
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Value
 public class SpecimenWithSamples extends Specimen {
     private List<Sample> samples = new ArrayList<>();

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 
@@ -36,6 +37,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class Metadata {
 
   private final Map<String, Object> info = new TreeMap<>();
