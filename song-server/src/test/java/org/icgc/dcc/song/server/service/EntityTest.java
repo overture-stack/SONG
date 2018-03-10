@@ -101,7 +101,7 @@ public class EntityTest {
 
     compositeEntity1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     compositeEntity1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(compositeEntity1, compositeEntity1_same, false);
+    assertEntitiesNotEqual(compositeEntity1, compositeEntity1_same);
 
     // Test getters
 
@@ -191,7 +191,7 @@ public class EntityTest {
 
     d1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     d2.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(d1, d2, false);
+    assertEntitiesNotEqual(d1, d2);
 
     //Test getters
     assertThat(d1.getDonorGender()).isEqualTo(donor1.getDonorGender());
@@ -199,7 +199,7 @@ public class EntityTest {
     assertThat(d1.getDonorId()).isEqualTo(donor1.getDonorId());
     assertThat(d1.getStudyId()).isEqualTo(donor1.getStudyId());
     assertThat(d1.getSpecimens()).containsExactlyInAnyOrder(specimenWithSample1, specimenWithSample2);
-    assertThat(d1.createDonor()).isEqualTo(donor1);
+    assertThat(d1.createDonor()).isNotEqualTo(donor1);
     assertInfoKVPair(d1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -266,7 +266,7 @@ public class EntityTest {
 
     s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     s2.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(s1,s2, false);
+    assertEntitiesNotEqual(s1,s2);
 
     //Test getters
     assertThat(s1.getDonorId()).isEqualTo(specimen1.getDonorId());
@@ -375,11 +375,11 @@ public class EntityTest {
     s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     s2.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
-    assertEntitiesEqual(s1,s2, false);
+    assertEntitiesNotEqual(s1,s2);
 
     s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     s2.setInfo("key1", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(s1,s2, false);
+    assertEntitiesNotEqual(s1,s2);
 
 
     //Test getters
@@ -417,7 +417,7 @@ public class EntityTest {
 
     file1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     file1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(file1, file1_same, false);
+    assertEntitiesNotEqual(file1, file1_same);
 
     // Test getters
     assertThat(file1.getAnalysisId()).isEqualTo("a1");
@@ -447,7 +447,7 @@ public class EntityTest {
 
     sample1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     sample1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(sample1, sample1_same, false);
+    assertEntitiesNotEqual(sample1, sample1_same);
 
     // Test getters
     assertThat(sample1.getSampleId()).isEqualTo("a1");
@@ -802,7 +802,7 @@ public class EntityTest {
 
     a1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     a1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(a1, a1_same, false);
+    assertEntitiesNotEqual(a1, a1_same);
   }
 
   @Test
@@ -1049,7 +1049,7 @@ public class EntityTest {
 
     a1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     a1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(a1, a1_same, false);
+    assertEntitiesNotEqual(a1, a1_same);
   }
 
   @Test
@@ -1071,7 +1071,7 @@ public class EntityTest {
 
     s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     s1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(s1,s1_same, false);
+    assertEntitiesNotEqual(s1,s1_same);
 
     // Test getters
     assertThat(s1.getAligned()).isTrue();
@@ -1099,7 +1099,7 @@ public class EntityTest {
 
     v1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     v1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(v1,v1_same, false);
+    assertEntitiesNotEqual(v1,v1_same);
 
     /// Test getters
     assertThat(v1.getAnalysisId()).isEqualTo("a1");
@@ -1124,7 +1124,7 @@ public class EntityTest {
 
     donor1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     donor1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(donor1, donor1_same, false);
+    assertEntitiesNotEqual(donor1, donor1_same);
 
     // Test getters
     assertThat(donor1.getStudyId()).isEqualTo("study1");
@@ -1150,7 +1150,7 @@ public class EntityTest {
 
     study1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     study1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(study1, study1_same, false);
+    assertEntitiesNotEqual(study1, study1_same);
 
     // Test getters
     assertThat(study1.getDescription()).isEqualTo("a");
@@ -1177,7 +1177,7 @@ public class EntityTest {
 
     s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
     s1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesEqual(s1, s1_same, false);
+    assertEntitiesNotEqual(s1, s1_same);
 
     // Test getters
     assertThat(s1.getSpecimenType()).isEqualTo(SPECIMEN_TYPES.get(0));
