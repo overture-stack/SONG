@@ -19,6 +19,7 @@ public class RandomGenerator {
   @Getter private final String id;
   private final Random random;
   @Getter private final long seed;
+  private long callCount = 0;
 
   private final RandomBasedGenerator randomBasedUUIDGenerator;
 
@@ -30,7 +31,8 @@ public class RandomGenerator {
   }
 
   public String generateRandomAsciiString(int numCharacters){
-    log.info("Generating RandomAsciiString for RandomGenerator[{}] with seed '{}'", id, seed);
+    log.info("Generating RandomAsciiString for RandomGenerator[{}] with seed '{}' and callCount '{}'",
+        id, seed, ++callCount);
     val total = STRING_FOR_GENERATION.length();
     val sb = new StringBuilder();
     for (int i=0; i<numCharacters; i++){
@@ -41,12 +43,14 @@ public class RandomGenerator {
   }
 
   public UUID generateRandomUUID(){
-    log.info("Generating RandomUUID for RandomGenerator[{}] with seed '{}'", id, seed);
+    log.info("Generating RandomUUID for RandomGenerator[{}] with seed '{}' and callCount '{}'",
+        id, seed, ++callCount);
     return randomBasedUUIDGenerator.generate();
   }
 
   public int generateRandomInt(){
-    log.info("Generating RandomInt for RandomGenerator[{}] with seed '{}'", id, seed);
+    log.info("Generating RandomInt for RandomGenerator[{}] with seed '{}' and callCount '{}'",
+        id, seed, ++callCount);
     return random.nextInt();
   }
 
