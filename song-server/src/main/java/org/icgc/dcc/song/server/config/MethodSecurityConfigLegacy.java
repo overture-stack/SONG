@@ -31,35 +31,35 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler;
 
-@Profile({"secure", "legacy"})
+@Profile("legacy")
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class MethodSecurityConfigLegacy extends GlobalMethodSecurityConfiguration {
 
-  /**
-   * Refer:
-   * http://stackoverflow.com/questions/29328124/no-bean-resolver-registered-in-the-context-to-resolve-access-to-bean
-   *
-   * The following lines are a workaround suggested here:
-   * https://github.com/spring-projects/spring-security-oauth/issues/730
-   * 
-   * Apparently a bug in Spring's OAuth2 stuff - BeanResolver is not being set in the Application Context, so attempting
-   * to evaluate a bean lookup @beanName blows up
-   */
-  @Autowired
-  private ApplicationContext context;
+    /**
+     * Refer:
+     * http://stackoverflow.com/questions/29328124/no-bean-resolver-registered-in-the-context-to-resolve-access-to-bean
+     * <p>
+     * The following lines are a workaround suggested here:
+     * https://github.com/spring-projects/spring-security-oauth/issues/730
+     * <p>
+     * Apparently a bug in Spring's OAuth2 stuff - BeanResolver is not being set in the Application Context, so attempting
+     * to evaluate a bean lookup @beanName blows up
+     */
+    @Autowired
+    private ApplicationContext context;
 
-  @Override
-  protected MethodSecurityExpressionHandler createExpressionHandler() {
-    OAuth2MethodSecurityExpressionHandler handler = new OAuth2MethodSecurityExpressionHandler();
-    handler.setApplicationContext(context);
-    return handler;
-  }
+    @Override
+    protected MethodSecurityExpressionHandler createExpressionHandler() {
+        OAuth2MethodSecurityExpressionHandler handler = new OAuth2MethodSecurityExpressionHandler();
+        handler.setApplicationContext(context);
+        return handler;
+    }
 
-  @Bean
-  public StudyScopeStrategy studySecurity() {
-    return new StudyScopeStrategy();
-  }
+    @Bean
+    public StudyScopeStrategy studySecurity() {
+        return new StudyScopeStrategy();
+    }
 
 }

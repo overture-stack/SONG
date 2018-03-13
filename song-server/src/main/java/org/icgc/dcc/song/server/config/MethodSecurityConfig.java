@@ -18,7 +18,6 @@
  */
 package org.icgc.dcc.song.server.config;
 
-import org.icgc.dcc.song.server.jwt.JWTMethodSecurityExpressionHandler;
 import org.icgc.dcc.song.server.security.StudyJWTStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -53,7 +52,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
     @Override
     protected MethodSecurityExpressionHandler createExpressionHandler() {
-        JWTMethodSecurityExpressionHandler handler = new JWTMethodSecurityExpressionHandler();
+        OAuth2MethodSecurityExpressionHandler handler = new OAuth2MethodSecurityExpressionHandler();
         handler.setApplicationContext(context);
         return handler;
     }
