@@ -91,6 +91,7 @@ public class UploadService {
 
   @SneakyThrows
   public ResponseEntity<String> upload(@NonNull String studyId, @NonNull String payload, boolean isAsyncValidation) {
+    studyService.checkStudyExist(studyId);
     String analysisType;
     String uploadId;
     val status = JsonUtils.ObjectNode();
@@ -157,6 +158,7 @@ public class UploadService {
 
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId,
       final boolean ignoreAnalysisIdCollisions) {
+    studyService.checkStudyExist(studyId);
     val upload = read(uploadId);
     checkServer(!isNull(upload),this.getClass(), UPLOAD_ID_NOT_FOUND,
           "UploadId %s does not exist", uploadId);

@@ -46,9 +46,12 @@ public class SpecimenService {
   private final SpecimenInfoService infoService;
   @Autowired
   private final SpecimenRepository repository;
+  @Autowired
+  private final StudyService studyService;
 
 
   public String create(@NonNull String studyId, @NonNull Specimen specimen) {
+    studyService.checkStudyExist(studyId);
     val id = idService.generateSpecimenId( specimen.getSpecimenSubmitterId(), studyId);
     specimen.setSpecimenId(id);
     int status = repository.create(specimen);
