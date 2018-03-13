@@ -2,6 +2,7 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.AllArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
@@ -12,6 +13,7 @@ import static java.util.Objects.isNull;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CompositeEntityService {
 
   @Autowired
@@ -29,6 +31,11 @@ public class CompositeEntityService {
       s.setSpecimenId(getSampleParent(studyId, s));
       id = sampleService.create(studyId, s);
     } else {
+      val sample = sampleService.read(id);
+      s.setSpecimenId(sample.getSpecimenId());
+      s.setSampleType(sample.getSampleType());
+      s.setSampleSubmitterId(sample.getSampleSubmitterId());
+      s.setSampleId(sample.getSampleId());
       sampleService.update(s);
     }
 
