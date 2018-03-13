@@ -117,6 +117,7 @@ public class DonorService {
     } else {
       donorRepository.update(donor);
     }
+    infoService.create(donorId, donor.getInfoAsString());
     return donorId;
   }
 
