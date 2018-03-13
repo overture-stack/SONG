@@ -31,6 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @SpringBootTest
@@ -59,7 +60,7 @@ public class SampleServiceTest {
     val s = Sample.create("", "101-IP-A", specimenId, "Amplified DNA");
     s.setInfo(metadata);
 
-    val status = sampleService.create("Study123", s);
+    val status = sampleService.create(DEFAULT_STUDY_ID, s);
     val id = s.getSampleId();
 
     assertThat(id).startsWith("SA");
@@ -79,7 +80,7 @@ public class SampleServiceTest {
     val specimenId = "SP2";
     val s = Sample.create("", "102-CBP-A", specimenId, "RNA");
 
-    sampleService.create("Study123", s);
+    sampleService.create(DEFAULT_STUDY_ID, s);
 
     val id = s.getSampleId();
 

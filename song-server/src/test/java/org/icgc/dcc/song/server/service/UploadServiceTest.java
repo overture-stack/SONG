@@ -28,11 +28,10 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.id.client.core.IdClient;
 import org.icgc.dcc.song.core.exceptions.ServerErrors;
-import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
-import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,7 @@ import java.nio.file.Files;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
@@ -63,7 +62,7 @@ import static org.springframework.http.HttpStatus.OK;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
-@ActiveProfiles({"dev", "secure", "test"})
+@ActiveProfiles({"dev", "secure"})
 public class UploadServiceTest {
 
   private static final String FILEPATH = "../src/test/resources/fixtures/";
@@ -326,14 +325,9 @@ public class UploadServiceTest {
     val uploadId1 = upload(DEFAULT_STUDY,jsonPayload, false);
 
     // Save1 - should detect that the analysisId already exists in the IdService
-    try{
-      val response1 = uploadService.save(DEFAULT_STUDY, uploadId1, false);
-      fail("Collision was not detected!");
-    } catch (ServerException e){
-      val errorId = e.getSongError().getErrorId();
-      assertThat(errorId).isEqualTo("analysis.id.already.exists");
-      assertThat(e.getSongError().getMessage()).contains("Collision detected");
-    }
+    assertSongError(() ->
+      uploadService.save(DEFAULT_STUDY, uploadId1, false), ANALYSIS_ID_COLLISION,
+      "Collision was not detected!");
 
     // Save2 - same as save1 except ignoreAnalysisIdCollisions = true, which will successfully save the payload
     val response2 = uploadService.save(DEFAULT_STUDY, uploadId1, true);
@@ -386,8 +380,7 @@ public class UploadServiceTest {
     val payload = createPayloadWithDifferentAnalysisId();
     val nonExistentStudyId = randomGenerator.generateRandomAsciiString(8);
     val nonExistentUploadId = randomGenerator.generateRandomAsciiString(29);
-    assertSongError( () -> uploadService.save(nonExistentStudyId, nonExistentUploadId, false),
-        UPLOAD_ID_NOT_FOUND);
+    assertSongError( () -> uploadService.save(nonExistentStudyId, nonExistentUploadId, false), STUDY_ID_DOES_NOT_EXIST);
     assertSongError( () -> uploadService.save(DEFAULT_STUDY, nonExistentUploadId, false),
         UPLOAD_ID_NOT_FOUND);
 
@@ -407,7 +400,6 @@ public class UploadServiceTest {
     assertSongError( () -> uploadService.save(DEFAULT_STUDY, uploadId, false),
         UPLOAD_ID_NOT_VALIDATED);
   }
-
 
   private String createUniqueAnalysisId(){
     return format("AN-56789-%s",ANALYSIS_ID_COUNT++);

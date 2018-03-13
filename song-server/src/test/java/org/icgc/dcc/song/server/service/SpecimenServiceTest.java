@@ -33,6 +33,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @SpringBootTest
@@ -96,7 +97,7 @@ public class SpecimenServiceTest {
                 "Cell line - derived from tumour");
         s.setInfo(JsonUtils.fromSingleQuoted("{'ageCategory': 42, 'status': 'deceased'}"));
 
-        val status = specimenService.create("Study123", s);
+        val status = specimenService.create(DEFAULT_STUDY_ID, s);
         val id = s.getSpecimenId();
 
         assertThat(id).startsWith("SP");
@@ -116,7 +117,7 @@ public class SpecimenServiceTest {
         val s = createSpecimen("", "Specimen 102 Chiron-Beta Prime", donorId, "Tumour",
                 "Metastatic tumour - additional metastatic");
 
-        specimenService.create("Study123", s);
+        specimenService.create(DEFAULT_STUDY_ID, s);
 
         val id = s.getSpecimenId();
 

@@ -35,13 +35,14 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXIST
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles({"dev","test"})
+@ActiveProfiles("dev")
 public class StudyServiceTest {
 
   @Autowired
@@ -52,7 +53,7 @@ public class StudyServiceTest {
   @Test
   public void testReadStudy() {
     // check for data that we know exists in the database already
-    val study = service.read("ABC123");
+    val study = service.read(DEFAULT_STUDY_ID);
     assertThat(study).isNotNull();
     assertThat(study.getStudyId()).isEqualTo("ABC123");
     assertThat(study.getName()).isEqualTo("X1-CA");
@@ -63,7 +64,7 @@ public class StudyServiceTest {
 
   @Test
   public void testDuplicateSaveStudyError(){
-    val existentStudyId = "ABC123";
+    val existentStudyId = DEFAULT_STUDY_ID;
     assertThat(service.isStudyExist(existentStudyId)).isTrue();
     val study = service.read(existentStudyId);
     assertSongError(() -> service.saveStudy(study), STUDY_ALREADY_EXISTS);
@@ -77,7 +78,7 @@ public class StudyServiceTest {
 
   @Test
   public void testStudyCheck(){
-    val existentStudyId = "ABC123";
+    val existentStudyId = DEFAULT_STUDY_ID;
     assertThat(service.isStudyExist(existentStudyId)).isTrue();
     val nonExistentStudyId = genStudyId();
     assertThat(service.isStudyExist(nonExistentStudyId)).isFalse();
