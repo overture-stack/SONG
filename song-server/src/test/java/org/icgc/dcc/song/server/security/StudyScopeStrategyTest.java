@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
+@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles({"dev", "legacy"})
 public class StudyScopeStrategyTest {
 
