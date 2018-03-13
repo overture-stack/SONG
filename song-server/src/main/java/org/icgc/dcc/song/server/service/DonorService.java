@@ -46,8 +46,11 @@ public class DonorService {
   private final IdService idService;
   @Autowired
   private final SpecimenService specimenService;
+  @Autowired
+  private final StudyService studyService;
 
   public String create(@NonNull DonorWithSpecimens d) {
+    studyService.checkStudyExist(d.getStudyId());
     val id = idService.generateDonorId(d.getDonorSubmitterId(), d.getStudyId());
     d.setDonorId(id);
     val donor = d.getDonor();
