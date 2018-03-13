@@ -18,8 +18,18 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.core.utils.RandomGenerator;
+import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
+import org.icgc.dcc.song.server.model.entity.Donor;
+import org.icgc.dcc.song.server.model.entity.Sample;
+import org.icgc.dcc.song.server.model.entity.Specimen;
+import org.icgc.dcc.song.server.model.entity.Study;
+import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
+import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
+import org.icgc.dcc.song.server.model.entity.composites.SpecimenWithSamples;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,45 +39,115 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import java.util.Collection;
+
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
+import static org.icgc.dcc.song.server.utils.TestFiles.assertSetsMatch;
 
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles({"dev","test"})
+@ActiveProfiles("dev")
 public class StudyWithDonorsServiceTest {
 
   @Autowired
-  private StudyWithDonorsService service;
+  private StudyWithDonorsService studyWithDonorsService;
+
+  @Autowired
+  private StudyService studyService;
+
+  @Autowired
+  private AnalysisService analysisService;
+
+  private final RandomGenerator randomGenerator =
+      createRandomGenerator(StudyWithDonorsServiceTest.class.getSimpleName());
 
   @Test
   public void testReadWithChildren(){
-    val d = service.readWithChildren("ABC123");
-    assertThat(d.getDonors().size()).isGreaterThanOrEqualTo(1);
+    // Create random isolated study
+    val studyId = createRandomStudy();
 
-    val opt = d.getDonors().stream().filter(x -> x.getDonor().getDonorId().equals("DO1")).findFirst();
-    assertThat(opt.isPresent()).isTrue();
-    val donorWithSpecimens = opt.get();
-    assertThat(donorWithSpecimens.getSpecimens()).hasSize(2);
+    // Generate Random SequencingRead analyses
+    val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
+    val numAnalysis = 11;
+    val analysisMap = Maps.<String, SequencingReadAnalysis>newHashMap();
+    for (int i=0; i<numAnalysis; i++){
+      val sequencingReadAnalysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
+      analysisMap.put(sequencingReadAnalysis.getAnalysisId(), sequencingReadAnalysis);
+    }
 
-    val specimenWithSamples1 = donorWithSpecimens.getSpecimens().get(0);
-    assertThat(specimenWithSamples1.getSpecimen().getSpecimenId()).isEqualTo("SP1");
-    assertThat(specimenWithSamples1.getSamples()).hasSize(2);
+    // Extract expected donors and verify
+    val expectedDonors = analysisMap.values().stream()
+        .flatMap(x -> x.getSample().stream())
+        .map(CompositeEntity::getDonor)
+        .collect(toSet());
+    assertThat(expectedDonors).hasSize(numAnalysis);
+    assertThat(expectedDonors.stream().map(Donor::getDonorSubmitterId).distinct().count()).isEqualTo(numAnalysis);
+    assertThat(expectedDonors.stream().filter(x -> x.getStudyId().equals(studyId)).count()).isEqualTo(numAnalysis);
 
-    val sample11 = specimenWithSamples1.getSamples().get(0);
-    assertThat(sample11.getSampleId()).isEqualTo("SA1");
+    // Extract expected specimens and verify
+    val expectedSpecimens = analysisMap.values().stream()
+        .flatMap(x -> x.getSample().stream())
+        .map(CompositeEntity::getSpecimen)
+        .collect(toSet());
+    assertThat(expectedSpecimens).hasSize(numAnalysis);
+    assertThat(expectedSpecimens.stream().map(Specimen::getSpecimenSubmitterId).distinct().count()).isEqualTo(numAnalysis);
 
-    val sample12 = specimenWithSamples1.getSamples().get(1);
-    assertThat(sample12.getSampleId()).isEqualTo("SA11");
+    // Extract expected samples and verify
+    val expectedSamples = analysisMap.values().stream()
+        .flatMap(x -> x.getSample().stream())
+        .collect(toSet());
+    val expectedSampleSubmitterIds = expectedSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
+    assertThat(expectedSamples).hasSize(numAnalysis);
+    assertThat(expectedSampleSubmitterIds).hasSize(numAnalysis);
 
+    // Run the target method to test, readWithChildren
+    val studyWithDonors = studyWithDonorsService.readWithChildren(studyId);
 
-    val specimenWithSamples2 = donorWithSpecimens.getSpecimens().get(1);
-    assertThat(specimenWithSamples2.getSpecimen().getSpecimenId()).isEqualTo("SP2");
-    assertThat(specimenWithSamples2.getSamples()).hasSize(1);
+    // Extract actual donors
+    val actualDonors = studyWithDonors.getDonors().stream()
+        .map(DonorWithSpecimens::getDonor)
+        .collect(toSet());
 
-    val sample21 = specimenWithSamples2.getSamples().get(0);
-    assertThat(sample21.getSampleId()).isEqualTo("SA21");
+    // Extract actual specimens
+    val actualSpecimens = studyWithDonors.getDonors().stream()
+        .map(DonorWithSpecimens::getSpecimens)
+        .flatMap(Collection::stream)
+        .map(SpecimenWithSamples::getSpecimen)
+        .collect(toSet());
+
+    // Extract actual samples
+    val actualSamples = studyWithDonors.getDonors().stream()
+        .map(DonorWithSpecimens::getSpecimens)
+        .flatMap(Collection::stream)
+        .map(SpecimenWithSamples::getSamples)
+        .flatMap(Collection::stream)
+        .collect(toSet());
+    val actualSampleSubmitterIds = actualSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
+
+    // Verify expected donors and actual donors match
+    assertSetsMatch(expectedDonors, actualDonors);
+
+    // Verify expected specimens and actual specimens match
+    assertSetsMatch(expectedSpecimens, actualSpecimens);
+
+    // Verify expected sampleSubmitterIds and actual sampleSubmitterIds match
+    assertSetsMatch(expectedSampleSubmitterIds, actualSampleSubmitterIds);
+  }
+
+  private String createRandomStudy(){
+    boolean studyExists;
+    String studyId;
+    do {
+      studyId = randomGenerator.generateRandomAsciiString(12);
+      studyExists = studyService.isStudyExist(studyId);
+    } while (studyExists);
+    studyService.saveStudy(Study.create(studyId, "", "", ""));
+    return studyId;
   }
 
 }
