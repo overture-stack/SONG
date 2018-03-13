@@ -38,47 +38,47 @@ import static org.icgc.dcc.common.core.util.Joiners.DOT;
 @Profile("legacy")
 public class StudyScopeStrategy implements StudyStrategyInterface {
 
-  @Value("${auth.server.prefix}")
-  protected String scopePrefix;
+    @Value("${auth.server.prefix}")
+    protected String scopePrefix;
 
-  @Value("${auth.server.suffix}")
-  protected String scopeSuffix;
+    @Value("${auth.server.suffix}")
+    protected String scopeSuffix;
 
 
-  public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
-    log.info("Checking authorization with study id {}", studyId);
+    public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
+        log.info("Checking authorization with study id {}", studyId);
 
-    // if not OAuth2, then no scopes available at all
-    Set<String> grantedScopes = Collections.emptySet();
-    if (authentication instanceof OAuth2Authentication) {
-      OAuth2Authentication o2auth = (OAuth2Authentication) authentication;
-      grantedScopes = getScopes(o2auth);
+        // if not OAuth2, then no scopes available at all
+        Set<String> grantedScopes = Collections.emptySet();
+        if (authentication instanceof OAuth2Authentication) {
+            OAuth2Authentication o2auth = (OAuth2Authentication) authentication;
+            grantedScopes = getScopes(o2auth);
+        }
+
+        return verify(grantedScopes, studyId);
     }
 
-    return verify(grantedScopes, studyId);
-  }
+    private Set<String> getScopes(@NonNull OAuth2Authentication o2auth) {
+        return o2auth.getOAuth2Request().getScope();
+    }
 
-  private Set<String> getScopes(@NonNull OAuth2Authentication o2auth) {
-    return o2auth.getOAuth2Request().getScope();
-  }
+    private boolean isGranted(String tokenScope, String studyId) {
+        log.info("Checking token's scope '{}', server's scopePrefix='{}', studyId '{}', scopeSuffix='{}'",
+                tokenScope, scopePrefix, studyId, scopeSuffix);
+        return getSystemScope().equals(tokenScope) || getEndUserScope(studyId).equals(tokenScope); //short-circuit
+    }
 
-  private boolean isGranted(String tokenScope, String studyId) {
-    log.info("Checking token's scope '{}', server's scopePrefix='{}', studyId '{}', scopeSuffix='{}'",
-        tokenScope, scopePrefix, studyId, scopeSuffix);
-    return getSystemScope().equals(tokenScope) || getEndUserScope(studyId).equals(tokenScope); //short-circuit
-  }
+    private String getEndUserScope(String studyId) {
+        return DOT.join(scopePrefix, studyId.toUpperCase(), scopeSuffix);
+    }
 
-  private String getEndUserScope(String studyId){
-    return DOT.join(scopePrefix, studyId.toUpperCase(), scopeSuffix);
-  }
+    private String getSystemScope() {
+        return DOT.join(scopePrefix, scopeSuffix);
+    }
 
-  private String getSystemScope(){
-    return DOT.join(scopePrefix,scopeSuffix);
-  }
-
-  private boolean verify(@NonNull Set<String> grantedScopes, @NonNull final String studyId) {
-    val check = grantedScopes.stream().filter(s -> isGranted(s,studyId)).collect(toList());
-    return !check.isEmpty();
-  }
+    private boolean verify(@NonNull Set<String> grantedScopes, @NonNull final String studyId) {
+        val check = grantedScopes.stream().filter(s -> isGranted(s, studyId)).collect(toList());
+        return !check.isEmpty();
+    }
 
 }
