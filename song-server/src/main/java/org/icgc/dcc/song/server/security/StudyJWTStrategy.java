@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@Profile("!legacy")
+@Profile("jwt")
 public class StudyJWTStrategy implements StudyStrategyInterface {
 
     public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
