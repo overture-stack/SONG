@@ -111,6 +111,22 @@ auth:
     suffix: "upload"
 ---
 
+---
+
+spring:
+  profiles: legacy
+
+auth:
+  server:
+    url: "http://localhost:8000/check_token/"
+    clientId: "clientId"
+    clientSecret: "clientSecret"
+    enableStrictSSL: false
+    enableHttpLogging: false
+    prefix: "song"
+    suffix: "upload"
+---
+
 spring:
   profiles: fastTest
 
