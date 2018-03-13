@@ -73,12 +73,14 @@ spring:
   datasource:
     initialize: true
 
+id.persistInMemory: true
+
 auth:
   server:
     prefix: "song"
     suffix: "upload"
 
-validation.delayMs: 3000
+validation.delayMs: 10000
 
 # Datasource
 spring.datasource:
