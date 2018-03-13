@@ -34,23 +34,23 @@ import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 @Profile("legacy")
 public class TokenServiceConfig {
 
-  @Bean
-  public RemoteTokenServices remoteTokenServices(
-      @Value("${auth.server.url}") String checkTokenUrl,
-      @Value("${auth.server.clientId}") String clientId,
-      @Value("${auth.server.clientSecret}") String clientSecret) {
-    val remoteTokenServices = new RetryTokenServices();
-    remoteTokenServices.setCheckTokenEndpointUrl(checkTokenUrl);
-    remoteTokenServices.setClientId(clientId);
-    remoteTokenServices.setClientSecret(clientSecret);
-    remoteTokenServices.setAccessTokenConverter(accessTokenConverter());
+    @Bean
+    public RemoteTokenServices remoteTokenServices(
+            @Value("${auth.server.url}") String checkTokenUrl,
+            @Value("${auth.server.clientId}") String clientId,
+            @Value("${auth.server.clientSecret}") String clientSecret) {
+        val remoteTokenServices = new RetryTokenServices();
+        remoteTokenServices.setCheckTokenEndpointUrl(checkTokenUrl);
+        remoteTokenServices.setClientId(clientId);
+        remoteTokenServices.setClientSecret(clientSecret);
+        remoteTokenServices.setAccessTokenConverter(accessTokenConverter());
 
-    return remoteTokenServices;
-  }
+        return remoteTokenServices;
+    }
 
-  @Bean
-  public AccessTokenConverter accessTokenConverter() {
-    return new DefaultAccessTokenConverter();
-  }
+    @Bean
+    public AccessTokenConverter accessTokenConverter() {
+        return new DefaultAccessTokenConverter();
+    }
 
 }
