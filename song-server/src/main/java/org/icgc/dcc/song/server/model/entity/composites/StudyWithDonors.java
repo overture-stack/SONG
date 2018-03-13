@@ -3,13 +3,15 @@ package org.icgc.dcc.song.server.model.entity.composites;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper=true)
+@ToString(callSuper = true)
 @Data
 public class StudyWithDonors extends Study {
 
@@ -27,8 +29,8 @@ public class StudyWithDonors extends Study {
         setStudyId(s.getStudyId());
         setName(s.getName());
         setOrganization(s.getOrganization());
-        s.setDescription(s.getDescription());
-        s.addInfo(s.getInfoAsString());
+        setDescription(s.getDescription());
+        setInfo(s.getInfoAsString());
     }
 
     public void addDonor(DonorWithSpecimens d) {

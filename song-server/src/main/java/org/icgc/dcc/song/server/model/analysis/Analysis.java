@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
@@ -14,8 +15,9 @@ import java.util.List;
 
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @Data
+@ToString(callSuper = true)
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonTypeInfo(
         use=JsonTypeInfo.Id.NAME,

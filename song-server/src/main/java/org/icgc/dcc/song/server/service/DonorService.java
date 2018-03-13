@@ -50,8 +50,11 @@ public class DonorService {
   public String create(@NonNull DonorWithSpecimens d) {
     val id = idService.generateDonorId(d.getDonorSubmitterId(), d.getStudyId());
     d.setDonorId(id);
-    val donor = d.getDonor();
 
+    /**
+     * Cannot pass DonorWithSpecimen object to donorReposityr.create() method
+     */
+    val donor = d.createDonor();
     val status = donorRepository.create(donor);
     if (status != 1) {
       throw buildServerException(this.getClass(), DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
@@ -115,8 +118,10 @@ public class DonorService {
       donorId = idService.generateDonorId(donor.getDonorSubmitterId(), studyId);
       donor.setDonorId(donorId);
       donorRepository.create(donor);
+      infoService.create(donorId, donor.getInfoAsString());
     } else {
       donorRepository.update(donor);
+      infoService.update(donorId, donor.getInfoAsString());
     }
     return donorId;
   }

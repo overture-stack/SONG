@@ -18,7 +18,6 @@
  */
 package org.icgc.dcc.song.server.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRawValue;
@@ -30,11 +29,10 @@ import org.icgc.dcc.song.server.model.enums.UploadStates;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -76,16 +74,13 @@ public class Upload {
     return u;
   }
 
-  @JsonIgnore
-  private Map<String, Object> additionalProperties = new HashMap<>();
-
   @JsonRawValue
   public String getPayload() {
     return payload;
   }
 
   public void setErrors(String errorString) {
-    if (errorString == null) {
+    if (isNull(errorString)) {
       errorString = "";
     }
 
@@ -94,7 +89,7 @@ public class Upload {
   }
 
   public void addErrors(Collection<String> errors) {
-    errors.addAll(errors);
+    this.errors.addAll(errors);
   }
 
 }

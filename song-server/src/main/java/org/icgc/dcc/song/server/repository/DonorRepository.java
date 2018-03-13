@@ -54,3 +54,4 @@ public interface DonorRepository {
   @SqlQuery("SELECT id from donor where study_id=:studyId AND submitter_id=:key")
   String findByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
 }
+
