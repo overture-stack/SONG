@@ -21,7 +21,7 @@ public class JWTAuthorizationFilter extends GenericFilterBean {
     @SneakyThrows
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
         val authentication = SecurityContextHolder.getContext().getAuthentication();
-         if(authentication != null) {
+        if (authentication != null) {
 
             val details = (OAuth2AuthenticationDetails) authentication.getDetails();
             val user = (JWTUser) details.getDecodedDetails();
@@ -29,7 +29,7 @@ public class JWTAuthorizationFilter extends GenericFilterBean {
             boolean hasCorrectRole = user.getRoles().contains(REQUIRED_ROLE);
             boolean hasCorrectStatus = user.getStatus().equalsIgnoreCase(REQUIRED_STATUS);
 
-            if(!hasCorrectRole || !hasCorrectStatus) {
+            if (!hasCorrectRole || !hasCorrectStatus) {
                 SecurityContextHolder.clearContext();
             }
         }
