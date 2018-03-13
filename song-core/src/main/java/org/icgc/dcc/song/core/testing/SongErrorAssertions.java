@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 public class SongErrorAssertions {
   private static final Object EMPTY_OBJECT = new Object();
 
-  public static <T> void assertSongError(Runnable runnable, ServerError expectedServerError){
+  public static void assertSongError(Runnable runnable, ServerError expectedServerError){
     assertSongError(runnable, expectedServerError, null);
   }
 
@@ -23,7 +23,7 @@ public class SongErrorAssertions {
     assertSongError(supplier, expectedServerError, null);
   }
 
-  public static <T> void assertSongError(@NonNull Runnable runnable, ServerError expectedServerError,
+  public static void assertSongError(@NonNull Runnable runnable, ServerError expectedServerError,
       String formattedFailMessage, Object...objects){
     assertSongError(() -> {
       runnable.run();
