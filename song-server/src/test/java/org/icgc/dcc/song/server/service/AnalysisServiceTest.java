@@ -18,6 +18,7 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -36,17 +37,24 @@ import org.icgc.dcc.song.server.utils.AnalysisGenerator;
 import org.icgc.dcc.song.server.utils.PayloadGenerator;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
@@ -55,23 +63,32 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SA
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 import static org.icgc.dcc.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
+import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev", "test"})
 public class AnalysisServiceTest {
+
+  private static final String FILEPATH = "src/test/resources/fixtures/";
+  private static final String TEST_FILEPATH = "src/test/resources/documents/";
+
+  @Rule
+  public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 
   @Autowired
   FileService fileService;
@@ -91,10 +108,21 @@ public class AnalysisServiceTest {
   private PayloadGenerator payloadGenerator;
   private AnalysisGenerator analysisGenerator;
 
+  @Autowired
+  private RetryTemplate retryTemplate;
+
+  /**
+   * This is dirty, but since the existenceService is so easy to construct
+   * and the storage url port is randomly assigned, it's worth it.
+   */
   @Before
   public void init(){
     this.payloadGenerator = createPayloadGenerator(randomGenerator);
     this.analysisGenerator = createAnalysisGenerator(DEFAULT_STUDY_ID, service, payloadGenerator);
+    val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
+    val testExistenceService = createExistenceService(retryTemplate,testStorageUrl);
+    ReflectionTestUtils.setField(service, "existence", testExistenceService);
+    log.info("ExistenceService configured to endpoint: {}",testStorageUrl );
   }
 
   @Test
@@ -234,10 +262,17 @@ public class AnalysisServiceTest {
     assertThat(analysis3).isNull();
   }
 
-  @Ignore
+  private void setUpDccStorageMockService(boolean expectedResult){
+    wireMockRule.resetAll();
+    wireMockRule.stubFor(get(urlMatching("/upload/.*"))
+        .willReturn(aResponse()
+            .withStatus(OK.value())
+            .withBody(Boolean.toString(expectedResult))));
+  }
+
   @Test
   public void testPublish() {
-    // TODO: Figure out how to test this
+    setUpDccStorageMockService(true);
     val token = "mockToken";
     val id = "AN1";
     service.publish(token, id);
@@ -245,6 +280,15 @@ public class AnalysisServiceTest {
     val analysis = service.read(id);
     assertThat(analysis.getAnalysisState()).isEqualTo("PUBLISHED");
   }
+
+  @Test
+  public void testPublishError() {
+    setUpDccStorageMockService(false);
+    val token = "mockToken";
+    val id = "AN1";
+    assertSongError(() -> service.publish(token, id), UNPUBLISHED_FILE_IDS, null);
+  }
+
 
   @Test
   public void testSuppress() {
@@ -394,6 +438,5 @@ public class AnalysisServiceTest {
         .forEach(sampleRepository::delete);
     assertSongError(() -> service.readSamples(analysisId), ANALYSIS_MISSING_SAMPLES);
   }
-
 
 }

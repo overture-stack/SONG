@@ -150,6 +150,7 @@ spring:
   autoconfigure.exclude: SecurityConfig.class
 
 id.persistInMemory: true
+dcc-storage.url: http://localhost:8087
 
 ---
 spring:

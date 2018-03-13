@@ -270,7 +270,7 @@ public class AnalysisService {
         .filter(f -> !confirmUploaded(accessToken, f.getObjectId()))
         .collect(toImmutableList());
     val isMissingFiles = missingFileIds.size() > 0;
-    checkServer(!isMissingFiles,this.getClass(), UNPUBLISHED_FILE_IDS,
+    checkServer(!isMissingFiles,getClass(),UNPUBLISHED_FILE_IDS,
         "The following file ids must be published before analysisId %s can be published: %s",
         id, COMMA.join(missingFileIds));
 
