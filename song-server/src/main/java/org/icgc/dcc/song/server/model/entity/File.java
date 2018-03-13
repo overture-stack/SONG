@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
@@ -32,8 +33,9 @@ import java.io.Serializable;
 
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
 
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
+@ToString(callSuper = true)
 @Data
 public class File extends Metadata implements Serializable {
 

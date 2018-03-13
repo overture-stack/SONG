@@ -110,7 +110,7 @@ public class StudyWithDonorsServiceTest {
 
     // Extract actual donors
     val actualDonors = studyWithDonors.getDonors().stream()
-        .map(DonorWithSpecimens::getDonor)
+        .map(DonorWithSpecimens::createDonor)
         .collect(toSet());
 
     // Extract actual specimens

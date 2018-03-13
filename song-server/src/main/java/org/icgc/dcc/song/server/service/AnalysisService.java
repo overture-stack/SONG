@@ -328,7 +328,7 @@ public class AnalysisService {
     return analysis;
   }
 
-  private SequencingRead readSequencingRead(String id) {
+  SequencingRead readSequencingRead(String id) {
     val experiment = repository.readSequencingRead(id);
     checkServer(!isNull(experiment), this.getClass(), SEQUENCING_READ_NOT_FOUND,
         "The SequencingRead with analysisId '%s' was not found", id);
@@ -336,7 +336,7 @@ public class AnalysisService {
     return experiment;
   }
 
-  private VariantCall readVariantCall(String id) {
+  VariantCall readVariantCall(String id) {
     val experiment = repository.readVariantCall(id);
     checkServer(!isNull(experiment), this.getClass(), VARIANT_CALL_NOT_FOUND,
         "The VariantCall with analysisId '%s' was not found", id);
