@@ -34,6 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATED;
@@ -71,10 +73,10 @@ public class ValidationService {
     log.info("Validating payload for upload Id=" + uploadId + "payload=" + payload);
     log.info(format("Analysis type='%s'",analysisType));
     val errors = validate(payload, analysisType);
-    update(uploadId,errors);
+    update(uploadId, errors.orElse(null));
   }
 
-  public String validate(@NonNull String payload, String analysisType) {
+  public Optional<String> validate(@NonNull String payload, String analysisType) {
     String errors;
 
     log.info(format("Analysis type='%s'",analysisType));
@@ -102,7 +104,7 @@ public class ValidationService {
       log.error(e.getMessage());
       errors =  format("Unknown processing problem: %s", e.getMessage());
     }
-    return errors;
+    return Optional.ofNullable(errors);
   }
 
   public void update(@NonNull String uploadId, String errorMessages) {
