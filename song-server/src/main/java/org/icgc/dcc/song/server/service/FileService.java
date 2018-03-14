@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_RECORD_FAILED;
-import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
 @Service
@@ -50,10 +50,8 @@ public class FileService {
 
     val status = repository.create(file);
 
-
-    if (status != 1) {
-      throw buildServerException(this.getClass(), FILE_RECORD_FAILED, "Cannot create File: %s", file.toString());
-    }
+    checkServer(status == 1,
+        getClass(), FILE_RECORD_FAILED, "Cannot create File: %s", file.toString());
     infoService.create(id, file.getInfoAsString());
 
     return id;
