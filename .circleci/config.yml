@@ -40,8 +40,8 @@ jobs:
           command: sudo -u postgres psql -p 5432 -c "create user ubuntu with password 'ubuntu';"
           command: sudo -u postgres psql -p 5432 -c "alter user ubuntu with superuser;"
 
-# Create a new test database.
-    command: sudo -u postgres psql -p 5432 -c "create database test_db;"
+      # Create a new test database.
+          command: sudo -u postgres psql -p 5432 -c "create database test_db;"
 
       - run: mvn dependency:go-offline
 
