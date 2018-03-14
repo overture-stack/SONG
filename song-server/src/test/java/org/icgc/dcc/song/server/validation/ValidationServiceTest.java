@@ -19,6 +19,7 @@
 package org.icgc.dcc.song.server.validation;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.val;
 import org.icgc.dcc.song.server.service.ValidationService;
 import org.junit.Test;
@@ -36,7 +37,7 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles({"dev","test"})
+@ActiveProfiles("dev")
 public class ValidationServiceTest {
   private static final String SEQ_READ="SequencingRead";
   private static final String VAR_CALL="VariantCall";
@@ -48,28 +49,50 @@ public class ValidationServiceTest {
   public void testValidateValidSequencingRead() {
     val payload=getJsonFile("sequencingRead.json").toString();
     val results=service.validate(payload,SEQ_READ);
-    assertThat(results).isNull();
+    assertThat(results).isEmpty();
   }
 
   @Test
   public void testValidateValidVariantCall() {
     val payload=getJsonFile("variantCall.json").toString();
     val results=service.validate(payload,VAR_CALL);
-    assertThat(results).isNull();
+    assertThat(results).isEmpty();
   }
 
   @Test
   public void testValidateSequencingReadWithStudy() {
     val payload=getJsonFile("sequencingReadStudy.json").toString();
     val results=service.validate(payload,SEQ_READ);
-    assertThat(results).isEqualTo("Uploaded JSON document must not contain a study field");
+    assertThat(results).isNotEmpty();
+    assertThat(results).hasValue("Uploaded JSON document must not contain a study field");
   }
 
   @Test
   public void testValidateVariantCallWithStudy() {
     val payload=getJsonFile("variantCallStudy.json").toString();
     val results=service.validate(payload,VAR_CALL);
-    assertThat(results).isEqualTo("Uploaded JSON document must not contain a study field");
+    assertThat(results).isNotEmpty();
+    assertThat(results).hasValue("Uploaded JSON document must not contain a study field");
+  }
+
+  @Test
+  public void testValidateVariantCallMissingAnalysisType() {
+    val payload=getJsonFile("variantCall.json");
+    ((ObjectNode)payload).put("analysisType", (String)null);
+    val results=service.validate(payload.toString(),VAR_CALL);
+    assertThat(results).isNotEmpty();
+    assertThat(results).hasValue("$.analysisType: does not have a value in the enumeration [variantCall]|$"
+        + ".analysisType: null found, string expected");
+  }
+
+  @Test
+  public void testValidateSequencingReadMissingAnalysisType() {
+    val payload=getJsonFile("sequencingRead.json");
+    ((ObjectNode)payload).put("analysisType", (String)null);
+    val results=service.validate(payload.toString(),SEQ_READ);
+    assertThat(results).isNotEmpty();
+    assertThat(results).hasValue("$.analysisType: does not have a value in the enumeration [sequencingRead]|$"
+        + ".analysisType: null found, string expected");
   }
 
   private JsonNode getJsonFile(String name) {
