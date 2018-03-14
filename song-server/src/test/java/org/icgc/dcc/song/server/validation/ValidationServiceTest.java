@@ -95,7 +95,28 @@ public class ValidationServiceTest {
         + ".analysisType: null found, string expected");
   }
 
+  @Test
+  public void testUnknownAnalysisTypeValidation() {
+    val payload=getJsonFile("sequencingRead.json");
+    val results=service.validate(payload.toString(), "SOME_UNKNOWN_ANALYSIS_TYPE");
+    assertThat(results).isNotEmpty();
+    assertThat(results).hasValue("Unknown processing problem: Internal Error: could not find specified schema uploadSOME_UNKNOWN_ANALYSIS_TYPE");
+  }
+
+  @Test
+  public void testJsonParseError() {
+    // Load json, and corrupt it
+    val payload=getJsonFile("sequencingRead.json")
+        .toString()
+        .replaceFirst("\\{", "")
+        .replaceFirst("\"", "");
+    val results=service.validate(payload, SEQ_READ);
+    assertThat(results).isNotEmpty();
+    assertThat(results.get().contains("Invalid JSON document submitted:")).isTrue();
+  }
+
   private JsonNode getJsonFile(String name) {
     return getJsonNodeFromClasspath("documents/validation/" + name);
   }
+
 }
