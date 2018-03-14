@@ -76,7 +76,7 @@ public class ValidationService {
     update(uploadId, errors.orElse(null));
   }
 
-  public Optional<String> validate(@NonNull String payload, String analysisType) {
+  public Optional<String> validate(@NonNull String payload, @NonNull String analysisType) {
     String errors;
 
     log.info(format("Analysis type='%s'",analysisType));
@@ -85,8 +85,6 @@ public class ValidationService {
 
       if (jsonNode.has(STUDY)) {
         errors =  "Uploaded JSON document must not contain a study field";
-      } else if (isNull(analysisType)) {
-        errors =  "Uploaded JSON document does not contain a valid analysis type";
       } else {
         val schemaId = "upload" + upperCaseFirstLetter(analysisType);
         val response = validator.validate(schemaId, jsonNode);
