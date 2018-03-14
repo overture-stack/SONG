@@ -15,7 +15,7 @@ jobs:
       # - image: circleci/postgres:9.4
       - image: circleci/postgres
         environment:
-        - POSTGRES_USER: ubuntu
+        - POSTGRES_USER: circleci
         - POSTGRES_DB: test_db
 
     working_directory: ~/repo
