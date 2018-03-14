@@ -15,8 +15,8 @@ jobs:
       # - image: circleci/postgres:9.4
       - image: circleci/postgres
         environment:
-        - POSTGRES_USER: postgres
-        #- POSTGRES_DB: test_db
+        - POSTGRES_USER: ubuntu
+        - POSTGRES_DB: test_db
 
     working_directory: ~/repo
 
@@ -34,9 +34,9 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
       - run: sudo apt install postgresql-client
-      - run: sudo -u postgres psql -p 5432 -c "create user ubuntu with password 'ubuntu';"
-      - run: sudo -u postgres psql -p 5432 -c "alter user ubuntu with superuser;"
-      - run: sudo -u postgres psql -p 5432 -c "create database test_db;"
+      #- run: sudo -u postgres psql -p 5432 -c "create user ubuntu with password 'ubuntu';"
+      #- run: sudo -u postgres psql -p 5432 -c "alter user ubuntu with superuser;"
+      #- run: sudo -u postgres psql -p 5432 -c "create database test_db;"
 
       - run: mvn dependency:go-offline
 
