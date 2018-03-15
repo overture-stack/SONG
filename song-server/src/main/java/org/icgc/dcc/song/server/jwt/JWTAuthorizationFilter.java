@@ -14,7 +14,6 @@ import javax.servlet.ServletResponse;
 @Slf4j
 public class JWTAuthorizationFilter extends GenericFilterBean {
 
-    private final String REQUIRED_ROLE = "USER";
     private final String REQUIRED_STATUS = "Approved";
 
     @Override
@@ -26,10 +25,9 @@ public class JWTAuthorizationFilter extends GenericFilterBean {
             val details = (OAuth2AuthenticationDetails) authentication.getDetails();
             val user = (JWTUser) details.getDecodedDetails();
 
-            boolean hasCorrectRole = user.getRoles().contains(REQUIRED_ROLE);
             boolean hasCorrectStatus = user.getStatus().equalsIgnoreCase(REQUIRED_STATUS);
 
-            if (!hasCorrectRole || !hasCorrectStatus) {
+            if (!hasCorrectStatus) {
                 SecurityContextHolder.clearContext();
             }
         }

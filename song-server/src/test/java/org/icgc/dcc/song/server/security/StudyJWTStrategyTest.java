@@ -51,8 +51,8 @@ public class StudyJWTStrategyTest {
 
         // Careful with underlying references
         unapprovedUser.setStatus("Not Approved");
-        approvedWithAccessUser.setRoles(Arrays.asList("song.STUDY001.upload"));
-        approvedWithoutAccessUser.setRoles(Arrays.asList("song.STUDY002.upload"));
+        approvedWithAccessUser.setRoles(Arrays.asList("USER", "song.STUDY001.upload"));
+        approvedWithoutAccessUser.setRoles(Arrays.asList("USER", "song.STUDY002.upload"));
     }
 
     @Test
