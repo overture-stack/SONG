@@ -26,10 +26,11 @@ import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
-import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.model.entity.composites.SpecimenWithSamples;
+import org.icgc.dcc.song.server.utils.StudyGenerator;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
+import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertSetsMatch;
 
 @Slf4j
@@ -66,10 +68,17 @@ public class StudyWithDonorsServiceTest {
   private final RandomGenerator randomGenerator =
       createRandomGenerator(StudyWithDonorsServiceTest.class.getSimpleName());
 
+  private StudyGenerator studyGenerator;
+
+  @Before
+  public void init(){
+    studyGenerator = createStudyGenerator(studyService, randomGenerator);
+  }
+
   @Test
   public void testReadWithChildren(){
     // Create random isolated study
-    val studyId = createRandomStudy();
+    val studyId = studyGenerator.createRandomStudy();
 
     // Generate Random SequencingRead analyses
     val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
@@ -137,17 +146,6 @@ public class StudyWithDonorsServiceTest {
 
     // Verify expected sampleSubmitterIds and actual sampleSubmitterIds match
     assertSetsMatch(expectedSampleSubmitterIds, actualSampleSubmitterIds);
-  }
-
-  private String createRandomStudy(){
-    boolean studyExists;
-    String studyId;
-    do {
-      studyId = randomGenerator.generateRandomAsciiString(12);
-      studyExists = studyService.isStudyExist(studyId);
-    } while (studyExists);
-    studyService.saveStudy(Study.create(studyId, "", "", ""));
-    return studyId;
   }
 
 }
