@@ -45,7 +45,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 @Configuration
-@Profile({"secure", "jwt"})
+@Profile("jwt")
 @EnableWebSecurity
 @EnableResourceServer
 public class SecurityConfig extends ResourceServerConfigurerAdapter {
