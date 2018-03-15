@@ -3,7 +3,7 @@ SONG - Metadata and Validation system
 
 [![Build Status](https://travis-ci.org/overture-stack/SONG.svg?branch=develop)](https://travis-ci.org/icgc-dcc/SONG)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c3515fa60c114da1a7a4be8d46674eca)](https://www.codacy.com/app/icgc-dcc/SONG?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=icgc-dcc/SONG&amp;utm_campaign=Badge_Grade)
-[![CircleCI](https://circleci.com/gh/overture-stack/SONG.svg?style=svg)](https://circleci.com/gh/overture-stack/SONG)
+[![CircleCI](https://circleci.com/gh/overture-stack/SONG/tree/develop.svg?style=svg)](https://circleci.com/gh/overture-stack/SONG/tree/develop)
 
 Project containing both the SONG microservice and CLI client. 
 Both are written using JAVA 8 and Spring Boot. 
