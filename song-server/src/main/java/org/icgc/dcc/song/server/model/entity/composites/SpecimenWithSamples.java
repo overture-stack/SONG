@@ -1,14 +1,15 @@
 package org.icgc.dcc.song.server.model.entity.composites;
 
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.Value;
-import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 
 import java.util.ArrayList;
 import java.util.List;
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Value
 public class SpecimenWithSamples extends Specimen {
     private List<Sample> samples = new ArrayList<>();
@@ -21,13 +22,6 @@ public class SpecimenWithSamples extends Specimen {
         setSpecimenType(s.getSpecimenType());
 
         addInfo(s.getInfoAsString());
-    }
-
-    public Specimen getSpecimen() {
-        val s= Specimen.create(getSpecimenId(),getDonorId(),getSpecimenSubmitterId(), getSpecimenClass(),
-                getSpecimenType());
-        s.setInfo(getInfoAsString());
-        return s;
     }
 
     public void addSample(Sample s) {

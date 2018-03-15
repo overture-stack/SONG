@@ -2,7 +2,6 @@ package org.icgc.dcc.song.server.service.existence;
 
 import com.sun.net.httpserver.HttpServer;
 import lombok.SneakyThrows;
-import lombok.Synchronized;
 import lombok.val;
 import org.icgc.dcc.song.server.config.RetryConfig;
 import org.junit.Before;
@@ -40,9 +39,6 @@ public class ExistenceServiceTest {
   private static final int REQUEST_CON_TIMEOUT = 200;
   private static final long MS_UNTIL_ERROR =  REQUEST_CON_TIMEOUT + 100L;
 
-  // We'll give each test it's own port number, in case they're running in parallel
-  private static int freePort=9876;
-
   String mockServerUrl;
 
   @Autowired
@@ -54,18 +50,14 @@ public class ExistenceServiceTest {
   @Before
   @SneakyThrows
   public void beforeTest() {
-    val port = getPort();
-    mockServerUrl = format("http://%s:%s", HOSTNAME, port);
+    // Note: a port of 0 as the input arg
+    // tells the Socket constructor to chose a random available port
+    this.mockServer = HttpServer.create(new InetSocketAddress(0), 0);
+    val port = mockServer.getAddress().getPort();
     System.err.printf("Creating mock server on port %d\n", port);
-    this.mockServer = HttpServer.create(new InetSocketAddress(port), 0);
+    mockServerUrl = format("http://%s:%s", HOSTNAME, port);
     this.countingRetryListener = new CountingRetryListener();
     this.retryTemplate.registerListener(countingRetryListener);
-  }
-
-  @Synchronized
-  public int getPort() {
-    freePort +=1;
-    return freePort;
   }
 
   @Test
