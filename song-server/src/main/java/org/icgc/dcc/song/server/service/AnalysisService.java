@@ -320,12 +320,16 @@ public class AnalysisService {
     variantCallInfoService.update(id, experiment.getInfoAsString());
   }
 
-  private Analysis checkAnalysis(String id){
-    val analysis = repository.read(id);
+  static Analysis checkAnalysis(AnalysisRepository analysisRepository, String id){
+    val analysis = analysisRepository.read(id);
     checkServer(!isNull(analysis),
-        this.getClass(), ANALYSIS_ID_NOT_FOUND,
+        AnalysisService.class.getClass(), ANALYSIS_ID_NOT_FOUND,
         "The analysisId '%s' could was not found", id );
     return analysis;
+
+  }
+  private Analysis checkAnalysis(String id){
+    return checkAnalysis(repository, id);
   }
 
   SequencingRead readSequencingRead(String id) {
