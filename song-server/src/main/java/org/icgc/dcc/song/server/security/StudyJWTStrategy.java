@@ -10,8 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 import static java.util.stream.Collectors.toList;
 import static org.icgc.dcc.common.core.util.Joiners.DOT;
 
