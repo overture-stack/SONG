@@ -159,12 +159,12 @@ public class RandomGeneratorTest {
     val randomGenerator1 = createRandomGenerator("rand1-seed1", seed1);
     val randomGenerator2 = createRandomGenerator("rand2-seed1", seed1);
     val randomGenerator3 = createRandomGenerator("rand3-seed2", seed2);
-    assertThat(randomGenerator1.randomElement(intList))
-        .isEqualTo(randomGenerator2.randomElement(intList));
+    assertThat(randomList( () -> randomGenerator1.randomElement(intList), 111))
+        .containsExactlyElementsOf(randomList(() ->randomGenerator2.randomElement(intList), 111));
 
-    val randomInt = randomGenerator3.randomElement(intList);
-    assertThat(randomGenerator1.randomElement(intList)).isNotEqualTo(randomInt);
-    assertThat(randomGenerator2.randomElement(intList)).isNotEqualTo(randomInt);
+    val randomInt = randomList(()-> randomGenerator3.randomElement(intList), 111);
+    assertThat(randomList(() -> randomGenerator1.randomElement(intList), 111)).isNotEqualTo(randomInt);
+    assertThat(randomList(() ->randomGenerator2.randomElement(intList), 111)).isNotEqualTo(randomInt);
   }
 
   enum TestEnum{
