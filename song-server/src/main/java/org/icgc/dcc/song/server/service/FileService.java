@@ -34,7 +34,6 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_REPOSITORY_DEL
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_REPOSITORY_UPDATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
-import static org.icgc.dcc.song.server.service.AnalysisService.checkAnalysis;
 
 @Service
 @NoArgsConstructor
@@ -52,7 +51,7 @@ public class FileService {
   StudyService studyService;
 
   public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
-    checkAnalysisAndStudyId(analysisId, studyId);
+    studyService.checkStudyExist(studyId);
 
     val id = idService.generateFileId(analysisId, file.getFileName());
     file.setObjectId(id);
@@ -108,7 +107,7 @@ public class FileService {
   }
 
   public String save(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
-    checkAnalysisAndStudyId(analysisId, studyId);
+    studyService.checkStudyExist(studyId);
     String fileId = repository.findByBusinessKey(analysisId, file.getFileName());
     if (isNull(fileId)) {
       fileId = create(analysisId, studyId, file);
@@ -122,11 +121,6 @@ public class FileService {
   private static void fileNotFoundCheck(boolean expression, @NonNull String id){
     checkServer(expression, FileService.class.getClass(), FILE_NOT_FOUND,
         "The File with objectId '%s' does not exist", id);
-  }
-
-  private void checkAnalysisAndStudyId(@NonNull String analysisId, @NonNull String studyId){
-    checkAnalysis(analysisRepository, analysisId);
-    studyService.checkStudyExist(studyId);
   }
 
 }

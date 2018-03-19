@@ -8,5 +8,7 @@ import static lombok.AccessLevel.PRIVATE;
 public class TestConstants {
 
   public static final String DEFAULT_STUDY_ID = "ABC123";
+  public static final String DEFAULT_ANALYSIS_ID = "AN1";
+  public static final String DEFAULT_FILE_ID= "FI1";
 
 }

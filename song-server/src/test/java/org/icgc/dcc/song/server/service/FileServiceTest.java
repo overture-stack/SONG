@@ -20,7 +20,10 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.enums.AccessTypes;
+import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +34,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
+import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
+import static org.icgc.dcc.song.server.service.AnalysisService.checkAnalysis;
+import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
+import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_FILE_ID;
+import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -42,13 +53,19 @@ public class FileServiceTest {
 
   @Autowired
   FileService fileService;
+  @Autowired
+  StudyService studyService;
+  @Autowired
+  AnalysisRepository analysisRepository;
+
+  private final RandomGenerator randomGenerator = createRandomGenerator(FileServiceTest.class.getSimpleName());
 
   @Test
   public void testReadFile() {
-    val id = "FI1";
+    val id = DEFAULT_FILE_ID;
     val name = "ABC-TC285G7-A5-ae3458712345.bam";
     val analysisId="AN1";
-    val study = "ABC123";
+    val study = DEFAULT_STUDY_ID;
     val type = "BAM";
     val size = 122333444455555L;
     val md5 = "20de2982390c60e33452bf8736c3a9f1";
@@ -63,7 +80,8 @@ public class FileServiceTest {
 
   @Test
   public void testCreateAndDeleteFile() {
-    val studyId="ABC123";
+    val studyId = DEFAULT_STUDY_ID;
+    val analysisId = DEFAULT_ANALYSIS_ID;
     val metadata = JsonUtils.fromSingleQuoted("{'species': 'human'}");
     val f = new File();
 
@@ -79,7 +97,7 @@ public class FileServiceTest {
     f.setFileAccess(OPEN);
 
 
-    val status = fileService.create("AN1",  studyId, f);
+    val status = fileService.create(analysisId,  studyId, f);
     val id = f.getObjectId();
 
     assertThat(status).isEqualTo(id);
@@ -88,16 +106,35 @@ public class FileServiceTest {
     assertThat(check).isEqualToComparingFieldByField(f);
 
     fileService.delete(id);
-    val check2 = fileService.read(id);
-    assertThat(check2).isNull();
+    assertThat(fileService.isFileExist(id)).isFalse();
+  }
+
+  @Test
+  public void testSaveFile(){
+    val analysisId = DEFAULT_ANALYSIS_ID;
+    val studyId = DEFAULT_STUDY_ID;
+    checkAnalysis(analysisRepository, analysisId);
+    studyService.checkStudyExist(studyId);
+
+    val randomFile = createRandomFile(studyId, analysisId);
+    val fileId = fileService.save(analysisId, studyId, randomFile);
+    val actualFile = fileService.read(fileId);
+    assertThat(actualFile).isEqualToComparingFieldByFieldRecursively(randomFile);
+
+    actualFile.setFileSize(1010101L);
+    assertThat(actualFile).isNotEqualTo(randomFile);
+
+    val updatedFileId = fileService.save(analysisId, studyId, actualFile);
+    val updatedFile = fileService.read(updatedFileId);
+    assertThat(updatedFile).isEqualToComparingFieldByFieldRecursively(actualFile);
   }
 
   @Test
   public void testUpdateFile() {
 
-    val study="ABC123";
+    val study=DEFAULT_STUDY_ID;
     val id = "";
-    val analysisId="AN1";
+    val analysisId= DEFAULT_ANALYSIS_ID;
     val name = "file123.fasta";
     val sampleId = "";
     val size = 12345L;
@@ -106,10 +143,10 @@ public class FileServiceTest {
     val access = CONTROLLED;
     val metadata = JsonUtils.fromSingleQuoted("'language': 'English'");
 
-    val s = File.create(id, analysisId,name, sampleId, size, type, md5, access);
+    val s = File.create(id, analysisId, name, sampleId, size, type, md5, access);
 
 
-    fileService.create("AN1", study, s);
+    fileService.create(analysisId, study, s);
     val id2 = s.getObjectId();
 
     val s2 = File.create(id2,  analysisId,"File 102.fai", study, 123456789L, "FAI",
@@ -119,6 +156,63 @@ public class FileServiceTest {
 
     val s3 = fileService.read(id2);
     assertThat(s3).isEqualToComparingFieldByField(s2);
+  }
+
+  @Test
+  public void testFileExists(){
+    val existingFileId= DEFAULT_FILE_ID;
+    assertThat(fileService.isFileExist(existingFileId)).isTrue();
+    fileService.checkFileExists(existingFileId);
+    val file = new File();
+    file.setObjectId(existingFileId);
+    fileService.checkFileExists(file);
+
+    val randomFile = createRandomFile(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
+    assertThat(fileService.isFileExist(randomFile.getObjectId())).isFalse();
+    assertSongError(() -> fileService.checkFileExists(randomFile.getObjectId()), FILE_NOT_FOUND);
+    assertSongError(() -> fileService.checkFileExists(randomFile), FILE_NOT_FOUND);
+  }
+
+  @Test
+  public void testStudyDNE(){
+    val existingAnalysisId = DEFAULT_ANALYSIS_ID;
+    checkAnalysis(analysisRepository, existingAnalysisId);
+
+    val nonExistentStudyId = randomGenerator.generateRandomUUID().toString();
+    val randomFile = createRandomFile(nonExistentStudyId, existingAnalysisId);
+    assertSongError(
+        () -> fileService.create(existingAnalysisId, nonExistentStudyId, randomFile),
+        STUDY_ID_DOES_NOT_EXIST
+    );
+    assertSongError(
+        () -> fileService.save(existingAnalysisId, nonExistentStudyId, randomFile),
+        STUDY_ID_DOES_NOT_EXIST
+    );
+  }
+
+  @Test
+  public void testFileDNE(){
+    val existingAnalysisId = DEFAULT_ANALYSIS_ID;
+    checkAnalysis(analysisRepository, existingAnalysisId);
+
+    val studyId = DEFAULT_STUDY_ID;
+    studyService.checkStudyExist(studyId);
+
+    val randomFile = createRandomFile(studyId, existingAnalysisId);
+    assertSongError(() -> fileService.update(randomFile), FILE_NOT_FOUND );
+    assertSongError(() -> fileService.delete(randomFile.getObjectId()), FILE_NOT_FOUND );
+  }
+
+  private File createRandomFile(String studyId, String analysisId){
+    return File.create(
+        randomGenerator.generateRandomUUID().toString(),
+        analysisId,
+        randomGenerator.generateRandomUUID().toString()+".bam",
+        studyId,
+        (long)randomGenerator.generateRandomInt(),
+        "BAM",
+        randomGenerator.generateRandomMD5(),
+        AccessTypes.CONTROLLED);
   }
 
 }

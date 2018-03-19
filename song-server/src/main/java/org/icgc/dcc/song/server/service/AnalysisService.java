@@ -328,7 +328,8 @@ public class AnalysisService {
     return analysis;
 
   }
-  private Analysis checkAnalysis(String id){
+
+  public Analysis checkAnalysis(String id){
     return checkAnalysis(repository, id);
   }
 
