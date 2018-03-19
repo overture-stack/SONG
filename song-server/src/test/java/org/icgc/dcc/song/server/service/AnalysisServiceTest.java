@@ -88,8 +88,6 @@ public class AnalysisServiceTest {
 
   private static final String DEFAULT_STUDY_ID = "ABC123";
 
-  private static final String FILEPATH = "src/test/resources/fixtures/";
-
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 

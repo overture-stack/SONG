@@ -22,7 +22,6 @@ import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -212,7 +211,7 @@ public class FileServiceTest {
         (long)randomGenerator.generateRandomInt(),
         "BAM",
         randomGenerator.generateRandomMD5(),
-        AccessTypes.CONTROLLED);
+        CONTROLLED);
   }
 
 }
