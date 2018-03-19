@@ -33,6 +33,7 @@ import static java.lang.Thread.currentThread;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_REPOSITORY_CREATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
 @Service
@@ -65,7 +66,9 @@ public class StudyService {
     checkServer(!isStudyExist(id), getClass(), STUDY_ALREADY_EXISTS,
         "The studyId '%s' already exists. Cannot save the study: %s " ,
         id,study);
-    val status= studyRepository.create(id, study.getName(), study.getDescription(), study.getOrganization());
+    val status = studyRepository.create(id, study.getName(), study.getOrganization(), study.getDescription());
+    checkServer(status == 1, getClass(), STUDY_REPOSITORY_CREATE_RECORD,
+        "Cannot create studyId '%s' for study '%s'", study.getStudyId(), study);
     infoService.create(id,study.getInfoAsString());
     return status;
   }
