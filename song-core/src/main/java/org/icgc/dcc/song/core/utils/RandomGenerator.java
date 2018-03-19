@@ -1,7 +1,7 @@
 package org.icgc.dcc.song.core.utils;
 
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
-import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,7 @@ public class RandomGenerator {
   public String generateRandomMD5(){
     log.info("Generating RandomMD5 for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, ++callCount);
-    return new String(HashCode.fromBytes(generateRandomUUID().toString().getBytes()).asBytes());
+    return Hashing.md5().hashBytes(generateRandomUUID().toString().getBytes()).toString();
   }
 
   public int generateRandomInt(){
