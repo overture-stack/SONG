@@ -49,20 +49,20 @@ public class DonorService {
   @Autowired
   private final StudyService studyService;
 
-  public String create(@NonNull DonorWithSpecimens d) {
-    studyService.checkStudyExist(d.getStudyId());
-    val id = idService.generateDonorId(d.getDonorSubmitterId(), d.getStudyId());
-    d.setDonorId(id);
+  public String create(@NonNull DonorWithSpecimens donorWithSpecimens) {
+    studyService.checkStudyExist(donorWithSpecimens.getStudyId());
+    val id = idService.generateDonorId(donorWithSpecimens.getDonorSubmitterId(), donorWithSpecimens.getStudyId());
+    donorWithSpecimens.setDonorId(id);
 
     /**
      * Cannot pass DonorWithSpecimen object to donorReposityr.create() method
      */
-    val donor = d.createDonor();
+    val donor = donorWithSpecimens.createDonor();
     val status = donorRepository.create(donor);
     checkServer(status == 1, this.getClass(),
-        DONOR_RECORD_FAILED, "Cannot create Donor: %s", d.toString());
+        DONOR_RECORD_FAILED, "Cannot create Donor: %s", donorWithSpecimens.toString());
     infoService.create(id, donor.getInfoAsString());
-    d.getSpecimens().forEach(s -> specimenService.create(d.getStudyId(), s));
+    donorWithSpecimens.getSpecimens().forEach(s -> specimenService.create(donorWithSpecimens.getStudyId(), s));
 
     return id;
   }
