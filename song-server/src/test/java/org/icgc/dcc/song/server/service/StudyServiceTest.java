@@ -21,6 +21,7 @@ package org.icgc.dcc.song.server.service;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
+import org.icgc.dcc.song.server.model.entity.Study;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,19 @@ public class StudyServiceTest {
     assertThat(study.getDescription()).isEqualTo("A fictional study");
     assertThat(study.getOrganization()).isEqualTo("Sample Data Research Institute");
     assertThat(getInfoName(study)).isEqualTo("study1");
+  }
+
+  @Test
+  public void testSave(){
+    val studyId = randomGenerator.generateRandomUUID().toString();
+    val organization = randomGenerator.generateRandomUUID().toString();
+    val name  = randomGenerator.generateRandomAsciiString(10);
+    val description = randomGenerator.generateRandomUUID().toString();
+    val study = Study.create(studyId, name, organization, description);
+    assertThat(service.isStudyExist(studyId)).isFalse();
+    service.saveStudy(study);
+    val readStudy = service.read(studyId);
+    assertThat(readStudy).isEqualToComparingFieldByFieldRecursively(study);
   }
 
   @Test
