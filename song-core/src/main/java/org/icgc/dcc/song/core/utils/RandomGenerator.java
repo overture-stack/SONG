@@ -58,6 +58,10 @@ public class RandomGenerator {
     return randomBasedUUIDGenerator.generate();
   }
 
+  public String generateRandomUUIDAsString(){
+    return generateRandomUUID().toString();
+  }
+
   public String generateRandomMD5(){
     log.info("Generating RandomMD5 for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, ++callCount);
