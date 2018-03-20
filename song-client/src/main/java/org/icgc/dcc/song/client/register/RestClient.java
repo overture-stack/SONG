@@ -21,7 +21,7 @@ package org.icgc.dcc.song.client.register;
 import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
-import org.icgc.dcc.song.client.errors.ServerResponseErrorHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,9 +42,8 @@ public class RestClient {
 
   private final RestTemplate restTemplate;
 
-  public RestClient() {
-    this.restTemplate = new RestTemplate();
-    this.restTemplate.setErrorHandler(new ServerResponseErrorHandler());
+  public RestClient(@Autowired RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
   }
 
   public Status get(@NonNull String url) {

@@ -23,6 +23,12 @@ client:
   programName: sing
   debug: false
   accessToken: ${accessToken:}
+
+# For non-transparent proxies
+  proxy:
+    host:
+    port:
+
 logging.level.org.springframework: OFF
 
 

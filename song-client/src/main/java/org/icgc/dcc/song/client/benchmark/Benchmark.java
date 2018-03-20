@@ -84,7 +84,9 @@ public class Benchmark {
   public void upload(PayloadFileVisitor payloadFileVisitor){
     for (val studyId : payloadFileVisitor.getStudies()){
       setupStudy(studyId);
-      val registry = new Registry( createConfig(studyId), new RestClient());
+      val config = createConfig(studyId);
+      val restClient = new RestClient(config.restTemplate());
+      val registry = new Registry(config, restClient);
       checkState(registry.isAlive(), "The song server '%s' is not running", benchmarkConfig.getAccessToken());
       val uploadDatas = payloadFileVisitor.getDataForStudy(studyId);
       uploadStudy(studyId, registry, uploadDatas);
@@ -93,7 +95,9 @@ public class Benchmark {
 
   public void waitForStatus(PayloadFileVisitor payloadFileVisitor){
     for (val studyId : payloadFileVisitor.getStudies()){
-      val registry = new Registry( createConfig(studyId), new RestClient());
+      val config = createConfig(studyId);
+      val restClient = new RestClient(config.restTemplate());
+      val registry = new Registry(config, restClient);
       val uploadDatas = payloadFileVisitor.getDataForStudy(studyId);
       waitForStatusForStudy(studyId,registry, uploadDatas);
     }
@@ -101,7 +105,9 @@ public class Benchmark {
 
   public void save(PayloadFileVisitor payloadFileVisitor){
     for(val studyId : payloadFileVisitor.getStudies()){
-      val registry = new Registry(createConfig(studyId),new RestClient());
+      val config = createConfig(studyId);
+      val restClient = new RestClient(config.restTemplate());
+      val registry = new Registry(config, restClient);
       val uploadDatas = payloadFileVisitor.getDataForStudy(studyId);
       saveForStudy(studyId,registry, uploadDatas);
     }

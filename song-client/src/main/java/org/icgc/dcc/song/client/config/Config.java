@@ -20,16 +20,28 @@ package org.icgc.dcc.song.client.config;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.icgc.dcc.song.client.errors.ServerResponseErrorHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.Boolean.parseBoolean;
 import static lombok.AccessLevel.NONE;
 
 /**
  * 
  */
+@Slf4j
 @ConfigurationProperties(prefix = "client")
 @Component
 @Data
@@ -48,7 +60,42 @@ public class Config {
   @Value("client.debug")
   private String debug;
 
+  @Value("${client.proxy.host}")
+  private String proxyHost;
+
+  @Value("${client.proxy.port}")
+  private String proxyPort;
+
+  @Bean
+  public RestTemplate restTemplate(){
+    val restTemplate = new RestTemplate(clientHttpRequestFactory());
+    restTemplate.setErrorHandler(new ServerResponseErrorHandler());
+    return restTemplate;
+  }
+
   public boolean isDebug(){
     return parseBoolean(debug);
   }
+
+  private Boolean hasProxy(){
+    val isProxyPortDefined = !isNullOrEmpty(proxyPort);
+    val isProxyHostDefined = !isNullOrEmpty(proxyHost);
+    checkState(isProxyHostDefined == isProxyPortDefined,
+        "The proxy parameters proxyHost=%s and proxyPort=%s must be mutually defined or undefined",
+        proxyHost, proxyPort);
+    return isProxyHostDefined;
+  }
+
+  private SimpleClientHttpRequestFactory clientHttpRequestFactory(){
+    val reqFactory = new SimpleClientHttpRequestFactory();
+    if (hasProxy()){
+
+      log.warn("[Proxy Enabled] ProxyHost={}   ProxyPort={}", proxyHost, proxyPort);
+      val proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
+      reqFactory.setProxy(proxy);
+    }
+    return reqFactory;
+  }
+
+
 }
