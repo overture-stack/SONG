@@ -30,7 +30,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_RECORD_FAILED;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_REPOSITORY_DELETE_RECORD;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_REPOSITORY_UPDATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
@@ -49,30 +56,37 @@ public class SpecimenService {
   @Autowired
   private final StudyService studyService;
 
+  private String createSpecimenId(String studyId, Specimen specimen){
+    studyService.checkStudyExist(studyId);
+    val inputSpecimenId = specimen.getSpecimenId();
+    val id = idService.generateSpecimenId(specimen.getSpecimenSubmitterId(), studyId);
+    checkServer(isNullOrEmpty(inputSpecimenId) || id.equals(inputSpecimenId), getClass(),
+        SPECIMEN_ID_IS_CORRUPTED,
+        "The input specimenId '%s' is corrupted because it does not match the idServices specimenId '%s'",
+        inputSpecimenId, id);
+    checkSpecimenDoesNotExist(id);
+    return id;
+  }
 
   public String create(@NonNull String studyId, @NonNull Specimen specimen) {
-    studyService.checkStudyExist(studyId);
-    val id = idService.generateSpecimenId( specimen.getSpecimenSubmitterId(), studyId);
+    val id = createSpecimenId(studyId, specimen);
     specimen.setSpecimenId(id);
     int status = repository.create(specimen);
     checkServer(status == 1, this.getClass(), SPECIMEN_RECORD_FAILED,
           "Cannot create Specimen: %s", specimen.toString());
     infoService.create(id, specimen.getInfoAsString());
-
     return id;
   }
 
   public Specimen read(@NonNull String id) {
     val specimen = repository.read(id);
-    if (specimen == null) {
-      return null;
-    }
+    checkServer(!isNull(specimen), getClass(), SPECIMEN_DOES_NOT_EXIST,
+        "The specimen for specimenId '%s' could not be read because it does not exist", id);
     specimen.setInfo(infoService.readNullableInfo(id));
-
     return specimen;
   }
 
-  public SpecimenWithSamples readWithSamples(String id) {
+  SpecimenWithSamples readWithSamples(String id) {
     val specimen = read(id);
     val s = new SpecimenWithSamples();
     s.setSpecimen(specimen);
@@ -80,37 +94,57 @@ public class SpecimenService {
     return s;
   }
 
-  public List<SpecimenWithSamples> readByParentId(String parentId) {
+  List<SpecimenWithSamples> readByParentId(String parentId) {
     val ids = repository.findByParentId(parentId);
     val specimens = new ArrayList<SpecimenWithSamples>();
     ids.forEach(id -> specimens.add(readWithSamples(id)));
-
     return specimens;
   }
 
   public String update(@NonNull Specimen specimen) {
-    repository.update(specimen);
-    infoService.update(specimen.getSpecimenId(),specimen.getInfoAsString());
+    val status = repository.update(specimen);
+    checkServer(status == 1, getClass(), SPECIMEN_REPOSITORY_UPDATE_RECORD,
+        "Cannot update specimenId '%s' for specimen '%s'", specimen.getSpecimenId(), specimen);
+    infoService.update(specimen.getSpecimenId(), specimen.getInfoAsString());
     return OK;
   }
 
+  public boolean isSpecimenExist(@NonNull String id){
+    return !isNull(repository.read(id));
+  }
+
+  public void checkSpecimenExist(String id){
+    checkServer(isSpecimenExist(id), getClass(), SPECIMEN_DOES_NOT_EXIST,
+        "The specimen with specimenId '%s' does not exist", id);
+  }
+
+  public void checkSpecimenDoesNotExist(String id){
+    checkServer(!isSpecimenExist(id), getClass(), SPECIMEN_ALREADY_EXISTS,
+        "The specimen with specimenId '%s' already exists", id);
+  }
+
   public String delete(@NonNull String id) {
+    checkSpecimenExist(id);
     sampleService.deleteByParentId(id);
-    repository.delete(id);
+    val status  = repository.delete(id);
+    checkServer(status == 1, getClass(), SPECIMEN_REPOSITORY_DELETE_RECORD,
+        "Cannot delete specimen with specimenId '%s'", id);
     infoService.delete(id);
     return OK;
   }
 
-  public String deleteByParentId(@NonNull String parentId) {
+  public String delete(@NonNull List<String> ids) {
+    ids.forEach(this::delete);
+    return OK;
+  }
+
+  String deleteByParentId(@NonNull String parentId) {
     repository.findByParentId(parentId).forEach(this::delete);
     return OK;
   }
 
-  public List<String> findByParentId(@NonNull String donorId) {
-    return repository.findByParentId(donorId);
-  }
-
   public String findByBusinessKey(@NonNull String studyId, @NonNull String submitterId) {
+    studyService.checkStudyExist(studyId);
     return repository.findByBusinessKey(studyId, submitterId);
   }
 

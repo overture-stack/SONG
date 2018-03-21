@@ -93,7 +93,7 @@ public class SpecimenController {
       @PathVariable("studyId") String studyId,
       @PathVariable("ids") @ApiParam(value = "Comma separated list of specimenIds", required = true)
       List<String> ids) {
-    ids.forEach(specimenService::delete);
+    specimenService.delete(ids);
     return OK;
   }
 
