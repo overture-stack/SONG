@@ -101,7 +101,7 @@ public class RandomGenerator {
   }
 
   public <T> T randomElement(List<T> list){
-    log.info("Selecting random element for RandomGenerator[{}] with seed '{}' and callCount '{}'",
+    log.info("Selecting RandomElement for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, callCount);
     return list.get(generateRandomIntRange(0, list.size()));
   }

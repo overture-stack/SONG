@@ -188,5 +188,30 @@ public class RandomGeneratorTest {
     assertThat(randomList(() -> randomGenerator2.randomEnum(enumClass), 102)).isNotEqualTo(randomEnums);
   }
 
+  @Test
+  public void testSeed(){
+    val seed1 = generateRandomSeed();
+    val numCalls = 20;
+    val randomGenerator1 = createRandomGenerator("rand1-seed1", seed1);
+    val randomGenerator2 = createRandomGenerator("rand2-seed1", seed1);
+    for (int i=0; i<numCalls; i++){
+
+      randomGenerator1.generateRandomUUID();
+      randomGenerator1.generateRandomInt();
+      randomGenerator1.generateRandomAsciiString(6);
+
+      // Repeat with randomGenerator 2 which has same seed
+      randomGenerator2.generateRandomUUID();
+      randomGenerator2.generateRandomInt();
+      randomGenerator2.generateRandomAsciiString(6);
+    }
+    assertThat(randomGenerator1.generateRandomInt()).isEqualTo(randomGenerator2.generateRandomInt());
+    assertThat(randomGenerator1.generateRandomUUIDAsString()).isEqualTo(randomGenerator2.generateRandomUUIDAsString());
+    assertThat(randomGenerator1.generateRandomAsciiString(10))
+        .isEqualTo(randomGenerator2.generateRandomAsciiString (10));
+  }
+
+
+
 
 }
