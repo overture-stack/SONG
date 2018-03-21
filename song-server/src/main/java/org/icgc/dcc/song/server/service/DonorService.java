@@ -36,6 +36,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXIST
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_RECORD_FAILED;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_REPOSITORY_DELETE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_REPOSITORY_UPDATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
@@ -149,7 +150,9 @@ public class DonorService {
   private String internalDelete(String studyId, String id){
     checkDonorExists(id);
     specimenService.deleteByParentId(id);
-    donorRepository.delete(studyId, id);
+    val status = donorRepository.delete(studyId, id);
+    checkServer(status == 1, getClass(), DONOR_REPOSITORY_DELETE_RECORD,
+        "Cannot delete donor with donorId '%s'", id);
     infoService.delete(id);
     return OK;
   }
