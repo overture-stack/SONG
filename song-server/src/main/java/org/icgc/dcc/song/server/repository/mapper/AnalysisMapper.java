@@ -29,6 +29,10 @@ import org.skife.jdbi.v2.tweak.ResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static java.lang.String.format;
+import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
+import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
+import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STATE;
 import static org.icgc.dcc.song.server.repository.AttributeNames.STUDY_ID;
@@ -44,15 +48,14 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
     val type = r.getString(TYPE);
     val state = r.getString(STATE);
 
-
-    if (type.equals("sequencingRead")) {
+    val analysisType = resolveAnalysisType(type);
+    if (analysisType == SEQUENCING_READ) {
       return SequencingReadAnalysis.create(id, study, state);
-    }
-    if (type.equals("variantCall")) {
+    }else if (analysisType == VARIANT_CALL) {
       return VariantCallAnalysis.create(id, study, state);
     }
-
-    return null;
+    throw new IllegalStateException(
+        format("Cannot process the analysisType '%s(%s)'", analysisType.name(), analysisType));
   }
 
 
