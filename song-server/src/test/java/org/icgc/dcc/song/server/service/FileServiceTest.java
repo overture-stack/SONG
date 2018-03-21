@@ -23,6 +23,7 @@ import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,11 @@ public class FileServiceTest {
   AnalysisRepository analysisRepository;
 
   private final RandomGenerator randomGenerator = createRandomGenerator(FileServiceTest.class.getSimpleName());
+
+  @Before
+  public void beforeTest(){
+    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+  }
 
   @Test
   public void testReadFile() {
@@ -113,7 +119,6 @@ public class FileServiceTest {
     val analysisId = DEFAULT_ANALYSIS_ID;
     val studyId = DEFAULT_STUDY_ID;
     checkAnalysis(analysisRepository, analysisId);
-    studyService.checkStudyExist(studyId);
 
     val randomFile = createRandomFile(studyId, analysisId);
     val fileId = fileService.save(analysisId, studyId, randomFile);
@@ -191,11 +196,9 @@ public class FileServiceTest {
 
   @Test
   public void testFileDNE(){
+    val studyId = DEFAULT_STUDY_ID;
     val existingAnalysisId = DEFAULT_ANALYSIS_ID;
     checkAnalysis(analysisRepository, existingAnalysisId);
-
-    val studyId = DEFAULT_STUDY_ID;
-    studyService.checkStudyExist(studyId);
 
     val randomFile = createRandomFile(studyId, existingAnalysisId);
     assertSongError(() -> fileService.update(randomFile), FILE_NOT_FOUND );

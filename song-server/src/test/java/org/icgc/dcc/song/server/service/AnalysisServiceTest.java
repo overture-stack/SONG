@@ -112,6 +112,11 @@ public class AnalysisServiceTest {
   @Autowired
   private RetryTemplate retryTemplate;
 
+  @Before
+  public void beforeTest(){
+    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+  }
+
   /**
    * This is dirty, but since the existenceService is so easy to construct
    * and the storage url port is randomly assigned, it's worth it.
@@ -199,8 +204,6 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadVariantCallDNE() {
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
-
     val analysis = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId = analysis.getAnalysisId();
 
@@ -211,7 +214,6 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadSequencingReadDNE() {
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
 
     val analysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId = analysis.getAnalysisId();
@@ -585,7 +587,6 @@ public class AnalysisServiceTest {
   @Test
   public void testAnalysisMissingFilesException(){
     val studyId = DEFAULT_STUDY_ID;
-    assertThat(studyService.isStudyExist(studyId)).isTrue();
 
     val analysis1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId1 = analysis1.getAnalysisId();
@@ -620,7 +621,6 @@ public class AnalysisServiceTest {
   }
 
   private void runAnalysisMissingSamplesTest(Class<? extends Analysis> analysisClass) {
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
 
     // Create random analysis,
     val analysis = analysisGenerator.createDefaultRandomAnalysis(analysisClass);
