@@ -289,4 +289,15 @@ public class SpecimenServiceTest {
         assertSongError(() -> specimenService.delete(newArrayList(randomSpecimenId)), SPECIMEN_DOES_NOT_EXIST);
     }
 
+    @Test
+    public void testUpdateSpecimenDNE(){
+        val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
+        val specimen = Specimen.create(randomSpecimenId,
+            randomGenerator.generateRandomUUIDAsString(),
+            DEFAULT_DONOR_ID,
+            randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)),
+            randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)));
+        assertSongError(() -> specimenService.update(specimen), SPECIMEN_DOES_NOT_EXIST);
+    }
+
 }

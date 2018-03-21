@@ -102,6 +102,7 @@ public class SpecimenService {
   }
 
   public String update(@NonNull Specimen specimen) {
+    checkSpecimenExist(specimen.getSpecimenId());
     val status = repository.update(specimen);
     checkServer(status == 1, getClass(), SPECIMEN_REPOSITORY_UPDATE_RECORD,
         "Cannot update specimenId '%s' for specimen '%s'", specimen.getSpecimenId(), specimen);
@@ -147,5 +148,6 @@ public class SpecimenService {
     studyService.checkStudyExist(studyId);
     return repository.findByBusinessKey(studyId, submitterId);
   }
+
 
 }
