@@ -13,8 +13,4 @@ public class ResultSets {
     return r.getObject(columnName, Long.class);
   }
 
-  public static Integer getWrappedInteger(ResultSet r, String columnName ) throws SQLException {
-    return r.getObject(columnName, Integer.class);
-  }
-
 }
