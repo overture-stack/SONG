@@ -52,7 +52,7 @@ public class ValidationConfig {
   }
 
   @Bean
-  @Profile("test")
+  @Profile("async-test")
   public Long validationDelayMs(){
     return getValidationDelay();
   }

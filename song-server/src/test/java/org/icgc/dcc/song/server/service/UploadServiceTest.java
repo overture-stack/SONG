@@ -62,7 +62,7 @@ import static org.springframework.http.HttpStatus.OK;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
-@ActiveProfiles({"dev", "secure"})
+@ActiveProfiles({"dev", "secure", "async-test"})
 public class UploadServiceTest {
 
   private static final String FILEPATH = "../src/test/resources/fixtures/";
@@ -175,7 +175,8 @@ public class UploadServiceTest {
   }
 
   @SneakyThrows
-  @Test public void testAsyncUpdate() {
+  @Test
+  public void testAsyncUpdate() {
     val fileName= "updateAnalysisTest.json";
     val json = readFile(fileName);
     val uploadStatus = uploadService.upload(DEFAULT_STUDY, json, false );
