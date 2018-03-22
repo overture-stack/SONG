@@ -38,7 +38,6 @@ public class CompositeEntityService {
       s.setSampleId(sample.getSampleId());
       sampleService.update(s);
     }
-
     return id;
   }
 
@@ -49,6 +48,7 @@ public class CompositeEntityService {
       specimen.setDonorId(getSpecimenParent(studyId, s));
       id = specimenService.create(studyId, specimen);
     } else {
+      s.setSpecimenId(id);
       specimenService.update(specimen);
     }
     return id;
