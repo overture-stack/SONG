@@ -28,10 +28,4 @@ public enum UploadStates {
               uploadState)));
   }
 
-  public static String[] toStringArray(){
-    return stream(values())
-        .map(UploadStates::getText)
-        .toArray(String[]::new);
-  }
-
 }

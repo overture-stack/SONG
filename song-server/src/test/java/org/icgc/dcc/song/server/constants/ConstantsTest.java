@@ -45,7 +45,7 @@ public class ConstantsTest {
   }
 
   @Test
-  public void tesstInfoTypes(){
+  public void testInfoTypes(){
     assertThat(STUDY.toString()).isEqualTo("Study");
     assertThat(DONOR.toString()).isEqualTo("Donor");
     assertThat(SPECIMEN.toString()).isEqualTo("Specimen");

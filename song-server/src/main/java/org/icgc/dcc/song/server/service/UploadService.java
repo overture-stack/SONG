@@ -41,7 +41,6 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
@@ -129,17 +128,8 @@ public class UploadService {
       analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
-
-      if (studyService.isStudyExist(studyId)){
-        //TODO: Should we do this for all respository calls in the other services???
-        throw buildServerException( getClass(), UPLOAD_REPOSITORY_CREATE_RECORD,
-            "Unable to create record in upload repository");
-      } else {
-        throw buildServerException(getClass(), STUDY_ID_DOES_NOT_EXIST,
-            "Unable to create record in upload repository since studyId '%s' does not exist",
-            studyId);
-      }
-
+      throw buildServerException( getClass(), UPLOAD_REPOSITORY_CREATE_RECORD,
+          "Unable to create record in upload repository");
     } catch (JsonProcessingException jpe){
       log.error(jpe.getCause().getMessage());
       throw buildServerException(getClass(), PAYLOAD_PARSING,
