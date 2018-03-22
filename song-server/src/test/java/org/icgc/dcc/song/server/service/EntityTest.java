@@ -277,8 +277,24 @@ public class EntityTest {
     assertThat(s1.getSamples()).containsExactlyInAnyOrder(sample11, sample12);
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
 
+    // Test addSample
+    val sLeft = new SpecimenWithSamples();
+    sLeft.setDonorId(specimen1.getDonorId());
+    sLeft.setSpecimenClass(specimen1.getSpecimenClass());
+    sLeft.setSpecimenSubmitterId(specimen1.getSpecimenSubmitterId());
+    sLeft.setSpecimenId(specimen1.getSpecimenId());
+    sLeft.setSpecimenType(specimen1.getSpecimenType());
+    sLeft.setSamples(sampleGroup2);
 
+    val sRight = new SpecimenWithSamples();
+    sRight.setDonorId(specimen1.getDonorId());
+    sRight.setSpecimenClass(specimen1.getSpecimenClass());
+    sRight.setSpecimenSubmitterId(specimen1.getSpecimenSubmitterId());
+    sRight.setSpecimenId(specimen1.getSpecimenId());
+    sRight.setSpecimenType(specimen1.getSpecimenType());
+    sampleGroup2.forEach(sRight::addSample);
 
+    assertThat(sLeft).isEqualTo(sRight);
   }
 
   @Test
@@ -344,6 +360,7 @@ public class EntityTest {
     d2.setDonor(donor2);
     d2.setSpecimens(specimenWSampleGroup2);
 
+
     // 00 -- matchingDonorGroup=0    matchingStudy=0
     s1.setStudy(study1);
     s1.setDonors(newArrayList(d1));
@@ -390,6 +407,18 @@ public class EntityTest {
     assertThat(s1.getStudy()).isNotSameAs(study1);
     assertThat(s1.getDonors()).containsExactlyInAnyOrder(d1);
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
+
+    // Assert addDonor
+    val sLeft = new StudyWithDonors();
+    sLeft.setStudy(study1);
+    sLeft.setDonors(newArrayList(d1, d2));
+
+    val sRight = new StudyWithDonors();
+    sRight.setStudy(study1);
+    sRight.addDonor(d1);
+    sRight.addDonor(d2);
+    assertThat(sLeft).isEqualTo(sRight);
+
   }
 
 
@@ -490,6 +519,7 @@ public class EntityTest {
     u1.setErrors("error1");
     u1.setPayload("payload1");
     u1.setState(UploadStates.CREATED);
+    u1.setState(UploadStates.CREATED.getText());
     u1.setStudyId(DEFAULT_STUDY_ID);
     u1.setUpdatedAt(LocalDateTime.MIN);
     u1.setUploadId("uploadId1");

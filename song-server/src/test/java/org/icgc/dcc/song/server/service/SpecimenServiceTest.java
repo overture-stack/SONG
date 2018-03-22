@@ -102,7 +102,7 @@ public class SpecimenServiceTest {
         assertThat(specimen.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
         assertThat(specimen.getSpecimenClass()).isEqualTo("Tumour");
         assertThat(specimen.getSpecimenType()).isEqualTo("Recurrent tumour - solid tissue");
-        assertThat(specimen.getSamples().size()).isEqualTo(2);
+        assertThat(specimen.getSamples().size()).isEqualTo(3);
         assertThat(getInfoName(specimen)).isEqualTo("specimen1");
 
         // Verify that we got the same samples as the sample service says we should.

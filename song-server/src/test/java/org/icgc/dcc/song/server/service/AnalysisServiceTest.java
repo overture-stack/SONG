@@ -20,6 +20,7 @@ package org.icgc.dcc.song.server.service;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
@@ -55,7 +56,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
@@ -71,10 +74,14 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
+import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
+import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static org.icgc.dcc.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
+import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertInfoKVPair;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static org.springframework.http.HttpStatus.OK;
@@ -552,6 +559,58 @@ public class AnalysisServiceTest {
 
     assertThat(payload.getAnalysisId()).isNull();
     assertSongError(() -> service.create(nonExistentStudyId, payload, false), STUDY_ID_DOES_NOT_EXIST);
+  }
+
+  @Test
+  public void testGetAnalysisAndIdSearch(){
+    val studyGenerator = createStudyGenerator(studyService, randomGenerator);
+    val studyId = studyGenerator.createRandomStudy();
+
+    val analysisGenerator = createAnalysisGenerator(studyId, service, payloadGenerator);
+    val numAnalysis = 10;
+    val sraMap = Maps.<String, SequencingReadAnalysis>newHashMap();
+    val vcaMap = Maps.<String, VariantCallAnalysis>newHashMap();
+    val expectedAnalyses = Sets.<Analysis>newHashSet();
+    for (int i=1; i<=numAnalysis; i++){
+      if (i%2 == 0){
+        val sra = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
+        assertThat(sraMap.containsKey(sra.getAnalysisId())).isFalse();
+        sraMap.put(sra.getAnalysisId(), sra);
+        expectedAnalyses.add(sra);
+      } else {
+        val vca = analysisGenerator.createDefaultRandomVariantCallAnalysis();
+        assertThat(sraMap.containsKey(vca.getAnalysisId())).isFalse();
+        vcaMap.put(vca.getAnalysisId(), vca);
+        expectedAnalyses.add(vca);
+      }
+    }
+    assertThat(expectedAnalyses).hasSize(numAnalysis);
+    assertThat(sraMap.keySet().size() + vcaMap.keySet().size()).isEqualTo(numAnalysis);
+    val expectedVCAs = newHashSet(vcaMap.values());
+    val expectedSRAs = newHashSet(sraMap.values());
+    assertThat(expectedSRAs).hasSize(sraMap.keySet().size());
+    assertThat(expectedVCAs).hasSize(vcaMap.keySet().size());
+
+
+    val actualAnalyses = service.getAnalysis(studyId);
+    val actualSRAs = actualAnalyses.stream()
+        .filter(x -> resolveAnalysisType(x.getAnalysisType()) == SEQUENCING_READ)
+        .collect(toSet());
+    val actualVCAs = actualAnalyses.stream()
+        .filter(x -> resolveAnalysisType(x.getAnalysisType()) == VARIANT_CALL)
+        .collect(toSet());
+
+    assertThat(actualSRAs).hasSize(sraMap.keySet().size());
+    assertThat(actualVCAs).hasSize(vcaMap.keySet().size());
+    assertThat(actualSRAs).containsAll(expectedSRAs);
+    assertThat(actualVCAs).containsAll(expectedVCAs);
+
+    // Do a study-wide idSearch and verify the response effectively has the same
+    // number of results as the getAnalysis method
+    val searchedAnalyses = service.idSearch(studyId,
+        createIdSearchRequest(null, null, null, null));
+    assertThat(searchedAnalyses).hasSameSizeAs(expectedAnalyses);
+    assertThat(searchedAnalyses).containsOnlyElementsOf(expectedAnalyses);
   }
 
   @Test
