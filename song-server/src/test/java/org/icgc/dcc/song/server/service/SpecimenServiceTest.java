@@ -96,17 +96,49 @@ public class SpecimenServiceTest {
     @Test
     public void testReadWithSamples() {
         // see if we can read a composite object successfully
-        val id = "SP1";
-        val specimen = specimenService.readWithSamples(id);
-        assertThat(specimen.getSpecimenId()).isEqualTo(id);
-        assertThat(specimen.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
-        assertThat(specimen.getSpecimenClass()).isEqualTo("Tumour");
-        assertThat(specimen.getSpecimenType()).isEqualTo("Recurrent tumour - solid tissue");
-        assertThat(specimen.getSamples().size()).isEqualTo(3);
+        val submitterId = randomGenerator.generateRandomUUIDAsString();
+        val studyId = DEFAULT_STUDY_ID;
+        val donorId = DEFAULT_DONOR_ID;
+        val specimenClass  = randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS));
+        val specimenType = randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE));
+        val randomSpecimen = Specimen.create(
+            null,
+            submitterId,
+            donorId,
+            specimenClass,
+            specimenType
+        );
+        randomSpecimen.setInfo("name", "specimen1");
+        val specimenId =  specimenService.create(DEFAULT_STUDY_ID, randomSpecimen);
+        val sampleInput1 = Sample.create(null,
+            randomGenerator.generateRandomUUIDAsString(),
+            specimenId,
+            randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)) );
+        val sampleInput2 = Sample.create(null,
+            randomGenerator.generateRandomUUIDAsString(),
+            specimenId,
+            randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)) );
+        val sampleId1 = sampleService.create(studyId, sampleInput1);
+        val sampleId2 = sampleService.create(studyId, sampleInput2);
+
+
+
+        val specimen = specimenService.readWithSamples(specimenId);
+        assertThat(specimen.getSpecimenId()).isEqualTo(specimenId);
+        assertThat(specimen.getSpecimenSubmitterId()).isEqualTo(submitterId);
+        assertThat(specimen.getSpecimenClass()).isEqualTo(specimenClass);
+        assertThat(specimen.getSpecimenType()).isEqualTo(specimenType);
+        assertThat(specimen.getSamples().size()).isEqualTo(2);
         assertThat(getInfoName(specimen)).isEqualTo("specimen1");
 
         // Verify that we got the same samples as the sample service says we should.
-        specimen.getSamples().forEach(sample -> assertThat(sample.equals(getSample(sample.getSampleId()))));
+        val actualSet = specimen.getSamples().stream()
+            .map(Sample::getSampleId)
+            .collect(toSet());
+        val expectedSet = newHashSet(sampleId1, sampleId2);
+        assertThat(actualSet).hasSameSizeAs(expectedSet);
+        assertThat(actualSet).containsAll(expectedSet);
+        specimen.getSamples().forEach(sample -> assertThat(sample).isEqualTo(getSample(sample.getSampleId())));
     }
 
     private Sample getSample(String id) {

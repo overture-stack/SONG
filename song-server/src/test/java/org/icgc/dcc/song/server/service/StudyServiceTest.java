@@ -31,7 +31,6 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
@@ -81,7 +80,16 @@ public class StudyServiceTest {
   public void testFindAllStudies(){
     val studyIds = service.findAllStudies();
     assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
-    assertThat(newHashSet(studyIds)).hasSize(5);
+    val study = Study.create(
+        randomGenerator.generateRandomUUIDAsString(),
+        randomGenerator.generateRandomUUIDAsString(),
+        randomGenerator.generateRandomUUIDAsString(),
+        randomGenerator.generateRandomUUIDAsString()
+    );
+
+    service.saveStudy(study);
+    val studyIds2 = service.findAllStudies();
+    assertThat(studyIds2).contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId());
   }
 
   @Test
