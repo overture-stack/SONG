@@ -300,14 +300,17 @@ public class AnalysisService {
     return samples;
   }
 
-  private void saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
-    samples.stream()
-        .map(sample->compositeEntityService.save(studyId,sample))
-        .forEach(sampleId->repository.addSample(id, sampleId));
+  private List<String> saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
+    return samples.stream()
+        .map(sample -> compositeEntityService.save(studyId,sample))
+        .peek(sampleId -> repository.addSample(id, sampleId))
+        .collect(toImmutableList()) ;
   }
 
-  private void saveFiles(String id, String studyId, List<File> files) {
-    files.forEach(f->fileService.save(id, studyId, f));
+  private List<String> saveFiles(String id, String studyId, List<File> files) {
+    return files.stream()
+        .map(f -> fileService.save(id, studyId, f))
+        .collect(toImmutableList());
   }
 
   private void updateSequencingRead(String id, SequencingRead experiment) {
