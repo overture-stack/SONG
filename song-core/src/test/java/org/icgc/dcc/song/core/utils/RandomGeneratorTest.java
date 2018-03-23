@@ -8,11 +8,13 @@ import java.util.Random;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.randomList;
+import static org.icgc.dcc.song.core.utils.RandomGenerator.randomStream;
 
 public class RandomGeneratorTest {
 
@@ -165,6 +167,29 @@ public class RandomGeneratorTest {
     val randomInt = randomList(()-> randomGenerator3.randomElement(intList), 111);
     assertThat(randomList(() -> randomGenerator1.randomElement(intList), 111)).isNotEqualTo(randomInt);
     assertThat(randomList(() ->randomGenerator2.randomElement(intList), 111)).isNotEqualTo(randomInt);
+  }
+
+  @Test
+  public void testRandomList(){
+    val seed1 = generateRandomSeed();
+    val randomGenerator1 = createRandomGenerator("rand1-seed1", seed1);
+    val randomGenerator2 = createRandomGenerator("rand2-seed1", seed1);
+    val list1 = randomList(() -> randomGenerator1.generateRandomIntRange(0, 100), 9000);
+    val list2 = randomList(() -> randomGenerator2.generateRandomIntRange(0, 100), 9000);
+    assertThat(list1).containsExactlyElementsOf(list2);
+  }
+
+  @Test
+  public void testRandomStream(){
+    val seed1 = generateRandomSeed();
+    val randomGenerator1 = createRandomGenerator("rand1-seed1", seed1);
+    val randomGenerator2 = createRandomGenerator("rand2-seed1", seed1);
+    val map1 =  randomStream(() ->
+        randomGenerator1.generateRandomIntRange(1, 100), 9000).collect(groupingBy(x -> x));
+    val map2 =  randomStream(() ->
+        randomGenerator2.generateRandomIntRange(1, 100), 9000).collect(groupingBy(x -> x));
+    assertThat(map1).containsAllEntriesOf(map2);
+    assertThat(map2).containsAllEntriesOf(map1);
   }
 
   enum TestEnum{

@@ -70,7 +70,8 @@ public enum ServerErrors implements ServerError {
   STUDY_ALREADY_EXISTS(CONFLICT),
   UNKNOWN_ERROR(INTERNAL_SERVER_ERROR);
 
-  private static final Character ERROR_ID_SEPARATOR = '.';
+  private static final String ERROR_ID_SEPARATOR = ".";
+  private static final String ENUM_NAME_SEPARATOR = "_";
   private static final String REGEX = "[A-Z0-9_]+";
 
   private final String errorId;
@@ -92,7 +93,7 @@ public enum ServerErrors implements ServerError {
   public static String extractErrorId(@NonNull String errorId){
     checkArgument(errorId.matches(REGEX),
         "The errorId [%s] must follow the regex: %s", errorId, REGEX);
-    return errorId.toLowerCase().replaceAll("_",".");
+    return errorId.toLowerCase().replaceAll(ENUM_NAME_SEPARATOR, ERROR_ID_SEPARATOR);
   }
 
 }

@@ -21,6 +21,13 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Utility for generating random integers, strings and UUIDs using seed values while recording call counts to
+ * aid in replication. The underlying randomizer is the {@link Random} class and every time it is called,
+ * the {@link RandomGenerator#callCount} parameter is incremented, and the value is logged as well as the seed number
+ * and generator id to allow replication of specific random values. Having the seed value logged allows
+ * developers to easily replicate, debug and fix failing tests.
+ */
 @Slf4j
 public class RandomGenerator {
 
@@ -40,6 +47,10 @@ public class RandomGenerator {
     this.randomBasedUUIDGenerator = randomBasedGenerator(random);
   }
 
+  /**
+   * Generate a random string with {@code numCharacters} number of ASCII characters
+   * @param numCharacters to generate
+   */
   public String generateRandomAsciiString(int numCharacters){
     log.info("Generating RandomAsciiString for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, ++callCount);
@@ -52,28 +63,45 @@ public class RandomGenerator {
     return sb.toString();
   }
 
+  /**
+   * Generate a random {@link UUID}
+   */
   public UUID generateRandomUUID(){
     log.info("Generating RandomUUID for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, ++callCount);
     return randomBasedUUIDGenerator.generate();
   }
 
+  /**
+   * Generate a random {@link UUID} String
+   */
   public String generateRandomUUIDAsString(){
     return generateRandomUUID().toString();
   }
 
+  /**
+   * Generate a random MD5 string
+   */
   public String generateRandomMD5(){
     log.info("Generating RandomMD5 for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, ++callCount);
     return Hashing.md5().hashBytes(generateRandomUUID().toString().getBytes()).toString();
   }
 
+  /**
+   * Generate a random integer
+   */
   public int generateRandomInt(){
     log.info("Generating RandomInt for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, ++callCount);
     return random.nextInt();
   }
 
+  /**
+   * Generate a random integer between the interval [min, max)
+   * @param min inclusive lower bound
+   * @param max exclusive upper bound
+   */
   public int generateRandomIntRange(int min, int max){
     log.info("Generating RandomIntRange for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, callCount);
@@ -81,6 +109,11 @@ public class RandomGenerator {
     return generateRandomInt(min, max-min);
   }
 
+  /**
+   * Generate a random integer between the interval [offset, offset+length]
+   * @param offset inclusive lower bound
+   * @param length number of integers to randomize
+   */
   public int generateRandomInt(int offset, int length){
     long maxPossibleValue = offset + (long)length;
 
@@ -93,6 +126,10 @@ public class RandomGenerator {
     return offset+random.nextInt(length);
   }
 
+  /**
+   * Select a random Enum
+   * @param enumClass Enumeration class to use
+   */
   public <E extends Enum<E>> E randomEnum(Class<E> enumClass){
     val enumList = newArrayList(EnumSet.allOf(enumClass));
     log.info("Selecting random enum for RandomGenerator[{}] with seed '{}' and callCount '{}'",
@@ -100,29 +137,54 @@ public class RandomGenerator {
     return randomElement(enumList);
   }
 
+  /**
+   * Select a random element from a list
+   * @param list input list to select from
+   */
   public <T> T randomElement(List<T> list){
     log.info("Selecting RandomElement for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, callCount);
     return list.get(generateRandomIntRange(0, list.size()));
   }
 
+  /**
+   * Call the randomSupplier streamSize amount of times and stream it
+   * @param randomSupplier generates the random object of type T
+   * @param streamSize number of random objects to generate
+   * @param <T> output object type
+   */
   public static <T> Stream<T> randomStream(Supplier<T> randomSupplier, int streamSize){
     return IntStream.range(0, streamSize).boxed().map(x -> randomSupplier.get());
   }
 
+  /**
+   *
+   * Call the randomSupplier {@code size} amount of times and put it in a list
+   * @param randomSupplier generates the random object of type T
+   * @param size number of random objects to generate
+   * @param <T> output object type
+   */
   public static <T> List<T> randomList(Supplier<T> randomSupplier, int size){
     return randomStream(randomSupplier, size).collect(toList());
   }
 
+  /**
+   * Create a {@link RandomGenerator} with an id, and specific seed value
+   * @param id unique name describing the generator
+   * @param seed
+   */
   public static RandomGenerator createRandomGenerator(String id, long seed) {
     log.debug("Creating RandomGenerator[{}] for seed '{}'", id ,seed);
     return new RandomGenerator(id, new Random(seed), seed);
   }
 
+  /**
+   * Create a {@link RandomGenerator} with an id and randomly seed
+   * @param id unique name describing the generator
+   */
   public static RandomGenerator createRandomGenerator(String id) {
     val seed = System.currentTimeMillis();
     return createRandomGenerator(id, seed);
   }
-
 
 }

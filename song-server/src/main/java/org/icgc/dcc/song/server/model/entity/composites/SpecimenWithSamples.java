@@ -26,7 +26,7 @@ public class SpecimenWithSamples extends Specimen {
     }
 
     public Specimen getSpecimen() {
-        val s= Specimen.create(getSpecimenId(),getSpecimenSubmitterId(), getDonorId(), getSpecimenClass(),
+        val s = Specimen.create(getSpecimenId(),getSpecimenSubmitterId(), getDonorId(), getSpecimenClass(),
                 getSpecimenType());
         s.setInfo(getInfoAsString());
         return s;

@@ -27,7 +27,6 @@ import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import static java.lang.String.format;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
@@ -42,7 +41,7 @@ public class AnalysisMapper implements ResultSetMapper<Analysis> {
 
   @Override
   @SneakyThrows
-  public Analysis map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+  public Analysis map(int index, ResultSet r, StatementContext ctx) {
     val id = r.getString(ID);
     val study = r.getString(STUDY_ID );
     val type = r.getString(TYPE);
