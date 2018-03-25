@@ -18,7 +18,6 @@ package org.icgc.dcc.song.server.service;
 
 import com.google.common.collect.Sets;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.Donor;
@@ -110,7 +109,7 @@ public class DonorServiceTest {
     val id = d.getDonorId();
 
     assertThat(id).startsWith("DO");
-    Assertions.assertThat(status).isEqualTo(id);
+    assertThat(status).isEqualTo(id);
 
     DonorWithSpecimens check = service.readWithSpecimens(id);
     assertThat(d).isEqualToComparingFieldByField(check);
@@ -119,7 +118,7 @@ public class DonorServiceTest {
     assertThat(service.isDonorExist(id)).isFalse();
 
     val status2 = service.create(d);
-    Assertions.assertThat(status2).isEqualTo(id);
+    assertThat(status2).isEqualTo(id);
     service.delete("XYZ234", newArrayList(id));
     assertThat(service.isDonorExist(id)).isFalse();
   }

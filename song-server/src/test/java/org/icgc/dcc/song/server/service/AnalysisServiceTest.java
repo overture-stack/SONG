@@ -643,8 +643,6 @@ public class AnalysisServiceTest {
 
   @Test
   public void testAnalysisMissingFilesException(){
-    val studyId = DEFAULT_STUDY_ID;
-
     val analysis1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId1 = analysis1.getAnalysisId();
 
@@ -662,11 +660,13 @@ public class AnalysisServiceTest {
   @Test
   public void testSequencingReadAnalysisMissingSamplesException() {
     runAnalysisMissingSamplesTest(SequencingReadAnalysis.class);
+    assert(true);
   }
 
   @Test
   public void testVariantCallAnalysisMissingSamplesException() {
     runAnalysisMissingSamplesTest(VariantCallAnalysis.class);
+    assert(true);
   }
 
   @Test

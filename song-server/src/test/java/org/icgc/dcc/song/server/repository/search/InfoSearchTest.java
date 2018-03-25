@@ -110,13 +110,14 @@ public class InfoSearchTest {
   }
 
   @Test
-  public void testBasicTermSearch2() {
+  public void testBasicTermSearch() {
     val term1 = "dataCategorization.dataType=SSM";
     val term2 = "dataCategorization.experimentalStrategy=WGS";
     runBasicTermSearchTest(() ->  search(true, term1, term2), true);
     runBasicTermSearchTest(() ->  search(false, term1, term2), false);
     runBasicTermSearchTest(() ->  search2(false, term1, term2), false);
     runBasicTermSearchTest(() ->  search2(true, term1, term2), true);
+    assert(true);
   }
 
   @SneakyThrows

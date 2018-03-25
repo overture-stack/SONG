@@ -25,7 +25,6 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.id.client.core.IdClient;
-import org.icgc.dcc.song.core.exceptions.ServerErrors;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.Upload;
@@ -363,7 +362,7 @@ public class UploadServiceTest {
   @Test
   public void testReadUploadException(){
     val nonExistentUploadId = randomGenerator.generateRandomAsciiString(29);
-    assertSongError(() -> uploadService.read(nonExistentUploadId), ServerErrors.UPLOAD_ID_NOT_FOUND);
+    assertSongError(() -> uploadService.read(nonExistentUploadId), UPLOAD_ID_NOT_FOUND);
   }
 
   @Test

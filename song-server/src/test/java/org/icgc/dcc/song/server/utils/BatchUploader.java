@@ -63,7 +63,6 @@ public class BatchUploader {
     val studyId = batchUpload.getStudyId();
     for (val payload: batchUpload.getPayloads()){
       val uploadResponse = uploadService.upload(studyId, payload, isAsync );
-      val status = fromStatus(uploadResponse, "status");
       val uploadId = fromStatus(uploadResponse, "uploadId");
       val upload = uploadService.read(uploadId);
       batchUpload.addUpload(upload);
@@ -97,7 +96,6 @@ public class BatchUploader {
     val studyId = batchUpload.getStudyId();
     for (val upload : batchUpload.getValidatedUploads()){
       val saveResponse = uploadService.save(studyId, upload.getUploadId(), ignoreAnalysisIdCollisions );
-      val status = fromStatus(saveResponse, "status");
       val analysisId = fromStatus(saveResponse, "analysisId");
       upload.setAnalysisId(analysisId);
     }

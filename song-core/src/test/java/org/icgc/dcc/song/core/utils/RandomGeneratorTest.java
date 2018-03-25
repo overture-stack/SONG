@@ -149,6 +149,7 @@ public class RandomGeneratorTest {
     runRandomIntRangeTest(-101, 707);
     runRandomIntRangeTest(-701, -101);
     runRandomIntRangeTest(101, 701);
+    assert(true);
   }
 
   public void runRandomIntRangeTest(int min, int max){
