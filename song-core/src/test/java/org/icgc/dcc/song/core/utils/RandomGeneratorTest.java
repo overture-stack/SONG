@@ -104,12 +104,19 @@ public class RandomGeneratorTest {
     val randomGenerator3 = createRandomGenerator("rand3-seed2", seed2);
     val offset = 100;
     val length =  31;
-    assertThat(randomGenerator1.generateRandomInt(offset, length))
-        .isEqualTo(randomGenerator2.generateRandomInt (offset, length));
+    val listSize = 41;
 
-    val randomInt = randomGenerator3.generateRandomInt(offset, length);
-    assertThat(randomGenerator1.generateRandomInt(offset, length)).isNotEqualTo(randomInt);
-    assertThat(randomGenerator2.generateRandomInt(offset, length)).isNotEqualTo(randomInt);
+    val randList1 = randomList(
+        () -> randomGenerator1.generateRandomInt(offset, length), listSize );
+    val randList2 = randomList(
+        () -> randomGenerator2.generateRandomInt(offset, length), listSize );
+
+    assertThat(randList1).containsExactlyElementsOf(randList2);
+
+    val randList3 = randomList(
+        () -> randomGenerator3.generateRandomInt(offset, length), listSize );
+
+    assertThat(randList3).isNotEqualTo(randList1);
   }
 
   @Test
