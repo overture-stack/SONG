@@ -1,32 +1,29 @@
 /*
- * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.
+ * Copyright (c) 2018. Ontario Institute for Cancer Research
  *
- * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
- * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package org.icgc.dcc.song.server.service;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.id.client.util.HashIdClient;
-import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.junit.Test;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 
 @Slf4j
 public class IdServiceTest {
@@ -60,6 +57,7 @@ public class IdServiceTest {
     val id2 = idService.resolveAnalysisId(SUBMITTER_ID_2,false);
     assertThat(id2).isEqualTo(SUBMITTER_ID_2);
     assertThat(id1).isNotEqualTo(id2);
+
   }
 
   @Test
@@ -80,18 +78,25 @@ public class IdServiceTest {
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
     assertThat(id1).isEqualTo(SUBMITTER_ID_1);
-    try{
-      val id2 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
-    } catch(ServerException e){
-      val songError = e.getSongError();
-      assertThat(songError.getErrorId()).isEqualTo("analysis.id.already.exists");
-      assertThat(songError.getHttpStatusCode()).isEqualTo(409);
-      assertThat(songError.getHttpStatusName()).isEqualTo("CONFLICT");
-      assertThat(songError.getMessage()).contains(format("[IdService] - Collision detected for analysisId '%s'",SUBMITTER_ID_1));
-      return;
-    }
-    fail("No exception was thrown, but should have been thrown since ignoreAnalysisIdCollisions=false and"
+    assertSongError(
+        () -> idService.resolveAnalysisId(SUBMITTER_ID_1,false),
+        ANALYSIS_ID_COLLISION,
+        "No exception was thrown, but should have been thrown "
+            + "since ignoreAnalysisIdCollisions=false and"
         + " the same id was attempted to be created");
+
+    /*
+     * Test that if ignoreAnalysisIdCollisions is true and the analysisId does not exist, the
+     * analysisId is still created. SUBMITTER_ID_2 should not exist for first call
+     */
+    val id2 = idService.resolveAnalysisId(SUBMITTER_ID_2,true);
+    assertThat(id2).isEqualTo(SUBMITTER_ID_2);
+    assertSongError(
+        () -> idService.resolveAnalysisId(SUBMITTER_ID_2,false),
+        ANALYSIS_ID_COLLISION,
+        "No exception was thrown, but should have been thrown "
+            + "since ignoreAnalysisIdCollisions=false and"
+            + " the same id was attempted to be created");
   }
 
   private static final IdService createHashIdService(){

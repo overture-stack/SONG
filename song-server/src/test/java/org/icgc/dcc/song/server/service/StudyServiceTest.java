@@ -1,26 +1,25 @@
 /*
- * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.
+ * Copyright (c) 2018. Ontario Institute for Cancer Research
  *
- * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
- * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.icgc.dcc.song.server;
+package org.icgc.dcc.song.server.service;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.service.StudyService;
+import org.icgc.dcc.song.core.utils.RandomGenerator;
+import org.icgc.dcc.song.server.model.entity.Study;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,66 +30,90 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
+import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles({"dev","test"})
+@ActiveProfiles("dev")
 public class StudyServiceTest {
 
   @Autowired
   StudyService service;
 
+  private final RandomGenerator randomGenerator = createRandomGenerator(StudyServiceTest.class.getSimpleName());
+
   @Test
   public void testReadStudy() {
-    // check for data that we know exists in the H2 database already
-    val study = service.read("ABC123");
+    // check for data that we know exists in the database already
+    val study = service.read(DEFAULT_STUDY_ID);
     assertThat(study).isNotNull();
     assertThat(study.getStudyId()).isEqualTo("ABC123");
     assertThat(study.getName()).isEqualTo("X1-CA");
     assertThat(study.getDescription()).isEqualTo("A fictional study");
     assertThat(study.getOrganization()).isEqualTo("Sample Data Research Institute");
     assertThat(getInfoName(study)).isEqualTo("study1");
+  }
 
+  @Test
+  public void testSave(){
+    val studyId = randomGenerator.generateRandomUUID().toString();
+    val organization = randomGenerator.generateRandomUUID().toString();
+    val name  = randomGenerator.generateRandomAsciiString(10);
+    val description = randomGenerator.generateRandomUUID().toString();
+    val study = Study.create(studyId, name, organization, description);
+    assertThat(service.isStudyExist(studyId)).isFalse();
+    service.saveStudy(study);
+    val readStudy = service.read(studyId);
+    assertThat(readStudy).isEqualToComparingFieldByFieldRecursively(study);
+  }
+
+  @Test
+  public void testFindAllStudies(){
+    val studyIds = service.findAllStudies();
+    assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
+    val study = Study.create(
+        randomGenerator.generateRandomUUIDAsString(),
+        randomGenerator.generateRandomUUIDAsString(),
+        randomGenerator.generateRandomUUIDAsString(),
+        randomGenerator.generateRandomUUIDAsString()
+    );
+
+    service.saveStudy(study);
+    val studyIds2 = service.findAllStudies();
+    assertThat(studyIds2).contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId());
+  }
+
+  @Test
+  public void testDuplicateSaveStudyError(){
+    val existentStudyId = DEFAULT_STUDY_ID;
+    assertThat(service.isStudyExist(existentStudyId)).isTrue();
+    val study = service.read(existentStudyId);
+    assertSongError(() -> service.saveStudy(study), STUDY_ALREADY_EXISTS);
+  }
+
+  @Test
+  public void testReadStudyError(){
+    val nonExistentStudyId = genStudyId();
+    assertSongError(() -> service.read(nonExistentStudyId), STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
   public void testStudyCheck(){
-    val existentStudyId = "ABC123";
+    val existentStudyId = DEFAULT_STUDY_ID;
     assertThat(service.isStudyExist(existentStudyId)).isTrue();
-    val nonExistentStudyId = System.currentTimeMillis()+"something_different";
+    val nonExistentStudyId = genStudyId();
     assertThat(service.isStudyExist(nonExistentStudyId)).isFalse();
   }
 
-  @Test
-  public void testReadWithChildren(){
-    val d = service.readWithChildren("ABC123");
-    assertThat(d.getDonors().size()).isGreaterThanOrEqualTo(1);
-
-    val opt = d.getDonors().stream().filter(x -> x.getDonorId().equals("DO1")).findFirst();
-    assertThat(opt.isPresent()).isTrue();
-    val donorWithSpecimens = opt.get();
-    assertThat(donorWithSpecimens.getSpecimens()).hasSize(2);
-
-    val specimenWithSamples1 = donorWithSpecimens.getSpecimens().get(0);
-    assertThat(specimenWithSamples1.getSpecimenId()).isEqualTo("SP1");
-    assertThat(specimenWithSamples1.getSamples()).hasSize(2);
-
-    val sample11 = specimenWithSamples1.getSamples().get(0);
-    assertThat(sample11.getSampleId()).isEqualTo("SA1");
-
-    val sample12 = specimenWithSamples1.getSamples().get(1);
-    assertThat(sample12.getSampleId()).isEqualTo("SA11");
-
-
-    val specimenWithSamples2 = donorWithSpecimens.getSpecimens().get(1);
-    assertThat(specimenWithSamples2.getSpecimenId()).isEqualTo("SP2");
-    assertThat(specimenWithSamples2.getSamples()).hasSize(1);
-
-    val sample21 = specimenWithSamples2.getSamples().get(0);
-    assertThat(sample21.getSampleId()).isEqualTo("SA21");
+  private String genStudyId(){
+    return randomGenerator.generateRandomAsciiString(15);
   }
 
 }

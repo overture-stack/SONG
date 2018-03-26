@@ -1,20 +1,18 @@
 /*
- * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.
+ * Copyright (c) 2018. Ontario Institute for Cancer Research
  *
- * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
- * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package org.icgc.dcc.song.server.service;
 
@@ -30,10 +28,16 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_RECORD_FAILED;
-import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_REPOSITORY_DELETE_RECORD;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_REPOSITORY_UPDATE_RECORD;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
-import static org.icgc.dcc.song.server.model.enums.IdPrefix.SPECIMEN_PREFIX;
 
 @RequiredArgsConstructor
 @Service
@@ -47,32 +51,40 @@ public class SpecimenService {
   private final SpecimenInfoService infoService;
   @Autowired
   private final SpecimenRepository repository;
+  @Autowired
+  private final StudyService studyService;
 
+  private String createSpecimenId(String studyId, Specimen specimen){
+    studyService.checkStudyExist(studyId);
+    val inputSpecimenId = specimen.getSpecimenId();
+    val id = idService.generateSpecimenId(specimen.getSpecimenSubmitterId(), studyId);
+    checkServer(isNullOrEmpty(inputSpecimenId) || id.equals(inputSpecimenId), getClass(),
+        SPECIMEN_ID_IS_CORRUPTED,
+        "The input specimenId '%s' is corrupted because it does not match the idServices specimenId '%s'",
+        inputSpecimenId, id);
+    checkSpecimenDoesNotExist(id);
+    return id;
+  }
 
   public String create(@NonNull String studyId, @NonNull Specimen specimen) {
-    val id = idService.generateSpecimenId( specimen.getSpecimenSubmitterId(), studyId);
+    val id = createSpecimenId(studyId, specimen);
     specimen.setSpecimenId(id);
     int status = repository.create(specimen);
-    if (status != 1) {
-      throw buildServerException(this.getClass(), SPECIMEN_RECORD_FAILED,
+    checkServer(status == 1, this.getClass(), SPECIMEN_RECORD_FAILED,
           "Cannot create Specimen: %s", specimen.toString());
-    }
     infoService.create(id, specimen.getInfoAsString());
-
     return id;
   }
 
   public Specimen read(@NonNull String id) {
     val specimen = repository.read(id);
-    if (specimen == null) {
-      return null;
-    }
-    specimen.setInfo(infoService.read(id));
-
+    checkServer(!isNull(specimen), getClass(), SPECIMEN_DOES_NOT_EXIST,
+        "The specimen for specimenId '%s' could not be read because it does not exist", id);
+    specimen.setInfo(infoService.readNullableInfo(id));
     return specimen;
   }
 
-  public SpecimenWithSamples readWithSamples(String id) {
+  SpecimenWithSamples readWithSamples(String id) {
     val specimen = read(id);
     val s = new SpecimenWithSamples();
     s.setSpecimen(specimen);
@@ -80,51 +92,60 @@ public class SpecimenService {
     return s;
   }
 
-  public List<SpecimenWithSamples> readByParentId(String parentId) {
+  List<SpecimenWithSamples> readByParentId(String parentId) {
     val ids = repository.findByParentId(parentId);
     val specimens = new ArrayList<SpecimenWithSamples>();
     ids.forEach(id -> specimens.add(readWithSamples(id)));
-
     return specimens;
   }
 
   public String update(@NonNull Specimen specimen) {
-    repository.update(specimen);
-    infoService.update(specimen.getSpecimenId(),specimen.getInfoAsString());
+    checkSpecimenExist(specimen.getSpecimenId());
+    val status = repository.update(specimen);
+    checkServer(status == 1, getClass(), SPECIMEN_REPOSITORY_UPDATE_RECORD,
+        "Cannot update specimenId '%s' for specimen '%s'", specimen.getSpecimenId(), specimen);
+    infoService.update(specimen.getSpecimenId(), specimen.getInfoAsString());
     return OK;
   }
 
+  public boolean isSpecimenExist(@NonNull String id){
+    return !isNull(repository.read(id));
+  }
+
+  public void checkSpecimenExist(String id){
+    checkServer(isSpecimenExist(id), getClass(), SPECIMEN_DOES_NOT_EXIST,
+        "The specimen with specimenId '%s' does not exist", id);
+  }
+
+  public void checkSpecimenDoesNotExist(String id){
+    checkServer(!isSpecimenExist(id), getClass(), SPECIMEN_ALREADY_EXISTS,
+        "The specimen with specimenId '%s' already exists", id);
+  }
+
   public String delete(@NonNull String id) {
+    checkSpecimenExist(id);
     sampleService.deleteByParentId(id);
-    repository.delete(id);
+    val status  = repository.delete(id);
+    checkServer(status == 1, getClass(), SPECIMEN_REPOSITORY_DELETE_RECORD,
+        "Cannot delete specimen with specimenId '%s'", id);
     infoService.delete(id);
     return OK;
   }
 
-  public String deleteByParentId(@NonNull String parentId) {
+  public String delete(@NonNull List<String> ids) {
+    ids.forEach(this::delete);
+    return OK;
+  }
+
+  String deleteByParentId(@NonNull String parentId) {
     repository.findByParentId(parentId).forEach(this::delete);
     return OK;
   }
 
-  public List<String> findByParentId(@NonNull String donorId) {
-    return repository.findByParentId(donorId);
-  }
-
   public String findByBusinessKey(@NonNull String studyId, @NonNull String submitterId) {
+    studyService.checkStudyExist(studyId);
     return repository.findByBusinessKey(studyId, submitterId);
   }
 
-  public String save(@NonNull String studyId, @NonNull Specimen specimen) {
-    String specimenId = repository.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
-    if (specimenId == null) {
-      specimenId = idService.generate(SPECIMEN_PREFIX);
-      specimen.setSpecimenId(specimenId);
-      repository.create(specimen);
-    } else {
-      specimen.setSpecimenId(specimenId);
-      repository.update(specimen);
-    }
-    return specimenId;
-  }
 
 }

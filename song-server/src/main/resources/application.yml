@@ -39,6 +39,7 @@ id:
   persistInMemory: false
 
 validation:
+  delayMs: 30
   threads:
     core: 5
     max: 10
@@ -61,6 +62,10 @@ auth:
     multiplier: 2.0
 
 ---
+spring.profiles: async-test
+validation.delayMs: 5000
+
+---
 spring.profiles: test
 spring:
   profiles:
@@ -73,12 +78,12 @@ spring:
   datasource:
     initialize: true
 
+id.persistInMemory: true
+
 auth:
   server:
     prefix: "song"
     suffix: "upload"
-
-validation.delayMs: 3000
 
 # Datasource
 spring.datasource:
@@ -139,8 +144,6 @@ spring.datasource:
   max-active: 10
   max-idle: 1
   min-idle: 1
-
-validation.delayMs: 30
 
 ---
 spring:

@@ -1,20 +1,18 @@
 /*
- * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.
+ * Copyright (c) 2018. Ontario Institute for Cancer Research
  *
- * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
- * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package org.icgc.dcc.song.server.service;
 
@@ -41,12 +39,12 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
-import static org.icgc.dcc.song.core.exceptions.SongError.error;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
+import static org.icgc.dcc.song.core.utils.JsonUtils.fromSingleQuoted;
 import static org.icgc.dcc.song.server.model.enums.IdPrefix.UPLOAD_PREFIX;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.CREATED;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.SAVED;
@@ -59,8 +57,6 @@ import static org.springframework.http.ResponseEntity.ok;
 @Service
 @Slf4j
 public class UploadService {
-
-  private static final String MESSAGE_CONTEXT = UploadService.class.getSimpleName();
 
   @Autowired
   private final IdService id;
@@ -76,10 +72,8 @@ public class UploadService {
 
   public Upload read(@NonNull String uploadId) {
     val upload = uploadRepository.get(uploadId);
-    if (isNull(upload)){
-      throw buildServerException(MESSAGE_CONTEXT, UPLOAD_ID_NOT_FOUND,
+    checkServer(!isNull(upload), this.getClass(), UPLOAD_ID_NOT_FOUND,
           "The uploadId '%s' was not found", uploadId);
-    }
     return upload;
   }
 
@@ -94,6 +88,7 @@ public class UploadService {
 
   @SneakyThrows
   public ResponseEntity<String> upload(@NonNull String studyId, @NonNull String payload, boolean isAsyncValidation) {
+    studyService.checkStudyExist(studyId);
     String analysisType;
     String uploadId;
     val status = JsonUtils.ObjectNode();
@@ -111,7 +106,7 @@ public class UploadService {
         ids = uploadRepository.findByBusinessKey(studyId, analysisId);
       }
 
-      if (ids == null || ids.isEmpty()) {
+      if (isNull(ids) || ids.isEmpty()) {
         uploadId = id.generate(UPLOAD_PREFIX);
         create(studyId, analysisId, uploadId, payload);
       } else if (ids.size() == 1) {
@@ -124,27 +119,18 @@ public class UploadService {
         update(uploadId, payload);
 
       } else {
-        return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_FOUND,
+        throw buildServerException(getClass(), UPLOAD_ID_NOT_FOUND,
                 "Multiple upload ids found for analysisId='%s', study='%s'",
                 analysisId, studyId);
       }
       analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     } catch (UnableToExecuteStatementException jdbie) {
       log.error(jdbie.getCause().getMessage());
-
-      if (studyService.isStudyExist(studyId)){
-        //TODO: Should we do this for all respository calls in the other services???
-        return error(MESSAGE_CONTEXT, UPLOAD_REPOSITORY_CREATE_RECORD,
-            "Unable to create record in upload repository");
-      } else {
-        return error(MESSAGE_CONTEXT, STUDY_ID_DOES_NOT_EXIST,
-            "Unable to create record in upload repository since studyId '%s' does not exist",
-            studyId);
-      }
-
+      throw buildServerException( getClass(), UPLOAD_REPOSITORY_CREATE_RECORD,
+          "Unable to create record in upload repository");
     } catch (JsonProcessingException jpe){
       log.error(jpe.getCause().getMessage());
-      return error(MESSAGE_CONTEXT, PAYLOAD_PARSING,
+      throw buildServerException(getClass(), PAYLOAD_PARSING,
           "Unable parse the input payload: %s ",payload);
     }
 
@@ -160,29 +146,23 @@ public class UploadService {
 
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId,
       final boolean ignoreAnalysisIdCollisions) {
+    studyService.checkStudyExist(studyId);
     val upload = read(uploadId);
-    if (upload == null ){
-      return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_FOUND,
+    checkServer(!isNull(upload),this.getClass(), UPLOAD_ID_NOT_FOUND,
           "UploadId %s does not exist", uploadId);
-    }
     val uploadState = resolveState(upload.getState());
-    if (uploadState != VALIDATED && uploadState != SAVED  ) {
-        return error(MESSAGE_CONTEXT, UPLOAD_ID_NOT_VALIDATED,
-            "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
-            uploadId, uploadState.getText(), VALIDATED.getText());
-    }
 
+    checkServer(uploadState == SAVED || uploadState == VALIDATED, this.getClass(),
+        UPLOAD_ID_NOT_VALIDATED,
+        "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
+        uploadId, uploadState.getText(), VALIDATED.getText());
     val json = upload.getPayload();
     val analysis = JsonUtils.fromJson(json, Analysis.class);
-
     val analysisId = analysisService.create(studyId, analysis, ignoreAnalysisIdCollisions);
-    if (analysisId == null) {
-      return error(MESSAGE_CONTEXT, ANALYSIS_ID_NOT_CREATED,
-          "Could not create analysisId for upload id '%s",uploadId);
-    }
-
+    checkServer(!isNull(analysisId),this.getClass(), ANALYSIS_ID_NOT_CREATED,
+        "Could not create analysisId for upload id '%s",uploadId);
     updateAsSaved(uploadId);
-    val reply = JsonUtils.fromSingleQuoted(format("{'analysisId': '%s', 'status': '%s'}", analysisId, "ok"));
+    val reply = fromSingleQuoted(format("{'analysisId': '%s', 'status': '%s'}", analysisId, "ok"));
     return ok(reply);
   }
 

@@ -1,20 +1,18 @@
 /*
- * Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.
+ * Copyright (c) 2018. Ontario Institute for Cancer Research
  *
- * This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
- * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
- * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package org.icgc.dcc.song.server.service;
 
@@ -27,8 +25,8 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.id.client.core.IdClient;
-import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.junit.Test;
@@ -45,8 +43,14 @@ import java.nio.file.Files;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
+import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
+import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static org.springframework.http.HttpStatus.OK;
@@ -55,7 +59,7 @@ import static org.springframework.http.HttpStatus.OK;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
-@ActiveProfiles({"dev", "secure", "test"})
+@ActiveProfiles({"dev", "secure", "async-test"})
 public class UploadServiceTest {
 
   private static final String FILEPATH = "../src/test/resources/fixtures/";
@@ -70,6 +74,8 @@ public class UploadServiceTest {
 
   @Autowired
   IdClient idClient;
+
+  private final RandomGenerator randomGenerator = createRandomGenerator(UploadServiceTest.class.getSimpleName());
 
   @Test
   public void testAsyncSequencingRead(){
@@ -166,7 +172,8 @@ public class UploadServiceTest {
   }
 
   @SneakyThrows
-  @Test public void testAsyncUpdate() {
+  @Test
+  public void testAsyncUpdate() {
     val fileName= "updateAnalysisTest.json";
     val json = readFile(fileName);
     val uploadStatus = uploadService.upload(DEFAULT_STUDY, json, false );
@@ -316,14 +323,9 @@ public class UploadServiceTest {
     val uploadId1 = upload(DEFAULT_STUDY,jsonPayload, false);
 
     // Save1 - should detect that the analysisId already exists in the IdService
-    try{
-      val response1 = uploadService.save(DEFAULT_STUDY, uploadId1, false);
-      fail("Collision was not detected!");
-    } catch (ServerException e){
-      val errorId = e.getSongError().getErrorId();
-      assertThat(errorId).isEqualTo("analysis.id.already.exists");
-      assertThat(e.getSongError().getMessage()).contains("Collision detected");
-    }
+    assertSongError(() ->
+      uploadService.save(DEFAULT_STUDY, uploadId1, false), ANALYSIS_ID_COLLISION,
+      "Collision was not detected!");
 
     // Save2 - same as save1 except ignoreAnalysisIdCollisions = true, which will successfully save the payload
     val response2 = uploadService.save(DEFAULT_STUDY, uploadId1, true);
@@ -352,17 +354,52 @@ public class UploadServiceTest {
     assertThat(response1.getStatusCode()).isEqualTo(OK);
 
     // Save2 - should detect that an analysis with the same analysisId was already save in the song database
-    try{
-      val response2 = uploadService.save(DEFAULT_STUDY, uploadId1, true);
-      fail(format("Should not be able to create 2 analysis with the same id (%s)!",expectedAnalysisId));
-    } catch (ServerException e){
-      val errorId = e.getSongError().getErrorId();
-      assertThat(errorId).isEqualTo("duplicate.analysis.attempt");
-      assertThat(e.getSongError().getMessage()).contains("Attempted to create a duplicate analysis");
-    }
+    assertSongError(() -> uploadService.save(DEFAULT_STUDY, uploadId1, true),
+        DUPLICATE_ANALYSIS_ATTEMPT,
+      "Should not be able to create 2 analysis with the same id (%s)!",expectedAnalysisId);
   }
 
-  private static String createUniqueAnalysisId(){
+  @Test
+  public void testReadUploadException(){
+    val nonExistentUploadId = randomGenerator.generateRandomAsciiString(29);
+    assertSongError(() -> uploadService.read(nonExistentUploadId), UPLOAD_ID_NOT_FOUND);
+  }
+
+  @Test
+  public void testStudyDNEException(){
+    val payload = createPayloadWithDifferentAnalysisId();
+    val nonExistentStudyId = randomGenerator.generateRandomAsciiString(8);
+    assertSongError( () -> uploadService.upload(nonExistentStudyId, payload.getJsonPayload(), false),
+        STUDY_ID_DOES_NOT_EXIST);
+  }
+
+  @Test
+  public void testSaveExceptions(){
+    val payload = createPayloadWithDifferentAnalysisId();
+    val nonExistentStudyId = randomGenerator.generateRandomAsciiString(8);
+    val nonExistentUploadId = randomGenerator.generateRandomAsciiString(29);
+    assertSongError( () -> uploadService.save(nonExistentStudyId, nonExistentUploadId, false), STUDY_ID_DOES_NOT_EXIST);
+    assertSongError( () -> uploadService.save(DEFAULT_STUDY, nonExistentUploadId, false),
+        UPLOAD_ID_NOT_FOUND);
+
+    // Upload data and test nonExistentStudy with existent upload
+    val uploadResponse = uploadService.upload(DEFAULT_STUDY, payload.getJsonPayload(), false);
+    val uploadId = fromStatus(uploadResponse,"uploadId");
+    assertSongError( () -> uploadService.save(nonExistentStudyId, uploadId, false),
+        STUDY_ID_DOES_NOT_EXIST);
+  }
+
+  @Test
+  public void testSaveValidatedException(){
+    val payload = createPayloadWithDifferentAnalysisId();
+    val corruptedJsonPayload = payload.getJsonPayload().replace('{', ' ');
+    val uploadResponse = uploadService.upload(DEFAULT_STUDY, corruptedJsonPayload, false);
+    val uploadId = fromStatus(uploadResponse,"uploadId");
+    assertSongError( () -> uploadService.save(DEFAULT_STUDY, uploadId, false),
+        UPLOAD_ID_NOT_VALIDATED);
+  }
+
+  private String createUniqueAnalysisId(){
     return format("AN-56789-%s",ANALYSIS_ID_COUNT++);
   }
 
@@ -372,10 +409,10 @@ public class UploadServiceTest {
     return json;
   }
 
-  private static Payload createPayloadWithDifferentAnalysisId(){
+  private Payload createPayloadWithDifferentAnalysisId(){
     val filename = "documents/sequencingread-valid.json";
     val json = getJsonNodeFromClasspath(filename);
-    val analysisId =createUniqueAnalysisId();
+    val analysisId = createUniqueAnalysisId();
     val jsonPayload = toJson(updateAnalysisId(json, analysisId));
     return Payload.builder()
         .analysisId(analysisId)

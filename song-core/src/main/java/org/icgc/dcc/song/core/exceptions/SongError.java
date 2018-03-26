@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2018. Ontario Institute for Cancer Research
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.icgc.dcc.song.core.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -99,7 +116,7 @@ public class SongError {
   }
 
   public static ResponseEntity<String> error(String context, ServerError serverError, String format, Object... args){
-    return error(serverError, contextMessage(context, format, args));
+    return error(serverError, contextMessage(context+"::"+serverError.getErrorId(), format, args));
   }
 
   public static SongError createSongError(Class<?> clazz, ServerError serverError,
@@ -109,7 +126,7 @@ public class SongError {
 
   public static SongError createSongError(String context, ServerError serverError,
       String formattedMessage, Object... args){
-    return createSongError(serverError, contextMessage( context, formattedMessage, args));
+    return createSongError(serverError, contextMessage( context+"::"+serverError.getErrorId(), formattedMessage, args));
   }
 
   public static SongError createSongError(@NonNull ServerError serverError, @NonNull String formattedMessage, Object...args){
