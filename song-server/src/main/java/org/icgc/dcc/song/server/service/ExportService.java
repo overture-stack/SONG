@@ -12,8 +12,11 @@ import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.utils.JsonUtils.readTree;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toPrettyJson;
 
@@ -24,12 +27,29 @@ public class ExportService {
   private AnalysisService analysisService;
 
   @SneakyThrows
-  public JsonNode exportPayload(@NonNull String analysisId, boolean includeIds){
-    return convertToPayload(analysisService.read(analysisId), includeIds);
+  public List<JsonNode> exportPayload(@NonNull List<String> analysisIds,
+      boolean includeAnalysisId, boolean includeOtherIds){
+    return analysisIds.stream()
+        .map(x -> exportPayload(x, includeAnalysisId, includeOtherIds))
+        .collect(toImmutableList());
   }
 
   @SneakyThrows
-  private static JsonNode convertToPayload(@NonNull Analysis a, boolean includeIds){
+  public JsonNode exportPayload(@NonNull String analysisId,
+      boolean includeAnalysisId, boolean includeOtherIds){
+    return convertToPayload(analysisService.read(analysisId), includeAnalysisId, includeOtherIds);
+  }
+
+  @SneakyThrows
+  public List<JsonNode> exportPayloadsForStudy(@NonNull String studyId,
+      boolean includeAnalysisId, boolean includeOtherIds){
+    return analysisService.getAnalysis(studyId).stream()
+        .map(x -> convertToPayload(x, includeAnalysisId, includeOtherIds))
+        .collect(toImmutableList());
+  }
+
+  @SneakyThrows
+  private static JsonNode convertToPayload(@NonNull Analysis a, boolean includeAnalysisId, boolean includeOtherIds){
     JsonNode output;
     if (a.getAnalysisType().equals("sequencingRead")){
       val seqRead = (SequencingReadAnalysis)a;
@@ -42,8 +62,12 @@ public class ExportService {
           format("Should not be here, unsupported analysisType '%s'",
               a.getAnalysisType()));
     }
-    if (!includeIds){
+    if (!includeAnalysisId){
+      remove(output, "analysisId");
+    }
+    if (!includeOtherIds){
       remove(output, "study");
+      remove(output, "analysisState");
       remove(output.path("experiment"), "analysisId");
       Streams.stream(output.path("sample").iterator())
           .forEach(x -> remove(x, "sampleId", "specimenId" ));

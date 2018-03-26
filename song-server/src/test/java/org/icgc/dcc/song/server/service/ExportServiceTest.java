@@ -1,6 +1,5 @@
 package org.icgc.dcc.song.server.service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -79,11 +78,10 @@ public class ExportServiceTest {
     val expectedSeqAnalysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
 
     // Export the analysis
-    val json =  exportService.exportPayload(expectedSeqAnalysis.getAnalysisId(), false);
+    val json =  exportService.exportPayload(expectedSeqAnalysis.getAnalysisId(), true, false);
 
     // Delete the previously created analysis so it can be created using the uploadService (frontdoor creation)
     deleteAnalysis(expectedSeqAnalysis);
-    ((ObjectNode)json).put(ANALYSIS_ID, expectedSeqAnalysis.getAnalysisId());
 
     // Upload and check if successful
     val payload = JsonUtils.toJson(json);
