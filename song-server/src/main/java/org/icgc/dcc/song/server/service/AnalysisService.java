@@ -324,7 +324,7 @@ public class AnalysisService {
   static Analysis checkAnalysis(AnalysisRepository analysisRepository, String id){
     val analysis = analysisRepository.read(id);
     checkServer(!isNull(analysis),
-        AnalysisService.class.getClass(), ANALYSIS_ID_NOT_FOUND,
+        AnalysisService.class, ANALYSIS_ID_NOT_FOUND,
         "The analysisId '%s' could was not found", id );
     return analysis;
 
