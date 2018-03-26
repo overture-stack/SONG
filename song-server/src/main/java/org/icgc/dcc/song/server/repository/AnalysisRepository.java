@@ -86,6 +86,9 @@ public interface AnalysisRepository {
   @SqlUpdate("DELETE FROM VariantCall WHERE id=:id" )
   void deleteVariantCall(@Bind("id") String id);
 
+  @SqlUpdate("DELETE FROM Analysis WHERE id=:id" )
+  void deleteAnalysis(@Bind("id") String id);
+
   @SqlUpdate("UPDATE SequencingRead SET library_strategy=:libraryStrategy, paired_end=:pairedEnd, " +
           "insert_size=:insertSize, aligned=:aligned, alignment_tool=:alignmentTool, " +
           "reference_genome=:referenceGenome " +
