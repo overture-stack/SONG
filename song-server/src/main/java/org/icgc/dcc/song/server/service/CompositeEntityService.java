@@ -1,15 +1,36 @@
+/*
+ * Copyright (c) 2018. Ontario Institute for Cancer Research
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.icgc.dcc.song.server.service;
 
 import lombok.AllArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static java.util.Objects.isNull;
+
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CompositeEntityService {
 
   @Autowired
@@ -23,23 +44,28 @@ public class CompositeEntityService {
 
   public String save(String studyId, CompositeEntity s) {
     String id = sampleService.findByBusinessKey(studyId, s.getSampleSubmitterId());
-    if (id == null) {
+    if (isNull(id)) {
       s.setSpecimenId(getSampleParent(studyId, s));
       id = sampleService.create(studyId, s);
     } else {
+      val sample = sampleService.read(id);
+      s.setSpecimenId(sample.getSpecimenId());
+      s.setSampleType(sample.getSampleType());
+      s.setSampleSubmitterId(sample.getSampleSubmitterId());
+      s.setSampleId(sample.getSampleId());
       sampleService.update(s);
     }
-
     return id;
   }
 
   private String getSampleParent(String studyId, CompositeEntity s) {
     val specimen = s.getSpecimen();
     String id = specimenService.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
-    if (id == null) {
+    if (isNull(id)) {
       specimen.setDonorId(getSpecimenParent(studyId, s));
       id = specimenService.create(studyId, specimen);
     } else {
+      s.setSpecimenId(id);
       specimenService.update(specimen);
     }
     return id;
