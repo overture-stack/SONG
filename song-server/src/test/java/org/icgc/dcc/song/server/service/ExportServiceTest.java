@@ -115,7 +115,7 @@ public class ExportServiceTest {
     val actualExportedPayload00 = actualExportedPayloadList00.get(0);
 
     val expectedAnalyses = data.get(studyId);
-//    val expectedAnalysisMap = Reductions.groupUnique(expectedAnalyses, SequencingReadAnalysis::getAnalysisId);
+//    val expecttedAnalysisMap = Reductions.groupUnique(expectedAnalyses, SequencingReadAnalysis::getAnalysisId);
 
     for (val payload : actualExportedPayload00.getPayloads()){
       val actualAnalysis = fromJson(payload,analysisClass);
@@ -178,14 +178,31 @@ public class ExportServiceTest {
     }
   }
 
+  /**
+   * Given that  0 < numStudies < numAnalysesPerStudy, this test ensures that if the export service is requested for ONE
+   * analysisId from EACH study, the response will return a list of size {@code numStudies}, where each element (which is
+   * of type ExportedPayload) has exactly ONE payload (since there is only one analysis per study)
+   */
   private void runFullLoopTest(Class<? extends Analysis> analysisClass, boolean includeAnalysisId, int numStudies, int numAnalysesPerStudy){
+    // Check the right parameters for this test are set
+    assertThat(numStudies).isLessThan(numAnalysesPerStudy);
+    assertThat(numStudies).isGreaterThan(0);
+
+    // Generate studies and there associated analyses
     val data = generateData(analysisClass, numStudies, numAnalysesPerStudy);
 
     // [REDUCTION_TAG] Reduce the data so that there is one analysis for each study
     val reducedData = Maps.<String, Analysis>newHashMap();
     data.entrySet().stream()
         .filter(e -> !reducedData.containsKey(e.getKey()))
-        .forEach(e -> reducedData.put(e.getKey(), e.getValue().get(randomGenerator.generateRandomIntRange(0, e.getValue().size()))));
+        .forEach(e -> {
+          String studyId = e.getKey();
+          List<Analysis> analyses = e.getValue();
+          int numAnalyses = analyses.size();
+          int randomAnalysisPos = randomGenerator.generateRandomIntRange(0, numAnalyses);
+          Analysis randomAnalysis = analyses.get(randomAnalysisPos);
+          reducedData.put(studyId, randomAnalysis);
+        });
     assertThat(reducedData.keySet()).hasSize(numStudies);
     assertThat(reducedData.values()).hasSize(numStudies);
 
