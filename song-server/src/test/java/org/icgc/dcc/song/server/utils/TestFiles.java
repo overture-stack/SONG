@@ -18,6 +18,8 @@
 package org.icgc.dcc.song.server.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +31,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.JsonUtils.readTree;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
@@ -82,7 +89,6 @@ public class TestFiles {
     assertThat(left).isSubsetOf(right);
     assertThat(right).isSubsetOf(left);
   }
-
 
   public static void assertInfoKVPair(@NonNull Metadata metadata, @NonNull String key, @NonNull Object expectedValue){
       assertThat(metadata.getInfo().has(key)).as("The input metadata does not have the key '%s'", key).isTrue();
