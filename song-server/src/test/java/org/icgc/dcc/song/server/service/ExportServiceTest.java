@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.server.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
+import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
@@ -86,8 +88,10 @@ public class ExportServiceTest {
     runFullLoopTest(VariantCallAnalysis.class,true, false);
   }
 
-  // Test with multiple analysisIds
-  // Test with studyId with multiple analysisIds
+  // Test with multiple analysisIds, with 10 and 00
+  // Test with studyId with multiple analysisIds, with 10 and 00
+
+  // Test output
 
   @Test
   @Ignore
@@ -169,8 +173,9 @@ public class ExportServiceTest {
   }
 
   private void runFullLoopTest(Class<? extends Analysis> analysisClass, boolean includeAnalysisId, boolean includeOtherIds){
+    val studyId = DEFAULT_STUDY_ID;
     // Generate an analysis and create it (backdoor creation)
-    val analysisGenerator = createAnalysisGenerator(DEFAULT_STUDY_ID, analysisService, randomGenerator);
+    val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
     val expectedAnalysis = analysisGenerator.createDefaultRandomAnalysis(analysisClass);
 
     // Export the analysis
@@ -180,9 +185,17 @@ public class ExportServiceTest {
     // Delete the previously created analysis so it can be created using the uploadService (frontdoor creation)
     deleteAnalysis(expectedAnalysis);
 
+    // Submit payload
+    val actualAnalysis = submitPayload(studyId, json, analysisClass);
+
+    // Assert output analysis is correct
+    assertAnalysis(actualAnalysis, expectedAnalysis, includeAnalysisId, includeOtherIds) ;
+  }
+
+  private <T extends Analysis> T submitPayload(String studyId, JsonNode payloadJson, Class<T> analysisClass){
     // Upload and check if successful
-    val payload = JsonUtils.toJson(json);
-    val uploadStatus = uploadService.upload(DEFAULT_STUDY_ID, payload, false);
+    val payload = toJson(payloadJson);
+    val uploadStatus = uploadService.upload(studyId, payload, false);
     val status1 = fromStatus(uploadStatus, "status");
     assertThat(status1).isEqualTo("ok");
     val uploadId = fromStatus(uploadStatus, "uploadId");
@@ -193,14 +206,12 @@ public class ExportServiceTest {
     assertThat(uploadState).isEqualTo(UploadStates.VALIDATED);
 
     // Save and check if successful
-    val analysisResponse = uploadService.save(DEFAULT_STUDY_ID, uploadId, true);
+    val analysisResponse = uploadService.save(studyId, uploadId, true);
     val status2 = fromStatus(analysisResponse, "status");
     assertThat(status2).isEqualTo("ok");
     val analysisId = fromStatus(analysisResponse, ANALYSIS_ID);
 
-    // Get analysis and compare against expected
-    val actualAnalysis = analysisClass.cast(analysisService.read(analysisId));
-    assertAnalysis(actualAnalysis, expectedAnalysis, includeAnalysisId, includeOtherIds) ;
+    return analysisClass.cast(analysisService.read(analysisId));
   }
 
   /**
