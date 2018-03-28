@@ -1,10 +1,12 @@
 package org.icgc.dcc.song.server.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.core.model.ExportedPayload;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.core.utils.Reductions;
@@ -41,6 +43,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
+import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
+import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
 import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
@@ -78,14 +83,14 @@ public class ExportServiceTest {
 
   @Test
   public void testFullLoopWithoutAnalysisId(){
-    runFullLoopTest(SequencingReadAnalysis.class, false, false);
-    runFullLoopTest(VariantCallAnalysis.class, false, false);
+    runFullLoopTest(SequencingReadAnalysis.class, false);
+    runFullLoopTest(VariantCallAnalysis.class, false);
   }
 
   @Test
   public void testFullLoopWithAnalysisId(){
-    runFullLoopTest(SequencingReadAnalysis.class,true, false);
-    runFullLoopTest(VariantCallAnalysis.class,true, false);
+    runFullLoopTest(SequencingReadAnalysis.class,true);
+    runFullLoopTest(VariantCallAnalysis.class,true);
   }
 
   // Test with multiple analysisIds, with 10 and 00
@@ -172,14 +177,14 @@ public class ExportServiceTest {
     }
   }
 
-  private void runFullLoopTest(Class<? extends Analysis> analysisClass, boolean includeAnalysisId, boolean includeOtherIds){
+  private void runFullLoopTest(Class<? extends Analysis> analysisClass, boolean includeAnalysisId){
     val studyId = DEFAULT_STUDY_ID;
     // Generate an analysis and create it (backdoor creation)
     val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
     val expectedAnalysis = analysisGenerator.createDefaultRandomAnalysis(analysisClass);
 
     // Export the analysis
-    val exportedPayloads =  exportService.exportPayload(newArrayList(expectedAnalysis.getAnalysisId()), includeAnalysisId, includeOtherIds);
+    val exportedPayloads =  exportService.exportPayload(newArrayList(expectedAnalysis.getAnalysisId()), includeAnalysisId, false);
     val json = exportedPayloads.get(0).getPayloads().get(0);
 
     // Delete the previously created analysis so it can be created using the uploadService (frontdoor creation)
@@ -189,7 +194,29 @@ public class ExportServiceTest {
     val actualAnalysis = submitPayload(studyId, json, analysisClass);
 
     // Assert output analysis is correct
-    assertAnalysis(actualAnalysis, expectedAnalysis, includeAnalysisId, includeOtherIds) ;
+    assertAnalysis(actualAnalysis, expectedAnalysis, includeAnalysisId, false) ;
+  }
+
+  private static Class<? extends Analysis> resolveAnalysisClass(Analysis a){
+    if (resolveAnalysisType(a.getAnalysisState()) == SEQUENCING_READ){
+      return SequencingReadAnalysis.class;
+    } else if (resolveAnalysisType(a.getAnalysisState()) == VARIANT_CALL){
+      return  VariantCallAnalysis.class;
+    } else {
+      throw new IllegalStateException("Unknown analysis type");
+    }
+  }
+
+  private <T extends Analysis> List<? extends Analysis> submitExportedPayload(ExportedPayload exportedPayload){
+    val studyId = exportedPayload.getStudyId();
+    val list = ImmutableList.<Analysis>builder();
+    for(val payload : exportedPayload.getPayloads()){
+      val analysisRaw = fromJson(payload, Analysis.class);
+      val analysisClass = resolveAnalysisClass(analysisRaw);
+      val analysis = submitPayload(studyId, payload, analysisClass);
+      list.add(analysis);
+    }
+    return list.build();
   }
 
   private <T extends Analysis> T submitPayload(String studyId, JsonNode payloadJson, Class<T> analysisClass){
