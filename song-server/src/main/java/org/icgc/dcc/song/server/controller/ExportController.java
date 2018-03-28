@@ -16,11 +16,11 @@
  */
 package org.icgc.dcc.song.server.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.icgc.dcc.song.core.model.ExportedPayload;
 import org.icgc.dcc.song.server.service.ExportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +34,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/studies/{studyId}")
+@RequestMapping("/export")
 @Api(tags = "Export", description = "Export payloads")
 public class ExportController {
 
@@ -45,23 +45,22 @@ public class ExportController {
   private final ExportService exportService;
 
   @ApiOperation(value = "ExportStudy", notes = "Exports all the payloads for a study")
-  @GetMapping(value = "/export")
+  @GetMapping(value = "/studies/{studyId}")
   @ResponseBody
-  public List<JsonNode> exportStudy(@PathVariable("studyId") String studyId,
+  public List<ExportedPayload> exportStudy(@PathVariable("studyId") String studyId,
       @RequestParam(value = "includeAnalysisId", defaultValue = "false") boolean includeAnalysisId,
       @RequestParam(value = "includeOtherIds", defaultValue = "false") boolean includeOtherIds ) {
     return exportService.exportPayloadsForStudy(studyId, includeAnalysisId, includeOtherIds);
   }
 
   @ApiOperation(value = "ExportAnalysis", notes = "Exports the payload for a list of analysisIds")
-  @GetMapping(value = "/export/{analysisIds}")
+  @GetMapping(value = "/analysis/{analysisIds}")
   @ResponseBody
-  public List<JsonNode> exportAnalysis(@PathVariable("studyId") String studyId,
-      @PathVariable("analysisIds") @ApiParam(value = "Comma separated list of analysisIds", required = true) List<String> analysisIds,
+  public List<ExportedPayload> exportAnalysis( @PathVariable("analysisIds")
+  @ApiParam(value = "Comma separated list of analysisIds", required = true) List<String> analysisIds,
       @RequestParam(value = "includeAnalysisId", defaultValue = "false") boolean includeAnalysisId,
       @RequestParam(value = "includeOtherIds", defaultValue = "false") boolean includeOtherIds ) {
     return exportService.exportPayload(analysisIds, includeAnalysisId, includeOtherIds);
   }
-
 
 }

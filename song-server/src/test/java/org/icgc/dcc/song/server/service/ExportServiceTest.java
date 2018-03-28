@@ -21,6 +21,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
@@ -78,7 +79,8 @@ public class ExportServiceTest {
     val expectedSeqAnalysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
 
     // Export the analysis
-    val json =  exportService.exportPayload(expectedSeqAnalysis.getAnalysisId(), true, false);
+    val exportedPayloads =  exportService.exportPayload(newArrayList(expectedSeqAnalysis.getAnalysisId()), true, false);
+    val json = exportedPayloads.get(0).getPayloads().get(0);
 
     // Delete the previously created analysis so it can be created using the uploadService (frontdoor creation)
     deleteAnalysis(expectedSeqAnalysis);

@@ -24,6 +24,8 @@ import org.icgc.dcc.song.client.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class Registry {
 
@@ -98,6 +100,16 @@ public class Registry {
   public Status publish(String studyId, String analysisId ){
     val url = endpoint.publish(studyId, analysisId);
     return restClient.putAuth(accessToken, url);
+  }
+
+  public Status exportStudy(@NonNull String studyId){
+    val url = endpoint.exportStudy(studyId);
+    return restClient.get(url);
+  }
+
+  public Status exportAnalyses(@NonNull List<String> analysisIds){
+    val url = endpoint.exportAnalysisIds(analysisIds);
+    return restClient.get(url);
   }
 
   public Status suppress(String studyId, String analysisId ){
