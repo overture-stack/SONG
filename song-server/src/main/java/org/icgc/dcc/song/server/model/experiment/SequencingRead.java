@@ -33,7 +33,7 @@ import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 @ToString(callSuper = true)
 @Data
 public class SequencingRead extends Experiment {
-  private String analysisId;
+  private String analysisId = "";
   private Boolean aligned;
   private String alignmentTool;
   private Long insertSize;

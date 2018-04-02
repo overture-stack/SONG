@@ -28,7 +28,7 @@ import lombok.val;
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class VariantCall extends Experiment {
 
-  private String analysisId;
+  private String analysisId = "";
   private String variantCallingTool;
   private String matchedNormalSampleSubmitterId;
 
