@@ -152,12 +152,18 @@ public class InfoServiceTest {
   public void testReadNullableInfo(){
     val donorId = genDonorId();
     infoService.create(donorId, null);
+    assertThat(infoService.isInfoExist(donorId)).isTrue();
     assertThat(infoService.readNullableInfo(donorId)).isNull();
 
     val donorId2 = genDonorId();
     val info = getDummyInfo("someKey", "2idj94");
     infoService.create(donorId2, info);
+    assertThat(infoService.isInfoExist(donorId2)).isTrue();
     assertThat(infoService.readNullableInfo(donorId2)).isEqualTo(info);
+
+    val nonExistingDonorId = randomGenerator.generateRandomUUIDAsString();
+    assertThat(infoService.isInfoExist(nonExistingDonorId)).isFalse();
+    assertThat(infoService.readNullableInfo(nonExistingDonorId)).isNull();
   }
 
   private String genDonorId(){

@@ -55,7 +55,7 @@ abstract class InfoService {
   }
 
   public String readNullableInfo(String id) {
-    return readInfo(id).orElse(null);
+    return infoRepository.readInfo(id, type.toString());
   }
 
   public void checkInfoExists(@NonNull String id){
