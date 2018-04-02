@@ -85,8 +85,6 @@ public class ExportService {
       remove(output, "analysisState");
       remove(output.path("experiment"), "analysisId");
       Streams.stream(output.path("sample").iterator())
-          .forEach(x -> remove(x, "sampleId", "specimenId" ));
-      Streams.stream(output.path("sample").iterator())
           .forEach(x -> {
             remove(x, "sampleId", "specimenId" );
             remove(x.path("specimen"), "donorId", "specimenId");

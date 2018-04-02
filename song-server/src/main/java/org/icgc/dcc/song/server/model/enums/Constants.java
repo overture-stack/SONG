@@ -22,6 +22,7 @@ import java.util.Collections;
 
 public class Constants {
 
+  public static final String EMPTY_STRING = "";
   public static final Collection<String> ANALYSIS_STATE = list(AnalysisStates.toStringArray());
   public static final Collection<String> DONOR_GENDER = list("male", "female", "unspecified");
   public static final Collection<String> FILE_TYPE =

@@ -18,8 +18,6 @@
 package org.icgc.dcc.song.server.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -31,14 +29,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.JsonUtils.readTree;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
@@ -48,6 +41,7 @@ public class TestFiles {
 
   public static final String SEARCH_TEST_DIR = "documents/search";
   private static final String NAME = "name";
+  public static final String EMPTY_STRING = "";
 
   @SneakyThrows
   public static String getJsonStringFromClasspath(String name) {
