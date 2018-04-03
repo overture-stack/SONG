@@ -37,7 +37,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -139,7 +138,6 @@ public class ExportCommand extends Command {
   private ModeRule analysisMode;
   private ParamTerm<String> inputFileTerm;
   private Stopwatch stopwatch = Stopwatch.createUnstarted();
-  private ExecutorService executorService;
 
   @Override
   public void run() {
