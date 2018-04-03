@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import static java.lang.Integer.MAX_VALUE;
+import static java.lang.Integer.MIN_VALUE;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -144,36 +145,43 @@ public class RandomGeneratorTest {
 
   @Test
   public void testRandomIntRange(){
-    runRandomIntRangeTest(0, 101);
-    runRandomIntRangeTest(-101, 0);
-    runRandomIntRangeTest(-101, 707);
-    runRandomIntRangeTest(-701, -101);
-    runRandomIntRangeTest(101, 701);
+    val min = MIN_VALUE+1;
+    val max = MAX_VALUE;
+    runRandomIntRangeTest(0, max);
+    runRandomIntRangeTest(min, 0);
+    runRandomIntRangeTest(min/2, max/2);
+    runRandomIntRangeTest(min, -1);
+    runRandomIntRangeTest(1, max);
     assert(true);
   }
 
   public void runRandomIntRangeTest(int min, int max){
+    val seqSize = 100;
     val seed1 = generateRandomSeed();
     val seed2 = generateRandomSeed();
     val randomGenerator1 = createRandomGenerator("rand1-seed1", seed1);
     val randomGenerator2 = createRandomGenerator("rand2-seed1", seed1);
     val randomGenerator3 = createRandomGenerator("rand3-seed2", seed2);
-    assertThat(randomGenerator1.generateRandomIntRange(min, max)).isEqualTo(randomGenerator2.generateRandomIntRange
-        (min, max));
+    assertThat(randomList(() -> randomGenerator1.generateRandomIntRange(min, max), seqSize))
+        .containsExactlyElementsOf(randomList(() -> randomGenerator2.generateRandomIntRange (min, max), seqSize));
 
-    val randomInt = randomGenerator3.generateRandomIntRange(min, max);
-    assertThat(randomGenerator1.generateRandomIntRange(min, max)).isNotEqualTo(randomInt);
-    assertThat(randomGenerator2.generateRandomIntRange(min, max)).isNotEqualTo(randomInt);
+    val randomIntSequence = randomList(() -> randomGenerator3.generateRandomIntRange(min, max), seqSize);
+    assertThat(randomList(() -> randomGenerator1.generateRandomIntRange(min, max), seqSize)).isNotEqualTo(randomIntSequence);
+    assertThat(randomList(() -> randomGenerator2.generateRandomIntRange(min, max), seqSize)).isNotEqualTo(randomIntSequence);
 
-    val randomInt1 = randomGenerator3.generateRandomIntRange(min, min+1);
-    assertThat(randomGenerator1.generateRandomIntRange(min, min+1)).isEqualTo(randomInt1);
-    assertThat(randomGenerator2.generateRandomIntRange(min, min+1)).isEqualTo(randomInt1);
+    val randomInt1Sequence = randomList(() -> randomGenerator3.generateRandomIntRange(min, min+1), seqSize);
+    assertThat(randomList(() -> randomGenerator1.generateRandomIntRange(min, min+1), seqSize)).containsExactlyElementsOf(randomInt1Sequence);
+    assertThat(randomList(() -> randomGenerator2.generateRandomIntRange(min, min+1), seqSize)).containsExactlyElementsOf(randomInt1Sequence);
 
     val throwable1 = catchThrowable( () -> randomGenerator1.generateRandomIntRange(max, min));
     assertThat(throwable1)
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage(
             format("The min(%s) must be LESS THAN max(%s)", max, min));
+
+    val throwable2 = catchThrowable( () -> randomGenerator1.generateRandomIntRange(MIN_VALUE, MAX_VALUE));
+    assertThat(throwable2)
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

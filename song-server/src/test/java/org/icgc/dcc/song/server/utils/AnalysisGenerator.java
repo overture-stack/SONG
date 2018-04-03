@@ -29,6 +29,7 @@ import org.icgc.dcc.song.server.service.AnalysisService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.resolveDefaultPayloadFilename;
+import static org.icgc.dcc.song.server.utils.TestFiles.EMPTY_STRING;
 
 @RequiredArgsConstructor
 public class AnalysisGenerator {
@@ -44,9 +45,9 @@ public class AnalysisGenerator {
    */
   public <T extends Analysis> T createRandomAnalysis(Class<T> analysisClass, String payloadFilename){
     val analysis = payloadGenerator.generateRandomPayload(analysisClass, payloadFilename);
-    // Set analysisId to null to ensure a randomly generated analysisId, and therefore
+    // Set analysisId to empty to ensure a randomly generated analysisId, and therefore
     // randomly generated objectId (fileIds)
-    analysis.setAnalysisId(null);
+    analysis.setAnalysisId(EMPTY_STRING);
     val analysisId = service.create(studyId, analysis, false);
     val out = analysisClass.cast(service.read(analysisId));
     assertThat(analysis).isExactlyInstanceOf(analysisClass);

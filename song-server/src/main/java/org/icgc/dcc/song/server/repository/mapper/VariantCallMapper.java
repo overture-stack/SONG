@@ -17,21 +17,21 @@
 package org.icgc.dcc.song.server.repository.mapper;
 
 import lombok.SneakyThrows;
-import lombok.val;
-import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
-import static org.icgc.dcc.song.server.repository.AttributeNames.*;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import static org.icgc.dcc.song.server.repository.AttributeNames.ID;
+import static org.icgc.dcc.song.server.repository.AttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
+import static org.icgc.dcc.song.server.repository.AttributeNames.VARIANT_CALLING_TOOL;
 
 public class VariantCallMapper implements ResultSetMapper<VariantCall> {
 
   @Override
   @SneakyThrows
-  public VariantCall map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+  public VariantCall map(int index, ResultSet r, StatementContext ctx) {
     return VariantCall.create(r.getString(ID),
                 r.getString(VARIANT_CALLING_TOOL),
                 r.getString(MATCHED_NORMAL_SAMPLE_SUBMITTER_ID));

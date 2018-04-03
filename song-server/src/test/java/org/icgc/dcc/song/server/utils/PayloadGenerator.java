@@ -29,6 +29,7 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.song.server.utils.TestFiles.EMPTY_STRING;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 
 @RequiredArgsConstructor(access = PRIVATE)
@@ -44,7 +45,7 @@ public class PayloadGenerator {
   public <T extends Analysis> T generateRandomPayload(Class<T> analysisClass, String payloadFilename){
     val json = getJsonStringFromClasspath(payloadFilename);
     val analysis = fromJson(json, analysisClass);
-    analysis.setAnalysisId(null);
+    analysis.setAnalysisId(EMPTY_STRING);
     analysis.getSample().forEach(x -> {
       x.setSampleSubmitterId(randomGenerator.generateRandomUUID().toString());
       x.getSpecimen().setSpecimenSubmitterId(randomGenerator.generateRandomUUID().toString());

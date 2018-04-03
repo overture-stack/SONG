@@ -41,6 +41,7 @@ public class TestFiles {
 
   public static final String SEARCH_TEST_DIR = "documents/search";
   private static final String NAME = "name";
+  public static final String EMPTY_STRING = "";
 
   @SneakyThrows
   public static String getJsonStringFromClasspath(String name) {
@@ -82,7 +83,6 @@ public class TestFiles {
     assertThat(left).isSubsetOf(right);
     assertThat(right).isSubsetOf(left);
   }
-
 
   public static void assertInfoKVPair(@NonNull Metadata metadata, @NonNull String key, @NonNull Object expectedValue){
       assertThat(metadata.getInfo().has(key)).as("The input metadata does not have the key '%s'", key).isTrue();

@@ -47,8 +47,8 @@ public class RuleProcessor {
         if (count > 0) {
           sb.append(" and ");
         }
-        sb.append(format("the search mode '%s' (%s)",
-            modeRule.getSearchMode(),
+        sb.append(format("the mode '%s' (%s)",
+            modeRule.getModeName(),
             modeRule.getDefinedTerms()
                 .stream()
                 .map(ParamTerm::getShortLongSymbol)
@@ -57,14 +57,26 @@ public class RuleProcessor {
       }
       sb.append(" cannot be used together\n");
       status.err(sb.toString());
+    } else if(definedModeRules.size() == 0){
+      val sb = new StringBuilder();
+      sb.append("No modes defined. Please define one of:\n");
+      for (val modeRule : modeRuleMap.values()){
+        val modeName = modeRule.getModeName();
+        val orOfSwitches = modeRule.getParamTerms().stream()
+            .map(ParamTerm::getShortLongSymbol)
+            .collect(joining(" | "));
+        sb.append(format("\t[%s]: (%s)\n", modeName, orOfSwitches));
+      }
+      status.err(sb.toString());
     }
+
     return status;
   }
 
   public static RuleProcessor createRuleProcessor(ModeRule... modeRules) {
     val map = Maps.<String, ModeRule>newHashMap();
     for (val modeRule : modeRules) {
-      val searchMode = modeRule.getSearchMode();
+      val searchMode = modeRule.getModeName();
       checkArgument(!map.containsKey(searchMode),
           "the map already contains the search mode '%s'", searchMode);
       map.put(searchMode, modeRule);

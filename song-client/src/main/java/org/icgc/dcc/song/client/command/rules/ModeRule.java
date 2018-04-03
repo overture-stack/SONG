@@ -17,19 +17,18 @@
 
 package org.icgc.dcc.song.client.command.rules;
 
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
-@RequiredArgsConstructor
+@Value
 public class ModeRule {
 
-  @NonNull @Getter private final String searchMode;
+  @NonNull private final String modeName;
   @NonNull private final List<ParamTerm<?>> paramTerms;
 
   public List<ParamTerm<?>> getDefinedTerms() {

@@ -22,7 +22,6 @@ import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import static org.icgc.dcc.song.server.repository.AttributeNames.ALIGNED;
 import static org.icgc.dcc.song.server.repository.AttributeNames.ALIGNMENT_TOOL;
@@ -38,7 +37,7 @@ public class SequencingReadMapper implements ResultSetMapper<SequencingRead> {
 
   @Override
   @SneakyThrows
-  public SequencingRead map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+  public SequencingRead map(int index, ResultSet r, StatementContext ctx) {
     return SequencingRead.create(
         r.getString(ID),
         getWrappedBoolean(r,ALIGNED),

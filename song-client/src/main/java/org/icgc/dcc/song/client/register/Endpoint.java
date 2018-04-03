@@ -22,8 +22,11 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+import java.util.List;
+
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 @RequiredArgsConstructor
 public class Endpoint {
@@ -63,6 +66,14 @@ public class Endpoint {
 
   public String publish(String studyId, String analysisId) {
     return format("%s/studies/%s/analysis/publish/%s", serverUrl, studyId, analysisId);
+  }
+
+  public String exportAnalysisIds(List<String> analysisIds) {
+    return format("%s/export/analysis/%s?includeAnalysisId=true", serverUrl,COMMA.join(analysisIds));
+  }
+
+  public String exportStudy(String studyId) {
+    return format("%s/export/studies/%s?includeAnalysisId=true", serverUrl, studyId);
   }
 
   public String suppress(String studyId, String analysisId) {

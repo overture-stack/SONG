@@ -123,6 +123,10 @@ public class RandomGenerator {
     log.info("Generating RandomIntRange for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, callCount);
     checkArgument(min<max,"The min(%s) must be LESS THAN max(%s)", min, max);
+    val difference = (long)max - min;
+    checkArgument(difference <= MAX_VALUE,
+        "The difference (%s) between max (%s) and (%s) must not exceed the integer max (%s)",
+        difference, max, min, MAX_VALUE);
     return generateRandomInt(min, max-min);
   }
 
