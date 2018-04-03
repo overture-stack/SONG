@@ -18,6 +18,7 @@ import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.UploadStates;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
+import org.icgc.dcc.song.server.service.export.ExportService;
 import org.icgc.dcc.song.server.utils.StudyGenerator;
 import org.junit.Before;
 import org.junit.Test;

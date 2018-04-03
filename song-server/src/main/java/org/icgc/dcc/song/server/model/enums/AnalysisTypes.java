@@ -22,11 +22,14 @@ import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.common.core.util.stream.Streams;
 
 import static java.lang.String.format;
+import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
+import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 
 @RequiredArgsConstructor
 public enum AnalysisTypes {
-  SEQUENCING_READ("sequencingRead"),
-  VARIANT_CALL("variantCall");
+
+  SEQUENCING_READ(SEQUENCING_READ_TYPE),
+  VARIANT_CALL(VARIANT_CALL_TYPE);
 
   private final String text;
 

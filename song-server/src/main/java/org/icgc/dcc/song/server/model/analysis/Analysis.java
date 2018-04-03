@@ -31,6 +31,8 @@ import org.icgc.dcc.song.server.model.enums.Constants;
 import java.util.List;
 
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
+import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -42,8 +44,8 @@ import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
         property="analysisType"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value=SequencingReadAnalysis.class, name="sequencingRead"),
-        @JsonSubTypes.Type(value=VariantCallAnalysis.class, name="variantCall")
+        @JsonSubTypes.Type(value=SequencingReadAnalysis.class, name=SEQUENCING_READ_TYPE),
+        @JsonSubTypes.Type(value=VariantCallAnalysis.class, name=VARIANT_CALL_TYPE)
 })
 public abstract class Analysis extends Metadata {
 
@@ -60,7 +62,6 @@ public abstract class Analysis extends Metadata {
         Constants.validate(Constants.ANALYSIS_STATE, state);
         this.analysisState=state;
     }
-
 
 }
 
