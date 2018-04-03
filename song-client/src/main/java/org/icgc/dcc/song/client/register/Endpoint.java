@@ -68,12 +68,14 @@ public class Endpoint {
     return format("%s/studies/%s/analysis/publish/%s", serverUrl, studyId, analysisId);
   }
 
-  public String exportAnalysisIds(List<String> analysisIds) {
-    return format("%s/export/analysis/%s?includeAnalysisId=true", serverUrl,COMMA.join(analysisIds));
+  public String exportAnalysisIds(List<String> analysisIds, boolean includeAnalysisId, boolean includeOtherIds) {
+    return format("%s/export/analysis/%s?includeAnalysisId=%s&includeOtherIds=%s",
+        serverUrl,COMMA.join(analysisIds),includeAnalysisId, includeOtherIds);
   }
 
-  public String exportStudy(String studyId) {
-    return format("%s/export/studies/%s?includeAnalysisId=true", serverUrl, studyId);
+  public String exportStudy(String studyId, boolean includeAnalysisId, boolean includeOtherIds) {
+    return format("%s/export/studies/%s?includeAnalysisId=%s&includeOtherIds=%s",
+        serverUrl, studyId, includeAnalysisId, includeOtherIds);
   }
 
   public String suppress(String studyId, String analysisId) {

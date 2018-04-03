@@ -325,7 +325,7 @@ public class AnalysisService {
     val analysis = analysisRepository.read(id);
     checkServer(!isNull(analysis),
         AnalysisService.class, ANALYSIS_ID_NOT_FOUND,
-        "The analysisId '%s' could was not found", id );
+        "The analysisId '%s' was not found", id );
     return analysis;
 
   }
