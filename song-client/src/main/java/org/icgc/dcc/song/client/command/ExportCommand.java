@@ -33,10 +33,10 @@ import org.icgc.dcc.song.client.command.rules.ParamTerm;
 import org.icgc.dcc.song.client.register.Registry;
 import org.icgc.dcc.song.core.model.ExportedPayload;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -122,18 +122,62 @@ public class ExportCommand extends Command {
   private ModeRule studyMode;
   private ModeRule analysisMode;
   private ParamTerm<String> inputFileTerm;
+  private Stopwatch stopwatch = Stopwatch.createUnstarted();
 
-  private Status processStudyMode(){
+  private void processStudyMode(){
     val status = registry.exportStudy(studyId);
     val json = status.getOutputs();
-    status.save(jsonToDisk("Study("+studyId+")",json));
-    save(status);
-    return status;
+    if (status.hasErrors()){
+      err(status.getErrors());
+      return;
+    }
+    jsonToDisk("Study("+studyId+")",json);
+    output("Successfully exported payloads for the studyId '%s' to output directory '%s'", studyId, outputDir);
+  }
+
+  @SneakyThrows
+  private List<String> getUniqueAnalysisIds(){
+    if (inputFileTerm.isDefined()){
+      val filePath = Paths.get(inputFilename);
+      checkState(exists(filePath) && isRegularFile(filePath),
+          "The path '%s' does not exist or is not a file",
+          filePath.toAbsolutePath().toString());
+      analysisIds.addAll(readLines(filePath.toFile(), Charsets.UTF_8));
+    }
+
+    // Remove duplicates
+    return newArrayList(newHashSet(analysisIds));
+  }
+
+  @SneakyThrows
+  private Map<String, Future<Status>> parallelProcessAnalyses(List<String> uniqueAnalysisIds){
+    val executorService = newFixedThreadPool(numThreads);
+    // Partition and submit each partition to executor
+    int batchCount = 0;
+    val partitions = partition(uniqueAnalysisIds, BATCH_SIZE);
+    val futureMap = Maps.<String, Future<Status>>newHashMap();
+    log.debug("Partitioning {} analysisId export requests into {} batches...",
+        uniqueAnalysisIds.size(), partitions.size());
+    stopwatch.reset();
+    stopwatch.start();
+    for (val partition : partitions){
+      val batchId = "batch_"+batchCount++;
+      futureMap.put(batchId,
+          executorService.submit(
+              () -> processAnalysis(batchId, partition)
+          ));
+      log.debug("Submitted {}", batchId);
+    }
+    log.debug("Waiting for {} export requests to complete...", partitions.size());
+    executorService.shutdown();
+    executorService.awaitTermination(5, TimeUnit.HOURS);
+    stopwatch.stop();
+    log.debug("Downloads have completed, generating summary output..");
+    return futureMap;
   }
 
   @Override
-  @SneakyThrows
-  public void run() throws IOException {
+  public void run() {
     // Process rules
     val ruleStatus = checkRules();
     if (ruleStatus.hasErrors()){
@@ -143,66 +187,43 @@ public class ExportCommand extends Command {
     checkNumThreads();
 
     // Get data from ExportService
-    Status exportStatus;
     if (studyMode.isModeDefined()){
-      exportStatus = registry.exportStudy(studyId);
-      val json = exportStatus.getOutputs();
-      exportStatus.save(jsonToDisk("Study("+studyId+")",json));
-      save(exportStatus);
+      processStudyMode();
     } else if(analysisMode.isModeDefined()){
-      val executorService = newFixedThreadPool(numThreads);
-      // Add the file
-      if (inputFileTerm.isDefined()){
-        val filePath = Paths.get(inputFilename);
-        checkState(exists(filePath) && isRegularFile(filePath),
-            "The path '%s' does not exist or is not a file",
-            filePath.toAbsolutePath().toString());
-        analysisIds.addAll(readLines(filePath.toFile(), Charsets.UTF_8));
-      }
 
-      // Remove duplicates
-      val uniqueAnalysisIds = newArrayList(newHashSet(analysisIds));
+      // Get a unique analysisIds
+      val uniqueAnalysisIds = getUniqueAnalysisIds();
 
       // Partition and submit each partition to executor
-      int batchCount = 0;
-      val partitions = partition(uniqueAnalysisIds, BATCH_SIZE);
-      val futureMap = Maps.<String, Future<Status>>newHashMap();
-      log.debug("Partitioning {} analysisId export requests into {} batches...",
-          uniqueAnalysisIds.size(), partitions.size());
-      val stopwatch = Stopwatch.createStarted();
-      for (val partition : partitions){
-        val batchId = "batch_"+batchCount++;
-        futureMap.put(batchId,
-            executorService.submit(
-                () -> processAnalysis(batchId, partition)
-            ));
-        log.debug("Submitted {}", batchId);
-      }
-      log.debug("Waiting for {} export requests to complete...", partitions.size());
-      executorService.shutdown();
-      executorService.awaitTermination(5, TimeUnit.HOURS);
-      stopwatch.stop();
-      log.debug("Downloads have completed, generating summary output..");
-      val errorStatus = new Status();
-      for (val futureEntry : futureMap.entrySet()){
-        val batchId = futureEntry.getKey();
-        val future = futureEntry.getValue();
-        val status = future.get();
-        if (status.hasErrors()){
-          errorStatus.err("ERROR[{}]: {}\n", batchId, status.getErrors());
-        }
-      }
-      if (errorStatus.hasErrors()){
-        save(errorStatus);
-      } else {
-        output("Successfully exported all %s analysisIds to output directory %s\n",
-            uniqueAnalysisIds.size(), outputDir);
-      }
-      log.debug("[STOPWATCH]: took '%s' seconds to run %s batches, with %s analysisIds per batch and with %s threads",
-          stopwatch.elapsed(SECONDS), futureMap.keySet().size(), BATCH_SIZE, numThreads);
+      val futureMap = parallelProcessAnalyses(uniqueAnalysisIds);
+
+      // Summarize
+      summarize(futureMap, uniqueAnalysisIds);
     } else {
       throw new IllegalStateException("Unsupported mode");
     }
+  }
+
+  @SneakyThrows
+  private void summarize(Map<String, Future<Status>> futureMap, List<String> uniqueAnalysisIds){
+    val errorStatus = new Status();
+    for (val futureEntry : futureMap.entrySet()){
+      val batchId = futureEntry.getKey();
+      val future = futureEntry.getValue();
+      val status = future.get();
+      if (status.hasErrors()){
+        errorStatus.err("ERROR[{}]: {}\n", batchId, status.getErrors());
+      }
+    }
+    if (errorStatus.hasErrors()){
+      save(errorStatus);
+    } else {
+      output("Successfully exported all %s analysisIds to output directory '%s'\n",
+          uniqueAnalysisIds.size(), outputDir);
+    }
+    log.debug("[STOPWATCH]: took '%s' seconds to run %s batches, with %s analysisIds per batch and with %s threads",
+        stopwatch.elapsed(SECONDS), futureMap.keySet().size(), BATCH_SIZE, numThreads);
+
   }
 
   private Status checkRules(){
