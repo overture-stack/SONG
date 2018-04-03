@@ -124,6 +124,57 @@ public class ExportCommand extends Command {
   private ParamTerm<String> inputFileTerm;
   private Stopwatch stopwatch = Stopwatch.createUnstarted();
 
+  @Override
+  public void run() {
+    // Process rules
+    val ruleStatus = checkRules();
+    if (ruleStatus.hasErrors()){
+      save(ruleStatus);
+      return;
+    }
+    checkNumThreads();
+
+    // Get data from ExportService
+    if (studyMode.isModeDefined()){
+      processStudyMode();
+    } else if(analysisMode.isModeDefined()){
+
+      // Get a unique analysisIds
+      val uniqueAnalysisIds = getUniqueAnalysisIds();
+
+      // Partition and submit each partition to executor
+      val futureMap = parallelProcessAnalyses(uniqueAnalysisIds);
+
+      // Summarize
+      summarize(futureMap, uniqueAnalysisIds);
+    } else {
+      throw new IllegalStateException("Unsupported mode");
+    }
+  }
+
+  private Status checkRules(){
+    // Create ParamTerms
+    val studyTerm  = createParamTerm(STUDY_SWITCH_SHORT, STUDY_SWITCH_LONG,  studyId, IS_STRING_DEFINED_FUNCTION);
+    val threadTerm = createParamTerm(NUM_THREADS_SWITCH_SHORT, NUM_THREADS_SWITCH_LONG, numThreads, x -> numThreads > 1);
+    val analysisTerm = createParamTerm(ANALYSIS_SWITCH_SHORT, ANALYSIS_SWITCH_LONG, analysisIds, IS_STRING_LIST_DEFINED_FUNCTION);
+    inputFileTerm = createParamTerm( INPUT_FILE_SWITCH_SHORT, INPUT_FILE_SWITCH_LONG, inputFilename, IS_STRING_DEFINED_FUNCTION);
+
+    // Create Rules
+    studyMode = createModeRule(STUDY_MODE, studyTerm );
+    analysisMode = createModeRule(ANALYSIS_MODE, analysisTerm, threadTerm, inputFileTerm );
+
+    // Process Rules
+    val ruleProcessor = createRuleProcessor(studyMode, analysisMode);
+    return ruleProcessor.check();
+  }
+
+  private void checkNumThreads(){
+    if (numThreads > NUM_THREADS_AVAILABLE){
+      output("WARNING: selected number of threads (%s) should not be greater than number of available threads (%s)\n"
+          , numThreads, NUM_THREADS_AVAILABLE);
+    }
+  }
+
   private void processStudyMode(){
     val status = registry.exportStudy(studyId);
     val json = status.getOutputs();
@@ -176,31 +227,54 @@ public class ExportCommand extends Command {
     return futureMap;
   }
 
-  @Override
-  public void run() {
-    // Process rules
-    val ruleStatus = checkRules();
-    if (ruleStatus.hasErrors()){
-      save(ruleStatus);
-      return;
-    }
-    checkNumThreads();
-
+  @SneakyThrows
+  private Status processAnalysis(String name, List<String> analysisIds){
     // Get data from ExportService
-    if (studyMode.isModeDefined()){
-      processStudyMode();
-    } else if(analysisMode.isModeDefined()){
+    val exportStatus = registry.exportAnalyses(analysisIds);
 
-      // Get a unique analysisIds
-      val uniqueAnalysisIds = getUniqueAnalysisIds();
+    if (exportStatus.hasErrors()) {
+      return exportStatus;
+    }
 
-      // Partition and submit each partition to executor
-      val futureMap = parallelProcessAnalyses(uniqueAnalysisIds);
+    // Extract payloads and store to outputDir
+    val json = exportStatus.getOutputs();
+    exportStatus.save(jsonToDisk(name, json));
+    return exportStatus;
+  }
 
-      // Summarize
-      summarize(futureMap, uniqueAnalysisIds);
-    } else {
-      throw new IllegalStateException("Unsupported mode");
+  private Status jsonToDisk(String batchId, String json){
+    val status = new Status();
+    try {
+      val root = OBJECT_MAPPER.readTree(json);
+      val dirPath = Paths.get(outputDir);
+      stream(root.iterator())
+          .map(j -> fromJson(j, ExportedPayload.class))
+          .forEach(x -> exportedPayloadToFile(x, dirPath));
+      status.output("Successfully exported payloads for '%s' batch to output directory %s",
+          batchId, dirPath.toAbsolutePath().toString());
+    } catch(Exception e){
+      status.err("ERROR [%s] -- (%s): %s ", batchId, e.getClass().getName(), e.getMessage());
+    }
+    return status;
+  }
+
+  @SneakyThrows
+  private void exportedPayloadToFile(ExportedPayload exportedPayload, Path dirPath){
+    val studyDir = dirPath.resolve(exportedPayload.getStudyId());
+    if(!exists(studyDir)){
+      createDirectories(studyDir);
+    }
+    for (val jsonNode : exportedPayload.getPayloads()){
+      String fileName;
+      if(jsonNode.has(ANALYSIS_ID)){
+        fileName = format("%s.json", jsonNode.path(ANALYSIS_ID).textValue());
+      } else {
+        fileName = format("payload_%s.json", fileCount++);
+      }
+      val filePath = studyDir.resolve(fileName);
+      val bw = newBufferedWriter(filePath);
+      bw.write(toPrettyJson(jsonNode));
+      bw.close();
     }
   }
 
@@ -223,83 +297,6 @@ public class ExportCommand extends Command {
     }
     log.debug("[STOPWATCH]: took '%s' seconds to run %s batches, with %s analysisIds per batch and with %s threads",
         stopwatch.elapsed(SECONDS), futureMap.keySet().size(), BATCH_SIZE, numThreads);
-
-  }
-
-  private Status checkRules(){
-    // Create ParamTerms
-    val studyTerm  = createParamTerm(STUDY_SWITCH_SHORT, STUDY_SWITCH_LONG,  studyId, IS_STRING_DEFINED_FUNCTION);
-    val threadTerm = createParamTerm(NUM_THREADS_SWITCH_SHORT, NUM_THREADS_SWITCH_LONG, numThreads, x -> numThreads > 1);
-    val analysisTerm = createParamTerm(ANALYSIS_SWITCH_SHORT, ANALYSIS_SWITCH_LONG, analysisIds, IS_STRING_LIST_DEFINED_FUNCTION);
-    inputFileTerm = createParamTerm( INPUT_FILE_SWITCH_SHORT, INPUT_FILE_SWITCH_LONG, inputFilename, IS_STRING_DEFINED_FUNCTION);
-
-    // Create Rules
-    studyMode = createModeRule(STUDY_MODE, studyTerm );
-    analysisMode = createModeRule(ANALYSIS_MODE, analysisTerm, threadTerm, inputFileTerm );
-
-    // Process Rules
-    val ruleProcessor = createRuleProcessor(studyMode, analysisMode);
-    return ruleProcessor.check();
-  }
-
-  private void checkNumThreads(){
-    if (numThreads > NUM_THREADS_AVAILABLE){
-      output("WARNING: selected number of threads (%s) should not be greater than number of available threads (%s)\n"
-          , numThreads, NUM_THREADS_AVAILABLE);
-    }
-  }
-
-  private Status jsonToDisk(String batchId, String json){
-    val status = new Status();
-    try {
-      val root = OBJECT_MAPPER.readTree(json);
-      val dirPath = Paths.get(outputDir);
-      stream(root.iterator())
-          .map(j -> fromJson(j, ExportedPayload.class))
-          .forEach(x -> exportedPayloadToFile(x, dirPath));
-      status.output("Successfully exported payloads for '%s' batch to output directory %s",
-          batchId, dirPath.toAbsolutePath().toString());
-    } catch(Exception e){
-      status.err("ERROR [%s] -- (%s): %s ", batchId, e.getClass().getName(), e.getMessage());
-    }
-    return status;
-  }
-
-
-  @SneakyThrows
-  private Status processAnalysis(String name, List<String> analysisIds){
-    // Get data from ExportService
-    val exportStatus = registry.exportAnalyses(analysisIds);
-
-    if (exportStatus.hasErrors()) {
-      return exportStatus;
-    }
-
-    // Extract payloads and store to outputDir
-    val json = exportStatus.getOutputs();
-    exportStatus.save(jsonToDisk(name, json));
-    return exportStatus;
-  }
-
-
-  @SneakyThrows
-  private void exportedPayloadToFile(ExportedPayload exportedPayload, Path dirPath){
-    val studyDir = dirPath.resolve(exportedPayload.getStudyId());
-    if(!exists(studyDir)){
-      createDirectories(studyDir);
-    }
-    for (val jsonNode : exportedPayload.getPayloads()){
-      String fileName;
-      if(jsonNode.has(ANALYSIS_ID)){
-        fileName = format("%s.json", jsonNode.path(ANALYSIS_ID).textValue());
-      } else {
-        fileName = format("payload_%s.json", fileCount++);
-      }
-      val filePath = studyDir.resolve(fileName);
-      val bw = newBufferedWriter(filePath);
-      bw.write(toPrettyJson(jsonNode));
-      bw.close();
-    }
   }
 
 }
