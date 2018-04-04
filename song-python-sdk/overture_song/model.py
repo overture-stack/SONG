@@ -18,12 +18,14 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-
+import enum
 import logging
 
 from dataclasses import dataclass, fields, field, asdict
 from overture_song.utils import check_state
+from overture_song import utils
 from overture_song.entities import Entity
+import dataclasses
 
 from overture_song.utils import default_value, to_pretty_json_string, write_object, \
     get_required_field
@@ -111,6 +113,27 @@ class SongError(Exception, Entity):
 
     def __str__(self):
         return self.to_json()
+
+
+class ServerErrors(enum.Enum):
+    STUDY_ID_DOES_NOT_EXIST = 1
+
+    def getErrorId(self):
+        new_name = self.name.replace('_', '.')
+        return new_name.lower()
+
+    @classmethod
+    def resolveServerError(self, error_id):
+        for server_error in ServerErrors:
+            if error_id == server_error.getErrorId():
+                return server_error
+
+        raise Exception("Could not resolve the errorId '{}'".format(error_id))
+
+
+
+
+
 
 
 @dataclass(frozen=True)
