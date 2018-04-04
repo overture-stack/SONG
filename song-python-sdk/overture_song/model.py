@@ -109,6 +109,9 @@ class SongError(Exception, Entity):
         """
         return [x.name for x in fields(SongError)]
 
+    def __str__(self):
+        return self.to_json()
+
 
 @dataclass(frozen=True)
 class ApiConfig(object):
