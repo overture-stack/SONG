@@ -21,13 +21,11 @@
 import enum
 import logging
 
-from dataclasses import dataclass, fields, field, asdict
-from overture_song.utils import check_state
-from overture_song import utils
-from overture_song.entities import Entity
-import dataclasses
+from dataclasses import dataclass, fields, field
 
-from overture_song.utils import default_value, to_pretty_json_string, write_object, \
+from overture_song.entities import Entity
+from overture_song.utils import check_state
+from overture_song.utils import default_value, write_object, \
     get_required_field
 
 logging.basicConfig(level=logging.INFO)
@@ -57,14 +55,14 @@ class SongError(Exception, Entity):
     :param tuple stackTrace: Server stacktrace of this error
 
     """
-    errorId : str
-    httpStatusName : str
-    httpStatusCode : int
-    message : str
-    requestUrl : str
-    debugMessage : str
-    timestamp : str
-    stackTrace : tuple = field(default_factory=tuple)
+    errorId: str
+    httpStatusName: str
+    httpStatusCode: int
+    message: str
+    requestUrl: str
+    debugMessage: str
+    timestamp: str
+    stackTrace: tuple = field(default_factory=tuple)
 
     @classmethod
     def create_song_error(cls, data):
@@ -79,8 +77,8 @@ class SongError(Exception, Entity):
                     "The input data fields \n'{}'\n are not the same as the data fields in SongError \n'{}'\n",
                     data.keys(), SongError.get_field_names())
         args = []
-        for field in SongError.get_field_names():
-            result = data[field]
+        for f in SongError.get_field_names():
+            result = data[f]
             if isinstance(result, list):
                 args.append(tuple(result))
             else:
@@ -97,8 +95,8 @@ class SongError(Exception, Entity):
         :return: true if the data contains all the fields, otherwise false
         :rtype: boolean
         """
-        for field in SongError.get_field_names():
-            if field not in data:
+        for f in SongError.get_field_names():
+            if f not in data:
                 return False
         return True
 
@@ -116,24 +114,30 @@ class SongError(Exception, Entity):
 
 
 class ServerErrors(enum.Enum):
+    """
+    Server error definitions used for classifying SongErrors
+    """
     STUDY_ID_DOES_NOT_EXIST = 1
 
-    def getErrorId(self):
+    def get_error_id(self):
+        """
+        Get the error id for this error
+        :return string
+        """
         new_name = self.name.replace('_', '.')
         return new_name.lower()
 
     @classmethod
-    def resolveServerError(self, error_id):
+    def resolve_server_error(cls, error_id):
+        """
+        Finds the correct enum definition using the error_id
+        :return: :class:`ServerErrors <overture_song.model.ServerErrors>`
+        """
         for server_error in ServerErrors:
-            if error_id == server_error.getErrorId():
+            if error_id == server_error.get_error_id():
                 return server_error
 
         raise Exception("Could not resolve the errorId '{}'".format(error_id))
-
-
-
-
-
 
 
 @dataclass(frozen=True)

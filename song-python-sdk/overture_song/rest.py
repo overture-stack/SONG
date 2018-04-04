@@ -61,6 +61,7 @@ def intercept_response(orig_function, debug=False, convert_to_json=False, conver
                 raise Exception(message)
     return new_function
 
+
 class Rest(object):
 
     def __init__(self, access_token=None, debug=False):

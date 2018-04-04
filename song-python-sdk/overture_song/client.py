@@ -29,7 +29,7 @@ from overture_song.entities import Study
 from overture_song.model import ManifestEntry, Manifest, SongError, ServerErrors
 from overture_song.rest import ObjectRest
 from overture_song.utils import SongClientException, convert_to_url_param_list, \
-    check_type, check_song_state, write_object, check_state
+    check_type, write_object, check_state
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")
@@ -83,7 +83,6 @@ class Api(object):
                 log.error(f)
             return False
 
-
     def publish(self, analysis_id):
         self.check_is_alive()
         endpoint = self.__endpoints.publish(self.config.study_id, analysis_id)
@@ -128,6 +127,7 @@ class Api(object):
     def check_is_alive(self):
         check_state(self.is_alive(), "The SONG server may not be running on '{}'".format(self.config.server_url))
 
+
 class StudyClient(object):
 
     def __init__(self, api):
@@ -141,7 +141,7 @@ class StudyClient(object):
         try:
             return self.__api.get_study(study_id) is not None
         except SongError as e:
-            if e.errorId == ServerErrors.STUDY_ID_DOES_NOT_EXIST.getErrorId():
+            if e.errorId == ServerErrors.STUDY_ID_DOES_NOT_EXIST.get_error_id():
                 return False
             else:
                 raise e
