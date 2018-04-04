@@ -23,8 +23,11 @@ import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 
 import java.util.List;
+
+import static java.lang.String.format;
 
 @Component
 public class Registry {
@@ -34,6 +37,7 @@ public class Registry {
   private final Endpoint endpoint;
   private final String accessToken;
   private final String studyId;
+  private final String serverUrl;
 
   @Autowired
   public Registry(@NonNull Config config, @NonNull RestClient restClient) {
@@ -41,6 +45,7 @@ public class Registry {
     this.endpoint = new Endpoint(config.getServerUrl());
     this.accessToken = config.getAccessToken();
     this.studyId = config.getStudyId();
+    this.serverUrl = config.getServerUrl();
   }
 
   /**
@@ -50,6 +55,7 @@ public class Registry {
    * @return The analysisId that the server returned, or null if an error occurred.
    */
   public Status upload(String json, boolean isAsyncValidation) {
+    checkServerAlive();
     val url = endpoint.upload(studyId, isAsyncValidation);
     return restClient.postAuth(accessToken, url, json);
   }
@@ -61,21 +67,25 @@ public class Registry {
    * @return The state of the upload
    */
   public Status getUploadStatus(String studyId, String uploadId) {
+    checkServerAlive();
     val url = endpoint.status(studyId, uploadId);
     return restClient.get(accessToken, url);
   }
 
   public Status save(String studyId, String uploadId, boolean ignoreAnalysisIdCollisions) {
+    checkServerAlive();
     val url = endpoint.saveById(studyId, uploadId, ignoreAnalysisIdCollisions);
     return restClient.postAuth(accessToken, url);
   }
 
   public Status getAnalysisFiles(String studyId, String analysisId) {
+    checkServerAlive();
     val url = endpoint.getAnalysisFiles(studyId, analysisId);
     return restClient.get(accessToken, url);
   }
 
   public Status getAnalysis(String studyId, String analysisId) {
+    checkServerAlive();
     val url = endpoint.getAnalysis(studyId, analysisId);
     return restClient.get(accessToken, url);
   }
@@ -98,21 +108,25 @@ public class Registry {
    * need to find RestTemplate implementation that returns a response
    */
   public Status publish(String studyId, String analysisId ){
+    checkServerAlive();
     val url = endpoint.publish(studyId, analysisId);
     return restClient.putAuth(accessToken, url);
   }
 
-  public Status exportStudy(@NonNull String studyId){
-    val url = endpoint.exportStudy(studyId);
+  public Status exportStudy(@NonNull String studyId, boolean includeAnalysisId, boolean includeOtherIds){
+    checkServerAlive();
+    val url = endpoint.exportStudy(studyId, includeAnalysisId, includeOtherIds);
     return restClient.get(url);
   }
 
-  public Status exportAnalyses(@NonNull List<String> analysisIds){
-    val url = endpoint.exportAnalysisIds(analysisIds);
+  public Status exportAnalyses(@NonNull List<String> analysisIds, boolean includeAnalysisId, boolean includeOtherIds){
+    checkServerAlive();
+    val url = endpoint.exportAnalysisIds(analysisIds, includeAnalysisId, includeOtherIds);
     return restClient.get(url);
   }
 
   public Status suppress(String studyId, String analysisId ){
+    checkServerAlive();
     val url = endpoint.suppress(studyId, analysisId);
     return restClient.putAuth(accessToken, url);
   }
@@ -122,13 +136,21 @@ public class Registry {
       String specimenId,
       String donorId,
       String fileId){
+    checkServerAlive();
     val url = endpoint.idSearch(studyId,sampleId,specimenId,donorId,fileId);
     return restClient.get(accessToken, url);
   }
 
   public Status infoSearch(String studyId, boolean includeInfo, Iterable<String> searchTerms){
+    checkServerAlive();
     val url = endpoint.infoSearch(studyId,includeInfo, searchTerms);
     return restClient.get(accessToken, url);
+  }
+
+  public void checkServerAlive(){
+    if (!isAlive()){
+      throw new RestClientException(format("The song server '%s' is not reachable", serverUrl));
+    }
   }
 
 }

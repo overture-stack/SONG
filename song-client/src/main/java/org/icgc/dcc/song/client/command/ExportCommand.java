@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -68,6 +69,7 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.toPrettyJson;
 public class ExportCommand extends Command {
 
   private static final int BATCH_SIZE = 100;
+
   private static final String STUDY_SWITCH_SHORT = "-s";
   private static final String STUDY_SWITCH_LONG = "--studyId";
   private static final String ANALYSIS_SWITCH_SHORT = "-a";
@@ -76,6 +78,11 @@ public class ExportCommand extends Command {
   private static final String INPUT_FILE_SWITCH_LONG= "--inputFile";
   private static final String NUM_THREADS_SWITCH_SHORT = "-t";
   private static final String NUM_THREADS_SWITCH_LONG = "--threads";
+  private static final String INCLUDE_ANALYSIS_ID_SHORT = "-ia";
+  private static final String INCLUDE_ANALYSIS_ID_LONG = "--include-analysis-id";
+  private static final String INCLUDE_OTHER_IDS_SHORT = "-io";
+  private static final String INCLUDE_OTHER_IDS_LONG = "--include-other-ids";
+
   private static final String ANALYSIS_ID = "analysisId";
   private static final String STUDY_MODE = "STUDY_MODE";
   private static final String ANALYSIS_MODE = "ANALYSIS_MODE";
@@ -109,6 +116,14 @@ public class ExportCommand extends Command {
       required = true)
   private String outputDir;
 
+  @Parameter(names = { INCLUDE_ANALYSIS_ID_SHORT, INCLUDE_ANALYSIS_ID_LONG },
+      description = "Include the analysisId field when exporting payloads", arity = 1)
+  private boolean includeAnalysisId = true;
+
+  @Parameter(names = { INCLUDE_OTHER_IDS_SHORT, INCLUDE_OTHER_IDS_LONG },
+      description = "Include all other Id fields when exporting payloads", arity = 1)
+  private boolean includeOtherIds = false;
+
   /**
    * Dependencies
    */
@@ -118,7 +133,7 @@ public class ExportCommand extends Command {
   /**
    * State
    */
-  private int fileCount = 0;
+  private AtomicInteger fileCount = new AtomicInteger(0);
   private ModeRule studyMode;
   private ModeRule analysisMode;
   private ParamTerm<String> inputFileTerm;
@@ -126,6 +141,7 @@ public class ExportCommand extends Command {
 
   @Override
   public void run() {
+    registry.checkServerAlive();
     // Process rules
     val ruleStatus = checkRules();
     if (ruleStatus.hasErrors()){
@@ -160,8 +176,8 @@ public class ExportCommand extends Command {
     inputFileTerm = createParamTerm( INPUT_FILE_SWITCH_SHORT, INPUT_FILE_SWITCH_LONG, inputFilename, IS_STRING_DEFINED_FUNCTION);
 
     // Create Rules
-    studyMode = createModeRule(STUDY_MODE, studyTerm );
-    analysisMode = createModeRule(ANALYSIS_MODE, analysisTerm, threadTerm, inputFileTerm );
+    studyMode = createModeRule(STUDY_MODE, studyTerm);
+    analysisMode = createModeRule(ANALYSIS_MODE, analysisTerm, threadTerm, inputFileTerm);
 
     // Process Rules
     val ruleProcessor = createRuleProcessor(studyMode, analysisMode);
@@ -176,7 +192,7 @@ public class ExportCommand extends Command {
   }
 
   private void processStudyMode(){
-    val status = registry.exportStudy(studyId);
+    val status = registry.exportStudy(studyId, includeAnalysisId, includeOtherIds);
     val json = status.getOutputs();
     if (status.hasErrors()){
       err(status.getErrors());
@@ -214,9 +230,7 @@ public class ExportCommand extends Command {
     for (val partition : partitions){
       val batchId = "batch_"+batchCount++;
       futureMap.put(batchId,
-          executorService.submit(
-              () -> processAnalysis(batchId, partition)
-          ));
+          executorService.submit(() -> processAnalysis(batchId, partition)));
       log.debug("Submitted {}", batchId);
     }
     log.debug("Waiting for {} export requests to complete...", partitions.size());
@@ -230,7 +244,12 @@ public class ExportCommand extends Command {
   @SneakyThrows
   private Status processAnalysis(String name, List<String> analysisIds){
     // Get data from ExportService
-    val exportStatus = registry.exportAnalyses(analysisIds);
+    Status exportStatus = new Status();
+    try{
+      exportStatus = registry.exportAnalyses(analysisIds, includeAnalysisId, includeOtherIds);
+    } catch (Throwable t){
+      exportStatus.err("ExportError: %s", t.getMessage());
+    }
 
     if (exportStatus.hasErrors()) {
       return exportStatus;
@@ -269,7 +288,7 @@ public class ExportCommand extends Command {
       if(jsonNode.has(ANALYSIS_ID)){
         fileName = format("%s.json", jsonNode.path(ANALYSIS_ID).textValue());
       } else {
-        fileName = format("payload_%s.json", fileCount++);
+        fileName = format("payload_%s.json", fileCount.getAndIncrement());
       }
       val filePath = studyDir.resolve(fileName);
       val bw = newBufferedWriter(filePath);
@@ -284,9 +303,13 @@ public class ExportCommand extends Command {
     for (val futureEntry : futureMap.entrySet()){
       val batchId = futureEntry.getKey();
       val future = futureEntry.getValue();
+      val incomplete = future.isCancelled() || !future.isDone();
       val status = future.get();
       if (status.hasErrors()){
-        errorStatus.err("ERROR[{}]: {}\n", batchId, status.getErrors());
+        errorStatus.err("ERROR[%s]: %s\n", batchId, status.getErrors());
+      }
+      if (incomplete){
+        errorStatus.err("ERROR[%s]: The batchId '%s' was terminated prematurely", batchId);
       }
     }
     if (errorStatus.hasErrors()){
