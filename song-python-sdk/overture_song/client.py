@@ -23,12 +23,13 @@ import json
 import logging
 import os
 
+from urllib3.exceptions import NewConnectionError
 
 from overture_song.entities import Study
-from overture_song.model import ManifestEntry, Manifest
+from overture_song.model import ManifestEntry, Manifest, SongError, ServerErrors
 from overture_song.rest import ObjectRest
 from overture_song.utils import SongClientException, convert_to_url_param_list, \
-    check_type, check_song_state, write_object
+    check_type, check_song_state, write_object, check_state
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")
@@ -46,65 +47,86 @@ class Api(object):
         return self.__config
 
     def upload(self, json_payload, is_async_validation=False):
+        self.check_is_alive()
         return self.__rest.post(
             self.__endpoints.upload(
                 self.config.study_id,
                 is_async_validation=is_async_validation), dict_data=json_payload)
 
     def status(self, upload_id):
+        self.check_is_alive()
         endpoint = self.__endpoints.status(self.config.study_id, upload_id)
         return self.__rest.get(endpoint)
 
     def save(self, upload_id, ignore_analysis_id_collisions=False):
+        self.check_is_alive()
         endpoint = self.__endpoints.save_by_id(
             self.config.study_id, upload_id, ignore_analysis_id_collisions=ignore_analysis_id_collisions)
         return self.__rest.post(endpoint)
 
     def get_analysis_files(self, analysis_id):
+        self.check_is_alive()
         endpoint = self.__endpoints.get_analysis_files(self.config.study_id, analysis_id)
         return self.__rest.get(endpoint)
 
     def get_analysis(self, analysis_id):
+        self.check_is_alive()
         endpoint = self.__endpoints.get_analysis(self.config.study_id, analysis_id)
         return self.__rest.get(endpoint)
 
     def is_alive(self):
         endpoint = self.__endpoints.is_alive()
-        return self.__rest.get(endpoint)
+        try:
+            return self.__rest.get(endpoint) is not None
+        except NewConnectionError as f:
+            if self.config.debug:
+                log.error(f)
+            return False
+
 
     def publish(self, analysis_id):
+        self.check_is_alive()
         endpoint = self.__endpoints.publish(self.config.study_id, analysis_id)
         return self.__rest.put(endpoint)
 
     def suppress(self, analysis_id):
+        self.check_is_alive()
         endpoint = self.__endpoints.suppress(self.config.study_id, analysis_id)
         return self.__rest.put(endpoint)
 
     def id_search(self, sample_id=None, specimen_id=None, donor_id=None, file_id=None):
+        self.check_is_alive()
         endpoint = self.__endpoints.id_search(
             self.config.study_id, sample_id=sample_id, specimen_id=specimen_id, donor_id=donor_id, file_id=file_id)
         return self.__rest.get(endpoint)
 
     def info_search(self, is_include_info, **search_terms):
+        self.check_is_alive()
         endpoint = self.__endpoints.info_search(self.config.study_id, is_include_info, **search_terms)
         return self.__rest.get(endpoint)
 
     def get_study(self, study_id):
+        self.check_is_alive()
         endpoint = self.__endpoints.get_study(study_id)
         return self.__rest.get(endpoint)
 
     def get_entire_study(self, study_id):
+        self.check_is_alive()
         endpoint = self.__endpoints.get_entire_study(study_id)
         return self.__rest.get(endpoint)
 
     def get_all_studies(self):
+        self.check_is_alive()
         endpoint = self.__endpoints.get_all_studies()
         return self.__rest.get(endpoint)
 
     def save_study(self, study):
+        self.check_is_alive()
         endpoint = self.__endpoints.save_study(study.studyId)
         return self.__rest.post(endpoint, dict_data=study.__dict__)
 
+    def check_is_alive(self):
+        check_state(self.is_alive(), "The SONG server may not be running on '{}'".format(self.config.server_url))
 
 class StudyClient(object):
 
@@ -229,3 +251,4 @@ class Endpoints(object):
 
     def save_study(self, study_id):
         return "{}/studies/{}/".format(self.__server_url, study_id)
+
