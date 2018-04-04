@@ -50,14 +50,17 @@ def intercept_response(orig_function, debug=False, convert_to_json=False, conver
             json_data = dict(json.loads(response.content))
             if SongError.is_song_error(json_data):
                 song_error = SongError.create_song_error(json_data)
-                log.error(song_error.to_json())
+                if debug:
+                    log.error(song_error.to_json())
                 raise song_error
             else:
-                message = "Not a song error. Response Code: {}, Response Message: {}".format(response.status_code,
+                message = "[UNKNOWN_REST_ERROR] Not a song error. Response Code: {}, Response Message: {}".format(response.status_code,
                                                                                              response.content)
-                log.error(message)
+                if debug:
+                    log.error(message)
                 raise Exception(message)
     return new_function
+
 
 class Rest(object):
 

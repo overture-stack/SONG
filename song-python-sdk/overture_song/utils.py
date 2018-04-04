@@ -217,13 +217,11 @@ def to_generic_object(type_name, input_object):
 
 
 def check_song_state(expression, error_id, formatted_message, *args):
-
     if not expression:
         raise SongClientException(error_id, formatted_message.format(*args))
 
 
 def check_state(expression, formatted_message, *args):
-
     if not expression:
         raise Exception(formatted_message.format(*args))
 
