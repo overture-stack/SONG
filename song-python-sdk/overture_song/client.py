@@ -135,16 +135,20 @@ class StudyClient(object):
         self.__api = api
 
     def create(self, study):
-        return self.__api.save_study(study) == '1'
+        self.__api.save_study(study)
 
     def has(self, study_id):
-        val = self.__api.get_study(study_id)
-        return val[0] is not None
+        try:
+            return self.__api.get_study(study_id) is not None
+        except SongError as e:
+            if e.errorId == ServerErrors.STUDY_ID_DOES_NOT_EXIST.getErrorId():
+                return False
+            else:
+                raise e
 
     def read(self, study_id):
-        val = self.__api.get_study(study_id)
-        check_song_state(val[0] is not None, 'study.client.get', "The study_id '{}' does not exist".format(study_id))
-        return Study.create_from_raw(val[0])
+        response = self.__api.get_study(study_id)
+        return Study.create_from_raw(response)
 
 
 class UploadClient(object):
