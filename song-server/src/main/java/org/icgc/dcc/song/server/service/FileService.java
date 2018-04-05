@@ -117,7 +117,7 @@ public class FileService {
   }
 
   private static void fileNotFoundCheck(boolean expression, @NonNull String id){
-    checkServer(expression, FileService.class.getClass(), FILE_NOT_FOUND,
+    checkServer(expression, FileService.class, FILE_NOT_FOUND,
         "The File with objectId '%s' does not exist", id);
   }
 
