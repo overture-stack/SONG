@@ -30,24 +30,25 @@ import static org.icgc.dcc.song.server.service.export.PayloadParser.createPayloa
 
 @Service
 public class ExportService {
+  private static final boolean INCLUDE_OTHER_IDS = false;
 
   @Autowired
   private AnalysisService analysisService;
 
   @SneakyThrows
   public List<ExportedPayload> exportPayload(@NonNull List<String> analysisIds,
-      boolean includeAnalysisId, boolean includeOtherIds){
+      boolean includeAnalysisId){
     val analysisMap = aggregateByStudy(analysisIds);
     return analysisMap.entrySet().stream()
-        .map(e -> buildExportedPayload(e.getKey(), e.getValue(), includeAnalysisId, includeOtherIds))
+        .map(e -> buildExportedPayload(e.getKey(), e.getValue(), includeAnalysisId))
         .collect(toImmutableList());
   }
 
   @SneakyThrows
   public List<ExportedPayload> exportPayloadsForStudy(@NonNull String studyId,
-      boolean includeAnalysisId, boolean includeOtherIds){
+      boolean includeAnalysisId){
     val payloads = analysisService.getAnalysis(studyId).stream()
-        .map(x -> convertToPayload(x, includeAnalysisId, includeOtherIds))
+        .map(x -> convertToPayload(x, includeAnalysisId, INCLUDE_OTHER_IDS))
         .collect(toImmutableList());
     return ImmutableList.of(createExportedPayload(studyId, payloads));
   }
@@ -59,9 +60,9 @@ public class ExportService {
   }
 
   private static ExportedPayload buildExportedPayload(String studyId, List<Analysis> analyses,
-      boolean includeAnalysisId, boolean includeOtherIds){
+      boolean includeAnalysisId){
     val payloads = analyses.stream()
-        .map(x -> convertToPayload(x, includeAnalysisId, includeOtherIds))
+        .map(x -> convertToPayload(x, includeAnalysisId, INCLUDE_OTHER_IDS))
         .collect(toImmutableList());
     return createExportedPayload(studyId, payloads);
   }

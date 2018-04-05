@@ -78,10 +78,8 @@ public class ExportCommand extends Command {
   private static final String INPUT_FILE_SWITCH_LONG= "--inputFile";
   private static final String NUM_THREADS_SWITCH_SHORT = "-t";
   private static final String NUM_THREADS_SWITCH_LONG = "--threads";
-  private static final String INCLUDE_ANALYSIS_ID_SHORT = "-ia";
+  private static final String INCLUDE_ANALYSIS_ID_SHORT = "-i";
   private static final String INCLUDE_ANALYSIS_ID_LONG = "--include-analysis-id";
-  private static final String INCLUDE_OTHER_IDS_SHORT = "-io";
-  private static final String INCLUDE_OTHER_IDS_LONG = "--include-other-ids";
 
   private static final String ANALYSIS_ID = "analysisId";
   private static final String STUDY_MODE = "STUDY_MODE";
@@ -119,10 +117,6 @@ public class ExportCommand extends Command {
   @Parameter(names = { INCLUDE_ANALYSIS_ID_SHORT, INCLUDE_ANALYSIS_ID_LONG },
       description = "Include the analysisId field when exporting payloads", arity = 1)
   private boolean includeAnalysisId = true;
-
-  @Parameter(names = { INCLUDE_OTHER_IDS_SHORT, INCLUDE_OTHER_IDS_LONG },
-      description = "Include all other Id fields when exporting payloads", arity = 1)
-  private boolean includeOtherIds = false;
 
   /**
    * Dependencies
@@ -192,7 +186,7 @@ public class ExportCommand extends Command {
   }
 
   private void processStudyMode(){
-    val status = registry.exportStudy(studyId, includeAnalysisId, includeOtherIds);
+    val status = registry.exportStudy(studyId, includeAnalysisId);
     val json = status.getOutputs();
     if (status.hasErrors()){
       err(status.getErrors());
@@ -246,7 +240,7 @@ public class ExportCommand extends Command {
     // Get data from ExportService
     Status exportStatus = new Status();
     try{
-      exportStatus = registry.exportAnalyses(analysisIds, includeAnalysisId, includeOtherIds);
+      exportStatus = registry.exportAnalyses(analysisIds, includeAnalysisId);
     } catch (Throwable t){
       exportStatus.err("ExportError: %s", t.getMessage());
     }

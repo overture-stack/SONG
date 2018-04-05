@@ -66,6 +66,7 @@ public class ExportServiceTest {
   private static final String STATUS = "status";
   private static final String OK = "ok";
   private static final String UPLOAD_ID = "uploadId";
+  private static final boolean DEFAULT_INCLUDE_OTHER_IDS = false;
 
   @Autowired
   private ExportService exportService;
@@ -109,42 +110,28 @@ public class ExportServiceTest {
   }
 
   @Test
-  public void testSingleExport00(){
-    runSingleExportTest(SequencingReadAnalysis.class, false, false);
-    runSingleExportTest(VariantCallAnalysis.class, false, false);
+  public void testSingleExportWithoutAnalysisId(){
+    runSingleExportTest(SequencingReadAnalysis.class, false);
+    runSingleExportTest(VariantCallAnalysis.class, false);
     assert(true);
   }
 
   @Test
-  public void testSingleExport01(){
-    runSingleExportTest(SequencingReadAnalysis.class, false, true);
-    runSingleExportTest(VariantCallAnalysis.class, false, true);
-    assert(true);
-  }
-
-  @Test
-  public void testSingleExport10(){
-    runSingleExportTest(SequencingReadAnalysis.class, true, false);
-    runSingleExportTest(VariantCallAnalysis.class, true, false);
-    assert(true);
-  }
-
-  @Test
-  public void testSingleExport11(){
-    runSingleExportTest(SequencingReadAnalysis.class, true, true);
-    runSingleExportTest(VariantCallAnalysis.class, true, true);
+  public void testSingleExportWithAnalysisId(){
+    runSingleExportTest(SequencingReadAnalysis.class, true);
+    runSingleExportTest(VariantCallAnalysis.class, true);
     assert(true);
   }
 
   private void runSingleExportTest(Class<? extends Analysis> analysisClass,
-      boolean includeAnalysisId, boolean includeOtherIds){
+      boolean includeAnalysisId){
     val studyId = studyGenerator.createRandomStudy();
     val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
     val expectedAnalysis = analysisGenerator.createDefaultRandomAnalysis(analysisClass);
     val analysisId = expectedAnalysis.getAnalysisId();
-    massageAnalysisInplace(expectedAnalysis, includeAnalysisId, includeOtherIds);
+    massageAnalysisInplace(expectedAnalysis, includeAnalysisId, DEFAULT_INCLUDE_OTHER_IDS);
 
-    val exportedPayloads = exportService.exportPayload(newArrayList(analysisId), includeAnalysisId, includeOtherIds);
+    val exportedPayloads = exportService.exportPayload(newArrayList(analysisId), includeAnalysisId);
     assertThat(exportedPayloads).hasSize(1);
     val exportedPayload = exportedPayloads.get(0);
     assertThat(exportedPayload.getStudyId()).isEqualTo(studyId);
@@ -161,18 +148,17 @@ public class ExportServiceTest {
       int numStudies, int numAnalysesPerStudy){
 
     val includeAnalysisId = true;
-    val includeOtherIds = false;
 
     // Check config
     assertCorrectConfig(numStudies, numAnalysesPerStudy);
 
     // Generate data
-    val expectedData = generateData(analysisClass, numStudies, numAnalysesPerStudy, includeAnalysisId, includeOtherIds);
+    val expectedData = generateData(analysisClass, numStudies, numAnalysesPerStudy, includeAnalysisId, DEFAULT_INCLUDE_OTHER_IDS);
 
 
     // Process StudyMode Data
     val actualStudyModeExportedPayloads = expectedData.keySet().stream()
-        .map(s -> exportService.exportPayloadsForStudy(s, includeAnalysisId, includeOtherIds))
+        .map(s -> exportService.exportPayloadsForStudy(s, includeAnalysisId))
         .flatMap(Collection::stream)
         .collect(toImmutableList());
     assertThat(actualStudyModeExportedPayloads).hasSize(numStudies);
@@ -192,7 +178,7 @@ public class ExportServiceTest {
             .map(Analysis::getAnalysisId)
             .collect(toImmutableList());
     val actualAnalysisModeExportedPayloads =
-        exportService.exportPayload(expectedAnalysisIds, includeAnalysisId, includeOtherIds);
+        exportService.exportPayload(expectedAnalysisIds, includeAnalysisId);
     assertThat(actualAnalysisModeExportedPayloads).hasSize(numStudies);
     val actualAnalysisModeData = Maps.<String, List<? extends Analysis>>newHashMap();
     for (val exportedPayload : actualAnalysisModeExportedPayloads){
@@ -246,7 +232,6 @@ public class ExportServiceTest {
    * different studies
    */
   private void runFullLoopTest(Class<? extends Analysis> analysisClass, int numStudies, int numAnalysesPerStudy){
-    val includeOtherIds = false;
     val includeAnalysisId = true;
     // Check the right parameters for this test are set
     assertCorrectConfig(numStudies, numAnalysesPerStudy);
@@ -276,7 +261,7 @@ public class ExportServiceTest {
     assertThat(requestedAnalysisIds).hasSize(numStudies);
 
     // Export the analysis for the requested analysisIds
-    val exportedPayloads =  exportService.exportPayload(requestedAnalysisIds, includeAnalysisId, includeOtherIds);
+    val exportedPayloads =  exportService.exportPayload(requestedAnalysisIds, includeAnalysisId);
 
     // There should be an ExportedPayload object for each study
     assertThat(exportedPayloads).hasSize(numStudies);

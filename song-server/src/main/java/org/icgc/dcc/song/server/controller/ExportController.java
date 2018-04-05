@@ -48,9 +48,8 @@ public class ExportController {
   @GetMapping(value = "/studies/{studyId}")
   @ResponseBody
   public List<ExportedPayload> exportStudy(@PathVariable("studyId") String studyId,
-      @RequestParam(value = "includeAnalysisId", defaultValue = "true") boolean includeAnalysisId,
-      @RequestParam(value = "includeOtherIds", defaultValue = "false") boolean includeOtherIds ) {
-    return exportService.exportPayloadsForStudy(studyId, includeAnalysisId, includeOtherIds);
+      @RequestParam(value = "includeAnalysisId", defaultValue = "true") boolean includeAnalysisId){
+    return exportService.exportPayloadsForStudy(studyId, includeAnalysisId);
   }
 
   @ApiOperation(value = "ExportAnalysis", notes = "Exports the payload for a list of analysisIds")
@@ -58,9 +57,8 @@ public class ExportController {
   @ResponseBody
   public List<ExportedPayload> exportAnalysis( @PathVariable("analysisIds")
   @ApiParam(value = "Comma separated list of analysisIds", required = true) List<String> analysisIds,
-      @RequestParam(value = "includeAnalysisId", defaultValue = "true") boolean includeAnalysisId,
-      @RequestParam(value = "includeOtherIds", defaultValue = "false") boolean includeOtherIds ) {
-    return exportService.exportPayload(analysisIds, includeAnalysisId, includeOtherIds);
+      @RequestParam(value = "includeAnalysisId", defaultValue = "true") boolean includeAnalysisId){
+    return exportService.exportPayload(analysisIds, includeAnalysisId);
   }
 
 }
