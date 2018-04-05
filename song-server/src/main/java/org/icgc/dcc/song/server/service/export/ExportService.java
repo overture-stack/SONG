@@ -30,7 +30,6 @@ import static org.icgc.dcc.song.server.service.export.PayloadParser.createPayloa
 
 @Service
 public class ExportService {
-  private static final boolean INCLUDE_OTHER_IDS = false;
 
   @Autowired
   private AnalysisService analysisService;
@@ -48,7 +47,7 @@ public class ExportService {
   public List<ExportedPayload> exportPayloadsForStudy(@NonNull String studyId,
       boolean includeAnalysisId){
     val payloads = analysisService.getAnalysis(studyId).stream()
-        .map(x -> convertToPayload(x, includeAnalysisId, INCLUDE_OTHER_IDS))
+        .map(x -> convertToPayload(x, includeAnalysisId))
         .collect(toImmutableList());
     return ImmutableList.of(createExportedPayload(studyId, payloads));
   }
@@ -62,13 +61,13 @@ public class ExportService {
   private static ExportedPayload buildExportedPayload(String studyId, List<Analysis> analyses,
       boolean includeAnalysisId){
     val payloads = analyses.stream()
-        .map(x -> convertToPayload(x, includeAnalysisId, INCLUDE_OTHER_IDS))
+        .map(x -> convertToPayload(x, includeAnalysisId))
         .collect(toImmutableList());
     return createExportedPayload(studyId, payloads);
   }
 
   @SneakyThrows
-  private static JsonNode convertToPayload(@NonNull Analysis a, boolean includeAnalysisId, boolean includeOtherIds) {
+  private static JsonNode convertToPayload(@NonNull Analysis a, boolean includeAnalysisId) {
     JsonNode output;
     val analysisType = resolveAnalysisType(a.getAnalysisType());
     if (analysisType == SEQUENCING_READ) {
@@ -83,7 +82,7 @@ public class ExportService {
               a.getAnalysisType()));
     }
 
-    val payloadConverter = createPayloadConverter(includeAnalysisId, includeOtherIds);
+    val payloadConverter = createPayloadConverter(includeAnalysisId);
     val payloadParser = createPayloadParser(output);
     return payloadConverter.convert(payloadParser);
   }
