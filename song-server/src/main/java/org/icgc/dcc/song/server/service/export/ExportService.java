@@ -36,18 +36,18 @@ public class ExportService {
 
   @SneakyThrows
   public List<ExportedPayload> exportPayload(@NonNull List<String> analysisIds,
-      boolean includeAnalysisId, boolean includeOtherIds){
+      boolean includeAnalysisId){
     val analysisMap = aggregateByStudy(analysisIds);
     return analysisMap.entrySet().stream()
-        .map(e -> buildExportedPayload(e.getKey(), e.getValue(), includeAnalysisId, includeOtherIds))
+        .map(e -> buildExportedPayload(e.getKey(), e.getValue(), includeAnalysisId))
         .collect(toImmutableList());
   }
 
   @SneakyThrows
   public List<ExportedPayload> exportPayloadsForStudy(@NonNull String studyId,
-      boolean includeAnalysisId, boolean includeOtherIds){
+      boolean includeAnalysisId){
     val payloads = analysisService.getAnalysis(studyId).stream()
-        .map(x -> convertToPayload(x, includeAnalysisId, includeOtherIds))
+        .map(x -> convertToPayload(x, includeAnalysisId))
         .collect(toImmutableList());
     return ImmutableList.of(createExportedPayload(studyId, payloads));
   }
@@ -59,15 +59,15 @@ public class ExportService {
   }
 
   private static ExportedPayload buildExportedPayload(String studyId, List<Analysis> analyses,
-      boolean includeAnalysisId, boolean includeOtherIds){
+      boolean includeAnalysisId){
     val payloads = analyses.stream()
-        .map(x -> convertToPayload(x, includeAnalysisId, includeOtherIds))
+        .map(x -> convertToPayload(x, includeAnalysisId))
         .collect(toImmutableList());
     return createExportedPayload(studyId, payloads);
   }
 
   @SneakyThrows
-  private static JsonNode convertToPayload(@NonNull Analysis a, boolean includeAnalysisId, boolean includeOtherIds) {
+  private static JsonNode convertToPayload(@NonNull Analysis a, boolean includeAnalysisId) {
     JsonNode output;
     val analysisType = resolveAnalysisType(a.getAnalysisType());
     if (analysisType == SEQUENCING_READ) {
@@ -82,7 +82,7 @@ public class ExportService {
               a.getAnalysisType()));
     }
 
-    val payloadConverter = createPayloadConverter(includeAnalysisId, includeOtherIds);
+    val payloadConverter = createPayloadConverter(includeAnalysisId);
     val payloadParser = createPayloadParser(output);
     return payloadConverter.convert(payloadParser);
   }

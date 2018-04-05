@@ -113,15 +113,15 @@ public class Registry {
     return restClient.putAuth(accessToken, url);
   }
 
-  public Status exportStudy(@NonNull String studyId, boolean includeAnalysisId, boolean includeOtherIds){
+  public Status exportStudy(@NonNull String studyId, boolean includeAnalysisId){
     checkServerAlive();
-    val url = endpoint.exportStudy(studyId, includeAnalysisId, includeOtherIds);
+    val url = endpoint.exportStudy(studyId, includeAnalysisId);
     return restClient.get(url);
   }
 
-  public Status exportAnalyses(@NonNull List<String> analysisIds, boolean includeAnalysisId, boolean includeOtherIds){
+  public Status exportAnalyses(@NonNull List<String> analysisIds, boolean includeAnalysisId){
     checkServerAlive();
-    val url = endpoint.exportAnalysisIds(analysisIds, includeAnalysisId, includeOtherIds);
+    val url = endpoint.exportAnalysisIds(analysisIds, includeAnalysisId);
     return restClient.get(url);
   }
 

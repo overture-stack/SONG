@@ -26,28 +26,25 @@ public class PayloadConverter {
   private static final String ANALYSIS_STATE= "analysisState";
 
   private final boolean includeAnalysisId;
-  private final boolean includeOtherIds;
 
   public JsonNode convert(PayloadParser parser){
     if(!includeAnalysisId){
       removeAnalysisId(parser);
     }
 
-    if (!includeOtherIds){
-      removeRootFields(parser);
-      removeExperimentFields(parser);
-      removeSamplesFields(parser);
-      removeDonorFields(parser);
-      removeSpecimenFields(parser);
-      removeFilesFields(parser);
-    }
+    removeRootFields(parser);
+    removeExperimentFields(parser);
+    removeSamplesFields(parser);
+    removeDonorFields(parser);
+    removeSpecimenFields(parser);
+    removeFilesFields(parser);
 
     removeEmptyInfoFields(parser);
     return parser.getRootNode();
   }
 
-  public static PayloadConverter createPayloadConverter(boolean includeAnalysisId, boolean includeOtherIds) {
-    return new PayloadConverter(includeAnalysisId, includeOtherIds);
+  public static PayloadConverter createPayloadConverter(boolean includeAnalysisId) {
+    return new PayloadConverter(includeAnalysisId);
   }
 
   private static void removeEmptyInfoFields(PayloadParser parser){
