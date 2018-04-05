@@ -156,7 +156,10 @@ class SongTests(unittest.TestCase):
 
     def load_json_as_dict(self, json_fixture_filename):
         expected_test_file = TestFile(self._get_fixture_filename(json_fixture_filename))
-        return json.load(open(expected_test_file.name, 'r'))
+        fh = open(expected_test_file.name, 'r')
+        out = json.load(fh)
+        fh.close()
+        return out
 
     def test_sequencing_read(self):
         expected_dict = self.load_json_as_dict("expected_sequencing_read.json")
