@@ -16,40 +16,80 @@
  */
 package org.icgc.dcc.song.server.repository;
 
+import lombok.val;
+import org.icgc.dcc.song.server.model.entity.Donor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 
-import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.repository.mapper.DonorMapper;
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.BindBean;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import static com.google.common.base.Preconditions.checkState;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
-@RegisterMapper(DonorMapper.class)
-public interface DonorRepository {
+public interface DonorRepository extends JpaRepository<Donor, String> {
 
-  @SqlUpdate("INSERT INTO Donor (id, submitter_id, study_id, gender) " +
-             "VALUES (:donorId, :donorSubmitterId, :studyId, :donorGender)")
-  int create(@BindBean Donor donor);
+  default  int create( Donor donor){
+    save(donor);
+    return 1;
+  }
 
-  @SqlQuery("SELECT id, submitter_id, study_id, gender FROM donor WHERE id=:id")
-  Donor read(@Bind("id") String donorId);
+  default Donor read( String donorId){
+    return findById(donorId).orElse(null);
+  }
 
-  @SqlUpdate("UPDATE Donor SET submitter_id=:donorSubmitterId, gender=:donorGender WHERE id=:donorId")
-  int update(@BindBean Donor donor);
+  default int update( Donor donor){
+    save(donor);
+    return 1;
+  }
 
-  @SqlUpdate("UPDATE Donor SET submitter_id=:donorSubmitterId, gender=:donorGender WHERE id=:id")
-  int update(@Bind("id") String id, @BindBean Donor donor);
+  default int delete( String studyId,  String id){
+    val req = DonorRequest.create(id, studyId, null, null);
+    val results = findAll(Example.of(req));
+    deleteAll(results);
+    return results.size();
+  }
 
-  @SqlUpdate("DELETE from donor where id=:id AND study_id=:studyId")
-  int delete(@Bind("studyId") String studyId, @Bind("id") String id);
+  default List<String> findByParentId( String parentId){
+    val req = DonorRequest.create(null, parentId, null, null);
+    return findAll(Example.of(req)).stream()
+        .map(Donor::getDonorId)
+        .collect(toImmutableList());
+  }
 
+  default String findByBusinessKey( String studyId,  String key){
+    val req = DonorRequest.create(null, studyId, key, null);
+    val results = findAll(Example.of(req));
+    checkState(results.size() < 2,
+        "There cannot be more than 2 results for studyId '{}' and key '{}'",
+        studyId, key);
+    if (results.isEmpty()){
+      return null;
+    }
+    return results.get(0).getDonorId();
+  }
 
-  @SqlQuery("SELECT id from donor where study_id=:studyId")
-  List<String> findByParentId(@Bind("studyId") String parentId);
+  class DonorRequest extends  Donor {
+    private String gender;
 
-  @SqlQuery("SELECT id from donor where study_id=:studyId AND submitter_id=:key")
-  String findByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
+    @Override
+    public void setDonorGender(String gender) {
+      this.gender =  gender;
+    }
+
+    public String getDonorGender() {
+      return gender;
+    }
+
+    public static DonorRequest create(String id, String studyId, String submitterId, String gender){
+      val d = new DonorRequest();
+      d.setDonorGender(gender);
+      d.setDonorId(id);
+      d.setStudyId(studyId);
+      d.setDonorSubmitterId(submitterId);
+      return d;
+    }
+
+  }
+
 }
 

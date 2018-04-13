@@ -27,7 +27,6 @@ import lombok.val;
 import org.icgc.dcc.song.core.utils.VersionUtils;
 import org.icgc.dcc.song.server.config.ValidationConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.config.RandomValuePropertySource;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.env.SystemEnvironmentPropertySource;
@@ -85,7 +84,7 @@ public class ServerBanner {
   private static void log(StandardEnvironment env) {
     log.info("{}:", env);
     for (val source : env.getPropertySources()) {
-      if (source instanceof SystemEnvironmentPropertySource || source instanceof RandomValuePropertySource) {
+      if (source instanceof SystemEnvironmentPropertySource){ //RTISMA_HACK || source instanceof RandomValuePropertySource) {
         // Skip because this will cause issues with terminal display or is useless
         continue;
       }

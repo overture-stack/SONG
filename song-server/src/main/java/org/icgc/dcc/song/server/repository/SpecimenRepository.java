@@ -16,43 +16,61 @@
  */
 package org.icgc.dcc.song.server.repository;
 
+import lombok.val;
+import org.icgc.dcc.common.core.util.stream.Collectors;
+import org.icgc.dcc.song.server.model.entity.Specimen;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 
-import org.icgc.dcc.song.server.model.entity.Specimen;
-import org.icgc.dcc.song.server.repository.mapper.SpecimenMapper;
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.BindBean;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+public interface SpecimenRepository extends JpaRepository<Specimen, String> {
 
-@RegisterMapper(SpecimenMapper.class)
-public interface SpecimenRepository {
+  default int create( Specimen specimen){
+    save(specimen);
+    return 1;
+	}
 
-  @SqlUpdate("INSERT INTO Specimen (id, submitter_id, donor_id, class, type) VALUES (:specimenId, " +
-          ":specimenSubmitterId, :donorId, :specimenClass, :specimenType)")
-  int create(@BindBean Specimen specimen);
+  default Specimen read( String id){
+    return findById(id).orElse(null);
+	}
 
-  @SqlQuery("SELECT id, submitter_id, donor_id, class, type FROM Specimen where id=:id")
-  Specimen read(@Bind("id") String id);
+  default int update( Specimen specimen){
+    val result = findById(specimen.getSpecimenId());
+    if(result.isPresent()){
+      val readSpecimen = result.get();
+      if (!readSpecimen.equals(specimen)){
+        save(specimen);
+        return 1;
+      }
+    }
+    return 0;
+	}
 
-  @SqlUpdate("UPDATE Specimen SET submitter_id=:specimenSubmitterId, class=:specimenClass, type=:specimenType " +
-          "where id=:specimenId")
-  int update(@BindBean Specimen specimen);
+  default int update( String id,  Specimen specimen){
+    return update(specimen.getSpecimenId(), specimen);
+	}
 
-  @SqlUpdate("UPDATE Specimen SET submitter_id=:specimenSubmitterId, class=:specimenClass, type=:specimenType " +
-          "where id=:id")
-  int update(@Bind("id") String id, @BindBean Specimen specimen);
+  default int delete( String id){
+    val result = findById(id);
+    if(result.isPresent()){
+      val readSpecimen = result.get();
+      delete(readSpecimen);
+      return 1;
+    }
+    return 0;
+	}
 
-  @SqlUpdate("DELETE from Specimen where id=:id")
-  int delete(@Bind("id") String id);
+  default List<String> findByParentId( String donor_id){
+    return findAll().stream()
+        .filter(x -> x.getDonorId().equals(donor_id))
+        .map(Specimen::getSpecimenId)
+        .collect(Collectors.toImmutableList());
+	}
 
-  @SqlQuery("SELECT id from Specimen where donor_id=:donor_id")
-  List<String> findByParentId(@Bind("donor_id") String donor_id);
+  default String findByBusinessKey( String studyId,  String submitterId){
+    return findAll().stream()
+        .filter(x -> x.get)
 
-  @SqlQuery("SELECT s.id from Specimen s, Donor d "
-      + "WHERE s.submitter_id=:submitterId "
-      + "AND s.donor_id = d.id "
-      + "AND d.study_id=:studyId")
-  String findByBusinessKey(@Bind("studyId") String studyId, @Bind("submitterId") String submitterId);
+	}
+
 }

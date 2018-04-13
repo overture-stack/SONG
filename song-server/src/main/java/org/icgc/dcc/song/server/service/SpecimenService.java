@@ -19,8 +19,10 @@ package org.icgc.dcc.song.server.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.composites.SpecimenWithSamples;
+import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -142,8 +144,13 @@ public class SpecimenService {
     return OK;
   }
 
+  @Autowired DonorRepository donorRepository;
   public String findByBusinessKey(@NonNull String studyId, @NonNull String submitterId) {
     studyService.checkStudyExist(studyId);
+
+    Donor.create(null, )
+    donorRepository.
+
     return repository.findByBusinessKey(studyId, submitterId);
   }
 

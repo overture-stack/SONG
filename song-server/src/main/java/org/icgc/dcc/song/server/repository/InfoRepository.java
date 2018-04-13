@@ -16,25 +16,59 @@
  */
 package org.icgc.dcc.song.server.repository;
 
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import lombok.val;
+import org.icgc.dcc.song.server.model.entity.Info;
+import org.springframework.data.domain.Example;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface InfoRepository {
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
+import static org.icgc.dcc.song.core.utils.JsonUtils.toJsonNode;
 
-  @SqlUpdate("INSERT INTO Info (id, id_type, info) VALUES(:id,:type,:info)")
-  int create(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String jsonInfo);
+public interface InfoRepository extends JpaRepository<Info, String>{
 
-  @SqlUpdate("UPDATE Info set info=:info where id=:id AND id_type=:type")
-  int set(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String jsonInfo);
+  // RTISMA_TODO:  eliminate repo complexity and just use save method
+  default int create(String id, String idType, String jsonInfo){
+    val s = save(Info.createInfo(id, idType, jsonInfo));
+    return 1;
+  }
 
-  @SqlQuery("SELECT info from Info where id_type=:type AND id=:id")
-  String readInfo(@Bind("id") String id, @Bind("type") String id_type);
+  // RTISMA_TODO: fix this, its not really used. Shhould stick to save method instead
+  default int set(String id, String idType, String jsonInfo){
+    val s = save(Info.createInfo(id, idType, jsonInfo));
+    return 1;
+  }
 
-  @SqlQuery("SELECT id_type from Info where id_type=:type AND id=:id")
-  String readType(@Bind("id") String id, @Bind("type") String id_type);
+  // RTISMA_TODO: this should be done in the service layer.
+  default String readInfo(String id, String id_type){
+    val req = Info.createInfo(id, id_type, (String)null);
+    val results = findAll(Example.of(req));
+    checkArgument(results.size() <= 1, "cannot have more than one");
+    if (results.isEmpty()){
+      return null;
+    } else {
+      val value = results.get(0).getInfo();
+      if (isNull(value) || value.isEmpty()){
+        return null;
+      }
+      return toJson(toJsonNode(value));
+    }
+  }
 
-  @SqlUpdate("DELETE from Info where id=:id AND id_type=:type")
-  int delete(@Bind("id") String id, @Bind("type") String id_type);
+  // RTISMA_TODO: remove this and just use the default jpa is Exists
+  default String readType(String id, String id_type) {
+    val req = Info.createInfo(id, id_type, (String)null);
+    val results = findAll(Example.of(req));
+    checkArgument(results.size() <= 1, "cannot have more than one");
+    return results.isEmpty() ? null : results.get(0).getIdType();
+  }
+
+  // RTISMA_TODO: fix this, its halfassed
+  default int delete(String id, String id_type){
+    val req = Info.createInfo(id, id_type, (String)null);
+    this.delete(req);
+    return 1;
+  }
 
 }

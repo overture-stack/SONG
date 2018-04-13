@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
-public class AttributeNames {
+public class TableAttributeNames {
     public static final String ID="id";
     public static final String STUDY_ID="study_id";
     public static final String TYPE="type";

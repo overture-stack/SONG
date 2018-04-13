@@ -24,21 +24,42 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
+import org.icgc.dcc.song.server.model.enums.TableNames;
+import org.icgc.dcc.song.server.repository.TableAttributeNames;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 import static org.icgc.dcc.song.server.model.enums.Constants.SPECIMEN_CLASS;
 import static org.icgc.dcc.song.server.model.enums.Constants.SPECIMEN_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
 @Data
+@Entity
+@Table(name = TableNames.SPECIMEN)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class Specimen extends Metadata {
 
+  @Id
+  @Column(name = TableAttributeNames.ID,
+      updatable = false, unique = true, nullable = false)
   private String specimenId = "";
+
+
+  @Column(name = TableAttributeNames.DONOR_ID)
   private String donorId="";
+
+  @Column(name = TableAttributeNames.SUBMITTER_ID)
   private String specimenSubmitterId = "";
+
+  @Column(name = TableAttributeNames.CLASS)
   private String specimenClass = "";
+
+  @Column(name = TableAttributeNames.TYPE)
   private String specimenType = "";
 
   public static Specimen create(String id, @NonNull String submitterId, String donorId, String specimenClass,

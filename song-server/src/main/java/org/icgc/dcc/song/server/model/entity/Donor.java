@@ -25,20 +25,50 @@ import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import static org.icgc.dcc.song.server.model.ModelAttributeNames.DONOR_GENDER_MODEL_ATTR;
+import static org.icgc.dcc.song.server.model.ModelAttributeNames.DONOR_ID_MODEL_ATTR;
+import static org.icgc.dcc.song.server.model.ModelAttributeNames.DONOR_SUBMITTER_ID_MODEL_ATTR;
+import static org.icgc.dcc.song.server.model.ModelAttributeNames.INFO_MODEL_ATTR;
+import static org.icgc.dcc.song.server.model.ModelAttributeNames.SPECIMENS_MODEL_ATTR;
+import static org.icgc.dcc.song.server.model.ModelAttributeNames.STUDY_ID_MODEL_ATTR;
 import static org.icgc.dcc.song.server.model.enums.Constants.DONOR_GENDER;
 import static org.icgc.dcc.song.server.model.enums.Constants.validate;
+import static org.icgc.dcc.song.server.model.enums.TableNames.DONOR;
+import static org.icgc.dcc.song.server.repository.TableAttributeNames.GENDER;
+import static org.icgc.dcc.song.server.repository.TableAttributeNames.ID;
+import static org.icgc.dcc.song.server.repository.TableAttributeNames.SUBMITTER_ID;
 
+@Entity
+@Table(name = DONOR)
 @EqualsAndHashCode(callSuper = true)
 @Data
 @ToString(callSuper = true)
-@JsonPropertyOrder({ "donorId", "donorSubmitterId", "studyId", "donorGender", "specimens", "info" })
+@JsonPropertyOrder({
+    DONOR_ID_MODEL_ATTR,
+    DONOR_SUBMITTER_ID_MODEL_ATTR,
+    STUDY_ID_MODEL_ATTR,
+    DONOR_GENDER_MODEL_ATTR,
+    SPECIMENS_MODEL_ATTR,
+    INFO_MODEL_ATTR })
 @JsonInclude(JsonInclude.Include.ALWAYS)
-
 public class Donor extends Metadata {
 
+  @Id
+  @Column(name = ID, updatable = false, unique = true, nullable = false)
   private String donorId = "";
-  private String donorSubmitterId = "";
+
+  @Column(name = STUDY_ID_MODEL_ATTR)
   private String studyId = "";
+
+  @Column(name = SUBMITTER_ID)
+  private String donorSubmitterId = "";
+
+  @Column(name = GENDER)
   private String donorGender = "";
 
   public static Donor create(String id, String submitterId, String studyId, String gender) {
@@ -47,10 +77,11 @@ public class Donor extends Metadata {
     d.setStudyId(studyId);
     d.setDonorSubmitterId(submitterId);
     d.setDonorGender(gender);
-
     return d;
   }
 
+  //RTISMA_TODO: remove this, should have its own validation. Need gender to be null so can create hibernate examples for
+  // finding entities. This would servce as a data and request entity
   public void setDonorGender(String gender) {
     validate(DONOR_GENDER, gender);
     this.donorGender = gender;

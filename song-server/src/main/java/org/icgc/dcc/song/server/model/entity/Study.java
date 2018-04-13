@@ -24,12 +24,26 @@ import lombok.ToString;
 import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import static org.icgc.dcc.song.server.model.enums.TableNames.STUDY;
+import static org.icgc.dcc.song.server.repository.TableAttributeNames.ID;
+
 @EqualsAndHashCode(callSuper=true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Data
 @ToString(callSuper = true)
+@Entity
+@Table(name = STUDY)
 public class Study extends Metadata {
-  private String studyId="";
+
+  @Id
+  @Column(name = ID, updatable = false, unique = true, nullable = false)
+  private String studyId;
+
   private String name="";
   private String organization="";
   private String description="";
@@ -40,7 +54,6 @@ public class Study extends Metadata {
       s.setName(name);
       s.setOrganization(org);
       s.setDescription(desc);
-
       return s;
   }
 

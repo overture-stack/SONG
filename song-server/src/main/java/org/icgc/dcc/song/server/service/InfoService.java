@@ -42,8 +42,8 @@ import static org.icgc.dcc.song.server.model.enums.InfoTypes.SPECIMEN;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.STUDY;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.VARIANT_CALL;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 abstract class InfoService {
 
   private final InfoTypes type;

@@ -25,9 +25,17 @@ server:
 dcc-storage:
   url: "https://storage.cancercollaboratory.org"
 
+
+# Hibernate
+spring:
+  jpa:
+    properties:
+      hibernate.dialect: com.marvinformatics.hibernate.json.PostgreSQLJsonDialect
+
 # Management
 management:
-  port: 8081
+  server:
+    port: 8081
 
 swagger:
   alternateUrl: "/api-docs"
@@ -61,6 +69,9 @@ auth:
     # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
     multiplier: 2.0
 
+# RTISMA_HACK
+# logging.level.root: debug
+
 ---
 spring.profiles: async-test
 validation.delayMs: 5000
@@ -70,13 +81,14 @@ spring.profiles: test
 spring:
   profiles:
     include: [dev]
+
 ---
 spring.profiles: dev
 spring:
   profiles:
     include: [fastTest]
   datasource:
-    initialize: true
+    initialization-mode: always
 
 id.persistInMemory: true
 
@@ -89,7 +101,6 @@ auth:
 spring.datasource:
   driver-class-name: org.postgresql.Driver
   url: jdbc:postgresql://localhost:5432/test_db?stringtype=unspecified
-
   username:
   password:
   max-active: 10
@@ -132,13 +143,12 @@ auth:
 spring:
   profiles: prod
   datasource:
-    initialize: false
+    initialization-mode: never
 
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
   url: jdbc:postgresql://localhost/song?stringtype=unspecified
-
   username:
   password:
   max-active: 10
