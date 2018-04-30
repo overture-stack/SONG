@@ -19,7 +19,7 @@ package org.icgc.dcc.song.server.service;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
@@ -236,7 +236,7 @@ public class SerializationTest {
   @Test
   public void testSequencingReadAnalysisFromJson() throws IOException {
     val json = readFile(FILEPATH + "sequencingRead.json");
-    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
 
     System.out.printf("*** Analysis object='%s'\n",analysis);
     assertThat(analysis.getAnalysisType()).isEqualTo("sequencingRead");
@@ -254,7 +254,7 @@ public class SerializationTest {
   @Test
   public void testVariantCallAnalysisFromJson() throws IOException {
     val json =readFile(FILEPATH + "variantCall.json");
-    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
     System.out.printf("*** Analysis object='%s'\n",analysis);
     assertThat(analysis.getAnalysisType()).isEqualTo("variantCall");
 

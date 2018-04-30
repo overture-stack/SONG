@@ -24,6 +24,7 @@ import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ import static org.icgc.dcc.song.core.utils.Responses.OK;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class DonorService {
 
   @Autowired
@@ -179,6 +181,7 @@ public class DonorService {
     } else {
       donorId = donorIdResult.get();
       val updateDonor = donorWithSpecimens.createDonor();
+      updateDonor.setDonorId(donorId);
       update(updateDonor);
     }
     return donorId;

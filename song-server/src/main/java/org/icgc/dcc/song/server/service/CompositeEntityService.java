@@ -18,10 +18,9 @@
 package org.icgc.dcc.song.server.service;
 
 import lombok.AllArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
+import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,18 +41,23 @@ public class CompositeEntityService {
   @Autowired
   private final DonorService donorService;
 
+  private static Sample buildPersistentSample(CompositeEntity s){
+    val out = new Sample();
+    out.setWithSample(s);
+    return out;
+  }
+
   public String save(String studyId, CompositeEntity s) {
     String id = sampleService.findByBusinessKey(studyId, s.getSampleSubmitterId());
     if (isNull(id)) {
+      val sampleCreateRequest = buildPersistentSample(s);
       s.setSpecimenId(getSampleParent(studyId, s));
-      id = sampleService.create(studyId, s);
+      sampleCreateRequest.setSpecimenId(s.getSpecimenId());
+      id = sampleService.create(studyId, sampleCreateRequest);
     } else {
-      val sample = sampleService.read(id);
-      s.setSpecimenId(sample.getSpecimenId());
-      s.setSampleType(sample.getSampleType());
-      s.setSampleSubmitterId(sample.getSampleSubmitterId());
-      s.setSampleId(sample.getSampleId());
-      sampleService.update(s);
+      val sampleUpdateRequest = sampleService.read(id);
+      sampleUpdateRequest.setWithSample(s);
+      sampleService.update(sampleUpdateRequest);
     }
     return id;
   }

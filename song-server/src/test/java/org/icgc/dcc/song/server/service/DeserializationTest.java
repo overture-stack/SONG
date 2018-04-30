@@ -18,7 +18,7 @@
 package org.icgc.dcc.song.server.service;
 
 import lombok.val;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.utils.TestFiles;
@@ -32,7 +32,7 @@ public class DeserializationTest {
   @Test
   public void testVariantCallDeserialization(){
     val a1 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/variantcall-deserialize1.json"),
-        Analysis.class);
+        AbstractAnalysis.class);
     val sa1 = ((VariantCallAnalysis) a1).getExperiment();
     assertThat(sa1.getAnalysisId()).isEmpty();
     assertThat(sa1.getMatchedNormalSampleSubmitterId()).isNull();
@@ -40,7 +40,7 @@ public class DeserializationTest {
     assertThat(sa1.getInfo().path("random").isNull()).isTrue();
 
     val a2 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/variantcall-deserialize2.json"),
-        Analysis.class);
+        AbstractAnalysis.class);
     val sa2 = ((VariantCallAnalysis) a2).getExperiment();
     assertThat(sa2.getAnalysisId()).isEmpty();
     assertThat(sa2.getMatchedNormalSampleSubmitterId()).isNull();
@@ -51,7 +51,7 @@ public class DeserializationTest {
   @Test
   public void testSequencingReadDeserialization(){
     val a1 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/sequencingread-deserialize1.json"),
-        Analysis.class);
+        AbstractAnalysis.class);
     val sa1 = ((SequencingReadAnalysis) a1).getExperiment();
     assertThat(sa1.getAnalysisId()).isEmpty();
     assertThat(sa1.getAligned()).isNull();
@@ -63,7 +63,7 @@ public class DeserializationTest {
     assertThat(sa1.getInfo().path("random").isNull()).isTrue();
 
     val a2 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/sequencingread-deserialize2.json"),
-        Analysis.class);
+        AbstractAnalysis.class);
     val sa2 = ((SequencingReadAnalysis) a2).getExperiment();
     assertThat(sa2.getAnalysisId()).isEmpty();
     assertThat(sa2.getAligned()).isNull();

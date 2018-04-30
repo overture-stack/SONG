@@ -21,7 +21,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.service.AnalysisService;
@@ -43,7 +43,7 @@ public class AnalysisGenerator {
    * Create a random analysis by specifying the output analysis class type and the payload fixture to load and
    * persist to db
    */
-  public <T extends Analysis> T createRandomAnalysis(Class<T> analysisClass, String payloadFilename){
+  public <T extends AbstractAnalysis> T createRandomAnalysis(Class<T> analysisClass, String payloadFilename){
     val analysis = payloadGenerator.generateRandomPayload(analysisClass, payloadFilename);
     // Set analysisId to empty to ensure a randomly generated analysisId, and therefore
     // randomly generated objectId (fileIds)
@@ -59,7 +59,7 @@ public class AnalysisGenerator {
    * analysis
    * class type
    */
-  public <T extends Analysis> T createDefaultRandomAnalysis(Class<T> analysisClass){
+  public <T extends AbstractAnalysis> T createDefaultRandomAnalysis(Class<T> analysisClass){
     val payloadFilename = resolveDefaultPayloadFilename(analysisClass);
     return createRandomAnalysis(analysisClass, payloadFilename);
   }

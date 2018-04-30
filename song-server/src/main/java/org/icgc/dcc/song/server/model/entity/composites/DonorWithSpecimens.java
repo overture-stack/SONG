@@ -49,6 +49,7 @@ public class DonorWithSpecimens extends Donor {
             .donorId(getDonorId())
             .donorSubmitterId(getDonorSubmitterId())
             .donorGender(getDonorGender())
+            .studyId(getStudyId())
             .build();
         donor.setInfo(getInfoAsString());
         return donor;

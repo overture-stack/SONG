@@ -16,13 +16,13 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import com.google.common.collect.Lists;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.kafka.Sender;
 import org.icgc.dcc.song.server.model.SampleSet;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
@@ -50,25 +50,23 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_REPOSITORY_CREATE_RECORD;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_STATE_UPDATE_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_REPOSITORY_CREATE_RECORD;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_REPOSITORY_CREATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
+import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiSearchTerms;
 
 @Slf4j
@@ -113,7 +111,7 @@ public class AnalysisService {
     return repository.existsById(id);
   }
 
-  public String create(String studyId, Analysis a, boolean ignoreAnalysisIdCollisions) {
+  public String create(String studyId, AbstractAnalysis a, boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);
     val candidateAnalysisId = a.getAnalysisId();
     val id = idService.resolveAnalysisId(candidateAnalysisId, ignoreAnalysisIdCollisions);
@@ -136,7 +134,9 @@ public class AnalysisService {
     a.setAnalysisId(id);
     a.setStudy(studyId);
 
-    repository.save(a);
+    val analysesCreateRequest = new Analysis();
+    analysesCreateRequest.setWith(a);
+    repository.save(analysesCreateRequest);
     analysisInfoService.create(id, a.getInfoAsString());
 
     saveCompositeEntities(studyId, id, a.getSample() );
@@ -168,7 +168,7 @@ public class AnalysisService {
     variantCallInfoService.create(id, experiment.getInfoAsString());
   }
 
-  public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
+  public ResponseEntity<String> updateAnalysis(String studyId, AbstractAnalysis analysis) {
     val id = analysis.getAnalysisId();
     sampleSetRepository.deleteById(id);
     saveCompositeEntities(studyId, id, analysis.getSample());
@@ -193,7 +193,7 @@ public class AnalysisService {
    * @param studyId the study ID
    * @return returns a List of analysis with the child entities.
    */
-  public List<Analysis> getAnalysis(@NonNull String studyId) {
+  public List<AbstractAnalysis> getAnalysis(@NonNull String studyId) {
     val analysisList = repository.findAllByStudy(studyId);
     if (analysisList.isEmpty()){
       studyService.checkStudyExist(studyId);
@@ -208,7 +208,7 @@ public class AnalysisService {
    * @return returns a list of analysis with child entities in response to the search request. If nothing is found,
    *          an empty list is returned.
    */
-  public List<Analysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request){
+  public List<AbstractAnalysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request){
 //    val analysisList = repository.idSearch(studyId,
 //        request.getDonorId(),
 //        request.getSpecimenId(),
@@ -237,7 +237,7 @@ public class AnalysisService {
     return searchRepository.infoSearch(request.isIncludeInfo(), request.getSearchTerms());
   }
 
-  public Analysis read(String id) {
+  public AbstractAnalysis read(String id) {
     val analysis = checkAnalysis(id);
     analysis.setInfo(analysisInfoService.readNullableInfo(id));
 
@@ -337,16 +337,29 @@ public class AnalysisService {
     variantCallInfoService.update(id, experiment.getInfoAsString());
   }
 
-  static Analysis checkAnalysis(AnalysisRepository analysisRepository, String id){
+  static AbstractAnalysis checkAnalysis(AnalysisRepository analysisRepository, String id){
     val analysisResult = analysisRepository.findById(id);
+
     checkServer(analysisResult.isPresent(),
         AnalysisService.class, ANALYSIS_ID_NOT_FOUND,
         "The analysisId '%s' was not found", id );
-    return analysisResult.get();
+
+    val analysis = analysisResult.get();
+    AbstractAnalysis out;
+    if (analysis.getAnalysisType().equals(SEQUENCING_READ_TYPE)){
+      out = new SequencingReadAnalysis();
+    } else if(analysis.getAnalysisType().equals(VARIANT_CALL_TYPE)){
+      out = new VariantCallAnalysis();
+    } else {
+      throw buildServerException(AnalysisService.class, UNKNOWN_ERROR,
+          "unknown analysisType: %s", analysis.getAnalysisType());
+    }
+    out.setWith(analysis);
+    return out;
 
   }
 
-  public Analysis checkAnalysis(String id){
+  public AbstractAnalysis checkAnalysis(String id){
     return checkAnalysis(repository, id);
   }
 
@@ -372,7 +385,9 @@ public class AnalysisService {
     val state = analysisState.name();
     val analysis = read(id);
     analysis.setAnalysisState(state);
-    repository.save(analysis);
+    val analysisUpdateRequest = new Analysis();
+    analysisUpdateRequest.setWith(analysis);
+    repository.save(analysisUpdateRequest);
   }
 
   private boolean confirmUploaded(String accessToken, String fileId) {
@@ -385,7 +400,7 @@ public class AnalysisService {
    * @param analysisList list of Analysis to be updated
    * @return returns a List of analysis with the child entities
    */
-  private List<Analysis> processAnalysisList(List<Analysis> analysisList){
+  private List<AbstractAnalysis> processAnalysisList(List<AbstractAnalysis> analysisList){
     analysisList.stream()
         .filter(Objects::nonNull)
         .forEach(this::processAnalysis);
@@ -398,7 +413,7 @@ public class AnalysisService {
    * @param analysis is the Analysis to be updated
    * @return updated analysis with the child entity
    */
-  private Analysis processAnalysis(Analysis analysis) {
+  private AbstractAnalysis processAnalysis(AbstractAnalysis analysis) {
     String id = analysis.getAnalysisId();
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));

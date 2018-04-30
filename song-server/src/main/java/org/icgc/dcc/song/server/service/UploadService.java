@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Upload;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -168,7 +168,7 @@ public class UploadService {
         "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
         uploadId, uploadState.getText(), VALIDATED.getText());
     val json = upload.getPayload();
-    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
     val analysisId = analysisService.create(studyId, analysis, ignoreAnalysisIdCollisions);
     checkServer(!isNull(analysisId),this.getClass(), ANALYSIS_ID_NOT_CREATED,
         "Could not create analysisId for upload id '%s",uploadId);

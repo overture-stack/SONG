@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
@@ -76,7 +76,7 @@ public class AnalysisController {
 
   @ApiOperation(value = "GetAnalysesForStudy", notes = "Retrieve all analysis objects for a studyId")
   @GetMapping(value = "")
-  public List<Analysis> getAnalysis(
+  public List<AbstractAnalysis> getAnalysis(
       @PathVariable("studyId") String studyId) {
     return analysisService.getAnalysis(studyId);
   }
@@ -123,7 +123,7 @@ public class AnalysisController {
    */
   @ApiOperation(value = "ReadAnalysis", notes = "Retrieve the analysis object for an analysisId")
   @GetMapping(value = "/{id}")
-  public Analysis read(
+  public AbstractAnalysis read(
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     return analysisService.read(id);
@@ -144,7 +144,7 @@ public class AnalysisController {
   @ApiOperation(value = "IdSearch", notes = "Search for analysis objects by specifying regex patterns for the "
       + "donorIds, sampleIds, specimenIds, or fileIds request parameters")
   @GetMapping(value = "/search/id")
-  public List<Analysis> idSearch(@PathVariable("studyId") String studyId,
+  public List<AbstractAnalysis> idSearch(@PathVariable("studyId") String studyId,
       @RequestParam(value = "donorId",required = false) String donorIds,
       @RequestParam(value = "sampleId",required = false) String sampleIds,
       @RequestParam(value = "specimenId", required = false) String specimenIds,
@@ -156,7 +156,7 @@ public class AnalysisController {
   @ApiOperation(value = "IdSearch", notes = "Search for analysis objects by specifying an IdSearchRequest" )
   @PostMapping(value = "/search/id", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @ResponseBody
-  public List<Analysis> idSearch(@PathVariable("studyId") String studyId, @RequestBody IdSearchRequest request) {
+  public List<AbstractAnalysis> idSearch(@PathVariable("studyId") String studyId, @RequestBody IdSearchRequest request) {
     return analysisService.idSearch(studyId, request);
   }
 

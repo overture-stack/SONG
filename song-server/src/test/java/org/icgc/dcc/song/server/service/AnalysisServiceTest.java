@@ -24,7 +24,7 @@ import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.Metadata;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
@@ -49,6 +49,7 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
@@ -90,6 +91,7 @@ import static org.springframework.http.HttpStatus.OK;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("dev")
+@Transactional
 public class AnalysisServiceTest {
 
   private static final String DEFAULT_STUDY_ID = "ABC123";
@@ -147,6 +149,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+//  @Transactional
   public void testCreateAndUpdate() {
     val created = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId = created.getAnalysisId();
@@ -185,6 +188,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+//  @Transactional
   public void testCreateAndUpdateVariantCall() {
     val created = analysisGenerator.createRandomAnalysis(VariantCallAnalysis.class,
         "documents/variantcall-valid-1.json");
@@ -344,6 +348,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+//  @Transactional
   public void testReadSequencingRead(){
     val json = getJsonStringFromClasspath("documents/sequencingread-read-test.json");
     val analysisRaw = fromJson(json, SequencingReadAnalysis.class);
@@ -570,6 +575,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+//  @Transactional
   public void testGetAnalysisAndIdSearch(){
     val studyGenerator = createStudyGenerator(studyService, randomGenerator);
     val studyId = studyGenerator.createRandomStudy();
@@ -578,7 +584,7 @@ public class AnalysisServiceTest {
     val numAnalysis = 10;
     val sraMap = Maps.<String, SequencingReadAnalysis>newHashMap();
     val vcaMap = Maps.<String, VariantCallAnalysis>newHashMap();
-    val expectedAnalyses = Sets.<Analysis>newHashSet();
+    val expectedAnalyses = Sets.<AbstractAnalysis>newHashSet();
     for (int i=1; i<=numAnalysis; i++){
       if (i%2 == 0){
         val sra = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
@@ -662,6 +668,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+//  @Transactional
   public void testAnalysisMissingFilesException(){
     val analysis1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId1 = analysis1.getAnalysisId();
@@ -697,7 +704,7 @@ public class AnalysisServiceTest {
     assertSongError(() -> service.readSamples(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
   }
 
-  private void runAnalysisMissingSamplesTest(Class<? extends Analysis> analysisClass) {
+  private void runAnalysisMissingSamplesTest(Class<? extends AbstractAnalysis> analysisClass) {
 
     // Create random analysis,
     val analysis = analysisGenerator.createDefaultRandomAnalysis(analysisClass);

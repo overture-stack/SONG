@@ -33,7 +33,7 @@ import org.icgc.dcc.song.server.model.experiment.VariantCall;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper=true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class VariantCallAnalysis extends Analysis {
+public class VariantCallAnalysis extends AbstractAnalysis {
 
     VariantCall experiment;
 

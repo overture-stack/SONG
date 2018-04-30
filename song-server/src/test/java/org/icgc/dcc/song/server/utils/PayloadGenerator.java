@@ -21,7 +21,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 
@@ -42,7 +42,7 @@ public class PayloadGenerator {
    * randomizing the business keys, which are the sampleSubmitterId, donorSubmitterId, and specimenSubmitterId.
    * It also sets the ana
    */
-  public <T extends Analysis> T generateRandomPayload(Class<T> analysisClass, String payloadFilename){
+  public <T extends AbstractAnalysis> T generateRandomPayload(Class<T> analysisClass, String payloadFilename){
     val json = getJsonStringFromClasspath(payloadFilename);
     val analysis = fromJson(json, analysisClass);
     analysis.setAnalysisId(EMPTY_STRING);
@@ -57,7 +57,7 @@ public class PayloadGenerator {
   /**
    * Based on the input analysis class type, the correct payload fixture filename is returned.
    */
-  public static <T extends Analysis> String resolveDefaultPayloadFilename(Class<T> analysisClass){
+  public static <T extends AbstractAnalysis> String resolveDefaultPayloadFilename(Class<T> analysisClass){
     String payloadFilename = null;
     if (analysisClass.equals(SequencingReadAnalysis.class)){
       payloadFilename = "documents/sequencingread-valid.json";
@@ -73,7 +73,7 @@ public class PayloadGenerator {
    * Loads at default fixture depending on the input analysis class type, and returns it as an analysis object
    * of the correct type. The returned analysis is not persisted in the repository nor is it complete
    */
-  public <T extends Analysis> T generateDefaultRandomPayload(Class<T> analysisClass ){
+  public <T extends AbstractAnalysis> T generateDefaultRandomPayload(Class<T> analysisClass ){
     val payloadFilename = PayloadGenerator.resolveDefaultPayloadFilename(analysisClass);
     return generateRandomPayload(analysisClass, payloadFilename);
   }

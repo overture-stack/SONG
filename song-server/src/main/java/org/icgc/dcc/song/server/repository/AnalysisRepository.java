@@ -16,6 +16,7 @@
  */
 package org.icgc.dcc.song.server.repository;
 
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -23,6 +24,6 @@ import java.util.List;
 
 public interface AnalysisRepository extends JpaRepository<Analysis, String> {
 
-  List<Analysis> findAllByStudy(String studyId);
+  List<AbstractAnalysis> findAllByStudy(String studyId);
 
 }

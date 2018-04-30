@@ -25,7 +25,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 
 @Data
@@ -35,7 +34,7 @@ import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper=true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SequencingReadAnalysis extends Analysis {
+public class SequencingReadAnalysis extends AbstractAnalysis {
 
     SequencingRead experiment;
 

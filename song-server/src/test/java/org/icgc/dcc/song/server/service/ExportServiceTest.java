@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
@@ -30,9 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.util.Collection;
 import java.util.List;
@@ -128,7 +126,7 @@ public class ExportServiceTest {
     assert(true);
   }
 
-  private void runSingleExportTest(Class<? extends Analysis> analysisClass,
+  private void runSingleExportTest(Class<? extends AbstractAnalysis> analysisClass,
       boolean includeAnalysisId){
     val studyId = studyGenerator.createRandomStudy();
     val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
@@ -142,14 +140,14 @@ public class ExportServiceTest {
     assertThat(exportedPayload.getStudyId()).isEqualTo(studyId);
 
     val analyses = exportedPayload.getPayloads().stream()
-        .map(x -> fromJson(x, Analysis.class))
+        .map(x -> fromJson(x, AbstractAnalysis.class))
         .collect(toImmutableList());
     assertThat(analyses).hasSize(1);
     val actualAnalysis = analyses.get(0);
     assertAnalysis(actualAnalysis, expectedAnalysis);
   }
 
-  public void runExportTest(Class<? extends Analysis> analysisClass,
+  public void runExportTest(Class<? extends AbstractAnalysis> analysisClass,
       int numStudies, int numAnalysesPerStudy){
 
     val includeAnalysisId = true;
@@ -167,11 +165,11 @@ public class ExportServiceTest {
         .flatMap(Collection::stream)
         .collect(toImmutableList());
     assertThat(actualStudyModeExportedPayloads).hasSize(numStudies);
-    val actualStudyModeData = Maps.<String, List<? extends Analysis>>newHashMap();
+    val actualStudyModeData = Maps.<String, List<? extends AbstractAnalysis>>newHashMap();
     for (val exportedPayload : actualStudyModeExportedPayloads){
       val studyId = exportedPayload.getStudyId();
       val analyses = exportedPayload.getPayloads().stream()
-          .map(x -> fromJson(x, Analysis.class))
+          .map(x -> fromJson(x, AbstractAnalysis.class))
           .collect(toImmutableList());
       actualStudyModeData.put(studyId, analyses);
     }
@@ -180,16 +178,16 @@ public class ExportServiceTest {
     val expectedAnalysisIds =
         expectedData.values().stream()
             .flatMap(Collection::stream)
-            .map(Analysis::getAnalysisId)
+            .map(AbstractAnalysis::getAnalysisId)
             .collect(toImmutableList());
     val actualAnalysisModeExportedPayloads =
         exportService.exportPayload(expectedAnalysisIds, includeAnalysisId);
     assertThat(actualAnalysisModeExportedPayloads).hasSize(numStudies);
-    val actualAnalysisModeData = Maps.<String, List<? extends Analysis>>newHashMap();
+    val actualAnalysisModeData = Maps.<String, List<? extends AbstractAnalysis>>newHashMap();
     for (val exportedPayload : actualAnalysisModeExportedPayloads){
       val studyId = exportedPayload.getStudyId();
       val analyses = exportedPayload.getPayloads().stream()
-          .map(x -> fromJson(x, Analysis.class))
+          .map(x -> fromJson(x, AbstractAnalysis.class))
           .collect(toImmutableList());
       actualAnalysisModeData.put(studyId, analyses);
     }
@@ -201,7 +199,7 @@ public class ExportServiceTest {
   /**
    * Delete the analysis
    */
-  private void deleteAnalysis(Analysis a){
+  private void deleteAnalysis(AbstractAnalysis a){
     deleteExperiment(a);
     sampleSetRepository.deleteById(a.getAnalysisId());
     analysisInfoService.delete(a.getAnalysisId());
@@ -215,7 +213,7 @@ public class ExportServiceTest {
     analysisRepository.deleteById(a.getAnalysisId());
   }
 
-  private void deleteExperiment(Analysis a){
+  private void deleteExperiment(AbstractAnalysis a){
     if (SequencingReadAnalysis.class.isInstance(a)){
       sequencingReadRepository.deleteById(a.getAnalysisId());
       sequencingReadInfoService.delete(a.getAnalysisId());
@@ -236,7 +234,7 @@ public class ExportServiceTest {
    * - it verifies the aggregation functionality of the export service, when given analysisIds belonging to
    * different studies
    */
-  private void runFullLoopTest(Class<? extends Analysis> analysisClass, int numStudies, int numAnalysesPerStudy){
+  private void runFullLoopTest(Class<? extends AbstractAnalysis> analysisClass, int numStudies, int numAnalysesPerStudy){
     val includeAnalysisId = true;
     // Check the right parameters for this test are set
     assertCorrectConfig(numStudies, numAnalysesPerStudy);
@@ -245,15 +243,15 @@ public class ExportServiceTest {
     val data = generateData(analysisClass, numStudies, numAnalysesPerStudy, includeAnalysisId, true);
 
     // [REDUCTION_TAG] Reduce the data so that there is one analysis for each study
-    val reducedData = Maps.<String, Analysis>newHashMap();
+    val reducedData = Maps.<String, AbstractAnalysis>newHashMap();
     data.entrySet().stream()
         .filter(e -> !reducedData.containsKey(e.getKey()))
         .forEach(e -> {
           String studyId = e.getKey();
-          List<? extends Analysis> analyses = e.getValue();
+          List<? extends AbstractAnalysis> analyses = e.getValue();
           int numAnalyses = analyses.size();
           int randomAnalysisPos = randomGenerator.generateRandomIntRange(0, numAnalyses);
-          Analysis randomAnalysis = analyses.get(randomAnalysisPos);
+          AbstractAnalysis randomAnalysis = analyses.get(randomAnalysisPos);
           reducedData.put(studyId, randomAnalysis);
         });
     assertThat(reducedData.keySet()).hasSize(numStudies);
@@ -261,7 +259,7 @@ public class ExportServiceTest {
 
     // Create a list of analysisIds that covers all the previously generated studies
     val requestedAnalysisIds = reducedData.values().stream()
-        .map(Analysis::getAnalysisId)
+        .map(AbstractAnalysis::getAnalysisId)
         .collect(toImmutableList());
     assertThat(requestedAnalysisIds).hasSize(numStudies);
 
@@ -293,7 +291,7 @@ public class ExportServiceTest {
     }
   }
 
-  private <T extends Analysis> T submitPayload(String studyId, JsonNode payloadJson, Class<T> analysisClass){
+  private <T extends AbstractAnalysis> T submitPayload(String studyId, JsonNode payloadJson, Class<T> analysisClass){
     // Upload and check if successful
     val payload = toJson(payloadJson);
     val uploadStatus = uploadService.upload(studyId, payload, false);
@@ -319,11 +317,11 @@ public class ExportServiceTest {
    * Generate {@code numStudies} studies and for each study generate {@code numAnalysisPerStudy} analyses, and put
    * everything in a map, where the keys are studyIds and the values are all the analyses for that study
    */
-  private Map<String, List<? extends Analysis> > generateData(Class<? extends Analysis> analysisClass,
+  private Map<String, List<? extends AbstractAnalysis> > generateData(Class<? extends AbstractAnalysis> analysisClass,
       int numStudies, int numAnalysesPerStudy, boolean includeAnalysisId, boolean includeOtherIds){
 
     val studyGenerator = createStudyGenerator(studyService, randomGenerator);
-    val map = Maps.<String, List<? extends Analysis>>newHashMap();
+    val map = Maps.<String, List<? extends AbstractAnalysis>>newHashMap();
     for (int s=0; s<numStudies ;s++){
       val studyId = studyGenerator.createRandomStudy();
       val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
@@ -336,7 +334,7 @@ public class ExportServiceTest {
     return ImmutableMap.copyOf(map);
   }
 
-  private static Class<? extends Analysis> resolveAnalysisClass(Analysis a){
+  private static Class<? extends AbstractAnalysis> resolveAnalysisClass(AbstractAnalysis a){
     if (resolveAnalysisType(a.getAnalysisType()) == SEQUENCING_READ){
       return SequencingReadAnalysis.class;
     } else if (resolveAnalysisType(a.getAnalysisType()) == VARIANT_CALL){
@@ -346,7 +344,7 @@ public class ExportServiceTest {
     }
   }
 
-  private static void assertAnalysis(Analysis actualAnalysis, Analysis expectedAnalysis){
+  private static void assertAnalysis(AbstractAnalysis actualAnalysis, AbstractAnalysis expectedAnalysis){
     assertThat(actualAnalysis.getAnalysisType()).isEqualTo(expectedAnalysis.getAnalysisType());
 
     assertThat(actualAnalysis.getAnalysisState()).isEqualTo(expectedAnalysis.getAnalysisState());
@@ -367,7 +365,7 @@ public class ExportServiceTest {
     assertSubmitterIds(actualAnalysis, expectedAnalysis);
   }
 
-  private static void assertExperiment(Analysis actual, Analysis expected){
+  private static void assertExperiment(AbstractAnalysis actual, AbstractAnalysis expected){
     if (SequencingReadAnalysis.class.isInstance(actual)){
       assertSequencingReadExperiment(actual, expected);
     } else if (VariantCallAnalysis.class.isInstance(actual)){
@@ -377,19 +375,19 @@ public class ExportServiceTest {
     }
   }
 
-  private static void assertSequencingReadExperiment(Analysis a, Analysis e){
+  private static void assertSequencingReadExperiment(AbstractAnalysis a, AbstractAnalysis e){
     val actual = SequencingReadAnalysis.class.cast(a);
     val expected = SequencingReadAnalysis.class.cast(e);
     assertThat(actual.getExperiment()).isEqualToComparingFieldByField(expected.getExperiment());
   }
 
-  private static void assertVariantCallExperiment(Analysis a, Analysis e){
+  private static void assertVariantCallExperiment(AbstractAnalysis a, AbstractAnalysis e){
     val actual = VariantCallAnalysis.class.cast(a);
     val expected = VariantCallAnalysis.class.cast(e);
     assertThat(actual.getExperiment()).isEqualToComparingFieldByField(expected.getExperiment());
   }
 
-  private static void assertSubmitterIds(Analysis actualAnalysis, Analysis expectedAnalysis){
+  private static void assertSubmitterIds(AbstractAnalysis actualAnalysis, AbstractAnalysis expectedAnalysis){
     val actualSampleIds = collectSampleSubmitterIds(actualAnalysis.getSample());
     val expectedSampleIds = collectSampleSubmitterIds(expectedAnalysis.getSample());
     assertSetsMatch(actualSampleIds, expectedSampleIds);
@@ -431,7 +429,7 @@ public class ExportServiceTest {
     return uploadId;
   }
 
-  private static void massageAnalysisInplace(Analysis a, boolean includeAnalysisId, boolean includeOtherIds){
+  private static void massageAnalysisInplace(AbstractAnalysis a, boolean includeAnalysisId, boolean includeOtherIds){
     if (!includeAnalysisId){
       a.setAnalysisId(EMPTY_STRING);
     }
@@ -471,11 +469,11 @@ public class ExportServiceTest {
     assertThat(numStudies).isGreaterThan(0);
   }
 
-  private static void assertMatchingData(Map<String, List<? extends Analysis>> actualData, Map<String, List<? extends Analysis>> expectedData){
+  private static void assertMatchingData(Map<String, List<? extends AbstractAnalysis>> actualData, Map<String, List<? extends AbstractAnalysis>> expectedData){
     assertSetsMatch(expectedData.keySet(), actualData.keySet());
     for (val studyId : expectedData.keySet()){
       val expectedAnalyses = expectedData.get(studyId);
-      val actualAnalysisMap = groupUnique(actualData.get(studyId), Analysis::getAnalysisId); //Assumed that all analyses in the list are unique
+      val actualAnalysisMap = groupUnique(actualData.get(studyId), AbstractAnalysis::getAnalysisId); //Assumed that all analyses in the list are unique
       for (val expectedAnalysis : expectedAnalyses){
         assertThat(actualAnalysisMap).containsKey(expectedAnalysis.getAnalysisId());
         val actualAnalysis = actualAnalysisMap.get(expectedAnalysis.getAnalysisId());
