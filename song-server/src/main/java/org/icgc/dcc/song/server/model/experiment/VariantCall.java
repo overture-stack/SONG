@@ -17,29 +17,39 @@
 package org.icgc.dcc.song.server.model.experiment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
+import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
+import org.icgc.dcc.song.server.model.enums.TableNames;
 
-@EqualsAndHashCode(callSuper=true)
-@ToString(callSuper = true)
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = TableNames.VARIANTCALL)
 @Data
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper=true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class VariantCall extends Experiment {
 
+  @Id
+  @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
   private String analysisId = "";
+
+  @Column(name = TableAttributeNames.VARIANT_CALLING_TOOL, nullable = false)
   private String variantCallingTool;
+
+  @Column(name = TableAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID, nullable = false)
   private String matchedNormalSampleSubmitterId;
-
-  public static VariantCall create(String id, String tool, String submitterId) {
-    val v = new VariantCall();
-    v.setAnalysisId(id);
-    v.setVariantCallingTool(tool);
-    v.setMatchedNormalSampleSubmitterId(submitterId);
-
-
-    return v;
-  }
 
 }

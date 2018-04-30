@@ -13,10 +13,11 @@ public class TableNames {
 	public static final String SAMPLE						=	"Sample";
 	public static final String ANALYSIS					=	"Analysis";
 	public static final String FILE							=	"File";
-	public static final String SAMPLESET				=	"SampleSet";
-	public static final String SEQUENCINGREAD		=	"SequencingRead";
-	public static final String VARIANTCALL			=	"VariantCall";
+	public static final String SAMPLESET				=	"Sampleset";
+	public static final String SEQUENCINGREAD		=	"Sequencingread";
+	public static final String VARIANTCALL			=	"Variantcall";
 	public static final String UPLOAD						=	"Upload";
 	public static final String INFO							=	"Info";
+	public static final String BUSINESS_KEY_VIEW = "Businesskeyview";
 
 }

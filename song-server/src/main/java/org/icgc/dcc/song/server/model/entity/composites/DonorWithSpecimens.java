@@ -27,9 +27,9 @@ import org.icgc.dcc.song.server.model.entity.Donor;
 import java.util.ArrayList;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper=true)
-@ToString(callSuper = true)
 @Value
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper=true)
 public class DonorWithSpecimens extends Donor {
     private List<SpecimenWithSamples> specimens = new ArrayList<>();
 
@@ -45,7 +45,11 @@ public class DonorWithSpecimens extends Donor {
 
     @JsonIgnore
     public Donor createDonor() {
-        val donor = Donor.create(getDonorId(),getDonorSubmitterId(),getStudyId(), getDonorGender());
+        val donor = Donor.builder()
+            .donorId(getDonorId())
+            .donorSubmitterId(getDonorSubmitterId())
+            .donorGender(getDonorGender())
+            .build();
         donor.setInfo(getInfoAsString());
         return donor;
     }

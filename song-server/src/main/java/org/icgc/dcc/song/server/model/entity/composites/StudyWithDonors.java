@@ -36,7 +36,12 @@ public class StudyWithDonors extends Study {
 
     @JsonIgnore
     public Study getStudy() {
-        val s= Study.create(getStudyId(), getName(),getOrganization(), getDescription());
+        val s= Study.builder()
+            .studyId(getStudyId())
+            .name(getName())
+            .description(getDescription())
+            .organization(getOrganization())
+            .build();
         s.setInfo(getInfoAsString());
         return s;
     }

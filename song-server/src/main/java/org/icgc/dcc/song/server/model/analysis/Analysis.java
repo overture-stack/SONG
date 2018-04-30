@@ -27,16 +27,25 @@ import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.Constants;
+import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
+import org.icgc.dcc.song.server.model.enums.TableNames;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.List;
 
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 
-@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = TableNames.ANALYSIS)
 @Data
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonTypeInfo(
         use=JsonTypeInfo.Id.NAME,
@@ -49,13 +58,23 @@ import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 })
 public abstract class Analysis extends Metadata {
 
-    private String analysisId="";
-    private String study="";
+    @Id
+    @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
+    private String analysisId;
+
+    @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
+    private String study;
+
+    @Column(name = TableAttributeNames.STATE, nullable = false)
     private String analysisState = UNPUBLISHED.name();
 
+    @Transient
     private List<CompositeEntity> sample;
+
+    @Transient
     private List<File> file;
 
+    @Column(name = TableAttributeNames.TYPE, nullable = false)
     abstract public String getAnalysisType();
 
     public void setAnalysisState(String state) {

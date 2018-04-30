@@ -18,14 +18,16 @@
 package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
+import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
 import org.icgc.dcc.song.server.model.enums.TableNames;
-import org.icgc.dcc.song.server.repository.TableAttributeNames;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,43 +38,34 @@ import static org.icgc.dcc.song.server.model.enums.Constants.SPECIMEN_CLASS;
 import static org.icgc.dcc.song.server.model.enums.Constants.SPECIMEN_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 
-@Data
 @Entity
 @Table(name = TableNames.SPECIMEN)
-@EqualsAndHashCode(callSuper = true)
+@Data
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class Specimen extends Metadata {
 
   @Id
   @Column(name = TableAttributeNames.ID,
       updatable = false, unique = true, nullable = false)
-  private String specimenId = "";
+  private String specimenId;
 
 
-  @Column(name = TableAttributeNames.DONOR_ID)
-  private String donorId="";
+  @Column(name = TableAttributeNames.DONOR_ID, nullable = false)
+  private String donorId;
 
-  @Column(name = TableAttributeNames.SUBMITTER_ID)
-  private String specimenSubmitterId = "";
+  @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
+  private String specimenSubmitterId;
 
-  @Column(name = TableAttributeNames.CLASS)
-  private String specimenClass = "";
+  @Column(name = TableAttributeNames.CLASS, nullable = false)
+  private String specimenClass;
 
-  @Column(name = TableAttributeNames.TYPE)
-  private String specimenType = "";
-
-  public static Specimen create(String id, @NonNull String submitterId, String donorId, String specimenClass,
-                                String type) {
-    val s = new Specimen();
-    s.setSpecimenId(id);
-    s.setDonorId(donorId);
-    s.setSpecimenSubmitterId(submitterId);
-    s.setSpecimenClass(specimenClass);
-    s.setSpecimenType(type);
-
-    return s;
-  }
+  @Column(name = TableAttributeNames.TYPE, nullable = false)
+  private String specimenType;
 
   public void setSpecimenClass(String specimenClass) {
     validate(SPECIMEN_CLASS, specimenClass);
@@ -82,6 +75,15 @@ public class Specimen extends Metadata {
   public void setSpecimenType(String type) {
     validate(SPECIMEN_TYPE, type);
     specimenType = type;
+  }
+
+  public void setWithSpecimen(@NonNull Specimen specimenUpdate){
+    setSpecimenSubmitterId(specimenUpdate.getSpecimenSubmitterId());
+    setDonorId(specimenUpdate.getDonorId());
+    setSpecimenClass(specimenUpdate.getSpecimenClass());
+    setSpecimenType(specimenUpdate.getSpecimenType());
+    setSpecimenId(specimenUpdate.getSpecimenId());
+    setInfo(specimenUpdate.getInfo());
   }
 
 }

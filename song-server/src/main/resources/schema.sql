@@ -165,6 +165,20 @@ CREATE TABLE Info (
   info            jsonb
 );
 
+
+DROP VIEW IF EXISTS BusinessKeyView;
+CREATE VIEW BusinessKeyView AS
+  SELECT
+    S.id as study_id,
+    SP.id AS specimen_id,
+    SP.submitter_id AS specimen_submitter_id,
+    SA.id AS sample_id,
+    SA.submitter_id AS sample_submitter_id
+  FROM Study S
+    INNER JOIN Donor D ON S.id = D.study_id
+    INNER JOIN Specimen SP ON D.id = SP.donor_id
+    INNER JOIN Sample SA ON SP.id = SA.specimen_id;
+
 ---------------------------------------------------------------
 --            Drop Indices
 ---------------------------------------------------------------

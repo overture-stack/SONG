@@ -28,10 +28,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static java.lang.Thread.currentThread;
-import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_REPOSITORY_CREATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
 @Service
@@ -46,33 +45,32 @@ public class StudyService {
 
   @SneakyThrows
   public Study read(String studyId) {
-    val study = studyRepository.read(studyId);
-    checkServer(!isNull(study), getClass(), STUDY_ID_DOES_NOT_EXIST,
+    val studyResult = studyRepository.findById(studyId);
+    checkServer(studyResult.isPresent(), getClass(), STUDY_ID_DOES_NOT_EXIST,
         "The studyId '%s' does not exist", studyId);
+    val study = studyResult.get();
     val info = infoService.readNullableInfo(studyId);
     study.setInfo(info);
     return study;
   }
 
   public boolean isStudyExist(String studyId){
-    val study = studyRepository.read(studyId);
-    return !isNull(study);
+    return studyRepository.existsById(studyId);
   }
 
-  public int saveStudy(Study study) {
+  public void saveStudy(Study study) {
     val id = study.getStudyId();
     checkServer(!isStudyExist(id), getClass(), STUDY_ALREADY_EXISTS,
         "The studyId '%s' already exists. Cannot save the study: %s " ,
         id,study);
-    val status = studyRepository.create(id, study.getName(), study.getOrganization(), study.getDescription());
-    checkServer(status == 1, getClass(), STUDY_REPOSITORY_CREATE_RECORD,
-        "Cannot create studyId '%s' for study '%s'", study.getStudyId(), study);
+    studyRepository.save(study);
     infoService.create(id,study.getInfoAsString());
-    return status;
   }
 
   public List<String> findAllStudies() {
-    return studyRepository.findAllStudies();
+    return studyRepository.findAll().stream()
+        .map(Study::getStudyId)
+        .collect(toImmutableList());
   }
 
   @SneakyThrows

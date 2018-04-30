@@ -26,10 +26,12 @@ import org.icgc.dcc.song.server.model.entity.Specimen;
 
 import java.util.ArrayList;
 import java.util.List;
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+
 @Value
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class SpecimenWithSamples extends Specimen {
+
     private List<Sample> samples = new ArrayList<>();
 
     public void setSpecimen(Specimen s) {
@@ -43,8 +45,13 @@ public class SpecimenWithSamples extends Specimen {
     }
 
     public Specimen getSpecimen() {
-        val s = Specimen.create(getSpecimenId(),getSpecimenSubmitterId(), getDonorId(), getSpecimenClass(),
-                getSpecimenType());
+        val s = Specimen.builder()
+            .specimenId(getSpecimenId())
+            .specimenSubmitterId(getSpecimenSubmitterId())
+            .donorId(getDonorId())
+            .specimenClass(getSpecimenClass())
+            .specimenType(getSpecimenType())
+            .build();
         s.setInfo(getInfoAsString());
         return s;
     }

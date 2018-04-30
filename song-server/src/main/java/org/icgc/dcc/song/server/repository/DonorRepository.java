@@ -16,80 +16,16 @@
  */
 package org.icgc.dcc.song.server.repository;
 
-import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-
 public interface DonorRepository extends JpaRepository<Donor, String> {
 
-  default  int create( Donor donor){
-    save(donor);
-    return 1;
-  }
+  List<Donor> findAllByStudyId(String studyId);
+  List<Donor> findAllByStudyIdAndDonorSubmitterId(String studyId, String submitterId);
 
-  default Donor read( String donorId){
-    return findById(donorId).orElse(null);
-  }
-
-  default int update( Donor donor){
-    save(donor);
-    return 1;
-  }
-
-  default int delete( String studyId,  String id){
-    val req = DonorRequest.create(id, studyId, null, null);
-    val results = findAll(Example.of(req));
-    deleteAll(results);
-    return results.size();
-  }
-
-  default List<String> findByParentId( String parentId){
-    val req = DonorRequest.create(null, parentId, null, null);
-    return findAll(Example.of(req)).stream()
-        .map(Donor::getDonorId)
-        .collect(toImmutableList());
-  }
-
-  default String findByBusinessKey( String studyId,  String key){
-    val req = DonorRequest.create(null, studyId, key, null);
-    val results = findAll(Example.of(req));
-    checkState(results.size() < 2,
-        "There cannot be more than 2 results for studyId '{}' and key '{}'",
-        studyId, key);
-    if (results.isEmpty()){
-      return null;
-    }
-    return results.get(0).getDonorId();
-  }
-
-  class DonorRequest extends  Donor {
-    private String gender;
-
-    @Override
-    public void setDonorGender(String gender) {
-      this.gender =  gender;
-    }
-
-    public String getDonorGender() {
-      return gender;
-    }
-
-    public static DonorRequest create(String id, String studyId, String submitterId, String gender){
-      val d = new DonorRequest();
-      d.setDonorGender(gender);
-      d.setDonorId(id);
-      d.setStudyId(studyId);
-      d.setDonorSubmitterId(submitterId);
-      return d;
-    }
-
-  }
 
 }
 

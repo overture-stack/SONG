@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.repository;
+package org.icgc.dcc.song.server.model.enums;
 
 import lombok.NoArgsConstructor;
 
@@ -59,6 +59,7 @@ public class TableAttributeNames {
     public static final String PAYLOAD="payload";
     public static final String CREATED_AT="created_at";
     public static final String UPDATED_AT="updated_at";
+    public static final String SAMPLE_ID ="sample_id";
 
     public static final String VARIANT_CALLING_TOOL="variant_calling_tool";
     public static final String MATCHED_NORMAL_SAMPLE_SUBMITTER_ID="matched_normal_sample_submitter_id";

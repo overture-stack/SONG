@@ -16,30 +16,9 @@
  */
 package org.icgc.dcc.song.server.repository;
 
-import lombok.val;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-
 public interface StudyRepository extends JpaRepository<Study, String>{
 
-  default int create( String id,  String name,  String organization, String description){
-    val s = Study.create(id, name, organization, description);
-    this.save(s);
-
-    return 1;
-  }
-
-  default Study read(String id){
-    return findById(id).orElse(null);
-  }
-
-  default List<String> findAllStudies(){
-    return this.findAll().stream()
-        .map(Study::getStudyId)
-        .collect(toImmutableList());
-  }
 }
