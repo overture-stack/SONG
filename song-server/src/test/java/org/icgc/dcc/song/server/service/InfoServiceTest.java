@@ -38,7 +38,6 @@ import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-//RTISMA_HACK  @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class InfoServiceTest {
   @Autowired

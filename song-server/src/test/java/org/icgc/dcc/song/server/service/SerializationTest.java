@@ -107,7 +107,12 @@ public class SerializationTest {
     val gender = "male";
     val metadata = "";
 
-    val donor = Donor.create(id, submitterId, studyId, gender);
+    val donor = Donor.builder()
+        .donorId(id)
+        .donorSubmitterId(submitterId)
+        .studyId(studyId)
+        .donorGender(gender)
+        .build();
     donor.setInfo(metadata);
 
     val json = JsonUtils.toJson(donor);
@@ -129,7 +134,12 @@ public class SerializationTest {
 
     boolean failed = false;
     try {
-      Donor.create(id, submitterId, studyId, gender);
+      val donor = Donor.builder()
+          .donorId(id)
+          .donorSubmitterId(submitterId)
+          .studyId(studyId)
+          .donorGender(gender)
+          .build();
     } catch (IllegalArgumentException e) {
       failed = true;
     }
@@ -150,8 +160,15 @@ public class SerializationTest {
     //val metadata = JsonUtils.fromSingleQuoted("'sequencingTool': 'NanoporeSeq123'");
     val metadata = "";
 
-    val sequencingRead = SequencingRead.create(id, aligned, alignmentTool, insertSize,
-            libraryStrategy, pairedEnd, genome);
+    val sequencingRead = SequencingRead.builder()
+        .analysisId(id)
+        .aligned(aligned)
+        .alignmentTool(alignmentTool)
+        .insertSize(insertSize)
+        .libraryStrategy(libraryStrategy)
+        .pairedEnd(pairedEnd)
+        .referenceGenome(genome)
+        .build();
     val json = JsonUtils.toJson(sequencingRead);
 
     val expected = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
@@ -173,8 +190,15 @@ public class SerializationTest {
 
     val metadata = "";
 
-    val sequencingRead1 = SequencingRead.create(id, aligned, alignmentTool, insertSize,
-            libraryStrategy, pairedEnd, genome);
+    val sequencingRead1 = SequencingRead.builder()
+        .analysisId(id)
+        .aligned(aligned)
+        .alignmentTool(alignmentTool)
+        .insertSize(insertSize)
+        .libraryStrategy(libraryStrategy)
+        .pairedEnd(pairedEnd)
+        .referenceGenome(genome)
+        .build();
 
     val singleQuotedJson = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
                     "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s, 'referenceGenome': '%s', 'info':{%s}}", id, aligned, alignmentTool,

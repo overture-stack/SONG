@@ -109,7 +109,12 @@ public class BatchUploader {
 
   private void initStudy(String studyId){
     if (!studyService.isStudyExist(studyId)){
-      studyService.saveStudy(Study.create(studyId, "", "", ""));
+      studyService.saveStudy(Study.builder()
+          .studyId(studyId)
+          .name("")
+          .organization("")
+          .description("")
+          .build());
     }
   }
 

@@ -62,16 +62,49 @@ public class EntityTest {
 
   @Test
   public void testCompositeEntity(){
-    val donor1 = Donor.create("myDonor1", "myDonorSubmitter1", DEFAULT_STUDY_ID, "male");
-    val donor2 = Donor.create("myDonor2", "myDonorSubmitter2", DEFAULT_STUDY_ID, "female");
-    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
-        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
-    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
-        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
-    val sample1 = Sample.create("mySample1", "mySubmitterSample1", "mySpecimen1",
-        SAMPLE_TYPES.get(2));
-    val sample2 = Sample.create("mySample2", "mySubmitterSample2", "mySpecimen2",
-        SAMPLE_TYPES.get(3));
+    val donor1 = Donor.builder()
+        .donorId("myDonor1")
+        .donorSubmitterId("myDonorSubmitter1")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("male")
+        .build();
+    val donor2 = Donor.builder()
+        .donorId("myDonor2")
+        .donorSubmitterId("myDonorSubmitter2")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("female")
+        .build();
+
+    val specimen1 = Specimen.builder()
+        .specimenId("mySpecimen1")
+        .specimenSubmitterId( "mySpecimenSubmitter1")
+        .donorId("myDonor1")
+        .specimenClass(SPECIMEN_CLASSES.get(2))
+        .specimenType(SPECIMEN_TYPES.get(2))
+        .build();
+
+    val specimen2 = Specimen.builder()
+        .specimenId("mySpecimen2")
+        .specimenSubmitterId("mySpecimenSubmitter2")
+        .donorId("myDonor2")
+        .specimenClass(SPECIMEN_CLASSES.get(1))
+        .specimenType(SPECIMEN_TYPES.get(1))
+        .build();
+
+    val sample1 = Sample.builder()
+        .sampleId("mySample1")
+        .sampleSubmitterId("mySubmitterSample1")
+        .specimenId("mySpecimen1")
+        .sampleType(SAMPLE_TYPES.get(1))
+        .build();
+
+    val sample2 = Sample.builder()
+        .sampleId("mySample2")
+        .sampleSubmitterId("mySubmitterSample2")
+        .specimenId("mySpecimen2")
+        .sampleType(SAMPLE_TYPES.get(3))
+        .build();
+
     val compositeEntity1 = CompositeEntity.create(sample1);
     compositeEntity1.setDonor(donor1);
     compositeEntity1.setSpecimen(specimen1);
@@ -133,22 +166,51 @@ public class EntityTest {
 
   @Test
   public void testDonorWithSpecimens(){
-    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
-        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
-    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
-        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+    val specimen1 = Specimen.builder()
+        .specimenId("mySpecimen1")
+        .specimenSubmitterId("mySpecimenSubmitter1")
+        .donorId("myDonor1")
+        .specimenClass(SPECIMEN_CLASSES.get(2))
+        .specimenType(SPECIMEN_TYPES.get(2))
+        .build();
 
-    val sample11 = Sample.create("mySample11", "mySubmitterSample11", "mySpecimen11",
-        SAMPLE_TYPES.get(2));
-    val sample12 = Sample.create("mySample12", "mySubmitterSample12", "mySpecimen12",
-        SAMPLE_TYPES.get(2));
+    val specimen2 = Specimen.builder()
+        .specimenId("mySpecimen2")
+        .specimenSubmitterId("mySpecimenSubmitter2")
+        .donorId("myDonor2")
+        .specimenClass(SPECIMEN_CLASSES.get(1))
+        .specimenType(SPECIMEN_TYPES.get(1))
+        .build();
+
+    val sample11 = Sample.builder()
+        .sampleId("mySample11")
+        .sampleSubmitterId("mySubmitterSample11")
+        .specimenId("mySpecimen11")
+        .sampleType(SAMPLE_TYPES.get(2))
+        .build();
+
+    val sample12 = Sample.builder()
+        .sampleId("mySample12")
+        .sampleSubmitterId("mySubmitterSample12")
+        .specimenId("mySpecimen12")
+        .sampleType(SAMPLE_TYPES.get(2))
+        .build();
 
     val sampleGroup1 = newArrayList(sample11, sample12);
 
-    val sample21 = Sample.create("mySample21", "mySubmitterSample21", "mySpecimen21",
-        SAMPLE_TYPES.get(3));
-    val sample22 = Sample.create("mySample22", "mySubmitterSample22", "mySpecimen22",
-        SAMPLE_TYPES.get(3));
+    val sample21 = Sample.builder()
+        .sampleId("mySample21")
+        .sampleSubmitterId("mySubmitterSample21")
+        .specimenId("mySpecimen21")
+        .sampleType(SAMPLE_TYPES.get(3))
+        .build();
+
+    val sample22 = Sample.builder()
+        .sampleId("mySample22")
+        .sampleSubmitterId("mySubmitterSample22")
+        .specimenId("mySpecimen22")
+        .sampleType(SAMPLE_TYPES.get(3))
+        .build();
 
     val sampleGroup2 = newArrayList(sample21, sample22);
 
@@ -164,8 +226,18 @@ public class EntityTest {
     val specimenWSampleGroup2 = newArrayList(specimenWithSample1);
 
 
-    val donor1 = Donor.create("myDonor1", "myDonorSubmitter1", DEFAULT_STUDY_ID, "male");
-    val donor2 = Donor.create("myDonor2", "myDonorSubmitter2", DEFAULT_STUDY_ID, "female");
+    val donor1 = Donor.builder()
+        .donorId("myDonor1")
+        .donorSubmitterId("myDonorSubmitter1")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("male")
+        .build();
+    val donor2 = Donor.builder()
+        .donorId("myDonor2")
+        .donorSubmitterId("myDonorSubmitter2")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("female")
+        .build();
 
     val d1 = new DonorWithSpecimens();
     d1.setDonorGender(donor1.getDonorGender());
@@ -222,22 +294,51 @@ public class EntityTest {
 
   @Test
   public void testSpecimenWithSamples(){
-    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
-        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
-    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
-        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+    val specimen1 = Specimen.builder()
+        .specimenId("mySpecimen1")
+        .specimenSubmitterId("mySpecimenSubmitter1")
+        .donorId("myDonor1")
+        .specimenClass(SPECIMEN_CLASSES.get(2))
+        .specimenType(SPECIMEN_TYPES.get(2))
+        .build();
 
-    val sample11 = Sample.create("mySample11", "mySubmitterSample11", "mySpecimen11",
-        SAMPLE_TYPES.get(2));
-    val sample12 = Sample.create("mySample12", "mySubmitterSample12", "mySpecimen12",
-        SAMPLE_TYPES.get(2));
+    val specimen2 = Specimen.builder()
+        .specimenId("mySpecimen2")
+        .specimenSubmitterId("mySpecimenSubmitter2")
+        .donorId("myDonor2")
+        .specimenClass(SPECIMEN_CLASSES.get(1))
+        .specimenType(SPECIMEN_TYPES.get(1))
+        .build();
+
+    val sample11 = Sample.builder()
+        .sampleId("mySample11")
+        .sampleSubmitterId("mySubmitterSample11")
+        .specimenId("mySpecimen11")
+        .sampleType(SAMPLE_TYPES.get(2))
+        .build();
+
+    val sample12 = Sample.builder()
+        .sampleId("mySample12")
+        .sampleSubmitterId("mySubmitterSample12")
+        .specimenId("mySpecimen12")
+        .sampleType(SAMPLE_TYPES.get(2))
+        .build();
 
     val sampleGroup1 = newArrayList(sample11, sample12);
 
-    val sample21 = Sample.create("mySample21", "mySubmitterSample21", "mySpecimen21",
-        SAMPLE_TYPES.get(3));
-    val sample22 = Sample.create("mySample22", "mySubmitterSample22", "mySpecimen22",
-        SAMPLE_TYPES.get(3));
+    val sample21 = Sample.builder()
+        .sampleId("mySample21")
+        .sampleSubmitterId("mySubmitterSample21")
+        .specimenId("mySpecimen21")
+        .sampleType(SAMPLE_TYPES.get(3))
+        .build();
+
+    val sample22 = Sample.builder()
+        .sampleId("mySample22")
+        .sampleSubmitterId("mySubmitterSample22")
+        .specimenId("mySpecimen22")
+        .sampleType(SAMPLE_TYPES.get(3))
+        .build();
 
     val sampleGroup2 = newArrayList(sample21, sample22);
 
@@ -316,8 +417,19 @@ public class EntityTest {
 
   @Test
   public void testStudyWithDonors(){
-    val study1 = Study.create("d1", "b1", "c1", "a1");
-    val study2 = Study.create("d2", "b2", "c2", "a2");
+    val study1 = Study.builder()
+        .studyId("d1")
+        .name("b1")
+        .organization("c1")
+        .description("a1")
+        .build();
+
+    val study2 = Study.builder()
+        .studyId("d2")
+        .name("b2")
+        .organization("c2")
+        .description("a2")
+        .build();
 
     val s1 = new StudyWithDonors();
     s1.setStudy(study1);
@@ -334,25 +446,54 @@ public class EntityTest {
     assertEntitiesNotEqual(s1,s2);
 
     //---------------
+    val specimen1 = Specimen.builder()
+        .specimenId("mySpecimen1")
+        .specimenSubmitterId("mySpecimenSubmitter1")
+        .donorId("myDonor1")
+        .specimenClass(SPECIMEN_CLASSES.get(2))
+        .specimenType(SPECIMEN_TYPES.get(2))
+        .build();
 
-    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
-        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
-    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
-        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+    val specimen2 = Specimen.builder()
+        .specimenId("mySpecimen2")
+        .specimenSubmitterId("mySpecimenSubmitter2")
+        .donorId("myDonor2")
+        .specimenClass(SPECIMEN_CLASSES.get(1))
+        .specimenType(SPECIMEN_TYPES.get(1))
+        .build();
 
-    val sample11 = Sample.create("mySample11", "mySubmitterSample11", "mySpecimen11",
-        SAMPLE_TYPES.get(2));
-    val sample12 = Sample.create("mySample12", "mySubmitterSample12", "mySpecimen12",
-        SAMPLE_TYPES.get(2));
+    val sample11 = Sample.builder()
+        .sampleId("mySample11")
+        .sampleSubmitterId("mySubmitterSample11")
+        .specimenId("mySpecimen11")
+        .sampleType(SAMPLE_TYPES.get(2))
+        .build();
+
+    val sample12 = Sample.builder()
+        .sampleId("mySample12")
+        .sampleSubmitterId("mySubmitterSample12")
+        .specimenId("mySpecimen12")
+        .sampleType(SAMPLE_TYPES.get(2))
+        .build();
 
     val sampleGroup1 = newArrayList(sample11, sample12);
 
-    val sample21 = Sample.create("mySample21", "mySubmitterSample21", "mySpecimen21",
-        SAMPLE_TYPES.get(3));
-    val sample22 = Sample.create("mySample22", "mySubmitterSample22", "mySpecimen22",
-        SAMPLE_TYPES.get(3));
+    val sample21 = Sample.builder()
+        .sampleId("mySample21")
+        .sampleSubmitterId("mySubmitterSample21")
+        .specimenId("mySpecimen21")
+        .sampleType(SAMPLE_TYPES.get(3))
+        .build();
+
+    val sample22 = Sample.builder()
+        .sampleId("mySample22")
+        .sampleSubmitterId("mySubmitterSample22")
+        .specimenId("mySpecimen22")
+        .sampleType(SAMPLE_TYPES.get(3))
+        .build();
 
     val sampleGroup2 = newArrayList(sample21, sample22);
+
 
     val specimenWithSample1 = new SpecimenWithSamples();
     specimenWithSample1.setSpecimen(specimen1);
@@ -366,8 +507,18 @@ public class EntityTest {
     val specimenWSampleGroup2 = newArrayList(specimenWithSample1);
 
 
-    val donor1 = Donor.create("myDonor1", "myDonorSubmitter1", DEFAULT_STUDY_ID, "male");
-    val donor2 = Donor.create("myDonor2", "myDonorSubmitter2", DEFAULT_STUDY_ID, "female");
+    val donor1 = Donor.builder()
+        .donorId("myDonor1")
+        .donorSubmitterId("myDonorSubmitter1")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("male")
+        .build();
+    val donor2 = Donor.builder()
+        .donorId("myDonor2")
+        .donorSubmitterId("myDonorSubmitter2")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("female")
+        .build();
 
     val d1 = new DonorWithSpecimens();
     d1.setDonor(donor1);
@@ -451,14 +602,29 @@ public class EntityTest {
     file1.setObjectId("d1");
     file1.setStudyId("e1");
 
-    val file1_same = File.create("d1", "a1",
-        "c1", "e1", 13L,
-        FILE_TYPES.get(0), "b1", CONTROLLED);
+    val file1_same = File.builder()
+        .objectId("d1")
+        .analysisId("a1")
+        .fileName("c1")
+        .studyId("e1")
+        .fileSize(13L)
+        .fileType(FILE_TYPES.get(0))
+        .fileMd5sum("b1")
+        .fileAccess(CONTROLLED.toString())
+        .build();
     assertEntitiesEqual(file1, file1_same, true);
 
-    val file2 = File.create("d2", "a2",
-        "c2", "e2", 14L,
-        FILE_TYPES.get(1), "b2", CONTROLLED);
+    val file2 = File.builder()
+        .objectId("d2")
+        .analysisId("a2")
+        .fileName("c2")
+        .studyId("e2")
+        .fileSize(14L)
+        .fileType(FILE_TYPES.get(1))
+        .fileMd5sum("b2")
+        .fileAccess(CONTROLLED.toString())
+        .build();
+
     assertEntitiesNotEqual(file1, file2);
 
     file1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
@@ -485,10 +651,20 @@ public class EntityTest {
     sample1.setSampleType(SAMPLE_TYPES.get(0));
     sample1.setSpecimenId("c1");
 
-    val sample1_same = Sample.create("a1", "b1", "c1", SAMPLE_TYPES.get(0));
+    val sample1_same = Sample.builder()
+        .sampleId("a1")
+        .sampleSubmitterId("b1")
+        .sampleType(SAMPLE_TYPES.get(0))
+        .specimenId("c1")
+        .build();
     assertEntitiesEqual(sample1, sample1_same, true);
 
-    val sample2 = Sample.create("a2", "b2", "c2", SAMPLE_TYPES.get(1));
+    val sample2 = Sample.builder()
+        .sampleId("a2")
+        .sampleSubmitterId("b2")
+        .sampleType(SAMPLE_TYPES.get(1))
+        .specimenId("c2")
+        .build();
     assertEntitiesNotEqual(sample1, sample2);
 
     sample1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
@@ -541,12 +717,28 @@ public class EntityTest {
     u1.setUpdatedAt(LocalDateTime.MIN);
     u1.setUploadId("uploadId1");
 
-    val u1_same = Upload.create("uploadId1", DEFAULT_STUDY_ID, "an1", UploadStates.CREATED,
-        "error1", "payload1", LocalDateTime.MAX, LocalDateTime.MIN);
+    val u1_same = Upload.builder()
+        .uploadId("uploadId1")
+        .studyId(DEFAULT_STUDY_ID)
+        .analysisId("an1")
+        .state(UploadStates.CREATED.toString())
+        .errors("error1")
+        .payload("payload1")
+        .updatedAt(LocalDateTime.MAX)
+        .createdAt(LocalDateTime.MAX)
+        .build();
     assertEntitiesEqual(u1, u1_same, true);
 
-    val u2 = Upload.create("uploadId2", "study333", "an2", UploadStates.VALIDATION_ERROR,
-        "error2", "payload2", LocalDateTime.MIN, LocalDateTime.MAX);
+    val u2 = Upload.builder()
+        .uploadId("uploadId2")
+        .studyId("study333")
+        .analysisId("an2")
+        .state(UploadStates.VALIDATION_ERROR.toString())
+        .errors("error2")
+        .payload("payload2")
+        .updatedAt(LocalDateTime.MIN)
+        .createdAt(LocalDateTime.MAX)
+        .build();
     assertEntitiesNotEqual(u1,u2);
 
     //Test getters
@@ -607,21 +799,60 @@ public class EntityTest {
 
   @Test
   public void testVariantCallAnalysis(){
-    val v1 = VariantCall.create("a1", "c1", "b1");
-    val v2 = VariantCall.create("a2", "c2", "b2");
+    val v1 = VariantCall.builder()
+        .analysisId("a1")
+        .variantCallingTool("c1")
+        .matchedNormalSampleSubmitterId("b1")
+        .build();
 
-    val donor1 = Donor.create("myDonor1", "myDonorSubmitter1", DEFAULT_STUDY_ID, "male");
-    val donor2 = Donor.create("myDonor2", "myDonorSubmitter2", DEFAULT_STUDY_ID, "female");
+    val v2 = VariantCall.builder()
+        .analysisId("a2")
+        .variantCallingTool("c2")
+        .matchedNormalSampleSubmitterId("b2")
+        .build();
 
-    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
-        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
-    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
-        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+    val donor1 = Donor.builder()
+        .donorId("myDonor1")
+        .donorSubmitterId("myDonorSubmitter1")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("male")
+        .build();
+    val donor2 = Donor.builder()
+        .donorId("myDonor2")
+        .donorSubmitterId("myDonorSubmitter2")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("female")
+        .build();
 
-    val sample1 = Sample.create("mySample1", "mySubmitterSample1", "mySpecimen1",
-        SAMPLE_TYPES.get(2));
-    val sample2 = Sample.create("mySample2", "mySubmitterSample2", "mySpecimen2",
-        SAMPLE_TYPES.get(3));
+    val specimen1 = Specimen.builder()
+        .specimenId("mySpecimen1")
+        .specimenSubmitterId("mySpecimenSubmitter1")
+        .donorId("myDonor1")
+        .specimenClass(SPECIMEN_CLASSES.get(2))
+        .specimenType(SPECIMEN_TYPES.get(2))
+        .build();
+
+    val specimen2 = Specimen.builder()
+        .specimenId("mySpecimen2")
+        .specimenSubmitterId("mySpecimenSubmitter2")
+        .donorId("myDonor2")
+        .specimenClass(SPECIMEN_CLASSES.get(1))
+        .specimenType(SPECIMEN_TYPES.get(1))
+        .build();
+
+    val sample1 = Sample.builder()
+        .sampleId("mySample1")
+        .sampleSubmitterId("mySubmitterSample1")
+        .specimenId("mySpecimen1")
+        .sampleType(SAMPLE_TYPES.get(2))
+        .build();
+
+    val sample2 = Sample.builder()
+        .sampleId("mySample2")
+        .sampleSubmitterId("mySubmitterSample2")
+        .specimenId("mySpecimen2")
+        .sampleType(SAMPLE_TYPES.get(3))
+        .build();
 
     val compositeEntity11 = CompositeEntity.create(sample1);
     compositeEntity11.setDonor(donor1);
@@ -643,23 +874,51 @@ public class EntityTest {
 
     val compositeGroup2 = newArrayList(compositeEntity21, compositeEntity22);
 
-    val file11 = File.create("d11", "a11",
-        "c11", "e11", 113L,
-        FILE_TYPES.get(0), "b11", CONTROLLED);
+    val file11 = File.builder()
+        .objectId("d11")
+        .analysisId("a11")
+        .fileName("c11")
+        .studyId("e11")
+        .fileSize(113L)
+        .fileType(FILE_TYPES.get(0))
+        .fileMd5sum("b11")
+        .fileAccess(CONTROLLED.toString())
+        .build();
 
-    val file12 = File.create("d12", "a12",
-        "c12", "e12", 114L,
-        FILE_TYPES.get(0), "b12", CONTROLLED);
+    val file12 = File.builder()
+        .objectId("d12")
+        .analysisId("a12")
+        .fileName("c12")
+        .studyId("e12")
+        .fileSize(114L)
+        .fileType(FILE_TYPES.get(0))
+        .fileMd5sum("b12")
+        .fileAccess(CONTROLLED.toString())
+        .build();
 
     val fileGroup1 = newArrayList(file11, file12);
 
-    val file21 = File.create("d21", "a21",
-        "c21", "e21", 213L,
-        FILE_TYPES.get(1), "b21", CONTROLLED);
+    val file21 = File.builder()
+        .objectId("d21")
+        .analysisId("a21")
+        .fileName("c21")
+        .studyId("e21")
+        .fileSize(213L)
+        .fileType(FILE_TYPES.get(1))
+        .fileMd5sum("b21")
+        .fileAccess(CONTROLLED.toString())
+        .build();
 
-    val file22 = File.create("d22", "a22",
-        "c22", "e22", 224L,
-        FILE_TYPES.get(1), "b22", CONTROLLED);
+    val file22 = File.builder()
+        .objectId("d22")
+        .analysisId("a22")
+        .fileName("c22")
+        .studyId("e22")
+        .fileSize(214L)
+        .fileType(FILE_TYPES.get(1))
+        .fileMd5sum("b22")
+        .fileAccess(CONTROLLED.toString())
+        .build();
 
     val fileGroup2 = newArrayList(file21, file22);
 
@@ -854,21 +1113,68 @@ public class EntityTest {
 
   @Test
   public void testSequencingReadAnalysis(){
-    val seq1 = SequencingRead.create("a1", true, "b1", 99999L, LIBRARY_STRATEGIES.get(0), false, "c1");
-    val seq2 = SequencingRead.create("a2", false, "b2", 55555L, LIBRARY_STRATEGIES.get(1), false, "c2");
+    val seq1 = SequencingRead.builder()
+        .analysisId("a1")
+        .aligned(true)
+        .alignmentTool("b1")
+        .insertSize(99999L)
+        .libraryStrategy(LIBRARY_STRATEGIES.get(0))
+        .pairedEnd(false)
+        .referenceGenome("c1")
+        .build();
 
-    val donor1 = Donor.create("myDonor1", "myDonorSubmitter1", DEFAULT_STUDY_ID, "male");
-    val donor2 = Donor.create("myDonor2", "myDonorSubmitter2", DEFAULT_STUDY_ID, "female");
+    val seq2 = SequencingRead.builder()
+        .analysisId("a2")
+        .aligned(false)
+        .alignmentTool("b2")
+        .insertSize(55555L)
+        .libraryStrategy(LIBRARY_STRATEGIES.get(1))
+        .pairedEnd(false)
+        .referenceGenome("c2")
+        .build();
 
-    val specimen1 = Specimen.create("mySpecimen1", "mySpecimenSubmitter1", "myDonor1",
-        SPECIMEN_CLASSES.get(2), SPECIMEN_TYPES.get(2));
-    val specimen2 = Specimen.create("mySpecimen2", "mySpecimenSubmitter2", "myDonor2",
-        SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+    val donor1 = Donor.builder()
+        .donorId("myDonor1")
+        .donorSubmitterId("myDonorSubmitter1")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("male")
+        .build();
+    val donor2 = Donor.builder()
+        .donorId("myDonor2")
+        .donorSubmitterId("myDonorSubmitter2")
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender("female")
+        .build();
 
-    val sample1 = Sample.create("mySample1", "mySubmitterSample1", "mySpecimen1",
-        SAMPLE_TYPES.get(2));
-    val sample2 = Sample.create("mySample2", "mySubmitterSample2", "mySpecimen2",
-        SAMPLE_TYPES.get(3));
+    val specimen1 = Specimen.builder()
+        .specimenId("mySpecimen1")
+        .specimenSubmitterId("mySpecimenSubmitter1")
+        .donorId("myDonor1")
+        .specimenClass(SPECIMEN_CLASSES.get(2))
+        .specimenType(SPECIMEN_TYPES.get(2))
+        .build();
+
+    val specimen2 = Specimen.builder()
+        .specimenId("mySpecimen2")
+        .specimenSubmitterId("mySpecimenSubmitter2")
+        .donorId("myDonor2")
+        .specimenClass(SPECIMEN_CLASSES.get(1))
+        .specimenType(SPECIMEN_TYPES.get(1))
+        .build();
+
+    val sample1 = Sample.builder()
+        .sampleId("mySample1")
+        .sampleSubmitterId("mySubmitterSample1")
+        .specimenId("mySpecimen1")
+        .sampleType(SAMPLE_TYPES.get(2))
+        .build();
+
+    val sample2 = Sample.builder()
+        .sampleId("mySample2")
+        .sampleSubmitterId("mySubmitterSample2")
+        .specimenId("mySpecimen2")
+        .sampleType(SAMPLE_TYPES.get(3))
+        .build();
 
     val compositeEntity11 = CompositeEntity.create(sample1);
     compositeEntity11.setDonor(donor1);
@@ -890,23 +1196,51 @@ public class EntityTest {
 
     val compositeGroup2 = newArrayList(compositeEntity21, compositeEntity22);
 
-    val file11 = File.create("d11", "a11",
-        "c11", "e11", 113L,
-        FILE_TYPES.get(0), "b11", CONTROLLED);
+    val file11 = File.builder()
+        .objectId("d11")
+        .analysisId("a11")
+        .fileName("c11")
+        .studyId("e11")
+        .fileSize(113L)
+        .fileType(FILE_TYPES.get(0))
+        .fileMd5sum("b11")
+        .fileAccess(CONTROLLED.toString())
+        .build();
 
-    val file12 = File.create("d12", "a12",
-        "c12", "e12", 114L,
-        FILE_TYPES.get(0), "b12", CONTROLLED);
+    val file12 = File.builder()
+        .objectId("d12")
+        .analysisId("a12")
+        .fileName("c12")
+        .studyId("e12")
+        .fileSize(114L)
+        .fileType(FILE_TYPES.get(0))
+        .fileMd5sum("b12")
+        .fileAccess(CONTROLLED.toString())
+        .build();
 
     val fileGroup1 = newArrayList(file11, file12);
 
-    val file21 = File.create("d21", "a21",
-        "c21", "e21", 213L,
-        FILE_TYPES.get(1), "b21", CONTROLLED);
+    val file21 = File.builder()
+        .objectId("d21")
+        .analysisId("a21")
+        .fileName("c21")
+        .studyId("e21")
+        .fileSize(213L)
+        .fileType(FILE_TYPES.get(1))
+        .fileMd5sum("b21")
+        .fileAccess(CONTROLLED.toString())
+        .build();
 
-    val file22 = File.create("d22", "a22",
-        "c22", "e22", 224L,
-        FILE_TYPES.get(1), "b22", CONTROLLED);
+    val file22 = File.builder()
+        .objectId("d22")
+        .analysisId("a22")
+        .fileName("c22")
+        .studyId("e22")
+        .fileSize(214L)
+        .fileType(FILE_TYPES.get(1))
+        .fileMd5sum("b22")
+        .fileAccess(CONTROLLED.toString())
+        .build();
 
     val fileGroup2 = newArrayList(file21, file22);
 
@@ -1110,10 +1444,27 @@ public class EntityTest {
     s1.setPairedEnd(false);
     s1.setReferenceGenome("c1");
 
-    val s1_same = SequencingRead.create("a1", true, "b1", 99999L, LIBRARY_STRATEGIES.get(0), false, "c1");
+    val s1_same = SequencingRead.builder()
+        .analysisId("a1")
+        .aligned(true)
+        .alignmentTool("b1")
+        .insertSize(99999L)
+        .libraryStrategy(LIBRARY_STRATEGIES.get(0))
+        .pairedEnd(false)
+        .referenceGenome("c1")
+        .build();
+
     assertEntitiesEqual(s1, s1_same, true);
 
-    val s2 = SequencingRead.create("a2", false, "b2", 55555L, LIBRARY_STRATEGIES.get(1), true, "c2");
+    val s2 = SequencingRead.builder()
+        .analysisId("a2")
+        .aligned(false)
+        .alignmentTool("b2")
+        .insertSize(55555L)
+        .libraryStrategy(LIBRARY_STRATEGIES.get(1))
+        .pairedEnd(false)
+        .referenceGenome("c2")
+        .build();
     assertEntitiesNotEqual(s1,s2);
 
     s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
@@ -1138,10 +1489,19 @@ public class EntityTest {
     v1.setMatchedNormalSampleSubmitterId("b1");
     v1.setVariantCallingTool("c1");
 
-    val v1_same = VariantCall.create("a1", "c1", "b1");
+    val v1_same = VariantCall.builder()
+        .analysisId("a1")
+        .variantCallingTool("c1")
+        .matchedNormalSampleSubmitterId("b1")
+        .build();
+
     assertEntitiesEqual(v1, v1_same, true);
 
-    val v2 = VariantCall.create("a2", "c2", "b2");
+    val v2 = VariantCall.builder()
+        .analysisId("a2")
+        .variantCallingTool("c2")
+        .matchedNormalSampleSubmitterId("b2")
+        .build();
     assertEntitiesNotEqual(v1, v2);
 
     v1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
@@ -1163,10 +1523,20 @@ public class EntityTest {
     donor1.setDonorId("donor1");
     donor1.setStudyId("study1");
 
-    val donor1_same = Donor.create("donor1", "donorSubmitter1", "study1", "male");
+    val donor1_same = Donor.builder()
+        .donorId("myDonor1")
+        .donorSubmitterId("myDonorSubmitter1")
+        .studyId("study1")
+        .donorGender("male")
+        .build();
     assertEntitiesEqual(donor1, donor1_same, true);
 
-    val donor2 = Donor.create("donor2", "donorSubmitter2", "study2", "female");
+    val donor2 = Donor.builder()
+        .donorId("myDonor2")
+        .donorSubmitterId("myDonorSubmitter2")
+        .studyId("study2")
+        .donorGender("female")
+        .build();
     assertEntitiesNotEqual(donor1, donor2);
 
     donor1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
@@ -1189,10 +1559,21 @@ public class EntityTest {
     study1.setOrganization("c");
     study1.setStudyId("d");
 
-    val study1_same = Study.create("d", "b", "c", "a");
+    val study1_same = Study.builder()
+        .studyId("d")
+        .name("b")
+        .organization("c")
+        .description("a")
+        .build();
+
     assertEntitiesEqual(study1, study1_same, true);
 
-    val study2 = Study.create("a1", "b1", "c1", "d1");
+    val study2 = Study.builder()
+        .studyId("d1")
+        .name("b1")
+        .organization("c1")
+        .description("a1")
+        .build();
     assertEntitiesNotEqual(study1, study2);
 
     study1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
@@ -1216,10 +1597,23 @@ public class EntityTest {
     s1.setSpecimenSubmitterId("c1");
     s1.setSpecimenType(SPECIMEN_TYPES.get(0));
 
-    val s1_same = Specimen.create("b1","c1","a1", SPECIMEN_CLASSES.get(0), SPECIMEN_TYPES.get(0));
+    val s1_same = Specimen.builder()
+        .specimenId("b1")
+        .specimenSubmitterId("c1")
+        .donorId("a1")
+        .specimenClass(SPECIMEN_CLASSES.get(0))
+        .specimenType(SPECIMEN_TYPES.get(0))
+        .build();
+
     assertEntitiesEqual(s1, s1_same, true);
 
-    val s2 = Specimen.create("a2", "b2", "c2", SPECIMEN_CLASSES.get(1), SPECIMEN_TYPES.get(1));
+    val s2 = Specimen.builder()
+        .specimenId("b2")
+        .specimenSubmitterId("c2")
+        .donorId("a2")
+        .specimenClass(SPECIMEN_CLASSES.get(1))
+        .specimenType(SPECIMEN_TYPES.get(1))
+        .build();
     assertEntitiesNotEqual(s1, s2);
 
     s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");

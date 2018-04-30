@@ -65,7 +65,12 @@ public class StudyServiceTest {
     val organization = randomGenerator.generateRandomUUID().toString();
     val name  = randomGenerator.generateRandomAsciiString(10);
     val description = randomGenerator.generateRandomUUID().toString();
-    val study = Study.create(studyId, name, organization, description);
+    val study = Study.builder()
+        .studyId(studyId)
+        .name(name)
+        .description(description)
+        .organization(organization)
+        .build();
     assertThat(service.isStudyExist(studyId)).isFalse();
     service.saveStudy(study);
     val readStudy = service.read(studyId);
@@ -76,12 +81,12 @@ public class StudyServiceTest {
   public void testFindAllStudies(){
     val studyIds = service.findAllStudies();
     assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
-    val study = Study.create(
-        randomGenerator.generateRandomUUIDAsString(),
-        randomGenerator.generateRandomUUIDAsString(),
-        randomGenerator.generateRandomUUIDAsString(),
-        randomGenerator.generateRandomUUIDAsString()
-    );
+    val study = Study.builder()
+        .studyId(randomGenerator.generateRandomUUIDAsString())
+        .name( randomGenerator.generateRandomUUIDAsString())
+        .organization(randomGenerator.generateRandomUUIDAsString())
+        .description(randomGenerator.generateRandomUUIDAsString())
+        .build();
 
     service.saveStudy(study);
     val studyIds2 = service.findAllStudies();

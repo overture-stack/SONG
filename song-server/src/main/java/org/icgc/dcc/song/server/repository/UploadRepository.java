@@ -19,7 +19,11 @@ package org.icgc.dcc.song.server.repository;
 import org.icgc.dcc.song.server.model.Upload;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface UploadRepository extends JpaRepository<Upload, String>{
+
+  List<Upload> findAllByStudyIdAndAnalysisId(String studyId, String analysisId);
 
 
 }

@@ -58,13 +58,14 @@ public class StudyService {
     return studyRepository.existsById(studyId);
   }
 
-  public void saveStudy(Study study) {
+  public String saveStudy(Study study) {
     val id = study.getStudyId();
     checkServer(!isStudyExist(id), getClass(), STUDY_ALREADY_EXISTS,
         "The studyId '%s' already exists. Cannot save the study: %s " ,
         id,study);
     studyRepository.save(study);
     infoService.create(id,study.getInfoAsString());
+    return id;
   }
 
   public List<String> findAllStudies() {

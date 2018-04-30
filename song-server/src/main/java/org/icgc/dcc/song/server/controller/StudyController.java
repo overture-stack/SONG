@@ -80,7 +80,7 @@ public class StudyController {
   @PostMapping(value = "/{studyId}/", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @ResponseBody
-  public int saveStudy(@PathVariable("studyId") String studyId,
+  public String saveStudy(@PathVariable("studyId") String studyId,
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @RequestBody Study study) {
     return studyService.saveStudy(study);

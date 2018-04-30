@@ -32,7 +32,11 @@ import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
+import org.icgc.dcc.song.server.repository.FileRepository;
 import org.icgc.dcc.song.server.repository.SampleRepository;
+import org.icgc.dcc.song.server.repository.SampleSetRepository;
+import org.icgc.dcc.song.server.repository.SequencingReadRepository;
+import org.icgc.dcc.song.server.repository.VariantCallRepository;
 import org.icgc.dcc.song.server.utils.AnalysisGenerator;
 import org.icgc.dcc.song.server.utils.PayloadGenerator;
 import org.junit.Before;
@@ -43,9 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
@@ -87,8 +89,7 @@ import static org.springframework.http.HttpStatus.OK;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles({"dev", "test"})
+@ActiveProfiles("dev")
 public class AnalysisServiceTest {
 
   private static final String DEFAULT_STUDY_ID = "ABC123";
@@ -108,6 +109,15 @@ public class AnalysisServiceTest {
   private SampleRepository sampleRepository;
   @Autowired
   private AnalysisRepository analysisRepository;
+  @Autowired
+  private SequencingReadRepository sequencingReadRepository;
+  @Autowired
+  private VariantCallRepository variantCallRepository;
+  @Autowired
+  private FileRepository fileRepository;
+  @Autowired
+  private SampleSetRepository sampleSetRepository;
+
 
   private final RandomGenerator randomGenerator = createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
 
@@ -212,8 +222,8 @@ public class AnalysisServiceTest {
     val analysis = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId = analysis.getAnalysisId();
 
-    analysisRepository.deleteVariantCall(analysisId);
-    assertThat(analysisRepository.readVariantCall(analysisId)).isNull();
+    variantCallRepository.deleteById(analysisId);
+    assertThat(variantCallRepository.findById(analysisId)).isEmpty();
     assertSongError(() -> service.read(analysisId), VARIANT_CALL_NOT_FOUND);
   }
 
@@ -223,8 +233,8 @@ public class AnalysisServiceTest {
     val analysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId = analysis.getAnalysisId();
 
-    analysisRepository.deleteSequencingRead(analysisId);
-    assertThat(analysisRepository.readSequencingRead(analysisId)).isNull();
+    sequencingReadRepository.deleteById(analysisId);
+    assertThat(sequencingReadRepository.findById(analysisId)).isEmpty();
     assertSongError(() -> service.read(analysisId), SEQUENCING_READ_NOT_FOUND);
   }
 
@@ -615,7 +625,12 @@ public class AnalysisServiceTest {
   public void testGetAnalysisEmptyStudy(){
     val nonExistentStudyId = randomGenerator.generateRandomAsciiString(10);
     assertThat(studyService.isStudyExist(nonExistentStudyId)).isFalse();
-    studyService.saveStudy(Study.create(nonExistentStudyId,"","",""));
+    studyService.saveStudy(Study.builder()
+        .studyId(nonExistentStudyId)
+        .description("")
+        .name("")
+        .organization("")
+        .build());
     assertThat(service.getAnalysis(nonExistentStudyId)).isEmpty();
   }
 
@@ -623,7 +638,12 @@ public class AnalysisServiceTest {
   public void testIdSearchEmptyStudy(){
     val nonExistentStudyId = randomGenerator.generateRandomAsciiString(10);
     assertThat(studyService.isStudyExist(nonExistentStudyId)).isFalse();
-    studyService.saveStudy(Study.create(nonExistentStudyId,"","",""));
+    studyService.saveStudy(Study.builder()
+        .studyId(nonExistentStudyId)
+        .description("")
+        .name("")
+        .organization("")
+        .build());
     val idSearchRequest = createIdSearchRequest(null, null, null, null);
     assertThat(service.idSearch(nonExistentStudyId, idSearchRequest)).isEmpty();
   }
@@ -646,14 +666,14 @@ public class AnalysisServiceTest {
     val analysis1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId1 = analysis1.getAnalysisId();
 
-    analysisRepository.deleteFiles(analysisId1);
-    assertThat(analysisRepository.readFiles(analysisId1)).isEmpty();
+    fileRepository.deleteAllByAnalysisId(analysisId1);
+    assertThat(fileRepository.findAllByAnalysisId(analysisId1)).isEmpty();
     assertSongError(() -> service.readFiles(analysisId1), ANALYSIS_MISSING_FILES);
 
     val analysis2 = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId2 = analysis2.getAnalysisId();
-    analysisRepository.deleteFiles(analysisId2);
-    assertThat(analysisRepository.readFiles(analysisId2)).isEmpty();
+    fileRepository.deleteAllByAnalysisId(analysisId2);
+    assertThat(fileRepository.findAllByAnalysisId(analysisId2)).isEmpty();
     assertSongError(() -> service.readFiles(analysisId2), ANALYSIS_MISSING_FILES);
   }
 
@@ -683,10 +703,11 @@ public class AnalysisServiceTest {
     val analysis = analysisGenerator.createDefaultRandomAnalysis(analysisClass);
     val analysisId = analysis.getAnalysisId();
 
-    analysisRepository.deleteCompositeEntities(analysisId);
+
+    sampleSetRepository.deleteById(analysisId);
     analysis.getSample().stream()
         .map(Sample::getSampleId)
-        .forEach(sampleRepository::delete);
+        .forEach(sampleRepository::deleteById);
     assertSongError(() -> service.readSamples(analysisId), ANALYSIS_MISSING_SAMPLES);
   }
 

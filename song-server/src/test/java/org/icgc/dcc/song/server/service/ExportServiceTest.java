@@ -18,6 +18,9 @@ import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.UploadStates;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
+import org.icgc.dcc.song.server.repository.SampleSetRepository;
+import org.icgc.dcc.song.server.repository.SequencingReadRepository;
+import org.icgc.dcc.song.server.repository.VariantCallRepository;
 import org.icgc.dcc.song.server.service.export.ExportService;
 import org.icgc.dcc.song.server.utils.StudyGenerator;
 import org.junit.Before;
@@ -57,7 +60,6 @@ import static org.icgc.dcc.song.server.utils.TestFiles.assertSetsMatch;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class ExportServiceTest {
   private static final String ANALYSIS_ID = "analysisId";
@@ -86,6 +88,9 @@ public class ExportServiceTest {
   @Autowired private VariantCallInfoService variantCallInfoService;
   @Autowired private DonorService donorService;
   @Autowired private FileService fileService;
+  @Autowired private SampleSetRepository sampleSetRepository;
+  @Autowired private SequencingReadRepository sequencingReadRepository;
+  @Autowired private VariantCallRepository variantCallRepository;
 
   private final RandomGenerator randomGenerator = createRandomGenerator(ExportServiceTest.class.getSimpleName());
   private StudyGenerator studyGenerator;
@@ -198,7 +203,7 @@ public class ExportServiceTest {
    */
   private void deleteAnalysis(Analysis a){
     deleteExperiment(a);
-    analysisRepository.deleteCompositeEntities(a.getAnalysisId());
+    sampleSetRepository.deleteById(a.getAnalysisId());
     analysisInfoService.delete(a.getAnalysisId());
     a.getSample().stream()
         .map(CompositeEntity::getDonor)
@@ -207,15 +212,15 @@ public class ExportServiceTest {
     a.getFile().stream()
         .map(File::getObjectId)
         .forEach(x -> fileService.delete(x));
-    analysisRepository.deleteAnalysis(a.getAnalysisId());
+    analysisRepository.deleteById(a.getAnalysisId());
   }
 
   private void deleteExperiment(Analysis a){
     if (SequencingReadAnalysis.class.isInstance(a)){
-      analysisRepository.deleteSequencingRead(a.getAnalysisId());
+      sequencingReadRepository.deleteById(a.getAnalysisId());
       sequencingReadInfoService.delete(a.getAnalysisId());
     } else if(VariantCallAnalysis.class.isInstance(a)){
-      analysisRepository.deleteVariantCall(a.getAnalysisId());
+      variantCallRepository.deleteById(a.getAnalysisId());
       variantCallInfoService.delete(a.getAnalysisId());
     } else {
       throw new IllegalStateException("Unknown analysis type");

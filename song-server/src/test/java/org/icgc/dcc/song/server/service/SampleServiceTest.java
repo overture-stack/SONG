@@ -28,9 +28,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
@@ -52,7 +50,6 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
 @ActiveProfiles("dev")
 public class SampleServiceTest {
 
@@ -84,7 +81,12 @@ public class SampleServiceTest {
   public void testCreateAndDeleteSample() {
     val specimenId = "SP2";
     val metadata = JsonUtils.fromSingleQuoted("{'ageCategory': 3, 'species': 'human'}");
-    val s = Sample.create("", "101-IP-A", specimenId, "Amplified DNA");
+    val s = Sample.builder()
+        .sampleId("")
+        .sampleSubmitterId( "101-IP-A")
+        .specimenId(specimenId)
+        .sampleType("Amplified DNA")
+        .build();
     s.setInfo(metadata);
 
     val status = sampleService.create(DEFAULT_STUDY_ID, s);
@@ -105,14 +107,24 @@ public class SampleServiceTest {
   public void testUpdateSample() {
 
     val specimenId = "SP2";
-    val s = Sample.create("", "102-CBP-A", specimenId, "RNA");
+    val s = Sample.builder()
+        .sampleId("")
+        .specimenId(specimenId)
+        .sampleSubmitterId("102-CBP-A")
+        .sampleType("RNA")
+        .build();
 
     sampleService.create(DEFAULT_STUDY_ID, s);
 
     val id = s.getSampleId();
 
     val metadata = JsonUtils.fromSingleQuoted("{'species': 'Canadian Beaver'}");
-    val s2 = Sample.create(id, "Sample 102", s.getSpecimenId(), "FFPE RNA");
+    val s2 = Sample.builder()
+        .sampleId(id)
+        .sampleSubmitterId("Sample 102")
+        .specimenId(s.getSpecimenId())
+        .sampleType( "FFPE RNA")
+        .build();
     s2.setInfo(metadata);
     sampleService.update(s2);
 

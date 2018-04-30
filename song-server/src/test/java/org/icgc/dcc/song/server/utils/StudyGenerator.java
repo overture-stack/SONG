@@ -37,7 +37,12 @@ public class StudyGenerator {
       studyId = randomGenerator.generateRandomAsciiString(12);
       studyExists = studyService.isStudyExist(studyId);
     } while (studyExists);
-    studyService.saveStudy(Study.create(studyId, "", "", ""));
+    studyService.saveStudy(Study.builder()
+        .studyId(studyId)
+        .name("")
+        .description("")
+        .organization("")
+        .build());
     return studyId;
   }
 

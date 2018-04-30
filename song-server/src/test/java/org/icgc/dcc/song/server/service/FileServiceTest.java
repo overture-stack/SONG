@@ -27,9 +27,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
@@ -45,7 +43,6 @@ import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class FileServiceTest {
 
@@ -76,7 +73,16 @@ public class FileServiceTest {
     val metadata = JsonUtils.fromSingleQuoted("{'info':'<XML>Not even well-formed <XML></XML>'}");
     val file = fileService.read(id);
 
-    val expected = File.create(id, analysisId, name, study, size, type, md5, access);
+    val expected = File.builder()
+        .objectId(id)
+        .analysisId(analysisId)
+        .fileName(name)
+        .studyId(study)
+        .fileSize(size)
+        .fileType(type)
+        .fileMd5sum(md5)
+        .fileAccess(access.toString())
+        .build();
     expected.setInfo("name", "file1");
     assertThat(file).isEqualToComparingFieldByField(expected);
   }
@@ -145,14 +151,30 @@ public class FileServiceTest {
     val access = CONTROLLED;
     val metadata = JsonUtils.fromSingleQuoted("'language': 'English'");
 
-    val s = File.create(id, analysisId, name, sampleId, size, type, md5, access);
-
+    val s = File.builder()
+        .objectId(id)
+        .analysisId(analysisId)
+        .fileName(name)
+        .studyId(study)
+        .fileSize(size)
+        .fileType(type)
+        .fileMd5sum(md5)
+        .fileAccess(access.toString())
+        .build();
 
     fileService.create(analysisId, study, s);
     val id2 = s.getObjectId();
 
-    val s2 = File.create(id2,  analysisId,"File 102.fai", study, 123456789L, "FAI",
-            "e1f2a096d90c2cb9e63338e41d805977", CONTROLLED);
+    val s2 = File.builder()
+        .objectId(id2)
+        .analysisId(analysisId)
+        .fileName("File 102.fai")
+        .studyId(study)
+        .fileSize(123456789L)
+        .fileType("FAI")
+        .fileMd5sum("e1f2a096d90c2cb9e63338e41d805977")
+        .fileAccess(CONTROLLED.toString())
+        .build();
     s2.setInfo(metadata);
     fileService.update(s2);
 
@@ -204,15 +226,16 @@ public class FileServiceTest {
   }
 
   private File createRandomFile(String studyId, String analysisId){
-    return File.create(
-        randomGenerator.generateRandomUUID().toString(),
-        analysisId,
-        randomGenerator.generateRandomUUID().toString()+".bam",
-        studyId,
-        (long)randomGenerator.generateRandomInt(),
-        "BAM",
-        randomGenerator.generateRandomMD5(),
-        CONTROLLED);
+    return File.builder()
+        .objectId( randomGenerator.generateRandomUUIDAsString())
+        .analysisId(analysisId)
+        .fileName(randomGenerator.generateRandomUUIDAsString()+".bam")
+        .studyId(studyId)
+        .fileSize((long)randomGenerator.generateRandomInt())
+        .fileType("BAM")
+        .fileMd5sum(randomGenerator.generateRandomMD5())
+        .fileAccess(CONTROLLED.toString())
+        .build();
   }
 
 }
