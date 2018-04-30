@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 import java.util.Properties;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Maps.fromProperties;
 import static lombok.AccessLevel.PRIVATE;
 

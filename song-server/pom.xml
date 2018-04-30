@@ -90,6 +90,12 @@
             <artifactId>hibernate-native-json</artifactId>
         </dependency>
 
+        <!-- Hibernate compile time annotation validation -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator-annotation-processor</artifactId>
+        </dependency>
+
         <!-- JSON -->
         <dependency>
             <groupId>com.networknt</groupId>
@@ -126,6 +132,10 @@
         <dependency>
             <groupId>org.icgc.dcc</groupId>
             <artifactId>dcc-common-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
         <!-- Testing -->
@@ -173,6 +183,24 @@
 
     <build>
         <plugins>
+            <!--<plugin>-->
+                <!--<groupId>org.hibernate.orm.tooling</groupId>-->
+                <!--<artifactId>hibernate-enhance-maven-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<configuration>-->
+                            <!--<failOnError>true</failOnError>-->
+                            <!--<enableLazyInitialization>true</enableLazyInitialization>-->
+                            <!--<enableDirtyTracking>true</enableDirtyTracking>-->
+                            <!--<enableAssociationManagement>true</enableAssociationManagement>-->
+                            <!--<enableExtendedEnhancement>false</enableExtendedEnhancement>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>enhance</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

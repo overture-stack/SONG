@@ -90,6 +90,10 @@ spring:
   datasource:
     initialization-mode: always
 
+management:
+  server:
+    port: -1
+
 id.persistInMemory: true
 
 auth:

@@ -99,18 +99,27 @@
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.marvinformatics.hibernate</groupId>
-                <artifactId>hibernate-native-json</artifactId>
-                <version>${hibernate-native-json.version}</version>
-            </dependency>
-
             <!--RTISMA_HACK-->
             <!--<dependency>-->
                 <!--<groupId>org.springframework.data</groupId>-->
                 <!--<artifactId>spring-data-commons</artifactId>-->
                 <!--<version>${spring-data-commons.version}</version>-->
             <!--</dependency>-->
+
+            <!--                      Hibernate                      -->
+            <dependency>
+                <groupId>com.marvinformatics.hibernate</groupId>
+                <artifactId>hibernate-native-json</artifactId>
+                <version>${hibernate-native-json.version}</version>
+            </dependency>
+
+            <!-- Hibernate Validator              -->
+            <!--Validates annotations at build time-->
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator-annotation-processor</artifactId>
+                <version>${hibernate-validator.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.uuid</groupId>
@@ -165,6 +174,11 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
@@ -199,7 +213,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
-                        <forkCount>1</forkCount>
+                        <forkCount>0</forkCount>
                         <reuseForks>false</reuseForks>
                         <argLine>-Xms256m -Xmx1g</argLine>
                         <redirectTestOutputToFile>${test.redirectTestOutputToFile}</redirectTestOutputToFile>
@@ -253,7 +267,7 @@
         <logback.version>1.2.3</logback.version>
         <assertj.version>3.5.2</assertj.version>
         <assertj-guava.version>3.1.0</assertj-guava.version>
-        <lombok.version>1.16.14</lombok.version>
+        <lombok.version>1.16.20</lombok.version>
 
         <jackson.version>2.9.4</jackson.version>
         <networknt.version>0.1.5</networknt.version>
@@ -263,6 +277,8 @@
         <dcc-id.version>5.1.4</dcc-id.version>
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
         <hibernate-native-json.version>0.4</hibernate-native-json.version>
+        <hibernate-validator.version>6.0.9.Final</hibernate-validator.version>
+        <guava.version>24.1-jre</guava.version>
     </properties>
 
 </project>
