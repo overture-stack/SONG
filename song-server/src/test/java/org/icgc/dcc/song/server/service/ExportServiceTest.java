@@ -201,7 +201,7 @@ public class ExportServiceTest {
    */
   private void deleteAnalysis(AbstractAnalysis a){
     deleteExperiment(a);
-    sampleSetRepository.deleteById(a.getAnalysisId());
+    sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(a.getAnalysisId());
     analysisInfoService.delete(a.getAnalysisId());
     a.getSample().stream()
         .map(CompositeEntity::getDonor)

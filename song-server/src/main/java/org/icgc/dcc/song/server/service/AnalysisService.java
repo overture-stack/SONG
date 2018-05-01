@@ -18,10 +18,12 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.kafka.Sender;
 import org.icgc.dcc.song.server.model.SampleSet;
+import org.icgc.dcc.song.server.model.SampleSetPK;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
@@ -29,6 +31,7 @@ import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.AnalysisStates;
+import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
@@ -46,7 +49,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -63,6 +68,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FO
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
+import static org.icgc.dcc.song.server.model.SampleSetPK.createSampleSetPK;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
 import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
@@ -170,7 +176,7 @@ public class AnalysisService {
 
   public ResponseEntity<String> updateAnalysis(String studyId, AbstractAnalysis analysis) {
     val id = analysis.getAnalysisId();
-    sampleSetRepository.deleteById(id);
+    sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(id);
     saveCompositeEntities(studyId, id, analysis.getSample());
     fileRepository.deleteAllByAnalysisId(id);
     analysis.getFile().forEach(f -> fileInfoService.delete(f.getObjectId()));
@@ -194,13 +200,17 @@ public class AnalysisService {
    * @return returns a List of analysis with the child entities.
    */
   public List<AbstractAnalysis> getAnalysis(@NonNull String studyId) {
-    val analysisList = repository.findAllByStudy(studyId);
+    val analysisList = repository.findAllByStudy(studyId)
+        .stream()
+        .map(this::cloneAnalysis)
+        .collect(toImmutableList());
     if (analysisList.isEmpty()){
       studyService.checkStudyExist(studyId);
       return analysisList;
     }
     return processAnalysisList(analysisList);
   }
+
 
   /**
    * Searches all analysis matching the IdSearchRequest
@@ -243,16 +253,7 @@ public class AnalysisService {
 
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
-
-    if (analysis instanceof SequencingReadAnalysis) {
-      val experiment = readSequencingRead(id);
-      ((SequencingReadAnalysis) analysis).setExperiment(experiment);
-    } else if (analysis instanceof VariantCallAnalysis) {
-      val experiment =readVariantCall(id);
-      ((VariantCallAnalysis) analysis).setExperiment(experiment);
-    }
-
-    return analysis;
+    return cloneAnalysis(analysis);
   }
 
   public List<File> readFiles(String id) {
@@ -291,8 +292,9 @@ public class AnalysisService {
   }
 
   public List<CompositeEntity> readSamples(String id) {
-    val samples = sampleSetRepository.findAllById(newArrayList(id)).stream()
-        .map(SampleSet::getSampleId)
+    val samples = sampleSetRepository.findAllBySampleSetPK_AnalysisId(id).stream()
+        .map(SampleSet::getSampleSetPK)
+        .map(SampleSetPK::getSampleId)
         .map(compositeEntityService::read)
         .collect(toImmutableList());
 
@@ -315,10 +317,9 @@ public class AnalysisService {
   }
 
   private SampleSet buildSampleSet(String id, String sampleId){
-    return SampleSet.builder()
-        .sampleId(sampleId)
-        .analysisId(id)
-        .build();
+    val s = new SampleSet();
+    s.setSampleSetPK(createSampleSetPK(id, sampleId));
+    return s;
   }
 
   private List<String> saveFiles(String id, String studyId, List<File> files) {
@@ -357,6 +358,28 @@ public class AnalysisService {
     out.setWith(analysis);
     return out;
 
+  }
+
+  private static final Map<String, Class<? extends AbstractAnalysis>> ANALYSIS_CLASS_MAP =
+      new HashMap<String, Class<? extends AbstractAnalysis>>(){{
+    put(AnalysisTypes.SEQUENCING_READ.toString(), SequencingReadAnalysis.class);
+    put(AnalysisTypes.VARIANT_CALL.toString(), VariantCallAnalysis.class);
+  }};
+
+  @SneakyThrows
+  private static AbstractAnalysis instantiateAnalysis(@NonNull String analysisType){
+    return ANALYSIS_CLASS_MAP.get(analysisType).newInstance();
+  }
+
+  private AbstractAnalysis cloneAnalysis(AbstractAnalysis a){
+    val newAnalysis = instantiateAnalysis(a.getAnalysisType());
+    newAnalysis.setWith(a);
+    if (newAnalysis instanceof SequencingReadAnalysis) {
+      ((SequencingReadAnalysis) newAnalysis).setExperiment(readSequencingRead(a.getAnalysisId()));
+    } else if (newAnalysis instanceof VariantCallAnalysis) {
+      ((VariantCallAnalysis) newAnalysis).setExperiment(readVariantCall(a.getAnalysisId()));
+    }
+    return newAnalysis;
   }
 
   public AbstractAnalysis checkAnalysis(String id){
@@ -418,13 +441,7 @@ public class AnalysisService {
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
     analysis.setInfo(analysisInfoService.readNullableInfo(id));
-
-    if (analysis instanceof SequencingReadAnalysis) {
-      ((SequencingReadAnalysis) analysis).setExperiment(readSequencingRead(id));
-    } else if (analysis instanceof VariantCallAnalysis) {
-      ((VariantCallAnalysis) analysis).setExperiment(readVariantCall(id));
-    }
-    return analysis;
+    return cloneAnalysis(analysis);
   }
 
 }

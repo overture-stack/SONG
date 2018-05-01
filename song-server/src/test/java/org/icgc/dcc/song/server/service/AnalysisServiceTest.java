@@ -178,7 +178,8 @@ public class AnalysisServiceTest {
 
   @Test
   public void testIsAnalysisExist(){
-    val analysis = analysisGenerator.createDefaultRandomVariantCallAnalysis();
+    val analysis = payloadGenerator.generateDefaultRandomPayload(VariantCallAnalysis.class);
+//    analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val randomAnalysisId = randomGenerator.generateRandomUUID().toString();
     analysis.setAnalysisId(randomAnalysisId);
     assertThat(service.doesAnalysisIdExist(randomAnalysisId)).isFalse();
@@ -711,7 +712,7 @@ public class AnalysisServiceTest {
     val analysisId = analysis.getAnalysisId();
 
 
-    sampleSetRepository.deleteById(analysisId);
+    sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(analysisId);
     analysis.getSample().stream()
         .map(Sample::getSampleId)
         .forEach(sampleRepository::deleteById);

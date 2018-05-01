@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class InfoPK implements Serializable{
 
 //  @Id
-  @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
+  @Column(name = TableAttributeNames.ID, nullable = false)
   private String id;
 
 //  @Id

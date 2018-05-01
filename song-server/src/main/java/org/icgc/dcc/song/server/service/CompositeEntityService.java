@@ -54,6 +54,7 @@ public class CompositeEntityService {
       s.setSpecimenId(getSampleParent(studyId, s));
       sampleCreateRequest.setSpecimenId(s.getSpecimenId());
       id = sampleService.create(studyId, sampleCreateRequest);
+      s.setSampleId(id);
     } else {
       val sampleUpdateRequest = sampleService.read(id);
       sampleUpdateRequest.setWithSample(s);
