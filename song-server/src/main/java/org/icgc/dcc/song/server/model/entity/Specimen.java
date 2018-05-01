@@ -18,7 +18,6 @@
 package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,7 +41,6 @@ import static org.icgc.dcc.song.server.model.enums.Constants.validate;
 @Table(name = TableNames.SPECIMEN)
 @Data
 @Builder
-@AllArgsConstructor
 @RequiredArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -52,20 +50,28 @@ public class Specimen extends Metadata {
   @Id
   @Column(name = TableAttributeNames.ID,
       updatable = false, unique = true, nullable = false)
-  private String specimenId;
-
+  private String specimenId = "";
 
   @Column(name = TableAttributeNames.DONOR_ID, nullable = false)
-  private String donorId;
+  private String donorId = "";
 
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
-  private String specimenSubmitterId;
+  private String specimenSubmitterId = "";
 
   @Column(name = TableAttributeNames.CLASS, nullable = false)
-  private String specimenClass;
+  private String specimenClass = "";
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
-  private String specimenType;
+  private String specimenType = "";
+
+  public Specimen(String specimenId, String donorId, String specimenSubmitterId, String specimenClass,
+      String specimenType) {
+    this.specimenId = specimenId;
+    this.donorId = donorId;
+    this.specimenSubmitterId = specimenSubmitterId;
+    setSpecimenClass(specimenClass);
+    setSpecimenType(specimenType);
+  }
 
   public void setSpecimenClass(String specimenClass) {
     validate(SPECIMEN_CLASS, specimenClass);

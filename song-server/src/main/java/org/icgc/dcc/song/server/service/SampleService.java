@@ -94,7 +94,9 @@ public class SampleService {
 
   public String update(@NonNull Sample sampleUpdate) {
     val sample = read(sampleUpdate.getSampleId());
-    sample.setWithSample(sampleUpdate);
+    sample.setSampleSubmitterId(sampleUpdate.getSampleSubmitterId());
+    sample.setSampleType(sampleUpdate.getSampleType());
+    sample.setInfo(sampleUpdate.getInfo());
     repository.save(sample);
     infoService.update(sample.getSampleId(), sample.getInfoAsString());
     return OK;

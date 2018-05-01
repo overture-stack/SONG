@@ -49,16 +49,14 @@ public class CompositeEntityService {
 
   public String save(String studyId, CompositeEntity s) {
     String id = sampleService.findByBusinessKey(studyId, s.getSampleSubmitterId());
+    s.setSampleId(id);
     if (isNull(id)) {
       val sampleCreateRequest = buildPersistentSample(s);
       s.setSpecimenId(getSampleParent(studyId, s));
       sampleCreateRequest.setSpecimenId(s.getSpecimenId());
       id = sampleService.create(studyId, sampleCreateRequest);
-      s.setSampleId(id);
     } else {
-      val sampleUpdateRequest = sampleService.read(id);
-      sampleUpdateRequest.setWithSample(s);
-      sampleService.update(sampleUpdateRequest);
+      sampleService.update(s);
     }
     return id;
   }

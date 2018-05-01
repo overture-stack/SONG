@@ -18,7 +18,6 @@
 package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -43,7 +42,6 @@ import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType
 @Table(name = TableNames.FILE)
 @Data
 @Builder
-@AllArgsConstructor
 @RequiredArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -52,28 +50,40 @@ public class File extends Metadata implements Serializable {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
-  private String objectId;
+  private String objectId = "";
 
   @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
-  private String studyId;
+  private String studyId = "";
 
   @Column(name = TableAttributeNames.ANALYSIS_ID, nullable = false)
-  private String analysisId;
+  private String analysisId = "";
 
   @Column(name = TableAttributeNames.NAME, nullable = false)
-  private String fileName;
+  private String fileName = "";
 
   @Column(name = TableAttributeNames.SIZE, nullable = false)
-  private Long fileSize;
+  private Long fileSize = -1L;
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
-  private String fileType;
+  private String fileType = "";
 
   @Column(name = TableAttributeNames.MD5, nullable = false)
-  private String fileMd5sum;
+  private String fileMd5sum = "";
 
   @Column(name = TableAttributeNames.ACCESS, nullable = false)
-  private String fileAccess;
+  private String fileAccess = "";
+
+  public File(String objectId, String studyId, String analysisId, String fileName, Long fileSize,
+      String fileType, String fileMd5sum, String fileAccess) {
+    this.objectId = objectId;
+    this.studyId = studyId;
+    this.analysisId = analysisId;
+    this.fileName = fileName;
+    this.fileSize = fileSize;
+    setFileType(fileType);
+    this.fileMd5sum = fileMd5sum;
+    setFileAccess(fileAccess);
+  }
 
   public void setFileType(String type) {
     Constants.validate(Constants.FILE_TYPE, type);

@@ -128,7 +128,7 @@ public class DonorService {
   public String update(@NonNull Donor donorUpdate) {
     val donor = read(donorUpdate.getDonorId());
 
-    donor.setWithDonor(donor);
+    donor.setWithDonor(donorUpdate);
     donorRepository.save(donor);
     infoService.update(donor.getDonorId(), donor.getInfoAsString());
     return OK;

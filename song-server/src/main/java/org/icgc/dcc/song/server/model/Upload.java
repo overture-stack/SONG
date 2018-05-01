@@ -20,12 +20,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.google.common.base.Joiner;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.icgc.dcc.song.server.model.enums.ModelAttributeNames;
 import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
 import org.icgc.dcc.song.server.model.enums.TableNames;
@@ -37,9 +38,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 
@@ -47,7 +48,6 @@ import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 @Table(name = TableNames.UPLOAD)
 @Data
 @Builder
-@AllArgsConstructor
 @RequiredArgsConstructor
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({
@@ -62,7 +62,8 @@ import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 })
 public class Upload {
 
-  private static final String ERROR_DELIM = "\\|";
+  private static final String INPUT_ERROR_DELIM = "\\|";
+  private static final String OUTPUT_ERROR_DELIM = "|";
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
@@ -83,11 +84,25 @@ public class Upload {
   @Column(name = TableAttributeNames.PAYLOAD, nullable = false)
   private String payload = "";
 
+  @CreationTimestamp
   @Column(name = TableAttributeNames.CREATED_AT, updatable= false, nullable = false)
   private LocalDateTime createdAt;
 
+  @UpdateTimestamp
   @Column(name = TableAttributeNames.UPDATED_AT, nullable = false)
   private LocalDateTime updatedAt;
+
+  public Upload(String uploadId, String analysisId, String studyId, String state, String errors, String payload,
+      LocalDateTime createdAt, LocalDateTime updatedAt) {
+    this.uploadId = uploadId;
+    this.analysisId = analysisId;
+    this.studyId = studyId;
+    setState(state);
+    this.errors = errors;
+    this.payload = payload;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+  }
 
   public void setState(@NonNull UploadStates state){
     this.state = state.getText();
@@ -109,17 +124,18 @@ public class Upload {
     }
   }
 
-  public Collection<String> getErrors(){
+  public List<String> getErrors(){
     if(isNull(errors)){
       return newArrayList();
     } else {
-      return asList(errors.split(ERROR_DELIM));
+      return newArrayList(errors.split(INPUT_ERROR_DELIM));
     }
   }
 
   public void addErrors(Collection<String> errors) {
     val e = getErrors();
     e.addAll(errors);
-    this.errors = Joiner.on(ERROR_DELIM).join(e);
+    this.errors = Joiner.on(OUTPUT_ERROR_DELIM).join(e);
   }
+
 }

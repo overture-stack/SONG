@@ -94,7 +94,7 @@ public class SpecimenService {
   List<SpecimenWithSamples> readByParentId(String parentId) {
     val donors = repository.findAllByDonorId(parentId);
     val specimens = new ArrayList<SpecimenWithSamples>();
-    donors.forEach(d -> specimens.add(readWithSamples(d.getDonorId())));
+    donors.forEach(d -> specimens.add(readWithSamples(d.getSpecimenId())));
     return specimens;
   }
 
@@ -136,7 +136,7 @@ public class SpecimenService {
 
   String deleteByParentId(@NonNull String parentId) {
     repository.findAllByDonorId(parentId).stream()
-        .map(Specimen::getDonorId)
+        .map(Specimen::getSpecimenId)
         .forEach(this::delete);
     return OK;
   }

@@ -38,10 +38,4 @@ public class BusinessKeyView {
   @Column(name = SAMPLE_SUBMITTER_ID)
   private String sampleSubmitterId;
 
-//  @Column(name = DONOR_ID)
-//  private String donorId;
-//
-//  @Column(name = DONOR_SUBMITTER_ID)
-//  private String donorSubmitterId;
-
 }

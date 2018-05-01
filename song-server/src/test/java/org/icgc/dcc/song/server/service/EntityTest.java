@@ -110,7 +110,7 @@ public class EntityTest {
     compositeEntity1.setSpecimen(specimen1);
 
     val compositeEntity1_same = new CompositeEntity();
-    compositeEntity1_same.setSampleType(SAMPLE_TYPES.get(2));
+    compositeEntity1_same.setSampleType(SAMPLE_TYPES.get(1));
     compositeEntity1_same.setSampleSubmitterId("mySubmitterSample1");
     compositeEntity1_same.setSampleId("mySample1");
     compositeEntity1_same.setSpecimenId("mySpecimen1");
@@ -156,7 +156,7 @@ public class EntityTest {
     // Test getters
 
     assertThat(compositeEntity1.getSampleId()).isEqualTo("mySample1");
-    assertThat(compositeEntity1.getSampleType()).isEqualTo(SAMPLE_TYPES.get(2));
+    assertThat(compositeEntity1.getSampleType()).isEqualTo(SAMPLE_TYPES.get(1));
     assertThat(compositeEntity1.getSampleSubmitterId()).isEqualTo("mySubmitterSample1");
     assertThat(compositeEntity1.getSpecimenId()).isEqualTo("mySpecimen1");
     assertThat(compositeEntity1.getSpecimen()).isEqualTo(specimen1);
@@ -724,7 +724,7 @@ public class EntityTest {
         .state(UploadStates.CREATED.toString())
         .errors("error1")
         .payload("payload1")
-        .updatedAt(LocalDateTime.MAX)
+        .updatedAt(LocalDateTime.MIN)
         .createdAt(LocalDateTime.MAX)
         .build();
     assertEntitiesEqual(u1, u1_same, true);
@@ -1519,8 +1519,8 @@ public class EntityTest {
   public void testDonor(){
     val donor1 = new Donor();
     donor1.setDonorGender("male");
-    donor1.setDonorSubmitterId("donorSubmitter1");
-    donor1.setDonorId("donor1");
+    donor1.setDonorSubmitterId("myDonorSubmitter1");
+    donor1.setDonorId("myDonor1");
     donor1.setStudyId("study1");
 
     val donor1_same = Donor.builder()
@@ -1546,8 +1546,8 @@ public class EntityTest {
     // Test getters
     assertThat(donor1.getStudyId()).isEqualTo("study1");
     assertThat(donor1.getDonorGender()).isEqualTo("male");
-    assertThat(donor1.getDonorSubmitterId()).isEqualTo("donorSubmitter1");
-    assertThat(donor1.getDonorId()).isEqualTo("donor1");
+    assertThat(donor1.getDonorSubmitterId()).isEqualTo("myDonorSubmitter1");
+    assertThat(donor1.getDonorId()).isEqualTo("myDonor1");
     assertInfoKVPair(donor1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 

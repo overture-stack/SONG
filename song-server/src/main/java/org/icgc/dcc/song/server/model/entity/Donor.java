@@ -19,7 +19,6 @@ package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -43,7 +42,6 @@ import static org.icgc.dcc.song.server.model.enums.TableNames.DONOR;
 @Table(name = DONOR)
 @Data
 @Builder
-@AllArgsConstructor
 @RequiredArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -60,16 +58,26 @@ public class Donor extends Metadata {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
-  private String donorId;
+  private String donorId = "";
 
   @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
-  private String studyId;
+  private String studyId = "";
 
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
-  private String donorSubmitterId;
+  private String donorSubmitterId = "";
 
   @Column(name = TableAttributeNames.GENDER, nullable = true)
-  private String donorGender;
+  private String donorGender = "";
+
+  //NOTE: Since the donorGender field is validated upon setting it, using Lomboks default Builder when
+  //  the @AllArgsConstructor is used will by pass the validation since the Builder uses the All Arg Constructor.
+  // By using the setter inside the constructor, the building of a Donor will always be validated
+  public Donor(String donorId, String studyId, String donorSubmitterId, String donorGender) {
+    this.donorId = donorId;
+    this.studyId = studyId;
+    this.donorSubmitterId = donorSubmitterId;
+    setDonorGender(donorGender);
+  }
 
   public void setDonorGender(String gender) {
     validate(DONOR_GENDER, gender);

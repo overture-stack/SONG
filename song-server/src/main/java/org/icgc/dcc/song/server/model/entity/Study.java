@@ -45,15 +45,15 @@ public class Study extends Metadata {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
-  private String studyId;
+  private String studyId = "";
 
   @Column(name = TableAttributeNames.NAME, nullable = true)
-  private String name;
+  private String name = "";
 
   @Column(name = TableAttributeNames.ORGANIZATION, nullable = true)
-  private String organization;
+  private String organization = "";
 
   @Column(name = TableAttributeNames.DESCRIPTION, nullable = true)
-  private String description;
+  private String description = "";
 
 }
