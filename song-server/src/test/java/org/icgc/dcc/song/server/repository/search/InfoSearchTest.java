@@ -33,9 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
@@ -60,8 +58,7 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspat
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles({"dev", "test"})
+@ActiveProfiles("dev")
 public class InfoSearchTest {
 
   private static final String STUDY = "ABC123";

@@ -17,29 +17,53 @@
 
 package org.icgc.dcc.song.server.repository.search;
 
-import com.google.common.collect.Lists;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.val;
+import org.hibernate.Session;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.song.core.utils.JsonUtils.readTree;
+import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithInfo;
 import static org.icgc.dcc.song.server.repository.search.SearchQueryBuilder.createSearchQueryBuilder;
 
 @RequiredArgsConstructor
 public class SearchRepository {
 
-//  private final Handle handle;
+  private final EntityManager em;
 
   public List<InfoSearchResponse> infoSearch(boolean includeInfo, @NonNull Iterable<SearchTerm> searchTerms){
- //   val infoSearchResponseMapper = createInfoSearchResponseMapper(includeInfo);
+    val session = em.unwrap(Session.class);
     val searchQueryBuilder = createSearchQueryBuilder(includeInfo);
     searchTerms.forEach(searchQueryBuilder::add);
-    val query = searchQueryBuilder.build();
-    return Lists.newArrayList();
-//    return handle.createQuery(query)
-//        .map(infoSearchResponseMapper)
-//        .list();
+
+    Object output = session.createNativeQuery(searchQueryBuilder.build()).getResultList();
+    if (includeInfo){
+      return ((List<Object[]>)output).stream()
+          .map(SearchRepository::mapWithInfo)
+          .collect(toImmutableList());
+    } else {
+      return ((List<String>)output).stream()
+          .map(InfoSearchResponse::createWithoutInfo)
+          .collect(toImmutableList());
+    }
+  }
+
+  @SneakyThrows
+  private static InfoSearchResponse mapWithInfo(Object[] results){
+    return createWithInfo(extractAnalysisId(results), readTree(extractInfo(results)));
+  }
+
+  private static String extractAnalysisId(Object[] result){
+    return (String)result[0];
+  }
+
+  private static String extractInfo(Object[] result){
+    return (String)result[1];
   }
 
 }
