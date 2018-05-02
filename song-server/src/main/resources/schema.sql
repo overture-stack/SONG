@@ -201,7 +201,7 @@ CREATE VIEW InfoView AS
       INNER JOIN Analysis A on  SS.analysis_id = A.id
       INNER JOIN Info I_A ON I_A.id = A.id and I_A.id_type = 'Analysis'
       INNER JOIN File F on  A.id = F.analysis_id
-      INNER JOIN Info I_F ON I_F.id = F.id and I_F.id_type = 'File'
+      INNER JOIN Info I_F ON I_F.id = F.id and I_F.id_type = 'File';
 
 ---------------------------------------------------------------
 --            Drop Indices
