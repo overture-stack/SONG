@@ -25,12 +25,16 @@ server:
 dcc-storage:
   url: "https://storage.cancercollaboratory.org"
 
-
 # Hibernate
 spring:
   jpa:
     properties:
-      hibernate.dialect: com.marvinformatics.hibernate.json.PostgreSQLJsonDialect
+      hibernate:
+        dialect: com.marvinformatics.hibernate.json.PostgreSQLJsonDialect
+# disable driver's feature detection. This is required for the following bug in SpringBoot 2.0.0+
+# https://hibernate.atlassian.net/browse/HHH-12368
+        temp.use_jdbc_metadata_defaults: false
+
 
 # Management
 management:
