@@ -1,6 +1,9 @@
 package org.icgc.dcc.song.server.model.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Immutable;
 import org.icgc.dcc.song.server.model.enums.TableNames;
 
@@ -9,10 +12,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Data
 @Entity
 @Immutable
 @Table(name = TableNames.BUSINESS_KEY_VIEW)
+@Data
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class BusinessKeyView {
   public static final String STUDY_ID = "study_id";
   public static final String SPECIMEN_ID = "specimen_id";
