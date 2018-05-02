@@ -179,6 +179,30 @@ CREATE VIEW BusinessKeyView AS
     INNER JOIN Specimen SP ON D.id = SP.donor_id
     INNER JOIN Sample SA ON SP.id = SA.specimen_id;
 
+DROP VIEW IF EXISTS InfoView;
+CREATE VIEW InfoView AS
+  SELECT
+    A.id as analysis_id,
+    I_STUDY.info as study_info,
+    I_DONOR.info as donor_info,
+    I_SP.info as specimen_info,
+    I_SA.info as sample_info,
+    I_A.info as analysis_info,
+    I_F.info as file_info
+    FROM Study S
+      INNER JOIN Info I_STUDY ON I_STUDY.id = S.id and I_STUDY.id_type = 'Study'
+      INNER JOIN Donor D ON S.id = D.study_id
+      INNER JOIN Info I_DONOR ON I_DONOR.id = D.id and I_DONOR.id_type = 'Donor'
+      INNER JOIN Specimen SP ON D.id = SP.donor_id
+      INNER JOIN Info I_SP ON I_SP.id = SP.id and I_SP.id_type = 'Specimen'
+      INNER JOIN Sample SA ON SP.id = SA.specimen_id
+      INNER JOIN Info I_SA ON I_SA.id = SA.id and I_SA.id_type = 'Sample'
+      INNER JOIN SampleSet SS on SA.id = SS.sample_id
+      INNER JOIN Analysis A on  SS.analysis_id = A.id
+      INNER JOIN Info I_A ON I_A.id = A.id and I_A.id_type = 'Analysis'
+      INNER JOIN File F on  A.id = F.analysis_id
+      INNER JOIN Info I_F ON I_F.id = F.id and I_F.id_type = 'File'
+
 ---------------------------------------------------------------
 --            Drop Indices
 ---------------------------------------------------------------
