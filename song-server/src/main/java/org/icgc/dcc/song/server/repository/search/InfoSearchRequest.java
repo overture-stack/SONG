@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.NonNull;
 import lombok.val;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public class InfoSearchRequest {
   @ApiModelProperty(notes = "If true, include the info field in the response, otherwise exclude it")
   private boolean includeInfo;
 
-  @NonNull private List<SearchTerm> searchTerms;
+  private List<SearchTerm> searchTerms;
 
   @JsonIgnore
   public boolean hasSearchTerms(){
@@ -47,7 +46,8 @@ public class InfoSearchRequest {
   }
 
   public static InfoSearchRequest createInfoSearchRequest(boolean includeInfo, List<SearchTerm> searchTerms){
-    val r = new InfoSearchRequest(searchTerms);
+    val r = new InfoSearchRequest();
+    r.setSearchTerms(searchTerms);
     r.setIncludeInfo(includeInfo);
     return r;
   }

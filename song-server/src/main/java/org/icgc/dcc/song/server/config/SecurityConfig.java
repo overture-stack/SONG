@@ -16,6 +16,7 @@
  */
 package org.icgc.dcc.song.server.config;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -24,8 +25,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-
-import lombok.SneakyThrows;
 
 @Configuration
 @Profile("secure")
@@ -53,7 +52,8 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
         .antMatchers("/swagger**", "/swagger-resources/**", "/v2/api**", "/webjars/**").permitAll()
         .and()
         .authorizeRequests()
-        .anyRequest().authenticated();
+        .anyRequest()
+        .authenticated();
   }
 
 }
