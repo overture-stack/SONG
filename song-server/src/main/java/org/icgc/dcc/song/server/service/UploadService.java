@@ -29,6 +29,7 @@ import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -101,6 +102,7 @@ public class UploadService {
         .collect(toImmutableList());
   }
 
+  @Transactional
   @SneakyThrows
   public ResponseEntity<String> upload(@NonNull String studyId, @NonNull String payload, boolean isAsyncValidation) {
     studyService.checkStudyExist(studyId);
@@ -155,6 +157,7 @@ public class UploadService {
   }
 
 
+  @Transactional
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId,
       final boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);

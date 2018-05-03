@@ -35,15 +35,15 @@ public class IdSearchRequest {
   private final String specimenId;
 
   @ApiModelProperty(notes = "regex pattern. Default is wildcard")
-  private final String fileId;
+  private final String objectId;
 
   public static IdSearchRequest createIdSearchRequest(
-      String donorId, String sampleId, String specimenId, String fileId) {
+      String donorId, String sampleId, String specimenId, String objectId) {
     return new IdSearchRequest(
         getGlobPattern(donorId),
         getGlobPattern(sampleId),
         getGlobPattern(specimenId),
-        getGlobPattern(fileId)
+        getGlobPattern(objectId)
     );
   }
 
@@ -56,8 +56,8 @@ public class IdSearchRequest {
   public String getSpecimenId(){
     return getGlobPattern(this.specimenId);
   }
-  public String getFileId(){
-    return getGlobPattern(this.fileId);
+  public String getObjectId(){
+    return getGlobPattern(this.objectId);
   }
 
   private static String getGlobPattern(String opt){

@@ -35,6 +35,12 @@ spring:
 # https://hibernate.atlassian.net/browse/HHH-12368
         temp.use_jdbc_metadata_defaults: false
 
+# Uncomment this to see the generated SQL stetements
+# logging.level.org.hibernate.SQL: DEBUG
+
+# Uncomment this to see the binding parameters for generated SQL statements
+# logging.level.org.hibernate.type.descriptor.sql: TRACE
+
 
 # Management
 management:

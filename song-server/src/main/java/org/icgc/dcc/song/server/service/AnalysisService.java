@@ -54,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
@@ -219,17 +218,14 @@ public class AnalysisService {
    *          an empty list is returned.
    */
   public List<AbstractAnalysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request){
-//    val analysisList = repository.idSearch(studyId,
-//        request.getDonorId(),
-//        request.getSpecimenId(),
-//        request.getSampleId(),
-//        request.getFileId() );
-//    if (analysisList.isEmpty()){
-//      studyService.checkStudyExist(studyId);
-//      return analysisList;
-//    }
-//    return processAnalysisList(analysisList);
-    return newArrayList();
+    val analysisList = searchRepository.idSearch(studyId,request).stream()
+        .map(AbstractAnalysis::getAnalysisId)
+        .map(this::read)
+        .collect(toImmutableList());
+    if (analysisList.isEmpty()){
+      studyService.checkStudyExist(studyId);
+    }
+    return analysisList;
   }
 
   public List<InfoSearchResponse> infoSearch(@NonNull String studyId,

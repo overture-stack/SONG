@@ -37,6 +37,7 @@ public class TableAttributeNames {
     public static final String MD5="md5";
     public static final String SIZE="size";
     public static final String NAME="name";
+    public static final String OBJECT_ID="object_id";
 
     public static final String SPECIMEN_ID="specimen_id";
 
@@ -51,6 +52,8 @@ public class TableAttributeNames {
     public static final String CLASS="class";
 
     public static final String ANALYSIS_ID="analysis_id";
+    public static final String ANALYSIS_TYPE="analysis_type";
+    public static final String ANALYSIS_STATE="analysis_state";
 
     public static final String ORGANIZATION="organization";
     public static final String DESCRIPTION="description";
