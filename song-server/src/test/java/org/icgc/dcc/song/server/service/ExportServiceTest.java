@@ -53,6 +53,7 @@ import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysis
 import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
 import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
+import static org.icgc.dcc.song.server.utils.TestFiles.DEFAULT_EMPTY_VALUE;
 import static org.icgc.dcc.song.server.utils.TestFiles.EMPTY_STRING;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertSetsMatch;
 
@@ -437,21 +438,21 @@ public class ExportServiceTest {
     }
 
     if (!includeOtherIds){
-      a.setStudy(EMPTY_STRING);
+      a.setStudy(DEFAULT_EMPTY_VALUE);
       a.getFile()
           .forEach(x -> {
-            x.setAnalysisId(EMPTY_STRING);
-            x.setObjectId(EMPTY_STRING);
-            x.setStudyId(EMPTY_STRING);
+            x.setAnalysisId(DEFAULT_EMPTY_VALUE);
+            x.setObjectId(DEFAULT_EMPTY_VALUE);
+            x.setStudyId(DEFAULT_EMPTY_VALUE);
           });
 
       a.getSample().forEach( x->{
-            x.setSampleId(EMPTY_STRING);
-            x.setSpecimenId(EMPTY_STRING);
-            x.getDonor().setDonorId(EMPTY_STRING);
-            x.getDonor().setStudyId(EMPTY_STRING);
-            x.getSpecimen().setDonorId(EMPTY_STRING);
-            x.getSpecimen().setSpecimenId(EMPTY_STRING);
+            x.setSampleId(DEFAULT_EMPTY_VALUE);
+            x.setSpecimenId(DEFAULT_EMPTY_VALUE);
+            x.getDonor().setDonorId(DEFAULT_EMPTY_VALUE);
+            x.getDonor().setStudyId(DEFAULT_EMPTY_VALUE);
+            x.getSpecimen().setDonorId(DEFAULT_EMPTY_VALUE);
+            x.getSpecimen().setSpecimenId(DEFAULT_EMPTY_VALUE);
           }
       );
 

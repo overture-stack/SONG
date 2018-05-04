@@ -50,19 +50,19 @@ public class Specimen extends Metadata {
   @Id
   @Column(name = TableAttributeNames.ID,
       updatable = false, unique = true, nullable = false)
-  private String specimenId = "";
+  private String specimenId;
 
   @Column(name = TableAttributeNames.DONOR_ID, nullable = false)
-  private String donorId = "";
+  private String donorId;
 
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
-  private String specimenSubmitterId = "";
+  private String specimenSubmitterId;
 
   @Column(name = TableAttributeNames.CLASS, nullable = false)
-  private String specimenClass = "";
+  private String specimenClass;
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
-  private String specimenType = "";
+  private String specimenType;
 
   public Specimen(String specimenId, String donorId, String specimenSubmitterId, String specimenClass,
       String specimenType) {

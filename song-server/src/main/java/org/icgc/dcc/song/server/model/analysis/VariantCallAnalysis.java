@@ -26,6 +26,9 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
+
+import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -39,7 +42,7 @@ public class VariantCallAnalysis extends AbstractAnalysis {
 
     @JsonGetter
     public String getAnalysisType() {
-        return "variantCall";
+        return VARIANT_CALL_TYPE;
     }
 
 }

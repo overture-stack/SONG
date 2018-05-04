@@ -50,28 +50,28 @@ public class File extends Metadata implements Serializable {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
-  private String objectId = "";
+  private String objectId;
 
   @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
-  private String studyId = "";
+  private String studyId;
 
   @Column(name = TableAttributeNames.ANALYSIS_ID, nullable = false)
-  private String analysisId = "";
+  private String analysisId;
 
   @Column(name = TableAttributeNames.NAME, nullable = false)
-  private String fileName = "";
+  private String fileName;
 
   @Column(name = TableAttributeNames.SIZE, nullable = false)
-  private Long fileSize = -1L;
+  private Long fileSize;
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
-  private String fileType = "";
+  private String fileType;
 
   @Column(name = TableAttributeNames.MD5, nullable = false)
-  private String fileMd5sum = "";
+  private String fileMd5sum;
 
   @Column(name = TableAttributeNames.ACCESS, nullable = false)
-  private String fileAccess = "";
+  private String fileAccess;
 
   public File(String objectId, String studyId, String analysisId, String fileName, Long fileSize,
       String fileType, String fileMd5sum, String fileAccess) {

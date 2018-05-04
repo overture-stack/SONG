@@ -47,16 +47,16 @@ public class Sample extends Metadata {
   @Id
   @Column(name = TableAttributeNames.ID,
       updatable = false, unique = true, nullable = false)
-  private String sampleId = "";
+  private String sampleId;
 
   @Column(name = TableAttributeNames.SPECIMEN_ID, nullable = false)
-  private String specimenId = "";
+  private String specimenId;
 
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
-  private String sampleSubmitterId = "";
+  private String sampleSubmitterId;
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
-  private String sampleType = "";
+  private String sampleType;
 
   public Sample(String sampleId, String specimenId, String sampleSubmitterId, String sampleType) {
     this.sampleId = sampleId;

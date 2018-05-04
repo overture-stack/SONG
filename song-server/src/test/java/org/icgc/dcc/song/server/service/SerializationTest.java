@@ -80,7 +80,7 @@ public class SerializationTest {
     val json = JsonUtils.toJson(donor);
 
     val expected =
-        "{'donorId':'','donorSubmitterId':'','studyId':'','donorGender':'',"
+        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null,"
             + "'info':{}}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
@@ -93,7 +93,7 @@ public class SerializationTest {
     val json = JsonUtils.toJson(donor);
     System.err.printf("json='%s'\n", json);
     val expected =
-        "{'donorId':null,'donorSubmitterId':'','studyId':'','donorGender':'',"
+        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null,"
             + "'info':{}}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);

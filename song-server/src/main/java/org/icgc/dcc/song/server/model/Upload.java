@@ -67,22 +67,22 @@ public class Upload {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
-  private String uploadId = "";
+  private String uploadId;
 
   @Column(name = TableAttributeNames.ANALYSIS_ID, nullable = false)
-  private String analysisId = "";
+  private String analysisId;
 
   @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
-  private String studyId = "";
+  private String studyId;
 
   @Column(name = TableAttributeNames.STATE, nullable = false)
-  private String state = "";
+  private String state;
 
   @Column(name = TableAttributeNames.ERRORS, nullable = false)
-  private String errors = "";
+  private String errors;
 
   @Column(name = TableAttributeNames.PAYLOAD, nullable = false)
-  private String payload = "";
+  private String payload;
 
   @CreationTimestamp
   @Column(name = TableAttributeNames.CREATED_AT, updatable= false, nullable = false)

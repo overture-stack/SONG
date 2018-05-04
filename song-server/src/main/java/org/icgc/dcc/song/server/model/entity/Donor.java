@@ -58,16 +58,16 @@ public class Donor extends Metadata {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
-  private String donorId = "";
+  private String donorId;
 
   @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
-  private String studyId = "";
+  private String studyId;
 
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
-  private String donorSubmitterId = "";
+  private String donorSubmitterId;
 
   @Column(name = TableAttributeNames.GENDER, nullable = true)
-  private String donorGender = "";
+  private String donorGender;
 
   //NOTE: Since the donorGender field is validated upon setting it, using Lomboks default Builder when
   //  the @AllArgsConstructor is used will by pass the validation since the Builder uses the All Arg Constructor.

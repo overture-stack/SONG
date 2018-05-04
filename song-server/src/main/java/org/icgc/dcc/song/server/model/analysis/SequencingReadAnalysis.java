@@ -27,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 
+import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -40,7 +42,7 @@ public class SequencingReadAnalysis extends AbstractAnalysis {
 
     @JsonGetter
     public String getAnalysisType() {
-        return "sequencingRead";
+        return SEQUENCING_READ_TYPE;
     }
 
 }

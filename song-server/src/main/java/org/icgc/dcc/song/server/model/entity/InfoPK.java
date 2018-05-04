@@ -13,11 +13,9 @@ import java.io.Serializable;
 @Embeddable
 public class InfoPK implements Serializable{
 
-//  @Id
   @Column(name = TableAttributeNames.ID, nullable = false)
   private String id;
 
-//  @Id
   @Column(name = TableAttributeNames.ID_TYPE, nullable = false)
   private String idType;
 
