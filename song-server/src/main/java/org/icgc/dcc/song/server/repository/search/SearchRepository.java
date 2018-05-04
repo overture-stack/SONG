@@ -36,7 +36,6 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Set;
 
-import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.utils.JsonUtils.readTree;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithInfo;
@@ -49,6 +48,7 @@ public class SearchRepository {
 
   private final EntityManager em;
 
+  @SuppressWarnings("unchecked")
   public List<InfoSearchResponse> infoSearch(boolean includeInfo, @NonNull Iterable<SearchTerm> searchTerms){
     val session = em.unwrap(Session.class);
     val searchQueryBuilder = createSearchQueryBuilder(includeInfo);

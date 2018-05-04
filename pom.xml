@@ -24,7 +24,7 @@
     <modules>
         <module>song-core</module>
         <module>song-server</module>
-        <!--<module>song-client</module>-->
+        <module>song-client</module>
         <!--<module>song-importer</module>-->
     </modules>
 
@@ -162,6 +162,16 @@
                 <version>${dcc-common.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.beust</groupId>
+                <artifactId>jcommander</artifactId>
+                <version>${jcommander.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>${jansi.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
@@ -279,6 +289,8 @@
         <hibernate-native-json.version>0.4</hibernate-native-json.version>
         <hibernate-validator.version>6.0.9.Final</hibernate-validator.version>
         <guava.version>24.1-jre</guava.version>
+        <jcommander.version>1.69</jcommander.version>
+        <jansi.version>1.16</jansi.version>
     </properties>
 
 </project>
