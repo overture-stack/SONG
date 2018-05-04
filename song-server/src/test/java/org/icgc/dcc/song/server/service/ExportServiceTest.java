@@ -54,7 +54,6 @@ import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
 import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.DEFAULT_EMPTY_VALUE;
-import static org.icgc.dcc.song.server.utils.TestFiles.EMPTY_STRING;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertSetsMatch;
 
 @Slf4j
@@ -434,7 +433,7 @@ public class ExportServiceTest {
 
   private static void massageAnalysisInplace(AbstractAnalysis a, boolean includeAnalysisId, boolean includeOtherIds){
     if (!includeAnalysisId){
-      a.setAnalysisId(EMPTY_STRING);
+      a.setAnalysisId(DEFAULT_EMPTY_VALUE);
     }
 
     if (!includeOtherIds){
@@ -459,10 +458,10 @@ public class ExportServiceTest {
       val analysisClass = resolveAnalysisClass(a);
       if (analysisClass == SequencingReadAnalysis.class){
         val sra = SequencingReadAnalysis.class.cast(a);
-        sra.getExperiment().setAnalysisId(EMPTY_STRING);
+        sra.getExperiment().setAnalysisId(DEFAULT_EMPTY_VALUE);
       } else if (analysisClass == VariantCallAnalysis.class){
         val vca = VariantCallAnalysis.class.cast(a);
-        vca.getExperiment().setAnalysisId(EMPTY_STRING);
+        vca.getExperiment().setAnalysisId(DEFAULT_EMPTY_VALUE);
       }
     }
   }

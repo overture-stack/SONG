@@ -34,7 +34,7 @@ public class DeserializationTest {
     val a1 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/variantcall-deserialize1.json"),
         AbstractAnalysis.class);
     val sa1 = ((VariantCallAnalysis) a1).getExperiment();
-    assertThat(sa1.getAnalysisId()).isEmpty();
+    assertThat(sa1.getAnalysisId()).isNull();
     assertThat(sa1.getMatchedNormalSampleSubmitterId()).isNull();
     assertThat(sa1.getVariantCallingTool()).isNull();
     assertThat(sa1.getInfo().path("random").isNull()).isTrue();
@@ -42,7 +42,7 @@ public class DeserializationTest {
     val a2 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/variantcall-deserialize2.json"),
         AbstractAnalysis.class);
     val sa2 = ((VariantCallAnalysis) a2).getExperiment();
-    assertThat(sa2.getAnalysisId()).isEmpty();
+    assertThat(sa2.getAnalysisId()).isNull();
     assertThat(sa2.getMatchedNormalSampleSubmitterId()).isNull();
     assertThat(sa2.getVariantCallingTool()).isNull();
 
@@ -53,7 +53,7 @@ public class DeserializationTest {
     val a1 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/sequencingread-deserialize1.json"),
         AbstractAnalysis.class);
     val sa1 = ((SequencingReadAnalysis) a1).getExperiment();
-    assertThat(sa1.getAnalysisId()).isEmpty();
+    assertThat(sa1.getAnalysisId()).isNull();
     assertThat(sa1.getAligned()).isNull();
     assertThat(sa1.getAlignmentTool()).isNull();
     assertThat(sa1.getInsertSize()).isNull();
@@ -65,7 +65,7 @@ public class DeserializationTest {
     val a2 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/sequencingread-deserialize2.json"),
         AbstractAnalysis.class);
     val sa2 = ((SequencingReadAnalysis) a2).getExperiment();
-    assertThat(sa2.getAnalysisId()).isEmpty();
+    assertThat(sa2.getAnalysisId()).isNull();
     assertThat(sa2.getAligned()).isNull();
     assertThat(sa2.getAlignmentTool()).isNull();
     assertThat(sa2.getInsertSize()).isNull();

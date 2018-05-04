@@ -58,7 +58,7 @@ public abstract class AbstractAnalysis extends Metadata {
 
     @Id
     @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
-    private String analysisId = "";
+    private String analysisId;
 
     @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
     private String study;

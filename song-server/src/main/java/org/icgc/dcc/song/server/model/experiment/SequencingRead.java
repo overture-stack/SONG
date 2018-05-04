@@ -60,7 +60,7 @@ public class SequencingRead extends Experiment {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
-  private String analysisId = "";
+  private String analysisId;
 
   @Column(name = TableAttributeNames.ALIGNED, nullable = true)
   private Boolean aligned;
