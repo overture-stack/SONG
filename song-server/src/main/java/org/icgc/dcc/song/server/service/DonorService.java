@@ -134,6 +134,7 @@ public class DonorService {
     return OK;
   }
 
+  @Transactional
   public String delete(@NonNull String studyId, @NonNull List<String> ids) {
     studyService.checkStudyExist(studyId);
     ids.forEach(x -> internalDelete(studyId, x));

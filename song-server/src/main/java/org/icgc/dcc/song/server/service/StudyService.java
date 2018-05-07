@@ -24,6 +24,7 @@ import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.repository.StudyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -58,6 +59,7 @@ public class StudyService {
     return studyRepository.existsById(studyId);
   }
 
+  @Transactional
   public String saveStudy(Study study) {
     val id = study.getStudyId();
     checkServer(!isStudyExist(id), getClass(), STUDY_ALREADY_EXISTS,

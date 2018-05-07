@@ -26,6 +26,7 @@ import org.icgc.dcc.song.server.repository.BusinessKeyRepository;
 import org.icgc.dcc.song.server.repository.SpecimenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,6 +130,7 @@ public class SpecimenService {
     return OK;
   }
 
+  @Transactional
   public String delete(@NonNull List<String> ids) {
     ids.forEach(this::delete);
     return OK;

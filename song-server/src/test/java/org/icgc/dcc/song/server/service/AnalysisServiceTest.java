@@ -149,7 +149,6 @@ public class AnalysisServiceTest {
   }
 
   @Test
-//  @Transactional
   public void testCreateAndUpdate() {
     val created = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId = created.getAnalysisId();
@@ -179,7 +178,6 @@ public class AnalysisServiceTest {
   @Test
   public void testIsAnalysisExist(){
     val analysis = payloadGenerator.generateDefaultRandomPayload(VariantCallAnalysis.class);
-//    analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val randomAnalysisId = randomGenerator.generateRandomUUID().toString();
     analysis.setAnalysisId(randomAnalysisId);
     assertThat(service.doesAnalysisIdExist(randomAnalysisId)).isFalse();
@@ -189,7 +187,6 @@ public class AnalysisServiceTest {
   }
 
   @Test
-//  @Transactional
   public void testCreateAndUpdateVariantCall() {
     val created = analysisGenerator.createRandomAnalysis(VariantCallAnalysis.class,
         "documents/variantcall-valid-1.json");
@@ -349,7 +346,6 @@ public class AnalysisServiceTest {
   }
 
   @Test
-//  @Transactional
   public void testReadSequencingRead(){
     val json = getJsonStringFromClasspath("documents/sequencingread-read-test.json");
     val analysisRaw = fromJson(json, SequencingReadAnalysis.class);
@@ -576,7 +572,6 @@ public class AnalysisServiceTest {
   }
 
   @Test
-//  @Transactional
   public void testGetAnalysisAndIdSearch(){
     val studyGenerator = createStudyGenerator(studyService, randomGenerator);
     val studyId = studyGenerator.createRandomStudy();
@@ -669,7 +664,6 @@ public class AnalysisServiceTest {
   }
 
   @Test
-//  @Transactional
   public void testAnalysisMissingFilesException(){
     val analysis1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId1 = analysis1.getAnalysisId();

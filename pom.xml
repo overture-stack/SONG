@@ -98,12 +98,6 @@
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
-            <!--RTISMA_HACK-->
-            <!--<dependency>-->
-                <!--<groupId>org.springframework.data</groupId>-->
-                <!--<artifactId>spring-data-commons</artifactId>-->
-                <!--<version>${spring-data-commons.version}</version>-->
-            <!--</dependency>-->
 
             <!--                      Hibernate                      -->
             <dependency>

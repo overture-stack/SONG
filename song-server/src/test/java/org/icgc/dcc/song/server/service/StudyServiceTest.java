@@ -38,7 +38,6 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-//RTISMA_HACK @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class StudyServiceTest {
 

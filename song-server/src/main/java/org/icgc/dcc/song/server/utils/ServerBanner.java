@@ -84,7 +84,7 @@ public class ServerBanner {
   private static void log(StandardEnvironment env) {
     log.info("{}:", env);
     for (val source : env.getPropertySources()) {
-      if (source instanceof SystemEnvironmentPropertySource){ //RTISMA_HACK || source instanceof RandomValuePropertySource) {
+      if (source instanceof SystemEnvironmentPropertySource){
         // Skip because this will cause issues with terminal display or is useless
         continue;
       }

@@ -79,9 +79,6 @@ auth:
     # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
     multiplier: 2.0
 
-# RTISMA_HACK
-# logging.level.root: debug
-
 ---
 spring.profiles: async-test
 validation.delayMs: 5000

@@ -27,8 +27,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,8 +36,6 @@ import java.util.List;
 
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,16 +48,6 @@ public class SampleController {
    */
   @Autowired
   private final SampleService sampleService;
-
-  @ApiOperation(value = "CreateSample", notes = "Creates a sample")
-  @PostMapping(value = "/samples", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId, @RequestBody Sample sample) {
-    return sampleService.create(studyId, sample);
-  }
 
   @ApiOperation(value = "ReadSample", notes = "Retrieves sample data for a sampleId")
   @GetMapping(value = "/samples/{id}")

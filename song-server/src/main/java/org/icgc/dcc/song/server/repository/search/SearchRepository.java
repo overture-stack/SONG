@@ -18,7 +18,6 @@
 package org.icgc.dcc.song.server.repository.search;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.Set;
 
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.utils.JsonUtils.readTree;
@@ -79,29 +77,6 @@ public class SearchRepository {
     for (val result : q.getResultList()){
       val idViewProjection = (IdViewProjection)result;
       analyses.add(convertToAnalysis(idViewProjection));
-    }
-    return analyses.build();
-  }
-
-  public Set<Analysis> idSearch_Good(String studyId, IdSearchRequest request){
-    val session = em.unwrap(Session.class);
-    val q = session.getNamedNativeQuery("idSearch3");
-    q.setParameter("studyId", studyId);
-    q.setParameter("donorId", request.getDonorId());
-    q.setParameter("specimenId", request.getSpecimenId());
-    q.setParameter("sampleId", request.getSampleId());
-    q.setParameter("objectId", request.getObjectId());
-
-    val analyses = ImmutableSet.<Analysis>builder();
-    for (val result : q.getResultList()){
-      val idView = (IdView)result;
-      analyses.add(
-          createAnalysis(
-              idView.getStudyId(),
-              idView.getAnalysisId(),
-              idView.getAnalysisState(),
-              idView.getAnalysisType())
-      );
     }
     return analyses.build();
   }

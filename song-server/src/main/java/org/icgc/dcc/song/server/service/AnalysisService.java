@@ -46,6 +46,7 @@ import org.icgc.dcc.song.server.repository.search.SearchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Collection;
@@ -267,6 +268,7 @@ public class AnalysisService {
     return files;
   }
 
+  @Transactional
   public ResponseEntity<String> publish(@NonNull String accessToken, @NonNull String id) {
     val files = readFiles(id);
     val missingFileIds = files.stream()
@@ -282,6 +284,7 @@ public class AnalysisService {
     return ok("AnalysisId %s successfully published", id);
   }
 
+  @Transactional
   public ResponseEntity<String> suppress(String id) {
     checkedUpdateState(id, SUPPRESSED);
     return ok("AnalysisId %s was suppressed",id);

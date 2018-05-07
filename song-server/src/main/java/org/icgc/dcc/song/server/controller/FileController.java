@@ -24,6 +24,7 @@ import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -71,6 +72,7 @@ public class FileController {
   @DeleteMapping(value = "/files/{ids}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  @Transactional
   public String delete(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
