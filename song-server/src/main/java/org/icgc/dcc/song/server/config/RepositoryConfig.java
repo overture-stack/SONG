@@ -11,7 +11,7 @@ import javax.persistence.PersistenceContext;
 public class RepositoryConfig {
 
   @PersistenceContext
-  EntityManager entityManager;
+  private EntityManager entityManager;
 
 
   @Bean
