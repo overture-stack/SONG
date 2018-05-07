@@ -1,7 +1,7 @@
 .. song documentation master file, created by
    sphinx-quickstart on Fri Nov  3 16:04:44 2017.
 
-The SONG Python REST SDK 3
+The SONG Python REST SDK
 ============================
 
 The SONG REST client is a simple python module that allows you to interact with a SONG server through Python, with a minimum of coding effort.
