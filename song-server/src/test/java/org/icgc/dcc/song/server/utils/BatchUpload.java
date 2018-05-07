@@ -152,12 +152,4 @@ public class BatchUpload {
     return createBatchUpload(studyId, payloads);
   }
 
-
-
-
-
-
-
-
-
 }

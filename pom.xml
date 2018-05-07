@@ -25,7 +25,6 @@
         <module>song-core</module>
         <module>song-server</module>
         <module>song-client</module>
-        <!--<module>song-importer</module>-->
     </modules>
 
     <parent>
