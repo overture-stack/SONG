@@ -30,7 +30,6 @@ import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecur
 @Profile("secure")
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-//RTISMA_HACK @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
   /**

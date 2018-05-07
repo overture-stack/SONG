@@ -18,12 +18,12 @@ package org.icgc.dcc.song.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 /**
  * Application entry point.
  */
-//RTISMA_HACK (exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
-@SpringBootApplication
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class ServerMain {
 
   public static void main(String... args) {
