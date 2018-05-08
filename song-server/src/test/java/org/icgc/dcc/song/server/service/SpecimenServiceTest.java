@@ -99,23 +99,29 @@ public class SpecimenServiceTest {
         val donorId = DEFAULT_DONOR_ID;
         val specimenClass  = randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS));
         val specimenType = randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE));
-        val randomSpecimen = Specimen.create(
-            null,
-            submitterId,
-            donorId,
-            specimenClass,
-            specimenType
-        );
+        val randomSpecimen = Specimen.builder()
+            .specimenId(null)
+            .donorId(donorId)
+            .specimenSubmitterId(submitterId)
+            .specimenClass(specimenClass)
+            .specimenType(specimenType )
+            .build();
         randomSpecimen.setInfo("name", "specimen1");
         val specimenId =  specimenService.create(DEFAULT_STUDY_ID, randomSpecimen);
-        val sampleInput1 = Sample.create(null,
-            randomGenerator.generateRandomUUIDAsString(),
-            specimenId,
-            randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)) );
-        val sampleInput2 = Sample.create(null,
-            randomGenerator.generateRandomUUIDAsString(),
-            specimenId,
-            randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)) );
+        val sampleInput1 = Sample.builder()
+            .sampleId(null)
+            .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .specimenId(specimenId)
+            .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)) )
+            .build();
+
+        val sampleInput2 = Sample.builder()
+            .sampleId(null)
+            .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .specimenId(specimenId)
+            .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)) )
+            .build();
+
         val sampleId1 = sampleService.create(studyId, sampleInput1);
         val sampleId2 = sampleService.create(studyId, sampleInput2);
 
@@ -146,8 +152,13 @@ public class SpecimenServiceTest {
     @Test
     public void testCreateAndDeleteSpecimen() {
         val donorId = "DO2";
-        Specimen s = Specimen.create("", "Specimen 101 Ipsilon Prime", donorId, "Tumour",
-                "Cell line - derived from tumour");
+        val s = Specimen.builder()
+            .specimenId("")
+            .specimenSubmitterId("Specimen 101 Ipsilon Prime")
+            .donorId(donorId)
+            .specimenClass("Tumour")
+            .specimenType("Cell line - derived from tumour")
+            .build();
         s.setInfo(JsonUtils.fromSingleQuoted("{'ageCategory': 42, 'status': 'deceased'}"));
 
         val status = specimenService.create(DEFAULT_STUDY_ID, s);
@@ -167,14 +178,26 @@ public class SpecimenServiceTest {
     @Test
     public void testUpdateSpecimen() {
         val donorId = "DO2";
-        val s = Specimen.create("", "Specimen 102 Chiron-Beta Prime", donorId, "Tumour",
-                "Metastatic tumour - additional metastatic");
+        val s = Specimen.builder()
+            .specimenId("")
+            .specimenSubmitterId("Specimen 102 Chiron-Beta Prime")
+            .donorId(donorId)
+            .specimenClass("Tumour")
+            .specimenType("Metastatic tumour - additional metastatic")
+            .build();
 
         specimenService.create(DEFAULT_STUDY_ID, s);
 
         val id = s.getSpecimenId();
 
-        val s2 = Specimen.create(id, "Specimen 102", s.getDonorId(), "Normal", "Normal - other");
+        val s2 = Specimen.builder()
+            .specimenId(id)
+            .specimenSubmitterId("Specimen 102")
+            .donorId(s.getDonorId())
+            .specimenClass("Normal")
+            .specimenType( "Normal - other")
+            .build();
+
         s2.setInfo(JsonUtils.fromSingleQuoted("{'notes': ['A sharp, B flat']}"));
         specimenService.update(s2);
 
@@ -246,8 +269,12 @@ public class SpecimenServiceTest {
     public void testReadAndDeleteByParentId(){
         // Create a donor, and then several specimens, and for each specimen 2 samples
         val studyId = DEFAULT_STUDY_ID;
-        val donor = Donor.create("", randomGenerator.generateRandomUUIDAsString(),
-            studyId, randomGenerator.randomElement(newArrayList(DONOR_GENDER)));
+        val donor = Donor.builder()
+            .donorId("")
+            .donorSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .studyId(studyId)
+            .donorGender(randomGenerator.randomElement(newArrayList(DONOR_GENDER)))
+            .build();
         val donorWithSpecimens = new DonorWithSpecimens();
         donorWithSpecimens.setDonor(donor);
         val donorId = donorService.create(donorWithSpecimens);
@@ -258,20 +285,24 @@ public class SpecimenServiceTest {
         val expectedSampleIdMap = Maps.<String, Set<String>>newHashMap();
         for(int i=0; i<numSpecimens; i++){
             // Create specimen
-            val specimen = Specimen.create("",
-                randomGenerator.generateRandomUUIDAsString(),
-                donorId,
-                randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)),
-                randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)));
+            val specimen = Specimen.builder()
+                .specimenId("")
+                .specimenSubmitterId(randomGenerator.generateRandomUUIDAsString())
+                .donorId(donorId)
+                .specimenClass( randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)))
+                .specimenType( randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)))
+                .build();
             val specimenId = specimenService.create(studyId,specimen);
             expectedSpecimenIds.add(specimenId);
 
             //Create samples
             for (int j=0; j<numSamplesPerSpecimen; j++){
-                val sample = Sample.create("",
-                    randomGenerator.generateRandomUUIDAsString(),
-                    specimenId,
-                    randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)));
+                val sample = Sample.builder()
+                    .sampleId("")
+                    .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+                    .specimenId(specimenId)
+                    .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)) )
+                    .build();
                 val sampleId = sampleService.create(studyId, sample);
 
                 // Store the expected sampleId
@@ -322,11 +353,13 @@ public class SpecimenServiceTest {
     @Test
     public void testUpdateSpecimenDNE(){
         val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
-        val specimen = Specimen.create(randomSpecimenId,
-            randomGenerator.generateRandomUUIDAsString(),
-            DEFAULT_DONOR_ID,
-            randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)),
-            randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)));
+        val specimen = Specimen.builder()
+            .specimenId(randomSpecimenId)
+            .specimenSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .donorId(DEFAULT_DONOR_ID)
+            .specimenClass( randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)))
+            .specimenType( randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)))
+            .build();
         assertSongError(() -> specimenService.update(specimen), SPECIMEN_DOES_NOT_EXIST);
     }
 

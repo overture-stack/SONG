@@ -28,11 +28,10 @@
 
     <dependencies>
 
-        <!-- Spring -->
+        <!-- Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-boot.version}</version>
         </dependency>
 
         <!-- Utilities -->
@@ -43,29 +42,24 @@
         <dependency>
             <groupId>org.icgc.dcc</groupId>
             <artifactId>dcc-common-core</artifactId>
-            <version>${dcc-common.version}</version>
         </dependency>
 
         <!-- JSON -->
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>${networknt.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
         <!-- Testing -->
@@ -76,7 +70,6 @@
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
-            <version>${java-uuid-generator.version}</version>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
@@ -87,12 +80,6 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-guava</artifactId>
         </dependency>
-
     </dependencies>
-
-    <properties>
-        <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
-    </properties>
-
 
 </project>

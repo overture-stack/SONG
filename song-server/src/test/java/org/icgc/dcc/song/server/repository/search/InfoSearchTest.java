@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.common.core.json.JsonNodeBuilders;
 import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.server.model.entity.Info;
 import org.icgc.dcc.song.server.repository.InfoRepository;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.icgc.dcc.song.server.service.UploadService;
@@ -32,9 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
@@ -47,6 +46,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
+import static org.icgc.dcc.song.server.model.entity.InfoPK.createInfoPK;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchRequest.createInfoSearchRequest;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithInfo;
 import static org.icgc.dcc.song.server.repository.search.InfoSearchResponse.createWithoutInfo;
@@ -58,8 +58,7 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspat
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles({"dev", "test"})
+@ActiveProfiles("dev")
 public class InfoSearchTest {
 
   private static final String STUDY = "ABC123";
@@ -140,7 +139,13 @@ public class InfoSearchTest {
     assertThat(upload.getState()).isEqualTo("VALIDATED");
     val resp = uploadService.save(study, uploadId, false);
     val analysisId = fromStatus(resp,"analysisId");
-    val info = infoRepository.readInfo(analysisId, "Analysis");
+
+    val infoPK = createInfoPK(analysisId, "Analysis");
+    val infoResult = infoRepository.findById(infoPK);
+    val info = infoResult.map(Info::getInfo)
+        .map(JsonUtils::toJsonNode)
+        .map(JsonUtils::toJson)
+        .orElse(null);
     return createWithInfo(analysisId, JsonUtils.readTree(info) );
   }
 

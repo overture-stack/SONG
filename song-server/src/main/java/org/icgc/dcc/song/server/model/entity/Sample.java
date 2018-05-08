@@ -18,34 +18,51 @@
 package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.enums.Constants;
+import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
+import org.icgc.dcc.song.server.model.enums.TableNames;
 
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = TableNames.SAMPLE)
 @Data
+@Builder
+@RequiredArgsConstructor
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public class Sample extends Metadata {
 
-  private String sampleId = "";
-  private String specimenId="";
-  private String sampleSubmitterId = "";
-  private String sampleType = "";
+  @Id
+  @Column(name = TableAttributeNames.ID,
+      updatable = false, unique = true, nullable = false)
+  private String sampleId;
 
-  public static Sample create(String id, @NonNull String submitter, String specimenId, String type) {
-    val sample = new Sample();
-    sample.setSampleId(id);
-    sample.setSpecimenId(specimenId);
-    sample.setSampleSubmitterId(submitter);
+  @Column(name = TableAttributeNames.SPECIMEN_ID, nullable = false)
+  private String specimenId;
 
-    sample.setSampleType(type);
+  @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
+  private String sampleSubmitterId;
 
-    return sample;
+  @Column(name = TableAttributeNames.TYPE, nullable = false)
+  private String sampleType;
+
+  public Sample(String sampleId, String specimenId, String sampleSubmitterId, String sampleType) {
+    this.sampleId = sampleId;
+    this.specimenId = specimenId;
+    this.sampleSubmitterId = sampleSubmitterId;
+    setSampleType(sampleType);
   }
 
   public void setSampleType(String type) {
@@ -53,5 +70,12 @@ public class Sample extends Metadata {
     sampleType = type;
   }
 
+  public void setWithSample(@NonNull Sample u){
+    setSampleId(u.getSampleId());
+    setSampleSubmitterId(u.getSampleSubmitterId());
+    setSampleType(u.getSampleType());
+    setSpecimenId(u.getSpecimenId());
+    setInfo(u.getInfo());
+  }
 
 }

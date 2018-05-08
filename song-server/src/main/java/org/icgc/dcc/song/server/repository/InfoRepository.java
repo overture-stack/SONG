@@ -16,25 +16,11 @@
  */
 package org.icgc.dcc.song.server.repository;
 
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.icgc.dcc.song.server.model.entity.Info;
+import org.icgc.dcc.song.server.model.entity.InfoPK;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface InfoRepository {
+public interface InfoRepository extends JpaRepository<Info, InfoPK>{
 
-  @SqlUpdate("INSERT INTO Info (id, id_type, info) VALUES(:id,:type,:info)")
-  int create(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String jsonInfo);
-
-  @SqlUpdate("UPDATE Info set info=:info where id=:id AND id_type=:type")
-  int set(@Bind("id") String id, @Bind("type") String id_type, @Bind("info") String jsonInfo);
-
-  @SqlQuery("SELECT info from Info where id_type=:type AND id=:id")
-  String readInfo(@Bind("id") String id, @Bind("type") String id_type);
-
-  @SqlQuery("SELECT id_type from Info where id_type=:type AND id=:id")
-  String readType(@Bind("id") String id, @Bind("type") String id_type);
-
-  @SqlUpdate("DELETE from Info where id=:id AND id_type=:type")
-  int delete(@Bind("id") String id, @Bind("type") String id_type);
 
 }

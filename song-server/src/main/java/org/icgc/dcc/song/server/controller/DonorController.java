@@ -21,15 +21,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.service.DonorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,8 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,18 +47,6 @@ public class DonorController {
    */
   @Autowired
   private final DonorService donorService;
-
-  @ApiOperation(value = "CreateDonor", notes = "Creates a donor")
-  @PostMapping(value = "/donors", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  @ResponseBody
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public String create(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId,
-      @RequestBody DonorWithSpecimens donor) {
-    return donorService.create(donor);
-
-  }
 
   @ApiOperation(value = "ReadDonor", notes = "Retrieves donor data for a donorId")
   @GetMapping(value = "/donors/{id}")

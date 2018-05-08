@@ -19,29 +19,30 @@ package org.icgc.dcc.song.server.model.analysis;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 
-@EqualsAndHashCode(callSuper=true)
-@ToString(callSuper = true)
+import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
+
 @Data
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper=true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SequencingReadAnalysis extends Analysis {
+public class SequencingReadAnalysis extends AbstractAnalysis {
+
     SequencingRead experiment;
+
     @JsonGetter
     public String getAnalysisType() {
-        return "sequencingRead";
-    }
-
-    public static SequencingReadAnalysis create(String id, String study, String state ) {
-        val s = new SequencingReadAnalysis();
-        s.setAnalysisId(id);
-        s.setStudy(study);
-        s.setAnalysisState(state);
-        return s;
+        return SEQUENCING_READ_TYPE;
     }
 
 }

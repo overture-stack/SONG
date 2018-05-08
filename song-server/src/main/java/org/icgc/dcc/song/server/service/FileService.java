@@ -25,11 +25,9 @@ import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static java.util.Objects.isNull;
+import java.util.Optional;
+
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_REPOSITORY_CREATE_RECORD;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_REPOSITORY_DELETE_RECORD;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_REPOSITORY_UPDATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
@@ -56,18 +54,13 @@ public class FileService {
     file.setStudyId(studyId);
     file.setAnalysisId(analysisId);
 
-    val status = repository.create(file);
-    checkServer(status == 1,
-        getClass(), FILE_REPOSITORY_CREATE_RECORD,
-    "Could not create File record for file with objectId '%s': %s",
-        file.getObjectId(), file);
+    repository.save(file);
     infoService.create(id, file.getInfoAsString());
-
     return id;
   }
 
   public boolean isFileExist(@NonNull String id){
-    return !isNull(repository.read(id));
+    return repository.existsById(id);
   }
 
   public void checkFileExists(String id){
@@ -79,37 +72,42 @@ public class FileService {
   }
 
   public File read(@NonNull String id) {
-    val f = repository.read(id);
-    fileNotFoundCheck(!isNull(f), id);
+    val result = repository.findById(id);
+    fileNotFoundCheck(result.isPresent(), id);
+    val f = result.get();
     f.setInfo(infoService.readNullableInfo(id));
     return f;
   }
 
-  public String update(@NonNull File f) {
-    checkFileExists(f);
-    val status = repository.update(f);
-    checkServer(status == 1, getClass(), FILE_REPOSITORY_UPDATE_RECORD,
-        "Cannot update objectId '%s' for file '%s'",
-    f.getObjectId(), f);
-    infoService.update(f.getObjectId(), f.getInfoAsString());
+  public String update(@NonNull File fileUpdate) {
+    checkFileExists(fileUpdate.getObjectId());
+    repository.save(fileUpdate);
+    infoService.update(fileUpdate.getObjectId(), fileUpdate.getInfoAsString());
     return OK;
   }
 
   public String delete(@NonNull String id) {
     checkFileExists(id);
-    val status = repository.delete(id);
-    checkServer(status == 1, getClass(), FILE_REPOSITORY_DELETE_RECORD,
-        "Cannot delete file with objectId '%s'", id);
+    repository.deleteById(id);
     infoService.delete(id);
     return OK;
   }
 
+  public Optional<String> findByBusinessKey(@NonNull String analysisId, @NonNull String fileName){
+    return repository.findAllByAnalysisIdAndFileName(analysisId, fileName)
+        .stream()
+        .map(File::getObjectId)
+        .findFirst();
+  }
+
   public String save(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
     studyService.checkStudyExist(studyId);
-    String fileId = repository.findByBusinessKey(analysisId, file.getFileName());
-    if (isNull(fileId)) {
+    val result = findByBusinessKey(analysisId, file.getFileName());
+    String fileId;
+    if (!result.isPresent()) {
       fileId = create(analysisId, studyId, file);
     } else {
+      fileId = result.get();
       file.setObjectId(fileId);
       update(file);
     }

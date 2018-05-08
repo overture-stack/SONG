@@ -25,9 +25,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
@@ -40,7 +38,6 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class StudyServiceTest {
 
@@ -67,7 +64,12 @@ public class StudyServiceTest {
     val organization = randomGenerator.generateRandomUUID().toString();
     val name  = randomGenerator.generateRandomAsciiString(10);
     val description = randomGenerator.generateRandomUUID().toString();
-    val study = Study.create(studyId, name, organization, description);
+    val study = Study.builder()
+        .studyId(studyId)
+        .name(name)
+        .description(description)
+        .organization(organization)
+        .build();
     assertThat(service.isStudyExist(studyId)).isFalse();
     service.saveStudy(study);
     val readStudy = service.read(studyId);
@@ -78,12 +80,12 @@ public class StudyServiceTest {
   public void testFindAllStudies(){
     val studyIds = service.findAllStudies();
     assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
-    val study = Study.create(
-        randomGenerator.generateRandomUUIDAsString(),
-        randomGenerator.generateRandomUUIDAsString(),
-        randomGenerator.generateRandomUUIDAsString(),
-        randomGenerator.generateRandomUUIDAsString()
-    );
+    val study = Study.builder()
+        .studyId(randomGenerator.generateRandomUUIDAsString())
+        .name( randomGenerator.generateRandomUUIDAsString())
+        .organization(randomGenerator.generateRandomUUIDAsString())
+        .description(randomGenerator.generateRandomUUIDAsString())
+        .build();
 
     service.saveStudy(study);
     val studyIds2 = service.findAllStudies();

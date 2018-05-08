@@ -38,6 +38,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Files;
 
@@ -60,6 +61,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
 @ActiveProfiles({"dev", "secure", "async-test"})
+@Transactional
 public class UploadServiceTest {
 
   private static final String FILEPATH = "../src/test/resources/fixtures/";
@@ -103,7 +105,7 @@ public class UploadServiceTest {
     assertThat(sa1.getLibraryStrategy()).isEqualTo("WXS");
     assertThat(sa1.getPairedEnd()).isNull();
     assertThat(sa1.getReferenceGenome()).isNull();
-    assertThat(sa1.getInfo().path("random").isNull()).isTrue();
+    assertThat(sa1.getInfo().get("random")).isNull();
 
     val filename2 = "documents/deserialization/sequencingread-deserialize2.json";
     val uploadId2 = uploadFromTestDir(DEFAULT_STUDY, filename2, false);

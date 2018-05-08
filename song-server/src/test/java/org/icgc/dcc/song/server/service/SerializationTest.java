@@ -19,7 +19,7 @@ package org.icgc.dcc.song.server.service;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
@@ -80,7 +80,7 @@ public class SerializationTest {
     val json = JsonUtils.toJson(donor);
 
     val expected =
-        "{'donorId':'','donorSubmitterId':'','studyId':'','donorGender':'',"
+        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null,"
             + "'info':{}}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
@@ -93,7 +93,7 @@ public class SerializationTest {
     val json = JsonUtils.toJson(donor);
     System.err.printf("json='%s'\n", json);
     val expected =
-        "{'donorId':null,'donorSubmitterId':'','studyId':'','donorGender':'',"
+        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null,"
             + "'info':{}}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertThat(json).isEqualTo(expectedJson);
@@ -107,7 +107,12 @@ public class SerializationTest {
     val gender = "male";
     val metadata = "";
 
-    val donor = Donor.create(id, submitterId, studyId, gender);
+    val donor = Donor.builder()
+        .donorId(id)
+        .donorSubmitterId(submitterId)
+        .studyId(studyId)
+        .donorGender(gender)
+        .build();
     donor.setInfo(metadata);
 
     val json = JsonUtils.toJson(donor);
@@ -129,7 +134,12 @@ public class SerializationTest {
 
     boolean failed = false;
     try {
-      Donor.create(id, submitterId, studyId, gender);
+      val donor = Donor.builder()
+          .donorId(id)
+          .donorSubmitterId(submitterId)
+          .studyId(studyId)
+          .donorGender(gender)
+          .build();
     } catch (IllegalArgumentException e) {
       failed = true;
     }
@@ -150,8 +160,15 @@ public class SerializationTest {
     //val metadata = JsonUtils.fromSingleQuoted("'sequencingTool': 'NanoporeSeq123'");
     val metadata = "";
 
-    val sequencingRead = SequencingRead.create(id, aligned, alignmentTool, insertSize,
-            libraryStrategy, pairedEnd, genome);
+    val sequencingRead = SequencingRead.builder()
+        .analysisId(id)
+        .aligned(aligned)
+        .alignmentTool(alignmentTool)
+        .insertSize(insertSize)
+        .libraryStrategy(libraryStrategy)
+        .pairedEnd(pairedEnd)
+        .referenceGenome(genome)
+        .build();
     val json = JsonUtils.toJson(sequencingRead);
 
     val expected = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
@@ -173,8 +190,15 @@ public class SerializationTest {
 
     val metadata = "";
 
-    val sequencingRead1 = SequencingRead.create(id, aligned, alignmentTool, insertSize,
-            libraryStrategy, pairedEnd, genome);
+    val sequencingRead1 = SequencingRead.builder()
+        .analysisId(id)
+        .aligned(aligned)
+        .alignmentTool(alignmentTool)
+        .insertSize(insertSize)
+        .libraryStrategy(libraryStrategy)
+        .pairedEnd(pairedEnd)
+        .referenceGenome(genome)
+        .build();
 
     val singleQuotedJson = String.format("{'analysisId':'%s','aligned':%s,'alignmentTool':'%s'," +
                     "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s, 'referenceGenome': '%s', 'info':{%s}}", id, aligned, alignmentTool,
@@ -212,7 +236,7 @@ public class SerializationTest {
   @Test
   public void testSequencingReadAnalysisFromJson() throws IOException {
     val json = readFile(FILEPATH + "sequencingRead.json");
-    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
 
     System.out.printf("*** Analysis object='%s'\n",analysis);
     assertThat(analysis.getAnalysisType()).isEqualTo("sequencingRead");
@@ -230,7 +254,7 @@ public class SerializationTest {
   @Test
   public void testVariantCallAnalysisFromJson() throws IOException {
     val json =readFile(FILEPATH + "variantCall.json");
-    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
     System.out.printf("*** Analysis object='%s'\n",analysis);
     assertThat(analysis.getAnalysisType()).isEqualTo("variantCall");
 

@@ -19,35 +19,90 @@ package org.icgc.dcc.song.server.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.google.common.base.Joiner;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.icgc.dcc.song.server.model.enums.ModelAttributeNames;
+import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
+import org.icgc.dcc.song.server.model.enums.TableNames;
 import org.icgc.dcc.song.server.model.enums.UploadStates;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 
-@JsonInclude(JsonInclude.Include.ALWAYS)
-@JsonPropertyOrder({ "analysisId", "uploadId", "studyId", "state", "createdAt", "updatedAt", "errors", "payload"
-})
-
+@Entity
+@Table(name = TableNames.UPLOAD)
 @Data
+@Builder
+@RequiredArgsConstructor
+@JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonPropertyOrder({
+    ModelAttributeNames.ANALYSIS_ID,
+    ModelAttributeNames.UPLOAD_ID,
+    ModelAttributeNames.STUDY_ID,
+    ModelAttributeNames.STATE,
+    ModelAttributeNames.CREATED_AT,
+    ModelAttributeNames.UPDATED_AT,
+    ModelAttributeNames.ERRORS,
+    ModelAttributeNames.PAYLOAD
+})
 public class Upload {
 
-  private String uploadId = "";
-  private String studyId = "";
-  private String state = "";
-  private String analysisId = "";
-  private List<String> errors = new ArrayList<>();
-  private String payload = "";
+  private static final String INPUT_ERROR_DELIM = "\\|";
+  private static final String OUTPUT_ERROR_DELIM = "|";
+
+  @Id
+  @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
+  private String uploadId;
+
+  @Column(name = TableAttributeNames.ANALYSIS_ID, nullable = false)
+  private String analysisId;
+
+  @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
+  private String studyId;
+
+  @Column(name = TableAttributeNames.STATE, nullable = false)
+  private String state;
+
+  @Column(name = TableAttributeNames.ERRORS, nullable = false)
+  private String errors;
+
+  @Column(name = TableAttributeNames.PAYLOAD, nullable = false)
+  private String payload;
+
+  @CreationTimestamp
+  @Column(name = TableAttributeNames.CREATED_AT, updatable= false, nullable = false)
   private LocalDateTime createdAt;
+
+  @UpdateTimestamp
+  @Column(name = TableAttributeNames.UPDATED_AT, nullable = false)
   private LocalDateTime updatedAt;
+
+  public Upload(String uploadId, String analysisId, String studyId, String state, String errors, String payload,
+      LocalDateTime createdAt, LocalDateTime updatedAt) {
+    this.uploadId = uploadId;
+    this.analysisId = analysisId;
+    this.studyId = studyId;
+    setState(state);
+    this.errors = errors;
+    this.payload = payload;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+  }
 
   public void setState(@NonNull UploadStates state){
     this.state = state.getText();
@@ -57,37 +112,30 @@ public class Upload {
     setState(resolveState(state));
   }
 
-  public static Upload create(String id, String study, String analysisId, UploadStates state, String errors,
-      String payload, LocalDateTime created, LocalDateTime updated) {
-    val u = new Upload();
-
-    u.setUploadId(id);
-    u.setStudyId(study);
-    u.setAnalysisId(analysisId);
-    u.setState(state);
-    u.setErrors(errors);
-    u.setPayload(payload);
-    u.setCreatedAt(created);
-    u.setUpdatedAt(updated);
-    return u;
-  }
-
   @JsonRawValue
   public String getPayload() {
     return payload;
   }
 
   public void setErrors(String errorString) {
+    this.errors = errorString;
     if (isNull(errorString)) {
-      errorString = "";
+      this.errors = "";
     }
+  }
 
-    this.errors.clear();
-    this.errors.addAll(asList(errorString.split("\\|")));
+  public List<String> getErrors(){
+    if(isNull(errors)){
+      return newArrayList();
+    } else {
+      return newArrayList(errors.split(INPUT_ERROR_DELIM));
+    }
   }
 
   public void addErrors(Collection<String> errors) {
-    this.errors.addAll(errors);
+    val e = getErrors();
+    e.addAll(errors);
+    this.errors = Joiner.on(OUTPUT_ERROR_DELIM).join(e);
   }
 
 }

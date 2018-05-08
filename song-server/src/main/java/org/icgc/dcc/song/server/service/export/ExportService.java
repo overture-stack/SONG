@@ -6,7 +6,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.core.model.ExportedPayload;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.service.AnalysisService;
@@ -52,13 +52,13 @@ public class ExportService {
     return ImmutableList.of(createExportedPayload(studyId, payloads));
   }
 
-  private Map<String, List<Analysis>> aggregateByStudy(List<String> analysisIds){
+  private Map<String, List<AbstractAnalysis>> aggregateByStudy(List<String> analysisIds){
     return analysisIds.stream()
         .map(x -> analysisService.read(x))
-        .collect(groupingBy(Analysis::getStudy));
+        .collect(groupingBy(AbstractAnalysis::getStudy));
   }
 
-  private static ExportedPayload buildExportedPayload(String studyId, List<Analysis> analyses,
+  private static ExportedPayload buildExportedPayload(String studyId, List<AbstractAnalysis> analyses,
       boolean includeAnalysisId){
     val payloads = analyses.stream()
         .map(x -> convertToPayload(x, includeAnalysisId))
@@ -67,7 +67,7 @@ public class ExportService {
   }
 
   @SneakyThrows
-  private static JsonNode convertToPayload(@NonNull Analysis a, boolean includeAnalysisId) {
+  private static JsonNode convertToPayload(@NonNull AbstractAnalysis a, boolean includeAnalysisId) {
     JsonNode output;
     val analysisType = resolveAnalysisType(a.getAnalysisType());
     if (analysisType == SEQUENCING_READ) {

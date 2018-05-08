@@ -24,12 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.Upload;
-import org.icgc.dcc.song.server.model.analysis.Analysis;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.repository.UploadRepository;
-import org.skife.jdbi.v2.exceptions.UnableToExecuteStatementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,11 +37,11 @@ import java.util.List;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_REPOSITORY_CREATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromSingleQuoted;
@@ -71,21 +71,38 @@ public class UploadService {
   private final StudyService studyService;
 
   public Upload read(@NonNull String uploadId) {
-    val upload = uploadRepository.get(uploadId);
-    checkServer(!isNull(upload), this.getClass(), UPLOAD_ID_NOT_FOUND,
+    val uploadResult = uploadRepository.findById(uploadId);
+    checkServer(uploadResult.isPresent(), this.getClass(), UPLOAD_ID_NOT_FOUND,
           "The uploadId '%s' was not found", uploadId);
-    return upload;
+    return uploadResult.get();
   }
 
   private void create(@NonNull String studyId, String analysisId, @NonNull String uploadId,
                       @NonNull String jsonPayload) {
-    uploadRepository.create(uploadId, studyId, analysisId, CREATED.getText(), jsonPayload);
+    val upload = Upload.builder()
+        .uploadId(uploadId)
+        .analysisId(analysisId)
+        .studyId(studyId)
+        .state(CREATED.getText())
+        .payload(jsonPayload)
+        .build();
+    uploadRepository.save(upload);
   }
 
   private void update(@NonNull String uploadId, @NonNull String jsonPayload) {
-    uploadRepository.update_payload(uploadId, UPDATED.getText(), jsonPayload);
+    val upload = read(uploadId);
+    upload.setState(UPDATED);
+    upload.setPayload(jsonPayload);
+    uploadRepository.save(upload);
   }
 
+  private  List<String> findByBusinessKey(@NonNull String studyId, @NonNull String analysisId){
+    return uploadRepository.findAllByStudyIdAndAnalysisId(studyId, analysisId).stream()
+        .map(Upload::getUploadId)
+        .collect(toImmutableList());
+  }
+
+  @Transactional
   @SneakyThrows
   public ResponseEntity<String> upload(@NonNull String studyId, @NonNull String payload, boolean isAsyncValidation) {
     studyService.checkStudyExist(studyId);
@@ -103,7 +120,7 @@ public class UploadService {
         // even if the rest of the content is duplicated.
         ids = Collections.emptyList();
       } else {
-        ids = uploadRepository.findByBusinessKey(studyId, analysisId);
+        ids = findByBusinessKey(studyId, analysisId);
       }
 
       if (isNull(ids) || ids.isEmpty()) {
@@ -111,7 +128,7 @@ public class UploadService {
         create(studyId, analysisId, uploadId, payload);
       } else if (ids.size() == 1) {
         uploadId = ids.get(0);
-        val previousUpload = uploadRepository.get(uploadId);
+        val previousUpload = uploadRepository.findById(uploadId).get();
         status.put("status",
                 format("WARNING: replaced content for analysisId '%s'",
                         analysisId));
@@ -124,10 +141,6 @@ public class UploadService {
                 analysisId, studyId);
       }
       analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
-    } catch (UnableToExecuteStatementException jdbie) {
-      log.error(jdbie.getCause().getMessage());
-      throw buildServerException( getClass(), UPLOAD_REPOSITORY_CREATE_RECORD,
-          "Unable to create record in upload repository");
     } catch (JsonProcessingException jpe){
       log.error(jpe.getCause().getMessage());
       throw buildServerException(getClass(), PAYLOAD_PARSING,
@@ -144,6 +157,7 @@ public class UploadService {
   }
 
 
+  @Transactional
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId,
       final boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);
@@ -157,7 +171,7 @@ public class UploadService {
         "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
         uploadId, uploadState.getText(), VALIDATED.getText());
     val json = upload.getPayload();
-    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
     val analysisId = analysisService.create(studyId, analysis, ignoreAnalysisIdCollisions);
     checkServer(!isNull(analysisId),this.getClass(), ANALYSIS_ID_NOT_CREATED,
         "Could not create analysisId for upload id '%s",uploadId);
@@ -167,7 +181,9 @@ public class UploadService {
   }
 
   private void updateAsSaved(@NonNull String uploadId) {
-    uploadRepository.update(uploadId, SAVED.getText(), "");
+    val upload = read(uploadId);
+    upload.setState(SAVED);
+    uploadRepository.save(upload);
   }
 
 }

@@ -19,30 +19,30 @@ package org.icgc.dcc.song.server.model.analysis;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
-@EqualsAndHashCode(callSuper=true)
-@ToString(callSuper = true)
+
+import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
+
 @Data
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper=true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class VariantCallAnalysis extends Analysis {
+public class VariantCallAnalysis extends AbstractAnalysis {
+
     VariantCall experiment;
 
     @JsonGetter
     public String getAnalysisType() {
-        return "variantCall";
+        return VARIANT_CALL_TYPE;
     }
 
-    public static VariantCallAnalysis create(String id, String study, String state ) {
-        val s = new VariantCallAnalysis();
-
-        s.setAnalysisId(id);
-        s.setStudy(study);
-        s.setAnalysisState(state);
-
-        return s;
-    }
 }

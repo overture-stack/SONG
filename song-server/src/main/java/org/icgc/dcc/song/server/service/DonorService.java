@@ -24,23 +24,23 @@ import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.repository.DonorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXISTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_RECORD_FAILED;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_REPOSITORY_DELETE_RECORD;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_REPOSITORY_UPDATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class DonorService {
 
   @Autowired
@@ -74,18 +74,17 @@ public class DonorService {
      * Cannot pass DonorWithSpecimen object to donorReposityr.create() method
      */
     val donor = donorWithSpecimens.createDonor();
-    val status = donorRepository.create(donor);
-    checkServer(status == 1, this.getClass(),
-        DONOR_RECORD_FAILED, "Cannot create Donor: %s", donorWithSpecimens.toString());
+    donorRepository.save(donor);
     infoService.create(id, donor.getInfoAsString());
     donorWithSpecimens.getSpecimens().forEach(s -> specimenService.create(donorWithSpecimens.getStudyId(), s));
     return id;
   }
 
   public Donor read(@NonNull String id) {
-    val donor = donorRepository.read(id);
-    checkServer(!isNull(donor), getClass(), DONOR_DOES_NOT_EXIST,
+    val donorResult = donorRepository.findById(id);
+    checkServer(donorResult.isPresent(), getClass(), DONOR_DOES_NOT_EXIST,
       "The donor for donorId '%s' could not be read because it does not exist", id);
+    val donor = donorResult.get();
     donor.setInfo(infoService.readNullableInfo(id));
     return donor;
   }
@@ -101,14 +100,15 @@ public class DonorService {
   public List<DonorWithSpecimens> readByParentId(@NonNull String parentId) {
     studyService.checkStudyExist(parentId);
     val donors = new ArrayList<DonorWithSpecimens>();
-    val ids = donorRepository.findByParentId(parentId);
+    val ids = donorRepository.findAllByStudyId(parentId).stream()
+        .map(Donor::getDonorId)
+        .collect(toImmutableList());
     ids.forEach(id -> donors.add(readWithSpecimens(id)));
-
     return donors;
   }
 
   public boolean isDonorExist(@NonNull String id){
-    return !isNull(donorRepository.read(id));
+    return donorRepository.existsById(id);
   }
 
   public void checkDonorExists(@NonNull Donor donor){
@@ -125,15 +125,16 @@ public class DonorService {
         "The donor with donorId '%s' already exists", id);
   }
 
-  public String update(@NonNull Donor donor) {
-    checkDonorExists(donor);
-    val status = donorRepository.update(donor);
-    checkServer(status == 1, getClass(), DONOR_REPOSITORY_UPDATE_RECORD,
-        "Cannot update donorId '%s' for donor '%s'", donor.getDonorId(), donor);
+  public String update(@NonNull Donor donorUpdate) {
+    val donor = read(donorUpdate.getDonorId());
+
+    donor.setWithDonor(donorUpdate);
+    donorRepository.save(donor);
     infoService.update(donor.getDonorId(), donor.getInfoAsString());
     return OK;
   }
 
+  @Transactional
   public String delete(@NonNull String studyId, @NonNull List<String> ids) {
     studyService.checkStudyExist(studyId);
     ids.forEach(x -> internalDelete(studyId, x));
@@ -148,9 +149,7 @@ public class DonorService {
   private String internalDelete(String studyId, String id){
     checkDonorExists(id);
     specimenService.deleteByParentId(id);
-    val status = donorRepository.delete(studyId, id);
-    checkServer(status == 1, getClass(), DONOR_REPOSITORY_DELETE_RECORD,
-        "Cannot delete donor with donorId '%s'", id);
+    donorRepository.deleteById(id);
     infoService.delete(id);
     return OK;
   }
@@ -158,21 +157,32 @@ public class DonorService {
   // TODO: [SONG-254] DeleteByParentId spec missing -- https://github.com/overture-stack/SONG/issues/254
   public String deleteByParentId(@NonNull String studyId) {
     studyService.checkStudyExist(studyId);
-    donorRepository.findByParentId(studyId).forEach(id -> internalDelete(studyId, id));
+    donorRepository.findAllByStudyId(studyId).stream()
+        .map(Donor::getDonorId)
+        .forEach(id -> internalDelete(studyId, id));
     return OK;
+  }
+
+  public Optional<String> findByBusinessKey(@NonNull String studyId, @NonNull String donorSubmitterId){
+    return donorRepository.findAllByStudyIdAndDonorSubmitterId(studyId, donorSubmitterId)
+        .stream()
+        .map(Donor::getDonorId)
+        .findFirst();
   }
 
   public String save(@NonNull String studyId, @NonNull Donor donor) {
     donor.setStudyId(studyId);
 
-    String donorId = donorRepository.findByBusinessKey(studyId, donor.getDonorSubmitterId());
+    val donorIdResult = findByBusinessKey(studyId, donor.getDonorSubmitterId());
     val donorWithSpecimens = new DonorWithSpecimens();
     donorWithSpecimens.setDonor(donor);
-    donorWithSpecimens.setDonorId(donorId);
-    if (isNull(donorId)) {
+    String donorId;
+    if (!donorIdResult.isPresent()) {
       donorId = create(donorWithSpecimens);
     } else {
+      donorId = donorIdResult.get();
       val updateDonor = donorWithSpecimens.createDonor();
+      updateDonor.setDonorId(donorId);
       update(updateDonor);
     }
     return donorId;

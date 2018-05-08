@@ -17,14 +17,13 @@
 package org.icgc.dcc.song.server;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.autoconfigure.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 /**
  * Application entry point.
  */
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class ServerMain {
 
   public static void main(String... args) {

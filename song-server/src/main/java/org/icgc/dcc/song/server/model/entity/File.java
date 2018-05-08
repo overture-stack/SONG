@@ -18,46 +18,71 @@
 package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.enums.Constants;
+import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
+import org.icgc.dcc.song.server.model.enums.TableNames;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
 
+@Entity
+@Table(name = TableNames.FILE)
+@Data
+@Builder
+@RequiredArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
-@ToString(callSuper = true)
-@Data
 public class File extends Metadata implements Serializable {
 
-  private String objectId = "";
-  private String analysisId = "";
-  private String fileName = "";
-  private String studyId = "";
-  private Long fileSize = -1L;
-  private String fileType = "";
-  private String fileMd5sum = "";
-  private String fileAccess= "";
+  @Id
+  @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
+  private String objectId;
 
-  public static File create(String id, String analysisId, String name, String study, Long size,
-                            String type, String md5, AccessTypes access) {
-    val f = new File();
-    f.setObjectId(id);
-    f.setAnalysisId(analysisId);
-    f.setFileName(name);
-    f.setStudyId(study);
-    f.setFileSize(size);
-    f.setFileType(type);
-    f.setFileMd5sum(md5);
-    f.setFileAccess(access);
-    return f;
+  @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
+  private String studyId;
+
+  @Column(name = TableAttributeNames.ANALYSIS_ID, nullable = false)
+  private String analysisId;
+
+  @Column(name = TableAttributeNames.NAME, nullable = false)
+  private String fileName;
+
+  @Column(name = TableAttributeNames.SIZE, nullable = false)
+  private Long fileSize;
+
+  @Column(name = TableAttributeNames.TYPE, nullable = false)
+  private String fileType;
+
+  @Column(name = TableAttributeNames.MD5, nullable = false)
+  private String fileMd5sum;
+
+  @Column(name = TableAttributeNames.ACCESS, nullable = false)
+  private String fileAccess;
+
+  public File(String objectId, String studyId, String analysisId, String fileName, Long fileSize,
+      String fileType, String fileMd5sum, String fileAccess) {
+    this.objectId = objectId;
+    this.studyId = studyId;
+    this.analysisId = analysisId;
+    this.fileName = fileName;
+    this.fileSize = fileSize;
+    setFileType(fileType);
+    this.fileMd5sum = fileMd5sum;
+    setFileAccess(fileAccess);
   }
 
   public void setFileType(String type) {
@@ -71,6 +96,18 @@ public class File extends Metadata implements Serializable {
 
   public void setFileAccess(@NonNull String access){
     setFileAccess(resolveAccessType(access));
+  }
+
+  public void setWithFile(@NonNull File u){
+    setAnalysisId(u.getAnalysisId());
+    setFileAccess(u.getFileAccess());
+    setFileMd5sum(u.getFileMd5sum());
+    setFileName(u.getFileName());
+    setFileSize(u.getFileSize());
+    setFileType(u.getFileType());
+    setObjectId(u.getObjectId());
+    setStudyId(u.getStudyId());
+    setInfo(u.getInfo());
   }
 
 }

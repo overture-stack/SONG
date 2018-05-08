@@ -15,6 +15,10 @@
  * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+------------------------------------------------------------------------
+---                    Drop and Create Types
+------------------------------------------------------------------------
 DROP TYPE IF EXISTS gender CASCADE;
 CREATE TYPE gender as ENUM('male','female','unspecified');
 DROP TYPE IF EXISTS specimen_class CASCADE;
@@ -58,46 +62,164 @@ CREATE TYPE analysis_type as ENUM('sequencingRead','variantCall','MAF');
 DROP TYPE IF EXISTS access_type CASCADE;
 CREATE TYPE access_type as ENUM('controlled','open');
 
+DROP TYPE IF EXISTS id_type CASCADE;
+CREATE TYPE id_type as ENUM('Study','Donor','Specimen','Sample','File','Analysis','SequencingRead','VariantCall');
+
+------------------------------------------------------------------------
+---                    Drop and Create Tables
+------------------------------------------------------------------------
 DROP TABLE IF EXISTS Study CASCADE;
-CREATE TABLE Study(id VARCHAR(36) PRIMARY KEY, name TEXT, description TEXT, organization TEXT);
+CREATE TABLE Study (
+  id            VARCHAR(36) PRIMARY KEY,
+  name          TEXT,
+  description   TEXT,
+  organization  TEXT
+);
 
 DROP TABLE IF EXISTS Donor CASCADE;
-CREATE TABLE Donor(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study, submitter_id TEXT,
-    gender GENDER);
+CREATE TABLE Donor (
+  id            VARCHAR(36) PRIMARY KEY,
+  study_id      VARCHAR(36) references Study,
+  submitter_id  TEXT,
+  gender        GENDER
+);
 
 DROP TABLE IF EXISTS Specimen CASCADE;
-CREATE TABLE Specimen(id VARCHAR(36) PRIMARY KEY, donor_id VARCHAR(36) references Donor, submitter_id TEXT,
-    class SPECIMEN_CLASS, type SPECIMEN_TYPE);
+CREATE TABLE Specimen (
+  id            VARCHAR(36) PRIMARY KEY,
+  donor_id      VARCHAR(36) references Donor,
+  submitter_id  TEXT,
+  class         SPECIMEN_CLASS,
+  type          SPECIMEN_TYPE
+);
+
 DROP TABLE IF EXISTS Sample CASCADE;
-CREATE TABLE Sample(id VARCHAR(36) PRIMARY KEY, specimen_id VARCHAR(36) references Specimen, submitter_id TEXT,
-    type SAMPLE_TYPE);
+CREATE TABLE Sample (
+  id            VARCHAR(36) PRIMARY KEY,
+  specimen_id   VARCHAR(36) references Specimen,
+  submitter_id  TEXT,
+  type          SAMPLE_TYPE
+);
 
 DROP TABLE IF EXISTS Analysis CASCADE;
-CREATE TABLE Analysis(id VARCHAR(36) PRIMARY KEY, study_id VARCHAR(36) references Study,
-    type ANALYSIS_TYPE, state ANALYSIS_STATE);
+CREATE TABLE Analysis (
+  id            VARCHAR(36) PRIMARY KEY,
+  study_id      VARCHAR(36) references Study,
+  type          ANALYSIS_TYPE,
+  state         ANALYSIS_STATE
+);
 
 DROP TABLE IF EXISTS File CASCADE;
-CREATE TABLE File(id VARCHAR(36) PRIMARY KEY, analysis_id VARCHAR(36) references Analysis, study_id VARCHAR(36) references Study, name TEXT, size BIGINT,
-    md5 CHAR(32), type FILE_TYPE, access ACCESS_TYPE);
+CREATE TABLE File (
+  id            VARCHAR(36) PRIMARY KEY,
+  analysis_id   VARCHAR(36) references Analysis,
+  study_id      VARCHAR(36) references Study,
+  name          TEXT,
+  size          BIGINT,
+  md5           CHAR(32),
+  type          FILE_TYPE,
+  access        ACCESS_TYPE
+);
 
 DROP TABLE IF EXISTS SampleSet CASCADE;
-
-CREATE TABLE SampleSet(analysis_id VARCHAR(36) references Analysis, sample_id VARCHAR(36) references Sample);
+CREATE TABLE SampleSet (
+  analysis_id   VARCHAR(36) references Analysis,
+  sample_id     VARCHAR(36) references Sample
+);
 
 DROP TABLE IF EXISTS SequencingRead CASCADE;
-CREATE TABLE SequencingRead(id VARCHAR(36) references Analysis, library_strategy LIBRARY_STRATEGY, paired_end BOOLEAN, insert_size BIGINT, aligned BOOLEAN, alignment_tool TEXT, reference_genome TEXT);
+CREATE TABLE SequencingRead (
+  id                VARCHAR(36) references Analysis,
+  library_strategy  LIBRARY_STRATEGY,
+  paired_end        BOOLEAN,
+  insert_size       BIGINT,
+  aligned           BOOLEAN,
+  alignment_tool    TEXT,
+  reference_genome  TEXT
+);
+
 DROP TABLE IF EXISTS VariantCall CASCADE;
-CREATE TABLE VariantCall(id VARCHAR(36) references Analysis, variant_calling_tool TEXT, tumour_sample_submitter_id TEXT, matched_normal_sample_submitter_id TEXT);
+CREATE TABLE VariantCall (
+  id                                  VARCHAR(36) references Analysis,
+  variant_calling_tool                TEXT,
+  tumour_sample_submitter_id          TEXT,
+  matched_normal_sample_submitter_id  TEXT
+);
 
 DROP TABLE IF EXISTS Upload CASCADE;
-CREATE TABLE Upload(id VARCHAR(40) PRIMARY KEY, study_id VARCHAR(36) references Study, analysis_id TEXT, state VARCHAR(50), errors TEXT, payload TEXT, created_at TIMESTAMP NOT NULL DEFAULT now(), updated_at TIMESTAMP NOT NULL DEFAULT now());
-
-drop TYPE if exists id_type CASCADE;
-create TYPE id_type as ENUM('Study','Donor','Specimen','Sample','File','Analysis','SequencingRead','VariantCall');
+CREATE TABLE Upload (
+  id              VARCHAR(40) PRIMARY KEY,
+  study_id        VARCHAR(36) references Study,
+  analysis_id     TEXT,
+  state           VARCHAR(50),
+  errors          TEXT,
+  payload         TEXT,
+  created_at      TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMP NOT NULL DEFAULT now()
+);
 
 DROP TABLE IF EXISTS Info;
-CREATE TABLE Info(id VARCHAR(36), id_type id_type, info JSON);
+CREATE TABLE Info (
+  id              VARCHAR(36),
+  id_type         id_type,
+  info            jsonb
+);
 
+
+DROP VIEW IF EXISTS BusinessKeyView;
+CREATE VIEW BusinessKeyView AS
+  SELECT
+    S.id as study_id,
+    SP.id AS specimen_id,
+    SP.submitter_id AS specimen_submitter_id,
+    SA.id AS sample_id,
+    SA.submitter_id AS sample_submitter_id
+  FROM Study S
+    INNER JOIN Donor D ON S.id = D.study_id
+    INNER JOIN Specimen SP ON D.id = SP.donor_id
+    INNER JOIN Sample SA ON SP.id = SA.specimen_id;
+
+DROP VIEW IF EXISTS InfoView;
+CREATE VIEW InfoView AS
+  SELECT
+    A.id as analysis_id,
+    I_STUDY.info as study_info,
+    I_DONOR.info as donor_info,
+    I_SP.info as specimen_info,
+    I_SA.info as sample_info,
+    I_A.info as analysis_info,
+    I_F.info as file_info
+    FROM Study S
+      INNER JOIN Info I_STUDY ON I_STUDY.id = S.id and I_STUDY.id_type = 'Study'
+      INNER JOIN Donor D ON S.id = D.study_id
+      INNER JOIN Info I_DONOR ON I_DONOR.id = D.id and I_DONOR.id_type = 'Donor'
+      INNER JOIN Specimen SP ON D.id = SP.donor_id
+      INNER JOIN Info I_SP ON I_SP.id = SP.id and I_SP.id_type = 'Specimen'
+      INNER JOIN Sample SA ON SP.id = SA.specimen_id
+      INNER JOIN Info I_SA ON I_SA.id = SA.id and I_SA.id_type = 'Sample'
+      INNER JOIN SampleSet SS on SA.id = SS.sample_id
+      INNER JOIN Analysis A on  SS.analysis_id = A.id
+      INNER JOIN Info I_A ON I_A.id = A.id and I_A.id_type = 'Analysis'
+      INNER JOIN File F on  A.id = F.analysis_id
+      INNER JOIN Info I_F ON I_F.id = F.id and I_F.id_type = 'File';
+
+DROP VIEW IF EXISTS IdView;
+CREATE VIEW IdView AS
+  SELECT DISTINCT
+    A.id as analysis_id,
+    A.type as analysis_type,
+    A.state as analysis_state,
+    A.study_id as study_id,
+    D.id as donor_id,
+    SP.id as specimen_id,
+    SA.id as sample_id,
+    F.id as object_id
+  FROM Donor D
+    INNER JOIN Specimen SP on D.id = SP.donor_id
+    INNER JOIN Sample as SA on SP.id = SA.specimen_id
+    INNER JOIN SampleSet as SAS on SA.id = SAS.sample_id
+    INNER JOIN File as F on SAS.analysis_id = F.analysis_id
+    INNER JOIN Analysis as A on SAS.analysis_id = A.id;
 
 ---------------------------------------------------------------
 --            Drop Indices

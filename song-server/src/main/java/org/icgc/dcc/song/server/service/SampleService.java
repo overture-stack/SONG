@@ -20,21 +20,21 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.server.model.entity.BusinessKeyView;
 import org.icgc.dcc.song.server.model.entity.Sample;
+import org.icgc.dcc.song.server.repository.BusinessKeyRepository;
 import org.icgc.dcc.song.server.repository.SampleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_ALREADY_EXISTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_ID_IS_CORRUPTED;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_REPOSITORY_CREATE_RECORD;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_REPOSITORY_DELETE_RECORD;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_REPOSITORY_UPDATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
@@ -55,6 +55,9 @@ public class SampleService {
   @Autowired
   private final StudyService studyService;
 
+  @Autowired
+  private final BusinessKeyRepository businessKeyRepository;
+
   private String createSampleId(String studyId, Sample sample){
     studyService.checkStudyExist(studyId);
     val inputSampleId = sample.getSampleId();
@@ -72,60 +75,66 @@ public class SampleService {
     val id = createSampleId(studyId, sample);
     sample.setSampleId(id);
     sample.setSpecimenId(sample.getSpecimenId());
-    int status = repository.create(sample);
-    checkServer(status == 1,this.getClass(),
-        SAMPLE_REPOSITORY_CREATE_RECORD, "Cannot create Sample: %s", sample.toString());
+    repository.save(sample);
     infoService.create(id, sample.getInfoAsString());
     return id;
   }
 
   public Sample read(@NonNull String id) {
-    val sample = repository.read(id);
-    checkServer(!isNull(sample), getClass(), SAMPLE_DOES_NOT_EXIST,
+    val sampleResult = repository.findById(id);
+    checkServer(sampleResult.isPresent(), getClass(), SAMPLE_DOES_NOT_EXIST,
         "The sample for sampleId '%s' could not be read because it does not exist", id);
+    val sample = sampleResult.get();
     sample.setInfo(infoService.readNullableInfo(id));
     return sample;
   }
 
   List<Sample> readByParentId(@NonNull String parentId) {
-    return repository.readByParentId(parentId);
+    return repository.findAllBySpecimenId(parentId);
   }
 
-  public String update(@NonNull Sample sample) {
-    checkSampleExists(sample.getSampleId());
-    val status = repository.update(sample);
-    checkServer(status == 1, getClass(), SAMPLE_REPOSITORY_UPDATE_RECORD,
-        "Cannot update sampleId '%s' for sample '%s'", sample.getSampleId(), sample);
+  public String update(@NonNull Sample sampleUpdate) {
+    val sample = read(sampleUpdate.getSampleId());
+    sample.setSampleSubmitterId(sampleUpdate.getSampleSubmitterId());
+    sample.setSampleType(sampleUpdate.getSampleType());
+    sample.setInfo(sampleUpdate.getInfo());
+    repository.save(sample);
     infoService.update(sample.getSampleId(), sample.getInfoAsString());
     return OK;
   }
 
   public String delete(@NonNull String id) {
     checkSampleExists(id);
-    val status = repository.delete(id);
-    checkServer(status == 1, getClass(), SAMPLE_REPOSITORY_DELETE_RECORD,
-        "Cannot delete sample with sampleId '%s'", id);
+    repository.deleteById(id);
     infoService.delete(id);
     return OK;
   }
 
+  @Transactional
   public String delete(@NonNull List<String> ids){
     ids.forEach(this::delete);
     return OK;
   }
 
   String deleteByParentId(@NonNull String parentId) {
-    val ids = repository.findByParentId(parentId);
+    val ids = repository.findAllBySpecimenId(parentId)
+        .stream()
+        .map(Sample::getSampleId)
+        .collect(toList());
     delete(ids);
     return OK;
   }
 
   public String findByBusinessKey(@NonNull String study, @NonNull String submitterId) {
-    return repository.findByBusinessKey(study, submitterId);
+    return businessKeyRepository.findAllByStudyIdAndSampleSubmitterId(study, submitterId)
+        .stream()
+        .map(BusinessKeyView::getSampleId)
+        .findFirst()
+        .orElse(null);
   }
 
   public boolean isSampleExist(@NonNull String id){
-    return !isNull(repository.read(id));
+    return repository.existsById(id);
   }
 
   public void checkSampleExists(@NonNull String id){
@@ -137,7 +146,5 @@ public class SampleService {
     checkServer(!isSampleExist(id), getClass(), SAMPLE_ALREADY_EXISTS,
         "The sample with sampleId '%s' already exists", id);
   }
-
-
 
 }

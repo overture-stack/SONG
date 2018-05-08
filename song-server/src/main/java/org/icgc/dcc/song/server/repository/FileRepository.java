@@ -17,35 +17,14 @@
 package org.icgc.dcc.song.server.repository;
 
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.repository.mapper.FileMapper;
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.BindBean;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-@RegisterMapper(FileMapper.class)
-public interface FileRepository {
+public interface FileRepository extends JpaRepository<File, String> {
 
-  @SqlUpdate("INSERT INTO File (id, analysis_id, name, study_id, size, type, md5, access) "
-      + "VALUES (:objectId, :analysisId,:fileName,  :studyId, :fileSize, :fileType, :fileMd5sum, :fileAccess)")
-  int create(@BindBean File f);
+  List<File> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
+  List<File> findAllByAnalysisId(String analysisId);
+  void deleteAllByAnalysisId(String analysisId);
 
-  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5, access FROM File WHERE id=:id")
-  File read(@Bind("id") String id);
-
-  @SqlUpdate("UPDATE File SET name=:fileName, analysis_id=:analysisId, size=:fileSize, type=:fileType, " +
-          "md5=:fileMd5sum, access=:fileAccess where id=:objectId")
-  int update(@BindBean File file);
-
-  @SqlUpdate("DELETE From File where id=:id")
-  int delete(@Bind("id") String id);
-
-  @SqlQuery("SELECT id, analysis_id, name, study_id, size, type, md5, access FROM File WHERE study_id=:studyId")
-  List<File> readByParentId(@Bind("studyId") String study_id);
-
-  @SqlQuery("SELECT id from File WHERE name=:fileName AND analysis_id=:analysisId")
-  String findByBusinessKey(@Bind("analysisId") String analysisId, @Bind("fileName") String fileName);
 }

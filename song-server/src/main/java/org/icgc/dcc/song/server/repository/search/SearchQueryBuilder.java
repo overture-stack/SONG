@@ -112,9 +112,9 @@ public class SearchQueryBuilder {
 
   private static String generateSelectBaseQuery(boolean includeInfoField){
     val sb = new StringBuilder();
-    sb.append(format("SELECT analysis.id AS %s ", ANALYSIS_ID.toString()));
+    sb.append(format("SELECT CAST(analysis.id AS VARCHAR) AS %s ", ANALYSIS_ID.toString()));
     if (includeInfoField){
-      sb.append(format(", info.info AS %s ", INFO.toString()));
+      sb.append(format(", CAST(info.info AS VARCHAR) AS %s ", INFO.toString()));
     }
     sb.append(format("FROM analysis INNER JOIN %s ON analysis.id = info.id WHERE info.id_type = 'Analysis'", TABLE_NAME));
     return sb.toString();

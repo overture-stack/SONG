@@ -18,18 +18,27 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.server.kafka.Sender;
+import org.icgc.dcc.song.server.model.SampleSet;
+import org.icgc.dcc.song.server.model.SampleSetPK;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.AnalysisStates;
+import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
+import org.icgc.dcc.song.server.repository.FileRepository;
+import org.icgc.dcc.song.server.repository.SampleSetRepository;
+import org.icgc.dcc.song.server.repository.SequencingReadRepository;
+import org.icgc.dcc.song.server.repository.VariantCallRepository;
 import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
@@ -37,31 +46,33 @@ import org.icgc.dcc.song.server.repository.search.SearchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
-import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_REPOSITORY_CREATE_RECORD;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_STATE_UPDATE_FAILED;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_REPOSITORY_CREATE_RECORD;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_REPOSITORY_CREATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
+import static org.icgc.dcc.song.server.model.SampleSetPK.createSampleSetPK;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
+import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiSearchTerms;
 
 @Slf4j
@@ -93,12 +104,20 @@ public class AnalysisService {
   private final Sender sender;
   @Autowired
   private final StudyService studyService;
+  @Autowired
+  private final SequencingReadRepository sequencingReadRepository;
+  @Autowired
+  private final VariantCallRepository variantCallRepository;
+  @Autowired
+  private final SampleSetRepository sampleSetRepository;
+  @Autowired
+  private final FileRepository fileRepository;
 
   public boolean doesAnalysisIdExist(String id){
-    return !isNull(repository.read(id));
+    return repository.existsById(id);
   }
 
-  public String create(String studyId, Analysis a, boolean ignoreAnalysisIdCollisions) {
+  public String create(String studyId, AbstractAnalysis a, boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);
     val candidateAnalysisId = a.getAnalysisId();
     val id = idService.resolveAnalysisId(candidateAnalysisId, ignoreAnalysisIdCollisions);
@@ -120,9 +139,10 @@ public class AnalysisService {
             + "delete the analysis for analysisId '%s' and re-save", id);
     a.setAnalysisId(id);
     a.setStudy(studyId);
-    val status = repository.createAnalysis(a);
-    checkServer(status == 1, getClass(), ANALYSIS_REPOSITORY_CREATE_RECORD,
-        "Unable to create analysis with analysisId '%s' to repository: %s", a.getAnalysisId(), a);
+
+    val analysesCreateRequest = new Analysis();
+    analysesCreateRequest.setWith(a);
+    repository.save(analysesCreateRequest);
     analysisInfoService.create(id, a.getInfoAsString());
 
     saveCompositeEntities(studyId, id, a.getSample() );
@@ -144,25 +164,21 @@ public class AnalysisService {
 
   private void createSequencingRead(String id, SequencingRead experiment) {
     experiment.setAnalysisId(id);
-    val status = repository.createSequencingRead(experiment);
-    checkServer(status == 1, getClass(), SEQUENCING_READ_REPOSITORY_CREATE_RECORD,
-        "Unable to create sequencingRead with analysisId '%s' to repository: %s" , id, experiment);
+    sequencingReadRepository.save(experiment);
     sequencingReadInfoService.create(id, experiment.getInfoAsString());
   }
 
   private void createVariantCall(String id, VariantCall experiment) {
     experiment.setAnalysisId(id);
-    val status = repository.createVariantCall(experiment);
-    checkServer(status == 1, getClass(), VARIANT_CALL_REPOSITORY_CREATE_RECORD,
-        "Unable to create variantCall with analysisId '%s' to repository: %s" , id, experiment);
+    variantCallRepository.save(experiment);
     variantCallInfoService.create(id, experiment.getInfoAsString());
   }
 
-  public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
+  public ResponseEntity<String> updateAnalysis(String studyId, AbstractAnalysis analysis) {
     val id = analysis.getAnalysisId();
-    repository.deleteCompositeEntities(id);
+    sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(id);
     saveCompositeEntities(studyId, id, analysis.getSample());
-    repository.deleteFiles(id);
+    fileRepository.deleteAllByAnalysisId(id);
     analysis.getFile().forEach(f -> fileInfoService.delete(f.getObjectId()));
     saveFiles(id, studyId, analysis.getFile());
     analysisInfoService.update(id, analysis.getInfoAsString());
@@ -183,8 +199,11 @@ public class AnalysisService {
    * @param studyId the study ID
    * @return returns a List of analysis with the child entities.
    */
-  public List<Analysis> getAnalysis(@NonNull String studyId) {
-    val analysisList = repository.find(studyId);
+  public List<AbstractAnalysis> getAnalysis(@NonNull String studyId) {
+    val analysisList = repository.findAllByStudy(studyId)
+        .stream()
+        .map(this::cloneAnalysis)
+        .collect(toImmutableList());
     if (analysisList.isEmpty()){
       studyService.checkStudyExist(studyId);
       return analysisList;
@@ -192,23 +211,22 @@ public class AnalysisService {
     return processAnalysisList(analysisList);
   }
 
+
   /**
    * Searches all analysis matching the IdSearchRequest
    * @param request which defines the query
    * @return returns a list of analysis with child entities in response to the search request. If nothing is found,
    *          an empty list is returned.
    */
-  public List<Analysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request){
-    val analysisList = repository.idSearch(studyId,
-        request.getDonorId(),
-        request.getSpecimenId(),
-        request.getSampleId(),
-        request.getFileId() );
+  public List<AbstractAnalysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request){
+    val analysisList = searchRepository.idSearch(studyId,request).stream()
+        .map(AbstractAnalysis::getAnalysisId)
+        .map(this::read)
+        .collect(toImmutableList());
     if (analysisList.isEmpty()){
       studyService.checkStudyExist(studyId);
-      return analysisList;
     }
-    return processAnalysisList(analysisList);
+    return analysisList;
   }
 
   public List<InfoSearchResponse> infoSearch(@NonNull String studyId,
@@ -226,30 +244,18 @@ public class AnalysisService {
     return searchRepository.infoSearch(request.isIncludeInfo(), request.getSearchTerms());
   }
 
-  public Analysis read(String id) {
+  public AbstractAnalysis read(String id) {
     val analysis = checkAnalysis(id);
     analysis.setInfo(analysisInfoService.readNullableInfo(id));
 
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
-
-    if (analysis instanceof SequencingReadAnalysis) {
-      val experiment = readSequencingRead(id);
-      ((SequencingReadAnalysis) analysis).setExperiment(experiment);
-    } else if (analysis instanceof VariantCallAnalysis) {
-      val experiment =readVariantCall(id);
-      ((VariantCallAnalysis) analysis).setExperiment(experiment);
-    }
-
-    return analysis;
+    return cloneAnalysis(analysis);
   }
 
   public List<File> readFiles(String id) {
-    val files = repository.readFiles(id).stream()
-        .map(f -> {
-          f.setInfo(fileInfoService.readNullableInfo(f.getObjectId()));
-          return f; // Return file with info set.
-        })
+    val files = fileRepository.findAllByAnalysisId(id).stream()
+        .peek(f -> f.setInfo(fileInfoService.readNullableInfo(f.getObjectId()) ))
         .collect(toImmutableList());
 
     // If there are no files, check that the analysis even exits, or if the analysis is corrupted
@@ -262,6 +268,7 @@ public class AnalysisService {
     return files;
   }
 
+  @Transactional
   public ResponseEntity<String> publish(@NonNull String accessToken, @NonNull String id) {
     val files = readFiles(id);
     val missingFileIds = files.stream()
@@ -277,13 +284,16 @@ public class AnalysisService {
     return ok("AnalysisId %s successfully published", id);
   }
 
+  @Transactional
   public ResponseEntity<String> suppress(String id) {
     checkedUpdateState(id, SUPPRESSED);
     return ok("AnalysisId %s was suppressed",id);
   }
 
   public List<CompositeEntity> readSamples(String id) {
-    val samples = repository.findSampleIds(id).stream()
+    val samples = sampleSetRepository.findAllBySampleSetPK_AnalysisId(id).stream()
+        .map(SampleSet::getSampleSetPK)
+        .map(SampleSetPK::getSampleId)
         .map(compositeEntityService::read)
         .collect(toImmutableList());
 
@@ -301,8 +311,14 @@ public class AnalysisService {
   private List<String> saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
     return samples.stream()
         .map(sample -> compositeEntityService.save(studyId,sample))
-        .peek(sampleId -> repository.addSample(id, sampleId))
+        .peek(sampleId -> sampleSetRepository.save(buildSampleSet(id, sampleId)))
         .collect(toImmutableList()) ;
+  }
+
+  private SampleSet buildSampleSet(String id, String sampleId){
+    val s = new SampleSet();
+    s.setSampleSetPK(createSampleSetPK(id, sampleId));
+    return s;
   }
 
   private List<String> saveFiles(String id, String studyId, List<File> files) {
@@ -312,51 +328,88 @@ public class AnalysisService {
   }
 
   private void updateSequencingRead(String id, SequencingRead experiment) {
-    repository.updateSequencingRead( experiment);
+    sequencingReadRepository.save(experiment);
     sequencingReadInfoService.update(id, experiment.getInfoAsString());
   }
 
   private void updateVariantCall(String id, VariantCall experiment) {
-    repository.updateVariantCall( experiment);
+    variantCallRepository.save(experiment);
     variantCallInfoService.update(id, experiment.getInfoAsString());
   }
 
-  static Analysis checkAnalysis(AnalysisRepository analysisRepository, String id){
-    val analysis = analysisRepository.read(id);
-    checkServer(!isNull(analysis),
+  static AbstractAnalysis checkAnalysis(AnalysisRepository analysisRepository, String id){
+    val analysisResult = analysisRepository.findById(id);
+
+    checkServer(analysisResult.isPresent(),
         AnalysisService.class, ANALYSIS_ID_NOT_FOUND,
         "The analysisId '%s' was not found", id );
-    return analysis;
+
+    val analysis = analysisResult.get();
+    AbstractAnalysis out;
+    if (analysis.getAnalysisType().equals(SEQUENCING_READ_TYPE)){
+      out = new SequencingReadAnalysis();
+    } else if(analysis.getAnalysisType().equals(VARIANT_CALL_TYPE)){
+      out = new VariantCallAnalysis();
+    } else {
+      throw buildServerException(AnalysisService.class, UNKNOWN_ERROR,
+          "unknown analysisType: %s", analysis.getAnalysisType());
+    }
+    out.setWith(analysis);
+    return out;
 
   }
 
-  public Analysis checkAnalysis(String id){
+  private static final Map<String, Class<? extends AbstractAnalysis>> ANALYSIS_CLASS_MAP =
+      new HashMap<String, Class<? extends AbstractAnalysis>>(){{
+    put(AnalysisTypes.SEQUENCING_READ.toString(), SequencingReadAnalysis.class);
+    put(AnalysisTypes.VARIANT_CALL.toString(), VariantCallAnalysis.class);
+  }};
+
+  @SneakyThrows
+  private static AbstractAnalysis instantiateAnalysis(@NonNull String analysisType){
+    return ANALYSIS_CLASS_MAP.get(analysisType).newInstance();
+  }
+
+  private AbstractAnalysis cloneAnalysis(AbstractAnalysis a){
+    val newAnalysis = instantiateAnalysis(a.getAnalysisType());
+    newAnalysis.setWith(a);
+    if (newAnalysis instanceof SequencingReadAnalysis) {
+      ((SequencingReadAnalysis) newAnalysis).setExperiment(readSequencingRead(a.getAnalysisId()));
+    } else if (newAnalysis instanceof VariantCallAnalysis) {
+      ((VariantCallAnalysis) newAnalysis).setExperiment(readVariantCall(a.getAnalysisId()));
+    }
+    return newAnalysis;
+  }
+
+  public AbstractAnalysis checkAnalysis(String id){
     return checkAnalysis(repository, id);
   }
 
   SequencingRead readSequencingRead(String id) {
-    val experiment = repository.readSequencingRead(id);
-    checkServer(!isNull(experiment), this.getClass(), SEQUENCING_READ_NOT_FOUND,
+    val result = sequencingReadRepository.findById(id);
+    checkServer(result.isPresent(), this.getClass(), SEQUENCING_READ_NOT_FOUND,
         "The SequencingRead with analysisId '%s' was not found", id);
+    val experiment = result.get();
     experiment.setInfo(sequencingReadInfoService.readNullableInfo(id));
     return experiment;
   }
 
   VariantCall readVariantCall(String id) {
-    val experiment = repository.readVariantCall(id);
-    checkServer(!isNull(experiment), this.getClass(), VARIANT_CALL_NOT_FOUND,
+    val result = variantCallRepository.findById(id);
+    checkServer(result.isPresent(), this.getClass(), VARIANT_CALL_NOT_FOUND,
         "The VariantCall with analysisId '%s' was not found", id);
+    val experiment = result.get();
     experiment.setInfo(variantCallInfoService.readNullableInfo(id));
     return experiment;
   }
 
   private void checkedUpdateState(String id, AnalysisStates analysisState) {
     val state = analysisState.name();
-    val status = repository.updateState(id, state);
-    checkServer(status == 1, this.getClass(), ANALYSIS_STATE_UPDATE_FAILED,
-          "Cannot update analysisId '%s' with state '%s'. "
-              + "Ensure analysisId exists, and the state is allowed",
-          id, state);
+    val analysis = read(id);
+    analysis.setAnalysisState(state);
+    val analysisUpdateRequest = new Analysis();
+    analysisUpdateRequest.setWith(analysis);
+    repository.save(analysisUpdateRequest);
   }
 
   private boolean confirmUploaded(String accessToken, String fileId) {
@@ -369,7 +422,7 @@ public class AnalysisService {
    * @param analysisList list of Analysis to be updated
    * @return returns a List of analysis with the child entities
    */
-  private List<Analysis> processAnalysisList(List<Analysis> analysisList){
+  private List<AbstractAnalysis> processAnalysisList(List<AbstractAnalysis> analysisList){
     analysisList.stream()
         .filter(Objects::nonNull)
         .forEach(this::processAnalysis);
@@ -382,18 +435,12 @@ public class AnalysisService {
    * @param analysis is the Analysis to be updated
    * @return updated analysis with the child entity
    */
-  private Analysis processAnalysis(Analysis analysis) {
+  private AbstractAnalysis processAnalysis(AbstractAnalysis analysis) {
     String id = analysis.getAnalysisId();
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
     analysis.setInfo(analysisInfoService.readNullableInfo(id));
-
-    if (analysis instanceof SequencingReadAnalysis) {
-      ((SequencingReadAnalysis) analysis).setExperiment(readSequencingRead(id));
-    } else if (analysis instanceof VariantCallAnalysis) {
-      ((VariantCallAnalysis) analysis).setExperiment(readVariantCall(id));
-    }
-    return analysis;
+    return cloneAnalysis(analysis);
   }
 
 }

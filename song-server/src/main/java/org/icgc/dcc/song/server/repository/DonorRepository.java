@@ -16,40 +16,16 @@
  */
 package org.icgc.dcc.song.server.repository;
 
+import org.icgc.dcc.song.server.model.entity.Donor;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 
-import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.repository.mapper.DonorMapper;
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.BindBean;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+public interface DonorRepository extends JpaRepository<Donor, String> {
 
-@RegisterMapper(DonorMapper.class)
-public interface DonorRepository {
-
-  @SqlUpdate("INSERT INTO Donor (id, submitter_id, study_id, gender) " +
-             "VALUES (:donorId, :donorSubmitterId, :studyId, :donorGender)")
-  int create(@BindBean Donor donor);
-
-  @SqlQuery("SELECT id, submitter_id, study_id, gender FROM donor WHERE id=:id")
-  Donor read(@Bind("id") String donorId);
-
-  @SqlUpdate("UPDATE Donor SET submitter_id=:donorSubmitterId, gender=:donorGender WHERE id=:donorId")
-  int update(@BindBean Donor donor);
-
-  @SqlUpdate("UPDATE Donor SET submitter_id=:donorSubmitterId, gender=:donorGender WHERE id=:id")
-  int update(@Bind("id") String id, @BindBean Donor donor);
-
-  @SqlUpdate("DELETE from donor where id=:id AND study_id=:studyId")
-  int delete(@Bind("studyId") String studyId, @Bind("id") String id);
+  List<Donor> findAllByStudyId(String studyId);
+  List<Donor> findAllByStudyIdAndDonorSubmitterId(String studyId, String submitterId);
 
 
-  @SqlQuery("SELECT id from donor where study_id=:studyId")
-  List<String> findByParentId(@Bind("studyId") String parentId);
-
-  @SqlQuery("SELECT id from donor where study_id=:studyId AND submitter_id=:key")
-  String findByBusinessKey(@Bind("studyId") String studyId, @Bind("key") String key);
 }
 

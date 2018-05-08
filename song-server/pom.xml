@@ -38,28 +38,18 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
-            <version>${spring-data-commons.version}</version>
         </dependency>
 
         <dependency>
@@ -69,8 +59,13 @@
         <dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
-            <version>${spring-security-oauth2.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -83,45 +78,44 @@
             <artifactId>postgresql</artifactId>
         </dependency>
 
-        <!-- JDBI -->
+        <!-- Hibernate Json Types -->
         <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi</artifactId>
-            <version>${jdbi.version}</version>
+            <groupId>com.marvinformatics.hibernate</groupId>
+            <artifactId>hibernate-native-json</artifactId>
+        </dependency>
+
+        <!-- Hibernate compile time annotation validation -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator-annotation-processor</artifactId>
         </dependency>
 
         <!-- JSON -->
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>${networknt.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-guava</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
         <!-- spring-kafka -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
-            <version>${spring-kafka.version}</version>
         </dependency>
 
         <!-- Utilities -->
@@ -132,14 +126,16 @@
         <dependency>
             <groupId>org.icgc.dcc</groupId>
             <artifactId>dcc-common-core</artifactId>
-            <version>${dcc-common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
         <!-- Testing -->
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
-            <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -166,24 +162,39 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox.version}</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox.version}</version>
         </dependency>
 
         <!-- DCC - ID -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>dcc-id-client</artifactId>
-            <version>${dcc-id.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!--<plugin>-->
+                <!--<groupId>org.hibernate.orm.tooling</groupId>-->
+                <!--<artifactId>hibernate-enhance-maven-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<configuration>-->
+                            <!--<failOnError>true</failOnError>-->
+                            <!--<enableLazyInitialization>true</enableLazyInitialization>-->
+                            <!--<enableDirtyTracking>true</enableDirtyTracking>-->
+                            <!--<enableAssociationManagement>true</enableAssociationManagement>-->
+                            <!--<enableExtendedEnhancement>false</enableExtendedEnhancement>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>enhance</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -219,16 +230,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <wiremock.version>2.14.0</wiremock.version>
-        <springfox.version>2.7.0</springfox.version>
-
-        <!-- Spring Security oath2 -->
-        <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
-
-        <spring-data-commons.version>1.12.11.RELEASE</spring-data-commons.version>
-        <dcc-id.version>5.1.4</dcc-id.version>
-    </properties>
 
 </project>

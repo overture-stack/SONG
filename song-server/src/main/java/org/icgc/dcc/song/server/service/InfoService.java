@@ -19,6 +19,9 @@ package org.icgc.dcc.song.server.service;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.server.model.entity.Info;
+import org.icgc.dcc.song.server.model.entity.InfoPK;
 import org.icgc.dcc.song.server.model.enums.InfoTypes;
 import org.icgc.dcc.song.server.repository.InfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +29,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.INFO_NOT_FOUND;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.INFO_REPOSITORY_CREATE_RECORD;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.INFO_REPOSITORY_DELETE_RECORD;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.INFO_REPOSITORY_UPDATE_RECORD;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
+import static org.icgc.dcc.song.server.model.entity.Info.createInfo;
+import static org.icgc.dcc.song.server.model.entity.InfoPK.createInfoPK;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.ANALYSIS;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.DONOR;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.FILE;
@@ -42,8 +43,8 @@ import static org.icgc.dcc.song.server.model.enums.InfoTypes.SPECIMEN;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.STUDY;
 import static org.icgc.dcc.song.server.model.enums.InfoTypes.VARIANT_CALL;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 abstract class InfoService {
 
   private final InfoTypes type;
@@ -51,11 +52,22 @@ abstract class InfoService {
 
   public Optional<String> readInfo(@NonNull String id) {
     checkInfoExists(id); //TODO: optimize by returning Info entity, so that only 1 db read is done instead of 2.
-    return Optional.ofNullable(infoRepository.readInfo(id, type.toString()));
+    return unsafeRead(id);
   }
 
+  private Optional<String> unsafeRead(String id){
+    return infoRepository.findById(buildPK(id))
+        .map(Info::getInfo)
+        .map(JsonUtils::toJsonNode)
+        .map(JsonUtils::toJson);
+  }
   public String readNullableInfo(String id) {
-    return infoRepository.readInfo(id, type.toString());
+    return unsafeRead(id)
+        .orElse(null);
+  }
+
+  private InfoPK buildPK(String id){
+    return createInfoPK(id, type.toString());
   }
 
   public void checkInfoExists(@NonNull String id){
@@ -67,30 +79,26 @@ abstract class InfoService {
    * Using readType method since readInfo can return null
    */
   public boolean isInfoExist(@NonNull String id){
-    return !isNull(infoRepository.readType(id, type.toString()));
+    return infoRepository.existsById(buildPK(id));
   }
 
   public void create( @NonNull String id,  String info) {
     checkServer(!isInfoExist(id),getClass(), INFO_ALREADY_EXISTS,
     "Could not create Info record for id='%s' and type='%s' because it already exists",
     id, type.toString());
-    val status = infoRepository.create(id, type.toString(), info);
-    checkServer(status == 1, getClass(), INFO_REPOSITORY_CREATE_RECORD,
-        "Could not create Info record for id='%s' and type='%s' in repository", id, type.toString());
+    val infoObj = createInfo(buildPK(id), info);
+    infoRepository.save(infoObj);
   }
 
   public void update(@NonNull String id, String info) {
     checkInfoExists(id);
-    val status = infoRepository.set(id, type.toString(), info);
-    checkServer(status == 1, getClass(), INFO_REPOSITORY_UPDATE_RECORD,
-        "Could not update Info record for id='%s' and type='%s' in repository", id, type.toString());
+    val infoObj = createInfo(buildPK(id), info);
+    infoRepository.save(infoObj);
   }
 
   public void delete(@NonNull String id) {
     checkInfoExists(id);
-    val status = infoRepository.delete(id, type.toString());
-    checkServer(status ==1, getClass(), INFO_REPOSITORY_DELETE_RECORD,
-          "Could not delete Info record for id='%s' and type='%s' in repository", id, type.toString());
+    infoRepository.deleteById(buildPK(id));
   }
 
 }

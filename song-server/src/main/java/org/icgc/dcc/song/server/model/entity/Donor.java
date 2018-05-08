@@ -19,41 +19,76 @@ package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
+import org.icgc.dcc.song.server.model.enums.ModelAttributeNames;
+import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 import static org.icgc.dcc.song.server.model.enums.Constants.DONOR_GENDER;
 import static org.icgc.dcc.song.server.model.enums.Constants.validate;
+import static org.icgc.dcc.song.server.model.enums.TableNames.DONOR;
 
-@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = DONOR)
 @Data
+@Builder
+@RequiredArgsConstructor
 @ToString(callSuper = true)
-@JsonPropertyOrder({ "donorId", "donorSubmitterId", "studyId", "donorGender", "specimens", "info" })
+@EqualsAndHashCode(callSuper = true)
+@JsonPropertyOrder({
+    ModelAttributeNames.DONOR_ID,
+    ModelAttributeNames.DONOR_SUBMITTER_ID,
+    ModelAttributeNames.STUDY_ID,
+    ModelAttributeNames.DONOR_GENDER,
+    ModelAttributeNames.SPECIMENS,
+    ModelAttributeNames.INFO
+})
 @JsonInclude(JsonInclude.Include.ALWAYS)
-
 public class Donor extends Metadata {
 
-  private String donorId = "";
-  private String donorSubmitterId = "";
-  private String studyId = "";
-  private String donorGender = "";
+  @Id
+  @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
+  private String donorId;
 
-  public static Donor create(String id, String submitterId, String studyId, String gender) {
-    val d = new Donor();
-    d.setDonorId(id);
-    d.setStudyId(studyId);
-    d.setDonorSubmitterId(submitterId);
-    d.setDonorGender(gender);
+  @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
+  private String studyId;
 
-    return d;
+  @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
+  private String donorSubmitterId;
+
+  @Column(name = TableAttributeNames.GENDER, nullable = true)
+  private String donorGender;
+
+  //NOTE: Since the donorGender field is validated upon setting it, using Lomboks default Builder when
+  //  the @AllArgsConstructor is used will by pass the validation since the Builder uses the All Arg Constructor.
+  // By using the setter inside the constructor, the building of a Donor will always be validated
+  public Donor(String donorId, String studyId, String donorSubmitterId, String donorGender) {
+    this.donorId = donorId;
+    this.studyId = studyId;
+    this.donorSubmitterId = donorSubmitterId;
+    setDonorGender(donorGender);
   }
 
   public void setDonorGender(String gender) {
     validate(DONOR_GENDER, gender);
     this.donorGender = gender;
+  }
+
+  public void setWithDonor(@NonNull Donor donorUpdate){
+    setDonorSubmitterId(donorUpdate.getDonorSubmitterId());
+    setDonorGender(donorUpdate.getDonorGender());
+    setDonorId(donorUpdate.getDonorId());
+    setInfo(donorUpdate.getInfo());
   }
 
 }

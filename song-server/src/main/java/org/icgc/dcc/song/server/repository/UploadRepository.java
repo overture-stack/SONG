@@ -17,35 +17,13 @@
 package org.icgc.dcc.song.server.repository;
 
 import org.icgc.dcc.song.server.model.Upload;
-import org.icgc.dcc.song.server.repository.mapper.UploadMapper;
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
-import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-//TODO: [DCC-5643] Cleanup SQLQueries to reference constants
-@RegisterMapper(UploadMapper.class)
-public interface UploadRepository {
+public interface UploadRepository extends JpaRepository<Upload, String>{
 
-  @SqlUpdate("INSERT INTO upload (id, study_id, analysis_id, state, payload, updated_at) " +
-          "VALUES (:id, :studyId, :analysisId, :state, :payload, now())")
-  int create(@Bind("id") String id, @Bind("studyId") String studyId, @Bind("analysisId") String analysisId,
-             @Bind("state") String state, @Bind("payload") String jsonPayload);
+  List<Upload> findAllByStudyIdAndAnalysisId(String studyId, String analysisId);
 
-  @SqlQuery("SELECT id from upload where study_id=:studyId AND analysis_id=:analysisId")
-  List<String> findByBusinessKey(@Bind("studyId") String studyId,
-      @Bind("analysisId") String analysisId);
-
-  @SqlUpdate("UPDATE upload set payload=:payload, state=:state, updated_at = now() WHERE id=:id")
-  int update_payload(@Bind("id") String id, @Bind("state") String state, @Bind("payload") String payload);
-
-  // note: avoiding handling datetime's in application; keeping it all in the SQL (also, see schema)
-  @SqlUpdate("UPDATE upload SET state = :state, errors = :errors, updated_at = now() WHERE id = :id")
-  int update(@Bind("id") String id, @Bind("state") String state, @Bind("errors") String errors);
-
-  @SqlQuery("SELECT id, analysis_id, study_id, state, created_at, updated_at, errors, payload FROM upload WHERE id = :uploadId")
-  Upload get(@Bind("uploadId") String id);
 
 }

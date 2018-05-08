@@ -29,9 +29,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
@@ -50,7 +48,6 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class DonorServiceTest {
 
@@ -239,11 +236,17 @@ public class DonorServiceTest {
     val randomDonorId = randomGenerator.generateRandomUUIDAsString();
     val randomDonorSubmitterId = randomGenerator.generateRandomUUID().toString();
     val randomDonorGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
-    assertThat(service.isDonorExist(randomDonorId)).isFalse();
+    val expectedId = idService.generateDonorId(randomDonorSubmitterId, DEFAULT_STUDY_ID);
+    assertThat(service.isDonorExist(expectedId)).isFalse();
     assertSongError(() -> service.checkDonorExists(randomDonorId), DONOR_DOES_NOT_EXIST);
-    val donorId = service.save(DEFAULT_STUDY_ID, Donor.create(randomDonorId, randomDonorSubmitterId,
-        DEFAULT_STUDY_ID, randomDonorGender));
-
+    val donorId = service.save(DEFAULT_STUDY_ID,
+        Donor.builder()
+        .donorId(null)
+        .donorSubmitterId(randomDonorSubmitterId)
+        .studyId(DEFAULT_STUDY_ID)
+        .donorGender(randomDonorGender)
+        .build());
+    assertThat(donorId).isEqualTo(expectedId);
     assertThat(service.isDonorExist(donorId)).isTrue();
     service.checkDonorExists(donorId);
   }
@@ -344,8 +347,12 @@ public class DonorServiceTest {
     val randomStudyId = randomGenerator.generateRandomUUIDAsString();
     val randomDonorSubmitterId = randomGenerator.generateRandomUUIDAsString();
     val randomDonorId = randomGenerator.generateRandomUUIDAsString();
-    return Donor.create(randomDonorId, randomDonorSubmitterId, randomStudyId,
-        "male" );
+    return Donor.builder()
+        .donorId(randomDonorId)
+        .donorSubmitterId(randomDonorSubmitterId)
+        .studyId(randomStudyId)
+        .donorGender("male")
+        .build();
   }
 
 }

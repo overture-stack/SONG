@@ -17,31 +17,43 @@
 package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 import org.icgc.dcc.song.server.model.Metadata;
+import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
+import org.icgc.dcc.song.server.model.enums.TableNames;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = TableNames.STUDY)
+@Data
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper=true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Data
-@ToString(callSuper = true)
 public class Study extends Metadata {
-  private String studyId="";
-  private String name="";
-  private String organization="";
-  private String description="";
 
-  public static Study create(@NonNull String id, String name, String org, String desc) {
-      val s = new Study();
-      s.setStudyId(id);
-      s.setName(name);
-      s.setOrganization(org);
-      s.setDescription(desc);
+  @Id
+  @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
+  private String studyId;
 
-      return s;
-  }
+  @Column(name = TableAttributeNames.NAME, nullable = true)
+  private String name;
+
+  @Column(name = TableAttributeNames.ORGANIZATION, nullable = true)
+  private String organization;
+
+  @Column(name = TableAttributeNames.DESCRIPTION, nullable = true)
+  private String description;
 
 }

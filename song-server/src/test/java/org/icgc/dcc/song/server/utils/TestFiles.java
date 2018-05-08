@@ -42,6 +42,7 @@ public class TestFiles {
   public static final String SEARCH_TEST_DIR = "documents/search";
   private static final String NAME = "name";
   public static final String EMPTY_STRING = "";
+  public static final String DEFAULT_EMPTY_VALUE = null;
 
   @SneakyThrows
   public static String getJsonStringFromClasspath(String name) {

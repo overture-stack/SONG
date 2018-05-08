@@ -18,12 +18,10 @@ package org.icgc.dcc.song.server.config;
 
 import org.icgc.dcc.song.server.security.StudyScopeStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
@@ -32,7 +30,6 @@ import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecur
 @Profile("secure")
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
   /**
@@ -41,7 +38,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
    *
    * The following lines are a workaround suggested here:
    * https://github.com/spring-projects/spring-security-oauth/issues/730
-   * 
+   *
    * Apparently a bug in Spring's OAuth2 stuff - BeanResolver is not being set in the Application Context, so attempting
    * to evaluate a bean lookup @beanName blows up
    */
