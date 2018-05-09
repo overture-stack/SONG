@@ -34,7 +34,7 @@ import sys
 
 # Always prefer setuptools over distutils
 from setuptools import setup
-SONG_VERSION = '0.3.9'
+SONG_VERSION = '1.0.0'
 REQUIRED_PY_VERSION = (3, 6, 0)
 
 def get_required_py_version_string():
