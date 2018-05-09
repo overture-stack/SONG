@@ -20,7 +20,7 @@
     <groupId>org.icgc.dcc</groupId>
     <artifactId>song</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.10-SNAPSHOT</version>
+    <version>1.0.0</version>
     <modules>
         <module>song-core</module>
         <module>song-server</module>
@@ -31,7 +31,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.0.1.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
     <repositories>
