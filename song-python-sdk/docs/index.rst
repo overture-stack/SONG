@@ -1,5 +1,3 @@
-.. song documentation master file, created by
-   sphinx-quickstart on Fri Nov  3 16:04:44 2017.
 
 The SONG Python REST SDK
 ============================
