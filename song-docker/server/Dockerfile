@@ -4,7 +4,7 @@ MAINTAINER ICGC <dcc-support@icgc.org>
 #
 # Configuration
 #
-ENV SERVER_RELEASE_VERSION 0.3.7
+ENV SERVER_RELEASE_VERSION 1.0.1
 ENV SONG_HOME $DCC_HOME/song-server
 ENV SONG_LOGS $DCC_HOME/song-server/logs
 ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/${SERVER_RELEASE_VERSION}/song-server-${SERVER_RELEASE_VERSION}-dist.tar.gz  
