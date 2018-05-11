@@ -162,7 +162,7 @@ DROP TABLE IF EXISTS Info;
 CREATE TABLE Info (
   id              VARCHAR(36),
   id_type         id_type,
-  info            jsonb
+  info            json
 );
 
 
