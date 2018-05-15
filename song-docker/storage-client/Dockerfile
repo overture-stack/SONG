@@ -1,4 +1,4 @@
-FROM icgc/icgc-storage-client:1.0.23
+FROM overture/score:1.1.1
 MAINTAINER ICGC <dcc-support@icgc.org>
 
 ENV DCC_HOME /opt/dcc

@@ -19,14 +19,36 @@
 #
 
 server:
+  version: 1.0
   port: ${SERVER_PORT}
 
 dcc-storage:
   url: "${STORAGE_SERVER_URL}"
 
+# Hibernate
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: com.marvinformatics.hibernate.json.PostgreSQLJsonDialect
+# disable driver's feature detection. This is required for the following bug in SpringBoot 2.0.0+
+# https://hibernate.atlassian.net/browse/HHH-12368
+        temp.use_jdbc_metadata_defaults: false
+
+# Uncomment this to see the generated SQL stetements
+# logging.level.org.hibernate.SQL: DEBUG
+
+# Uncomment this to see the binding parameters for generated SQL statements
+# logging.level.org.hibernate.type.descriptor.sql: TRACE
+
+
 # Management
 management:
-  port: ${SERVER_MANAGEMENT_PORT}
+  server:
+    port: ${SERVER_MANAGEMENT_PORT}
+
+swagger:
+  alternateUrl: "/api-docs"
 
 id:
   idUrl: "${ID_URL}"
@@ -35,6 +57,7 @@ id:
   persistInMemory: false
 
 validation:
+  delayMs: 30
   threads:
     core: 5
     max: 10
@@ -57,24 +80,33 @@ auth:
     multiplier: 2.0
 
 ---
+spring.profiles: async-test
+validation.delayMs: 5000
+
+---
 spring.profiles: test
 spring:
   profiles:
     include: [dev]
+
 ---
 spring.profiles: dev
 spring:
   profiles:
     include: [fastTest]
   datasource:
-    initialize: true
+    initialization-mode: always
+
+management:
+  server:
+    port: -1
+
+id.persistInMemory: true
 
 auth:
   server:
     prefix: "song"
     suffix: "upload"
-
-validation.delayMs: 3000
 
 # Datasource
 spring.datasource:
@@ -122,7 +154,7 @@ auth:
 spring:
   profiles: prod
   datasource:
-    initialize: false
+    initialization-mode: never
 
 # Datasource
 spring.datasource:
@@ -133,8 +165,6 @@ spring.datasource:
   max-active: 10
   max-idle: 1
   min-idle: 1
-
-validation.delayMs: 30
 
 ---
 spring:
