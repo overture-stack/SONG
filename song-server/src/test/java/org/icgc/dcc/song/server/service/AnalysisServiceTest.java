@@ -499,7 +499,9 @@ public class AnalysisServiceTest {
     setUpDccStorageMockService(false);
     val token = "mockToken";
     val id = "AN1";
+    val nonExistentId = randomGenerator.generateRandomUUIDAsString();
     assertSongError(() -> service.publish(token, id), UNPUBLISHED_FILE_IDS, null);
+    assertSongError(() -> service.publish(token, nonExistentId), ANALYSIS_ID_NOT_FOUND);
   }
 
 
