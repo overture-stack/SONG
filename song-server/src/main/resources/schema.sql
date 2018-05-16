@@ -142,7 +142,6 @@ DROP TABLE IF EXISTS VariantCall CASCADE;
 CREATE TABLE VariantCall (
   id                                  VARCHAR(36) references Analysis,
   variant_calling_tool                TEXT,
-  tumour_sample_submitter_id          TEXT,
   matched_normal_sample_submitter_id  TEXT
 );
 
