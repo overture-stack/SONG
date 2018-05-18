@@ -203,7 +203,9 @@
             ]
           },
           "fileMd5sum": {
-            "type": "string"
+            "type": "string",
+            "minLength" : 32,
+            "maxLength" : 32
           },
           "info": {
             "type": "object"
@@ -216,7 +218,8 @@
     },
     "analysisId": {
       "type": ["string", "null"],
-      "pattern" : "^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{2,511}$"
+      "pattern" : "^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{2,511}$",
+      "maxLength" : 36
     }
   }
 }
