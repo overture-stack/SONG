@@ -178,7 +178,8 @@
             ]
           },
           "fileMd5sum": {
-            "type": "string"
+            "type": "string",
+            "pattern" : "^[a-fA-F0-9]{32}$"
           }
         }
       }
@@ -188,7 +189,7 @@
     },
     "analysisId": {
       "type": ["string","null"],
-      "pattern" : "^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{2,511}$"
+      "pattern" : "^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{1,34}[a-zA-Z0-9]{1}$"
     }
   }
 }

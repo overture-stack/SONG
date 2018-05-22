@@ -18,6 +18,7 @@ package org.icgc.dcc.song.server.validation;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
@@ -34,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 @Slf4j
-public class schemaValidationTests {
+public class SchemaValidationTests {
 
   private static final String ANALYSIS_ID = "analysisId";
   private static final String PROPERTIES = "properties";
@@ -53,7 +54,22 @@ public class schemaValidationTests {
       val analysisIdSchema = propertiesSchema.path(ANALYSIS_ID);
       assertThat(analysisIdSchema.has(PATTERN)).isTrue();
       assertThat(getTypes(analysisIdSchema)).contains(STRING);
-      assertThat(analysisIdSchema.path(PATTERN).textValue()).isEqualTo("^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{2,511}$");
+      assertThat(analysisIdSchema.path(PATTERN).textValue()).isEqualTo("^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{1,34}[a-zA-Z0-9]{1}$");
+    }
+  }
+
+  @Test
+  public void validate_file_md5_regex() throws Exception {
+    val schemaFiles = newArrayList("schemas/sequencingRead.json", "schemas/variantCall.json");
+    for (val schemaFile : schemaFiles){
+      val schema = getJsonNodeFromClasspath( schemaFile );
+      val paths = Lists.newArrayList("properties", "file", "items", "properties", "fileMd5sum", "pattern");
+      JsonNode currentNode = schema;
+      for (val path : paths){
+        assertThat(currentNode.has(path)).isTrue();
+        currentNode = currentNode.path(path);
+      }
+      assertThat(currentNode.textValue()).isEqualTo("^[a-fA-F0-9]{32}$");
     }
   }
 

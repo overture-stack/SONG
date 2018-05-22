@@ -31,7 +31,7 @@
     "fileType" : "VCF",
     "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
     "fileSize" : 132394,
-    "fileMd5sum" : "239d930d0ef9a9b9c0e",
+    "fileMd5sum" : "d58e3582afa99040e27b92b13c8f2212",
     "fileAccess" : "controlled",
     "compression" : "gzip"
   }, {
@@ -39,7 +39,7 @@
     "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
     "fileSize" : 2394,
     "fileAccess" : "controlled",
-    "fileMd5sum" : "22de0f976538a9b7c8d93"
+    "fileMd5sum" : "d58e3582afa99040e27b92b13c8f2280"
   } ],
   "info": {
     "access": "controlled",
