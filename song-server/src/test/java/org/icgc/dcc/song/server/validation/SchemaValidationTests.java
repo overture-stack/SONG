@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 @Slf4j
-public class schemaValidationTests {
+public class SchemaValidationTests {
 
   private static final String ANALYSIS_ID = "analysisId";
   private static final String PROPERTIES = "properties";
