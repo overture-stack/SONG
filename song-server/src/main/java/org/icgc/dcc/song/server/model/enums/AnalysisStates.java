@@ -17,6 +17,10 @@
 
 package org.icgc.dcc.song.server.model.enums;
 
+import lombok.NonNull;
+import org.icgc.dcc.common.core.util.stream.Streams;
+
+import static java.lang.String.format;
 import static java.util.Arrays.stream;
 
 public enum AnalysisStates {
@@ -26,6 +30,14 @@ public enum AnalysisStates {
 
   public String toString(){
     return this.name();
+  }
+
+  public static AnalysisStates resolveAnalysisState(@NonNull String analysisState) {
+    return Streams.stream(values())
+        .filter(x -> x.toString().equals(analysisState))
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalStateException(format("The analysis state '%s' cannot be resolved", analysisState)));
   }
 
   public static String[] toStringArray(){

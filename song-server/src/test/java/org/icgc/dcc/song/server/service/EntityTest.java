@@ -42,9 +42,12 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.resolveAnalysisState;
 import static org.icgc.dcc.song.server.model.enums.Constants.FILE_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.LIBRARY_STRATEGY;
 import static org.icgc.dcc.song.server.model.enums.Constants.SAMPLE_TYPE;
@@ -1627,6 +1630,18 @@ public class EntityTest {
     assertThat(s1.getSpecimenId()).isEqualTo("b1");
     assertThat(s1.getDonorId()).isEqualTo("a1");
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
+  }
+
+  @Test
+  public void testAnalysisStates(){
+    assertThat(resolveAnalysisState("PUBLISHED")).isEqualByComparingTo(PUBLISHED);
+    assertThat(resolveAnalysisState("UNPUBLISHED")).isEqualByComparingTo(UNPUBLISHED);
+    assertThat(resolveAnalysisState("SUPPRESSED")).isEqualByComparingTo(SUPPRESSED);
+    val erroredStates = newArrayList("published", "unpublished", "suppressed", "anything");
+    for (val state : erroredStates){
+      val thrown = catchThrowable(() -> resolveAnalysisState(state));
+      assertThat(thrown).isInstanceOf(IllegalStateException.class);
+    }
   }
 
   private static void assertEntitiesEqual(Object actual, Object expected, boolean checkFieldByField){

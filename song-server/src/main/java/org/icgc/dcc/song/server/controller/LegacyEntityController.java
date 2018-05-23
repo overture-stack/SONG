@@ -24,13 +24,19 @@ import org.icgc.dcc.song.server.model.LegacyEntity;
 import org.icgc.dcc.song.server.service.LegacyEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -53,14 +59,13 @@ public class LegacyEntityController {
     return ok(legacyEntityService.getEntity(id));
   }
 
-  @ApiOperation(value = "ReadLegacyEntitiesByGnosId", notes = "Page through LegacyEntity data for a gnosId")
-  @GetMapping
+  @ApiOperation(value = "FindLegacyEntities", notes = "Page through LegacyEntity data")
   @ResponseBody
-  public ResponseEntity<Page<LegacyEntity>> readGnosId(
-      @RequestParam(value = "gnosId") String gnosId,
-      @RequestParam(value = "size", required = false, defaultValue = "2000") int size,
-      @RequestParam(value = "page", required = false, defaultValue = "0") int page ) {
-    return ok(legacyEntityService.getEntitiesByGnosId(gnosId,size,page));
+  @GetMapping
+  public ResponseEntity<Page<LegacyEntity>> find(
+      @RequestParam MultiValueMap<String, String> params,
+      @PageableDefault(sort = "id") Pageable pageable) {
+    return ok(legacyEntityService.find(params,pageable ));
   }
 
 }
