@@ -17,26 +17,24 @@
 
 package org.icgc.dcc.song.server.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.LegacyEntity;
 import org.icgc.dcc.song.server.service.LegacyEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -62,10 +60,11 @@ public class LegacyEntityController {
   @ApiOperation(value = "FindLegacyEntities", notes = "Page through LegacyEntity data")
   @ResponseBody
   @GetMapping
-  public ResponseEntity<Page<LegacyEntity>> find(
+  public ResponseEntity<JsonNode> find(
       @RequestParam MultiValueMap<String, String> params,
+      @ModelAttribute LegacyEntity probe,
       @PageableDefault(sort = "id") Pageable pageable) {
-    return ok(legacyEntityService.find(params,pageable ));
+    return ok(legacyEntityService.find(params, probe, pageable));
   }
 
 }
