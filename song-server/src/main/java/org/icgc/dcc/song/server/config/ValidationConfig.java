@@ -24,6 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonDocUtils;
 import org.icgc.dcc.song.core.utils.JsonSchemaUtils;
+import org.icgc.dcc.song.server.model.LegacyEntity;
+import org.icgc.dcc.song.server.model.entity.IdView;
+import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
+import org.icgc.dcc.song.server.utils.ParameterChecker;
 import org.icgc.dcc.song.server.validation.SchemaValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +36,8 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.icgc.dcc.song.server.utils.ParameterChecker.createParameterChecker;
 
 @Slf4j
 @Configuration
@@ -47,6 +53,16 @@ public class ValidationConfig {
   @Bean
   public SchemaValidator schemaValidator() {
     return new SchemaValidator();
+  }
+
+  @Bean
+  public ParameterChecker parameterChecker(){
+    return createParameterChecker(
+        LegacyEntity.class,
+        IdSearchRequest.class,
+        IdView.class,
+        IdView.IdViewProjection.class
+    );
   }
 
   @Bean
