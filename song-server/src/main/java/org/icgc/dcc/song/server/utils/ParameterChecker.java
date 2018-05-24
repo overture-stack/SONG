@@ -20,6 +20,7 @@ import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ILLEGAL_FILTER_PARAMETER;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ILLEGAL_QUERY_PARAMETER;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
 @RequiredArgsConstructor(access = PRIVATE)
@@ -28,11 +29,13 @@ public class ParameterChecker {
   @NonNull
   private final Map<Class<?>, Set<String>> map;
 
-  public Set<String> getParameterNamesFor(Class<?> tClass){
-    return map.get(tClass);
+  public Set<String> getParameterNamesFor(@NonNull Class<?> type){
+    checkServer(map.containsKey(type), getClass(), UNKNOWN_ERROR,
+        "Unregistered type '%s'", type.getSimpleName());
+    return map.get(type);
   }
 
-  public boolean isLegal(Class<?> type, Set<String> parameterNames){
+  public boolean isLegal(Class<?> type, @NonNull Set<String> parameterNames){
     return getParameterNamesFor(type).containsAll(parameterNames);
   }
 
