@@ -19,7 +19,7 @@ package org.icgc.dcc.song.server.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.bohnman.squiggly.Squiggly;
-import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.server.model.LegacyEntity;
@@ -28,12 +28,7 @@ import org.icgc.dcc.song.server.repository.LegacyEntityRepository;
 import org.icgc.dcc.song.server.utils.ParameterChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
@@ -44,17 +39,13 @@ import java.util.Set;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
-import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @Service
-@NoArgsConstructor
 public class LegacyEntityService {
 
-  private static final String ID = "id";
   private static final String FIELDS = "fields";
   private static final String PAGE = "page";
   private static final String SIZE = "size";
@@ -64,37 +55,24 @@ public class LegacyEntityService {
   /**
    * Dependencies
    */
-  @Autowired
-  private FileService fileService;
+  private final FileService fileService;
+  private final LegacyEntityRepository legacyEntityRepository;
+  private final ParameterChecker parameterChecker;
 
   @Autowired
-  private AnalysisService analysisService;
-
-  @Autowired
-  private LegacyEntityRepository legacyEntityRepository;
-
-  @Autowired
-  private ParameterChecker parameterChecker;
+  public LegacyEntityService(@NonNull FileService fileService,
+      @NonNull LegacyEntityRepository legacyEntityRepository,
+      @NonNull ParameterChecker parameterChecker) {
+    this.fileService = fileService;
+    this.legacyEntityRepository = legacyEntityRepository;
+    this.parameterChecker = parameterChecker;
+  }
 
   public LegacyEntity getEntity( String id) {
     val entity = fileService.read(id);
     checkServer(!isNull(entity),this.getClass(), FILE_NOT_FOUND,
         "The File with id '%s' was not found", id);
     return convert(entity);
-  }
-
-  public Page<LegacyEntity> getEntitiesByGnosId(String gnosId,
-      int pageSize, int pageNum ) {
-    val skipSize = pageSize*pageNum;
-    val files = analysisService.readFiles(gnosId);
-    val entities = files.stream()
-        .map(LegacyEntityService::convert)
-        .skip(skipSize)
-        .limit(pageSize)
-        .collect(toImmutableList());
-    val sort = new Sort(new Order(ASC, ID).ignoreCase().nullsNative());
-    val pageRequest = new PageRequest(pageNum,pageSize, sort);
-    return new PageImpl<>(entities,pageRequest, files.size());
   }
 
   public JsonNode find( MultiValueMap<String, String> params, LegacyEntity probe, Pageable pageable) {
@@ -129,7 +107,15 @@ public class LegacyEntityService {
         .filter(x -> x.getKey().equals(FIELDS))
         .map(Map.Entry::getValue)
         .flatMap(Collection::stream)
+        .map(Object::toString)
         .collect(toImmutableSet());
+  }
+
+  public static LegacyEntityService createLegacyEntityService(
+      FileService fileService,
+      LegacyEntityRepository legacyEntityRepository,
+      ParameterChecker parameterChecker) {
+    return new LegacyEntityService(fileService, legacyEntityRepository, parameterChecker);
   }
 
   private static LegacyEntity convert(File file){

@@ -23,10 +23,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.newArrayList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 
 @Slf4j
 @SpringBootTest
@@ -40,8 +46,23 @@ public class LegacyEntityServiceTest {
   @Test
   public void testGetLegacyEntityByGnosId() {
     val analysisId = "AN1";
+    val page = 0;
+    val size = 2000;
     val gnosId = analysisId;
-    val entities = legacyEntityService.getEntitiesByGnosId(gnosId,2000, 0).getContent();
+
+    val map = new LinkedMultiValueMap<String, String>();
+    map.put("size", newArrayList(Integer.toString(size)));
+    map.put("page", newArrayList(Integer.toString(page)));
+    map.put("gnosId", newArrayList(gnosId));
+
+    val probe = LegacyEntity.builder()
+        .gnosId(gnosId)
+        .build();
+
+    val response = legacyEntityService.find(map, probe, PageRequest.of(page, size));
+    val entities = stream(response.path("content"))
+        .map(x -> fromJson(x, LegacyEntity.class))
+        .collect(toImmutableList());
     assertThat(entities.size()).isGreaterThanOrEqualTo(2);
     val opt1 = entities.stream().filter(x -> x.getId().equals("FI1")).findFirst();
     val opt2 = entities.stream().filter(x -> x.getId().equals("FI2")).findFirst();
