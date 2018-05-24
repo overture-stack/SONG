@@ -110,6 +110,12 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
+        <!-- Squiggly - Dynamic JSON Views -->
+        <dependency>
+            <groupId>com.github.bohnman</groupId>
+            <artifactId>squiggly-filter-jackson</artifactId>
+        </dependency>
+
         <!-- spring-kafka -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
