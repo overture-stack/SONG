@@ -22,8 +22,9 @@ import com.github.bohnman.squiggly.Squiggly;
 import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.model.LegacyEntity;
-import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.converter.LegacyEntityConverter;
+import org.icgc.dcc.song.server.model.legacy.LegacyDto;
+import org.icgc.dcc.song.server.model.legacy.LegacyEntity;
 import org.icgc.dcc.song.server.repository.LegacyEntityRepository;
 import org.icgc.dcc.song.server.utils.ParameterChecker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.LEGACY_ENTITY_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
 @Service
@@ -55,34 +55,35 @@ public class LegacyEntityService {
   /**
    * Dependencies
    */
-  private final FileService fileService;
   private final LegacyEntityRepository legacyEntityRepository;
   private final ParameterChecker parameterChecker;
+  private final LegacyEntityConverter legacyEntityConverter;
 
   @Autowired
-  public LegacyEntityService(@NonNull FileService fileService,
+  public LegacyEntityService(
       @NonNull LegacyEntityRepository legacyEntityRepository,
-      @NonNull ParameterChecker parameterChecker) {
-    this.fileService = fileService;
+      @NonNull ParameterChecker parameterChecker,
+      @NonNull LegacyEntityConverter legacyEntityConverter){
     this.legacyEntityRepository = legacyEntityRepository;
     this.parameterChecker = parameterChecker;
+    this.legacyEntityConverter = legacyEntityConverter;
   }
 
-  public LegacyEntity getEntity( String id) {
-    val entity = fileService.read(id);
-    checkServer(!isNull(entity),this.getClass(), FILE_NOT_FOUND,
-        "The File with id '%s' was not found", id);
-    return convert(entity);
+  public LegacyDto getEntity( String id) {
+    val result = legacyEntityRepository.findById(id);
+    checkServer(result.isPresent(), getClass(), LEGACY_ENTITY_NOT_FOUND,
+        "The LegacyEntity with id '%s' does not exist", id);
+    return legacyEntityConverter.convertToLegacyDto(result.get());
   }
 
-  public JsonNode find( MultiValueMap<String, String> params, LegacyEntity probe, Pageable pageable) {
+  public JsonNode find( MultiValueMap<String, String> params, LegacyDto probe, Pageable pageable) {
     val queryParameters =  extractQueryParameters(params);
     val filterParameters = extractFilterParameters(params);
 
     parameterChecker.checkQueryParameters(LegacyEntity.class, queryParameters);
     parameterChecker.checkFilterParameters(LegacyEntity.class, filterParameters);
 
-    val results = legacyEntityRepository.findAll(Example.of(probe), pageable);
+    val results = legacyEntityRepository.findAll(Example.of(legacyEntityConverter.convertToLegacyEntity(probe)), pageable);
     val filter = buildLegacyEntityPageFilter(filterParameters);
     val mapper = Squiggly.init(JsonUtils.mapper(), filter);
     return mapper.valueToTree(results);
@@ -112,20 +113,10 @@ public class LegacyEntityService {
   }
 
   public static LegacyEntityService createLegacyEntityService(
-      FileService fileService,
-      LegacyEntityRepository legacyEntityRepository,
-      ParameterChecker parameterChecker) {
-    return new LegacyEntityService(fileService, legacyEntityRepository, parameterChecker);
-  }
-
-  private static LegacyEntity convert(File file){
-    return LegacyEntity.builder()
-        .id(file.getObjectId())
-        .gnosId(file.getAnalysisId())
-        .fileName(file.getFileName())
-        .projectCode(file.getStudyId())
-        .access(file.getFileAccess())
-        .build();
+      @NonNull LegacyEntityRepository legacyEntityRepository,
+      @NonNull ParameterChecker parameterChecker,
+      @NonNull LegacyEntityConverter legacyEntityConverter) {
+    return new LegacyEntityService(legacyEntityRepository, parameterChecker, legacyEntityConverter);
   }
 
 }

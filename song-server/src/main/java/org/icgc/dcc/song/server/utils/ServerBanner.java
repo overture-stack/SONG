@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.VersionUtils;
@@ -47,14 +46,17 @@ import static org.icgc.dcc.common.core.util.Joiners.WHITESPACE;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ServerBanner {
 
   /**
    * Dependencies.
    */
-  @NonNull
   private final StandardEnvironment env;
+
+  @Autowired
+  public ServerBanner(@NonNull StandardEnvironment env) {
+    this.env = env;
+  }
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 

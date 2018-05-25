@@ -18,7 +18,7 @@
 package org.icgc.dcc.song.server.service;
 
 import lombok.val;
-import org.icgc.dcc.song.server.model.LegacyEntity;
+import org.icgc.dcc.song.server.model.legacy.LegacyEntity;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;

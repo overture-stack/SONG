@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model;
+package org.icgc.dcc.song.server.model.legacy;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -39,7 +39,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LegacyEntity {
+public class LegacyEntity implements Legacy {
 
   @Id
   @Column(name = TableAttributeNames.ID, unique = true, nullable = false,

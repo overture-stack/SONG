@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonDocUtils;
 import org.icgc.dcc.song.core.utils.JsonSchemaUtils;
-import org.icgc.dcc.song.server.model.LegacyEntity;
+import org.icgc.dcc.song.server.model.legacy.LegacyEntity;
 import org.icgc.dcc.song.server.model.entity.IdView;
 import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
 import org.icgc.dcc.song.server.utils.ParameterChecker;

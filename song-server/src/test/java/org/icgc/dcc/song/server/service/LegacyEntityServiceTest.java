@@ -18,7 +18,9 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.model.LegacyEntity;
+import org.icgc.dcc.song.server.model.legacy.Legacy;
+import org.icgc.dcc.song.server.model.legacy.LegacyDto;
+import org.icgc.dcc.song.server.model.legacy.LegacyEntity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +57,7 @@ public class LegacyEntityServiceTest {
     map.put("page", newArrayList(Integer.toString(page)));
     map.put("gnosId", newArrayList(gnosId));
 
-    val probe = LegacyEntity.builder()
+    val probe = LegacyDto.builder()
         .gnosId(gnosId)
         .build();
 
@@ -68,8 +70,8 @@ public class LegacyEntityServiceTest {
     val opt2 = entities.stream().filter(x -> x.getId().equals("FI2")).findFirst();
     assertThat(opt1.isPresent()).isTrue();
     assertThat(opt2.isPresent()).isTrue();
-    LegacyEntity entity1 = opt1.get();
-    LegacyEntity entity2 = opt2.get();
+    Legacy entity1 = opt1.get();
+    Legacy entity2 = opt2.get();
 
     assertThat(entity1.getAccess()).isEqualTo("open");
     assertThat(entity1.getFileName()).isEqualTo("ABC-TC285G7-A5-ae3458712345.bam");

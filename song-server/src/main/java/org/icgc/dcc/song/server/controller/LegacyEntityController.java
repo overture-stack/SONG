@@ -21,7 +21,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.icgc.dcc.song.server.model.LegacyEntity;
+import org.icgc.dcc.song.server.model.legacy.Legacy;
+import org.icgc.dcc.song.server.model.legacy.LegacyDto;
 import org.icgc.dcc.song.server.service.LegacyEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +54,7 @@ public class LegacyEntityController {
   @ApiOperation(value = "ReadLegacyEntity", notes = "Read entity data for a legacy entity id")
   @GetMapping(value = "/{id}")
   @ResponseBody
-  public ResponseEntity<LegacyEntity> read(@PathVariable("id") String id) {
+  public ResponseEntity<Legacy> read(@PathVariable("id") String id) {
     return ok(legacyEntityService.getEntity(id));
   }
 
@@ -62,7 +63,7 @@ public class LegacyEntityController {
   @GetMapping
   public ResponseEntity<JsonNode> find(
       @RequestParam MultiValueMap<String, String> params,
-      @ModelAttribute LegacyEntity probe,
+      @ModelAttribute LegacyDto probe,
       @PageableDefault(sort = "id") Pageable pageable) {
     return ok(legacyEntityService.find(params, probe, pageable));
   }
