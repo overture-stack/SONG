@@ -18,6 +18,7 @@
 package org.icgc.dcc.song.core.utils;
 
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
+import com.google.common.collect.ImmutableList;
 import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.NonNull;
@@ -36,7 +37,9 @@ import static com.fasterxml.uuid.Generators.randomBasedGenerator;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Integer.MAX_VALUE;
+import static java.util.Collections.shuffle;
 import static java.util.stream.Collectors.toList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
 /**
  * Utility for generating random integers, strings and UUIDs using seed values while recording call counts to
@@ -115,19 +118,19 @@ public class RandomGenerator {
   }
 
   /**
-   * Generate a random integer between the interval [min, max)
-   * @param min inclusive lower bound
-   * @param max exclusive upper bound
+   * Generate a random integer between the interval [inclusiveMin, exlusiveMax)
+   * @param inclusiveMin inclusive lower bound
+   * @param exlusiveMax exclusive upper bound
    */
-  public int generateRandomIntRange(int min, int max){
+  public int generateRandomIntRange(int inclusiveMin, int exlusiveMax){
     log.info("Generating RandomIntRange for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, callCount);
-    checkArgument(min<max,"The min(%s) must be LESS THAN max(%s)", min, max);
-    val difference = (long)max - min;
+    checkArgument(inclusiveMin<exlusiveMax,"The inclusiveMin(%s) must be LESS THAN exlusiveMax(%s)", inclusiveMin, exlusiveMax);
+    val difference = (long)exlusiveMax - inclusiveMin;
     checkArgument(difference <= MAX_VALUE,
-        "The difference (%s) between max (%s) and (%s) must not exceed the integer max (%s)",
-        difference, max, min, MAX_VALUE);
-    return generateRandomInt(min, max-min);
+        "The difference (%s) between exlusiveMax (%s) and (%s) must not exceed the integer exlusiveMax (%s)",
+        difference, exlusiveMax, inclusiveMin, MAX_VALUE);
+    return generateRandomInt(inclusiveMin, exlusiveMax-inclusiveMin);
   }
 
   /**
@@ -156,6 +159,42 @@ public class RandomGenerator {
     log.info("Selecting random enum for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, callCount);
     return randomElement(enumList);
+  }
+
+  /**
+   * Creates a new shuffled list. Assumes the input list is immutable
+   * @param list input List
+   * @return shuffles list
+   */
+  public <T> List<T> shuffleList(List<T> list){
+    log.info("Shuffling list for RandomGenerator[{}] with seed '{}' and callCount '{}'",
+        id, seed, callCount++);
+    val mutableList = newArrayList(list);
+    shuffle(mutableList, random);
+    return ImmutableList.copyOf(mutableList);
+  }
+
+  /**
+   * Creates a random sublist of size {@code size}, from an input list
+   */
+  public <T> List<T> randomSublist(List<T> list, int size){
+    checkArgument(size <= list.size(),
+        "The input sublist size (%s) is greater than the list size (%s)", size, list.size());
+    val shuffledList = shuffleList(IntStream.range(0,list.size()).boxed().collect(toList()));
+    return IntStream.range(0, size)
+        .boxed()
+        .map(shuffledList::get)
+        .map(list::get)
+        .collect(toImmutableList());
+  }
+
+  /**
+   * Take an input list of size {@code inputSize}, and generate a random sublist of size {@code outputSize}
+   * where {@code outputSize} is in the range [1, inputSize )
+   */
+  public <T> List<T> randomSublist(List<T> list){
+    val size = generateRandomIntRange(1,list.size());
+    return randomSublist(list, size);
   }
 
   /**

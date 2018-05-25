@@ -63,8 +63,6 @@ public class RandomGeneratorTest {
     assertThat(md5).isEqualTo("953a2fb1afb52dc0ef6a95ec5cac8680");
     val randomGenerator2 = createRandomGenerator("rand1-seed1", 100);
     assertThat(randomGenerator2.generateRandomMD5()).isNotEqualTo(md5);
-
-
   }
 
   @Test

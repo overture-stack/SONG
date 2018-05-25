@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.service;
+package org.icgc.dcc.song.server;
 
 import lombok.val;
 import org.icgc.dcc.song.server.config.ConverterConfig;
@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EntityMapperTest {
+public class ConverterTest {
 
   private static final ConverterConfig CONVERTER_CONFIG = new ConverterConfig();
   private LegacyEntityConverter legacyEntityConverter = CONVERTER_CONFIG.legacyEntityConverter();

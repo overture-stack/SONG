@@ -20,7 +20,7 @@ import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ILLEGAL_FILTER_PARAMETER;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ILLEGAL_QUERY_PARAMETER;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNREGISTERED_TYPE;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
 @RequiredArgsConstructor(access = PRIVATE)
@@ -29,14 +29,14 @@ public class ParameterChecker {
   @NonNull
   private final Map<Class<?>, Set<String>> map;
 
-  public Set<String> getParameterNamesFor(@NonNull Class<?> type){
-    checkServer(map.containsKey(type), getClass(), UNKNOWN_ERROR,
+  public Set<String> getFieldNamesFor(@NonNull Class<?> type){
+    checkServer(map.containsKey(type), getClass(), UNREGISTERED_TYPE,
         "Unregistered type '%s'", type.getSimpleName());
     return map.get(type);
   }
 
   public boolean isLegal(Class<?> type, @NonNull Set<String> parameterNames){
-    return getParameterNamesFor(type).containsAll(parameterNames);
+    return getFieldNamesFor(type).containsAll(parameterNames);
   }
 
   public void checkQueryParameters(Class<?> type, Set<String> parameterNames){
@@ -52,7 +52,7 @@ public class ParameterChecker {
         error,
     "The %s parameters '%s' must be a subset of the following legal %s parameters '%s' ",
         parameterType, COMMA.join(parameterNames), parameterType,
-        COMMA.join(getParameterNamesFor(type)));
+        COMMA.join(getFieldNamesFor(type)));
   }
 
   public static ParameterChecker createParameterChecker(Class<?> ... types) {

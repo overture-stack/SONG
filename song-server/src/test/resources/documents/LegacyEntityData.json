@@ -1,0 +1,58 @@
+[
+  {
+    "id" : "FI1",
+    "gnosId" : "AN1",
+    "projectCode" : "ST1",
+    "fileName": "FN1.vcf.gz",
+    "access" : "controlled"
+  },
+  {
+    "id" : "FI2",
+    "gnosId" : "AN1",
+    "projectCode" : "ST1",
+    "fileName": "FN2.vcf.gz",
+    "access" : "controlled"
+  },
+  {
+    "id" : "FI3",
+    "gnosId" : "AN2",
+    "projectCode" : "ST1",
+    "fileName": "FN1.vcf.gz",
+    "access" : "controlled"
+  },
+  {
+    "id" : "FI4",
+    "gnosId" : "AN2",
+    "projectCode" : "ST1",
+    "fileName": "FN2.vcf.gz",
+    "access" : "open"
+  },
+  {
+    "id" : "FI5",
+    "gnosId" : "AN3",
+    "projectCode" : "ST2",
+    "fileName": "FN1.vcf.gz",
+    "access" : "controlled"
+  },
+  {
+    "id" : "FI6",
+    "gnosId" : "AN3",
+    "projectCode" : "ST2",
+    "fileName": "FN2.vcf.gz",
+    "access" : "controlled"
+  },
+  {
+    "id" : "FI7",
+    "gnosId" : "AN3",
+    "projectCode" : "ST2",
+    "fileName": "FN1.vcf.gz",
+    "access" : "controlled"
+  },
+  {
+    "id" : "FI8",
+    "gnosId" : "AN4",
+    "projectCode" : "ST2",
+    "fileName": "FN2.vcf.gz",
+    "access" : "open"
+  }
+]
