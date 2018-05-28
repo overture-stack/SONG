@@ -175,7 +175,7 @@ public class RandomGeneratorTest {
     assertThat(throwable1)
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage(
-            format("The min(%s) must be LESS THAN max(%s)", max, min));
+            format("The inclusiveMin(%s) must be LESS THAN exclusiveMax(%s)", max, min));
 
     val throwable2 = catchThrowable( () -> randomGenerator1.generateRandomIntRange(MIN_VALUE, MAX_VALUE));
     assertThat(throwable2)

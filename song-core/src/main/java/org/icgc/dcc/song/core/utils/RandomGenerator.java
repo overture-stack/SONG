@@ -125,10 +125,10 @@ public class RandomGenerator {
   public int generateRandomIntRange(int inclusiveMin, int exlusiveMax){
     log.info("Generating RandomIntRange for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id, seed, callCount);
-    checkArgument(inclusiveMin<exlusiveMax,"The inclusiveMin(%s) must be LESS THAN exlusiveMax(%s)", inclusiveMin, exlusiveMax);
+    checkArgument(inclusiveMin<exlusiveMax,"The inclusiveMin(%s) must be LESS THAN exclusiveMax(%s)", inclusiveMin, exlusiveMax);
     val difference = (long)exlusiveMax - inclusiveMin;
     checkArgument(difference <= MAX_VALUE,
-        "The difference (%s) between exlusiveMax (%s) and (%s) must not exceed the integer exlusiveMax (%s)",
+        "The difference (%s) between exclusiveMax (%s) and (%s) must not exceed the integer exclusiveMax (%s)",
         difference, exlusiveMax, inclusiveMin, MAX_VALUE);
     return generateRandomInt(inclusiveMin, exlusiveMax-inclusiveMin);
   }
