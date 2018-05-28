@@ -17,15 +17,20 @@
 
 package org.icgc.dcc.song.server.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.icgc.dcc.song.server.model.LegacyEntity;
+import org.icgc.dcc.song.server.model.legacy.Legacy;
+import org.icgc.dcc.song.server.model.legacy.LegacyDto;
 import org.icgc.dcc.song.server.service.LegacyEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,18 +54,18 @@ public class LegacyEntityController {
   @ApiOperation(value = "ReadLegacyEntity", notes = "Read entity data for a legacy entity id")
   @GetMapping(value = "/{id}")
   @ResponseBody
-  public ResponseEntity<LegacyEntity> read(@PathVariable("id") String id) {
+  public ResponseEntity<Legacy> read(@PathVariable("id") String id) {
     return ok(legacyEntityService.getEntity(id));
   }
 
-  @ApiOperation(value = "ReadLegacyEntitiesByGnosId", notes = "Page through LegacyEntity data for a gnosId")
-  @GetMapping
+  @ApiOperation(value = "FindLegacyEntities", notes = "Page through LegacyEntity data")
   @ResponseBody
-  public ResponseEntity<Page<LegacyEntity>> readGnosId(
-      @RequestParam(value = "gnosId") String gnosId,
-      @RequestParam(value = "size", required = false, defaultValue = "2000") int size,
-      @RequestParam(value = "page", required = false, defaultValue = "0") int page ) {
-    return ok(legacyEntityService.getEntitiesByGnosId(gnosId,size,page));
+  @GetMapping
+  public ResponseEntity<JsonNode> find(
+      @RequestParam MultiValueMap<String, String> params,
+      @ModelAttribute LegacyDto probe,
+      @PageableDefault(sort = "id") Pageable pageable) {
+    return ok(legacyEntityService.find(params, probe, pageable));
   }
 
 }

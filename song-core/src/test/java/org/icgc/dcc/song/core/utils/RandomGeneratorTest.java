@@ -63,8 +63,6 @@ public class RandomGeneratorTest {
     assertThat(md5).isEqualTo("953a2fb1afb52dc0ef6a95ec5cac8680");
     val randomGenerator2 = createRandomGenerator("rand1-seed1", 100);
     assertThat(randomGenerator2.generateRandomMD5()).isNotEqualTo(md5);
-
-
   }
 
   @Test
@@ -177,7 +175,7 @@ public class RandomGeneratorTest {
     assertThat(throwable1)
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage(
-            format("The min(%s) must be LESS THAN max(%s)", max, min));
+            format("The inclusiveMin(%s) must be LESS THAN exclusiveMax(%s)", max, min));
 
     val throwable2 = catchThrowable( () -> randomGenerator1.generateRandomIntRange(MIN_VALUE, MAX_VALUE));
     assertThat(throwable2)

@@ -23,6 +23,9 @@ import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -57,6 +60,15 @@ public class FileService {
     repository.save(file);
     infoService.create(id, file.getInfoAsString());
     return id;
+  }
+
+  public Page<File> find(@NonNull Example<File> probe,
+      @NonNull Pageable pageable){
+    return repository.findAll(probe, pageable);
+  }
+
+  public Page<File> findAll(@NonNull Pageable pageable){
+    return repository.findAll(pageable);
   }
 
   public boolean isFileExist(@NonNull String id){

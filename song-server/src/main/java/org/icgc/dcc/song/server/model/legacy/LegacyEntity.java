@@ -15,25 +15,51 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model;
+package org.icgc.dcc.song.server.model.legacy;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.Immutable;
+import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
+import org.icgc.dcc.song.server.model.enums.TableNames;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = TableNames.FILE)
+@Immutable
 @Data
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LegacyEntity {
+public class LegacyEntity implements Legacy {
 
+  @Id
+  @Column(name = TableAttributeNames.ID, unique = true, nullable = false,
+      insertable = false, updatable = false)
   private String id;
+
+  @Column(name = TableAttributeNames.ANALYSIS_ID, unique = false, nullable = false,
+      insertable = false, updatable = false)
   private String gnosId;
+
+  @Column(name = TableAttributeNames.NAME, unique = false, nullable = false,
+      insertable = false, updatable = false)
   private String fileName;
+
+  @Column(name = TableAttributeNames.STUDY_ID, unique = false, nullable = false,
+      insertable = false, updatable = false)
   private String projectCode;
+
+  @Column(name = TableAttributeNames.ACCESS, unique = false, nullable = false,
+      insertable = false, updatable = false)
   private String access;
 
 }

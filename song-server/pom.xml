@@ -76,6 +76,17 @@
             <artifactId>postgresql</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-jdk8</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Hibernate Json Types -->
         <dependency>
             <groupId>com.marvinformatics.hibernate</groupId>
@@ -110,6 +121,12 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
+        <!-- Squiggly - Dynamic JSON Views -->
+        <dependency>
+            <groupId>com.github.bohnman</groupId>
+            <artifactId>squiggly-filter-jackson</artifactId>
+        </dependency>
+
         <!-- spring-kafka -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
@@ -120,6 +137,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.icgc.dcc</groupId>
@@ -193,6 +211,7 @@
                     <!--</execution>-->
                 <!--</executions>-->
             <!--</plugin>-->
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
