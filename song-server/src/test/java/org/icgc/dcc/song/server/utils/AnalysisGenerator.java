@@ -49,7 +49,7 @@ public class AnalysisGenerator {
     // randomly generated objectId (fileIds)
     analysis.setAnalysisId(EMPTY_STRING);
     val analysisId = service.create(studyId, analysis, false);
-    val out = analysisClass.cast(service.read(analysisId));
+    val out = analysisClass.cast(service.deepRead(analysisId));
     assertThat(analysis).isExactlyInstanceOf(analysisClass);
     return out;
   }

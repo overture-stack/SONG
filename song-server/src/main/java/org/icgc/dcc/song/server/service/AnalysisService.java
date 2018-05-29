@@ -80,6 +80,12 @@ import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiS
 @RequiredArgsConstructor
 public class AnalysisService {
 
+  private static final Map<String, Class<? extends AbstractAnalysis>> ANALYSIS_CLASS_MAP =
+      new HashMap<String, Class<? extends AbstractAnalysis>>(){{
+        put(AnalysisTypes.SEQUENCING_READ.toString(), SequencingReadAnalysis.class);
+        put(AnalysisTypes.VARIANT_CALL.toString(), VariantCallAnalysis.class);
+      }};
+
   @Autowired
   private final AnalysisRepository repository;
   @Autowired
@@ -162,18 +168,6 @@ public class AnalysisService {
    return id;
   }
 
-  private void createSequencingRead(String id, SequencingRead experiment) {
-    experiment.setAnalysisId(id);
-    sequencingReadRepository.save(experiment);
-    sequencingReadInfoService.create(id, experiment.getInfoAsString());
-  }
-
-  private void createVariantCall(String id, VariantCall experiment) {
-    experiment.setAnalysisId(id);
-    variantCallRepository.save(experiment);
-    variantCallInfoService.create(id, experiment.getInfoAsString());
-  }
-
   public ResponseEntity<String> updateAnalysis(String studyId, AbstractAnalysis analysis) {
     val id = analysis.getAnalysisId();
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(id);
@@ -211,7 +205,6 @@ public class AnalysisService {
     return processAnalysisList(analysisList);
   }
 
-
   /**
    * Searches all analysis matching the IdSearchRequest
    * @param request which defines the query
@@ -221,7 +214,7 @@ public class AnalysisService {
   public List<AbstractAnalysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request){
     val analysisList = searchRepository.idSearch(studyId,request).stream()
         .map(AbstractAnalysis::getAnalysisId)
-        .map(this::read)
+        .map(this::deepRead)
         .collect(toImmutableList());
     if (analysisList.isEmpty()){
       studyService.checkStudyExist(studyId);
@@ -244,8 +237,19 @@ public class AnalysisService {
     return searchRepository.infoSearch(request.isIncludeInfo(), request.getSearchTerms());
   }
 
-  public AbstractAnalysis read(String id) {
-    val analysis = checkAnalysis(id);
+  public boolean isAnalysisExist(@NonNull String id){
+    return repository.existsById(id);
+  }
+
+  public void checkAnalysisExists(String id){
+    validateAnalysisExistence(isAnalysisExist(id), id);
+  }
+
+  /**
+   * Reads an analysis WITH all of its files, samples and info
+   */
+  public AbstractAnalysis deepRead(String id) {
+    val analysis = shallowRead(id);
     analysis.setInfo(analysisInfoService.readNullableInfo(id));
 
     analysis.setFile(readFiles(id));
@@ -260,7 +264,7 @@ public class AnalysisService {
 
     // If there are no files, check that the analysis even exits, or if the analysis is corrupted
     if (files.isEmpty()){
-      checkAnalysis(id);
+      checkAnalysisExists(id);
       throw buildServerException(getClass(), ANALYSIS_MISSING_FILES,
           "The analysis with analysisId '%s' is missing files and is therefore corrupted. "
               + "It should contain at least 1 file", id);
@@ -300,7 +304,7 @@ public class AnalysisService {
     // If there are no samples, check that the analysis even exists. If it does, then the analysis is corrupted since
     // it is missing samples
     if (samples.isEmpty()){
-      checkAnalysis(id);
+      checkAnalysisExists(id);
       throw buildServerException(getClass(), ANALYSIS_MISSING_SAMPLES,
           "The analysis with analysisId '%s' is missing samples and is therefore corrupted. "
           + "It should map to at least 1 sample",id);
@@ -337,39 +341,6 @@ public class AnalysisService {
     variantCallInfoService.update(id, experiment.getInfoAsString());
   }
 
-  static AbstractAnalysis checkAnalysis(AnalysisRepository analysisRepository, String id){
-    val analysisResult = analysisRepository.findById(id);
-
-    checkServer(analysisResult.isPresent(),
-        AnalysisService.class, ANALYSIS_ID_NOT_FOUND,
-        "The analysisId '%s' was not found", id );
-
-    val analysis = analysisResult.get();
-    AbstractAnalysis out;
-    if (analysis.getAnalysisType().equals(SEQUENCING_READ_TYPE)){
-      out = new SequencingReadAnalysis();
-    } else if(analysis.getAnalysisType().equals(VARIANT_CALL_TYPE)){
-      out = new VariantCallAnalysis();
-    } else {
-      throw buildServerException(AnalysisService.class, UNKNOWN_ERROR,
-          "unknown analysisType: %s", analysis.getAnalysisType());
-    }
-    out.setWith(analysis);
-    return out;
-
-  }
-
-  private static final Map<String, Class<? extends AbstractAnalysis>> ANALYSIS_CLASS_MAP =
-      new HashMap<String, Class<? extends AbstractAnalysis>>(){{
-    put(AnalysisTypes.SEQUENCING_READ.toString(), SequencingReadAnalysis.class);
-    put(AnalysisTypes.VARIANT_CALL.toString(), VariantCallAnalysis.class);
-  }};
-
-  @SneakyThrows
-  private static AbstractAnalysis instantiateAnalysis(@NonNull String analysisType){
-    return ANALYSIS_CLASS_MAP.get(analysisType).newInstance();
-  }
-
   private AbstractAnalysis cloneAnalysis(AbstractAnalysis a){
     val newAnalysis = instantiateAnalysis(a.getAnalysisType());
     newAnalysis.setWith(a);
@@ -379,10 +350,6 @@ public class AnalysisService {
       ((VariantCallAnalysis) newAnalysis).setExperiment(readVariantCall(a.getAnalysisId()));
     }
     return newAnalysis;
-  }
-
-  public AbstractAnalysis checkAnalysis(String id){
-    return checkAnalysis(repository, id);
   }
 
   SequencingRead readSequencingRead(String id) {
@@ -405,7 +372,7 @@ public class AnalysisService {
 
   private void checkedUpdateState(String id, AnalysisStates analysisState) {
     val state = analysisState.name();
-    val analysis = read(id);
+    val analysis = deepRead(id);
     analysis.setAnalysisState(state);
     val analysisUpdateRequest = new Analysis();
     analysisUpdateRequest.setWith(analysis);
@@ -441,6 +408,51 @@ public class AnalysisService {
     analysis.setSample(readSamples(id));
     analysis.setInfo(analysisInfoService.readNullableInfo(id));
     return cloneAnalysis(analysis);
+  }
+
+  private void createSequencingRead(String id, SequencingRead experiment) {
+    experiment.setAnalysisId(id);
+    sequencingReadRepository.save(experiment);
+    sequencingReadInfoService.create(id, experiment.getInfoAsString());
+  }
+
+  private void createVariantCall(String id, VariantCall experiment) {
+    experiment.setAnalysisId(id);
+    variantCallRepository.save(experiment);
+    variantCallInfoService.create(id, experiment.getInfoAsString());
+  }
+
+  private void validateAnalysisExistence(boolean isAnalysisExist, String id){
+    checkServer(isAnalysisExist,
+        AnalysisService.class, ANALYSIS_ID_NOT_FOUND,
+        "The analysisId '%s' was not found", id );
+  }
+
+  /**
+   * Reads an analysis WITHOUT any files, samples or info
+   */
+  private AbstractAnalysis shallowRead(String id){
+    val analysisResult = repository.findById(id);
+
+    validateAnalysisExistence(analysisResult.isPresent(), id);
+
+    val analysis = analysisResult.get();
+    AbstractAnalysis out;
+    if (analysis.getAnalysisType().equals(SEQUENCING_READ_TYPE)){
+      out = new SequencingReadAnalysis();
+    } else if(analysis.getAnalysisType().equals(VARIANT_CALL_TYPE)){
+      out = new VariantCallAnalysis();
+    } else {
+      throw buildServerException(AnalysisService.class, UNKNOWN_ERROR,
+          "unknown analysisType: %s", analysis.getAnalysisType());
+    }
+    out.setWith(analysis);
+    return out;
+  }
+
+  @SneakyThrows
+  private static AbstractAnalysis instantiateAnalysis(@NonNull String analysisType){
+    return ANALYSIS_CLASS_MAP.get(analysisType).newInstance();
   }
 
 }

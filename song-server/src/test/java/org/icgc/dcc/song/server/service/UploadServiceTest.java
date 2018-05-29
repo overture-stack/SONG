@@ -97,7 +97,7 @@ public class UploadServiceTest {
     val analysisStatus1 = fromStatus(saveStatus1, "status");
     assertThat(analysisStatus1).isEqualTo("ok");
     val analysisId1 = fromStatus(saveStatus1, "analysisId");
-    val a1 =  analysisService.read(analysisId1);
+    val a1 =  analysisService.deepRead(analysisId1);
     val sa1 = ((SequencingReadAnalysis) a1).getExperiment();
     assertThat(sa1.getAligned()).isNull();
     assertThat(sa1.getAlignmentTool()).isNull();
@@ -113,7 +113,7 @@ public class UploadServiceTest {
     val analysisStatus2 = fromStatus(saveStatus2, "status");
     assertThat(analysisStatus2).isEqualTo("ok");
     val analysisId2 = fromStatus(saveStatus2, "analysisId");
-    val a2 =  analysisService.read(analysisId2);
+    val a2 =  analysisService.deepRead(analysisId2);
     val sa2 = ((SequencingReadAnalysis) a2).getExperiment();
     assertThat(sa2.getAligned()).isNull();
     assertThat(sa2.getAlignmentTool()).isNull();

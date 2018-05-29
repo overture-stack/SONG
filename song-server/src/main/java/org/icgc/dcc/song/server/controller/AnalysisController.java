@@ -126,7 +126,7 @@ public class AnalysisController {
   public AbstractAnalysis read(
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
-    return analysisService.read(id);
+    return analysisService.deepRead(id);
   }
 
   /***

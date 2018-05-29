@@ -20,7 +20,6 @@ import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +35,6 @@ import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
-import static org.icgc.dcc.song.server.service.AnalysisService.checkAnalysis;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
@@ -51,7 +49,7 @@ public class FileServiceTest {
   @Autowired
   StudyService studyService;
   @Autowired
-  AnalysisRepository analysisRepository;
+  AnalysisService analysisService;
 
   private final RandomGenerator randomGenerator = createRandomGenerator(FileServiceTest.class.getSimpleName());
 
@@ -122,7 +120,7 @@ public class FileServiceTest {
   public void testSaveFile(){
     val analysisId = DEFAULT_ANALYSIS_ID;
     val studyId = DEFAULT_STUDY_ID;
-    checkAnalysis(analysisRepository, analysisId);
+    analysisService.checkAnalysisExists(analysisId);
 
     val randomFile = createRandomFile(studyId, analysisId);
     val fileId = fileService.save(analysisId, studyId, randomFile);
@@ -200,7 +198,7 @@ public class FileServiceTest {
   @Test
   public void testStudyDNE(){
     val existingAnalysisId = DEFAULT_ANALYSIS_ID;
-    checkAnalysis(analysisRepository, existingAnalysisId);
+    analysisService.checkAnalysisExists(existingAnalysisId);
 
     val nonExistentStudyId = randomGenerator.generateRandomUUID().toString();
     val randomFile = createRandomFile(nonExistentStudyId, existingAnalysisId);
@@ -218,7 +216,7 @@ public class FileServiceTest {
   public void testFileDNE(){
     val studyId = DEFAULT_STUDY_ID;
     val existingAnalysisId = DEFAULT_ANALYSIS_ID;
-    checkAnalysis(analysisRepository, existingAnalysisId);
+    analysisService.checkAnalysisExists(existingAnalysisId);
 
     val randomFile = createRandomFile(studyId, existingAnalysisId);
     assertSongError(() -> fileService.update(randomFile), FILE_NOT_FOUND );
