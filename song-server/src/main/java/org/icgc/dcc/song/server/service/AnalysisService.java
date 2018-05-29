@@ -61,6 +61,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOU
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
@@ -245,6 +246,17 @@ public class AnalysisService {
     validateAnalysisExistence(isAnalysisExist(id), id);
   }
 
+  public void checkAnalysisAndStudyRelated(@NonNull String studyId, @NonNull String id){
+    val numAnalyses = repository.countAllByStudyAndAnalysisId(studyId, id);
+    if (numAnalyses < 1){
+      studyService.checkStudyExist(studyId);
+      val analysis = shallowRead(id);
+      throw buildServerException(AnalysisService.class, ENTITY_NOT_RELATED_TO_STUDY,
+          "The analysisId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
+          id, studyId, analysis.getStudy() );
+    }
+  }
+
   /**
    * Reads an analysis WITH all of its files, samples and info
    */
@@ -273,7 +285,9 @@ public class AnalysisService {
   }
 
   @Transactional
-  public ResponseEntity<String> publish(@NonNull String accessToken, @NonNull String id) {
+  public ResponseEntity<String> publish(@NonNull String accessToken,
+      @NonNull String studyId, @NonNull String id) {
+    checkAnalysisAndStudyRelated(studyId, id);
     val files = readFiles(id);
     val missingFileIds = files.stream()
         .filter(f -> !confirmUploaded(accessToken, f.getObjectId()))

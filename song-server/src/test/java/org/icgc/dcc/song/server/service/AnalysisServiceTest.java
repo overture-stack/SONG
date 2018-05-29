@@ -39,6 +39,7 @@ import org.icgc.dcc.song.server.repository.SequencingReadRepository;
 import org.icgc.dcc.song.server.repository.VariantCallRepository;
 import org.icgc.dcc.song.server.utils.AnalysisGenerator;
 import org.icgc.dcc.song.server.utils.PayloadGenerator;
+import org.icgc.dcc.song.server.utils.StudyGenerator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -66,6 +67,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOU
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
@@ -126,6 +128,7 @@ public class AnalysisServiceTest {
 
   private PayloadGenerator payloadGenerator;
   private AnalysisGenerator analysisGenerator;
+  private StudyGenerator studyGenerator;
 
   @Autowired
   private RetryTemplate retryTemplate;
@@ -133,6 +136,7 @@ public class AnalysisServiceTest {
   @Before
   public void beforeTest(){
     assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+    assertThat(service.isAnalysisExist(DEFAULT_ANALYSIS_ID)).isTrue();
   }
 
   /**
@@ -143,6 +147,7 @@ public class AnalysisServiceTest {
   public void init(){
     this.payloadGenerator = createPayloadGenerator(randomGenerator);
     this.analysisGenerator = createAnalysisGenerator(DEFAULT_STUDY_ID, service, payloadGenerator);
+    this.studyGenerator = createStudyGenerator(studyService, randomGenerator);
     val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
     val testExistenceService = createExistenceService(retryTemplate,testStorageUrl);
     ReflectionTestUtils.setField(service, "existence", testExistenceService);
@@ -488,8 +493,9 @@ public class AnalysisServiceTest {
   public void testPublish() {
     setUpDccStorageMockService(true);
     val token = "mockToken";
-    val id = "AN1";
-    service.publish(token, id);
+    val id = DEFAULT_ANALYSIS_ID;
+    val studyId = DEFAULT_STUDY_ID;
+    service.publish(token, studyId, id);
 
     val analysis = service.deepRead(id);
     assertThat(analysis.getAnalysisState()).isEqualTo("PUBLISHED");
@@ -499,12 +505,26 @@ public class AnalysisServiceTest {
   public void testPublishError() {
     setUpDccStorageMockService(false);
     val token = "mockToken";
-    val id = "AN1";
-    val nonExistentId = randomGenerator.generateRandomUUIDAsString();
-    assertSongError(() -> service.publish(token, id), UNPUBLISHED_FILE_IDS, null);
-    assertSongError(() -> service.publish(token, nonExistentId), ANALYSIS_ID_NOT_FOUND);
-  }
+    val existingAnalysisId = DEFAULT_ANALYSIS_ID;
+    val existingStudyId = DEFAULT_STUDY_ID;
+    val nonExistingAnalysisId = generateNonExistingAnalysisId();
+    val nonExistentStudyId = generateNonExistingStudyId();
+    val unrelatedExistingStudyId = studyGenerator.createRandomStudy();
 
+    assertSongError(
+        () -> service.publish(token, existingStudyId, nonExistingAnalysisId), ANALYSIS_ID_NOT_FOUND);
+
+    assertSongError(
+        () -> service.publish(token, nonExistentStudyId, existingAnalysisId), STUDY_ID_DOES_NOT_EXIST);
+
+    assertSongError(
+        () -> service.publish(token, nonExistentStudyId, nonExistingAnalysisId), STUDY_ID_DOES_NOT_EXIST);
+
+    assertSongError(
+        () -> service.publish(token, unrelatedExistingStudyId, existingAnalysisId), ENTITY_NOT_RELATED_TO_STUDY);
+
+    assertSongError(() -> service.publish(token, existingStudyId, existingAnalysisId), UNPUBLISHED_FILE_IDS);
+  }
 
   @Test
   public void testSuppress() {
@@ -576,7 +596,6 @@ public class AnalysisServiceTest {
 
   @Test
   public void testGetAnalysisAndIdSearch(){
-    val studyGenerator = createStudyGenerator(studyService, randomGenerator);
     val studyId = studyGenerator.createRandomStudy();
 
     val analysisGenerator = createAnalysisGenerator(studyId, service, payloadGenerator);
@@ -697,10 +716,57 @@ public class AnalysisServiceTest {
   @Test
   public void testAnalysisIdDneException(){
     val nonExistentAnalysisId = randomGenerator.generateRandomUUID().toString();
+    assertSongError(() -> service.checkAnalysisAndStudyRelated(DEFAULT_STUDY_ID, nonExistentAnalysisId),
+        ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.checkAnalysisExists(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.deepRead(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.readFiles(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.readSamples(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+  }
+
+  @Test
+  public void testCheckAnalysisAndStudyRelated(){
+    val existingAnalysisId = DEFAULT_ANALYSIS_ID;
+    val existingStudyId =  DEFAULT_STUDY_ID;
+    assertThat(service.isAnalysisExist(existingAnalysisId)).isTrue();
+    assertThat(studyService.isStudyExist(existingStudyId)).isTrue();
+    service.checkAnalysisAndStudyRelated(existingStudyId, existingAnalysisId);
+    assert(true);
+  }
+
+  @Test
+  public void testAnalysisAndStudyUnRelated(){
+    // Create stimulus
+    val nonExistingStudyId = randomGenerator.generateRandomUUID().toString();
+    val nonExistingAnalysisId = randomGenerator.generateRandomUUID().toString();
+    val existingAnalysisId = DEFAULT_ANALYSIS_ID;
+    val existingStudyId =  DEFAULT_STUDY_ID;
+
+    // Check stimulus is correct
+    assertThat(service.isAnalysisExist(existingAnalysisId)).isTrue();
+    assertThat(service.isAnalysisExist(nonExistingAnalysisId)).isFalse();
+    assertThat(studyService.isStudyExist(existingStudyId)).isTrue();
+    assertThat(studyService.isStudyExist(nonExistingStudyId)).isFalse();
+
+    // Test if study DNE (does not exist) but analysisId exists
+    assertSongError( () -> service.checkAnalysisAndStudyRelated(nonExistingStudyId, existingAnalysisId),
+        STUDY_ID_DOES_NOT_EXIST);
+
+    // Test if study DNE (does not exist) and analysisId DNE
+    assertSongError( () -> service.checkAnalysisAndStudyRelated(nonExistingStudyId, nonExistingAnalysisId),
+        STUDY_ID_DOES_NOT_EXIST);
+
+    // Test if study exists and analysisId DNE
+    assertSongError( () -> service.checkAnalysisAndStudyRelated(existingStudyId, nonExistingAnalysisId),
+        ANALYSIS_ID_NOT_FOUND);
+
+
+    // Create new study, which will be unrelated to the exisitngStudyId used previously
+    val unrelatedExistingStudyId = studyGenerator.createRandomStudy();
+
+    // Test if correct error thrown is both studyId and analysisId exist but are unrelated
+    assertSongError(() -> service.checkAnalysisAndStudyRelated(unrelatedExistingStudyId, existingAnalysisId),
+        ENTITY_NOT_RELATED_TO_STUDY);
   }
 
   @Test
@@ -725,6 +791,18 @@ public class AnalysisServiceTest {
         .map(Sample::getSampleId)
         .forEach(sampleRepository::deleteById);
     assertSongError(() -> service.readSamples(analysisId), ANALYSIS_MISSING_SAMPLES);
+  }
+
+  private String generateNonExistingAnalysisId(){
+    val id = randomGenerator.generateRandomUUIDAsString();
+    assertThat(service.isAnalysisExist(id)).isFalse();
+    return id;
+  }
+
+  private String generateNonExistingStudyId(){
+    val id = randomGenerator.generateRandomUUIDAsString();
+    assertThat(studyService.isStudyExist(id)).isFalse();
+    return id;
   }
 
 }
