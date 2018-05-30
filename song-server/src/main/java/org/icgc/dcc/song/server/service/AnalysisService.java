@@ -120,10 +120,6 @@ public class AnalysisService {
   @Autowired
   private final FileRepository fileRepository;
 
-  public boolean doesAnalysisIdExist(String id){
-    return repository.existsById(id);
-  }
-
   public String create(String studyId, AbstractAnalysis a, boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);
     val candidateAnalysisId = a.getAnalysisId();
@@ -141,7 +137,7 @@ public class AnalysisService {
      *  - user re-saves upload1 and gets the existing analysisId AN123 back.
      *  - user thinks they updated the analysis with the re-upload.
      */
-    checkServer(!doesAnalysisIdExist(id), this.getClass(), DUPLICATE_ANALYSIS_ATTEMPT,
+    checkServer(!isAnalysisExist(id), this.getClass(), DUPLICATE_ANALYSIS_ATTEMPT,
         "Attempted to create a duplicate analysis. Please "
             + "delete the analysis for analysisId '%s' and re-save", id);
     a.setAnalysisId(id);
@@ -215,7 +211,7 @@ public class AnalysisService {
   public List<AbstractAnalysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request){
     val analysisList = searchRepository.idSearch(studyId,request).stream()
         .map(AbstractAnalysis::getAnalysisId)
-        .map(this::deepRead)
+        .map(x -> securedDeepRead(studyId, x))
         .collect(toImmutableList());
     if (analysisList.isEmpty()){
       studyService.checkStudyExist(studyId);
@@ -258,15 +254,25 @@ public class AnalysisService {
   }
 
   /**
-   * Reads an analysis WITH all of its files, samples and info
+   * Unsecurely reads an analysis WITH all of its files, samples and info,
+   * but does not verify if the studyId used in the request is allowed to read this analysis
    */
-  public AbstractAnalysis deepRead(String id) {
+  public AbstractAnalysis unsecuredDeepRead(@NonNull String id) {
     val analysis = shallowRead(id);
     analysis.setInfo(analysisInfoService.readNullableInfo(id));
 
     analysis.setFile(readFiles(id));
     analysis.setSample(readSamples(id));
     return cloneAnalysis(analysis);
+  }
+
+  /**
+   * Securely reads an analysis WITH all of its files, samples and info, and verifies the input
+   * studyId is related to the requested analysisId
+   */
+  public AbstractAnalysis securedDeepRead(@NonNull String studyId, String id) {
+    checkAnalysisAndStudyRelated(studyId, id);
+    return unsecuredDeepRead(id);
   }
 
   public List<File> readFiles(String id) {
@@ -387,7 +393,7 @@ public class AnalysisService {
 
   private void checkedUpdateState(String id, AnalysisStates analysisState) {
     val state = analysisState.name();
-    val analysis = deepRead(id);
+    val analysis = shallowRead(id);
     analysis.setAnalysisState(state);
     val analysisUpdateRequest = new Analysis();
     analysisUpdateRequest.setWith(analysis);

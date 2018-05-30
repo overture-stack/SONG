@@ -54,7 +54,7 @@ public class ExportService {
 
   private Map<String, List<AbstractAnalysis>> aggregateByStudy(List<String> analysisIds){
     return analysisIds.stream()
-        .map(x -> analysisService.deepRead(x))
+        .map(analysisService::unsecuredDeepRead)
         .collect(groupingBy(AbstractAnalysis::getStudy));
   }
 

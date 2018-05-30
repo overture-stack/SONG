@@ -312,7 +312,7 @@ public class ExportServiceTest {
     assertThat(status2).isEqualTo(OK);
     val analysisId = fromStatus(analysisResponse, ANALYSIS_ID);
 
-    return analysisClass.cast(analysisService.deepRead(analysisId));
+    return analysisClass.cast(analysisService.securedDeepRead(studyId, analysisId));
   }
 
   /**

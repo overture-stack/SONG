@@ -18,6 +18,7 @@
 package org.icgc.dcc.song.server.utils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.Study;
 import org.icgc.dcc.song.server.service.StudyService;
@@ -31,18 +32,23 @@ public class StudyGenerator {
   private final RandomGenerator randomGenerator;
 
   public String createRandomStudy(){
-    boolean studyExists;
-    String studyId;
-    do {
-      studyId = randomGenerator.generateRandomAsciiString(12);
-      studyExists = studyService.isStudyExist(studyId);
-    } while (studyExists);
+    val studyId = generateNonExistingStudyId();
     studyService.saveStudy(Study.builder()
         .studyId(studyId)
         .name("")
         .description("")
         .organization("")
         .build());
+    return studyId;
+  }
+
+  public String generateNonExistingStudyId(){
+    boolean studyExists;
+    String studyId;
+    do {
+      studyId = randomGenerator.generateRandomAsciiString(12);
+      studyExists = studyService.isStudyExist(studyId);
+    } while (studyExists);
     return studyId;
   }
 
