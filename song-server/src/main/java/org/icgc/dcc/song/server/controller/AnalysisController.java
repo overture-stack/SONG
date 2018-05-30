@@ -136,8 +136,10 @@ public class AnalysisController {
    */
   @ApiOperation(value = "ReadAnalysisFiles", notes = "Retrieve the file objects for an analysisId")
   @GetMapping(value = "/{id}/files")
-  public List<File> getFilesById(@PathVariable("id") String id) {
-    return analysisService.readFiles(id);
+  public List<File> getFilesById(
+      @PathVariable("studyId") String studyId,
+      @PathVariable("id") String id) {
+    return analysisService.securedReadFiles(studyId, id);
   }
 
 

@@ -482,7 +482,7 @@ public class AnalysisServiceTest {
     }
 
     // Test the readFiles method
-    for (val file : service.readFiles(analysisId)){
+    for (val file : service.unsecuredReadFiles(analysisId)){
       assertThat(fileMap).containsKeys(file.getFileName());
       assertThat(file).isEqualTo(fileMap.get(file.getFileName()));
     }
@@ -550,7 +550,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadFiles() {
-    val files = service.readFiles("AN1");
+    val files = service.unsecuredReadFiles(DEFAULT_ANALYSIS_ID);
     System.err.printf("Got files '%s'", files);
     val expectedFiles = new ArrayList<File>();
 
@@ -559,6 +559,16 @@ public class AnalysisServiceTest {
 
     assertThat(files).containsAll(expectedFiles);
     assertThat(expectedFiles).containsAll(files);
+    val files2 = service.securedReadFiles(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
+    assertThat(files2).containsOnlyElementsOf(files);
+  }
+
+  @Test
+  public void testReadFilesError() {
+    val nonExistingAnalysisId = analysisGenerator.generateNonExistingAnalysisId();
+    assertSongError(() -> service.unsecuredReadFiles(nonExistingAnalysisId), ANALYSIS_ID_NOT_FOUND);
+
+    secureAnalysisTester.runSecureAnalysisTest((s,a) -> service.securedReadFiles(s,a));
   }
 
   @Test
@@ -689,13 +699,15 @@ public class AnalysisServiceTest {
 
     fileRepository.deleteAllByAnalysisId(analysisId1);
     assertThat(fileRepository.findAllByAnalysisId(analysisId1)).isEmpty();
-    assertSongError(() -> service.readFiles(analysisId1), ANALYSIS_MISSING_FILES);
+    assertSongError(() -> service.unsecuredReadFiles(analysisId1), ANALYSIS_MISSING_FILES);
+    assertSongError(() -> service.securedReadFiles(analysis1.getStudy(), analysisId1), ANALYSIS_MISSING_FILES);
 
     val analysis2 = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId2 = analysis2.getAnalysisId();
     fileRepository.deleteAllByAnalysisId(analysisId2);
     assertThat(fileRepository.findAllByAnalysisId(analysisId2)).isEmpty();
-    assertSongError(() -> service.readFiles(analysisId2), ANALYSIS_MISSING_FILES);
+    assertSongError(() -> service.unsecuredReadFiles(analysisId2), ANALYSIS_MISSING_FILES);
+    assertSongError(() -> service.securedReadFiles(analysis2.getStudy(), analysisId2), ANALYSIS_MISSING_FILES);
   }
 
   @Test
@@ -718,7 +730,8 @@ public class AnalysisServiceTest {
     assertSongError(() -> service.checkAnalysisExists(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.securedDeepRead(DEFAULT_STUDY_ID ,nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.unsecuredDeepRead(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
-    assertSongError(() -> service.readFiles(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.unsecuredReadFiles(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.securedReadFiles(DEFAULT_STUDY_ID, nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.readSamples(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
   }
 

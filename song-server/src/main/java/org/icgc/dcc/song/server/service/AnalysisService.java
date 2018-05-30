@@ -261,7 +261,7 @@ public class AnalysisService {
     val analysis = shallowRead(id);
     analysis.setInfo(analysisInfoService.readNullableInfo(id));
 
-    analysis.setFile(readFiles(id));
+    analysis.setFile(unsecuredReadFiles(id));
     analysis.setSample(readSamples(id));
     return cloneAnalysis(analysis);
   }
@@ -275,12 +275,17 @@ public class AnalysisService {
     return unsecuredDeepRead(id);
   }
 
-  public List<File> readFiles(String id) {
+  public List<File> securedReadFiles(@NonNull String studyId, String id) {
+    checkAnalysisAndStudyRelated(studyId, id);
+    return unsecuredReadFiles(id);
+  }
+
+  public List<File> unsecuredReadFiles(@NonNull String id) {
     val files = fileRepository.findAllByAnalysisId(id).stream()
         .peek(f -> f.setInfo(fileInfoService.readNullableInfo(f.getObjectId()) ))
         .collect(toImmutableList());
 
-    // If there are no files, check that the analysis even exits, or if the analysis is corrupted
+    // Check there are files, and if not throw an exception
     if (files.isEmpty()){
       checkAnalysisExists(id);
       throw buildServerException(getClass(), ANALYSIS_MISSING_FILES,
@@ -294,7 +299,7 @@ public class AnalysisService {
   public ResponseEntity<String> publish(@NonNull String accessToken,
       @NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
-    val files = readFiles(id);
+    val files = unsecuredReadFiles(id);
     val missingFileIds = files.stream()
         .filter(f -> !confirmUploaded(accessToken, f.getObjectId()))
         .collect(toImmutableList());
@@ -425,7 +430,7 @@ public class AnalysisService {
    */
   private AbstractAnalysis processAnalysis(AbstractAnalysis analysis) {
     String id = analysis.getAnalysisId();
-    analysis.setFile(readFiles(id));
+    analysis.setFile(unsecuredReadFiles(id));
     analysis.setSample(readSamples(id));
     analysis.setInfo(analysisInfoService.readNullableInfo(id));
     return cloneAnalysis(analysis);
