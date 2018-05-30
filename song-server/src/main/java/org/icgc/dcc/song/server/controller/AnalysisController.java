@@ -113,7 +113,7 @@ public class AnalysisController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
-    return analysisService.suppress(id);
+    return analysisService.suppress(studyId, id);
   }
 
   /***

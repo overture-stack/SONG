@@ -303,7 +303,8 @@ public class AnalysisService {
   }
 
   @Transactional
-  public ResponseEntity<String> suppress(String id) {
+  public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String id) {
+    checkAnalysisAndStudyRelated(studyId, id);
     checkedUpdateState(id, SUPPRESSED);
     return ok("AnalysisId %s was suppressed",id);
   }

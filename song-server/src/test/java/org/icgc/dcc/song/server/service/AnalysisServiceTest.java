@@ -531,10 +531,35 @@ public class AnalysisServiceTest {
     val an = analysisGenerator.createDefaultRandomAnalysis(SequencingReadAnalysis.class);
     assertThat(an.getAnalysisState()).isEqualTo("UNPUBLISHED");
     val id = an.getAnalysisId();
-    service.suppress(id);
+    val studyId = an.getStudy();
+    service.suppress(studyId, id);
 
     val analysis = service.deepRead(id);
     assertThat(analysis.getAnalysisState()).isEqualTo("SUPPRESSED");
+  }
+
+  @Test
+  public void testSuppressError() {
+    val an = analysisGenerator.createDefaultRandomAnalysis(SequencingReadAnalysis.class);
+    assertThat(an.getAnalysisState()).isEqualTo("UNPUBLISHED");
+    val existingAnalysisId = an.getAnalysisId();
+    val existingStudyId = an.getStudy();
+    val nonExistingAnalysisId = generateNonExistingAnalysisId();
+    val nonExistentStudyId = generateNonExistingStudyId();
+    val unrelatedExistingStudyId = studyGenerator.createRandomStudy();
+
+    assertSongError(
+        () -> service.suppress(existingStudyId, nonExistingAnalysisId), ANALYSIS_ID_NOT_FOUND);
+
+    assertSongError(
+        () -> service.suppress(nonExistentStudyId, existingAnalysisId), STUDY_ID_DOES_NOT_EXIST);
+
+    assertSongError(
+        () -> service.suppress(nonExistentStudyId, nonExistingAnalysisId), STUDY_ID_DOES_NOT_EXIST);
+
+    assertSongError(
+        () -> service.suppress(unrelatedExistingStudyId, existingAnalysisId), ENTITY_NOT_RELATED_TO_STUDY);
+
   }
 
   @Test
