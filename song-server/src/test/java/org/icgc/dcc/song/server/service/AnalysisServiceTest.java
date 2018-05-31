@@ -40,7 +40,7 @@ import org.icgc.dcc.song.server.repository.VariantCallRepository;
 import org.icgc.dcc.song.server.utils.AnalysisGenerator;
 import org.icgc.dcc.song.server.utils.PayloadGenerator;
 import org.icgc.dcc.song.server.utils.StudyGenerator;
-import org.icgc.dcc.song.server.utils.securestudy.SecureAnalysisTester;
+import org.icgc.dcc.song.server.utils.securestudy.impl.SecureAnalysisTester;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -87,6 +87,7 @@ import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGener
 import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertInfoKVPair;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -149,11 +150,7 @@ public class AnalysisServiceTest {
     this.payloadGenerator = createPayloadGenerator(randomGenerator);
     this.analysisGenerator = createAnalysisGenerator(DEFAULT_STUDY_ID, service, randomGenerator);
     this.studyGenerator = createStudyGenerator(studyService, randomGenerator);
-    this.secureAnalysisTester = SecureAnalysisTester.builder()
-        .randomGenerator(randomGenerator)
-        .studyService(studyService)
-        .analysisService(service)
-        .build();
+    this.secureAnalysisTester = createSecureAnalysisTester(randomGenerator, studyService, service);
     val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
     val testExistenceService = createExistenceService(retryTemplate,testStorageUrl);
     ReflectionTestUtils.setField(service, "existence", testExistenceService);
@@ -525,7 +522,7 @@ public class AnalysisServiceTest {
         randomGenerator.randomEnum(AnalysisTypes.class)
     );
     assertSongError( () -> service.publish(token, secureStudyData.getExistingStudyId(),
-        secureStudyData.getExistingAnalysisId()), UNPUBLISHED_FILE_IDS);
+        secureStudyData.getExistingId()), UNPUBLISHED_FILE_IDS);
   }
 
   @Test

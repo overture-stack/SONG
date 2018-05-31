@@ -35,6 +35,8 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXISTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
@@ -80,7 +82,23 @@ public class DonorService {
     return id;
   }
 
-  public Donor read(@NonNull String id) {
+  public void checkDonorAndStudyRelated(@NonNull String studyId, @NonNull String id){
+    val numDonors = donorRepository.countAllByStudyIdAndDonorId(studyId, id);
+    if (numDonors < 1){
+      studyService.checkStudyExist(studyId);
+      val donor = unsecuredRead(id);
+      throw buildServerException(AnalysisService.class, ENTITY_NOT_RELATED_TO_STUDY,
+          "The donorId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
+          id, studyId, donor.getStudyId() );
+    }
+  }
+
+  public Donor securedRead(@NonNull String studyId, String id) {
+    checkDonorAndStudyRelated(studyId, id);
+    return unsecuredRead(id);
+  }
+
+  public Donor unsecuredRead(@NonNull String id) {
     val donorResult = donorRepository.findById(id);
     checkServer(donorResult.isPresent(), getClass(), DONOR_DOES_NOT_EXIST,
       "The donor for donorId '%s' could not be read because it does not exist", id);
@@ -91,7 +109,7 @@ public class DonorService {
 
   public DonorWithSpecimens readWithSpecimens(@NonNull String id) {
     val donor = new DonorWithSpecimens();
-    donor.setDonor(read(id));
+    donor.setDonor(unsecuredRead(id));
 
     donor.setSpecimens(specimenService.readByParentId(id));
     return donor;
@@ -111,10 +129,6 @@ public class DonorService {
     return donorRepository.existsById(id);
   }
 
-  public void checkDonorExists(@NonNull Donor donor){
-    checkDonorExists(donor.getDonorId());
-  }
-
   public void checkDonorExists(@NonNull String id){
     checkServer(isDonorExist(id), this.getClass(), DONOR_DOES_NOT_EXIST,
         "The donor with donorId '%s' does not exist", id);
@@ -126,7 +140,7 @@ public class DonorService {
   }
 
   public String update(@NonNull Donor donorUpdate) {
-    val donor = read(donorUpdate.getDonorId());
+    val donor = unsecuredRead(donorUpdate.getDonorId());
 
     donor.setWithDonor(donorUpdate);
     donorRepository.save(donor);
@@ -135,19 +149,17 @@ public class DonorService {
   }
 
   @Transactional
-  public String delete(@NonNull String studyId, @NonNull List<String> ids) {
-    studyService.checkStudyExist(studyId);
-    ids.forEach(x -> internalDelete(studyId, x));
+  public String securedDelete(@NonNull String studyId, @NonNull List<String> ids) {
+    ids.forEach(x -> securedDelete(studyId, x));
     return OK;
   }
 
-  public String delete(@NonNull String studyId, @NonNull String id) {
-    studyService.checkStudyExist(studyId);
-    return internalDelete(studyId, id);
+  public String securedDelete(@NonNull String studyId, @NonNull String id) {
+    checkDonorAndStudyRelated(studyId, id);
+    return internalDelete(id);
   }
 
-  private String internalDelete(String studyId, String id){
-    checkDonorExists(id);
+  private String internalDelete(String id){
     specimenService.deleteByParentId(id);
     donorRepository.deleteById(id);
     infoService.delete(id);
@@ -159,7 +171,7 @@ public class DonorService {
     studyService.checkStudyExist(studyId);
     donorRepository.findAllByStudyId(studyId).stream()
         .map(Donor::getDonorId)
-        .forEach(id -> internalDelete(studyId, id));
+        .forEach(this::internalDelete);
     return OK;
   }
 

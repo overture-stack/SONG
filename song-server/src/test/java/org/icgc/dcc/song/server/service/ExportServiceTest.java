@@ -208,7 +208,7 @@ public class ExportServiceTest {
     a.getSample().stream()
         .map(CompositeEntity::getDonor)
         .map(Donor::getDonorId)
-        .forEach(x -> donorService.delete(a.getStudy(), x));
+        .forEach(x -> donorService.securedDelete(a.getStudy(), x));
     a.getFile().stream()
         .map(File::getObjectId)
         .forEach(x -> fileService.delete(x));
