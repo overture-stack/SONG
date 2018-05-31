@@ -226,12 +226,12 @@ public class AnalysisService {
         .map(x -> createMultiSearchTerms(x.getKey(), x.getValue()))
         .flatMap(Collection::stream)
         .collect(toImmutableList());
-    return searchRepository.infoSearch(includeInfo, searchTerms);
+    return searchRepository.infoSearch(studyId, includeInfo, searchTerms);
   }
 
   public List<InfoSearchResponse> infoSearch(@NonNull String studyId,
       @NonNull InfoSearchRequest request){
-    return searchRepository.infoSearch(request.isIncludeInfo(), request.getSearchTerms());
+    return searchRepository.infoSearch(studyId, request.isIncludeInfo(), request.getSearchTerms());
   }
 
   public boolean isAnalysisExist(@NonNull String id){

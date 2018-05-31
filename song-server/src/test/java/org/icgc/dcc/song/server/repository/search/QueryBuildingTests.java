@@ -46,6 +46,7 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 @Slf4j
 public class QueryBuildingTests {
 
+  private static final String STUDY_ID = "ABC123";
   private static final String TEST_NAME = "testName";
   private static final String QUERY = "query";
   private static final String KEY_CHAIN1 = "key1";
@@ -164,12 +165,12 @@ public class QueryBuildingTests {
   }
 
   private void runTest(boolean includeInfoField, boolean isEmpty){
-    val query = createQuery(includeInfoField, isEmpty);
+    val query = createQuery(STUDY_ID, includeInfoField, isEmpty);
     assertThat(query).isEqualTo(getExpectedTestQuery());
   }
 
-  private String createQuery(boolean includeInfoField, boolean isEmpty){
-    val searchQueryBuilder = createSearchQueryBuilder(includeInfoField);
+  private String createQuery(String studyId, boolean includeInfoField, boolean isEmpty){
+    val searchQueryBuilder = createSearchQueryBuilder(studyId, includeInfoField);
     if (!isEmpty){
       searchQueryBuilder.add(KEY_CHAIN1, VALUE1);
       searchQueryBuilder.add(KEY_CHAIN2, VALUE2);

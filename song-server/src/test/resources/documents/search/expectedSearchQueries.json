@@ -1,18 +1,18 @@
 [
   {
     "testName": "testSearchQueryEmptyNoInfo",
-    "query": "SELECT CAST(analysis.id AS VARCHAR) AS analysis_id FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis';"
+    "query": "SELECT CAST(analysis.id AS VARCHAR) AS analysis_id FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis' AND analysis.study_id = 'ABC123';"
   },
   {
     "testName": "testSearchQueryBasicIncludeInfo",
-    "query": "SELECT CAST(analysis.id AS VARCHAR) AS analysis_id , CAST(info.info AS VARCHAR) AS info FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis' AND info.info->>'key1' ~ '.*value1$' AND info.info->'key2'->'key3'->>'key4' ~ '.*value2\\d+';"
+    "query": "SELECT CAST(analysis.id AS VARCHAR) AS analysis_id , CAST(info.info AS VARCHAR) AS info FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis' AND analysis.study_id = 'ABC123' AND info.info->>'key1' ~ '.*value1$' AND info.info->'key2'->'key3'->>'key4' ~ '.*value2\\d+';"
   },
   {
     "testName": "testSearchQueryEmptyIncludeInfo",
-    "query": "SELECT CAST(analysis.id AS VARCHAR) AS analysis_id , CAST(info.info AS VARCHAR) AS info FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis';"
+    "query": "SELECT CAST(analysis.id AS VARCHAR) AS analysis_id , CAST(info.info AS VARCHAR) AS info FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis' AND analysis.study_id = 'ABC123';"
   },
   {
     "testName": "testSearchQueryBasicNoInfo",
-    "query": "SELECT CAST(analysis.id AS VARCHAR) AS analysis_id FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis' AND info.info->>'key1' ~ '.*value1$' AND info.info->'key2'->'key3'->>'key4' ~ '.*value2\\d+';"
+    "query": "SELECT CAST(analysis.id AS VARCHAR) AS analysis_id FROM analysis INNER JOIN info ON analysis.id = info.id WHERE info.id_type = 'Analysis' AND analysis.study_id = 'ABC123' AND info.info->>'key1' ~ '.*value1$' AND info.info->'key2'->'key3'->>'key4' ~ '.*value2\\d+';"
   }
 ]
