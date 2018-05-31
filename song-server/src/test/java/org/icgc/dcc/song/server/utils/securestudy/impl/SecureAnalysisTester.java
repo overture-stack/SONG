@@ -56,7 +56,7 @@ public class SecureAnalysisTester extends AbstractSecureTester<AnalysisTypes> {
   }
 
   public SecureTestData runSecureAnalysisTest(BiConsumer<String, String> biConsumer){
-    return runSecureAnalysisTest(biConsumer, getRandomGenerator().randomEnum(AnalysisTypes.class));
+    return runSecureTest(biConsumer, getRandomGenerator().randomEnum(AnalysisTypes.class));
   }
 
 }

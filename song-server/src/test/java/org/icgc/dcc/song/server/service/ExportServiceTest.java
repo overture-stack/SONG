@@ -211,7 +211,7 @@ public class ExportServiceTest {
         .forEach(x -> donorService.securedDelete(a.getStudy(), x));
     a.getFile().stream()
         .map(File::getObjectId)
-        .forEach(x -> fileService.delete(x));
+        .forEach(x -> fileService.securedDelete(a.getStudy(), x));
     analysisRepository.deleteById(a.getAnalysisId());
   }
 

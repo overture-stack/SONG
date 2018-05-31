@@ -23,14 +23,14 @@ import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
@@ -62,13 +62,15 @@ public class FileService {
     return id;
   }
 
-  public Page<File> find(@NonNull Example<File> probe,
-      @NonNull Pageable pageable){
-    return repository.findAll(probe, pageable);
-  }
-
-  public Page<File> findAll(@NonNull Pageable pageable){
-    return repository.findAll(pageable);
+  public void checkFileAndStudyRelated(@NonNull String studyId, @NonNull String id){
+    val numFiles = repository.countAllByStudyIdAndObjectId(studyId, id);
+    if (numFiles < 1){
+      studyService.checkStudyExist(studyId);
+      val file = unsecuredRead(id);
+      throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
+          "The objectId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
+          id, studyId, file.getObjectId() );
+    }
   }
 
   public boolean isFileExist(@NonNull String id){
@@ -83,12 +85,9 @@ public class FileService {
     checkFileExists(file.getObjectId());
   }
 
-  public File read(@NonNull String id) {
-    val result = repository.findById(id);
-    fileNotFoundCheck(result.isPresent(), id);
-    val f = result.get();
-    f.setInfo(infoService.readNullableInfo(id));
-    return f;
+  public File securedRead(@NonNull String studyId, String id) {
+    checkFileAndStudyRelated(studyId, id);
+    return unsecuredRead(id);
   }
 
   public String update(@NonNull File fileUpdate) {
@@ -98,11 +97,14 @@ public class FileService {
     return OK;
   }
 
-  public String delete(@NonNull String id) {
-    checkFileExists(id);
-    repository.deleteById(id);
-    infoService.delete(id);
+  public String securedDelete(@NonNull String studyId, List<String> id) {
+    id.forEach(x -> securedDelete(studyId, x));
     return OK;
+  }
+
+  public String securedDelete(@NonNull String studyId, String id) {
+    checkFileAndStudyRelated(studyId, id);
+    return internalDelete(id);
   }
 
   public Optional<String> findByBusinessKey(@NonNull String analysisId, @NonNull String fileName){
@@ -124,6 +126,20 @@ public class FileService {
       update(file);
     }
     return fileId;
+  }
+
+  private File unsecuredRead(@NonNull String id) {
+    val result = repository.findById(id);
+    fileNotFoundCheck(result.isPresent(), id);
+    val f = result.get();
+    f.setInfo(infoService.readNullableInfo(id));
+    return f;
+  }
+
+  private String internalDelete(@NonNull String id) {
+    repository.deleteById(id);
+    infoService.delete(id);
+    return OK;
   }
 
   private static void fileNotFoundCheck(boolean expression, @NonNull String id){

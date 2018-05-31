@@ -55,10 +55,10 @@ public abstract class AbstractSecureTester<C> {
    * input {@code biConsumer} which represents the secured service method under test
    * @param biConsumer with the first parameter being the {@code studyId} and the second being the {@code analysisId}
    */
-  public SecureTestData runSecureAnalysisTest(BiConsumer<String, String> biConsumer, C context){
+  public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, C context){
     // Create data
     val data = generateData(context);
-    return runSecureAnalysisTest(biConsumer, data);
+    return runSecureTest(biConsumer, data);
   }
 
   /**
@@ -67,7 +67,7 @@ public abstract class AbstractSecureTester<C> {
    * @param biConsumer with the first parameter being the {@code studyId} and the second being the {@code analysisId}
    * @param data is the input stimulus
    */
-  public SecureTestData runSecureAnalysisTest(BiConsumer<String, String> biConsumer, SecureTestData data){
+  public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, SecureTestData data){
 
     // Check data is correct
     assertThat(isIdExist(data.getExistingId())).isTrue();

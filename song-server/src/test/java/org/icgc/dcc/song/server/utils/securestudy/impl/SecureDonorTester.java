@@ -46,7 +46,7 @@ public class SecureDonorTester extends AbstractSecureTester {
   }
 
   public SecureTestData runSecureAnalysisTest(BiConsumer<String, String> biConsumer){
-      return runSecureAnalysisTest(biConsumer, new Object() );
+      return runSecureTest(biConsumer, new Object() );
   }
 
   public static SecureDonorTester createSecureDonorTester(RandomGenerator randomGenerator,

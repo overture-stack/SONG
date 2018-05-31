@@ -16,10 +16,12 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.utils.securestudy.impl.SecureFileTester;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
@@ -38,7 +41,9 @@ import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
+import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
 
+@Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("dev")
@@ -52,10 +57,12 @@ public class FileServiceTest {
   AnalysisService analysisService;
 
   private final RandomGenerator randomGenerator = createRandomGenerator(FileServiceTest.class.getSimpleName());
+  private SecureFileTester secureFileTester;
 
   @Before
   public void beforeTest(){
     assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+    secureFileTester = createSecureFileTester(randomGenerator, studyService, fileService, analysisService);
   }
 
   @Test
@@ -69,7 +76,7 @@ public class FileServiceTest {
     val md5 = "20de2982390c60e33452bf8736c3a9f1";
     val access = OPEN;
     val metadata = JsonUtils.fromSingleQuoted("{'info':'<XML>Not even well-formed <XML></XML>'}");
-    val file = fileService.read(id);
+    val file = fileService.securedRead(study, id);
 
     val expected = File.builder()
         .objectId(id)
@@ -109,10 +116,10 @@ public class FileServiceTest {
 
     assertThat(status).isEqualTo(id);
 
-    File check = fileService.read(id);
+    File check = fileService.securedRead(studyId, id);
     assertThat(check).isEqualToComparingFieldByField(f);
 
-    fileService.delete(id);
+    fileService.securedDelete(studyId, id);
     assertThat(fileService.isFileExist(id)).isFalse();
   }
 
@@ -124,14 +131,14 @@ public class FileServiceTest {
 
     val randomFile = createRandomFile(studyId, analysisId);
     val fileId = fileService.save(analysisId, studyId, randomFile);
-    val actualFile = fileService.read(fileId);
+    val actualFile = fileService.securedRead(studyId, fileId);
     assertThat(actualFile).isEqualToComparingFieldByFieldRecursively(randomFile);
 
     actualFile.setFileSize(1010101L);
     assertThat(actualFile).isNotEqualTo(randomFile);
 
     val updatedFileId = fileService.save(analysisId, studyId, actualFile);
-    val updatedFile = fileService.read(updatedFileId);
+    val updatedFile = fileService.securedRead(studyId, updatedFileId);
     assertThat(updatedFile).isEqualToComparingFieldByFieldRecursively(actualFile);
   }
 
@@ -176,7 +183,7 @@ public class FileServiceTest {
     s2.setInfo(metadata);
     fileService.update(s2);
 
-    val s3 = fileService.read(id2);
+    val s3 = fileService.securedRead(study, id2);
     assertThat(s3).isEqualToComparingFieldByField(s2);
   }
 
@@ -220,7 +227,15 @@ public class FileServiceTest {
 
     val randomFile = createRandomFile(studyId, existingAnalysisId);
     assertSongError(() -> fileService.update(randomFile), FILE_NOT_FOUND );
-    assertSongError(() -> fileService.delete(randomFile.getObjectId()), FILE_NOT_FOUND );
+    assertSongError(() -> fileService.securedDelete(DEFAULT_STUDY_ID, randomFile.getObjectId()), FILE_NOT_FOUND );
+  }
+
+  @Test
+  public void testCheckFileRelatedToStudy(){
+    secureFileTester.runSecureTest((s,f) -> fileService.checkFileAndStudyRelated(s, f));
+    secureFileTester.runSecureTest((s,f) -> fileService.securedRead(s, f));
+    secureFileTester.runSecureTest((s,f) -> fileService.securedDelete(s, f));
+    secureFileTester.runSecureTest((s,f) -> fileService.securedDelete(s, newArrayList(f)));
   }
 
   private File createRandomFile(String studyId, String analysisId){

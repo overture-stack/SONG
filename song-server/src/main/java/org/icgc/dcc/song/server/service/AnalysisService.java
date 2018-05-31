@@ -247,7 +247,7 @@ public class AnalysisService {
     if (numAnalyses < 1){
       studyService.checkStudyExist(studyId);
       val analysis = shallowRead(id);
-      throw buildServerException(AnalysisService.class, ENTITY_NOT_RELATED_TO_STUDY,
+      throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
           "The analysisId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
           id, studyId, analysis.getStudy() );
     }

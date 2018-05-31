@@ -230,7 +230,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadVariantCallDNE() {
-    secureAnalysisTester.runSecureAnalysisTest((s,a) -> service.securedDeepRead(s, a), VARIANT_CALL);
+    secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), VARIANT_CALL);
 
     val analysis = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId = analysis.getAnalysisId();
@@ -243,7 +243,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadSequencingReadDNE() {
-    secureAnalysisTester.runSecureAnalysisTest((s,a) -> service.securedDeepRead(s, a), SEQUENCING_READ);
+    secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), SEQUENCING_READ);
 
     val analysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId = analysis.getAnalysisId();
@@ -517,7 +517,7 @@ public class AnalysisServiceTest {
   public void testPublishError() {
     setUpDccStorageMockService(false);
     val token = "mockToken";
-    val secureStudyData = secureAnalysisTester.runSecureAnalysisTest(
+    val secureStudyData = secureAnalysisTester.runSecureTest(
         (s,a) -> service.publish(token, s, a),
         randomGenerator.randomEnum(AnalysisTypes.class)
     );
@@ -539,7 +539,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testSuppressError() {
-    secureAnalysisTester.runSecureAnalysisTest(
+    secureAnalysisTester.runSecureTest(
         (s,a) -> service.suppress(s, a),
         randomGenerator.randomEnum(AnalysisTypes.class)
     );
@@ -551,8 +551,8 @@ public class AnalysisServiceTest {
     System.err.printf("Got files '%s'", files);
     val expectedFiles = new ArrayList<File>();
 
-    expectedFiles.add(fileService.read("FI1"));
-    expectedFiles.add(fileService.read("FI2"));
+    expectedFiles.add(fileService.securedRead(DEFAULT_STUDY_ID, "FI1"));
+    expectedFiles.add(fileService.securedRead(DEFAULT_STUDY_ID, "FI2"));
 
     assertThat(files).containsAll(expectedFiles);
     assertThat(expectedFiles).containsAll(files);
@@ -744,7 +744,7 @@ public class AnalysisServiceTest {
 
   @Test
   public void testAnalysisAndStudyUnRelated(){
-    secureAnalysisTester.runSecureAnalysisTest(
+    secureAnalysisTester.runSecureTest(
         (s,a) -> service.checkAnalysisAndStudyRelated(s, a),
         randomGenerator.randomEnum(AnalysisTypes.class)
     );

@@ -87,7 +87,7 @@ public class DonorService {
     if (numDonors < 1){
       studyService.checkStudyExist(studyId);
       val donor = unsecuredRead(id);
-      throw buildServerException(AnalysisService.class, ENTITY_NOT_RELATED_TO_STUDY,
+      throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
           "The donorId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
           id, studyId, donor.getStudyId() );
     }
