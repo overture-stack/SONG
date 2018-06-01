@@ -24,6 +24,7 @@ import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -97,11 +98,13 @@ public class FileService {
     return OK;
   }
 
+  @Transactional
   public String securedDelete(@NonNull String studyId, List<String> id) {
     id.forEach(x -> securedDelete(studyId, x));
     return OK;
   }
 
+  @Transactional
   public String securedDelete(@NonNull String studyId, String id) {
     checkFileAndStudyRelated(studyId, id);
     return internalDelete(id);

@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
@@ -325,21 +326,19 @@ public class DonorServiceTest {
   }
 
   @Test
-  public void testDeleteDonorError(){
-    secureDonorTester.runSecureAnalysisTest((s,d) -> service.securedDelete(s, d));
-    secureDonorTester.runSecureAnalysisTest((s,d) -> service.securedDelete(s, newArrayList(d)));
-  }
-
-  @Test
   public void testReadDonorDNE(){
-    val data = secureDonorTester.runSecureAnalysisTest((s,d) -> service.securedRead(s, d));
+    val data = secureDonorTester.generateData();
     assertSongError(() -> service.unsecuredRead(data.getNonExistingId()), DONOR_DOES_NOT_EXIST);
     assertSongError(() -> service.readWithSpecimens(data.getNonExistingId()), DONOR_DOES_NOT_EXIST);
   }
 
   @Test
-  public void testCheckStudyAndDonorRelated(){
+  @Transactional
+  public void testCheckDonorUnRelatedToStudy(){
     secureDonorTester.runSecureAnalysisTest((s,d) -> service.checkDonorAndStudyRelated(s, d));
+    secureDonorTester.runSecureAnalysisTest((s,d) -> service.securedRead(s, d));
+    secureDonorTester.runSecureAnalysisTest((s,d) -> service.securedDelete(s, d));
+    secureDonorTester.runSecureAnalysisTest((s,d) -> service.securedDelete(s, newArrayList(d)));
   }
 
   private Donor createRandomDonor(){

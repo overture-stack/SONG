@@ -122,6 +122,7 @@ public class SpecimenService {
         "The specimen with specimenId '%s' already exists", id);
   }
 
+  @Transactional
   public String delete(@NonNull String id) {
     checkSpecimenExist(id);
     sampleService.deleteByParentId(id);

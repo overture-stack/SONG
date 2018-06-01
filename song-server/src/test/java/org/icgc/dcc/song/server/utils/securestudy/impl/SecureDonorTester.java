@@ -45,6 +45,10 @@ public class SecureDonorTester extends AbstractSecureTester {
     return donorService.create(donorCreateRequest);
   }
 
+  public SecureTestData generateData(){
+    return generateData(new Object());
+  }
+
   public SecureTestData runSecureAnalysisTest(BiConsumer<String, String> biConsumer){
       return runSecureTest(biConsumer, new Object() );
   }

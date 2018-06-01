@@ -21,7 +21,6 @@ import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.File;
-import org.icgc.dcc.song.server.utils.securestudy.impl.SecureFileTester;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,12 +57,10 @@ public class FileServiceTest {
   AnalysisService analysisService;
 
   private final RandomGenerator randomGenerator = createRandomGenerator(FileServiceTest.class.getSimpleName());
-  private SecureFileTester secureFileTester;
 
   @Before
   public void beforeTest(){
     assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
-    secureFileTester = createSecureFileTester(randomGenerator, studyService, fileService, analysisService);
   }
 
   @Test
@@ -231,7 +229,9 @@ public class FileServiceTest {
   }
 
   @Test
-  public void testCheckFileRelatedToStudy(){
+  @Transactional
+  public void testCheckFileUnrelatedToStudy(){
+    val secureFileTester = createSecureFileTester(randomGenerator, studyService, fileService, analysisService);
     secureFileTester.runSecureTest((s,f) -> fileService.checkFileAndStudyRelated(s, f));
     secureFileTester.runSecureTest((s,f) -> fileService.securedRead(s, f));
     secureFileTester.runSecureTest((s,f) -> fileService.securedDelete(s, f));

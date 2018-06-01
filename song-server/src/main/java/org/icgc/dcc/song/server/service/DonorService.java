@@ -154,6 +154,7 @@ public class DonorService {
     return OK;
   }
 
+  @Transactional
   public String securedDelete(@NonNull String studyId, @NonNull String id) {
     checkDonorAndStudyRelated(studyId, id);
     return internalDelete(id);

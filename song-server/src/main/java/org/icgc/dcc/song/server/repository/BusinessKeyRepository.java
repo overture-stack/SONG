@@ -9,5 +9,7 @@ public interface BusinessKeyRepository extends JpaRepository<BusinessKeyView, St
 
   List<BusinessKeyView> findAllByStudyIdAndSpecimenSubmitterId(String studyId, String specimenSubmitterId);
   List<BusinessKeyView> findAllByStudyIdAndSampleSubmitterId(String studyId, String sampleSubmitterId);
+  long countAllByStudyIdAndSpecimenId(String studyId, String specimenId);
+  long countAllByStudyIdAndSampleId(String studyId, String sampleId);
 
 }

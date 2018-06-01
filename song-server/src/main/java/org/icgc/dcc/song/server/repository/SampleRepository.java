@@ -23,6 +23,6 @@ import java.util.List;
 
 public interface SampleRepository extends JpaRepository<Sample, String> {
 
-  List<Sample> findAllBySpecimenId(String specimenId);
+   List<Sample> findAllBySpecimenId(String specimenId);
 
 }

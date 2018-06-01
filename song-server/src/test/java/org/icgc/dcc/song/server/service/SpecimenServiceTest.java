@@ -146,7 +146,7 @@ public class SpecimenServiceTest {
     }
 
     private Sample getSample(String id) {
-        return sampleService.read(id);
+        return sampleService.unsecuredRead(id);
     }
 
     @Test

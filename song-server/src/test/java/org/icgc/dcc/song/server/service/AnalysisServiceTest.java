@@ -30,7 +30,6 @@ import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.File;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
-import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.icgc.dcc.song.server.repository.SampleRepository;
@@ -230,7 +229,6 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadVariantCallDNE() {
-    secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), VARIANT_CALL);
 
     val analysis = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId = analysis.getAnalysisId();
@@ -243,7 +241,6 @@ public class AnalysisServiceTest {
 
   @Test
   public void testReadSequencingReadDNE() {
-    secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), SEQUENCING_READ);
 
     val analysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId = analysis.getAnalysisId();
@@ -517,12 +514,7 @@ public class AnalysisServiceTest {
   public void testPublishError() {
     setUpDccStorageMockService(false);
     val token = "mockToken";
-    val secureStudyData = secureAnalysisTester.runSecureTest(
-        (s,a) -> service.publish(token, s, a),
-        randomGenerator.randomEnum(AnalysisTypes.class)
-    );
-    assertSongError( () -> service.publish(token, secureStudyData.getExistingStudyId(),
-        secureStudyData.getExistingId()), UNPUBLISHED_FILE_IDS);
+    assertSongError(() -> service.publish(token, DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID), UNPUBLISHED_FILE_IDS);
   }
 
   @Test
@@ -535,14 +527,6 @@ public class AnalysisServiceTest {
 
     val analysis = service.securedDeepRead(studyId, id);
     assertThat(analysis.getAnalysisState()).isEqualTo("SUPPRESSED");
-  }
-
-  @Test
-  public void testSuppressError() {
-    secureAnalysisTester.runSecureTest(
-        (s,a) -> service.suppress(s, a),
-        randomGenerator.randomEnum(AnalysisTypes.class)
-    );
   }
 
   @Test
@@ -565,7 +549,6 @@ public class AnalysisServiceTest {
     val nonExistingAnalysisId = analysisGenerator.generateNonExistingAnalysisId();
     assertSongError(() -> service.unsecuredReadFiles(nonExistingAnalysisId), ANALYSIS_ID_NOT_FOUND);
 
-    secureAnalysisTester.runSecureAnalysisTest((s,a) -> service.securedReadFiles(s,a));
   }
 
   @Test
@@ -743,11 +726,14 @@ public class AnalysisServiceTest {
   }
 
   @Test
-  public void testAnalysisAndStudyUnRelated(){
-    secureAnalysisTester.runSecureTest(
-        (s,a) -> service.checkAnalysisAndStudyRelated(s, a),
-        randomGenerator.randomEnum(AnalysisTypes.class)
-    );
+  @Transactional
+  public void testCheckAnalysisUnrelatedToStudy(){
+    secureAnalysisTester.runSecureTest((s,a) -> service.checkAnalysisAndStudyRelated(s, a));
+    secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), VARIANT_CALL);
+    secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), SEQUENCING_READ);
+    secureAnalysisTester.runSecureTest((s,a) -> service.suppress(s, a));
+    secureAnalysisTester.runSecureTest((s,a) -> service.securedReadFiles(s,a));
+    secureAnalysisTester.runSecureTest((s,a) -> service.publish("mockToken", s, a));
   }
 
   @Test
