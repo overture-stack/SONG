@@ -25,7 +25,7 @@ public abstract class AbstractSecureTester<C> {
   @NonNull private final ServerError idNotFoundError;
 
   /**
-   * Reliably generates existing, nonExisting, and unRelated ids for study and analysis entities.
+   * Reliably generates existing, nonExisting, and unRelated ids for study and entities.
    * @return
    */
   public SecureTestData generateData(C context){
@@ -36,24 +36,24 @@ public abstract class AbstractSecureTester<C> {
     val nonExistingStudyId = studyGenerator.generateNonExistingStudyId();
 
 
-    val nonExistingAnalysisId = randomGenerator.generateRandomUUIDAsString();
-    assertThat(isIdExist(nonExistingAnalysisId)).isFalse();
+    val nonExistingId = randomGenerator.generateRandomUUIDAsString();
+    assertThat(isIdExist(nonExistingId)).isFalse();
 
-    val existingAnalysisId = createId(existingStudyId, context);
+    val existingId = createId(existingStudyId, context);
 
     return SecureTestData.builder()
         .existingStudyId(existingStudyId)
         .nonExistingStudyId(nonExistingStudyId)
         .unrelatedExistingStudyId(unrelatedExistingStudyId)
-        .nonExistingId(nonExistingAnalysisId)
-        .existingId(existingAnalysisId)
+        .nonExistingId(nonExistingId)
+        .existingId(existingId)
         .build();
   }
 
   /**
-   * Generates data for an input {@code analysisType} and then runs a secure study test for the
+   * Generates data for an input {@code context} and then runs a secure study test for the
    * input {@code biConsumer} which represents the secured service method under test
-   * @param biConsumer with the first parameter being the {@code studyId} and the second being the {@code analysisId}
+   * @param biConsumer with the first parameter being the {@code studyId} and the second being the entity's {@code id}
    */
   public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, C context){
     // Create data
@@ -64,7 +64,7 @@ public abstract class AbstractSecureTester<C> {
   /**
    * Runs a secure study test for the input {@code biConsumer} which represents the secured service method under test,
    * using the input {@code data}
-   * @param biConsumer with the first parameter being the {@code studyId} and the second being the {@code analysisId}
+   * @param biConsumer with the first parameter being the {@code studyId} and the second being the entity's {@code id}
    * @param data is the input stimulus
    */
   public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, SecureTestData data){
@@ -76,19 +76,19 @@ public abstract class AbstractSecureTester<C> {
     assertThat(studyService.isStudyExist(data.getUnrelatedExistingStudyId())).isTrue();
     assertThat(studyService.isStudyExist(data.getNonExistingStudyId())).isFalse();
 
-    // Test if study exists and analysisId DNE
+    // Test if study exists and id DNE
     assertSongError( () -> biConsumer.accept(data.getExistingStudyId(), data.getNonExistingId()),
         idNotFoundError);
 
-    // Test if study DNE (does not exist) but analysisId exists
+    // Test if study DNE (does not exist) but id exists
     assertSongError( () -> biConsumer.accept(data.getNonExistingStudyId(), data.getExistingId()),
         STUDY_ID_DOES_NOT_EXIST);
 
-    // Test if study DNE (does not exist) and analysisId DNE
+    // Test if study DNE (does not exist) and id DNE
     assertSongError( () -> biConsumer.accept(data.getNonExistingStudyId(), data.getNonExistingId()),
         STUDY_ID_DOES_NOT_EXIST);
 
-    // Test if correct error thrown is both studyId and analysisId exist but are unrelated
+    // Test if correct error thrown is both studyId and id exist but are unrelated
     assertSongError( () -> biConsumer.accept(data.getUnrelatedExistingStudyId(), data.getExistingId()),
         ENTITY_NOT_RELATED_TO_STUDY);
 
