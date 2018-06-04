@@ -24,6 +24,7 @@ import java.util.List;
 public interface UploadRepository extends JpaRepository<Upload, String>{
 
   List<Upload> findAllByStudyIdAndAnalysisId(String studyId, String analysisId);
+  long countAllByStudyIdAndUploadId(String studyId, String uploadId);
 
 
 }

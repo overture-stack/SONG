@@ -227,7 +227,7 @@ public class InfoSearchTest {
     val uploadStatus = uploadService.upload(study, payloadString, false );
     log.info(format("Got uploadStatus='%s'",uploadStatus));
     val uploadId = fromStatus(uploadStatus,"uploadId");
-    val upload = uploadService.read(uploadId);
+    val upload = uploadService.securedRead(study, uploadId);
     assertThat(upload.getState()).isEqualTo("VALIDATED");
     val resp = uploadService.save(study, uploadId, false);
     val analysisId = fromStatus(resp,"analysisId");

@@ -64,7 +64,7 @@ public class BatchUploader {
     for (val payload: batchUpload.getPayloads()){
       val uploadResponse = uploadService.upload(studyId, payload, isAsync );
       val uploadId = fromStatus(uploadResponse, "uploadId");
-      val upload = uploadService.read(uploadId);
+      val upload = uploadService.securedRead(studyId, uploadId);
       batchUpload.addUpload(upload);
     }
   }
@@ -79,7 +79,7 @@ public class BatchUploader {
       for (val upload : batchUpload.getUploadMap().values()){
         val uploadId = upload.getUploadId();
         if (!validated.contains(uploadId) && !validationError.contains(uploadId)){
-          val newUpload = uploadService.read(uploadId);
+          val newUpload = uploadService.securedRead(batchUpload.getStudyId(), uploadId);
           batchUpload.updateUpload(newUpload);
           if (resolveState(newUpload.getState()) == VALIDATION_ERROR){
             validationError.add(newUpload.getUploadId());

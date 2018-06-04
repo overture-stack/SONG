@@ -302,7 +302,7 @@ public class ExportServiceTest {
     val uploadId = fromStatus(uploadStatus, UPLOAD_ID);
 
     // Check Status and check if validated
-    val statusResponse = uploadService.read(uploadId);
+    val statusResponse = uploadService.securedRead(studyId,uploadId);
     val uploadState = resolveState(statusResponse.getState());
     assertThat(uploadState).isEqualTo(UploadStates.VALIDATED);
 
