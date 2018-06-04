@@ -71,13 +71,14 @@ public class SampleService {
   }
 
   public void checkSampleRelatedToStudy(@NonNull String studyId, @NonNull String id){
-    val numFiles = businessKeyRepository.countAllByStudyIdAndSampleId(studyId, id);
-    if (numFiles < 1){
+    val numSamples = businessKeyRepository.countAllByStudyIdAndSampleId(studyId, id);
+    if (numSamples < 1){
       studyService.checkStudyExist(studyId);
       val sample = unsecuredRead(id);
+      val actualStudyId = businessKeyRepository.findBySampleId(id).map(BusinessKeyView::getStudyId).orElse(null);
       throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
-          "The sampleId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
-          id, studyId, sample.getSampleId() );
+          "The sampleId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s' and specimenId '%s'",
+          id, studyId, actualStudyId, sample.getSpecimenId());
     }
   }
 

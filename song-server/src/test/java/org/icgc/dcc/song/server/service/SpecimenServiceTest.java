@@ -35,6 +35,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -56,6 +57,7 @@ import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_SPECIMEN_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
+import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureSpecimenTester.createSecureSpecimenTester;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -77,13 +79,14 @@ public class SpecimenServiceTest {
     @Before
     public void beforeTest(){
         assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+        assertThat(donorService.isDonorExist(DEFAULT_DONOR_ID)).isTrue();
     }
 
     @Test
     public void testReadSpecimen() {
         // find existing specimen in the database
         val id = "SP1";
-        val s = specimenService.read(id);
+        val s = specimenService.securedRead(DEFAULT_STUDY_ID, id);
         assertThat(s.getSpecimenId()).isEqualTo(id);
         assertThat(s.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
         assertThat(s.getSpecimenClass()).isEqualTo("Tumour");
@@ -150,8 +153,9 @@ public class SpecimenServiceTest {
     }
 
     @Test
+//    @Transactional
     public void testCreateAndDeleteSpecimen() {
-        val donorId = "DO2";
+        val donorId = DEFAULT_DONOR_ID;
         val s = Specimen.builder()
             .specimenId("")
             .specimenSubmitterId("Specimen 101 Ipsilon Prime")
@@ -159,25 +163,39 @@ public class SpecimenServiceTest {
             .specimenClass("Tumour")
             .specimenType("Cell line - derived from tumour")
             .build();
+
         s.setInfo(JsonUtils.fromSingleQuoted("{'ageCategory': 42, 'status': 'deceased'}"));
 
         val status = specimenService.create(DEFAULT_STUDY_ID, s);
         val id = s.getSpecimenId();
+        assertThat(specimenService.isSpecimenExist(id)).isTrue();
+
+        // Issue #288 - unable to read specimen after deleting all its samples
+        // This is neccessary since the BusinessKeyView does inner joins on donor, specimen and sample.
+        // If the specimen was created without any samples, then that specimen would not meet the constraints
+        // of an inner join with the samples specimen_id. A solution is to change them to LEFT JOINs however
+        // there is no reason for a LEFT JOIN outside of this testcase, as there can never be a childless specimen
+        val sample1 = Sample.builder()
+            .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)))
+            .specimenId(id)
+            .build();
+        val sampleId = sampleService.create(DEFAULT_STUDY_ID, sample1);
 
         assertThat(id).startsWith("SP");
         Assertions.assertThat(status).isEqualTo(id);
 
-        val check = specimenService.read(id);
+        val check = specimenService.securedRead(DEFAULT_STUDY_ID, id);
         assertThat(s).isEqualToComparingFieldByField(check);
 
-        val response = specimenService.delete(newArrayList(id));
+        val response = specimenService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
         assertThat(specimenService.isSpecimenExist(id)).isFalse();
         assertThat(response).isEqualTo("OK");
     }
 
     @Test
     public void testUpdateSpecimen() {
-        val donorId = "DO2";
+        val donorId = DEFAULT_DONOR_ID;
         val s = Specimen.builder()
             .specimenId("")
             .specimenSubmitterId("Specimen 102 Chiron-Beta Prime")
@@ -190,6 +208,18 @@ public class SpecimenServiceTest {
 
         val id = s.getSpecimenId();
 
+        // Issue #288 - unable to read specimen after deleting all its samples
+        // This is neccessary since the BusinessKeyView does inner joins on donor, specimen and sample.
+        // If the specimen was created without any samples, then that specimen would not meet the constraints
+        // of an inner join with the samples specimen_id. A solution is to change them to LEFT JOINs however
+        // there is no reason for a LEFT JOIN outside of this testcase, as there can never be a childless specimen
+        val sample1 = Sample.builder()
+            .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)))
+            .specimenId(id)
+            .build();
+        val sampleId = sampleService.create(DEFAULT_STUDY_ID, sample1);
+
         val s2 = Specimen.builder()
             .specimenId(id)
             .specimenSubmitterId("Specimen 102")
@@ -201,7 +231,7 @@ public class SpecimenServiceTest {
         s2.setInfo(JsonUtils.fromSingleQuoted("{'notes': ['A sharp, B flat']}"));
         specimenService.update(s2);
 
-        val s3 = specimenService.read(id);
+        val s3 = specimenService.securedRead(DEFAULT_STUDY_ID, id);
         Assertions.assertThat(s3).isEqualToComparingFieldByField(s2);
     }
 
@@ -261,7 +291,7 @@ public class SpecimenServiceTest {
     public void testReadSpecimenDNE(){
         val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
         assertThat(specimenService.isSpecimenExist(randomSpecimenId)).isFalse();
-        assertSongError(() -> specimenService.read(randomSpecimenId), SPECIMEN_DOES_NOT_EXIST);
+        assertSongError(() -> specimenService.unsecuredRead(randomSpecimenId), SPECIMEN_DOES_NOT_EXIST);
         assertSongError(() -> specimenService.readWithSamples(randomSpecimenId), SPECIMEN_DOES_NOT_EXIST);
     }
 
@@ -346,9 +376,30 @@ public class SpecimenServiceTest {
     @Test
     public void testDeleteSpecimenDNE(){
         val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
-        assertSongError(() -> specimenService.delete(randomSpecimenId), SPECIMEN_DOES_NOT_EXIST);
-        assertSongError(() -> specimenService.delete(newArrayList(randomSpecimenId)), SPECIMEN_DOES_NOT_EXIST);
+        assertSongError(() -> specimenService.unsecuredDelete(randomSpecimenId), SPECIMEN_DOES_NOT_EXIST);
+        assertSongError(() -> specimenService.unsecuredDelete(newArrayList(randomSpecimenId)), SPECIMEN_DOES_NOT_EXIST);
     }
+
+    @Test
+    @Transactional
+    public void testCheckSpecimenUnrelatedToStudy(){
+        val existingDonorId = DEFAULT_DONOR_ID;
+        val secureSpecimenTester = createSecureSpecimenTester(randomGenerator,studyService, donorService, specimenService);
+
+        secureSpecimenTester.runSecureTest((studyId, id) -> specimenService.checkSpecimenRelatedToStudy(studyId, id),
+            existingDonorId);
+
+        secureSpecimenTester.runSecureTest((studyId, id) -> specimenService.securedRead(studyId, id),
+            existingDonorId);
+
+        secureSpecimenTester.runSecureTest((studyId, id) -> specimenService.securedDelete(studyId, id),
+            existingDonorId);
+
+        secureSpecimenTester.runSecureTest((studyId, id) -> specimenService.securedDelete(studyId, newArrayList(id)),
+            existingDonorId);
+
+    }
+
 
     @Test
     public void testUpdateSpecimenDNE(){

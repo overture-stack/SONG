@@ -93,7 +93,7 @@ public class DonorServiceTest {
   }
 
   Specimen getMatchingSpecimen(Specimen specimen) {
-    return specimenService.read(specimen.getSpecimenId());
+    return specimenService.unsecuredRead(specimen.getSpecimenId());
   }
 
   @Test
