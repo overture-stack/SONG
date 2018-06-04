@@ -79,9 +79,9 @@ public class CompositeEntityService {
   }
 
   public CompositeEntity read(String sampleId) {
-    val sample = CompositeEntity.create(sampleService.read(sampleId));
-    sample.setSpecimen(specimenService.read(sample.getSpecimenId()));
-    sample.setDonor(donorService.read(sample.getSpecimen().getDonorId()));
+    val sample = CompositeEntity.create(sampleService.unsecuredRead(sampleId));
+    sample.setSpecimen(specimenService.unsecuredRead(sample.getSpecimenId()));
+    sample.setDonor(donorService.unsecuredRead(sample.getSpecimen().getDonorId()));
     return sample;
   }
 

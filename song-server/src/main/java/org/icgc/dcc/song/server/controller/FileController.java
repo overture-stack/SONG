@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static org.icgc.dcc.song.core.utils.Responses.OK;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
@@ -53,8 +52,10 @@ public class FileController {
   @ApiOperation(value = "ReadFile", notes = "Retrieves file data for a fileId")
   @GetMapping(value = "/files/{id}")
   @ResponseBody
-  public File read(@PathVariable("id") String id) {
-    return fileService.read(id);
+  public File read(
+      @PathVariable("studyId") String studyId,
+      @PathVariable("id") String id) {
+    return fileService.securedRead(studyId,id);
   }
 
   /**
@@ -78,8 +79,7 @@ public class FileController {
       @PathVariable("studyId") String studyId,
       @PathVariable("ids") @ApiParam(value = "Comma separated list of fileIds", required = true)
           List<String> ids) {
-    ids.forEach(fileService::delete);
-    return OK;
+    return fileService.securedDelete(studyId, ids);
   }
 
 }

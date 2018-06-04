@@ -32,9 +32,11 @@ import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.stream.Collectors.toList;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_ALREADY_EXISTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SAMPLE_ID_IS_CORRUPTED;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
@@ -58,18 +60,6 @@ public class SampleService {
   @Autowired
   private final BusinessKeyRepository businessKeyRepository;
 
-  private String createSampleId(String studyId, Sample sample){
-    studyService.checkStudyExist(studyId);
-    val inputSampleId = sample.getSampleId();
-    val id = idService.generateSampleId(sample.getSampleSubmitterId(), studyId);
-    checkServer(isNullOrEmpty(inputSampleId) || id.equals(inputSampleId), getClass(),
-        SAMPLE_ID_IS_CORRUPTED,
-        "The input sampleId '%s' is corrupted because it does not match the idServices sampleId '%s'",
-        inputSampleId, id);
-    checkSampleDoesNotExist(id);
-    return id;
-  }
-
   //TODO: [Related to SONG-260] should we add a specimenService.checkSpecimenExists(sample.getSpecimenId()) here?
   public String create(@NonNull String studyId, @NonNull Sample sample) {
     val id = createSampleId(studyId, sample);
@@ -80,49 +70,21 @@ public class SampleService {
     return id;
   }
 
-  public Sample read(@NonNull String id) {
-    val sampleResult = repository.findById(id);
-    checkServer(sampleResult.isPresent(), getClass(), SAMPLE_DOES_NOT_EXIST,
-        "The sample for sampleId '%s' could not be read because it does not exist", id);
-    val sample = sampleResult.get();
-    sample.setInfo(infoService.readNullableInfo(id));
-    return sample;
+  public void checkSampleRelatedToStudy(@NonNull String studyId, @NonNull String id){
+    val numSamples = businessKeyRepository.countAllByStudyIdAndSampleId(studyId, id);
+    if (numSamples < 1){
+      studyService.checkStudyExist(studyId);
+      val sample = unsecuredRead(id);
+      val actualStudyId = businessKeyRepository.findBySampleId(id).map(BusinessKeyView::getStudyId).orElse(null);
+      throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
+          "The sampleId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s' and specimenId '%s'",
+          id, studyId, actualStudyId, sample.getSpecimenId());
+    }
   }
 
-  List<Sample> readByParentId(@NonNull String parentId) {
-    return repository.findAllBySpecimenId(parentId);
-  }
-
-  public String update(@NonNull Sample sampleUpdate) {
-    val sample = read(sampleUpdate.getSampleId());
-    sample.setSampleSubmitterId(sampleUpdate.getSampleSubmitterId());
-    sample.setSampleType(sampleUpdate.getSampleType());
-    sample.setInfo(sampleUpdate.getInfo());
-    repository.save(sample);
-    infoService.update(sample.getSampleId(), sample.getInfoAsString());
-    return OK;
-  }
-
-  public String delete(@NonNull String id) {
-    checkSampleExists(id);
-    repository.deleteById(id);
-    infoService.delete(id);
-    return OK;
-  }
-
-  @Transactional
-  public String delete(@NonNull List<String> ids){
-    ids.forEach(this::delete);
-    return OK;
-  }
-
-  String deleteByParentId(@NonNull String parentId) {
-    val ids = repository.findAllBySpecimenId(parentId)
-        .stream()
-        .map(Sample::getSampleId)
-        .collect(toList());
-    delete(ids);
-    return OK;
+  public Sample securedRead(@NonNull String studyId, String id){
+    checkSampleRelatedToStudy(studyId, id);
+    return unsecuredRead(id);
   }
 
   public String findByBusinessKey(@NonNull String study, @NonNull String submitterId) {
@@ -145,6 +107,73 @@ public class SampleService {
   public void checkSampleDoesNotExist(@NonNull String id){
     checkServer(!isSampleExist(id), getClass(), SAMPLE_ALREADY_EXISTS,
         "The sample with sampleId '%s' already exists", id);
+  }
+
+  @Transactional
+  public String securedDelete(String studyId, @NonNull List<String> ids){
+    ids.forEach(x -> securedDelete(studyId, x));
+    return OK;
+  }
+
+  @Transactional
+  public String securedDelete(@NonNull String studyId, @NonNull String id){
+    checkSampleRelatedToStudy(studyId, id);
+    return unsecuredDelete(id);
+  }
+
+  Sample unsecuredRead(@NonNull String id) {
+    val sampleResult = repository.findById(id);
+    checkServer(sampleResult.isPresent(), getClass(), SAMPLE_DOES_NOT_EXIST,
+        "The sample for sampleId '%s' could not be read because it does not exist", id);
+    val sample = sampleResult.get();
+    sample.setInfo(infoService.readNullableInfo(id));
+    return sample;
+  }
+
+  List<Sample> readByParentId(@NonNull String parentId) {
+    return repository.findAllBySpecimenId(parentId);
+  }
+
+  String update(@NonNull Sample sampleUpdate) {
+    val sample = unsecuredRead(sampleUpdate.getSampleId());
+    sample.setSampleSubmitterId(sampleUpdate.getSampleSubmitterId());
+    sample.setSampleType(sampleUpdate.getSampleType());
+    sample.setInfo(sampleUpdate.getInfo());
+    repository.save(sample);
+    infoService.update(sample.getSampleId(), sample.getInfoAsString());
+    return OK;
+  }
+
+  String deleteByParentId(@NonNull String parentId) {
+    val ids = repository.findAllBySpecimenId(parentId)
+        .stream()
+        .map(Sample::getSampleId)
+        .collect(toList());
+    unsecuredDelete(ids);
+    return OK;
+  }
+
+  private String createSampleId(String studyId, Sample sample){
+    studyService.checkStudyExist(studyId);
+    val inputSampleId = sample.getSampleId();
+    val id = idService.generateSampleId(sample.getSampleSubmitterId(), studyId);
+    checkServer(isNullOrEmpty(inputSampleId) || id.equals(inputSampleId), getClass(),
+        SAMPLE_ID_IS_CORRUPTED,
+        "The input sampleId '%s' is corrupted because it does not match the idServices sampleId '%s'",
+        inputSampleId, id);
+    checkSampleDoesNotExist(id);
+    return id;
+  }
+
+  private String unsecuredDelete(@NonNull String id) {
+    checkSampleExists(id);
+    repository.deleteById(id);
+    infoService.delete(id);
+    return OK;
+  }
+
+  private void unsecuredDelete(@NonNull List<String> ids) {
+    ids.forEach(this::unsecuredDelete);
   }
 
 }

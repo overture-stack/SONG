@@ -44,7 +44,9 @@ public class SearchQueryBuilder {
   private static final String REGEX_ASSIGNMENT = " ~ ";
   private static final String STATEMENT_END = ";";
 
+  @NonNull private final String studyId;
   private final boolean includeInfoField;
+
   private final Set<SearchTerm> searchTerms = newLinkedHashSet();
 
   /**
@@ -52,7 +54,7 @@ public class SearchQueryBuilder {
    * @return postgresql query string
    */
   public String build() {
-    val query = generateSelectBaseQuery(includeInfoField);
+    val query = generateSelectBaseQuery(includeInfoField, studyId);
     if (searchTerms.size() > 0){
       return query + AND_DELIMITER + generateWhereConditions() + STATEMENT_END;
     } else {
@@ -91,8 +93,8 @@ public class SearchQueryBuilder {
         .collect(joining(AND_DELIMITER));
   }
 
-  public static SearchQueryBuilder createSearchQueryBuilder(boolean includeInfoField){
-    return new SearchQueryBuilder(includeInfoField);
+  public static SearchQueryBuilder createSearchQueryBuilder(String studyId, boolean includeInfoField){
+    return new SearchQueryBuilder(studyId, includeInfoField);
   }
 
   private static String convertToWhereCondition(String tableName, String columnName, SearchTerm searchTerm){
@@ -110,13 +112,13 @@ public class SearchQueryBuilder {
     return format("'%s'", input);
   }
 
-  private static String generateSelectBaseQuery(boolean includeInfoField){
+  private static String generateSelectBaseQuery(boolean includeInfoField, String studyId){
     val sb = new StringBuilder();
     sb.append(format("SELECT CAST(analysis.id AS VARCHAR) AS %s ", ANALYSIS_ID.toString()));
     if (includeInfoField){
       sb.append(format(", CAST(info.info AS VARCHAR) AS %s ", INFO.toString()));
     }
-    sb.append(format("FROM analysis INNER JOIN %s ON analysis.id = info.id WHERE info.id_type = 'Analysis'", TABLE_NAME));
+    sb.append(format("FROM analysis INNER JOIN %s ON analysis.id = info.id WHERE info.id_type = 'Analysis' AND analysis.study_id = '%s'", TABLE_NAME, studyId ));
     return sb.toString();
   }
 

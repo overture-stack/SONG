@@ -79,7 +79,7 @@ public class UploadController {
   @GetMapping(value = "/{studyId}/status/{uploadId}")
   public @ResponseBody
   Upload status(@PathVariable("studyId") String studyId, @PathVariable("uploadId") String uploadId) {
-    return uploadService.read(uploadId);
+    return uploadService.securedRead(studyId, uploadId);
   }
 
   @ApiOperation(value = "SaveUpload", notes = "Saves an upload specified by an uploadId. Also, optionally ignores "

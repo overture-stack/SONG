@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static org.icgc.dcc.song.core.utils.Responses.OK;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
@@ -52,8 +51,10 @@ public class SampleController {
   @ApiOperation(value = "ReadSample", notes = "Retrieves sample data for a sampleId")
   @GetMapping(value = "/samples/{id}")
   @ResponseBody
-  public Sample read(@PathVariable("id") String id) {
-    return sampleService.read(id);
+  public Sample read(
+      @PathVariable("studyId") String studyId,
+      @PathVariable("id") String id) {
+    return sampleService.securedRead(studyId, id);
   }
 
   /**
@@ -77,8 +78,7 @@ public class SampleController {
       @PathVariable("studyId") String studyId,
       @PathVariable("ids") @ApiParam(value = "Comma separated list of sampleIds", required = true)
           List<String> ids) {
-    sampleService.delete(ids);
-    return OK;
+    return sampleService.securedDelete(studyId, ids);
   }
 
 }

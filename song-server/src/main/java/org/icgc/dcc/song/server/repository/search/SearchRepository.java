@@ -47,9 +47,9 @@ public class SearchRepository {
   private final EntityManager em;
 
   @SuppressWarnings("unchecked")
-  public List<InfoSearchResponse> infoSearch(boolean includeInfo, @NonNull Iterable<SearchTerm> searchTerms){
+  public List<InfoSearchResponse> infoSearch(@NonNull String studyId, boolean includeInfo, @NonNull Iterable<SearchTerm> searchTerms){
     val session = em.unwrap(Session.class);
-    val searchQueryBuilder = createSearchQueryBuilder(includeInfo);
+    val searchQueryBuilder = createSearchQueryBuilder(studyId, includeInfo);
     searchTerms.forEach(searchQueryBuilder::add);
 
     Object output = session.createNativeQuery(searchQueryBuilder.build()).getResultList();

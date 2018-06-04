@@ -208,10 +208,10 @@ public class ExportServiceTest {
     a.getSample().stream()
         .map(CompositeEntity::getDonor)
         .map(Donor::getDonorId)
-        .forEach(x -> donorService.delete(a.getStudy(), x));
+        .forEach(x -> donorService.securedDelete(a.getStudy(), x));
     a.getFile().stream()
         .map(File::getObjectId)
-        .forEach(x -> fileService.delete(x));
+        .forEach(x -> fileService.securedDelete(a.getStudy(), x));
     analysisRepository.deleteById(a.getAnalysisId());
   }
 
@@ -302,7 +302,7 @@ public class ExportServiceTest {
     val uploadId = fromStatus(uploadStatus, UPLOAD_ID);
 
     // Check Status and check if validated
-    val statusResponse = uploadService.read(uploadId);
+    val statusResponse = uploadService.securedRead(studyId,uploadId);
     val uploadState = resolveState(statusResponse.getState());
     assertThat(uploadState).isEqualTo(UploadStates.VALIDATED);
 
@@ -312,7 +312,7 @@ public class ExportServiceTest {
     assertThat(status2).isEqualTo(OK);
     val analysisId = fromStatus(analysisResponse, ANALYSIS_ID);
 
-    return analysisClass.cast(analysisService.read(analysisId));
+    return analysisClass.cast(analysisService.securedDeepRead(studyId, analysisId));
   }
 
   /**

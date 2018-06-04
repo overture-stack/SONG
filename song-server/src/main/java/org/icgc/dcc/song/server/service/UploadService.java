@@ -39,6 +39,7 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
@@ -66,40 +67,27 @@ public class UploadService {
   private final AnalysisService analysisService;
   @Autowired
   private final UploadRepository uploadRepository;
-
   @Autowired
   private final StudyService studyService;
 
-  public Upload read(@NonNull String uploadId) {
-    val uploadResult = uploadRepository.findById(uploadId);
-    checkServer(uploadResult.isPresent(), this.getClass(), UPLOAD_ID_NOT_FOUND,
-          "The uploadId '%s' was not found", uploadId);
-    return uploadResult.get();
+  public boolean isUploadExist(@NonNull String uploadId){
+    return uploadRepository.existsById(uploadId);
   }
 
-  private void create(@NonNull String studyId, String analysisId, @NonNull String uploadId,
-                      @NonNull String jsonPayload) {
-    val upload = Upload.builder()
-        .uploadId(uploadId)
-        .analysisId(analysisId)
-        .studyId(studyId)
-        .state(CREATED.getText())
-        .payload(jsonPayload)
-        .build();
-    uploadRepository.save(upload);
+  public Upload securedRead(@NonNull String studyId, String uploadId) {
+    checkUploadRelatedToStudy(studyId, uploadId);
+    return unsecuredRead(uploadId);
   }
 
-  private void update(@NonNull String uploadId, @NonNull String jsonPayload) {
-    val upload = read(uploadId);
-    upload.setState(UPDATED);
-    upload.setPayload(jsonPayload);
-    uploadRepository.save(upload);
-  }
-
-  private  List<String> findByBusinessKey(@NonNull String studyId, @NonNull String analysisId){
-    return uploadRepository.findAllByStudyIdAndAnalysisId(studyId, analysisId).stream()
-        .map(Upload::getUploadId)
-        .collect(toImmutableList());
+  public void checkUploadRelatedToStudy(@NonNull String studyId, @NonNull String id){
+    val numUploads = uploadRepository.countAllByStudyIdAndUploadId(studyId, id);
+    if (numUploads < 1){
+      studyService.checkStudyExist(studyId);
+      val upload = unsecuredRead(id);
+      throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
+          "The uploadId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
+          id, studyId, upload.getStudyId());
+    }
   }
 
   @Transactional
@@ -130,15 +118,15 @@ public class UploadService {
         uploadId = ids.get(0);
         val previousUpload = uploadRepository.findById(uploadId).get();
         status.put("status",
-                format("WARNING: replaced content for analysisId '%s'",
-                        analysisId));
+            format("WARNING: replaced content for analysisId '%s'",
+                analysisId));
         status.put("replaced", previousUpload.getPayload());
         update(uploadId, payload);
 
       } else {
         throw buildServerException(getClass(), UPLOAD_ID_NOT_FOUND,
-                "Multiple upload ids found for analysisId='%s', study='%s'",
-                analysisId, studyId);
+            "Multiple upload ids found for analysisId='%s', study='%s'",
+            analysisId, studyId);
       }
       analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
     } catch (JsonProcessingException jpe){
@@ -156,14 +144,10 @@ public class UploadService {
     return ok(status.toString());
   }
 
-
   @Transactional
   public ResponseEntity<String> save(@NonNull String studyId, @NonNull String uploadId,
       final boolean ignoreAnalysisIdCollisions) {
-    studyService.checkStudyExist(studyId);
-    val upload = read(uploadId);
-    checkServer(!isNull(upload),this.getClass(), UPLOAD_ID_NOT_FOUND,
-          "UploadId %s does not exist", uploadId);
+    val upload = securedRead(studyId, uploadId);
     val uploadState = resolveState(upload.getState());
 
     checkServer(uploadState == SAVED || uploadState == VALIDATED, this.getClass(),
@@ -180,8 +164,40 @@ public class UploadService {
     return ok(reply);
   }
 
+  private Upload unsecuredRead(@NonNull String uploadId) {
+    val uploadResult = uploadRepository.findById(uploadId);
+    checkServer(uploadResult.isPresent(), this.getClass(), UPLOAD_ID_NOT_FOUND,
+        "The uploadId '%s' was not found", uploadId);
+    return uploadResult.get();
+  }
+
+  private void create(@NonNull String studyId, String analysisId, @NonNull String uploadId,
+                      @NonNull String jsonPayload) {
+    val upload = Upload.builder()
+        .uploadId(uploadId)
+        .analysisId(analysisId)
+        .studyId(studyId)
+        .state(CREATED.getText())
+        .payload(jsonPayload)
+        .build();
+    uploadRepository.save(upload);
+  }
+
+  private void update(@NonNull String uploadId, @NonNull String jsonPayload) {
+    val upload = unsecuredRead(uploadId);
+    upload.setState(UPDATED);
+    upload.setPayload(jsonPayload);
+    uploadRepository.save(upload);
+  }
+
+  private  List<String> findByBusinessKey(@NonNull String studyId, @NonNull String analysisId){
+    return uploadRepository.findAllByStudyIdAndAnalysisId(studyId, analysisId).stream()
+        .map(Upload::getUploadId)
+        .collect(toImmutableList());
+  }
+
   private void updateAsSaved(@NonNull String uploadId) {
-    val upload = read(uploadId);
+    val upload = unsecuredRead(uploadId);
     upload.setState(SAVED);
     uploadRepository.save(upload);
   }

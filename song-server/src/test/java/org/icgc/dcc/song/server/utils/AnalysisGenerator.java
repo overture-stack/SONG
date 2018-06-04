@@ -26,18 +26,19 @@ import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.service.AnalysisService;
 
+import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.resolveDefaultPayloadFilename;
 import static org.icgc.dcc.song.server.utils.TestFiles.EMPTY_STRING;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = PRIVATE)
 public class AnalysisGenerator {
 
   @NonNull private final String studyId;
   @NonNull private final AnalysisService service;
   @NonNull private final PayloadGenerator payloadGenerator;
-
+  @NonNull private final RandomGenerator randomGenerator;
 
   /**
    * Create a random analysis by specifying the output analysis class type and the payload fixture to load and
@@ -49,9 +50,20 @@ public class AnalysisGenerator {
     // randomly generated objectId (fileIds)
     analysis.setAnalysisId(EMPTY_STRING);
     val analysisId = service.create(studyId, analysis, false);
-    val out = analysisClass.cast(service.read(analysisId));
+    val out = analysisClass.cast(service.securedDeepRead(studyId, analysisId));
     assertThat(analysis).isExactlyInstanceOf(analysisClass);
     return out;
+  }
+
+  public String generateNonExistingAnalysisId(){
+    boolean idExists = true;
+    String id = null;
+    while(idExists){
+      id = randomGenerator.generateRandomUUIDAsString();
+      idExists = service.isAnalysisExist(id);
+    }
+    assertThat(id).isNotNull();
+    return id;
   }
 
   /**
@@ -72,18 +84,15 @@ public class AnalysisGenerator {
     return createDefaultRandomAnalysis(VariantCallAnalysis.class);
   }
 
-  public static AnalysisGenerator createAnalysisGenerator(String studyId, AnalysisService service, PayloadGenerator
-      payloadGenerator) {
-    return new AnalysisGenerator(studyId, service, payloadGenerator);
-  }
-
   public static AnalysisGenerator createAnalysisGenerator(String studyId, AnalysisService service, RandomGenerator
       randomGenerator) {
-    return createAnalysisGenerator(studyId, service, createPayloadGenerator(randomGenerator));
+    return new AnalysisGenerator(studyId, service, createPayloadGenerator(randomGenerator), randomGenerator);
   }
 
   public static AnalysisGenerator createAnalysisGenerator(String studyId, AnalysisService service, String
       randomGeneratorName) {
-    return createAnalysisGenerator(studyId, service, createPayloadGenerator(randomGeneratorName));
+    val randomGenerator = RandomGenerator.createRandomGenerator(randomGeneratorName);
+    return createAnalysisGenerator(studyId, service, randomGenerator);
   }
+
 }

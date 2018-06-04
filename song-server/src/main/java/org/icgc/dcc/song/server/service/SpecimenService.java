@@ -32,9 +32,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.Responses.OK;
 
@@ -75,7 +77,12 @@ public class SpecimenService {
     return id;
   }
 
-  public Specimen read(@NonNull String id) {
+  public Specimen securedRead(@NonNull String studyId, String id) {
+    checkSpecimenRelatedToStudy(studyId,id);
+    return unsecuredRead(id);
+  }
+
+  public Specimen unsecuredRead(@NonNull String id) {
     val specimenResult = repository.findById(id);
     checkServer(specimenResult.isPresent(), getClass(), SPECIMEN_DOES_NOT_EXIST,
         "The specimen for specimenId '%s' could not be read because it does not exist", id);
@@ -84,8 +91,20 @@ public class SpecimenService {
     return specimen;
   }
 
+  public void checkSpecimenRelatedToStudy(@NonNull String studyId, @NonNull String id){
+    val numSpecimens = businessKeyRepository.countAllByStudyIdAndSpecimenId(studyId, id);
+    if (numSpecimens < 1){
+      studyService.checkStudyExist(studyId);
+      val specimen = unsecuredRead(id);
+      val actualStudyId = businessKeyRepository.findBySpecimenId(id).map(BusinessKeyView::getStudyId).orElse(null);
+      throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
+          "The specimenId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s' and donorId '%s'",
+          id, studyId, actualStudyId, specimen.getDonorId());
+    }
+  }
+
   SpecimenWithSamples readWithSamples(String id) {
-    val specimen = read(id);
+    val specimen = unsecuredRead(id);
     val s = new SpecimenWithSamples();
     s.setSpecimen(specimen);
     s.setSamples(sampleService.readByParentId(id));
@@ -100,7 +119,7 @@ public class SpecimenService {
   }
 
   public String update(@NonNull Specimen specimenUpdate) {
-    val specimen = read(specimenUpdate.getSpecimenId());
+    val specimen = unsecuredRead(specimenUpdate.getSpecimenId());
 
     specimen.setWithSpecimen(specimenUpdate);
     repository.save(specimenUpdate);
@@ -122,7 +141,14 @@ public class SpecimenService {
         "The specimen with specimenId '%s' already exists", id);
   }
 
-  public String delete(@NonNull String id) {
+  @Transactional
+  public String securedDelete(@NonNull  String studyId, String id) {
+    checkSpecimenRelatedToStudy(studyId, id);
+    return unsecuredDelete(id);
+  }
+
+  @Transactional
+  public String unsecuredDelete(@NonNull String id) {
     checkSpecimenExist(id);
     sampleService.deleteByParentId(id);
     repository.deleteById(id);
@@ -131,15 +157,22 @@ public class SpecimenService {
   }
 
   @Transactional
-  public String delete(@NonNull List<String> ids) {
-    ids.forEach(this::delete);
+  public String securedDelete(@NonNull String studyId, List<String> ids) {
+    ids.forEach(x -> securedDelete(studyId, x));
     return OK;
   }
 
+  @Transactional
+  public String unsecuredDelete(@NonNull List<String> ids) {
+    ids.forEach(this::unsecuredDelete);
+    return OK;
+  }
+
+  @Transactional
   String deleteByParentId(@NonNull String parentId) {
     repository.findAllByDonorId(parentId).stream()
         .map(Specimen::getSpecimenId)
-        .forEach(this::delete);
+        .forEach(this::unsecuredDelete);
     return OK;
   }
 

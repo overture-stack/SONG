@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
@@ -47,6 +48,7 @@ import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_SAMPLE_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_SPECIMEN_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
+import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureSampleTester.createSecureSampleTester;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -65,12 +67,13 @@ public class SampleServiceTest {
   @Before
   public void beforeTest(){
     assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+    assertThat(specimenService.isSpecimenExist(DEFAULT_SPECIMEN_ID)).isTrue();
   }
 
   @Test
   public void testReadSample() {
     val id = "SA1";
-    val sample = sampleService.read(id);
+    val sample = sampleService.securedRead(DEFAULT_STUDY_ID,id);
     assertThat(sample.getSampleId()).isEqualTo(id);
     assertThat(sample.getSampleSubmitterId()).isEqualTo("T285-G7-A5");
     assertThat(sample.getSampleType()).isEqualTo("DNA");
@@ -96,10 +99,10 @@ public class SampleServiceTest {
     assertThat(id).startsWith("SA");
     assertThat(status).isEqualTo(id);
 
-    Sample check = sampleService.read(id);
+    Sample check = sampleService.securedRead(DEFAULT_STUDY_ID, id);
     assertThat(check).isEqualToComparingFieldByField(s);
 
-    sampleService.delete(newArrayList(id));
+    sampleService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
     assertThat(sampleService.isSampleExist(id)).isFalse();
   }
 
@@ -128,7 +131,7 @@ public class SampleServiceTest {
     s2.setInfo(metadata);
     sampleService.update(s2);
 
-    val s3 = sampleService.read(id);
+    val s3 = sampleService.securedRead(DEFAULT_STUDY_ID,id);
     assertThat(s3).isEqualToComparingFieldByField(s2);
   }
 
@@ -186,7 +189,7 @@ public class SampleServiceTest {
   public void testReadSampleDNE(){
     val randomSampleId = randomGenerator.generateRandomUUIDAsString();
     assertThat(sampleService.isSampleExist(randomSampleId)).isFalse();
-    assertSongError(() -> sampleService.read(randomSampleId), SAMPLE_DOES_NOT_EXIST);
+    assertSongError(() -> sampleService.unsecuredRead(randomSampleId), SAMPLE_DOES_NOT_EXIST);
   }
 
   @Test
@@ -234,11 +237,25 @@ public class SampleServiceTest {
   }
 
   @Test
-  public void testDeleteSampleDNE(){
-    val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
-    assertSongError(() -> sampleService.delete(randomSpecimenId), SAMPLE_DOES_NOT_EXIST);
-    assertSongError(() -> sampleService.delete(newArrayList(randomSpecimenId)), SAMPLE_DOES_NOT_EXIST);
+  @Transactional
+  public void testCheckSampleUnrelatedToStudy(){
+    val existingSpecimenId = DEFAULT_SPECIMEN_ID;
+    val secureSampleTester = createSecureSampleTester(randomGenerator,studyService, specimenService, sampleService);
+
+    secureSampleTester.runSecureTest((studyId, id) -> sampleService.checkSampleRelatedToStudy(studyId, id),
+        existingSpecimenId);
+
+    secureSampleTester.runSecureTest((studyId, id) -> sampleService.securedRead(studyId, id),
+        existingSpecimenId);
+
+    secureSampleTester.runSecureTest((studyId, id) -> sampleService.securedDelete(studyId, id),
+        existingSpecimenId);
+
+    secureSampleTester.runSecureTest((studyId, id) -> sampleService.securedDelete(studyId, newArrayList(id)),
+        existingSpecimenId);
+
   }
+
 
   @Test
   public void testUpdateSpecimenDNE(){

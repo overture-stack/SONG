@@ -51,8 +51,10 @@ public class DonorController {
   @ApiOperation(value = "ReadDonor", notes = "Retrieves donor data for a donorId")
   @GetMapping(value = "/donors/{id}")
   @ResponseBody
-  public Donor read(@PathVariable("id") String id) {
-    return donorService.read(id);
+  public Donor read(
+      @PathVariable("studyId") String studyId,
+      @PathVariable("id") String id) {
+    return donorService.securedRead(studyId, id);
   }
 
   /**
@@ -75,7 +77,7 @@ public class DonorController {
       @PathVariable("studyId") String studyId,
       @PathVariable("ids") @ApiParam(value = "Comma separated list of donorIds", required = true)
           List<String> ids) {
-    return donorService.delete(studyId, ids);
+    return donorService.securedDelete(studyId, ids);
   }
 
 }

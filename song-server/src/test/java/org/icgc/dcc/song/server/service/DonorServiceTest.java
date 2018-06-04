@@ -17,12 +17,14 @@
 package org.icgc.dcc.song.server.service;
 
 import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.Donor;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
+import org.icgc.dcc.song.server.utils.securestudy.impl.SecureDonorTester;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
@@ -45,7 +48,9 @@ import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
+import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureDonorTester.createSecureDonorTester;
 
+@Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("dev")
@@ -62,10 +67,12 @@ public class DonorServiceTest {
 
 
   private final RandomGenerator randomGenerator = createRandomGenerator(DonorServiceTest.class.getSimpleName());
+  private SecureDonorTester secureDonorTester;
 
   @Before
   public void beforeTest(){
     assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+    this.secureDonorTester = createSecureDonorTester(randomGenerator, studyService, service);
   }
 
   @Test
@@ -86,7 +93,7 @@ public class DonorServiceTest {
   }
 
   Specimen getMatchingSpecimen(Specimen specimen) {
-    return specimenService.read(specimen.getSpecimenId());
+    return specimenService.unsecuredRead(specimen.getSpecimenId());
   }
 
   @Test
@@ -111,12 +118,12 @@ public class DonorServiceTest {
     DonorWithSpecimens check = service.readWithSpecimens(id);
     assertThat(d).isEqualToComparingFieldByField(check);
 
-    service.delete("XYZ234", id);
+    service.securedDelete("XYZ234", id);
     assertThat(service.isDonorExist(id)).isFalse();
 
     val status2 = service.create(d);
     assertThat(status2).isEqualTo(id);
-    service.delete("XYZ234", newArrayList(id));
+    service.securedDelete("XYZ234", newArrayList(id));
     assertThat(service.isDonorExist(id)).isFalse();
   }
 
@@ -144,7 +151,7 @@ public class DonorServiceTest {
     val response = service.update(d2);
     assertThat(response).isEqualTo("OK");
 
-    val d3 = service.read(id);
+    val d3 = service.securedRead(studyId, id);
     assertThat(d3).isEqualToComparingFieldByField(d2);
   }
 
@@ -158,7 +165,7 @@ public class DonorServiceTest {
     d.setStudyId(studyId);
     d.setDonorGender("male");
     val donorId = service.save(studyId, d);
-    val initialDonor = service.read(donorId);
+    val initialDonor = service.securedRead(studyId, donorId);
     assertThat(initialDonor.getDonorGender()).isEqualTo("male");
     assertThat(service.isDonorExist(donorId)).isTrue();
 
@@ -169,7 +176,7 @@ public class DonorServiceTest {
     val donorId2 = service.save(studyId, dUpdate);
     assertThat(service.isDonorExist(donorId2)).isTrue();
     assertThat(donorId2).isEqualTo(donorId);
-    val updateDonor = service.read(donorId2);
+    val updateDonor = service.securedRead(studyId, donorId2);
     assertThat(updateDonor.getDonorGender()).isEqualTo("female");
   }
 
@@ -319,28 +326,19 @@ public class DonorServiceTest {
   }
 
   @Test
-  public void testDeleteStudyDNE(){
-    val randomDonorId =  randomGenerator.generateRandomUUIDAsString();
-    val randomStudyId=  randomGenerator.generateRandomUUIDAsString();
-    assertSongError(() -> service.delete(randomStudyId, randomDonorId), STUDY_ID_DOES_NOT_EXIST);
-    assertSongError(() -> service.delete(randomStudyId, newArrayList(randomDonorId)), STUDY_ID_DOES_NOT_EXIST);
-  }
-
-  @Test
-  public void testDeleteDonorDNE(){
-    val studyId = DEFAULT_STUDY_ID;
-    val randomDonorId =  randomGenerator.generateRandomUUIDAsString();
-    assertSongError(() -> service.delete(studyId, randomDonorId), DONOR_DOES_NOT_EXIST);
-    assertSongError(() -> service.delete(studyId, newArrayList(randomDonorId, DEFAULT_DONOR_ID)),
-        DONOR_DOES_NOT_EXIST);
-  }
-
-  @Test
   public void testReadDonorDNE(){
-    val randomDonorId =  randomGenerator.generateRandomUUIDAsString();
-    assertThat(service.isDonorExist(randomDonorId)).isFalse();
-    assertSongError(() -> service.read(randomDonorId), DONOR_DOES_NOT_EXIST);
-    assertSongError(() -> service.readWithSpecimens(randomDonorId), DONOR_DOES_NOT_EXIST);
+    val data = secureDonorTester.generateData();
+    assertSongError(() -> service.unsecuredRead(data.getNonExistingId()), DONOR_DOES_NOT_EXIST);
+    assertSongError(() -> service.readWithSpecimens(data.getNonExistingId()), DONOR_DOES_NOT_EXIST);
+  }
+
+  @Test
+  @Transactional
+  public void testCheckDonorUnRelatedToStudy(){
+    secureDonorTester.runSecureAnalysisTest((s,d) -> service.checkDonorAndStudyRelated(s, d));
+    secureDonorTester.runSecureAnalysisTest((s,d) -> service.securedRead(s, d));
+    secureDonorTester.runSecureAnalysisTest((s,d) -> service.securedDelete(s, d));
+    secureDonorTester.runSecureAnalysisTest((s,d) -> service.securedDelete(s, newArrayList(d)));
   }
 
   private Donor createRandomDonor(){
