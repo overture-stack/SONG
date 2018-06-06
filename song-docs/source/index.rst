@@ -12,7 +12,9 @@ From there, you can use the power of Python to process and analyze the data with
    :maxdepth: 4
 
    introduction.rst
+   server.rst
    sdk/index.rst
+
 
 
 
