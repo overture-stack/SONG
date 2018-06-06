@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.abspath('.'))
 # ------------- Version extraction ----------------
 # Extract the version from the root pom.xml file
 # -------------------------------------------------
-pom_loc = '../../pom.xml'
+pom_loc = '../pom.xml'
 def get_version_from_pom():
     tree = ET.parse(pom_loc)
     root = tree.getroot()
