@@ -2,7 +2,7 @@
 sphinx-autobuild \
 -b html \
 -H localhost \
---watch  ../overture_song --watch src \
+--watch  ../song-python-sdk/overture_song --watch source/ \
 --ignore "*.swp" \
 --ignore "*.pdf" \
 --ignore "*.log" \
@@ -16,4 +16,4 @@ sphinx-autobuild \
 --ignore "*.pyc" \
 --ignore "*.py_*" \
 --ignore "*.rst_*" \
--c .  . _build/html
+-c source  source _build/html

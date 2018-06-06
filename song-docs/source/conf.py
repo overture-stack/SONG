@@ -21,14 +21,15 @@ import sys
 import xml.etree.ElementTree as ET
 from datetime import datetime as dt
 
-SONG_PYTHON_SDK_PATH = '../song-python-sdk'
-
-sys.path.insert(0, os.path.abspath(SONG_PYTHON_SDK_PATH))
+# SONG_PYTHON_SDK_PATH = '../song-python-sdk'
+# sys.path.insert(0, os.path.abspath(SONG_PYTHON_SDK_PATH))
+sys.path.insert(0, os.path.abspath('.'))
+# sys.path.insert(0, os.path.abspath('.'))
 
 # ------------- Version extraction ----------------
 # Extract the version from the root pom.xml file
 # -------------------------------------------------
-pom_loc = '../pom.xml'
+pom_loc = '../../pom.xml'
 def get_version_from_pom():
     tree = ET.parse(pom_loc)
     root = tree.getroot()
