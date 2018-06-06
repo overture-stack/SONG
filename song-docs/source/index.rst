@@ -8,11 +8,10 @@ It lets you upload payloads synchronously or asynchronously, check their status 
 From there, you can use the power of Python to process and analyze the data within those objects however you see fit.
 
 
-.. include:: introduction.rst
-
 .. toctree::
    :maxdepth: 4
 
+   introduction.rst
    sdk/index.rst
 
 
