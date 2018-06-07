@@ -3,6 +3,6 @@ Supported SDK Documentation
 .. toctree::
    :maxdepth: 4
 
-   python/index.rst
+   python/python_sdk.rst
 
 

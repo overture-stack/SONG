@@ -24,6 +24,8 @@ from datetime import datetime as dt
 # SONG_PYTHON_SDK_PATH = '../song-python-sdk'
 # sys.path.insert(0, os.path.abspath(SONG_PYTHON_SDK_PATH))
 sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(1, os.path.abspath('../song-python-sdk/overture_song'))
+sys.path.insert(2, os.path.abspath('../song-python-sdk'))
 # sys.path.insert(0, os.path.abspath('.'))
 
 # ------------- Version extraction ----------------

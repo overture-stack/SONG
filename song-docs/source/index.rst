@@ -12,7 +12,9 @@ From there, you can use the power of Python to process and analyze the data with
    :maxdepth: 4
 
    introduction.rst
+   design.rst
    user_access.rst
+   api.rst
    server.rst
    docker.rst
    cli/index.rst
