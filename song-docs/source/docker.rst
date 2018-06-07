@@ -7,7 +7,7 @@ Introduction
 
 .. warning::
 
-    Docker for Song is meant to **demonstrate** the configuration and usage of `SONG <https://github.com/overture-stack/SONG>`_, and is **NOT INTENDED FOR PRODUCTION**. If you decide to ignore this warning and use this in any public or production environment, please remember to change the passwords, accessKeys, and secretKeys. 
+    Docker for SONG is meant to **demonstrate** the configuration and usage of `SONG <https://github.com/overture-stack/SONG>`_, and is **NOT INTENDED FOR PRODUCTION**. If you decide to ignore this warning and use this in any public or production environment, please remember to change the passwords, accessKeys, and secretKeys. 
 
 What is Docker for Song?
 ---------------------------
@@ -71,7 +71,7 @@ Optional
 * `jq <https://stedolan.github.io/j/>`_ for json formatting and grepping (install via `apt install jq`)
 
 
-Get Docker for Song
+Getting Docker for Song
 =========================
 In order to run the Docker for SONG, the latest release must be downloaded. Before downloading, the latest release tag must be found using one of the following options:
 
@@ -97,8 +97,8 @@ The following describe different methods of obtaining the latest release tag.
 
 Download
 ---------------
-Using the desired release tag, the docker repository can be downloaded via
-
+Using the desired release tag, the docker repository can be downloaded via:
+:
 
 Download ZIP
 ^^^^^^^^^^^^^^^^^^^^^

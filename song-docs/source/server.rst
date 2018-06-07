@@ -1,17 +1,23 @@
-==============
-SONG Server
-==============
+=======================================
+Deploying a SONG Server in Production
+=======================================
+
+The following section describes how to install, configure and run the SONG server in production.
 
 
 Prerequisites
 ==================
 
-sdf
+The following software dependencies are required in order to run the server:
 
+- Bash Shell
+- Java 8 or higher
 
 Installation
 ===============================
-sdfsdf
+- download from artifactory dist
+    - can be found from 
+- untar
 
 
 Configuration
