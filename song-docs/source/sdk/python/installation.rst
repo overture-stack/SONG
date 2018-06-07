@@ -1,4 +1,0 @@
-Installation
---------------
-
-something about installation
