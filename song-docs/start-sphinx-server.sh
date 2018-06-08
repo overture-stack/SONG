@@ -17,4 +17,5 @@ sphinx-autobuild \
 --ignore "*.pyc" \
 --ignore "*.py_*" \
 --ignore "*.rst_*" \
+--ignore "*4913*" \
 -c .  source  _build/html

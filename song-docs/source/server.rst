@@ -101,12 +101,15 @@ By default, the SONG server distibution is configured to run in secure productio
 
     # URL used to ensure files exist in the storage server
     # Note: The same SONG auth token will be used for requests sent 
-    #       to the SCORE service. This means same scope must be 
-    #       able authorized to access the SCORE storage service.
+    #       to the SCORE server. This means the same scope must be 
+    #       authorized to access the SCORE storage service.
     dcc-storage.url=https://storage.cancercollaboratory.org
 
 
 The example file above configures the server to use the ``id.icgc.org`` id service, ``auth.icgc.org`` auth service, and the ``storage.cancercollaboratory.org`` SCORE storage service with a local Postgres database, however any similar service can be used. For example, the :ref:`Docker for SONG Microservice Architecture <docker_microservice_architecture>` uses a different implementation of an OAuth2 server.
+
+
+
 
 
 
