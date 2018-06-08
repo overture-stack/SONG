@@ -2,6 +2,11 @@
 SONG Python SDK Documentation
 ========================================
 
+The SONG Python SDK is a simple python module that allows you to interact with a SONG server through Python, with a minimum of coding effort.
+
+It lets you upload payloads synchronously or asynchronously, check their status and create analyses.
+From there, you can use the power of Python to process and analyze the data within those objects however you see fit.
+
 Prerequisites
 ===================
 
@@ -16,7 +21,6 @@ The official SONG Python SDK is publically hosted on `PyPi <https://pypi.python.
 .. code-block:: bash
 
     pip install overture-song
-
 
 
 Configuration
@@ -480,7 +484,7 @@ For **AWS - Virginia**:
 
 .. seealso::
 
-    For more information about the **icgc-storage-client** usage, visit the `usage guide <http://docs.icgc.org/cloud/guide/#storage-client-usage>`_.
+    Refer to the :ref:`SCORE Client <score_client_ref>` section for more information about installation, configuration and usage.
 
 Publish the Analysis
 ---------------------
