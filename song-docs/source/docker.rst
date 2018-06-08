@@ -9,21 +9,21 @@ Introduction
 
     Docker for SONG is meant to **demonstrate** the configuration and usage of `SONG <https://github.com/overture-stack/SONG>`_, and is **NOT INTENDED FOR PRODUCTION**. If you decide to ignore this warning and use this in any public or production environment, please remember to change the passwords, accessKeys, and secretKeys. 
 
-What is Docker for Song?
+What is Docker for SONG?
 ---------------------------
 
 Important Features
 --------------------------
 
-* Turn-key bring up of song, dcc-storage and the dcc-auth services
+* Turn-key bring up of SONG, SCORE and the dcc-auth services
   
 * Completely configurable via docker-compose environment variables (i.e change ports, jmx ports, hosts, credentials, and other important data fields). Values are injected into configurations using a custom python script
   
 * Data from databases (``song-db`` and ``id-db``) and auth service are saved in volumes.
   
-* Logs from the ``song-server``, ``dcc-storage-server`` and ``dcc-id-server`` are mounted to the docker host for easy viewing via the ``./logs`` directory
+* Logs from the ``song-server``, ``score-server`` and ``dcc-id-server`` are mounted to the docker host for easy viewing via the ``./logs`` directory
   
-* Storage and song clients are automatically downloaded, configured and mounted to the docker host via the ``./data`` directory
+* SCORE and SONG clients are automatically downloaded, configured and mounted to the docker host via the ``./data`` directory
 
 * Minio (s3 object storage) data is also mounted via the ``./data`` directory. Files can be uploaded by simply copying into ``./data/minio``
 
@@ -73,7 +73,7 @@ Optional
 * `jq <https://stedolan.github.io/j/>`_ for json formatting and grepping (install via `apt install jq`)
 
 
-Getting Docker for Song
+Getting Docker for SONG
 =========================
 In order to run the Docker for SONG, the latest release must be downloaded. Before downloading, the latest release tag must be found using one of the following options:
 
@@ -107,7 +107,7 @@ Download using GIT
 
 .. code-block:: bash
 
-    git clone --branch $RELEASE_TAG https://github.com/overture-stack/song.git $RELEASE_TAG
+    git clone --branch $RELEASE_TAG https://github.com/overture-stack/SONG.git $RELEASE_TAG
 
 
 
@@ -138,7 +138,7 @@ The following tutorial executes the complete data submission workflow in 4 stage
 Stage 1:  SONG Upload
 -----------------------
 
-1. Check that the song server is running
+1. Check that the SONG server is running
     
 .. code-block:: bash
 
@@ -159,7 +159,7 @@ Stage 1:  SONG Upload
 4. Record or remember the ``uploadId`` from the response for the next phase
 
 
-Stage 2: Song Saving and Manifest Generation
+Stage 2: SONG Saving and Manifest Generation
 --------------------------------------------------
 
 1. Save or commit the finalized metadata. The response will contain the ``analysisId``
@@ -190,9 +190,9 @@ Stage 2: Song Saving and Manifest Generation
 
 .. _stage_3_ref:
 
-Stage 3: ICGC-Storage Upload 
+Stage 3: SCORE Upload
 -------------------------------------
-Upload the manifest file to ``icgc-dcc-storage`` server using the `icgc-storage-client <http://docs.icgc.org/software/binaries/#storage-client>`_. This will upload the files specified in the `exampleVariantCall.json <https://github.com/overture-stack/SONG/blob/develop/song-docker/example/exampleVariantCall.json>`_ payload, which are located in the ``./example`` directory
+Upload the manifest file to the ``score-server`` (formally the ``icgc-dcc-storage`` server) using the `icgc-storage-client <http://docs.icgc.org/software/binaries/#storage-client>`_. This will upload the files specified in the `exampleVariantCall.json <https://github.com/overture-stack/SONG/blob/develop/song-docker/example/exampleVariantCall.json>`_ payload, which are located in the ``./example`` directory
 
 .. code-block:: bash
 
