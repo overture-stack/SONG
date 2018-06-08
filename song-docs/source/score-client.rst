@@ -4,7 +4,7 @@
 SCORE Client
 ======================
 
-The SCORE client (formally the :term:`icgc-storage-client`) is used to download from the SCORE Server 
+The SCORE client (formally the :term:`icgc-storage-client`) is used to upload and download object data to and from the SCORE Server. 
 
 .. todo::
     replace the seealso with the official score readthe docs

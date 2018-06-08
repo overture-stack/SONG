@@ -1,5 +1,5 @@
 ========================================
-SONG Python SDK Documentation
+SONG Python SDK
 ========================================
 
 The SONG Python SDK is a simple python module that allows you to interact with a SONG server through Python, with a minimum of coding effort.

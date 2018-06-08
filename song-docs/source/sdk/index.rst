@@ -1,4 +1,4 @@
-Supported SDK Documentation
+Supported SDKs
 ============================
 .. toctree::
    :maxdepth: 4

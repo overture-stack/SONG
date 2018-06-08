@@ -131,8 +131,8 @@ For a long-running server, sudden power loss or a hard reboot would mean the sta
 However, if the SONG server distribution is run as a **service**, the OS would be responsible for automatically restarting the service upon reboot.
 For this reason, the distibution should be configured as a service that is always started on boot. 
 
-Linux
---------
+Linux (SysV)
+-------------
 
 Assuming the directory path of the distribution is ``$SONG_SERVER_HOME``, the following steps will register the SONG server 
 as a SysV service on any Linux host supporting SysV and the :ref:`Prerequisites<server_prereq>`, and configure it to start on boot.

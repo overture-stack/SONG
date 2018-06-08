@@ -26,8 +26,9 @@ Use Cases
 
 some use cases
 
-Workflow (or integration with Score)
+Data Submission Workflow
 ======================================
+- 2 parts: metadata upload (song) and object data upload (score)
 
 Projects Using SONG
 ======================

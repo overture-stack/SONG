@@ -22,3 +22,6 @@ Glossary
     cononical id
     icgc-storage-client
         Is the former name for the :ref:`SCORE client <score_client_ref>`.
+    collaboratory
+    overture-stack
+    ICGC
