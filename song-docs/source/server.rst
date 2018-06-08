@@ -147,26 +147,28 @@ It can also be manually managed using serveral commands:
     # Restart the service
     sudo service song-server restart
 
+.. todo::
 
-Example SSL Termination with NGINX
-====================================
+    Example SSL Termination with NGINX
+    ====================================
 
-Installing NGINX
------------------
 
-sdfsdf
+    Installing NGINX
+    -----------------
 
-LetsEncrypt
---------------
+    sdfsdf
 
-sdf
+    LetsEncrypt
+    --------------
 
-Configuring NGINX
--------------------
-sdfsd
+    sdf
 
-Running NGINX as a Service
----------------------------
-sdfsd
+    Configuring NGINX
+    -------------------
+    sdfsd
+
+    Running NGINX as a Service
+    ---------------------------
+    sdfsd
 
 
