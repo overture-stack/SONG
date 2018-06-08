@@ -15,14 +15,14 @@ The SCORE client (formally the :term:`icgc-storage-client`) is used to upload an
 Installation
 =================
 
-The SCORE Client (formally the icgc-storage-client) must be download and configured. The client
-is used to upload and download files to and from an authorized storage server. There are a few storage servers available for DACO users to use:
-
-* In **Collaboratory - Toronto** , the https://storage.cancercollaboratory.org storage servers are used and require ``collab.upload`` scope for uploading files.
-
-* In **AWS - Virginia** , the https://virginia.cloud.icgc.org storage servers are used and require ``aws.upload`` scope for uploading files.
-
 For installation, please see `Installing icgc-storage-client from Tarball <http://docs.icgc.org/cloud/guide/#install-from-tarball>`_ instructions.
+
+.. note::
+    There are a few storage servers available for DACO users to use:
+
+    * In **Collaboratory - Toronto** , the https://storage.cancercollaboratory.org storage servers are used and require ``collab.upload`` scope for uploading files.
+
+    * In **AWS - Virginia** , the https://virginia.cloud.icgc.org storage servers are used and require ``aws.upload`` scope for uploading files.
 
 Configuration
 ===============

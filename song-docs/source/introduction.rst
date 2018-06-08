@@ -33,6 +33,7 @@ Data Submission Workflow
 Projects Using SONG
 ======================
 
+- show a map with song locations
 collaboratory storage service
 aws-virginia storage service
 

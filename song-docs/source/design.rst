@@ -23,7 +23,6 @@ Objectives
 - secure (oauth2)
 - talk to score for object data existence
 - scalable
-- 
 
 Architecture
 ===============
