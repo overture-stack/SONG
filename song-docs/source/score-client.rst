@@ -17,13 +17,6 @@ Installation
 
 For installation, please see `Installing icgc-storage-client from Tarball <http://docs.icgc.org/cloud/guide/#install-from-tarball>`_ instructions.
 
-.. note::
-    There are a few storage servers available for DACO users to use:
-
-    * In **Collaboratory - Toronto** , the https://storage.cancercollaboratory.org storage servers are used and require ``collab.upload`` scope for uploading files.
-
-    * In **AWS - Virginia** , the https://virginia.cloud.icgc.org storage servers are used and require ``aws.upload`` scope for uploading files.
-
 Configuration
 ===============
 For configuration, after un-archiving the tarball, modify the ``./conf/application.properties`` by adding the line:
@@ -33,6 +26,14 @@ For configuration, after un-archiving the tarball, modify the ``./conf/applicati
     accessToken=<my_access_token>
 
 where the accessToken has the appropriate scope.
+
+.. note::
+    There are a few storage servers available for DACO users to use, and each has there own required upload scope:
+
+    * In **Collaboratory - Toronto** , the https://storage.cancercollaboratory.org storage servers are used and require ``collab.upload`` scope for uploading files.
+
+    * In **AWS - Virginia** , the https://virginia.cloud.icgc.org storage servers are used and require ``aws.upload`` scope for uploading files.
+
 
 Usage
 ==============

@@ -7,13 +7,6 @@ What is SONG?
 ======================
 
 
-.. glossary::
-    apical
-        at the tope of a plant
-
-:wwww: seintgubg with text :term:`icgc-storage-client`
-
-
 .. _introduction_features:
 
 Features
@@ -32,6 +25,9 @@ Data Submission Workflow
 
 Projects Using SONG
 ======================
+
+.. generated at https://staticmapmaker.com/google/
+.. image:: https://maps.googleapis.com/maps/api/staticmap?autoscale=2&size=600x300&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff0000%7Clabel:2%7CAWS+Virginia&markers=size:mid%7Ccolor:0xff0000%7Clabel:1%7CCancer+Collaboratory+Toronto
 
 - show a map with song locations
 collaboratory storage service
