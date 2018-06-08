@@ -47,6 +47,8 @@ The `Minio <https://www.minio.io>`_ and `OAuth2 <https://django-oauth-toolkit.re
     * Username: `john.doe`
     * Password: `songpassword`
 
+.. _docker_microservice_architecture:
+
 Microservice Architecture
 ---------------------------
 * Each box represents a docker container, and the lines connecting them indicate a TCP/IP connection.
@@ -75,30 +77,15 @@ Getting Docker for Song
 =========================
 In order to run the Docker for SONG, the latest release must be downloaded. Before downloading, the latest release tag must be found using one of the following options:
 
-Find the Latest Release Tag
-----------------------------
-The following describe different methods of obtaining the latest release tag.
+Find the Latest Official Release Tag
+-------------------------------------
 
-1. Visit the `song releases <https://github.com/overture-stack/SONG/releases>`_ page, and find the latest tag beginning with `song-docker`
-
-2. Execute an **unauthenticated** github request (rate limited to 60 requests/hour) using ``curl`` and  ``jq``
-
-.. code-block:: bash
-
-    curl --silent "https://api.github.com/repos/overture-stack/SONG/releases" | jq '.[].tag_name | match("song-docker.*") | .string' | head -1 | xargs echo
-
-
-3. Execute an **authenticated** github request (rate limited to 5000 requests/hour) using ``curl`` and  ``jq``
-
-.. code-block:: bash
-
-    curl --silent -H "Authorization: Bearer $MY_GITHUB_OAUTH_TOKEN" "https://api.github.com/repos/overture-stack/SONG/releases" | jq '.[].tag_name | match("song-docker.*") | .string' | head -1 | xargs echo
+To find the latest official release tag, refer to :ref:`server_official_releases`. Instead of using the ``song-`` prefex for the regex, replace it with ``^song-docker-\\d+\\.\\d+\\.\\d+$``. For example ``song-docker-1.0.0``.
 
 
 Download
 ---------------
 Using the desired release tag, the docker repository can be downloaded via:
-:
 
 Download ZIP
 ^^^^^^^^^^^^^^^^^^^^^
