@@ -5,6 +5,8 @@ Deploying a SONG Server in Production
 The following section describes how to install, configure and run the SONG server in production.
 
 
+.. _server_prereq:
+
 Prerequisites
 ==================
 
@@ -29,6 +31,7 @@ Alternatively, official releases can be found via command line as follows:
     curl --silent "https://api.github.com/repos/overture-stack/SONG/releases" | jq '.[].tag_name | match("^song-\\d+\\.\\d+\\.\\d+$") | .string' | head -1 | xargs echo
 
 **OR**
+
 
 2. Execute an **authenticated** github request (rate limited to 5000 requests/hour) using ``curl`` and  ``jq``
 
@@ -88,7 +91,7 @@ By default, the SONG server distibution is configured to run in secure productio
     id.realIds=true
 
     ################################
-    #   Postgres Database Conifg   #
+    #   Postgres Database Config   #
     ################################
 
     spring.datasource.url=jdbc:postgresql://localhost:5432/song?stringtype=unspecified
@@ -109,15 +112,40 @@ By default, the SONG server distibution is configured to run in secure productio
 The example file above configures the server to use the ``id.icgc.org`` id service, ``auth.icgc.org`` auth service, and the ``storage.cancercollaboratory.org`` SCORE storage service with a local Postgres database, however any similar service can be used. For example, the :ref:`Docker for SONG Microservice Architecture <docker_microservice_architecture>` uses a different implementation of an OAuth2 server.
 
 
-
-
-
-
 Running as a Service
 ===============================
-- only support linux, and sysd
-  sudo ln -s /opt/song/current/bin/song-server /etc/init.d/song-server
+
+Although the SONG server distribution could be run as a **standalone** application, it must be manually started or stopped by the user. 
+For a long-running server, sudden power loss or a hard reboot would mean the standalone application would need to be restarted manually. 
+However, if the SONG server distribution is run as a **service**, the OS would be responsible for automatically restarting the service upon reboot.
+For this reason, the distibution should be configured as a service that is always started on boot. 
+
+Linux
+--------
+
+Assuming the directory path of the distribution is ``$SONG_SERVER_HOME``, the following steps will register the SONG server 
+as a SysV service on any Linux host supporting SysV and the :ref:`Prerequisites<server_prereq>`, and configure it to start on boot.
+
+.. code-block:: bash
+
+  # Register the SONG service
+  sudo ln -s $SONG_SERVER_HOME/bin/song-server /etc/init.d/song-server
+
+  # Start on boot (defaults)
   sudo update-rc.d song-server defaults
+    
+It can also be manually managed using serveral commands:
+
+.. code-block:: bash
+
+    # Start the service
+    sudo service song-server start
+    
+    # Stop the service
+    sudo service song-server stop
+
+    # Restart the service
+    sudo service song-server restart
 
 
 Example SSL Termination with NGINX
