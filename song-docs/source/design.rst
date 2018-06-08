@@ -7,7 +7,9 @@ Motivation
 - historically, what were the options (GNOS)
 - with so much data, need a more reliable and minimally mutable method of tracking metadata other than excel spreadsheets
 - what is the challenge with metadata tracking?
-    - avoiding duplicate or mal-formatted data (this is what validation fixes)
+    - avoiding duplicates (hibernate manages the defined relationships)
+    - preventing corruptive mal-formatted data (this is what validation fixes)
+    - accumulation of useless data (hanging data or orphanes are considered useless)
     - 
 
 .. should explain the _introduction_features in detail
@@ -46,6 +48,9 @@ Rules
 - analysis ids are unique and cononical UUIDs throughout all song servers that use the same id server.
 - submitter id are relative to the study and can be configured/chosen by the user, however the unique cononical entity ids are managed by the SONG server
 - cannot have duplicate entities
+- all required fields must be uploaded (refer to json schema). no partial uploads allowed
+- when uploading metadata with the same analysisId as a previous upload, the metadata will be replaced with the new version, 
+  and the reply message will include a warning with the previous version of the metadata
 
 - following fields are enumerated. They are defined in the jsonSchema and validated by the upload endpoint
     - donor.donorGender

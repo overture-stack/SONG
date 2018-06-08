@@ -55,6 +55,9 @@ Microservice Architecture
 * Each Postgres database is its own docker container.
 * ``storage-client`` and ``song-client`` are command line tools and used locally. They are used to communicate with the ``storage-server`` and ``song-server``, respectively
 
+.. todo::
+    In the image, replace "DCC-Storage Server" with "SCORE Server"
+
 .. image:: song-docker-service-architecture.svg
 
 Prerequisites

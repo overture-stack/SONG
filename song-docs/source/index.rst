@@ -19,6 +19,7 @@ From there, you can use the power of Python to process and analyze the data with
    docker.rst
    cli/index.rst
    sdk/index.rst
+   glossary.rst
 ..   contributing.rst
 ..   developement.rst
 ..   faq.rst
