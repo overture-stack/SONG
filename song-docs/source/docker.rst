@@ -75,7 +75,7 @@ Optional
 
 Getting Docker for SONG
 =========================
-In order to run the Docker for SONG, the latest release must be downloaded. Before downloading, the latest release tag must be found using one of the following options:
+In order to run the Docker for SONG, the latest release must be downloaded. Before downloading, the latest release tag must be found.
 
 Find the Latest Official Release Tag
 -------------------------------------
@@ -132,6 +132,9 @@ Configuration
 Tutorial
 ==============
 The following tutorial executes the complete data submission workflow in 4 stages using the :ref:`Java CLI Client <java_cli_ref>` which is automatically configured in the ``song-docker/data/client`` directory. This tutorial assumes current working directory is the ``song-docker`` directory.
+
+.. note::
+    Although this tutorial uses the ``icgc-storage-client``, it is in the process of being renamed to the ``score-client``
 
 
 
@@ -201,7 +204,7 @@ Upload the manifest file to the ``score-server`` (formally the ``icgc-dcc-storag
 Stage 4: SONG Publish
 ------------------------
 
-1. Using the same ``analysisId`` as before, publish it. Essentially, this is the handshake between the metadata stored in the SONG server (via the analysisIds) and the files stored in the ``icgc-storage-server`` (the files described by the ``analysisId``)
+1. Using the same ``analysisId`` as before, publish it. Essentially, this is the handshake between the metadata stored in the SONG server (via the analysisIds) and the files stored in the ``score-server`` (the files described by the ``analysisId``)
 
 .. code-block:: bash
 

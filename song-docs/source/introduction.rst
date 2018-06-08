@@ -10,10 +10,13 @@ What is Song?
 
 desc
 
+
+.. _introduction_features:
+
 Features
 ======================
 
-some features
+some core features
 
 Use Cases
 ======================

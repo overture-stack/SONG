@@ -18,6 +18,7 @@
 #
 import os
 import sys
+import json
 import xml.etree.ElementTree as ET
 from datetime import datetime as dt
 
@@ -42,6 +43,29 @@ def get_version_from_pom():
 
 def get_current_year():
     return str(dt.now().year)
+
+"""
+def generate_rules_file():
+    filenames = [
+            '../song-server/src/main/resources/schemas/sequencingRead.json',
+            '../song-server/src/main/resources/schemas/variantCall.json'
+            ]
+
+    for filename in filenames:
+        data = json.load(open(filename))
+        sample_prop = data['properties']['sample']['items']['properties']
+        sampleTypes = sample_prop['sampleType']['enum']
+
+        specimen_prop = sample_prop['specimen']['properties']
+        specimenClasses = specimen_prop['specimenClass']['enum']
+        specimenTypes = specimen_prop['specimenType']['enum']
+
+        donor_prop = sample_prop['donor']['properties']
+        donorGenders = donor_prop['donorGender']['enum']
+
+
+generate_rules_file()
+"""
 
 # -- General configuration ------------------------------------------------
 
