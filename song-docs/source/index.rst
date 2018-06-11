@@ -13,7 +13,6 @@ SONG Documentation
    docker.rst
    cli/index.rst
    sdk/index.rst
-   glossary.rst
 
 ..
     .. toctree::
