@@ -1,3 +1,5 @@
+.. _server_ref:
+
 =======================================
 Deploying a SONG Server in Production
 =======================================
@@ -158,7 +160,7 @@ If the user chooses to host their own song server database, it can easily be set
 
     unzip -p /tmp/song-server.jar  schema.sql > /tmp/schema.sql 
 
-5. Load the schema.sql into the the ``song`` db.
+5. Load the schema.sql into the ``song`` db.
 
 .. code-block:: bash
 

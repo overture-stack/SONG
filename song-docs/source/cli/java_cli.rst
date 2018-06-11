@@ -16,6 +16,8 @@ Configuration
 ================
 java config
 
+.. _java_cli_tutorial_ref:
+
 Tutorial
 ================
 java tutorial

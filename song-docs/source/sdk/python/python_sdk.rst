@@ -1,3 +1,5 @@
+.. _song_python_sdk_ref:
+
 ========================================
 SONG Python SDK
 ========================================
@@ -28,6 +30,7 @@ Configuration
 
 - in generic way, explain how to configure the sdk to be used. just explain ApiConfig and which library to import
 
+.. _sdk_python_tutorial_ref:
 
 Tutorial
 =================

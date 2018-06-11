@@ -1,3 +1,5 @@
+.. _docker_for_song_ref:
+
 =============================
 Docker for SONG
 =============================
@@ -137,9 +139,13 @@ Configuration
 
 * Default song-docker credentials and information are stored in the  `credentials.txt <https://github.com/overture-stack/SONG/blob/develop/song-docker/credentials.txt>`_ file.
 
+.. _docker_tutorial_ref:
+
 Tutorial
 ==============
-The following tutorial executes the complete data submission workflow in 4 stages using the :ref:`Java CLI Client <java_cli_ref>` which is automatically configured in the ``song-docker/data/client`` directory. This tutorial assumes current working directory is the ``song-docker`` directory.
+The following tutorial executes the complete :ref:`data submission workflow <intro_data_sub_workflow_ref>` in 
+4 stages using the :ref:`Java CLI Client <java_cli_ref>` which is automatically configured in the ``song-docker/data/client`` directory. 
+This tutorial assumes current working directory is the ``song-docker`` directory.
 
 .. note::
     Although this tutorial uses the ``icgc-storage-client``, it is in the process of being renamed to the ``score-client``

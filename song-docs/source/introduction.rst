@@ -35,10 +35,13 @@ Features
 - Unifies metadata with object data stored in SCORE
 - Built-in `Swagger UI <https://song.cancercollaboratory.org/swagger-ui.html>`_ for API interaction
 
+.. _intro_data_sub_workflow_ref:
 
 Data Submission Workflow
 ======================================
 - 2 parts: metadata upload (song) and object data upload (score)
+
+.. _intro_projects_user_song_ref:
 
 Projects Using SONG
 ======================
@@ -87,12 +90,42 @@ Projects Using SONG
     </ul>
 
 
-Where to go from here?
+Getting Started
 ============================
-- run the whole system locally using docker (put link)
-- interact with the python sdk(put link)
-- play with a cli (link to clis)
-- 
+
+The easiest way to understand SONG, is to simply use it! 
+Below is a short list of different ways to get started on interacting with SONG.
+
+Tutorial using a CLI with Docker for SONG
+----------------------------------------------------
+The :ref:`Docker for SONG tutorial <docker_tutorial_ref>` is a great way to spin-up SONG and all its dependent services using Docker on your host machine. Use this if you want to play with SONG locally. 
+Refer to the :ref:`Docker for SONG <docker_for_song_ref>` documentation.
+
+Tutorial using the Python SDK with SONG
+-------------------------------------------
+The :ref:`SONG Python SDK Tutorial <sdk_python_tutorial_ref>` is a Python client module that is used to interact with a running SONG server. Use it with one of the :ref:`Projects Using SONG <_intro_projects_using_song_ref>`, or in combination with :ref:`Docker for SONG <docker_for_song_ref>`. For more information to about the Python SDK, refer to the :ref:`SONG Python SDK <song_python_sdk_ref>` documentation.
+
+Play with a CLI
+--------------------------
+If you want to play with SONG from your terminal, there are few :ref:`Command Line Client <command_line_clients_ref>` tutorials to choose from, such as the :ref:`Java CLI Tutorial <java_cli_tutorial_ref>` or the :ref:`GO CLI Tutorial <go_cli_tutorial_ref>` .
+
+Play with the REST API from your browser
+--------------------------------------------
+If you want to play with SONG from your browser, simply visit the Swagger UI for each server:
+
+1. **Cancer Collaboratory - Toronto**: https://song.cancercollaboratory.org/swagger-ui.html
+2. **AWS - Virginia**: https://virginia.song.icgc.org/swagger-ui.html
+
+.. seealso::
+    For more information about user access, refer to the :ref:`User Access <user_access_ref>` documentation.
+
+Deploy SONG to Production
+------------------------------
+If you want to deploy SONG onto a server, refer to the :ref:`Deploying a SONG Server in Production <server_ref>` documentation.
+
+.. todo::
+
+    - join our gitter channel!
 
 License
 =============

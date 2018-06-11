@@ -1,3 +1,5 @@
+.. _command_line_clients_ref:
+
 =======================
 Command Line Clients
 =======================
