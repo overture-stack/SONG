@@ -7,9 +7,9 @@ What is SONG?
 ======================
 
 SONG is a robust metadata and validation system used to quickly and reliably track genome metadata scattered across multiple Cloud storage systems. 
-In the field of genomics and bioinformatics, metadata managed by simple solutions such as spreadsheets and text files require significant time and effort to maintain reliable metadata. 
-With several metadata submitters and thousands of genomic files, tracking the state of metadata and their associations can become a nightmare. 
-The purpose of SONG is to minimize human intervention by imposing rules and structure to metadata, which as a result produces high quality and reliable metadata with a minimal amount of effort.
+In the field of genomics and bioinformatics, metadata managed by simple solutions such as spreadsheets and text files require significant time and effort to maintain and ensure the data is reliable. 
+With several users and thousands of genomic files, tracking the state of metadata and their associations can become a nightmare. 
+The purpose of SONG is to minimize human intervention by imposing rules and structure to user uploads, which as a result produces high quality and reliable metadata with a minimal amount of effort.
 
 .. note::
 
