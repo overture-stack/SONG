@@ -24,12 +24,16 @@ The purpose of SONG is to minimize human intervention by imposing rules and stru
 Features
 ======================
 
-some core features
-
-
-Use Cases
-======================
-- some use cases
+- Synchronous and asynchronous metadata validation using `JsonSchema <http://json-schema.org>`_
+- Strictly enforced data relationships and fields
+- Optional **info** json fields for user specific metadata
+- Standard REST API that is easy to understand and work with
+- Simple and fast metadata searching
+- Export payloads for SONG mirroring
+- Clear and concise error handling
+- ACL security using OAuth2 and scopes based on study codes
+- Unifies metadata with object data stored in SCORE
+- Built-in `Swagger UI <https://song.cancercollaboratory.org/swagger-ui.html>`_ for API interaction
 
 
 Data Submission Workflow
@@ -40,11 +44,48 @@ Projects Using SONG
 ======================
 
 .. generated at https://staticmapmaker.com/google/
-.. image:: https://maps.googleapis.com/maps/api/staticmap?autoscale=2&size=600x300&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff0000%7Clabel:2%7CAWS+Virginia&markers=size:mid%7Ccolor:0xff0000%7Clabel:1%7CCancer+Collaboratory+Toronto
 
-- show a map with song locations
-collaboratory storage service
-aws-virginia storage service
+.. image:: https://maps.googleapis.com/maps/api/staticmap?autoscale=false&size=600x300&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff0000%7Clabel:1%7CToronto&markers=size:mid%7Ccolor:0xffb100%7Clabel:2%7CVirginia&markers=size:mid%7Ccolor:0x0a00ff%7Clabel:3%7CBerlin&markers=size:mid%7Ccolor:0x00d70b%7Clabel:4%7CHeidelberg
+
+.. .. image:: https://maps.googleapis.com/maps/api/staticmap?autoscale=false&size=600x300&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff0000%7Clabel:1%7CToronto&markers=size:mid%7Ccolor:0xffb100%7Clabel:2%7CVirginia
+
+.. .. image:: https://maps.googleapis.com/maps/api/staticmap?autoscale=2&size=600x300&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff0000%7Clabel:2%7CAWS+Virginia&markers=size:mid%7Ccolor:0xff0000%7Clabel:1%7CCancer+Collaboratory+Toronto
+
+**Legend**:
+
+.. raw:: html
+
+    <ul style="list-style-type:none" >
+        <li>
+            <strong>
+                <font color="red">
+                    Cancer Collaboratory - Toronto
+                </font>
+            </strong>: <a href="https://song.cancercollaboratory.org">song.cancercollaboratory.org</a>
+        </li>
+        <li>
+            <strong>
+                <font color="orange">
+                    AWS - Virginia
+                </font>
+            </strong>: <a href="https://virginia.song.icgc.org">virginia.song.icgc.org</a>
+        </li>
+        <li>
+            <strong>
+                <font color="blue">
+                    DKFZ - Berlin
+                </font>
+            </strong> 
+        </li>
+        <li>
+            <strong>
+                <font color="green">
+                    DKFZ - Heidelberg
+                </font>
+            </strong>
+        </li>
+    </ul>
+
 
 Where to go from here?
 ============================
