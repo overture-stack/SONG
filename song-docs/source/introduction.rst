@@ -6,8 +6,8 @@ Introduction
 What is SONG?
 ======================
 
-SONG is a metadata and validation system used to quickly and reliably track genome metadata scattered across multiple Cloud storage systems. 
-In the field of genomics and bioinformatics, metadata managed by simple storage solutions such as spreadsheets and text files require significant time and effort to maintain reliable metadata. 
+SONG is a robust metadata and validation system used to quickly and reliably track genome metadata scattered across multiple Cloud storage systems. 
+In the field of genomics and bioinformatics, metadata managed by simple solutions such as spreadsheets and text files require significant time and effort to maintain reliable metadata. 
 With several metadata submitters and thousands of genomic files, tracking the state of metadata and their associations can become a nightmare. 
 The purpose of SONG is to minimize human intervention by imposing rules and structure to metadata, which as a result produces high quality and reliable metadata with a minimal amount of effort.
 
@@ -24,14 +24,13 @@ The purpose of SONG is to minimize human intervention by imposing rules and stru
 Features
 ======================
 
+some core features
 
 
 Use Cases
 ======================
+- some use cases
 
-- try is out using docker (put link)
-- interact with the python sdk
-some use cases
 
 Data Submission Workflow
 ======================================
@@ -46,6 +45,13 @@ Projects Using SONG
 - show a map with song locations
 collaboratory storage service
 aws-virginia storage service
+
+Where to go from here?
+============================
+- run the whole system locally using docker (put link)
+- interact with the python sdk(put link)
+- play with a cli (link to clis)
+- 
 
 License
 =============

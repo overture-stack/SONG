@@ -14,6 +14,10 @@ The following software dependencies are required in order to run the server:
 
 - Bash Shell
 - Java 8 or higher
+- Postgres database
+
+.. note::
+    Only a postgres database can be used, since postgres-specific features are used in the SONG server
 
 .. _server_official_releases:
 
@@ -61,6 +65,9 @@ This distibution contains the default configuration and jars for running the ser
 
 Configuration
 ===============================
+
+Server
+---------------
 By default, the SONG server distibution is configured to run in secure production mode. The server can easily be configured by creating the file ``./conf/application-secure.properties`` with the following contents:
 
 .. code-block:: bash
@@ -121,6 +128,41 @@ By default, the SONG server distibution is configured to run in secure productio
 
 
 The example file above configures the server to use the ``id.icgc.org`` id service, ``auth.icgc.org`` auth service, and the ``storage.cancercollaboratory.org`` SCORE storage service with a local Postgres database, however any similar service can be used. For example, the :ref:`Docker for SONG Microservice Architecture <docker_microservice_architecture>` uses a different implementation of an OAuth2 server.
+
+Database
+----------------
+If the user chooses to host their own song server database, it can easily be setup with a few commands. Assuming postgresql was installed, the following instructions describe how to configure the schema and user roles for the song database using any linux user with sudo permissions:
+
+1. Create the ``song`` db as the user ``postgres``.
+
+.. code-block:: bash
+
+    sudo -u postgres -c "createdb song"
+
+2. Create the password for the postgres user.
+
+.. code-block:: bash
+
+    sudo -u postgres psql postgres -c ‘ALTER USER postgres WITH PASSWORD ‘myNewPassword’;
+
+3. Download the desired release's song-server jar archive. Refer to :ref:`Official Releases<server_official_releases>` for more information.
+
+.. code-block:: bash
+
+    wget ‘https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/$VERSION/song-server-$VERSION.jar’ -O /tmp/song-server.jar
+
+
+4. Extract the schema.sql from the song-server jar archive.
+
+.. code-block:: bash
+
+    unzip -p /tmp/song-server.jar  schema.sql > /tmp/schema.sql 
+
+5. Load the schema.sql into the the ``song`` db.
+
+.. code-block:: bash
+
+    sudo -u postgres psql song < /tmp/schema.sql
 
 
 Running as a Service

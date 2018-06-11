@@ -1,6 +1,9 @@
 =============================
 Docker for SONG
 =============================
+.. image:: ../../song-docker/song-logo.gif
+   :align:  center
+   :scale: 60%
 
 Introduction
 ========================
@@ -15,7 +18,7 @@ What is Docker for SONG?
 Important Features
 --------------------------
 
-* Turn-key bring up of SONG, SCORE and the dcc-auth services
+* Turn-key bring up of SONG, SCORE, dcc-id and the dcc-auth services
   
 * Completely configurable via docker-compose environment variables (i.e change ports, jmx ports, hosts, credentials, and other important data fields). Values are injected into configurations using a custom python script
   
@@ -73,7 +76,7 @@ Mandatory
 
 Optional
 -------------
-* `jq <https://stedolan.github.io/j/>`_ for json formatting and grepping (install via `apt install jq`)
+* `jq <https://stedolan.github.io/jq/>`_ for json formatting and grepping (install via `apt install jq`)
 
 
 Getting Docker for SONG
@@ -131,6 +134,8 @@ Configuration
 * All contained within the `docker-compose.yml <https://github.com/overture-stack/SONG/blob/develop/song-docker/docker-compose.yml>`_
 
 * If a port is occupied on the localhost, it can be reconfigured by changing the value of the environment variable defining it (i.e SERVER_PORT, PGPORT, ID_PORT ... etc)
+
+* Default song-docker credentials and information are stored in the  `credentials.txt <https://github.com/overture-stack/SONG/blob/develop/song-docker/credentials.txt>`_ file.
 
 Tutorial
 ==============
