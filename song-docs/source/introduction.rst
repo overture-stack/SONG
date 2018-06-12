@@ -6,18 +6,29 @@ Introduction
 What is SONG?
 ======================
 
-SONG is a robust metadata and validation system used to quickly and reliably track genome metadata scattered across multiple cloud storage systems. 
+`SONG <https://www.overture.bio/products/song>`_ is a robust metadata and validation system used to quickly and reliably track genome metadata scattered across multiple cloud storage systems. 
 In the field of genomics and bioinformatics, metadata managed by simple solutions such as spreadsheets and text files require significant time and effort to maintain and ensure the data is reliable. 
 With several users and thousands of genomic files, tracking the state of metadata and their associations can become a nightmare. 
-The purpose of SONG is to minimize human intervention by imposing rules and structure to user uploads, which as a result produces high quality and reliable metadata with a minimal amount of effort.
+The purpose of SONG is to minimize human intervention by imposing rules and structure to user uploads, which as a result produces high quality and reliable metadata with a minimal amount of effort. 
+SONG is one of many products provided by the `Overture-Stack <https://overture.bio>`_ and is completely open-source and free for everyone to use.
 
-.. note::
+.. seealso::
+    
+    For additional information on other products in the Overture stack, please visit https://overture.bio
 
-    **SONG** is a recurrsive acronym for **S**\ ONG's **O**\ ur **N**\ ew **G**\ NOS
+.. sidebar:: Did you know?
+
+    Did you know that **SONG** is actually a recurrsive acronym for
+    **S**\ ONG's **O**\ ur **N**\ ew **G**\ NOS? 
+    
+    GNOS (Genomic Network Operating System) was a genomic data repository built and maintained by Annai Systems, which ceased operation in 2017. In response to the vacant position for a genomic metadata system, **SONG** was born.
+    
 
 .. 
     What SONG is NOT
     ==================
+
+-----------------------------------------
 
 .. _introduction_features:
 
@@ -26,7 +37,7 @@ Features
 
 - Synchronous and asynchronous metadata validation using `JsonSchema <http://json-schema.org>`_
 - Strictly enforced data relationships and fields
-- Optional **info** json fields for user specific metadata
+- Optional schema-less JSON info fields for user specific metadata
 - Standard REST API that is easy to understand and work with
 - Simple and fast metadata searching
 - Export payloads for SONG mirroring
@@ -41,6 +52,7 @@ Data Submission Workflow
 ======================================
 
 The data submission workflow can be separated into 4 main stages:
+
 1. Metadata Upload (SONG)
 2. Metadata Saving (SONG)
 3. Object data Upload (SCORE)
@@ -50,6 +62,8 @@ The data submission workflow can be separated into 4 main stages:
 The following diagram summarized the steps involved in successful data submission using SONG and SCORE:
 
 .. image:: song-workflow.svg
+   :width: 75%
+   :align: center
 
 
 .. _intro_projects_user_song_ref:
@@ -59,7 +73,8 @@ Projects Using SONG
 
 .. generated at https://staticmapmaker.com/google/
 
-.. image:: https://maps.googleapis.com/maps/api/staticmap?autoscale=false&size=600x300&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff0000%7Clabel:1%7CToronto&markers=size:mid%7Ccolor:0xffb100%7Clabel:2%7CVirginia&markers=size:mid%7Ccolor:0x0a00ff%7Clabel:3%7CBerlin&markers=size:mid%7Ccolor:0x00d70b%7Clabel:4%7CHeidelberg
+.. image:: song_projects_static_map.png
+.. .. image:: https://maps.googleapis.com/maps/api/staticmap?autoscale=false&size=600x300&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff0000%7Clabel:1%7CToronto&markers=size:mid%7Ccolor:0xffb100%7Clabel:2%7CVirginia&markers=size:mid%7Ccolor:0x0a00ff%7Clabel:3%7CBerlin&markers=size:mid%7Ccolor:0x00d70b%7Clabel:4%7CHeidelberg
 
 .. .. image:: https://maps.googleapis.com/maps/api/staticmap?autoscale=false&size=600x300&maptype=roadmap&format=png&visual_refresh=true&markers=size:mid%7Ccolor:0xff0000%7Clabel:1%7CToronto&markers=size:mid%7Ccolor:0xffb100%7Clabel:2%7CVirginia
 
@@ -84,6 +99,7 @@ Projects Using SONG
                 </font>
             </strong>: <a href="https://virginia.song.icgc.org">virginia.song.icgc.org</a>
         </li>
+        <!-- Only add back in when both servers are live
         <li>
             <strong>
                 <font color="blue">
@@ -98,6 +114,7 @@ Projects Using SONG
                 </font>
             </strong>
         </li>
+        -->
     </ul>
 
 

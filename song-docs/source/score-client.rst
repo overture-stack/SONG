@@ -10,7 +10,7 @@ The SCORE client (formally the :term:`icgc-storage-client`) is used to upload an
     replace the seealso with the official score readthe docs
 
 .. seealso::
-    For more information about SCORE, refer to `<https://github.com/overture-stack/score>`_
+    For more information about SCORE, refer to `<https://www.overture.bio/products/score>`_
 
 Installation
 =================

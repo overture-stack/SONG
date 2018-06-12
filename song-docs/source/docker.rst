@@ -3,9 +3,10 @@
 =============================
 Docker for SONG
 =============================
-.. image:: ../../song-docker/song-logo.gif
-   :align:  center
-   :scale: 60%
+..
+    .. image:: ../../song-docker/song-logo.gif
+       :align:  center
+       :scale: 60%
 
 Introduction
 ========================

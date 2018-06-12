@@ -29,24 +29,7 @@ Official Releases
 
 Official SONG releases can be found `here <https://github.com/overture-stack/SONG/releases>`_. The releases follow the `symantic versioning specification <https://semver.org/>`_ and contain notes with a description of the bug fixes, new features or enhancements and breaking changes, as well as links to downloads and change logs. All official song releases are tagged in the format ``$COMPONENT-$VERSION``, where the ``$COMPONENT`` portion follows the regex ``^[a-z-]+$`` and the ``$VERSION`` component follows ``^\d+\.\d+\.\d+$`` . For the SONG server, the tag format has the regex: ``^song-\d+\.\d+\.\d+$``. For example ``song-1.0.0``.
 
-Alternatively, official releases can be found via command line as follows:
 
-.. todo::
-    Once SONG-292 - Create simple /version endpoint (https://github.com/overture-stack/SONG/issues/292) is closed, can replace the following 2 points, with a simple call to /version
-
-1. Execute an **unauthenticated** github request (rate limited to 60 requests/hour) using ``curl`` and  ``jq``
-
-.. code-block:: bash
-
-    curl --silent "https://api.github.com/repos/overture-stack/SONG/releases" | jq '.[].tag_name | match("^song-\\d+\\.\\d+\\.\\d+$") | .string' | head -1 | xargs echo
-
-**OR**
-
-2. Execute an **authenticated** github request (rate limited to 5000 requests/hour) using ``curl`` and  ``jq``
-
-.. code-block:: bash
-
-    curl --silent -H "Authorization: Bearer $MY_GITHUB_OAUTH_TOKEN" "https://api.github.com/repos/overture-stack/SONG/releases" | jq '.[].tag_name | match("^song-\\d+\\.\\d+\\.\\d+$") | .string' | head -1 | xargs echo
 
 
 Installation
