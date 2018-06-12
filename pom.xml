@@ -182,6 +182,8 @@
                 <artifactId>jansi</artifactId>
                 <version>${jansi.version}</version>
             </dependency>
+
+            <!-- Protocol Buffers -->
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
@@ -192,6 +194,12 @@
                 <artifactId>protobuf-java-format</artifactId>
                 <version>${protobuf-java-format.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-protobuf</artifactId>
+                <version>${jackson-dataformat-protobuf}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -318,6 +326,7 @@
         <mapstruct.version>1.2.0.Final</mapstruct.version>
         <proto.version>3.5.1</proto.version>
         <protobuf-java-format.version>1.4</protobuf-java-format.version>
+        <jackson-dataformat-protobuf>2.9.6</jackson-dataformat-protobuf>
 
     </properties>
 

@@ -81,6 +81,10 @@
                 <groupId>com.googlecode.protobuf-java-format</groupId>
                 <artifactId>protobuf-java-format</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-protobuf</artifactId>
+        </dependency>
 
         <!-- JDBC -->
         <dependency>
@@ -204,6 +208,11 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/proto</directory>
+            </resource>
+        </resources>
         <plugins>
             <!--<plugin>-->
                 <!--<groupId>org.hibernate.orm.tooling</groupId>-->
