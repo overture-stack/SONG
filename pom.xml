@@ -23,6 +23,7 @@
     <version>1.0.4-SNAPSHOT</version>
     <modules>
         <module>song-core</module>
+        <module>song-schema</module>
         <module>song-server</module>
         <module>song-client</module>
     </modules>

@@ -32,6 +32,12 @@
             <version>1.0.4-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.icgc.dcc</groupId>
+            <artifactId>song-schema</artifactId>
+            <version>1.0.4-SNAPSHOT</version>
+        </dependency>
+
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
