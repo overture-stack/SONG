@@ -18,4 +18,4 @@ sphinx-autobuild \
 --ignore "*.py_*" \
 --ignore "*.rst_*" \
 --ignore "*4913*" \
--c .  source  _build/html
+-c source  source  _build/html

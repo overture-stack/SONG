@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = song
 SOURCEDIR     = source
-CONFDIR       = .
+CONFDIR       = source
 BUILDDIR      = _build
 
 # Put it first so that "make" without argument is like "make help".
