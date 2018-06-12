@@ -10,7 +10,7 @@ What is SONG?
 In the field of genomics and bioinformatics, metadata managed by simple solutions such as spreadsheets and text files require significant time and effort to maintain and ensure the data is reliable. 
 With several users and thousands of genomic files, tracking the state of metadata and their associations can become a nightmare. 
 The purpose of SONG is to minimize human intervention by imposing rules and structure to user uploads, which as a result produces high quality and reliable metadata with a minimal amount of effort. 
-SONG is one of many products provided by the `Overture-Stack <https://overture.bio>`_ and is completely open-source and free for everyone to use.
+SONG is one of many products provided by the `Overture <https://overture.bio>`_ and is completely open-source and free for everyone to use.
 
 .. seealso::
     
