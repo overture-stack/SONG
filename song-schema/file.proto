@@ -1,0 +1,20 @@
+
+// This defines the file object
+
+syntax = "proto3";
+
+
+package org.icgc.dcc.song.schema;
+
+// Represents the File object
+message File {
+    string objectId = 1;
+    string studyId = 2;
+    string analysisId = 3;
+    string fileName = 4;
+    int64 fileSize = 5;
+    string fileType = 6;
+    string fileMd5sum = 7;
+    string fileAccess = 8;
+}
+
