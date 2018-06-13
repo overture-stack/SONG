@@ -20,7 +20,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
-import org.icgc.dcc.song.server.model.entity.File;
+import lombok.val;
+import org.icgc.dcc.song.server.converter.FileMapper;
 import org.icgc.dcc.song.server.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,13 +50,18 @@ public class FileController {
   @Autowired
   private final FileService fileService;
 
+  @Autowired
+  private final FileMapper fileMapper;
+
   @ApiOperation(value = "ReadFile", notes = "Retrieves file data for a fileId")
   @GetMapping(value = "/files/{id}")
   @ResponseBody
-  public File read(
+  public org.icgc.dcc.song.schema.FileOuterClass.File read(
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
-    return fileService.securedRead(studyId,id);
+    val oldfile = fileService.securedRead(studyId,id);
+    val out = fileMapper.convertToProtobufFile(oldfile).build();
+    return out;
   }
 
   /**

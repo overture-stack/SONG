@@ -1,5 +1,6 @@
 package org.icgc.dcc.song.server.config;
 
+import org.icgc.dcc.song.server.converter.FileMapper;
 import org.icgc.dcc.song.server.converter.LegacyEntityConverter;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
@@ -13,4 +14,10 @@ public class ConverterConfig {
     return Mappers.getMapper(LegacyEntityConverter.class);
   }
 
-}
+  @Bean
+  public FileMapper fileMapper(){
+    return Mappers.getMapper(FileMapper.class);
+  }
+
+
+  }

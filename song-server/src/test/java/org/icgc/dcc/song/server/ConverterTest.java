@@ -1,6 +1,9 @@
 package org.icgc.dcc.song.server;
 
+import com.googlecode.protobuf.format.JsonFormat;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.schema.FileOuterClass;
 import org.icgc.dcc.song.server.config.ConverterConfig;
 import org.icgc.dcc.song.server.converter.LegacyEntityConverter;
 import org.icgc.dcc.song.server.model.legacy.LegacyEntity;
@@ -8,6 +11,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 public class ConverterTest {
 
   private static final ConverterConfig CONVERTER_CONFIG = new ConverterConfig();
@@ -38,6 +42,18 @@ public class ConverterTest {
     val legacyDtoCopy = legacyEntityConverter.convertToLegacyDto(legacyDto);
     assertThat(legacyDtoCopy).isEqualToComparingFieldByField(legacyDto);
     assertThat(isObjectsEqual(legacyDtoCopy, legacyDto)).isFalse();
+  }
+
+  @Test
+  public void testPro(){
+    val mym = FileOuterClass.File.newBuilder()
+        .setAnalysisId("sdf")
+        .setFileAccess("controlled")
+        .build();
+    val f = new JsonFormat();
+    val out = f.printToString(mym);
+    log.info("file: {}", out );
+
   }
 
   private boolean isObjectsEqual(Object o1, Object o2){

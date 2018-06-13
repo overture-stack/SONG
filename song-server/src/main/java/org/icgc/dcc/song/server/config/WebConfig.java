@@ -17,7 +17,9 @@
 package org.icgc.dcc.song.server.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -33,6 +35,11 @@ public class WebConfig extends WebMvcConfigurerAdapter {
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
     configurer.defaultContentType(APPLICATION_JSON);
+  }
+
+  @Bean
+  public ProtobufHttpMessageConverter protobufHttpMessageConverter() {
+    return new ProtobufHttpMessageConverter();
   }
 
   @Override public void addViewControllers(ViewControllerRegistry registry) {
