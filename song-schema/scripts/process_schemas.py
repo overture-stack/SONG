@@ -73,6 +73,10 @@ class ProtobufGenerator(object):
         overtureSchemasPath = os.path.join(overturePath, 'schemas/song')
         if not os.path.exists(overtureSchemasPath):
             os.mkdir(overtureSchemasPath)
+        overtureSchemasSongPath = os.path.join(overturePath, 'overture/schemas/song')
+        # if not os.path.exists(overtureSchemasSongPath):
+        #     os.mkdir(overtureSchemasSongPath)
+
         # overtureSchemasSongPath = os.path.join(overtureSchemasPath, 'song')
         # if not os.path.exists(overtureSchemasSongPath):
             # os.mkdir(overtureSchemasSongPath)
@@ -241,7 +245,8 @@ class ProtobufGenerator(object):
 
 def main(args=None):
     defaultDestPath = "../python/"
-    defaultSchemasPath = '../src/main/proto/org/icgc/dcc/song/schema'
+    # defaultDestPath = "../python/overture/schemas/song"
+    defaultSchemasPath = 'src/main/proto/org/icgc/dcc/song/schema'
     parser = argparse.ArgumentParser(
         description="Script to process Overture SONG Protocol buffer schemas")
     parser.add_argument(
