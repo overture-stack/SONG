@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.server.kafka.KafkaAnalysisMessage;
 import org.icgc.dcc.song.server.kafka.Sender;
 import org.icgc.dcc.song.server.model.SampleSet;
 import org.icgc.dcc.song.server.model.SampleSetPK;
@@ -28,8 +29,8 @@ import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
+import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.enums.AnalysisStates;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
@@ -68,10 +69,13 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_ID
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
+import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
+import static org.icgc.dcc.song.server.kafka.KafkaAnalysisMessage.createKafkaAnalysisMessage;
 import static org.icgc.dcc.song.server.model.SampleSetPK.createSampleSetPK;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiSearchTerms;
@@ -161,7 +165,7 @@ public class AnalysisService {
      // shouldn't be possible if we validated our JSON first...
      throw new IllegalArgumentException("Invalid analysis type");
    }
-   sender.send(String.format("{\"analysis_id\": %s, \"state\": \"UNPUBLISHED\"}", id));
+    sendAnalysisMessage(createKafkaAnalysisMessage(id, UNPUBLISHED));
    return id;
   }
 
@@ -314,7 +318,6 @@ public class AnalysisService {
         id, COMMA.join(missingFileIds));
 
     checkedUpdateState(id, PUBLISHED);
-    sender.send(String.format("{\"analysis_id\": %s, \"state\": \"PUBLISHED\"}", id));
     return ok("AnalysisId %s successfully published", id);
   }
 
@@ -407,6 +410,14 @@ public class AnalysisService {
     checkedUpdateState(id, analysisState);
   }
 
+  public AnalysisStates readState(@NonNull String id){
+    checkAnalysisExists(id);
+    return repository.findById(id)
+        .map(AbstractAnalysis::getAnalysisState)
+        .map(AnalysisStates::resolveAnalysisState)
+        .get();
+  }
+
   private void checkedUpdateState(String id, AnalysisStates analysisState) {
     val state = analysisState.name();
     val analysis = shallowRead(id);
@@ -414,6 +425,7 @@ public class AnalysisService {
     val analysisUpdateRequest = new Analysis();
     analysisUpdateRequest.setWith(analysis);
     repository.save(analysisUpdateRequest);
+    sendAnalysisMessage(createKafkaAnalysisMessage(id, analysisState));
   }
 
   private boolean confirmUploaded(String accessToken, String fileId) {
@@ -485,6 +497,10 @@ public class AnalysisService {
     }
     out.setWith(analysis);
     return out;
+  }
+
+  private void sendAnalysisMessage(KafkaAnalysisMessage message){
+    sender.send(toJson(message));
   }
 
   @SneakyThrows

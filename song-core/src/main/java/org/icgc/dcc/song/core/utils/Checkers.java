@@ -15,22 +15,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.converter;
+package org.icgc.dcc.song.core.utils;
 
-import org.icgc.dcc.song.server.model.entity.file.File;
-import org.icgc.dcc.song.server.model.entity.file.FileData;
-import org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValueCheckStrategy;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
-@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
-public interface FileConverter {
+import static com.google.common.base.Preconditions.checkArgument;
+import static lombok.AccessLevel.PRIVATE;
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
-  FileUpdateRequest fileEntityToFileUpdateRequest(File file);
-  void updateEntityFromData(FileData fileData, @MappingTarget File file);
-  File copyFile(File file);
+@NoArgsConstructor(access = PRIVATE)
+public class Checkers {
 
-
+  public static void checkNotBlank(@NonNull String input ){
+    checkArgument(isNotBlank(input), "The input '%s' cannot be blank", input);
+  }
 
 }

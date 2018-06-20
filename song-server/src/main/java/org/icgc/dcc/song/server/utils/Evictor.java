@@ -14,8 +14,6 @@ public class Evictor {
 
   private final EntityManager entityManager;
 
-  private Session session;
-
   public Evictor( @Autowired EntityManager entityManager) {
     this.entityManager  = entityManager;
   }

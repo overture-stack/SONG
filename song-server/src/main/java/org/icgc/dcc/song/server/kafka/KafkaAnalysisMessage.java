@@ -15,22 +15,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.converter;
+package org.icgc.dcc.song.server.kafka;
 
-import org.icgc.dcc.song.server.model.entity.file.File;
-import org.icgc.dcc.song.server.model.entity.file.FileData;
-import org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValueCheckStrategy;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import org.icgc.dcc.song.server.model.enums.AnalysisStates;
 
-@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
-public interface FileConverter {
+import static lombok.AccessLevel.PRIVATE;
+import static org.icgc.dcc.song.core.utils.Checkers.checkNotBlank;
 
-  FileUpdateRequest fileEntityToFileUpdateRequest(File file);
-  void updateEntityFromData(FileData fileData, @MappingTarget File file);
-  File copyFile(File file);
+@Value
+@RequiredArgsConstructor(access = PRIVATE)
+public class KafkaAnalysisMessage {
+  @NonNull private final String analysisId;
+  @NonNull private final String state;
 
-
+  public static KafkaAnalysisMessage createKafkaAnalysisMessage(String analysisId,
+      AnalysisStates analysisStates ){
+    checkNotBlank(analysisId);
+    return new KafkaAnalysisMessage(analysisId, analysisStates.toString());
+  }
 
 }

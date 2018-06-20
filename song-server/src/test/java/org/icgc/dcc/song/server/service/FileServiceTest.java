@@ -18,9 +18,11 @@ package org.icgc.dcc.song.server.service;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.common.core.json.JsonNodeBuilders;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest.createFileUpdateRequest;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
@@ -201,6 +204,12 @@ public class FileServiceTest {
   }
 
   @Test
+  public void testUpdateWithNull(){
+
+
+  }
+
+  @Test
   public void testStudyDNE(){
     val existingAnalysisId = DEFAULT_ANALYSIS_ID;
     analysisService.checkAnalysisExists(existingAnalysisId);
@@ -236,6 +245,13 @@ public class FileServiceTest {
     secureFileTester.runSecureTest((s,f) -> fileService.securedRead(s, f));
     secureFileTester.runSecureTest((s,f) -> fileService.securedDelete(s, f));
     secureFileTester.runSecureTest((s,f) -> fileService.securedDelete(s, newArrayList(f)));
+
+    val randomFileUpdateRequest = createFileUpdateRequest(
+        (long)randomGenerator.generateRandomIntRange(1,100000),
+        randomGenerator.generateRandomMD5(),
+        randomGenerator.randomEnum(AccessTypes.class).toString(),
+        JsonNodeBuilders.object().end());
+    secureFileTester.runSecureTest((s,f) -> fileService.securedUpdate(s, f, randomFileUpdateRequest));
   }
 
   private File createRandomFile(String studyId, String analysisId){

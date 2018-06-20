@@ -21,12 +21,22 @@ import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.server.model.entity.file.FileData;
+import org.icgc.dcc.song.server.model.entity.file.FileUpdateResponse;
+import org.icgc.dcc.song.server.model.enums.FileUpdateTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_UPDATE_REQUEST_VALIDATION_FAILED;
-import static org.icgc.dcc.song.core.utils.Responses.OK;
+import static java.lang.String.format;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE_REQUEST;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
+import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.CONTENT_UPDATE;
+import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.METADATA_UPDATE;
+import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.NO_UPDATE;
 
 @Service
 public class FileModificationService {
@@ -38,25 +48,89 @@ public class FileModificationService {
   public FileModificationService(
       @Autowired @NonNull ValidationService validationService,
       @Autowired @NonNull FileService fileService,
-      @Autowired @NonNull AnalysisService analysisService) {
+      @Autowired @NonNull AnalysisService analysisService ) {
     this.fileService = fileService;
     this.analysisService = analysisService;
     this.validationService = validationService;
   }
 
-  public String securedFileWithAnalysisUpdate(@NonNull String studyId,
-      @NonNull String fileId, @NonNull FileData fileUpdateData){
-    checkFileUpdateValidation(fileId, fileUpdateData);
-    val file = fileService.securedUpdate(studyId, fileId, fileUpdateData);
-    analysisService.securedUpdateState(studyId, file.getAnalysisId(), UNPUBLISHED);
-    return OK;
+  /**
+   * Securely updates a file, while handling the associated analysis's state appropriately.
+   * @param studyId study associated with the file
+   * @param objectId id associated with the file
+   * @param fileUpdateRequest data to update
+   * @return {@code FileUpdateResponse}
+   * @exception ServerException INVALID_FILE_UPDATE_REQUEST, ILLEGAL_FILE_UPDATE_REQUEST
+   */
+  @Transactional
+  public FileUpdateResponse securedFileWithAnalysisUpdate(@NonNull String studyId,
+      @NonNull String objectId, @NonNull FileData fileUpdateRequest){
+
+    // Validate the fileUpdateRequest
+    checkFileUpdateRequestValidation(objectId, fileUpdateRequest);
+
+    // Get original file
+    val originalFile = fileService.securedRead(studyId, objectId);
+    val analysisId = originalFile.getAnalysisId();
+
+    // Update the file
+    val fileUpdateType = fileService.unsecuredUpdate(originalFile, fileUpdateRequest);
+
+    // Check the analysis associated with the file is not suppressed. It is ILLEGAL to unsuppress an analysis
+    val currentState = analysisService.readState(analysisId);
+    checkServer(currentState != SUPPRESSED, getClass(), ILLEGAL_FILE_UPDATE_REQUEST,
+        "The file with objectId '%s' and analysisId '%s' cannot "
+            + "be updated since its analysisState is '%s'", objectId, analysisId, SUPPRESSED.toString());
+
+    // Build the response
+    val response = FileUpdateResponse.builder().unpublishedAnalysis(false);
+    response.originalFile(originalFile);
+    response.originalAnalysisState(currentState);
+    response.fileUpdateType(fileUpdateType);
+    response.status("ok");
+
+    // Can only transition from PUBLISHED to UNPUBLISHED states.
+    if (currentState == PUBLISHED){
+      if (doUnpublish(fileUpdateType)){
+        analysisService.securedUpdateState(studyId, analysisId, UNPUBLISHED);
+        response.unpublishedAnalysis(true);
+        response.message(format("[WARNING]: Changed analysis from '%s' to '%s'", PUBLISHED.toString(), UNPUBLISHED.toString()));
+      } else {
+        response.message(format("Original analysisState '%s' was not changed since the fileUpdateType was '%s'",
+            currentState.toString(), fileUpdateType.name()));
+      }
+    } else if (currentState == UNPUBLISHED) { // Can still update an unpublished analysis
+      response.message(format("Did not change analysisState since it is '%s'", currentState.toString()));
+    } else {
+      throw new IllegalStateException(format("Could not process the analysisState '%s'", currentState.toString()));
+    }
+    return response.build();
   }
 
-  private void checkFileUpdateValidation(String id, FileData fileUpdateData){
-    val validationResponse = validationService.validate(fileUpdateData);
+  /**
+   * Decides whether or not the input {@code fileUpdateType} should unpublish an analysis
+   * @param fileUpdateType
+   * @return boolean
+   */
+  public boolean doUnpublish(FileUpdateTypes fileUpdateType){
+    if (fileUpdateType == CONTENT_UPDATE){
+      return true;
+    } else if (fileUpdateType == METADATA_UPDATE || fileUpdateType == NO_UPDATE){
+      return false;
+    } else {
+      throw new IllegalStateException(format("The updateType '%s' is unrecognized", fileUpdateType.name()));
+    }
+  }
+
+  /**
+   * Validates the file update request is correct, and does not violate any rules
+   * @exception ServerException INVALID_FILE_UPDATE_REQUEST
+   */
+  private void checkFileUpdateRequestValidation(String id, FileData fileUpdateRequest){
+    val validationResponse = validationService.validate(fileUpdateRequest);
     if (validationResponse.isPresent()){
       throw ServerException.buildServerException(getClass(),
-          FILE_UPDATE_REQUEST_VALIDATION_FAILED,
+          INVALID_FILE_UPDATE_REQUEST,
           "The file update request for objectId '%s' failed with the following errors: %s",
           id, validationResponse.get());
     }

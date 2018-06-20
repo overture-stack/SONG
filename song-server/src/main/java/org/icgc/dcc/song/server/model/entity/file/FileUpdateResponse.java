@@ -15,22 +15,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.converter;
+package org.icgc.dcc.song.server.model.entity.file;
 
-import org.icgc.dcc.song.server.model.entity.file.File;
-import org.icgc.dcc.song.server.model.entity.file.FileData;
-import org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValueCheckStrategy;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.icgc.dcc.song.server.model.enums.AnalysisStates;
+import org.icgc.dcc.song.server.model.enums.FileUpdateTypes;
 
-@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
-public interface FileConverter {
-
-  FileUpdateRequest fileEntityToFileUpdateRequest(File file);
-  void updateEntityFromData(FileData fileData, @MappingTarget File file);
-  File copyFile(File file);
-
-
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class FileUpdateResponse {
+  private FileUpdateTypes fileUpdateType;
+  private File originalFile;
+  private AnalysisStates originalAnalysisState;
+  private boolean unpublishedAnalysis;
+  private String status;
+  private String message;
 
 }

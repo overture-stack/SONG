@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest;
+import org.icgc.dcc.song.server.model.entity.file.FileUpdateResponse;
 import org.icgc.dcc.song.server.service.FileModificationService;
 import org.icgc.dcc.song.server.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +73,7 @@ public class FileController {
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @Transactional
-  public String update(
+  public FileUpdateResponse update(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
