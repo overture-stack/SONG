@@ -19,16 +19,20 @@ package org.icgc.dcc.song.server.service;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
-import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.converter.FileConverter;
+import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.FileData;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.isNull;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
@@ -41,14 +45,21 @@ public class FileService {
 
   @Autowired
   AnalysisRepository analysisRepository;
+
+  //  @Qualifier(value = "evictingFileRepositoryDecorator")
+//  EvictingFileRepositoryDecorator repository;
   @Autowired
+  @Qualifier(value = "fileRepository")
   FileRepository repository;
+
   @Autowired
   FileInfoService infoService;
   @Autowired
   IdService idService;
   @Autowired
   StudyService studyService;
+  @Autowired
+  FileConverter fileConverter;
 
   public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
     studyService.checkStudyExist(studyId);
@@ -91,11 +102,20 @@ public class FileService {
     return unsecuredRead(id);
   }
 
-  public String update(@NonNull File fileUpdate) {
-    checkFileExists(fileUpdate.getObjectId());
-    repository.save(fileUpdate);
-    infoService.update(fileUpdate.getObjectId(), fileUpdate.getInfoAsString());
-    return OK;
+  @Transactional
+  public File securedUpdate(@NonNull String studyId, String id, FileData fileUpdateData) {
+    checkFileAndStudyRelated(studyId, id);
+    return unsecuredUpdate(id, fileUpdateData);
+  }
+
+  private File unsecuredUpdate(@NonNull String id, @NonNull FileData fileUpdateData) {
+    val updateRequest = unsecuredRead(id);
+    fileConverter.updateEntityFromData(fileUpdateData, updateRequest);
+    val out = repository.save(updateRequest);
+    if (!isNull(fileUpdateData.getInfo())){
+      infoService.update(updateRequest.getObjectId(), updateRequest.getInfoAsString());
+    }
+    return out;
   }
 
   @Transactional
@@ -126,7 +146,8 @@ public class FileService {
     } else {
       fileId = result.get();
       file.setObjectId(fileId);
-      update(file);
+      val fileUpdateData = fileConverter.fileEntityToFileUpdateRequest(file);
+      unsecuredUpdate(file.getObjectId(), fileUpdateData);
     }
     return fileId;
   }
@@ -134,7 +155,7 @@ public class FileService {
   private File unsecuredRead(@NonNull String id) {
     val result = repository.findById(id);
     fileNotFoundCheck(result.isPresent(), id);
-    val f = result.get();
+    val f = fileConverter.cloneFile(result.get());
     f.setInfo(infoService.readNullableInfo(id));
     return f;
   }

@@ -14,18 +14,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.icgc.dcc.song.server.repository;
 
-import org.icgc.dcc.song.server.model.entity.file.File;
-import org.springframework.data.jpa.repository.JpaRepository;
+package org.icgc.dcc.song.server.model.entity.file;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.JsonNode;
 
-public interface FileRepository extends JpaRepository<File, String> {
+public interface FileData {
 
-  List<File> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
-  List<File> findAllByAnalysisId(String analysisId);
-  void deleteAllByAnalysisId(String analysisId);
-  long countAllByStudyIdAndObjectId(String studyId, String objectId);
+  Long   getFileSize();
+  String getFileMd5sum();
+  String getFileAccess();
+  JsonNode getInfo();
 
 }

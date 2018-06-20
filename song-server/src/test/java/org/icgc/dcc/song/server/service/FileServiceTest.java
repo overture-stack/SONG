@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
-import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.file.File;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -179,7 +179,7 @@ public class FileServiceTest {
         .fileAccess(CONTROLLED.toString())
         .build();
     s2.setInfo(metadata);
-    fileService.update(s2);
+    fileService.securedUpdate(study, id2, s2);
 
     val s3 = fileService.securedRead(study, id2);
     assertThat(s3).isEqualToComparingFieldByField(s2);
@@ -224,7 +224,7 @@ public class FileServiceTest {
     analysisService.checkAnalysisExists(existingAnalysisId);
 
     val randomFile = createRandomFile(studyId, existingAnalysisId);
-    assertSongError(() -> fileService.update(randomFile), FILE_NOT_FOUND );
+    assertSongError(() -> fileService.securedUpdate(studyId, randomFile.getObjectId(), randomFile), FILE_NOT_FOUND );
     assertSongError(() -> fileService.securedDelete(DEFAULT_STUDY_ID, randomFile.getObjectId()), FILE_NOT_FOUND );
   }
 

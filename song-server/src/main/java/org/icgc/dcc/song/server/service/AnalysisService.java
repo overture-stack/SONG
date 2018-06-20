@@ -28,7 +28,7 @@ import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.AnalysisStates;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
@@ -266,6 +266,11 @@ public class AnalysisService {
     return cloneAnalysis(analysis);
   }
 
+  public AbstractAnalysis securedShallowRead(@NonNull String studyId, @NonNull String id){
+    checkAnalysisAndStudyRelated(studyId, id);
+    return shallowRead(id);
+  }
+
   /**
    * Securely reads an analysis WITH all of its files, samples and info, and verifies the input
    * studyId is related to the requested analysisId
@@ -394,6 +399,12 @@ public class AnalysisService {
     val experiment = result.get();
     experiment.setInfo(variantCallInfoService.readNullableInfo(id));
     return experiment;
+  }
+
+  public void securedUpdateState(@NonNull String studyId,
+      @NonNull String id, @NonNull AnalysisStates analysisState) {
+    checkAnalysisAndStudyRelated(studyId, id);
+    checkedUpdateState(id, analysisState);
   }
 
   private void checkedUpdateState(String id, AnalysisStates analysisState) {

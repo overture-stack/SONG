@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.entity;
+package org.icgc.dcc.song.server.model.entity.file;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -46,7 +46,7 @@ import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
-public class File extends Metadata implements Serializable {
+public class File extends Metadata implements Serializable, FileData {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
@@ -98,16 +98,12 @@ public class File extends Metadata implements Serializable {
     setFileAccess(resolveAccessType(access));
   }
 
-  public void setWithFile(@NonNull File u){
-    setAnalysisId(u.getAnalysisId());
-    setFileAccess(u.getFileAccess());
-    setFileMd5sum(u.getFileMd5sum());
-    setFileName(u.getFileName());
-    setFileSize(u.getFileSize());
-    setFileType(u.getFileType());
-    setObjectId(u.getObjectId());
-    setStudyId(u.getStudyId());
-    setInfo(u.getInfo());
+  public void setWithFileData(@NonNull FileData fileData){
+    setFileMd5sum(fileData.getFileMd5sum());
+    setFileAccess(fileData.getFileAccess());
+    setFileSize(fileData.getFileSize());
   }
+
+
 
 }
