@@ -20,6 +20,8 @@ package org.icgc.dcc.song.server.service;
 import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.core.exceptions.ServerException;
+import org.icgc.dcc.song.server.converter.FileConverter;
+import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.file.FileData;
 import org.icgc.dcc.song.server.model.entity.file.FileUpdateResponse;
 import org.icgc.dcc.song.server.model.enums.FileUpdateTypes;
@@ -37,21 +39,38 @@ import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.CONTENT_UPDATE;
 import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.METADATA_UPDATE;
 import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.NO_UPDATE;
+import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.resolveFileUpdateType;
 
 @Service
 public class FileModificationService {
 
   private final FileService fileService;
+  private final FileConverter fileConverter;
   private final AnalysisService analysisService;
   private final ValidationService validationService;
 
   public FileModificationService(
       @Autowired @NonNull ValidationService validationService,
       @Autowired @NonNull FileService fileService,
+      @Autowired @NonNull FileConverter fileConverter,
       @Autowired @NonNull AnalysisService analysisService ) {
     this.fileService = fileService;
     this.analysisService = analysisService;
     this.validationService = validationService;
+    this.fileConverter = fileConverter;
+  }
+
+
+  public FileUpdateTypes updateWithRequest(@NonNull File originalFile, FileData fileUpdateRequest) {
+    val updatedFile = createUpdateFile(originalFile, fileUpdateRequest);
+    fileService.unsafeUpdate(updatedFile);
+    return resolveFileUpdateType(originalFile, fileUpdateRequest);
+  }
+
+  private File createUpdateFile(@NonNull File baseFile, @NonNull FileData fileUpdateData){
+    val updatedFile = fileConverter.copyFile(baseFile);
+    fileConverter.updateEntityFromData(fileUpdateData, updatedFile);
+    return updatedFile;
   }
 
   /**
@@ -73,8 +92,8 @@ public class FileModificationService {
     val originalFile = fileService.securedRead(studyId, objectId);
     val analysisId = originalFile.getAnalysisId();
 
-    // Update the file
-    val fileUpdateType = fileService.updateAndSave(originalFile, fileUpdateRequest);
+    // Update using the originalFile and the update request
+    val fileUpdateType = updateWithRequest(originalFile, fileUpdateRequest);
 
     // Check the analysis associated with the file is not suppressed. It is ILLEGAL to unsuppress an analysis
     val currentState = analysisService.readState(analysisId);
