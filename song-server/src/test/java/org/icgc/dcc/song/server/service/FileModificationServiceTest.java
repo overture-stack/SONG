@@ -35,6 +35,10 @@ import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.CONTENT_UPDATE;
+import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.METADATA_UPDATE;
+import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.NO_UPDATE;
+import static org.icgc.dcc.song.server.service.FileModificationService.doUnpublish;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
@@ -64,6 +68,12 @@ public class FileModificationServiceTest {
     assertThat(fileService.isFileExist(DEFAULT_FILE_ID)).isTrue();
   }
 
+  @Test
+  public void testDoPublish(){
+    assertThat(doUnpublish(NO_UPDATE)).isFalse();
+    assertThat(doUnpublish(METADATA_UPDATE)).isFalse();
+    assertThat(doUnpublish(CONTENT_UPDATE)).isTrue();
+  }
 
   @Test
   public void testCheckFileUpdateRequestValidation(){

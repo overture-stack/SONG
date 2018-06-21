@@ -112,7 +112,7 @@ public class FileModificationService {
    * @param fileUpdateType
    * @return boolean
    */
-  public boolean doUnpublish(FileUpdateTypes fileUpdateType){
+  public static boolean doUnpublish(@NonNull FileUpdateTypes fileUpdateType){
     if (fileUpdateType == CONTENT_UPDATE){
       return true;
     } else if (fileUpdateType == METADATA_UPDATE || fileUpdateType == NO_UPDATE){
