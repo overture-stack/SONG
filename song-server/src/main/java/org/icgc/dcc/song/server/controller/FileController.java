@@ -77,8 +77,9 @@ public class FileController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
-      @RequestBody FileUpdateRequest fileUpdateData) {
-    return fileModificationService.securedFileWithAnalysisUpdate(studyId, id, fileUpdateData);
+      @ApiParam(value = "File data to update", required = true)
+      @RequestBody FileUpdateRequest fileUpdateRequest) {
+    return fileModificationService.securedFileWithAnalysisUpdate(studyId, id, fileUpdateRequest);
   }
 
   @ApiOperation(value = "DeleteFiles", notes = "Deletes file data for fileIds")

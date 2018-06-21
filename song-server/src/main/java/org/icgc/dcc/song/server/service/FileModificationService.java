@@ -126,7 +126,7 @@ public class FileModificationService {
    * Validates the file update request is correct, and does not violate any rules
    * @exception ServerException INVALID_FILE_UPDATE_REQUEST
    */
-  private void checkFileUpdateRequestValidation(String id, FileData fileUpdateRequest){
+  public void checkFileUpdateRequestValidation(String id, FileData fileUpdateRequest){
     val validationResponse = validationService.validate(fileUpdateRequest);
     if (validationResponse.isPresent()){
       throw ServerException.buildServerException(getClass(),

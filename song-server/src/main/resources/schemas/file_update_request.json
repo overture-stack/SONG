@@ -10,14 +10,11 @@
   "definitions": {
     "file_base": {
       "type": "object",
-      "required": [
-        "fileSize",
-        "fileAccess",
-        "fileMd5sum"
-      ],
       "properties": {
         "fileSize": {
-          "type": "integer"
+          "type": "integer",
+          "minimum" : 0,
+          "exclusiveMinimum": true
         },
         "fileAccess": {
           "type": "string",

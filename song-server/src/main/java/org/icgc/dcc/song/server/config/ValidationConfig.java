@@ -47,7 +47,7 @@ public class ValidationConfig {
   private static String[] schemaList = {
           "schemas/sequencingRead.json",
           "schemas/variantCall.json",
-          "schemas/file.json"
+      "schemas/file_update_request.json"
   };
 
   @Value("${validation.delayMs:500}")
