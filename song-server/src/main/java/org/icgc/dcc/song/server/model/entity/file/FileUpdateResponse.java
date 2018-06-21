@@ -30,10 +30,10 @@ import org.icgc.dcc.song.server.model.enums.FileUpdateTypes;
 @AllArgsConstructor
 public class FileUpdateResponse {
   private FileUpdateTypes fileUpdateType;
-  private File originalFile;
   private AnalysisStates originalAnalysisState;
   private boolean unpublishedAnalysis;
   private String status;
   private String message;
+  private File originalFile;
 
 }

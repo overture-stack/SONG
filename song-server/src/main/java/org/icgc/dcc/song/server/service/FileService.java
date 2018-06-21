@@ -109,18 +109,30 @@ public class FileService {
 
   private FileUpdateTypes unsecuredUpdate(@NonNull String id, @NonNull FileData fileUpdateRequest) {
     val originalFile = unsecuredRead(id);
-    return unsecuredUpdate(originalFile, fileUpdateRequest);
+    return updateAndSave(originalFile, fileUpdateRequest);
   }
 
+  /**
+   * Updates a base file (the {@param originalFile} ) using {@param fileUpdateData}
+   * while not modifing the base file.
+   * @param originalFile
+   * @param fileUpdateData
+   * @return
+   */
   @Transactional
-  public FileUpdateTypes unsecuredUpdate(@NonNull File originalFile, @NonNull FileData fileUpdateData) {
-    val updatedFile = fileConverter.copyFile(originalFile);
-    fileConverter.updateEntityFromData(fileUpdateData, updatedFile);
+  public FileUpdateTypes updateAndSave(@NonNull File originalFile, @NonNull FileData fileUpdateData) {
+    val updatedFile = createUpdateFile(originalFile, fileUpdateData);
     repository.save(updatedFile);
     if (!isNull(fileUpdateData.getInfo())){
       infoService.update(originalFile.getObjectId(), updatedFile.getInfoAsString());
     }
     return resolveFileUpdateType(originalFile, fileUpdateData);
+  }
+
+  File createUpdateFile(@NonNull File baseFile, @NonNull FileData fileUpdateData){
+    val updatedFile = fileConverter.copyFile(baseFile);
+    fileConverter.updateEntityFromData(fileUpdateData, updatedFile);
+    return updatedFile;
   }
 
   @Transactional
@@ -175,5 +187,6 @@ public class FileService {
     checkServer(expression, FileService.class, FILE_NOT_FOUND,
         "The File with objectId '%s' does not exist", id);
   }
+
 
 }

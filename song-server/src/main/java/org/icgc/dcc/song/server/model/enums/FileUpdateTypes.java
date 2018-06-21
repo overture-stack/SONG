@@ -17,10 +17,13 @@
 
 package org.icgc.dcc.song.server.model.enums;
 
+import lombok.val;
 import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.file.FileData;
 
 import java.util.function.Function;
+
+import static java.util.Objects.isNull;
 
 public enum FileUpdateTypes {
   NO_UPDATE,
@@ -28,41 +31,42 @@ public enum FileUpdateTypes {
   METADATA_UPDATE;
 
   public static FileUpdateTypes resolveFileUpdateType(File originalFile, FileData fileUpdateData){
-    if (isDifferentContent(originalFile, fileUpdateData)){
+    if (isChangedContent(originalFile, fileUpdateData)){
       return CONTENT_UPDATE;
-    } else if(isDifferentMetadata(originalFile, fileUpdateData)){
+    } else if(isChangedMetadata(originalFile, fileUpdateData)){
       return METADATA_UPDATE;
     } else {
       return NO_UPDATE;
     }
   }
 
-  private static boolean isEqual(Function<FileData, ?> getterFunction, File originalFile, FileData fileUpdateData ){
-    return getterFunction.apply(originalFile).equals(getterFunction.apply(fileUpdateData));
+  private static boolean isUnchanged(Function<FileData, ?> getterFunction, File originalFile, FileData fileUpdateData ){
+    val value = getterFunction.apply(fileUpdateData);
+    return isNull(value) || getterFunction.apply(originalFile).equals(value);
   }
 
-  private static boolean isSameMd5(File originalFile, FileData fileUpdataData){
-    return isEqual(FileData::getFileMd5sum, originalFile, fileUpdataData);
+  private static boolean isUnchangedMd5(File originalFile, FileData fileUpdataData){
+    return isUnchanged(FileData::getFileMd5sum, originalFile, fileUpdataData);
   }
 
-  private static boolean isSameSize(File originalFile, FileData fileUpdataData){
-    return isEqual(FileData::getFileSize, originalFile, fileUpdataData);
+  private static boolean isUnchangedSize(File originalFile, FileData fileUpdataData){
+    return isUnchanged(FileData::getFileSize, originalFile, fileUpdataData);
   }
 
-  private static boolean isSameAccess(File originalFile, FileData fileUpdataData){
-    return isEqual(FileData::getFileAccess, originalFile, fileUpdataData);
+  private static boolean isUnchangedAccess(File originalFile, FileData fileUpdataData){
+    return isUnchanged(FileData::getFileAccess, originalFile, fileUpdataData);
   }
 
-  private static boolean isSameInfo(File originalFile, FileData fileUpdataData){
-    return isEqual(FileData::getInfo, originalFile, fileUpdataData);
+  private static boolean isUnchangedInfo(File originalFile, FileData fileUpdataData){
+    return isUnchanged(FileData::getInfo, originalFile, fileUpdataData);
   }
 
-  private static boolean isDifferentContent(File originalFile, FileData fileUpdataData){
-    return !(isSameMd5(originalFile, fileUpdataData) && isSameSize(originalFile, fileUpdataData));
+  private static boolean isChangedContent(File originalFile, FileData fileUpdataData){
+    return !(isUnchangedMd5(originalFile, fileUpdataData) && isUnchangedSize(originalFile, fileUpdataData));
   }
 
-  private static boolean isDifferentMetadata(File originalFile, FileData fileUpdateData){
-    return !(isSameAccess(originalFile, fileUpdateData) && isSameInfo(originalFile, fileUpdateData));
+  private static boolean isChangedMetadata(File originalFile, FileData fileUpdateData){
+    return !(isUnchangedAccess(originalFile, fileUpdateData) && isUnchangedInfo(originalFile, fileUpdateData));
   }
 
 }

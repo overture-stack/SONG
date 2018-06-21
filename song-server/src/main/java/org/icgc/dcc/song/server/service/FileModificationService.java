@@ -74,7 +74,7 @@ public class FileModificationService {
     val analysisId = originalFile.getAnalysisId();
 
     // Update the file
-    val fileUpdateType = fileService.unsecuredUpdate(originalFile, fileUpdateRequest);
+    val fileUpdateType = fileService.updateAndSave(originalFile, fileUpdateRequest);
 
     // Check the analysis associated with the file is not suppressed. It is ILLEGAL to unsuppress an analysis
     val currentState = analysisService.readState(analysisId);
