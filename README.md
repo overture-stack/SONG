@@ -5,6 +5,7 @@ SONG - Metadata and Validation system
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c3515fa60c114da1a7a4be8d46674eca)](https://www.codacy.com/app/overture-stack/SONG?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=overture-stack/SONG&amp;utm_campaign=Badge_Grade)
 [![CircleCI](https://circleci.com/gh/overture-stack/SONG/tree/develop.svg?style=svg)](https://circleci.com/gh/overture-stack/SONG/tree/develop)
 [![Documentation Status](http://readthedocs.org/projects/song-docs/badge/?version=develop)](https://song-docs.readthedocs.io/en/develop/?badge=develop)
+[![Slack](http://slack.overture.bio/badge.svg)](http://slack.overture.bio)
 
 
 Project containing both the SONG microservice and CLI client. 
