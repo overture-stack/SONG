@@ -23,6 +23,7 @@ import org.icgc.dcc.song.server.converter.FileConverter;
 import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
+import org.icgc.dcc.song.server.repository.FileRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,10 +37,14 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE_REQUEST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest.createFileUpdateRequest;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.resolveAnalysisState;
 import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.CONTENT_UPDATE;
 import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.METADATA_UPDATE;
 import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.NO_UPDATE;
@@ -65,6 +70,9 @@ public class FileModificationServiceTest {
 
   @Autowired
   FileModificationService fileModificationService;
+
+  @Autowired
+  FileRepository fileRepository;
 
   private String uniqueMd5;
   private static final FileConverter FILE_CONVERTER = Mappers.getMapper(FileConverter.class);
@@ -97,6 +105,61 @@ public class FileModificationServiceTest {
         randomGenerator.randomEnum(AccessTypes.class).toString(),
         object().end());
     secureFileTester.runSecureTest((s,f) -> fileModificationService.securedFileWithAnalysisUpdate(s, f, randomFileUpdateRequest));
+  }
+  
+  @Test
+  @Transactional
+  public void testFileUpdateWithSuppressedAnalysis(){
+    analysisService.securedUpdateState(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID, SUPPRESSED);
+    val dummyRequest = new FileUpdateRequest();
+    assertSongError(
+        () ->  fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, dummyRequest),
+        ILLEGAL_FILE_UPDATE_REQUEST);
+  }
+
+  @Test
+  @Transactional
+  public void testFileUpdateWithUnpublishedAnalysis(){
+    val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
+    assertThat(resolveAnalysisState(originalAnalysis.getAnalysisState())).isEqualTo(UNPUBLISHED);
+    val originalFile = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+
+    // No Change
+    val noChangeRequest  = new FileUpdateRequest();
+    val noChangeResponse =
+        fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
+    assertThat(noChangeResponse.getFileUpdateType()).isEqualTo(NO_UPDATE);
+    assertThat(noChangeResponse.getOriginalAnalysisState()).isEqualTo(UNPUBLISHED);
+    assertThat(noChangeResponse.getOriginalFile()).isEqualTo(originalFile);
+    assertThat(noChangeResponse.getMessage()).contains("Did not change analysisState since it is");
+
+    // Metadata Update
+    val metadataUpdateRequest = FileUpdateRequest.builder()
+        .info(object()
+            .with(
+                randomGenerator.generateRandomUUIDAsString(),
+                randomGenerator.generateRandomUUIDAsString())
+            .end())
+        .build();
+    val originalFile2 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val metadataUpdateResponse =
+        fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
+    assertThat(metadataUpdateResponse.getFileUpdateType()).isEqualTo(METADATA_UPDATE);
+    assertThat(metadataUpdateResponse.getOriginalAnalysisState()).isEqualTo(UNPUBLISHED);
+    assertThat(metadataUpdateResponse.getOriginalFile()).isEqualTo(originalFile2);
+    assertThat(metadataUpdateResponse.getMessage()).contains("Did not change analysisState since it is");
+
+    // Content Update
+    val contentUpdateRequest = FileUpdateRequest.builder()
+        .fileSize(originalFile2.getFileSize()+77771L)
+        .build();
+    val originalFile3 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val contentUpdateResponse =
+        fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
+    assertThat(contentUpdateResponse.getFileUpdateType()).isEqualTo(CONTENT_UPDATE);
+    assertThat(contentUpdateResponse.getOriginalAnalysisState()).isEqualTo(UNPUBLISHED);
+    assertThat(contentUpdateResponse.getOriginalFile()).isEqualTo(originalFile3);
+    assertThat(contentUpdateResponse.getMessage()).contains("Did not change analysisState since it is");
   }
 
   @Test

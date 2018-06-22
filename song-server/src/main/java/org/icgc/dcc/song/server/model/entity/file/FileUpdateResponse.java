@@ -32,7 +32,6 @@ public class FileUpdateResponse {
   private FileUpdateTypes fileUpdateType;
   private AnalysisStates originalAnalysisState;
   private boolean unpublishedAnalysis;
-  private String status;
   private String message;
   private File originalFile;
 

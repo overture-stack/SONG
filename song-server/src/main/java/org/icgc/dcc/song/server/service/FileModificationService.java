@@ -92,21 +92,20 @@ public class FileModificationService {
     val originalFile = fileService.securedRead(studyId, objectId);
     val analysisId = originalFile.getAnalysisId();
 
-    // Update using the originalFile and the update request
-    val fileUpdateType = updateWithRequest(originalFile, fileUpdateRequest);
-
     // Check the analysis associated with the file is not suppressed. It is ILLEGAL to unsuppress an analysis
     val currentState = analysisService.readState(analysisId);
     checkServer(currentState != SUPPRESSED, getClass(), ILLEGAL_FILE_UPDATE_REQUEST,
         "The file with objectId '%s' and analysisId '%s' cannot "
             + "be updated since its analysisState is '%s'", objectId, analysisId, SUPPRESSED.toString());
 
+    // Update the target file record using the originalFile and the update request
+    val fileUpdateType = updateWithRequest(originalFile, fileUpdateRequest);
+
     // Build the response
     val response = FileUpdateResponse.builder().unpublishedAnalysis(false);
     response.originalFile(originalFile);
     response.originalAnalysisState(currentState);
     response.fileUpdateType(fileUpdateType);
-    response.status("ok");
 
     // Can only transition from PUBLISHED to UNPUBLISHED states.
     if (currentState == PUBLISHED){
