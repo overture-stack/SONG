@@ -14,18 +14,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.icgc.dcc.song.server.repository;
 
-import org.icgc.dcc.song.server.model.entity.file.File;
-import org.springframework.data.jpa.repository.JpaRepository;
+package org.icgc.dcc.song.core.utils;
 
-import java.util.List;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
-public interface FileRepository extends JpaRepository<File, String> {
+import static com.google.common.base.Preconditions.checkArgument;
+import static lombok.AccessLevel.PRIVATE;
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
-  List<File> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
-  List<File> findAllByAnalysisId(String analysisId);
-  void deleteAllByAnalysisId(String analysisId);
-  long countAllByStudyIdAndObjectId(String studyId, String objectId);
+@NoArgsConstructor(access = PRIVATE)
+public class Checkers {
+
+  public static void checkNotBlank(@NonNull String input ){
+    checkArgument(isNotBlank(input), "The input '%s' cannot be blank", input);
+  }
 
 }

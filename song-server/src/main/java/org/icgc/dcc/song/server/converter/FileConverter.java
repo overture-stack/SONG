@@ -14,18 +14,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.icgc.dcc.song.server.repository;
+
+package org.icgc.dcc.song.server.converter;
 
 import org.icgc.dcc.song.server.model.entity.file.File;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.icgc.dcc.song.server.model.entity.file.FileData;
+import org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValueCheckStrategy;
 
-import java.util.List;
+@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+public interface FileConverter {
 
-public interface FileRepository extends JpaRepository<File, String> {
+  FileUpdateRequest fileEntityToFileUpdateRequest(File file);
+  void updateEntityFromData(FileData fileData, @MappingTarget File file);
+  File copyFile(File file);
 
-  List<File> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
-  List<File> findAllByAnalysisId(String analysisId);
-  void deleteAllByAnalysisId(String analysisId);
-  long countAllByStudyIdAndObjectId(String studyId, String objectId);
+
 
 }

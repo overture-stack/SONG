@@ -44,8 +44,11 @@ import static org.icgc.dcc.song.server.utils.ParameterChecker.createParameterChe
 @Data
 public class ValidationConfig {
 
-  private static String[] schemaList =
-      {"schemas/sequencingRead.json", "schemas/variantCall.json" };
+  private static String[] schemaList = {
+          "schemas/sequencingRead.json",
+          "schemas/variantCall.json",
+      "schemas/file_update_request.json"
+  };
 
   @Value("${validation.delayMs:500}")
   private long validationDelay;

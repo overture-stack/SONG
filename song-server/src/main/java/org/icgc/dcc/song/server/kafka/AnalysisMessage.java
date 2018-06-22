@@ -14,18 +14,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.icgc.dcc.song.server.repository;
 
-import org.icgc.dcc.song.server.model.entity.file.File;
-import org.springframework.data.jpa.repository.JpaRepository;
+package org.icgc.dcc.song.server.kafka;
 
-import java.util.List;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import org.icgc.dcc.song.server.model.enums.AnalysisStates;
 
-public interface FileRepository extends JpaRepository<File, String> {
+import static lombok.AccessLevel.PRIVATE;
+import static org.icgc.dcc.song.core.utils.Checkers.checkNotBlank;
 
-  List<File> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
-  List<File> findAllByAnalysisId(String analysisId);
-  void deleteAllByAnalysisId(String analysisId);
-  long countAllByStudyIdAndObjectId(String studyId, String objectId);
+@Value
+@RequiredArgsConstructor(access = PRIVATE)
+public class AnalysisMessage {
+  @NonNull private final String analysisId;
+  @NonNull private final String state;
+
+  public static AnalysisMessage createAnalysisMessage(String analysisId,
+      AnalysisStates analysisStates ){
+    checkNotBlank(analysisId);
+    return new AnalysisMessage(analysisId, analysisStates.toString());
+  }
 
 }

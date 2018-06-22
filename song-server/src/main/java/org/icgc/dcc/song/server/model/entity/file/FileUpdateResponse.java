@@ -14,18 +14,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.icgc.dcc.song.server.repository;
 
-import org.icgc.dcc.song.server.model.entity.file.File;
-import org.springframework.data.jpa.repository.JpaRepository;
+package org.icgc.dcc.song.server.model.entity.file;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.icgc.dcc.song.server.model.enums.AnalysisStates;
+import org.icgc.dcc.song.server.model.enums.FileUpdateTypes;
 
-public interface FileRepository extends JpaRepository<File, String> {
-
-  List<File> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
-  List<File> findAllByAnalysisId(String analysisId);
-  void deleteAllByAnalysisId(String analysisId);
-  long countAllByStudyIdAndObjectId(String studyId, String objectId);
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class FileUpdateResponse {
+  private FileUpdateTypes fileUpdateType;
+  private AnalysisStates originalAnalysisState;
+  private boolean unpublishedAnalysis;
+  private String message;
+  private File originalFile;
 
 }

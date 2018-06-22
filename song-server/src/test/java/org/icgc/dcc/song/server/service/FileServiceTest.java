@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
-import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.file.File;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +49,7 @@ import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureFileTester.c
 @ActiveProfiles("dev")
 public class FileServiceTest {
 
+
   @Autowired
   FileService fileService;
   @Autowired
@@ -57,6 +58,7 @@ public class FileServiceTest {
   AnalysisService analysisService;
 
   private final RandomGenerator randomGenerator = createRandomGenerator(FileServiceTest.class.getSimpleName());
+  private final String UNIQUE_MD6_1 = randomGenerator.generateRandomMD5();
 
   @Before
   public void beforeTest(){
@@ -179,7 +181,7 @@ public class FileServiceTest {
         .fileAccess(CONTROLLED.toString())
         .build();
     s2.setInfo(metadata);
-    fileService.update(s2);
+    fileService.unsafeUpdate(s2);
 
     val s3 = fileService.securedRead(study, id2);
     assertThat(s3).isEqualToComparingFieldByField(s2);
@@ -224,7 +226,6 @@ public class FileServiceTest {
     analysisService.checkAnalysisExists(existingAnalysisId);
 
     val randomFile = createRandomFile(studyId, existingAnalysisId);
-    assertSongError(() -> fileService.update(randomFile), FILE_NOT_FOUND );
     assertSongError(() -> fileService.securedDelete(DEFAULT_STUDY_ID, randomFile.getObjectId()), FILE_NOT_FOUND );
   }
 
@@ -250,5 +251,6 @@ public class FileServiceTest {
         .fileAccess(CONTROLLED.toString())
         .build();
   }
+
 
 }

@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
+import org.icgc.dcc.song.server.model.entity.file.FileData;
 import org.icgc.dcc.song.server.model.enums.UploadStates;
 import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.icgc.dcc.song.server.validation.SchemaValidator;
@@ -46,6 +47,8 @@ import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATION_ERROR
 public class ValidationService {
 
   private static final String STUDY = "study";
+  private static final String FILE_DATA_SCHEMA_ID = "fileData";
+
   @Autowired
   private SchemaValidator validator;
 
@@ -112,6 +115,17 @@ public class ValidationService {
     }
   }
 
+  public Optional<String> validate(FileData fileData){
+    val json = JsonUtils.mapper().valueToTree(fileData);
+    val resp = validator.validate(FILE_DATA_SCHEMA_ID, json);
+
+    if (resp.isValid()){
+      return Optional.empty();
+    }else {
+      return Optional.of(resp.getValidationErrors());
+    }
+
+  }
 
   private void updateState(@NonNull String uploadId, @NonNull UploadStates state, @NonNull String errors) {
     uploadRepository.findById(uploadId)
