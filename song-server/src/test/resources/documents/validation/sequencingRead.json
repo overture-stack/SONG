@@ -28,10 +28,10 @@
     }
   } ],
   "file" : [ {
-    "fileType2" : "VCF",
-    "fileName5" : "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+    "fileType" : "VCF",
+    "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
     "fileSize" : 132394,
-    "fileMd5sum1" : "d3cec975acc69a42b8cc3b76ec01ec21",
+    "fileMd5sum" : "d3cec975acc69a42b8cc3b76ec01ec21",
     "fileAccess" : "controlled",
     "compression" : "gzip"
   }, {

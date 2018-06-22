@@ -98,12 +98,4 @@ public class File extends Metadata implements Serializable, FileData {
     setFileAccess(resolveAccessType(access));
   }
 
-  public void setWithFileData(@NonNull FileData fileData){
-    setFileMd5sum(fileData.getFileMd5sum());
-    setFileAccess(fileData.getFileAccess());
-    setFileSize(fileData.getFileSize());
-  }
-
-
-
 }

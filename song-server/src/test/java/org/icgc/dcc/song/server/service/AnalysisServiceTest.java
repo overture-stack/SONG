@@ -163,7 +163,6 @@ public class AnalysisServiceTest {
     val expectedState = resolveAnalysisState(a.getAnalysisState());
     val actualState = service.readState(a.getAnalysisId());
     assertThat(actualState).isEqualTo(expectedState);
-
   }
 
   @Test

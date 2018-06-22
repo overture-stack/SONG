@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.kafka.KafkaAnalysisMessage;
+import org.icgc.dcc.song.server.kafka.AnalysisMessage;
 import org.icgc.dcc.song.server.kafka.Sender;
 import org.icgc.dcc.song.server.model.SampleSet;
 import org.icgc.dcc.song.server.model.SampleSetPK;
@@ -71,7 +71,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerExcep
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
-import static org.icgc.dcc.song.server.kafka.KafkaAnalysisMessage.createKafkaAnalysisMessage;
+import static org.icgc.dcc.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static org.icgc.dcc.song.server.model.SampleSetPK.createSampleSetPK;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
@@ -165,10 +165,11 @@ public class AnalysisService {
      // shouldn't be possible if we validated our JSON first...
      throw new IllegalArgumentException("Invalid analysis type");
    }
-    sendAnalysisMessage(createKafkaAnalysisMessage(id, UNPUBLISHED));
+    sendAnalysisMessage(createAnalysisMessage(id, UNPUBLISHED));
    return id;
   }
 
+  @Transactional
   public ResponseEntity<String> updateAnalysis(String studyId, AbstractAnalysis analysis) {
     val id = analysis.getAnalysisId();
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(id);
@@ -341,6 +342,21 @@ public class AnalysisService {
     return samples;
   }
 
+  @Transactional
+  public void securedUpdateState(@NonNull String studyId,
+      @NonNull String id, @NonNull AnalysisStates analysisState) {
+    checkAnalysisAndStudyRelated(studyId, id);
+    checkedUpdateState(id, analysisState);
+  }
+
+  public AnalysisStates readState(@NonNull String id){
+    checkAnalysisExists(id);
+    return repository.findById(id)
+        .map(AbstractAnalysis::getAnalysisState)
+        .map(AnalysisStates::resolveAnalysisState)
+        .get();
+  }
+
   private List<String> saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
     return samples.stream()
         .map(sample -> compositeEntityService.save(studyId,sample))
@@ -399,20 +415,6 @@ public class AnalysisService {
     return experiment;
   }
 
-  public void securedUpdateState(@NonNull String studyId,
-      @NonNull String id, @NonNull AnalysisStates analysisState) {
-    checkAnalysisAndStudyRelated(studyId, id);
-    checkedUpdateState(id, analysisState);
-  }
-
-  public AnalysisStates readState(@NonNull String id){
-    checkAnalysisExists(id);
-    return repository.findById(id)
-        .map(AbstractAnalysis::getAnalysisState)
-        .map(AnalysisStates::resolveAnalysisState)
-        .get();
-  }
-
   private void checkedUpdateState(String id, AnalysisStates analysisState) {
     val state = analysisState.name();
     val analysis = shallowRead(id);
@@ -420,7 +422,7 @@ public class AnalysisService {
     val analysisUpdateRequest = new Analysis();
     analysisUpdateRequest.setWith(analysis);
     repository.save(analysisUpdateRequest);
-    sendAnalysisMessage(createKafkaAnalysisMessage(id, analysisState));
+    sendAnalysisMessage(createAnalysisMessage(id, analysisState));
   }
 
   private boolean confirmUploaded(String accessToken, String fileId) {
@@ -494,7 +496,7 @@ public class AnalysisService {
     return out;
   }
 
-  private void sendAnalysisMessage(KafkaAnalysisMessage message){
+  private void sendAnalysisMessage(AnalysisMessage message){
     sender.send(toJson(message));
   }
 

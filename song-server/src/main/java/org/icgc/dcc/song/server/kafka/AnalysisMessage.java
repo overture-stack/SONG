@@ -27,14 +27,14 @@ import static org.icgc.dcc.song.core.utils.Checkers.checkNotBlank;
 
 @Value
 @RequiredArgsConstructor(access = PRIVATE)
-public class KafkaAnalysisMessage {
+public class AnalysisMessage {
   @NonNull private final String analysisId;
   @NonNull private final String state;
 
-  public static KafkaAnalysisMessage createKafkaAnalysisMessage(String analysisId,
+  public static AnalysisMessage createAnalysisMessage(String analysisId,
       AnalysisStates analysisStates ){
     checkNotBlank(analysisId);
-    return new KafkaAnalysisMessage(analysisId, analysisStates.toString());
+    return new AnalysisMessage(analysisId, analysisStates.toString());
   }
 
 }

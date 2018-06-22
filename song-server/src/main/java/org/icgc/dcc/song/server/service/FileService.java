@@ -24,7 +24,6 @@ import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +44,6 @@ public class FileService {
   AnalysisRepository analysisRepository;
 
   @Autowired
-  @Qualifier(value = "fileRepository")
   FileRepository repository;
 
   @Autowired
@@ -140,9 +138,9 @@ public class FileService {
   private File unsecuredRead(@NonNull String id) {
     val result = repository.findById(id);
     fileNotFoundCheck(result.isPresent(), id);
-    val f = fileConverter.copyFile(result.get());
-    f.setInfo(infoService.readNullableInfo(id));
-    return f;
+    val transientFile = fileConverter.copyFile(result.get());
+    transientFile.setInfo(infoService.readNullableInfo(id));
+    return transientFile;
   }
 
   private String internalDelete(@NonNull String id) {
