@@ -270,11 +270,6 @@ public class AnalysisService {
     return cloneAnalysis(analysis);
   }
 
-  public AbstractAnalysis securedShallowRead(@NonNull String studyId, @NonNull String id){
-    checkAnalysisAndStudyRelated(studyId, id);
-    return shallowRead(id);
-  }
-
   /**
    * Securely reads an analysis WITH all of its files, samples and info, and verifies the input
    * studyId is related to the requested analysisId
