@@ -61,16 +61,11 @@ public class FileModificationService {
   }
 
 
+  @Transactional
   public FileUpdateTypes updateWithRequest(@NonNull File originalFile, FileData fileUpdateRequest) {
     val updatedFile = createUpdateFile(originalFile, fileUpdateRequest);
     fileService.unsafeUpdate(updatedFile);
     return resolveFileUpdateType(originalFile, fileUpdateRequest);
-  }
-
-  private File createUpdateFile(@NonNull File baseFile, @NonNull FileData fileUpdateData){
-    val updatedFile = fileConverter.copyFile(baseFile);
-    fileConverter.updateEntityFromData(fileUpdateData, updatedFile);
-    return updatedFile;
   }
 
   /**
@@ -126,6 +121,26 @@ public class FileModificationService {
   }
 
   /**
+   * Validates the file update request is correct, and does not violate any rules
+   * @exception ServerException INVALID_FILE_UPDATE_REQUEST
+   */
+  public void checkFileUpdateRequestValidation(String id, FileData fileUpdateRequest){
+    val validationResponse = validationService.validate(fileUpdateRequest);
+    if (validationResponse.isPresent()){
+      throw ServerException.buildServerException(getClass(),
+          INVALID_FILE_UPDATE_REQUEST,
+          "The file update request for objectId '%s' failed with the following errors: %s",
+          id, validationResponse.get());
+    }
+  }
+
+  private File createUpdateFile(@NonNull File baseFile, @NonNull FileData fileUpdateData){
+    val updatedFile = fileConverter.copyFile(baseFile);
+    fileConverter.updateEntityFromData(fileUpdateData, updatedFile);
+    return updatedFile;
+  }
+
+  /**
    * Decides whether or not the input {@code fileUpdateType} should unpublish an analysis
    * @param fileUpdateType
    * @return boolean
@@ -137,20 +152,6 @@ public class FileModificationService {
       return false;
     } else {
       throw new IllegalStateException(format("The updateType '%s' is unrecognized", fileUpdateType.name()));
-    }
-  }
-
-  /**
-   * Validates the file update request is correct, and does not violate any rules
-   * @exception ServerException INVALID_FILE_UPDATE_REQUEST
-   */
-  public void checkFileUpdateRequestValidation(String id, FileData fileUpdateRequest){
-    val validationResponse = validationService.validate(fileUpdateRequest);
-    if (validationResponse.isPresent()){
-      throw ServerException.buildServerException(getClass(),
-          INVALID_FILE_UPDATE_REQUEST,
-          "The file update request for objectId '%s' failed with the following errors: %s",
-          id, validationResponse.get());
     }
   }
 

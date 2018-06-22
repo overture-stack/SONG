@@ -42,6 +42,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest.createFileUpdateRequest;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.resolveAnalysisState;
@@ -93,7 +94,6 @@ public class FileModificationServiceTest {
     assertThat(doUnpublish(CONTENT_UPDATE)).isTrue();
   }
 
-
   @Test
   @Transactional
   public void testCheckFileUnrelatedToStudy(){
@@ -119,6 +119,58 @@ public class FileModificationServiceTest {
 
   @Test
   @Transactional
+  public void testFileUpdateWithPublishedAnalysis(){
+    analysisService.securedUpdateState(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID, PUBLISHED);
+    val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
+    assertThat(resolveAnalysisState(originalAnalysis.getAnalysisState())).isEqualTo(PUBLISHED);
+    val originalFile = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+
+    // No Change
+    val noChangeRequest  = new FileUpdateRequest();
+    val noChangeResponse =
+        fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
+    assertThat(noChangeResponse.isUnpublishedAnalysis()).isFalse();
+    assertThat(noChangeResponse.getFileUpdateType()).isEqualTo(NO_UPDATE);
+    assertThat(noChangeResponse.getOriginalAnalysisState()).isEqualTo(PUBLISHED);
+    assertThat(noChangeResponse.getOriginalFile()).isEqualTo(originalFile);
+    assertThat(noChangeResponse.getMessage())
+        .isEqualTo("Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'NO_UPDATE'");
+
+    // Metadata Update
+    val metadataUpdateRequest = FileUpdateRequest.builder()
+        .info(object()
+            .with(
+                randomGenerator.generateRandomUUIDAsString(),
+                randomGenerator.generateRandomUUIDAsString())
+            .end())
+        .build();
+    val originalFile2 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val metadataUpdateResponse =
+        fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
+    assertThat(metadataUpdateResponse.isUnpublishedAnalysis()).isFalse();
+    assertThat(metadataUpdateResponse.getFileUpdateType()).isEqualTo(METADATA_UPDATE);
+    assertThat(metadataUpdateResponse.getOriginalAnalysisState()).isEqualTo(PUBLISHED);
+    assertThat(metadataUpdateResponse.getOriginalFile()).isEqualTo(originalFile2);
+    assertThat(metadataUpdateResponse.getMessage())
+        .isEqualTo("Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'METADATA_UPDATE'");
+
+    // Content Update
+    val contentUpdateRequest = FileUpdateRequest.builder()
+        .fileSize(originalFile2.getFileSize()+77771L)
+        .build();
+    val originalFile3 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val contentUpdateResponse =
+        fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
+    assertThat(contentUpdateResponse.isUnpublishedAnalysis()).isTrue();
+    assertThat(contentUpdateResponse.getFileUpdateType()).isEqualTo(CONTENT_UPDATE);
+    assertThat(contentUpdateResponse.getOriginalAnalysisState()).isEqualTo(PUBLISHED);
+    assertThat(contentUpdateResponse.getOriginalFile()).isEqualTo(originalFile3);
+    assertThat(contentUpdateResponse.getMessage())
+        .isEqualTo("[WARNING]: Changed analysis from 'PUBLISHED' to 'UNPUBLISHED'");
+  }
+
+  @Test
+  @Transactional
   public void testFileUpdateWithUnpublishedAnalysis(){
     val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
     assertThat(resolveAnalysisState(originalAnalysis.getAnalysisState())).isEqualTo(UNPUBLISHED);
@@ -128,6 +180,7 @@ public class FileModificationServiceTest {
     val noChangeRequest  = new FileUpdateRequest();
     val noChangeResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
+    assertThat(noChangeResponse.isUnpublishedAnalysis()).isFalse();
     assertThat(noChangeResponse.getFileUpdateType()).isEqualTo(NO_UPDATE);
     assertThat(noChangeResponse.getOriginalAnalysisState()).isEqualTo(UNPUBLISHED);
     assertThat(noChangeResponse.getOriginalFile()).isEqualTo(originalFile);
@@ -144,6 +197,7 @@ public class FileModificationServiceTest {
     val originalFile2 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
     val metadataUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
+    assertThat(metadataUpdateResponse.isUnpublishedAnalysis()).isFalse();
     assertThat(metadataUpdateResponse.getFileUpdateType()).isEqualTo(METADATA_UPDATE);
     assertThat(metadataUpdateResponse.getOriginalAnalysisState()).isEqualTo(UNPUBLISHED);
     assertThat(metadataUpdateResponse.getOriginalFile()).isEqualTo(originalFile2);
@@ -156,6 +210,7 @@ public class FileModificationServiceTest {
     val originalFile3 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
+    assertThat(contentUpdateResponse.isUnpublishedAnalysis()).isFalse();
     assertThat(contentUpdateResponse.getFileUpdateType()).isEqualTo(CONTENT_UPDATE);
     assertThat(contentUpdateResponse.getOriginalAnalysisState()).isEqualTo(UNPUBLISHED);
     assertThat(contentUpdateResponse.getOriginalFile()).isEqualTo(originalFile3);
@@ -198,19 +253,23 @@ public class FileModificationServiceTest {
     val goodRequests = newArrayList(good, good2, good3, good4, good5);
     val badRequests = newArrayList(badAccess, badMd5_1, badMd5_2, badSize_1, badSize_2, badAll);
 
-    goodRequests
-        .forEach(x -> fileModificationService.checkFileUpdateRequestValidation(DEFAULT_FILE_ID, x));
-    badRequests
-        .forEach(x ->{
-          log.info("Processing bad request: {}", x);
-          assertSongError(() -> fileModificationService.checkFileUpdateRequestValidation(DEFAULT_FILE_ID, x),
-              INVALID_FILE_UPDATE_REQUEST, "Bad Request did not cause an error: %s" , x);
-        });
+    goodRequests.forEach(x -> fileModificationService.checkFileUpdateRequestValidation(DEFAULT_FILE_ID, x));
+
+    for (val badRequest : badRequests){
+      log.info("Processing bad request: {}", badRequest);
+      assertSongError(
+          () -> fileModificationService.checkFileUpdateRequestValidation(DEFAULT_FILE_ID, badRequest),
+          INVALID_FILE_UPDATE_REQUEST, "Bad Request did not cause an error: %s" , badRequest);
+
+      assertSongError(
+          () -> fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, badRequest),
+          INVALID_FILE_UPDATE_REQUEST, "Bad Request did not cause an error: %s" , badRequest);
+    }
   }
 
   @Test
   @Transactional
-  public void testUpdateWithRequests2(){
+  public void testUpdateWithRequests(){
     val converter = Mappers.getMapper(FileConverter.class);
     val referenceFile = buildReferenceFile();
     val objectId = fileService.save(DEFAULT_ANALYSIS_ID, DEFAULT_STUDY_ID, referenceFile);
@@ -286,7 +345,6 @@ public class FileModificationServiceTest {
     assertThat(referenceFile).isEqualTo(goldenFile);
 
   }
-
   @Test
   public void testFileUpdateTypeResolution(){
     // golden used to ensure f1 is not mutated
@@ -332,7 +390,6 @@ public class FileModificationServiceTest {
 
     assertThat(f1).isEqualTo(golden);
   }
-
 
   private File buildReferenceFile(){
     val referenceFile = File.builder()
