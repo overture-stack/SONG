@@ -8,12 +8,13 @@ SONG Documentation
     introduction.rst
     user_access.rst
     score-client.rst
-    api.rst
     server.rst
     docker.rst
-    cli/index.rst
     sdk/index.rst
     faq.rst
+
+..    api.rst
+..    cli/index.rst
 
 ..
     .. toctree::
