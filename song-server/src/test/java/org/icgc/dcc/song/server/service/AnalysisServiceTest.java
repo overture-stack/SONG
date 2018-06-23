@@ -27,7 +27,7 @@ import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
@@ -80,7 +80,7 @@ import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static org.icgc.dcc.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
+import static org.icgc.dcc.song.server.service.ScoreService.createScoreService;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
 import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
@@ -151,8 +151,8 @@ public class AnalysisServiceTest {
     this.studyGenerator = createStudyGenerator(studyService, randomGenerator);
     this.secureAnalysisTester = createSecureAnalysisTester(randomGenerator, studyService, service);
     val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
-    val testExistenceService = createExistenceService(retryTemplate,testStorageUrl);
-    ReflectionTestUtils.setField(service, "existence", testExistenceService);
+    val testExistenceService = createScoreService(retryTemplate,testStorageUrl);
+    ReflectionTestUtils.setField(service, "scoreService", testExistenceService);
     log.info("ExistenceService configured to endpoint: {}",testStorageUrl );
   }
 

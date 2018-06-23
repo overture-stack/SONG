@@ -19,7 +19,7 @@ package org.icgc.dcc.song.server.service;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
-import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;

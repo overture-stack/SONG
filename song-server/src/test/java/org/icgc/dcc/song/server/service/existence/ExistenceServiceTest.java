@@ -39,7 +39,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.util.Lists.newArrayList;
-import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
+import static org.icgc.dcc.song.server.service.ScoreService.createScoreService;
 import static org.icgc.dcc.song.server.service.existence.MockDccStorageHandler.createFailingMockDccStorageHandler;
 import static org.icgc.dcc.song.server.service.existence.MockDccStorageHandler.createNormalMockDccStorageHandler;
 import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
@@ -84,7 +84,7 @@ public class ExistenceServiceTest {
     mockServer.createContext(format("/upload/%s", OBJECT_ID1), createNormalMockDccStorageHandler(true, TOKEN));
     mockServer.createContext(format("/upload/%s", OBJECT_ID2), createNormalMockDccStorageHandler(false, TOKEN));
     mockServer.start();
-    val exi = createExistenceService(retryTemplate, mockServerUrl);
+    val exi = createScoreService(retryTemplate, mockServerUrl);
     assertThat(exi.isObjectExist(TOKEN, OBJECT_ID1)).isTrue();
     assertThat(exi.isObjectExist(TOKEN, OBJECT_ID2)).isFalse();
     assertThat(countingRetryListener.getErrorCount()).isEqualTo(0);
@@ -134,7 +134,7 @@ public class ExistenceServiceTest {
     //Create HttpServer that mocks dcc-storage /upload endpoint
     mockServer.createContext(format("/upload/%s", OBJECT_ID1), handler);
     mockServer.start();
-    val exi = createExistenceService(retryTemplate, mockServerUrl);
+    val exi = createScoreService(retryTemplate, mockServerUrl);
     assertThat(exi.isObjectExist(TOKEN, OBJECT_ID1)).isTrue();
     val seconds = 1;
     mockServer.stop(seconds);

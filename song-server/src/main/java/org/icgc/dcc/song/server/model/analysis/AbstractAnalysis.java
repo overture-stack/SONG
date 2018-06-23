@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import org.icgc.dcc.song.server.model.Metadata;
-import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.Constants;
 import org.icgc.dcc.song.server.model.enums.TableAttributeNames;

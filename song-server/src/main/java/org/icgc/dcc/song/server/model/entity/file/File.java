@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.entity;
+package org.icgc.dcc.song.server.model.entity.file;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

@@ -90,6 +90,7 @@ public enum ServerErrors implements ServerError {
   ILLEGAL_QUERY_PARAMETER(BAD_REQUEST),
   UNREGISTERED_TYPE(INTERNAL_SERVER_ERROR),
   ENTITY_NOT_RELATED_TO_STUDY(BAD_REQUEST),
+  STORAGE_OBJECT_NOT_FOUND(NOT_FOUND), //Used STORAGE instead of SCORE to not tie it to a specific implementation
   UNKNOWN_ERROR(INTERNAL_SERVER_ERROR);
 
   private static final String ERROR_ID_SEPARATOR = ".";

@@ -14,18 +14,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.icgc.dcc.song.server.repository;
 
-import org.icgc.dcc.song.server.model.entity.file.File;
-import org.springframework.data.jpa.repository.JpaRepository;
+package org.icgc.dcc.song.server.model;
 
-import java.util.List;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
+import org.icgc.dcc.song.server.model.entity.file.FileContent;
 
-public interface FileRepository extends JpaRepository<File, String> {
+import static com.google.common.base.Strings.isNullOrEmpty;
 
-  List<File> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
-  List<File> findAllByAnalysisId(String analysisId);
-  void deleteAllByAnalysisId(String analysisId);
-  long countAllByStudyIdAndObjectId(String studyId, String objectId);
+@Value
+@Builder
+public class ScoreObject implements FileContent {
+
+  @NonNull private final String objectId;
+  private final String fileMd5sum;
+  @NonNull private final Long fileSize;
+
+  public boolean isMd5Defined(){
+    return !isNullOrEmpty(fileMd5sum);
+  }
 
 }

@@ -28,7 +28,7 @@ import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-import org.icgc.dcc.song.server.model.entity.File;
+import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.AnalysisStates;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
@@ -104,7 +104,7 @@ public class AnalysisService {
   @Autowired
   private final FileService fileService;
   @Autowired
-  private final ExistenceService existence;
+  private final ScoreService scoreService;
   @Autowired
   private final SearchRepository searchRepository;
   @Autowired
@@ -406,7 +406,7 @@ public class AnalysisService {
   }
 
   private boolean confirmUploaded(String accessToken, String fileId) {
-    return existence.isObjectExist(accessToken,fileId);
+    return scoreService.isObjectExist(accessToken,fileId);
   }
 
   /**
