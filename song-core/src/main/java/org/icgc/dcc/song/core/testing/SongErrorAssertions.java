@@ -56,7 +56,7 @@ public class SongErrorAssertions {
     if (!isNull(formattedFailMessage)){
       assertion.describedAs(format(formattedFailMessage, objects));
     }
-    assertion.isInstanceOf(ServerException.class);
+    assertion.as(format("a %s should have been thrown", ServerException.class.getSimpleName())).isInstanceOf(ServerException.class);
 
     val songError = ((ServerException)thrown).getSongError();
     assertThat(songError.getErrorId()).isEqualTo(expectedServerError.getErrorId());

@@ -15,11 +15,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.entity.file;
+package org.icgc.dcc.song.core.utils;
 
-public interface FileContent {
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
-  String getFileMd5sum();
-  Long getFileSize();
+import static com.google.common.base.Preconditions.checkArgument;
+import static lombok.AccessLevel.PRIVATE;
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
+
+@NoArgsConstructor(access = PRIVATE)
+public class Checkers {
+
+  public static void checkNotBlank(@NonNull String input ){
+    checkArgument(isNotBlank(input), "The input '%s' cannot be blank", input);
+  }
 
 }

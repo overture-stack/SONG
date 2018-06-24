@@ -17,9 +17,4 @@
 
 package org.icgc.dcc.song.server.model.entity.file;
 
-public interface FileContent {
-
-  String getFileMd5sum();
-  Long getFileSize();
-
-}
+public interface FileData extends  FileContent, FileMetadata { }

@@ -34,7 +34,9 @@ import java.net.URL;
 
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Joiners.SLASH;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_SCORE_DOWNLOAD_RESPONSE;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
+import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 import static org.icgc.dcc.song.core.utils.JsonUtils.readTree;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -46,26 +48,20 @@ public class ScoreService {
 
   private static final String UPLOAD = "upload";
   private static final String DOWNLOAD= "download";
+  private static final String OBJECT_MD5 = "objectMd5";
+  private static final String OBJECT_SIZE= "objectSize";
 
   /**
    * Dependencies
    */
-  @NonNull private RetryTemplate retryTemplate;
+  @NonNull private final RestTemplate restTemplate;
+  @NonNull private final RetryTemplate retryTemplate;
   @NonNull private final String storageUrl;
-
-  private RestTemplate restTemplate = new RestTemplate();
+  @NonNull private final ValidationService validationService;
 
   @SneakyThrows
   public boolean isObjectExist(@NonNull String accessToken, @NonNull String objectId) {
     return doGetBoolean(accessToken, getObjectExistsUrl(objectId));
-  }
-
-  private String getObjectExistsUrl(String objectId){
-    return joinUrl(storageUrl, UPLOAD, objectId);
-  }
-
-  private String getDownloadObjectUrl(String objectId){
-    return joinUrl(storageUrl, DOWNLOAD, objectId)+"?offset=0&length=-1";
   }
 
   @SneakyThrows
@@ -73,16 +69,25 @@ public class ScoreService {
     val objectExists = isObjectExist(accessToken, objectId);
     checkServer(objectExists,getClass(), STORAGE_OBJECT_NOT_FOUND,
         "The object with objectId '%s' does not exist in the storage server", objectId);
+    return convertObjectSpecification(objectId, getObjectSpecification(accessToken, objectId));
+  }
+
+  private JsonNode getObjectSpecification(String accessToken, String objectId){
     val objectSpecification = doGetJson(accessToken, getDownloadObjectUrl(objectId));
-    return convertObjectSpecification(objectId, objectSpecification);
+    val validationError = validationService.validateScoreDownloadResponse(objectSpecification);
+    if (validationError.isPresent()){
+      throw buildServerException(getClass(),
+          INVALID_SCORE_DOWNLOAD_RESPONSE,
+          "The validation of the SCORE download response for objectId '%s' failed with the following errors: %s",
+          objectId, validationError.get());
+    }
+    return objectSpecification;
   }
 
   private ScoreObject convertObjectSpecification(String objectId, JsonNode objectSpec){
-    val md5 = objectSpec.path("objectMd5").textValue();
-    val size = objectSpec.path("objectSize").asLong();
     return ScoreObject.builder()
-        .fileMd5sum(md5)
-        .fileSize(size)
+        .fileMd5sum(parseObjectMd5(objectSpec))
+        .fileSize(parseObjectSize(objectSpec))
         .objectId(objectId)
         .build();
   }
@@ -94,8 +99,7 @@ public class ScoreService {
       val httpHeaders = new HttpHeaders();
       httpHeaders.set(AUTHORIZATION, format("Bearer %s",accessToken));
       val req = new HttpEntity<>(httpHeaders);
-      val r = restTemplate.exchange(url.toURI(), GET, req, String.class);
-      return r;
+      return restTemplate.exchange(url.toURI(), GET, req, String.class);
     });
     return response.getBody();
   }
@@ -109,8 +113,25 @@ public class ScoreService {
     return readTree(doGetString(accessToken, url));
   }
 
-  public static ScoreService createScoreService(RetryTemplate retryTemplate,String baseUrl){
-    return new ScoreService(retryTemplate,baseUrl);
+  private static String parseObjectMd5(JsonNode objectSpecification){
+    return objectSpecification.path(OBJECT_MD5).textValue();
+  }
+
+  private static Long parseObjectSize(JsonNode objectSpecification){
+    return objectSpecification.path(OBJECT_SIZE).asLong();
+  }
+
+  private String getObjectExistsUrl(String objectId){
+    return joinUrl(storageUrl, UPLOAD, objectId);
+  }
+
+  private String getDownloadObjectUrl(String objectId){
+    return joinUrl(storageUrl, DOWNLOAD, objectId)+"?offset=0&length=-1";
+  }
+
+  public static ScoreService createScoreService(RestTemplate restTemplate,
+      RetryTemplate retryTemplate, String baseUrl, ValidationService validationService){
+    return new ScoreService(restTemplate, retryTemplate,baseUrl, validationService);
   }
 
   private static String joinUrl(String ... path){

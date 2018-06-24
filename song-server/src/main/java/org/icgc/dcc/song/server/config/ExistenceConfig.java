@@ -19,11 +19,13 @@ package org.icgc.dcc.song.server.config;
 
 import lombok.NoArgsConstructor;
 import org.icgc.dcc.song.server.service.ScoreService;
+import org.icgc.dcc.song.server.service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.client.RestTemplate;
 
 import static org.icgc.dcc.song.server.service.ScoreService.createScoreService;
 
@@ -34,12 +36,15 @@ public class ExistenceConfig {
   @Autowired
   private RetryTemplate retryTemplate;
 
+  @Autowired
+  private ValidationService validationService;
+
   @Value("${dcc-storage.url}")
   private String storageUrl;
 
   @Bean
   public ScoreService scoreService(){
-    return createScoreService(retryTemplate,storageUrl);
+    return createScoreService(new RestTemplate(),retryTemplate,storageUrl, validationService);
   }
 
 }

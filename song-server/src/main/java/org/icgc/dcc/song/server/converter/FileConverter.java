@@ -15,22 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.service.existence;
+package org.icgc.dcc.song.server.converter;
 
-import lombok.Getter;
-import org.springframework.retry.RetryCallback;
-import org.springframework.retry.RetryContext;
-import org.springframework.retry.listener.RetryListenerSupport;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.file.FileData;
+import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValueCheckStrategy;
 
-public class CountingRetryListener extends RetryListenerSupport {
+@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+public interface FileConverter {
 
-  @Getter
-  private int errorCount = 0;
+  FileUpdateRequest fileEntityToFileUpdateRequest(File file);
+  void updateEntityFromData(FileData fileData, @MappingTarget File file);
+  File copyFile(File file);
 
-  @Override public <T, E extends Throwable> void onError(RetryContext retryContext,
-      RetryCallback<T, E> retryCallback,
-      Throwable throwable) {
-    errorCount++;
-  }
+
 
 }

@@ -20,7 +20,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest;
+import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateResponse;
+import org.icgc.dcc.song.server.service.FileModificationService;
 import org.icgc.dcc.song.server.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -48,6 +53,8 @@ public class FileController {
    */
   @Autowired
   private final FileService fileService;
+  @Autowired
+  private final FileModificationService fileModificationService;
 
   @ApiOperation(value = "ReadFile", notes = "Retrieves file data for a fileId")
   @GetMapping(value = "/files/{id}")
@@ -61,13 +68,19 @@ public class FileController {
   /**
    * [DCC-5726] - updates disabled until back propagation updates due to business key updates is implemented
    */
-//  @PutMapping(value = "/files/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-//  @ResponseBody
-//  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-//  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id, @RequestBody File file) {
-//    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
-//    return fileService.update(file);
-//  }
+  @ApiOperation(value = "UpdateFile", notes = "Updates file data for a fileId")
+  @PutMapping(value = "/files/{id}")
+  @ResponseBody
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  @Transactional
+  public FileUpdateResponse update(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @PathVariable("id") String id,
+      @ApiParam(value = "File data to update", required = true)
+      @RequestBody FileUpdateRequest fileUpdateRequest) {
+    return fileModificationService.securedFileWithAnalysisUpdate(studyId, id, fileUpdateRequest);
+  }
 
   @ApiOperation(value = "DeleteFiles", notes = "Deletes file data for fileIds")
   @DeleteMapping(value = "/files/{ids}")

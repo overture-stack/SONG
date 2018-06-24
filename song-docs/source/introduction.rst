@@ -133,9 +133,10 @@ Tutorial using the Python SDK with SONG
 -------------------------------------------
 The :ref:`SONG Python SDK Tutorial <sdk_python_tutorial_ref>` is a Python client module that is used to interact with a running SONG server. Use it with one of the :ref:`Projects Using SONG <_intro_projects_using_song_ref>`, or in combination with :ref:`Docker for SONG <docker_for_song_ref>`. For more information to about the Python SDK, refer to the :ref:`SONG Python SDK <song_python_sdk_ref>` documentation.
 
-Play with a CLI
---------------------------
-If you want to play with SONG from your terminal, there are a few :ref:`Command Line Client <command_line_clients_ref>` tutorials to choose from, such as the :ref:`Java CLI Tutorial <java_cli_tutorial_ref>` or the :ref:`GO CLI Tutorial <go_cli_tutorial_ref>` .
+..
+    Play with a CLI
+    --------------------------
+    If you want to play with SONG from your terminal, there are a few :ref:`Command Line Client <command_line_clients_ref>` tutorials to choose from, such as the :ref:`Java CLI Tutorial <java_cli_tutorial_ref>` or the :ref:`GO CLI Tutorial <go_cli_tutorial_ref>` .
 
 Play with the REST API from your browser
 --------------------------------------------

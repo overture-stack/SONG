@@ -27,7 +27,7 @@ import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
@@ -51,6 +51,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 
@@ -76,6 +77,7 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.resolveAnalysisState;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
@@ -122,6 +124,8 @@ public class AnalysisServiceTest {
   private FileRepository fileRepository;
   @Autowired
   private SampleSetRepository sampleSetRepository;
+  @Autowired
+  private ValidationService validationService;
 
 
   private final RandomGenerator randomGenerator = createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
@@ -151,9 +155,17 @@ public class AnalysisServiceTest {
     this.studyGenerator = createStudyGenerator(studyService, randomGenerator);
     this.secureAnalysisTester = createSecureAnalysisTester(randomGenerator, studyService, service);
     val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
-    val testExistenceService = createScoreService(retryTemplate,testStorageUrl);
+    val testExistenceService = createScoreService(new RestTemplate(), retryTemplate,testStorageUrl, validationService);
     ReflectionTestUtils.setField(service, "scoreService", testExistenceService);
     log.info("ExistenceService configured to endpoint: {}",testStorageUrl );
+  }
+
+  @Test
+  public void testReadState(){
+    val a = service.securedDeepRead(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
+    val expectedState = resolveAnalysisState(a.getAnalysisState());
+    val actualState = service.readState(a.getAnalysisId());
+    assertThat(actualState).isEqualTo(expectedState);
   }
 
   @Test
@@ -713,6 +725,7 @@ public class AnalysisServiceTest {
     assertSongError(() -> service.unsecuredReadFiles(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.securedReadFiles(DEFAULT_STUDY_ID, nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.readSamples(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.readState(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
   }
 
   @Test

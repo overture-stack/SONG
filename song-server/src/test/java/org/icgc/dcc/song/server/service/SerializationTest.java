@@ -23,7 +23,7 @@ import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.junit.Test;

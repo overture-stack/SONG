@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;

@@ -17,12 +17,14 @@
 
 package org.icgc.dcc.song.server.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.ScoreObject;
 import org.junit.Before;
@@ -34,6 +36,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestTemplate;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -41,6 +44,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_SCORE_DOWNLOAD_RESPONSE;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
@@ -59,6 +63,9 @@ public class ScoreServiceTest {
   @Autowired
   RetryTemplate retryTemplate;
 
+  @Autowired
+  ValidationService validationService;
+
   private ScoreService scoreService;
   private final RandomGenerator randomGenerator = createRandomGenerator(ScoreServiceTest.class.getSimpleName());
 
@@ -68,7 +75,7 @@ public class ScoreServiceTest {
   @Before
   public void beforeTest(){
     val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
-    this.scoreService = createScoreService(retryTemplate, testStorageUrl);
+    this.scoreService = createScoreService(new RestTemplate(), retryTemplate, testStorageUrl, validationService);
   }
 
   @Test
@@ -78,62 +85,108 @@ public class ScoreServiceTest {
         .fileMd5sum(randomGenerator.generateRandomMD5())
         .fileSize((long)randomGenerator.generateRandomIntRange(1,100000))
         .build();
-    val scoreResponse = convertToObjectSpec(expectedScoreObject);
+    val scoreResponse = toNode(convertToObjectSpec(expectedScoreObject));
 
     // Test nonexisting
     val nonExistingConfig = ScoreBehaviourConfig.builder()
         .objectExists(false)
-        .expectedObjectSpec(scoreResponse)
+        .expectedScoreResponse(scoreResponse)
         .build();
-    setupScoreMockService(nonExistingConfig);
+    setupScoreMockService(expectedScoreObject.getObjectId(), nonExistingConfig);
     val result = scoreService.isObjectExist(DEFAULT_ACCESS_TOKEN, expectedScoreObject.getObjectId());
     assertThat(result).isFalse();
 
     // Test existing
     val existingConfig = ScoreBehaviourConfig.builder()
         .objectExists(true)
-        .expectedObjectSpec(scoreResponse)
+        .expectedScoreResponse(scoreResponse)
         .build();
-    setupScoreMockService(existingConfig);
+    setupScoreMockService(expectedScoreObject.getObjectId(), existingConfig);
     val result2 = scoreService.isObjectExist(DEFAULT_ACCESS_TOKEN, expectedScoreObject.getObjectId());
     assertThat(result2).isTrue();
   }
 
   @Test
-  public void testExistingDownloadScoreObject(){
-    val expectedResponse =  ScoreObject.builder()
-        .objectId(randomGenerator.generateRandomUUIDAsString())
-        .fileSize((long)randomGenerator.generateRandomIntRange(1,100000))
-        .build();
-    val scoreResponse = convertToObjectSpec(expectedResponse);
-    val existingConfig1 = ScoreBehaviourConfig.builder()
-        .objectExists(true)
-        .expectedObjectSpec(scoreResponse)
-        .build();
-    setupScoreMockService(existingConfig1);
-    val result = scoreService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId());
-    assertThat(result).isEqualTo(expectedResponse);
+  public void testNonExistingDownloadScoreObject_noMd5(){
+    runDownloadScoreObjectTest(false, false);
   }
 
   @Test
-  public void testNonExistingDownloadScoreObject(){
-    val expectedResponse =  ScoreObject.builder()
-        .objectId(randomGenerator.generateRandomUUIDAsString())
-        .fileSize((long)randomGenerator.generateRandomIntRange(1,100000))
-        .build();
-    val scoreResponse = convertToObjectSpec(expectedResponse);
-    val existingConfig = ScoreBehaviourConfig.builder()
-        .objectExists(false)
-        .expectedObjectSpec(scoreResponse)
-        .build();
-    setupScoreMockService(existingConfig);
-    assertSongError(
-        () -> scoreService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId()),
-        STORAGE_OBJECT_NOT_FOUND);
+  public void testNonExistingDownloadScoreObject_withMd5(){
+    runDownloadScoreObjectTest(false, true);
   }
 
-  private void setupScoreMockService(ScoreBehaviourConfig config){
-    val objectId = config.getExpectedObjectSpec().getObjectId();
+  @Test
+  public void testExistingDownloadScoreObject_noMd5(){
+    runDownloadScoreObjectTest(true, false);
+  }
+
+  @Test
+  public void testExistingDownloadScoreObject_withMd5(){
+    runDownloadScoreObjectTest(true, true);
+  }
+
+  @Test
+  public void testInvalidScoreDownloadResponse_invalidMd5Length(){
+    runInvalidScoreDownloadResponse(randomGenerator.generateRandomMD5()+3, 10000);
+  }
+
+  @Test
+  public void testInvalidScoreDownloadResponse_invalidMd5Characters(){
+    runInvalidScoreDownloadResponse(randomGenerator.generateRandomMD5().replaceFirst(".", "q"),
+        10000);
+  }
+
+  @Test
+  public void testInvalidScoreDownloadResponse_invalidSize0() {
+    runInvalidScoreDownloadResponse(randomGenerator.generateRandomMD5(), 0L);
+  }
+
+  @Test
+  public void testInvalidScoreDownloadResponse_invalidSizeMinusOne() {
+    runInvalidScoreDownloadResponse(randomGenerator.generateRandomMD5(), -1L);
+  }
+
+  private void runInvalidScoreDownloadResponse(String expectedMd5, long expectedSize){
+    val expectedResponse =  ScoreObject.builder()
+        .objectId(randomGenerator.generateRandomUUIDAsString())
+        .fileMd5sum(expectedMd5)
+        .fileSize(expectedSize)
+        .build();
+    val scoreResponse = toNode(convertToObjectSpec(expectedResponse));
+    val existingConfig = ScoreBehaviourConfig.builder()
+        .objectExists(true)
+        .expectedScoreResponse(scoreResponse)
+        .build();
+    setupScoreMockService(expectedResponse.getObjectId(),existingConfig);
+    assertSongError(
+        () -> scoreService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId()),
+        INVALID_SCORE_DOWNLOAD_RESPONSE);
+  }
+
+  private void runDownloadScoreObjectTest(boolean exists, boolean md5Defined){
+    val expectedResponse =  ScoreObject.builder()
+        .objectId(randomGenerator.generateRandomUUIDAsString())
+        .fileMd5sum(md5Defined ? randomGenerator.generateRandomMD5() : null)
+        .fileSize((long)randomGenerator.generateRandomIntRange(1,100000))
+        .build();
+    val scoreResponse = toNode(convertToObjectSpec(expectedResponse));
+    val existingConfig = ScoreBehaviourConfig.builder()
+        .objectExists(exists)
+        .expectedScoreResponse(scoreResponse)
+        .build();
+    setupScoreMockService(expectedResponse.getObjectId(),existingConfig);
+    if (exists){
+      val result = scoreService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId());
+      assertThat(result).isEqualTo(expectedResponse);
+    } else {
+      assertSongError(
+          () -> scoreService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId()),
+          STORAGE_OBJECT_NOT_FOUND);
+    }
+  }
+
+  private void setupScoreMockService(String objectId, ScoreBehaviourConfig config){
     wireMockRule.resetAll();
     wireMockRule.stubFor(get(urlMatching(format("/upload/%s", objectId)))
         .willReturn(aResponse()
@@ -143,22 +196,7 @@ public class ScoreServiceTest {
     wireMockRule.stubFor(get(urlMatching(format("/download/%s\\?offset=0&length=-1", objectId)))
         .willReturn(aResponse()
             .withStatus(OK.value())
-            .withBody(toJson(config.getExpectedObjectSpec()))));
-  }
-
-  @Value
-  @Builder
-  public static class ScoreBehaviourConfig {
-    private final boolean objectExists;
-    @NonNull private final ObjectSpecification expectedObjectSpec;
-  }
-
-  @Value
-  @Builder
-  public static class ObjectSpecification{
-    @NonNull private final String objectId;
-    private final String objectMd5;
-    @NonNull private final Long objectSize;
+            .withBody(toJson(config.getExpectedScoreResponse()))));
   }
 
   private static ObjectSpecification convertToObjectSpec(ScoreObject scoreObject){
@@ -167,6 +205,25 @@ public class ScoreServiceTest {
         .objectMd5(scoreObject.getFileMd5sum())
         .objectSize(scoreObject.getFileSize())
         .build();
+  }
+
+  private static JsonNode toNode(Object o){
+    return JsonUtils.mapper().valueToTree(o);
+  }
+
+  @Value
+  @Builder
+  public static class ScoreBehaviourConfig {
+    private final boolean objectExists;
+    @NonNull private final JsonNode expectedScoreResponse;
+  }
+
+  @Value
+  @Builder
+  public static class ObjectSpecification{
+    @NonNull private final String objectId;
+    private final String objectMd5;
+    @NonNull private final Long objectSize;
   }
 
 }

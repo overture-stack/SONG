@@ -17,9 +17,11 @@
 
 package org.icgc.dcc.song.server.model.entity.file;
 
-public interface FileContent {
+import com.fasterxml.jackson.databind.JsonNode;
 
-  String getFileMd5sum();
-  Long getFileSize();
+public interface FileMetadata {
+
+  String getFileAccess();
+  JsonNode getInfo();
 
 }

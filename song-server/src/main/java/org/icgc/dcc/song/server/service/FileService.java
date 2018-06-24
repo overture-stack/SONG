@@ -19,7 +19,8 @@ package org.icgc.dcc.song.server.service;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.converter.FileConverter;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +42,18 @@ public class FileService {
 
   @Autowired
   AnalysisRepository analysisRepository;
+
   @Autowired
   FileRepository repository;
+
   @Autowired
   FileInfoService infoService;
   @Autowired
   IdService idService;
   @Autowired
   StudyService studyService;
+  @Autowired
+  FileConverter fileConverter;
 
   public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
     studyService.checkStudyExist(studyId);
@@ -91,11 +96,9 @@ public class FileService {
     return unsecuredRead(id);
   }
 
-  public String update(@NonNull File fileUpdate) {
-    checkFileExists(fileUpdate.getObjectId());
-    repository.save(fileUpdate);
-    infoService.update(fileUpdate.getObjectId(), fileUpdate.getInfoAsString());
-    return OK;
+  public void unsafeUpdate(File file){
+    repository.save(file);
+    infoService.update(file.getObjectId(), file.getInfoAsString());
   }
 
   @Transactional
@@ -126,7 +129,8 @@ public class FileService {
     } else {
       fileId = result.get();
       file.setObjectId(fileId);
-      update(file);
+      val transientFile = fileConverter.copyFile(file);
+      unsafeUpdate(transientFile);
     }
     return fileId;
   }
@@ -134,9 +138,9 @@ public class FileService {
   private File unsecuredRead(@NonNull String id) {
     val result = repository.findById(id);
     fileNotFoundCheck(result.isPresent(), id);
-    val f = result.get();
-    f.setInfo(infoService.readNullableInfo(id));
-    return f;
+    val transientFile = fileConverter.copyFile(result.get());
+    transientFile.setInfo(infoService.readNullableInfo(id));
+    return transientFile;
   }
 
   private String internalDelete(@NonNull String id) {
@@ -149,5 +153,6 @@ public class FileService {
     checkServer(expression, FileService.class, FILE_NOT_FOUND,
         "The File with objectId '%s' does not exist", id);
   }
+
 
 }

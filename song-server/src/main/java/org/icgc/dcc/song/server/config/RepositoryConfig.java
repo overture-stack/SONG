@@ -13,7 +13,6 @@ public class RepositoryConfig {
   @PersistenceContext
   private EntityManager entityManager;
 
-
   @Bean
   public SearchRepository searchRepository(){
     return new SearchRepository(entityManager);

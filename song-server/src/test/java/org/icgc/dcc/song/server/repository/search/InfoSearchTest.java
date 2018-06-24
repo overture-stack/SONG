@@ -25,7 +25,7 @@ import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.model.entity.Info;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
