@@ -69,10 +69,10 @@ public class ScoreService {
     val objectExists = isObjectExist(accessToken, objectId);
     checkServer(objectExists,getClass(), STORAGE_OBJECT_NOT_FOUND,
         "The object with objectId '%s' does not exist in the storage server", objectId);
-    return convertObjectSpecification(objectId, getObjectSpecification(accessToken, objectId));
+    return convertScoreDownloadResponse(objectId, getScoreDownloadResponse(accessToken, objectId));
   }
 
-  private JsonNode getObjectSpecification(String accessToken, String objectId){
+  private JsonNode getScoreDownloadResponse(String accessToken, String objectId){
     val objectSpecification = doGetJson(accessToken, getDownloadObjectUrl(objectId));
     val validationError = validationService.validateScoreDownloadResponse(objectSpecification);
     if (validationError.isPresent()){
@@ -84,10 +84,10 @@ public class ScoreService {
     return objectSpecification;
   }
 
-  private ScoreObject convertObjectSpecification(String objectId, JsonNode objectSpec){
+  private ScoreObject convertScoreDownloadResponse(String objectId, JsonNode scoreDownloadResponse){
     return ScoreObject.builder()
-        .fileMd5sum(parseObjectMd5(objectSpec))
-        .fileSize(parseObjectSize(objectSpec))
+        .fileMd5sum(parseObjectMd5(scoreDownloadResponse))
+        .fileSize(parseObjectSize(scoreDownloadResponse))
         .objectId(objectId)
         .build();
   }

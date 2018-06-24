@@ -70,7 +70,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SA
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
@@ -516,7 +516,7 @@ public class AnalysisServiceTest {
     val token = "mockToken";
     val id = DEFAULT_ANALYSIS_ID;
     val studyId = DEFAULT_STUDY_ID;
-    service.publish(token, studyId, id);
+    service.publish(token, studyId, id, false);
 
     val analysis = service.securedDeepRead(studyId, id);
     assertThat(analysis.getAnalysisState()).isEqualTo("PUBLISHED");
@@ -526,7 +526,7 @@ public class AnalysisServiceTest {
   public void testPublishError() {
     setUpDccStorageMockService(false);
     val token = "mockToken";
-    assertSongError(() -> service.publish(token, DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID), UNPUBLISHED_FILE_IDS);
+    assertSongError(() -> service.publish(token, DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID, false), MISSING_STORAGE_OBJECTS);
   }
 
   @Test
@@ -746,7 +746,7 @@ public class AnalysisServiceTest {
     secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), SEQUENCING_READ);
     secureAnalysisTester.runSecureTest((s,a) -> service.suppress(s, a));
     secureAnalysisTester.runSecureTest((s,a) -> service.securedReadFiles(s,a));
-    secureAnalysisTester.runSecureTest((s,a) -> service.publish("mockToken", s, a));
+    secureAnalysisTester.runSecureTest((s,a) -> service.publish("mockToken", s, a, false));
   }
 
   @Test
