@@ -31,7 +31,7 @@ import static org.icgc.dcc.song.server.service.StorageService.createStorageServi
 
 @NoArgsConstructor
 @Configuration
-public class ExistenceConfig {
+public class StorageConfig {
 
   @Autowired
   private RetryTemplate retryTemplate;
