@@ -59,7 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
@@ -552,7 +551,7 @@ public class AnalysisService {
       val file = entry.getKey();
       val storageObject = entry.getValue();
       val md5Mismatch = !file.getFileMd5sum().equals(storageObject.getFileMd5sum());
-      val objectMd5Undefined = isNullOrEmpty(storageObject.getFileMd5sum());
+      val objectMd5Undefined = !storageObject.isMd5Defined();
       if(objectMd5Undefined){
         undefinedMd5ObjectIds.add(file.getObjectId());
       } else if(md5Mismatch){

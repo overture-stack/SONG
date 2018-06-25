@@ -47,7 +47,7 @@ public class ValidationConfig {
   private static String[] schemaList = {
       "schemas/sequencingRead.json",
       "schemas/variantCall.json",
-      "schemas/file_update_request.json",
+      "schemas/fileUpdateRequest.json",
       "schemas/storageDownloadResponse.json"
   };
 
