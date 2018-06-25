@@ -702,6 +702,7 @@ public class AnalysisServiceTest {
     secureAnalysisTester.runSecureTest((s,a) -> service.suppress(s, a));
     secureAnalysisTester.runSecureTest((s,a) -> service.securedReadFiles(s,a));
     secureAnalysisTester.runSecureTest((s,a) -> service.publish("mockToken", s, a, false));
+    secureAnalysisTester.runSecureTest((s,a) -> service.publish("mockToken", s, a, true));
   }
 
   @Test
