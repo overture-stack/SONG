@@ -20,6 +20,7 @@ package org.icgc.dcc.song.server.constants;
 import lombok.val;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.enums.AnalysisStates;
+import org.icgc.dcc.song.server.model.enums.FileTypes;
 import org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns;
 import org.icgc.dcc.song.server.model.enums.InfoTypes;
 import org.icgc.dcc.song.server.model.enums.UploadStates;
@@ -27,11 +28,40 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.icgc.dcc.song.server.model.enums.AccessTypes.*;
-import static org.icgc.dcc.song.server.model.enums.InfoTypes.*;
-import static org.icgc.dcc.song.server.model.enums.UploadStates.*;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.*;
-import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.*;
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
+import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.BAI;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.BAM;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.FAI;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.FASTA;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.FASTQ;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.IDX;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.TBI;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.VCF;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.XML;
+import static org.icgc.dcc.song.server.model.enums.FileTypes.resolveFileType;
+import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
+import static org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns.INFO;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.ANALYSIS;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.DONOR;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.FILE;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SAMPLE;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SEQUENCING_READ;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.SPECIMEN;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.STUDY;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.VARIANT_CALL;
+import static org.icgc.dcc.song.server.model.enums.InfoTypes.resolveInfoType;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.CREATED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.SAVED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.UPDATED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.UPLOADED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATED;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.VALIDATION_ERROR;
+import static org.icgc.dcc.song.server.model.enums.UploadStates.resolveState;
 
 public class ConstantsTest {
 
@@ -58,6 +88,44 @@ public class ConstantsTest {
     assertThat(resolveAccessType("open")).isEqualTo(OPEN);
     assertThat(resolveAccessType("controlled")).isEqualTo(CONTROLLED);
     val thrown = catchThrowable(() -> resolveAccessType("somethingNotAccessType"));
+    assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void testFileTypes(){
+    assertThat(FASTA.toString()).isEqualTo("FASTA");
+    assertThat(FAI.toString()).isEqualTo("FAI");
+    assertThat(FASTQ.toString()).isEqualTo("FASTQ");
+    assertThat(BAM.toString()).isEqualTo("BAM");
+    assertThat(BAI.toString()).isEqualTo("BAI");
+    assertThat(VCF.toString()).isEqualTo("VCF");
+    assertThat(TBI.toString()).isEqualTo("TBI");
+    assertThat(IDX.toString()).isEqualTo("IDX");
+    assertThat(XML.toString()).isEqualTo("XML");
+
+    assertThat(FASTA.getExtension()).isEqualTo("fasta");
+    assertThat(FAI.getExtension())  .isEqualTo("fai");
+    assertThat(FASTQ.getExtension()).isEqualTo("fastq");
+    assertThat(BAM.getExtension()).isEqualTo("bam");
+    assertThat(BAI.getExtension()).isEqualTo("bai");
+    assertThat(VCF.getExtension()).isEqualTo("vcf");
+    assertThat(TBI.getExtension()).isEqualTo("tbi");
+    assertThat(IDX.getExtension()).isEqualTo("idx");
+    assertThat(XML.getExtension()).isEqualTo("xml");
+
+    assertThat(FileTypes.values()).hasSize(9);
+
+    assertThat(resolveFileType("FASTA")).isEqualTo(FASTA);
+    assertThat(resolveFileType("FAI")).isEqualTo(FAI);
+    assertThat(resolveFileType("FASTQ")).isEqualTo(FASTQ);
+    assertThat(resolveFileType("BAM")).isEqualTo(BAM);
+    assertThat(resolveFileType("BAI")).isEqualTo(BAI);
+    assertThat(resolveFileType("VCF")).isEqualTo(VCF);
+    assertThat(resolveFileType("TBI")).isEqualTo(TBI);
+    assertThat(resolveFileType("IDX")).isEqualTo(IDX);
+    assertThat(resolveFileType("XML")).isEqualTo(XML);
+
+    val thrown = catchThrowable(() -> resolveFileType("somethingThatsNotAFileType"));
     assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
   }
 

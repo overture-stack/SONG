@@ -22,8 +22,6 @@ public enum FileTypes {
 
  @Getter private final String extension;
 
-
-
  public static FileTypes resolveFileType(@NonNull String fileType){
   return Streams.stream(values())
       .filter(x -> x.toString().equals(fileType))
