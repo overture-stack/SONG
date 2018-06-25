@@ -16,6 +16,7 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import lombok.NonNull;
@@ -90,6 +91,8 @@ import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiS
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
+
+  private static final Joiner SPACED_COMMA = Joiner.on(" , ");
 
   private static final Map<String, Class<? extends AbstractAnalysis>> ANALYSIS_CLASS_MAP =
       new HashMap<String, Class<? extends AbstractAnalysis>>(){{
@@ -559,22 +562,29 @@ public class AnalysisService {
       }
     }
 
-    String message = format(
-        "Found files with a mismatching md5 checksum in the storage server. "
-            + "Files with an undefined md5 checksum: %s. "
-            + "File with a defined and mismatching md5 checksum: %s. "
-            + "The analysisId '%s' cannot be published until all "
-            + "undefined checksum are ignored and defined checksums are matching",
-        COMMA.join(undefinedMd5ObjectIds),
-        COMMA.join(mismatchingFileMd5sums),
-        analysisId);
-
+    val sb = new StringBuilder();
     if (ignoreUndefinedMd5){
-      message = "[WARNING]: Ignoring objectIds with an undefined MD5 checksum. "+message;
+      sb.append("[WARNING]: Ignoring objectIds with an undefined MD5 checksum. ");
     }
 
+    sb.append("Found files with a mismatching md5 checksum in the storage server. ");
+    if (!undefinedMd5ObjectIds.isEmpty()){
+      if (ignoreUndefinedMd5){
+        sb.append("IGNORED objectIds ");
+      }else{
+        sb.append("ObjectIds ");
+      }
+      sb.append(format("with an undefined md5 checksum: [%s]. ",SPACED_COMMA.join( undefinedMd5ObjectIds)) );
+    }
+    if (!mismatchingFileMd5sums.isEmpty()){
+      sb.append(format("ObjectIds with a defined and mismatching md5 checksum: [%s]. ",
+          SPACED_COMMA.join(mismatchingFileMd5sums)));
+    }
+    sb.append(format("The analysisId '%s' cannot be published until all files with an undefined checksum ", analysisId));
+    sb.append("are ignored and ones with a defined checksum are matching");
+
     val noMd5Errors = mismatchingFileMd5sums.isEmpty() && (ignoreUndefinedMd5 || undefinedMd5ObjectIds.isEmpty());
-    checkServer(noMd5Errors, AnalysisService.class, MISMATCHING_STORAGE_OBJECT_CHECKSUMS, message);
+    checkServer(noMd5Errors, AnalysisService.class, MISMATCHING_STORAGE_OBJECT_CHECKSUMS, sb.toString());
   }
 
 }

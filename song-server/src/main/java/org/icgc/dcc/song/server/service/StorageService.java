@@ -32,7 +32,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URL;
 
-import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Joiners.SLASH;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
@@ -97,7 +96,7 @@ public class StorageService {
     val url = new URL(urlString);
     ResponseEntity<String> response = retryTemplate.execute(retryContext -> {
       val httpHeaders = new HttpHeaders();
-      httpHeaders.set(AUTHORIZATION, format("Bearer %s",accessToken));
+      httpHeaders.set(AUTHORIZATION, accessToken);
       val req = new HttpEntity<>(httpHeaders);
       return restTemplate.exchange(url.toURI(), GET, req, String.class);
     });
