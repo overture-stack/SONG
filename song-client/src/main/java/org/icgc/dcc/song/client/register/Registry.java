@@ -107,9 +107,9 @@ public class Registry {
    * TODO: [DCC-5641] the ResponseEntity from AnalysisController is not returned, since RestTemplate.put is a void method.
    * need to find RestTemplate implementation that returns a response
    */
-  public Status publish(String studyId, String analysisId ){
+  public Status publish(String studyId, String analysisId, boolean ignoreUndefinedMd5 ){
     checkServerAlive();
-    val url = endpoint.publish(studyId, analysisId);
+    val url = endpoint.publish(studyId, analysisId, ignoreUndefinedMd5);
     return restClient.putAuth(accessToken, url);
   }
 

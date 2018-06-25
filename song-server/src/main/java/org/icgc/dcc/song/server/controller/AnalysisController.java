@@ -102,7 +102,7 @@ public class AnalysisController {
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
       @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
-      @RequestParam(value = "id", defaultValue = "false", required = false) boolean ignoreUndefinedMd5) {
+      @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false) boolean ignoreUndefinedMd5) {
     return analysisService.publish(accessToken, studyId, id, ignoreUndefinedMd5);
   }
 
