@@ -81,6 +81,10 @@ public class PublishAnalysisTest {
   private String testAnalysisId;
   private String testStudyId;
 
+  /**
+   * Before each test, create a new analysis, with a fresh set of randomly generated files,
+   * that will be used in the test
+   */
   @Before
   public void beforeTest(){
     assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
@@ -101,7 +105,39 @@ public class PublishAnalysisTest {
     assertThat(testFiles).hasSize(MAX_FILES);
   }
 
-	@Test
+  /**
+   * Table showing the tests for the publish service. The middle columns represent the state of the ScoreObjects located on the storage server side. The "rangeTypes
+   * are ALL, NONE, and SOME. ALL represents the entire set of input files. SOME represents a randomly sized set of the input files bounded by [2,maxsize).
+   * NONE represents an empty set. These range types model the practical states of the storage server, and therefore are used to test how the SONG server will
+   * publish given these states. The reference is the input SONG file list, which is complete, and contains all correct information.
+   *
+   * For example, for the SomeUndefinedMismatchingSize test, ALL the SONG files exist on the storage server as ScoreObjects
+   * (i.e there is one ScoreObject for each File), and of those ScoreObjects that exist SOME of them have UNDEFINED md5 checksum values.
+   * Of those that have DEFINED MD5 checksum values, NONE of them have mismatching MD5 checksums with their associated SONG File.
+   * However, of all of the ScoreObjects, only SOME of them have mismatching sizes with their associated SONG file. The expected result for this, is for an
+   * MISMATCHING_STORAGE_OBJECT_SIZES ServerError to be thrown
+   *   +------------------------------------+----------+--------------+--------------+----------------+------------------------------------------------------------+
+   *   |                                    |          |              |              |                |                                                            |
+   *   |              testname              | existing | undefinedMd5 |mismatchingMd5| mismatchingSize|                       ExpectedResult                       |
+   *   |                                    |          |              |  if defined  |    if existing |                                                            |
+   *   +------------------------------------+----------+--------------+--------------+----------------+------------------------------------------------------------+
+   *   | Ideal                              | all      | none         | none         | none           | published state                                            |
+   *   | MismatchingSize                    | all      | none         | none         | some           | unpublishedState, and MISMATCHING_STORAGE_OBJECT_SIZES     |
+   *   | MismatchingMd5                     | all      | none         | some         | none           | unpublishedState, and MISMATCHING_STORAGE_OBJECT_CHECKSUMS |
+   *   | MismatchingMd5AndSize              | all      | none         | some         | some           | unpublishedState, and MISMATCHING_STORAGE_OBJECT_SIZES     |
+   *   | SomeUndefinedMd5                   | all      | some         | none         | none           | published state                                            |
+   *   | SomeUndefinedMismatchingSize       | all      | some         | none         | some           | unpublishedState, and MISMATCHING_STORAGE_OBJECT_SIZES     |
+   *   | SomeUndefinedMismatchingMd5        | all      | some         | some         | none           | unpublishedState, and MISMATCHING_STORAGE_OBJECT_CHECKSUMS |
+   *   | SomeUndefinedMismatchingMd5AndSize | all      | some         | some         | some           | unpublishedState, and MISMATCHING_STORAGE_OBJECT_SIZES     |
+   *   | AllUndefined                       | all      | all          | X            | none           | published state                                            |
+   *   | AllUndefinedMismatchingSize        | all      | all          | X            | some           | unpublishedState, and MISMATCHING_STORAGE_OBJECT_SIZES     |
+   *   | SomeExisting                       | some     | X            | X            | X              | unpublishedState, MISSING_STORAGE_OBJECTS                  |
+   *   | NoneExisting                       | none     | X            | X            | X              | unpublishedState, MISSING_STORAGE_OBJECTS                  |
+   *   +------------------------------------+----------+--------------+--------------+----------------+------------------------------------------------------------+
+   */
+
+
+  @Test
 	public void testIdeal(){
     setupTest(ALL, NONE, NONE, NONE);
     assertAllPublish();
@@ -180,6 +216,10 @@ public class PublishAnalysisTest {
     assertPublish(true, false);
   }
 
+  /**
+   * Publishes the analysis and asserts the correct state for this test, for each of the ignoreUndefinedMd5 arguments
+   * @param ignoreUndefinedMd5Options a non-empty set of true and/or false values
+   */
   private void assertPublish(Boolean ... ignoreUndefinedMd5Options){
     val options = newHashSet(ignoreUndefinedMd5Options);
     assertThat(options.size()).isGreaterThan(0);
@@ -198,6 +238,10 @@ public class PublishAnalysisTest {
     assertPublishError(expectedServerError, true, false);
   }
 
+  /**
+   * Attempts to publish, and assert the {@param expectedServerError}
+   * {@link org.icgc.dcc.song.core.exceptions.ServerErrors} is thrown, for each of the ignoreUndefinedMd5 arguments
+   */
   private void assertPublishError(ServerError expectedServerError, Boolean ... ignoreUndefinedMd5Options){
     assertThat(service.readState(testAnalysisId)).isEqualTo(UNPUBLISHED);
     val options = newHashSet(ignoreUndefinedMd5Options);
@@ -215,6 +259,12 @@ public class PublishAnalysisTest {
     NONE;
   }
 
+  /**
+   * Generates the correct scoreObjects given the input SONG files used in this test, and then creates a mock
+   * score service. That scoreService is then forcefully injected into the analysisService using reflection magic.
+   * This is neccessary, since mocking the analysisService is currently an tedious task. The use of reflection to
+   * replace a dependency is dirty, but completely effective for the purpose of this test.
+   */
   private void setupTest(RangeType existingRange, RangeType undefinedMd5Range,
       RangeType mismatchingMd5Range, RangeType mismatchingSizeRange){
     val generator = ScoreObjectGenerator.builder()
@@ -248,6 +298,9 @@ public class PublishAnalysisTest {
     return randomList(() -> generateFile(a), maxSize);
   }
 
+  /**
+   * Generate a random file given an input analysis
+   */
   public File generateFile(AbstractAnalysis a){
     val analysisType = AnalysisTypes.resolveAnalysisType(a.getAnalysisType()) ;
     String fileType = null;
@@ -274,6 +327,11 @@ public class PublishAnalysisTest {
     return file;
   }
 
+  /**
+   * This generator is responsible for converting the input constraints
+   * (i.e the different rangeTypes for each characteristic of the score service) to a single list of ScoreObjects
+   * reflecting the constraints.
+   */
   @Value
   @Builder
   public static class ScoreObjectGenerator {

@@ -68,7 +68,6 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOU
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
@@ -508,25 +507,6 @@ public class AnalysisServiceTest {
         .willReturn(aResponse()
             .withStatus(OK.value())
             .withBody(Boolean.toString(expectedResult))));
-  }
-
-  @Test
-  public void testPublish() {
-    setUpDccStorageMockService(true);
-    val token = "mockToken";
-    val id = DEFAULT_ANALYSIS_ID;
-    val studyId = DEFAULT_STUDY_ID;
-    service.publish(token, studyId, id, false);
-
-    val analysis = service.securedDeepRead(studyId, id);
-    assertThat(analysis.getAnalysisState()).isEqualTo("PUBLISHED");
-  }
-
-  @Test
-  public void testPublishError() {
-    setUpDccStorageMockService(false);
-    val token = "mockToken";
-    assertSongError(() -> service.publish(token, DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID, false), MISSING_STORAGE_OBJECTS);
   }
 
   @Test
