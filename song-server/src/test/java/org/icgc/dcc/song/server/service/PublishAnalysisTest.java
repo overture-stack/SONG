@@ -60,6 +60,7 @@ public class PublishAnalysisTest {
 
   private static final String STORAGE_SERVICE = "storageService";
   private static final int MAX_FILES = 10;
+  private static final int MIN_SIZE = 2;
   private static final List<File> EMPTY_FILE_LIST = ImmutableList.of();
   private static final String DEFAULT_ACCESS_TOKEN = "myAccessToken";
 
@@ -72,7 +73,7 @@ public class PublishAnalysisTest {
   @Autowired
   StudyService studyService;
 
-  private final RandomGenerator randomGenerator = createRandomGenerator(PublishAnalysisTest.class.getSimpleName());
+  private RandomGenerator randomGenerator;
 
   /**
    * State
@@ -89,7 +90,7 @@ public class PublishAnalysisTest {
   @Before
   public void beforeTest(){
     assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
-    val randomGenerator = createRandomGenerator(PublishAnalysisTest.class.getSimpleName());
+    this.randomGenerator = createRandomGenerator(PublishAnalysisTest.class.getSimpleName());
     val analysisGenerator = createAnalysisGenerator(DEFAULT_STUDY_ID, service, randomGenerator);
 
     this.testAnalysis = analysisGenerator.createDefaultRandomAnalysis(randomGenerator.randomEnum(AnalysisTypes.class));
@@ -104,6 +105,7 @@ public class PublishAnalysisTest {
 
     this.testFiles = generateFiles(MAX_FILES, testAnalysis );
     assertThat(testFiles).hasSize(MAX_FILES);
+    assertThat(MIN_SIZE).isLessThan(MAX_FILES);
   }
 
   /**
@@ -400,7 +402,7 @@ public class PublishAnalysisTest {
     }
 
     private List<File> getSome(List<File> input, int maxSize){
-      val size = randomGenerator.generateRandomIntRange(1, maxSize);
+      val size = randomGenerator.generateRandomIntRange(MIN_SIZE, maxSize);
       return randomGenerator.randomSublist(input, size);
     }
 
