@@ -18,7 +18,7 @@
 package org.icgc.dcc.song.server.config;
 
 import lombok.NoArgsConstructor;
-import org.icgc.dcc.song.server.service.ScoreService;
+import org.icgc.dcc.song.server.service.StorageService;
 import org.icgc.dcc.song.server.service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
 
-import static org.icgc.dcc.song.server.service.ScoreService.createScoreService;
+import static org.icgc.dcc.song.server.service.StorageService.createStorageService;
 
 @NoArgsConstructor
 @Configuration
@@ -43,8 +43,8 @@ public class ExistenceConfig {
   private String storageUrl;
 
   @Bean
-  public ScoreService scoreService(){
-    return createScoreService(new RestTemplate(),retryTemplate,storageUrl, validationService);
+  public StorageService storageService(){
+    return createStorageService(new RestTemplate(),retryTemplate,storageUrl, validationService);
   }
 
 }

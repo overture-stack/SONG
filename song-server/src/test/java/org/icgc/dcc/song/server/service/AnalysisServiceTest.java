@@ -16,7 +16,6 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +40,6 @@ import org.icgc.dcc.song.server.utils.PayloadGenerator;
 import org.icgc.dcc.song.server.utils.StudyGenerator;
 import org.icgc.dcc.song.server.utils.securestudy.impl.SecureAnalysisTester;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,16 +47,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
@@ -81,14 +73,12 @@ import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static org.icgc.dcc.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static org.icgc.dcc.song.server.service.ScoreService.createScoreService;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
 import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertInfoKVPair;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
-import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @SpringBootTest
@@ -99,9 +89,6 @@ public class AnalysisServiceTest {
 
   private static final String DEFAULT_STUDY_ID = "ABC123";
   private static final String DEFAULT_ANALYSIS_ID = "AN1";
-
-  @Rule
-  public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 
   @Autowired
   FileService fileService;
@@ -153,10 +140,6 @@ public class AnalysisServiceTest {
     this.analysisGenerator = createAnalysisGenerator(DEFAULT_STUDY_ID, service, randomGenerator);
     this.studyGenerator = createStudyGenerator(studyService, randomGenerator);
     this.secureAnalysisTester = createSecureAnalysisTester(randomGenerator, studyService, service);
-    val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
-    val testExistenceService = createScoreService(new RestTemplate(), retryTemplate,testStorageUrl, validationService);
-    ReflectionTestUtils.setField(service, "scoreService", testExistenceService);
-    log.info("ExistenceService configured to endpoint: {}",testStorageUrl );
   }
 
   @Test
@@ -499,14 +482,6 @@ public class AnalysisServiceTest {
     }
 
     assertThat(service.readSequencingRead(analysisId)).isEqualTo(experiment);
-  }
-
-  private void setUpDccStorageMockService(boolean expectedResult){
-    wireMockRule.resetAll();
-    wireMockRule.stubFor(get(urlMatching("/upload/.*"))
-        .willReturn(aResponse()
-            .withStatus(OK.value())
-            .withBody(Boolean.toString(expectedResult))));
   }
 
   @Test

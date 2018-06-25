@@ -17,7 +17,7 @@
 
 package org.icgc.dcc.song.server.converter;
 
-import org.icgc.dcc.song.server.model.ScoreObject;
+import org.icgc.dcc.song.server.model.StorageObject;
 import org.icgc.dcc.song.server.model.entity.file.FileData;
 import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest;
@@ -35,8 +35,8 @@ public interface FileConverter {
   File copyFile(File file);
   List<File> copyFiles(List<File> files);
 
-  default ScoreObject toScoreObject(File file){
-    return ScoreObject.builder()
+  default StorageObject toStorageObject(File file){
+    return StorageObject.builder()
         .objectId(file.getObjectId())
         .fileSize(file.getFileSize())
         .fileMd5sum(file.getFileMd5sum())

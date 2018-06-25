@@ -27,7 +27,7 @@ import org.icgc.dcc.song.server.kafka.AnalysisMessage;
 import org.icgc.dcc.song.server.kafka.Sender;
 import org.icgc.dcc.song.server.model.SampleSet;
 import org.icgc.dcc.song.server.model.SampleSetPK;
-import org.icgc.dcc.song.server.model.ScoreObject;
+import org.icgc.dcc.song.server.model.StorageObject;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
@@ -115,7 +115,7 @@ public class AnalysisService {
   @Autowired
   private final FileService fileService;
   @Autowired
-  private final ScoreService scoreService;
+  private final StorageService storageService;
   @Autowired
   private final SearchRepository searchRepository;
   @Autowired
@@ -313,9 +313,9 @@ public class AnalysisService {
     checkAnalysisAndStudyRelated(studyId, id);
     val files = unsecuredReadFiles(id);
     checkMissingFiles(accessToken, id, files);
-    val file2scoreObjectMap = getScoreObjectsForFiles(accessToken, files);
-    checkMismatchingFileSizes(id, file2scoreObjectMap);
-    checkMismatchingFileMd5sums(id, file2scoreObjectMap, ignoreUndefinedMd5 );
+    val file2storageObjectMap = getStorageObjectsForFiles(accessToken, files);
+    checkMismatchingFileSizes(id, file2storageObjectMap);
+    checkMismatchingFileMd5sums(id, file2storageObjectMap, ignoreUndefinedMd5 );
     checkedUpdateState(id, PUBLISHED);
     return ok("AnalysisId %s successfully published", id);
   }
@@ -360,11 +360,11 @@ public class AnalysisService {
         .get();
   }
 
-  private Map<File, ScoreObject> getScoreObjectsForFiles(String accessToken, List<File> files){
-    val map = ImmutableMap.<File, ScoreObject>builder();
+  private Map<File, StorageObject> getStorageObjectsForFiles(String accessToken, List<File> files){
+    val map = ImmutableMap.<File, StorageObject>builder();
     for (val file : files){
-      val scoreObject = scoreService.downloadObject(accessToken, file.getObjectId());
-      map.put(file, scoreObject);
+      val storageObject = storageService.downloadObject(accessToken, file.getObjectId());
+      map.put(file, storageObject);
     }
     return map.build();
   }
@@ -449,7 +449,7 @@ public class AnalysisService {
   }
 
   private boolean confirmUploaded(String accessToken, String fileId) {
-    return scoreService.isObjectExist(accessToken,fileId);
+    return storageService.isObjectExist(accessToken,fileId);
   }
 
   /**
@@ -528,12 +528,12 @@ public class AnalysisService {
     return ANALYSIS_CLASS_MAP.get(analysisType).newInstance();
   }
 
-  private static void checkMismatchingFileSizes(String analysisId, Map<File, ScoreObject> fileScoreObjectMap){
+  private static void checkMismatchingFileSizes(String analysisId, Map<File, StorageObject> fileStorageObjectMap){
     val mismatchingFileSizes = Lists.<String>newArrayList();
-    for (val entry : fileScoreObjectMap.entrySet()){
+    for (val entry : fileStorageObjectMap.entrySet()){
       val file = entry.getKey();
-      val scoreObject = entry.getValue();
-      val sizeMatch = file.getFileSize().equals(scoreObject.getFileSize());
+      val storageObject = entry.getValue();
+      val sizeMatch = file.getFileSize().equals(storageObject.getFileSize());
       if (!sizeMatch){
         mismatchingFileSizes.add(file.getObjectId());
       }
@@ -544,15 +544,15 @@ public class AnalysisService {
             + "The analysisId '%s' cannot be published until they all match." , analysisId);
   }
 
-  private static void checkMismatchingFileMd5sums(String analysisId, Map<File, ScoreObject> fileScoreObjectMap,
+  private static void checkMismatchingFileMd5sums(String analysisId, Map<File, StorageObject> fileStorageObjectMap,
       boolean ignoreUndefinedMd5){
     val mismatchingFileMd5sums = Lists.<String>newArrayList();
     val undefinedMd5ObjectIds = Lists.<String>newArrayList();
-    for (val entry : fileScoreObjectMap.entrySet()){
+    for (val entry : fileStorageObjectMap.entrySet()){
       val file = entry.getKey();
-      val scoreObject = entry.getValue();
-      val md5Mismatch = !file.getFileMd5sum().equals(scoreObject.getFileMd5sum());
-      val objectMd5Undefined = isNullOrEmpty(scoreObject.getFileMd5sum());
+      val storageObject = entry.getValue();
+      val md5Mismatch = !file.getFileMd5sum().equals(storageObject.getFileMd5sum());
+      val objectMd5Undefined = isNullOrEmpty(storageObject.getFileMd5sum());
       if(objectMd5Undefined){
         undefinedMd5ObjectIds.add(file.getObjectId());
       } else if(md5Mismatch){

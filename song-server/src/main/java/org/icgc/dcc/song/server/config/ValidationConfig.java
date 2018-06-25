@@ -48,7 +48,7 @@ public class ValidationConfig {
       "schemas/sequencingRead.json",
       "schemas/variantCall.json",
       "schemas/file_update_request.json",
-      "schemas/scoreDownloadResponse.json"
+      "schemas/storageDownloadResponse.json"
   };
 
   @Value("${validation.delayMs:500}")

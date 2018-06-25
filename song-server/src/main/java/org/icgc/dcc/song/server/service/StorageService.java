@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.song.server.model.ScoreObject;
+import org.icgc.dcc.song.server.model.StorageObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +34,7 @@ import java.net.URL;
 
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Joiners.SLASH;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_SCORE_DOWNLOAD_RESPONSE;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
@@ -44,7 +44,7 @@ import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ScoreService {
+public class StorageService {
 
   private static final String UPLOAD = "upload";
   private static final String DOWNLOAD= "download";
@@ -65,29 +65,29 @@ public class ScoreService {
   }
 
   @SneakyThrows
-  public ScoreObject downloadObject(@NonNull String accessToken, @NonNull String objectId){
+  public StorageObject downloadObject(@NonNull String accessToken, @NonNull String objectId){
     val objectExists = isObjectExist(accessToken, objectId);
     checkServer(objectExists,getClass(), STORAGE_OBJECT_NOT_FOUND,
         "The object with objectId '%s' does not exist in the storage server", objectId);
-    return convertScoreDownloadResponse(objectId, getScoreDownloadResponse(accessToken, objectId));
+    return convertStorageDownloadResponse(objectId, getStorageDownloadResponse(accessToken, objectId));
   }
 
-  private JsonNode getScoreDownloadResponse(String accessToken, String objectId){
+  private JsonNode getStorageDownloadResponse(String accessToken, String objectId){
     val objectSpecification = doGetJson(accessToken, getDownloadObjectUrl(objectId));
-    val validationError = validationService.validateScoreDownloadResponse(objectSpecification);
+    val validationError = validationService.validateStorageDownloadResponse(objectSpecification);
     if (validationError.isPresent()){
       throw buildServerException(getClass(),
-          INVALID_SCORE_DOWNLOAD_RESPONSE,
-          "The validation of the SCORE download response for objectId '%s' failed with the following errors: %s",
+          INVALID_STORAGE_DOWNLOAD_RESPONSE,
+          "The validation of the storage download response for objectId '%s' failed with the following errors: %s",
           objectId, validationError.get());
     }
     return objectSpecification;
   }
 
-  private ScoreObject convertScoreDownloadResponse(String objectId, JsonNode scoreDownloadResponse){
-    return ScoreObject.builder()
-        .fileMd5sum(parseObjectMd5(scoreDownloadResponse))
-        .fileSize(parseObjectSize(scoreDownloadResponse))
+  private StorageObject convertStorageDownloadResponse(String objectId, JsonNode storageDownloadResponse){
+    return StorageObject.builder()
+        .fileMd5sum(parseObjectMd5(storageDownloadResponse))
+        .fileSize(parseObjectSize(storageDownloadResponse))
         .objectId(objectId)
         .build();
   }
@@ -129,9 +129,9 @@ public class ScoreService {
     return joinUrl(storageUrl, DOWNLOAD, objectId)+"?offset=0&length=-1";
   }
 
-  public static ScoreService createScoreService(RestTemplate restTemplate,
+  public static StorageService createStorageService(RestTemplate restTemplate,
       RetryTemplate retryTemplate, String baseUrl, ValidationService validationService){
-    return new ScoreService(restTemplate, retryTemplate,baseUrl, validationService);
+    return new StorageService(restTemplate, retryTemplate,baseUrl, validationService);
   }
 
   private static String joinUrl(String ... path){

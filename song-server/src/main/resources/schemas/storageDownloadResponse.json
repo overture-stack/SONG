@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://song.icgc.org/messages/scoreDownloadResponse",
+  "id": "http://song.icgc.org/messages/storageDownloadResponse",
   "type": "object",
   "required": ["objectId", "objectSize"],
   "properties": {

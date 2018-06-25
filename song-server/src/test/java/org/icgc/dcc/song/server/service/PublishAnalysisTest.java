@@ -9,7 +9,7 @@ import lombok.val;
 import org.icgc.dcc.song.core.exceptions.ServerError;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.converter.FileConverter;
-import org.icgc.dcc.song.server.model.ScoreObject;
+import org.icgc.dcc.song.server.model.StorageObject;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
@@ -58,6 +58,7 @@ import static org.mockito.Mockito.when;
 @Transactional
 public class PublishAnalysisTest {
 
+  private static final String STORAGE_SERVICE = "storageService";
   private static final int MAX_FILES = 10;
   private static final List<File> EMPTY_FILE_LIST = ImmutableList.of();
   private static final String DEFAULT_ACCESS_TOKEN = "myAccessToken";
@@ -106,15 +107,15 @@ public class PublishAnalysisTest {
   }
 
   /**
-   * Table showing the tests for the publish service. The middle columns represent the state of the ScoreObjects located on the storage server side. The "rangeTypes
+   * Table showing the tests for the publish service. The middle columns represent the state of the StorageObjects located on the storage server side. The "rangeTypes
    * are ALL, NONE, and SOME. ALL represents the entire set of input files. SOME represents a randomly sized set of the input files bounded by [2,maxsize).
    * NONE represents an empty set. These range types model the practical states of the storage server, and therefore are used to test how the SONG server will
    * publish given these states. The reference is the input SONG file list, which is complete, and contains all correct information.
    *
-   * For example, for the SomeUndefinedMismatchingSize test, ALL the SONG files exist on the storage server as ScoreObjects
-   * (i.e there is one ScoreObject for each File), and of those ScoreObjects that exist SOME of them have UNDEFINED md5 checksum values.
+   * For example, for the SomeUndefinedMismatchingSize test, ALL the SONG files exist on the storage server as StorageObjects
+   * (i.e there is one StorageObject for each File), and of those StorageObjects that exist SOME of them have UNDEFINED md5 checksum values.
    * Of those that have DEFINED MD5 checksum values, NONE of them have mismatching MD5 checksums with their associated SONG File.
-   * However, of all of the ScoreObjects, only SOME of them have mismatching sizes with their associated SONG file. The expected result for this, is for an
+   * However, of all of the StorageObjects, only SOME of them have mismatching sizes with their associated SONG file. The expected result for this, is for an
    * MISMATCHING_STORAGE_OBJECT_SIZES ServerError to be thrown
    *   +------------------------------------+----------+--------------+--------------+----------------+------------------------------------------------------------+
    *   |                                    |          |              |              |                |                                                            |
@@ -260,14 +261,14 @@ public class PublishAnalysisTest {
   }
 
   /**
-   * Generates the correct scoreObjects given the input SONG files used in this test, and then creates a mock
-   * score service. That scoreService is then forcefully injected into the analysisService using reflection magic.
+   * Generates the correct StorageObjects given the input SONG files used in this test, and then creates a mock
+   * storage service. That StorageService is then forcefully injected into the analysisService using reflection magic.
    * This is neccessary, since mocking the analysisService is currently an tedious task. The use of reflection to
    * replace a dependency is dirty, but completely effective for the purpose of this test.
    */
   private void setupTest(RangeType existingRange, RangeType undefinedMd5Range,
       RangeType mismatchingMd5Range, RangeType mismatchingSizeRange){
-    val generator = ScoreObjectGenerator.builder()
+    val generator = StorageObjectGenerator.builder()
         .files(testFiles)
         .existingRange(existingRange)
         .undefinedMd5Range(undefinedMd5Range)
@@ -275,23 +276,23 @@ public class PublishAnalysisTest {
         .mismatchingSizeRange(mismatchingSizeRange)
         .randomGenerator(randomGenerator)
         .build();
-    val scoreObjects = generator.generateScoreObjects();
-    val scoreObjectIds = scoreObjects.stream().map(ScoreObject::getObjectId).collect(toImmutableSet());
+    val storageObjects = generator.generateStorageObjects();
+    val storageObjectIds = storageObjects.stream().map(StorageObject::getObjectId).collect(toImmutableSet());
     val nonExistingObjectIds = testFiles.stream()
         .map(File::getObjectId)
-        .filter(x -> !scoreObjectIds.contains(x))
+        .filter(x -> !storageObjectIds.contains(x))
         .collect(toImmutableList());
 
-    val mockScoreService = mock(ScoreService.class);
+    val mockStorageService = mock(StorageService.class);
 
-    for(val scoreObject : scoreObjects){
-      when(mockScoreService.downloadObject(DEFAULT_ACCESS_TOKEN, scoreObject.getObjectId())).thenReturn(scoreObject);
-      when(mockScoreService.isObjectExist(DEFAULT_ACCESS_TOKEN, scoreObject.getObjectId())).thenReturn(true);
+    for(val storageObject : storageObjects){
+      when(mockStorageService.downloadObject(DEFAULT_ACCESS_TOKEN, storageObject.getObjectId())).thenReturn(storageObject);
+      when(mockStorageService.isObjectExist(DEFAULT_ACCESS_TOKEN, storageObject.getObjectId())).thenReturn(true);
     }
     for(val objectId : nonExistingObjectIds){
-      when(mockScoreService.isObjectExist(DEFAULT_ACCESS_TOKEN, objectId)) .thenReturn(false);
+      when(mockStorageService.isObjectExist(DEFAULT_ACCESS_TOKEN, objectId)) .thenReturn(false);
     }
-    ReflectionTestUtils.setField(service, "scoreService", mockScoreService);
+    ReflectionTestUtils.setField(service, STORAGE_SERVICE, mockStorageService);
   }
 
   public List<File> generateFiles(int maxSize, AbstractAnalysis a){
@@ -329,12 +330,12 @@ public class PublishAnalysisTest {
 
   /**
    * This generator is responsible for converting the input constraints
-   * (i.e the different rangeTypes for each characteristic of the score service) to a single list of ScoreObjects
+   * (i.e the different rangeTypes for each characteristic of the storage service) to a single list of StorageObjects
    * reflecting the constraints.
    */
   @Value
   @Builder
-  public static class ScoreObjectGenerator {
+  public static class StorageObjectGenerator {
 
     private static final FileConverter FILE_CONVERTER = Mappers.getMapper(FileConverter.class);
 
@@ -345,14 +346,14 @@ public class PublishAnalysisTest {
     @NonNull private final RangeType mismatchingSizeRange;
     @NonNull private final RandomGenerator randomGenerator;
 
-    public List<ScoreObject> generateScoreObjects(){
+    public List<StorageObject> generateStorageObjects(){
       val existingFiles = getExistingFiles();
       val mismatchingSizeFiles = processMismatchingSize(existingFiles);
       val undefinedFiles = processUndefinedMd5Files(existingFiles);
       val definedFiles = getDefinedMd5Files(existingFiles, undefinedFiles);
       val mismatchingMd5Files = processMismatchingMd5Files(definedFiles);
       return existingFiles.stream()
-          .map(FILE_CONVERTER::toScoreObject)
+          .map(FILE_CONVERTER::toStorageObject)
           .collect(toImmutableList());
     }
 

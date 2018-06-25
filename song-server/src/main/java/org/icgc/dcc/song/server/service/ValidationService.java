@@ -50,7 +50,7 @@ public class ValidationService {
 
   private static final String STUDY = "study";
   private static final String FILE_DATA_SCHEMA_ID = "fileData";
-  private static final String SCORE_DOWNLOAD_RESPONSE_SCHEMA_ID= "scoreDownloadResponse";
+  private static final String STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID = "storageDownloadResponse";
 
   @Autowired
   private SchemaValidator validator;
@@ -124,8 +124,8 @@ public class ValidationService {
     return processResponse(resp);
   }
 
-  public Optional<String> validateScoreDownloadResponse(JsonNode response){
-    return processResponse(validator.validate(SCORE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
+  public Optional<String> validateStorageDownloadResponse(JsonNode response){
+    return processResponse(validator.validate(STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
   }
 
   private void updateState(@NonNull String uploadId, @NonNull UploadStates state, @NonNull String errors) {

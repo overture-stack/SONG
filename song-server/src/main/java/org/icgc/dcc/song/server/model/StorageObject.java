@@ -26,7 +26,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 @Value
 @Builder
-public class ScoreObject implements FileContent {
+public class StorageObject implements FileContent {
 
   @NonNull private final String objectId;
   private final String fileMd5sum;
