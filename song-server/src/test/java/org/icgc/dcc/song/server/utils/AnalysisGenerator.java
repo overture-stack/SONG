@@ -24,8 +24,10 @@ import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
+import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.icgc.dcc.song.server.service.AnalysisService;
 
+import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
@@ -66,6 +68,15 @@ public class AnalysisGenerator {
     return id;
   }
 
+  public <T extends AbstractAnalysis> T createDefaultRandomAnalysis(AnalysisTypes analysisType){
+    if (analysisType == AnalysisTypes.SEQUENCING_READ){
+      return (T)createDefaultRandomAnalysis(SequencingReadAnalysis.class);
+    } else if (analysisType == AnalysisTypes.VARIANT_CALL){
+      return (T)createDefaultRandomAnalysis(VariantCallAnalysis.class);
+    } else {
+      throw new IllegalStateException(format("the analysis type '%s' cannot be processed", analysisType.toString()));
+    }
+  }
   /**
    * Creates a default random analysis object in the repository, by loading the default fixture based on the input
    * analysis

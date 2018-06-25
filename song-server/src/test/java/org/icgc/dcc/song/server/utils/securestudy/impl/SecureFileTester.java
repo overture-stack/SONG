@@ -6,6 +6,7 @@ import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
+import org.icgc.dcc.song.server.model.enums.FileTypes;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.icgc.dcc.song.server.service.FileService;
 import org.icgc.dcc.song.server.service.StudyService;
@@ -14,10 +15,8 @@ import org.icgc.dcc.song.server.utils.securestudy.SecureTestData;
 
 import java.util.function.BiConsumer;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
-import static org.icgc.dcc.song.server.model.enums.Constants.FILE_TYPE;
 import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 
 public class SecureFileTester extends AbstractSecureTester {
@@ -44,7 +43,7 @@ public class SecureFileTester extends AbstractSecureTester {
     analysisService.checkAnalysisExists(analysisData.getExistingId());
     val existingAnalysisId = analysisData.getExistingId();
 
-    val type = getRandomGenerator().randomElement(newArrayList(FILE_TYPE));
+    val type = getRandomGenerator().randomEnum(FileTypes.class).toString();
     val file = File.builder()
         .fileAccess(getRandomGenerator().randomEnum(AccessTypes.class).toString())
         .fileMd5sum(getRandomGenerator().generateRandomMD5())

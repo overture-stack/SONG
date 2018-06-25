@@ -565,7 +565,7 @@ public class AnalysisService {
             + "Files with an undefined md5 checksum: %s. "
             + "File with a defined and mismatching md5 checksum: %s. "
             + "The analysisId '%s' cannot be published until all "
-            + "undefined checksum are ignore and defined checksums are matching",
+            + "undefined checksum are ignored and defined checksums are matching",
         COMMA.join(undefinedMd5ObjectIds),
         COMMA.join(mismatchingFileMd5sums),
         analysisId);
@@ -573,8 +573,9 @@ public class AnalysisService {
     if (ignoreUndefinedMd5){
       message = "[WARNING]: Ignoring objectIds with an undefined MD5 checksum. "+message;
     }
-    val checksumError = mismatchingFileMd5sums.isEmpty() || (!ignoreUndefinedMd5 && undefinedMd5ObjectIds.isEmpty());
-    checkServer(checksumError, AnalysisService.class, MISMATCHING_STORAGE_OBJECT_CHECKSUMS, message);
+
+    val noMd5Errors = mismatchingFileMd5sums.isEmpty() && (ignoreUndefinedMd5 || undefinedMd5ObjectIds.isEmpty());
+    checkServer(noMd5Errors, AnalysisService.class, MISMATCHING_STORAGE_OBJECT_CHECKSUMS, message);
   }
 
 }
