@@ -110,9 +110,6 @@ public class AnalysisServiceTest {
   private FileRepository fileRepository;
   @Autowired
   private SampleSetRepository sampleSetRepository;
-  @Autowired
-  private ValidationService validationService;
-
 
   private final RandomGenerator randomGenerator = createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
 

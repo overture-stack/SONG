@@ -65,13 +65,13 @@ public class PublishAnalysisTest {
   private static final String DEFAULT_ACCESS_TOKEN = "myAccessToken";
 
   @Autowired
-  AnalysisService service;
+  private AnalysisService service;
 
   @Autowired
-  FileService fileService;
+  private FileService fileService;
 
   @Autowired
-  StudyService studyService;
+  private StudyService studyService;
 
   private RandomGenerator randomGenerator;
 

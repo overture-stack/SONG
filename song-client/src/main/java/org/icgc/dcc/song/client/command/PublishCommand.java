@@ -26,9 +26,6 @@ import org.icgc.dcc.song.client.register.Registry;
 
 import java.io.IOException;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Publish an analysis id" )
 public class PublishCommand extends Command {

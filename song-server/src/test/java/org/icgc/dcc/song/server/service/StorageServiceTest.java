@@ -61,10 +61,10 @@ public class StorageServiceTest {
   private static final String DEFAULT_ACCESS_TOKEN = "anyToken";
 
   @Autowired
-  RetryTemplate retryTemplate;
+  private RetryTemplate retryTemplate;
 
   @Autowired
-  ValidationService validationService;
+  private ValidationService validationService;
 
   private StorageService storageService;
   private final RandomGenerator randomGenerator = createRandomGenerator(StorageServiceTest.class.getSimpleName());
