@@ -17,8 +17,6 @@
 package org.icgc.dcc.song.server.service;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -59,10 +57,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
@@ -363,12 +363,7 @@ public class AnalysisService {
   }
 
   private Map<File, StorageObject> getStorageObjectsForFiles(String accessToken, List<File> files){
-    val map = ImmutableMap.<File, StorageObject>builder();
-    for (val file : files){
-      val storageObject = storageService.downloadObject(accessToken, file.getObjectId());
-      map.put(file, storageObject);
-    }
-    return map.build();
+    return transformToMap(files, f -> storageService.downloadObject(accessToken, f.getObjectId()));
   }
 
   private void checkMissingFiles(String accessToken, String analysisId, List<File> files){
@@ -531,60 +526,74 @@ public class AnalysisService {
   }
 
   private static void checkMismatchingFileSizes(String analysisId, Map<File, StorageObject> fileStorageObjectMap){
-    val mismatchingFileSizes = Lists.<String>newArrayList();
-    for (val entry : fileStorageObjectMap.entrySet()){
-      val file = entry.getKey();
-      val storageObject = entry.getValue();
-      val sizeMatch = file.getFileSize().equals(storageObject.getFileSize());
-      if (!sizeMatch){
-        mismatchingFileSizes.add(file.getObjectId());
-      }
-    }
+    val mismatchingFileSizes = fileStorageObjectMap.entrySet().stream()
+        .filter(x -> isSizeMismatch(x.getKey(), x.getValue()))
+        .map(Map.Entry::getKey)
+        .map(File::getObjectId)
+        .collect(toImmutableList());
+
     checkServer(mismatchingFileSizes.isEmpty(), AnalysisService.class,
         MISMATCHING_STORAGE_OBJECT_SIZES,
-        "The following file objectIds have mismatching object sizes in the storage server. "
-            + "The analysisId '%s' cannot be published until they all match." , analysisId);
+        "The following file objectIds have mismatching object sizes in the storage server: [%s]. "
+            + "The analysisId '%s' cannot be published until they all match." ,
+        SPACED_COMMA.join(mismatchingFileSizes), analysisId);
   }
 
   private static void checkMismatchingFileMd5sums(String analysisId, Map<File, StorageObject> fileStorageObjectMap,
       boolean ignoreUndefinedMd5){
-    val mismatchingFileMd5sums = Lists.<String>newArrayList();
-    val undefinedMd5ObjectIds = Lists.<String>newArrayList();
-    for (val entry : fileStorageObjectMap.entrySet()){
-      val file = entry.getKey();
-      val storageObject = entry.getValue();
-      val md5Mismatch = !file.getFileMd5sum().equals(storageObject.getFileMd5sum());
-      val objectMd5Undefined = !storageObject.isMd5Defined();
-      if(objectMd5Undefined){
-        undefinedMd5ObjectIds.add(file.getObjectId());
-      } else if(md5Mismatch){
-        mismatchingFileMd5sums.add(file.getObjectId());
-      }
-    }
+
+    val undefinedMd5ObjectIds = fileStorageObjectMap.entrySet().stream()
+        .map(Map.Entry::getValue)
+        .filter(x -> !x.isMd5Defined())
+        .map(StorageObject::getObjectId)
+        .collect(toImmutableList());
+
+    val mismatchingFileMd5sums =  fileStorageObjectMap.entrySet().stream()
+        .filter(x -> x.getValue().isMd5Defined())
+        .filter(x -> isMd5Mismatch(x.getKey(), x.getValue()))
+        .map(Map.Entry::getValue)
+        .map(StorageObject::getObjectId)
+        .collect(toImmutableList());
 
     val sb = new StringBuilder();
     if (ignoreUndefinedMd5){
       sb.append("[WARNING]: Ignoring objectIds with an undefined MD5 checksum. ");
     }
 
-    sb.append("Found files with a mismatching md5 checksum in the storage server. ");
+    sb.append(format("Found files with a mismatching md5 checksum in the storage server. ",
+        mismatchingFileMd5sums.size()));
+
     if (!undefinedMd5ObjectIds.isEmpty()){
       if (ignoreUndefinedMd5){
         sb.append("IGNORED objectIds ");
       }else{
         sb.append("ObjectIds ");
       }
-      sb.append(format("with an undefined md5 checksum: [%s]. ",SPACED_COMMA.join( undefinedMd5ObjectIds)) );
+      sb.append(format("with an undefined md5 checksum(%s): [%s]. ",
+          undefinedMd5ObjectIds.size(), SPACED_COMMA.join( undefinedMd5ObjectIds)) );
     }
     if (!mismatchingFileMd5sums.isEmpty()){
-      sb.append(format("ObjectIds with a defined and mismatching md5 checksum: [%s]. ",
-          SPACED_COMMA.join(mismatchingFileMd5sums)));
+      sb.append(format("ObjectIds with a defined and mismatching md5 checksum(%s): [%s]. ",
+          mismatchingFileMd5sums.size(), SPACED_COMMA.join(mismatchingFileMd5sums)));
     }
     sb.append(format("The analysisId '%s' cannot be published until all files with an undefined checksum ", analysisId));
     sb.append("are ignored and ones with a defined checksum are matching");
 
     val noMd5Errors = mismatchingFileMd5sums.isEmpty() && (ignoreUndefinedMd5 || undefinedMd5ObjectIds.isEmpty());
     checkServer(noMd5Errors, AnalysisService.class, MISMATCHING_STORAGE_OBJECT_CHECKSUMS, sb.toString());
+  }
+
+  private static boolean isMd5Mismatch(File file, StorageObject storageObject){
+    return !file.getFileMd5sum().equals(storageObject.getFileMd5sum());
+  }
+
+  private static boolean isSizeMismatch(File file, StorageObject storageObject){
+    return !file.getFileSize().equals(storageObject.getFileSize());
+  }
+
+  private static <T, R> Map<T,R> transformToMap(List<T> input, Function<T, R> functionCallback){
+    return input.stream()
+        .collect(toImmutableMap( x -> x, functionCallback));
   }
 
 }
