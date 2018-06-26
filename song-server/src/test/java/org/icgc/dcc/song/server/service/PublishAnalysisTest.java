@@ -59,8 +59,8 @@ import static org.mockito.Mockito.when;
 public class PublishAnalysisTest {
 
   private static final String STORAGE_SERVICE = "storageService";
-  private static final int MAX_FILES = 10;
-  private static final int MIN_SIZE = 2;
+  private static final int MAX_FILES = 1 << 4;
+  private static final int MIN_SIZE = 1 << 3;
   private static final List<File> EMPTY_FILE_LIST = ImmutableList.of();
   private static final String DEFAULT_ACCESS_TOKEN = "myAccessToken";
 
@@ -106,7 +106,9 @@ public class PublishAnalysisTest {
     this.testFiles = generateFiles(MAX_FILES, testAnalysis );
     assertThat(testFiles).hasSize(MAX_FILES);
     assertThat(MIN_SIZE).isLessThan(MAX_FILES);
+
   }
+
 
   /**
    * Table showing the tests for the publish service. The middle columns represent the state of the StorageObjects located on the storage server side. The "rangeTypes
@@ -401,8 +403,9 @@ public class PublishAnalysisTest {
           .collect(toImmutableList());
     }
 
-    private List<File> getSome(List<File> input, int maxSize){
-      val size = randomGenerator.generateRandomIntRange(MIN_SIZE, maxSize);
+    private List<File> getSome(List<File> input){
+      assertThat(input.size()).isGreaterThanOrEqualTo(2);
+      val size = input.size()/2;
       return randomGenerator.randomSublist(input, size);
     }
 
@@ -410,7 +413,7 @@ public class PublishAnalysisTest {
       if (rangeType == ALL){
         return input;
       } else if (rangeType == SOME) {
-        return getSome(input, input.size());
+        return getSome(input);
       } else if (rangeType== NONE){
         return EMPTY_FILE_LIST;
       }
