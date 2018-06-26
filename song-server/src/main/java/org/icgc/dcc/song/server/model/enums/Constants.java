@@ -27,8 +27,6 @@ public class Constants {
   public static final String EMPTY_STRING = "";
   public static final Collection<String> ANALYSIS_STATE = list(AnalysisStates.toStringArray());
   public static final Collection<String> DONOR_GENDER = list("male", "female", "unspecified");
-  public static final Collection<String> FILE_TYPE =
-      list("FASTA", "FAI", "FASTQ", "BAM", "BAI", "VCF", "TBI", "IDX", "XML");
   public static final Collection<String> LIBRARY_STRATEGY =
       list("WGS", "WXS", "RNA-Seq", "ChIP-Seq", "miRNA-Seq", "Bisulfite-Seq", "Validation", "Amplicon", "Other");
   public static final Collection<String> SAMPLE_TYPE =

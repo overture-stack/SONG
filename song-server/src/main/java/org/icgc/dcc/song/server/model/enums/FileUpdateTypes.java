@@ -18,7 +18,7 @@
 package org.icgc.dcc.song.server.model.enums;
 
 import lombok.val;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.model.entity.file.FileData;
 
 import java.util.function.Function;

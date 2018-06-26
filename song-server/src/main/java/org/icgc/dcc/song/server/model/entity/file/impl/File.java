@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.entity.file;
+package org.icgc.dcc.song.server.model.entity.file.impl;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -25,8 +25,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.icgc.dcc.song.server.model.Metadata;
+import org.icgc.dcc.song.server.model.entity.file.FileData;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
-import org.icgc.dcc.song.server.model.enums.Constants;
+import org.icgc.dcc.song.server.model.enums.FileTypes;
 import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
 import org.icgc.dcc.song.server.model.enums.TableNames;
 
@@ -85,9 +86,12 @@ public class File extends Metadata implements Serializable, FileData {
     setFileAccess(fileAccess);
   }
 
+  public void setFileType(FileTypes type) {
+    this.fileType =  type.toString();
+  }
+
   public void setFileType(String type) {
-    Constants.validate(Constants.FILE_TYPE, type);
-    fileType = type;
+    setFileType(FileTypes.resolveFileType(type));
   }
 
   public void setFileAccess(@NonNull AccessTypes access){

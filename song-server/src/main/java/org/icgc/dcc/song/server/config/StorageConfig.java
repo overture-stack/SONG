@@ -18,28 +18,33 @@
 package org.icgc.dcc.song.server.config;
 
 import lombok.NoArgsConstructor;
-import org.icgc.dcc.song.server.service.ExistenceService;
+import org.icgc.dcc.song.server.service.StorageService;
+import org.icgc.dcc.song.server.service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.client.RestTemplate;
 
-import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
+import static org.icgc.dcc.song.server.service.StorageService.createStorageService;
 
 @NoArgsConstructor
 @Configuration
-public class ExistenceConfig {
+public class StorageConfig {
 
   @Autowired
   private RetryTemplate retryTemplate;
+
+  @Autowired
+  private ValidationService validationService;
 
   @Value("${dcc-storage.url}")
   private String storageUrl;
 
   @Bean
-  public ExistenceService existenceService(){
-    return createExistenceService(retryTemplate,storageUrl);
+  public StorageService storageService(){
+    return createStorageService(new RestTemplate(),retryTemplate,storageUrl, validationService);
   }
 
 }

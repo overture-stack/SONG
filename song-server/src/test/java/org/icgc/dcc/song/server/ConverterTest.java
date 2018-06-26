@@ -5,9 +5,9 @@ import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.config.ConverterConfig;
 import org.icgc.dcc.song.server.converter.FileConverter;
 import org.icgc.dcc.song.server.converter.LegacyEntityConverter;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.model.entity.file.FileData;
-import org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest;
+import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest;
 import org.icgc.dcc.song.server.model.legacy.LegacyEntity;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
-import static org.icgc.dcc.song.server.model.entity.file.FileUpdateRequest.createFileUpdateRequest;
+import static org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest.createFileUpdateRequest;
 
 public class ConverterTest {
 

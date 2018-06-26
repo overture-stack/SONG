@@ -33,6 +33,9 @@ public class PublishCommand extends Command {
   @Parameter(names = { "-a", "--analysis-id" }, required = false)
   private String analysisId;
 
+  @Parameter(names = { "-i", "--ignore-undefined-md5"}, required = false)
+  private boolean ignoreUndefinedMd5= false;
+
   @NonNull
   private Registry registry;
 
@@ -45,7 +48,7 @@ public class PublishCommand extends Command {
       analysisId = getJson().at("/analysisId").asText("");
     }
 
-    val status = registry.publish(config.getStudyId(), analysisId);
+    val status = registry.publish(config.getStudyId(), analysisId, ignoreUndefinedMd5);
     save(status);
   }
 

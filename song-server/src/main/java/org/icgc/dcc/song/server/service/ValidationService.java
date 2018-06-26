@@ -17,6 +17,7 @@
 package org.icgc.dcc.song.server.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -30,6 +31,7 @@ import org.icgc.dcc.song.server.model.entity.file.FileData;
 import org.icgc.dcc.song.server.model.enums.UploadStates;
 import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.icgc.dcc.song.server.validation.SchemaValidator;
+import org.icgc.dcc.song.server.validation.ValidationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,7 @@ public class ValidationService {
 
   private static final String STUDY = "study";
   private static final String FILE_DATA_SCHEMA_ID = "fileData";
+  private static final String STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID = "storageDownloadResponse";
 
   @Autowired
   private SchemaValidator validator;
@@ -118,13 +121,11 @@ public class ValidationService {
   public Optional<String> validate(FileData fileData){
     val json = JsonUtils.mapper().valueToTree(fileData);
     val resp = validator.validate(FILE_DATA_SCHEMA_ID, json);
+    return processResponse(resp);
+  }
 
-    if (resp.isValid()){
-      return Optional.empty();
-    }else {
-      return Optional.of(resp.getValidationErrors());
-    }
-
+  public Optional<String> validateStorageDownloadResponse(JsonNode response){
+    return processResponse(validator.validate(STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
   }
 
   private void updateState(@NonNull String uploadId, @NonNull UploadStates state, @NonNull String errors) {
@@ -144,5 +145,14 @@ public class ValidationService {
   private void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
     updateState(uploadId, VALIDATION_ERROR, errorMessages);
   }
+
+  private static Optional<String> processResponse(ValidationResponse response){
+    if (response.isValid()){
+      return Optional.empty();
+    }else {
+      return Optional.of(response.getValidationErrors());
+    }
+  }
+
 
 }

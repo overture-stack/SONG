@@ -16,7 +16,6 @@
  */
 package org.icgc.dcc.song.server.service;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.icgc.dcc.song.server.repository.SampleRepository;
@@ -41,7 +40,6 @@ import org.icgc.dcc.song.server.utils.PayloadGenerator;
 import org.icgc.dcc.song.server.utils.StudyGenerator;
 import org.icgc.dcc.song.server.utils.securestudy.impl.SecureAnalysisTester;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,15 +47,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
@@ -69,7 +62,6 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SA
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
@@ -81,14 +73,12 @@ import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static org.icgc.dcc.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static org.icgc.dcc.song.server.service.ExistenceService.createExistenceService;
 import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
 import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertInfoKVPair;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
-import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @SpringBootTest
@@ -99,9 +89,6 @@ public class AnalysisServiceTest {
 
   private static final String DEFAULT_STUDY_ID = "ABC123";
   private static final String DEFAULT_ANALYSIS_ID = "AN1";
-
-  @Rule
-  public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 
   @Autowired
   FileService fileService;
@@ -123,7 +110,6 @@ public class AnalysisServiceTest {
   private FileRepository fileRepository;
   @Autowired
   private SampleSetRepository sampleSetRepository;
-
 
   private final RandomGenerator randomGenerator = createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
 
@@ -151,10 +137,6 @@ public class AnalysisServiceTest {
     this.analysisGenerator = createAnalysisGenerator(DEFAULT_STUDY_ID, service, randomGenerator);
     this.studyGenerator = createStudyGenerator(studyService, randomGenerator);
     this.secureAnalysisTester = createSecureAnalysisTester(randomGenerator, studyService, service);
-    val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
-    val testExistenceService = createExistenceService(retryTemplate,testStorageUrl);
-    ReflectionTestUtils.setField(service, "existence", testExistenceService);
-    log.info("ExistenceService configured to endpoint: {}",testStorageUrl );
   }
 
   @Test
@@ -499,33 +481,6 @@ public class AnalysisServiceTest {
     assertThat(service.readSequencingRead(analysisId)).isEqualTo(experiment);
   }
 
-  private void setUpDccStorageMockService(boolean expectedResult){
-    wireMockRule.resetAll();
-    wireMockRule.stubFor(get(urlMatching("/upload/.*"))
-        .willReturn(aResponse()
-            .withStatus(OK.value())
-            .withBody(Boolean.toString(expectedResult))));
-  }
-
-  @Test
-  public void testPublish() {
-    setUpDccStorageMockService(true);
-    val token = "mockToken";
-    val id = DEFAULT_ANALYSIS_ID;
-    val studyId = DEFAULT_STUDY_ID;
-    service.publish(token, studyId, id);
-
-    val analysis = service.securedDeepRead(studyId, id);
-    assertThat(analysis.getAnalysisState()).isEqualTo("PUBLISHED");
-  }
-
-  @Test
-  public void testPublishError() {
-    setUpDccStorageMockService(false);
-    val token = "mockToken";
-    assertSongError(() -> service.publish(token, DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID), UNPUBLISHED_FILE_IDS);
-  }
-
   @Test
   public void testSuppress() {
     val an = analysisGenerator.createDefaultRandomAnalysis(SequencingReadAnalysis.class);
@@ -743,7 +698,8 @@ public class AnalysisServiceTest {
     secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), SEQUENCING_READ);
     secureAnalysisTester.runSecureTest((s,a) -> service.suppress(s, a));
     secureAnalysisTester.runSecureTest((s,a) -> service.securedReadFiles(s,a));
-    secureAnalysisTester.runSecureTest((s,a) -> service.publish("mockToken", s, a));
+    secureAnalysisTester.runSecureTest((s,a) -> service.publish("mockToken", s, a, false));
+    secureAnalysisTester.runSecureTest((s,a) -> service.publish("mockToken", s, a, true));
   }
 
   @Test
@@ -755,6 +711,7 @@ public class AnalysisServiceTest {
     assertThat(analysisRepository.existsById(existingAnalysisId)).isTrue();
     assertThat(analysisRepository.existsById(nonExistentAnalysisId)).isFalse();
   }
+
 
   private void runAnalysisMissingSamplesTest(Class<? extends AbstractAnalysis> analysisClass) {
     // Create random analysis,

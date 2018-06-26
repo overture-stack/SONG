@@ -15,6 +15,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.entity.file;
+package org.icgc.dcc.song.server.model.entity.file.impl;
 
-public interface FileData extends  FileContent, FileMetadata { }
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.icgc.dcc.song.server.model.enums.AnalysisStates;
+import org.icgc.dcc.song.server.model.enums.FileUpdateTypes;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class FileUpdateResponse {
+  private FileUpdateTypes fileUpdateType;
+  private AnalysisStates originalAnalysisState;
+  private boolean unpublishedAnalysis;
+  private String message;
+  private File originalFile;
+
+}

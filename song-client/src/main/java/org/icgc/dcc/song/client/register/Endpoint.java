@@ -64,8 +64,9 @@ public class Endpoint {
     return format("%s/isAlive", serverUrl);
   }
 
-  public String publish(String studyId, String analysisId) {
-    return format("%s/studies/%s/analysis/publish/%s", serverUrl, studyId, analysisId);
+  public String publish(String studyId, String analysisId, boolean ignoreUndefinedMd5) {
+    return format("%s/studies/%s/analysis/publish/%s?ignoreUndefinedMd5=%s",
+        serverUrl, studyId, analysisId, ignoreUndefinedMd5);
   }
 
   public String exportAnalysisIds(List<String> analysisIds, boolean includeAnalysisId) {

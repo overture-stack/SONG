@@ -16,6 +16,7 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import com.google.common.base.Joiner;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -25,12 +26,13 @@ import org.icgc.dcc.song.server.kafka.AnalysisMessage;
 import org.icgc.dcc.song.server.kafka.Sender;
 import org.icgc.dcc.song.server.model.SampleSet;
 import org.icgc.dcc.song.server.model.SampleSetPK;
+import org.icgc.dcc.song.server.model.StorageObject;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.model.enums.AnalysisStates;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
@@ -55,17 +57,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
+import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
-import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNPUBLISHED_FILE_IDS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
@@ -84,6 +91,8 @@ import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiS
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
+
+  private static final Joiner SPACED_COMMA = Joiner.on(" , ");
 
   private static final Map<String, Class<? extends AbstractAnalysis>> ANALYSIS_CLASS_MAP =
       new HashMap<String, Class<? extends AbstractAnalysis>>(){{
@@ -108,7 +117,7 @@ public class AnalysisService {
   @Autowired
   private final FileService fileService;
   @Autowired
-  private final ExistenceService existence;
+  private final StorageService storageService;
   @Autowired
   private final SearchRepository searchRepository;
   @Autowired
@@ -302,17 +311,13 @@ public class AnalysisService {
 
   @Transactional
   public ResponseEntity<String> publish(@NonNull String accessToken,
-      @NonNull String studyId, @NonNull String id) {
+      @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
     val files = unsecuredReadFiles(id);
-    val missingFileIds = files.stream()
-        .filter(f -> !confirmUploaded(accessToken, f.getObjectId()))
-        .collect(toImmutableList());
-    val isMissingFiles = missingFileIds.size() > 0;
-    checkServer(!isMissingFiles,getClass(),UNPUBLISHED_FILE_IDS,
-        "The following file ids must be published before analysisId %s can be published: %s",
-        id, COMMA.join(missingFileIds));
-
+    checkMissingFiles(accessToken, id, files);
+    val file2storageObjectMap = getStorageObjectsForFiles(accessToken, files);
+    checkMismatchingFileSizes(id, file2storageObjectMap);
+    checkMismatchingFileMd5sums(id, file2storageObjectMap, ignoreUndefinedMd5 );
     checkedUpdateState(id, PUBLISHED);
     return ok("AnalysisId %s successfully published", id);
   }
@@ -355,6 +360,21 @@ public class AnalysisService {
         .map(AbstractAnalysis::getAnalysisState)
         .map(AnalysisStates::resolveAnalysisState)
         .get();
+  }
+
+  private Map<File, StorageObject> getStorageObjectsForFiles(String accessToken, List<File> files){
+    return transformToMap(files, f -> storageService.downloadObject(accessToken, f.getObjectId()));
+  }
+
+  private void checkMissingFiles(String accessToken, String analysisId, List<File> files){
+    val missingFileIds = files.stream()
+        .filter(f -> !confirmUploaded(accessToken, f.getObjectId()))
+        .collect(toImmutableList());
+    val isMissingFiles = missingFileIds.size() > 0;
+    checkServer(!isMissingFiles,getClass(), MISSING_STORAGE_OBJECTS,
+        "The following storage objectIds must be uploaded to the storage server before the "
+            + "analysisId %s can be published: %s",
+        analysisId, COMMA.join(missingFileIds));
   }
 
   private List<String> saveCompositeEntities(String studyId, String id, List<CompositeEntity> samples) {
@@ -426,7 +446,7 @@ public class AnalysisService {
   }
 
   private boolean confirmUploaded(String accessToken, String fileId) {
-    return existence.isObjectExist(accessToken,fileId);
+    return storageService.isObjectExist(accessToken,fileId);
   }
 
   /**
@@ -503,6 +523,77 @@ public class AnalysisService {
   @SneakyThrows
   private static AbstractAnalysis instantiateAnalysis(@NonNull String analysisType){
     return ANALYSIS_CLASS_MAP.get(analysisType).newInstance();
+  }
+
+  private static void checkMismatchingFileSizes(String analysisId, Map<File, StorageObject> fileStorageObjectMap){
+    val mismatchingFileSizes = fileStorageObjectMap.entrySet().stream()
+        .filter(x -> isSizeMismatch(x.getKey(), x.getValue()))
+        .map(Map.Entry::getKey)
+        .map(File::getObjectId)
+        .collect(toImmutableList());
+
+    checkServer(mismatchingFileSizes.isEmpty(), AnalysisService.class,
+        MISMATCHING_STORAGE_OBJECT_SIZES,
+        "The following file objectIds have mismatching object sizes in the storage server: [%s]. "
+            + "The analysisId '%s' cannot be published until they all match." ,
+        SPACED_COMMA.join(mismatchingFileSizes), analysisId);
+  }
+
+  private static void checkMismatchingFileMd5sums(String analysisId, Map<File, StorageObject> fileStorageObjectMap,
+      boolean ignoreUndefinedMd5){
+
+    val undefinedMd5ObjectIds = fileStorageObjectMap.entrySet().stream()
+        .map(Map.Entry::getValue)
+        .filter(x -> !x.isMd5Defined())
+        .map(StorageObject::getObjectId)
+        .collect(toImmutableList());
+
+    val mismatchingFileMd5sums =  fileStorageObjectMap.entrySet().stream()
+        .filter(x -> x.getValue().isMd5Defined())
+        .filter(x -> isMd5Mismatch(x.getKey(), x.getValue()))
+        .map(Map.Entry::getValue)
+        .map(StorageObject::getObjectId)
+        .collect(toImmutableList());
+
+    val sb = new StringBuilder();
+    if (ignoreUndefinedMd5){
+      sb.append("[WARNING]: Ignoring objectIds with an undefined MD5 checksum. ");
+    }
+
+    sb.append(format("Found files with a mismatching md5 checksum in the storage server. ",
+        mismatchingFileMd5sums.size()));
+
+    if (!undefinedMd5ObjectIds.isEmpty()){
+      if (ignoreUndefinedMd5){
+        sb.append("IGNORED objectIds ");
+      }else{
+        sb.append("ObjectIds ");
+      }
+      sb.append(format("with an undefined md5 checksum(%s): [%s]. ",
+          undefinedMd5ObjectIds.size(), SPACED_COMMA.join( undefinedMd5ObjectIds)) );
+    }
+    if (!mismatchingFileMd5sums.isEmpty()){
+      sb.append(format("ObjectIds with a defined and mismatching md5 checksum(%s): [%s]. ",
+          mismatchingFileMd5sums.size(), SPACED_COMMA.join(mismatchingFileMd5sums)));
+    }
+    sb.append(format("The analysisId '%s' cannot be published until all files with an undefined checksum ", analysisId));
+    sb.append("are ignored and ones with a defined checksum are matching");
+
+    val noMd5Errors = mismatchingFileMd5sums.isEmpty() && (ignoreUndefinedMd5 || undefinedMd5ObjectIds.isEmpty());
+    checkServer(noMd5Errors, AnalysisService.class, MISMATCHING_STORAGE_OBJECT_CHECKSUMS, sb.toString());
+  }
+
+  private static boolean isMd5Mismatch(File file, StorageObject storageObject){
+    return !file.getFileMd5sum().equals(storageObject.getFileMd5sum());
+  }
+
+  private static boolean isSizeMismatch(File file, StorageObject storageObject){
+    return !file.getFileSize().equals(storageObject.getFileSize());
+  }
+
+  private static <T, R> Map<T,R> transformToMap(List<T> input, Function<T, R> functionCallback){
+    return input.stream()
+        .collect(toImmutableMap( x -> x, functionCallback));
   }
 
 }

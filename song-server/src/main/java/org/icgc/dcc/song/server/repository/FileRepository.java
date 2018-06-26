@@ -16,7 +16,7 @@
  */
 package org.icgc.dcc.song.server.repository;
 
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

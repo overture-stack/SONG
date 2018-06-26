@@ -15,22 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.service.existence;
+package org.icgc.dcc.song.server.model.entity.file;
 
-import lombok.Getter;
-import org.springframework.retry.RetryCallback;
-import org.springframework.retry.RetryContext;
-import org.springframework.retry.listener.RetryListenerSupport;
+import com.fasterxml.jackson.databind.JsonNode;
 
-public class CountingRetryListener extends RetryListenerSupport {
+public interface FileMetadata {
 
-  @Getter
-  private int errorCount = 0;
-
-  @Override public <T, E extends Throwable> void onError(RetryContext retryContext,
-      RetryCallback<T, E> retryCallback,
-      Throwable throwable) {
-    errorCount++;
-  }
+  String getFileAccess();
+  JsonNode getInfo();
 
 }

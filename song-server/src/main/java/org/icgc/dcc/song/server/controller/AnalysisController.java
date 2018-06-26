@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
-import org.icgc.dcc.song.server.model.entity.file.File;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
 import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
@@ -100,8 +100,10 @@ public class AnalysisController {
   public ResponseEntity<String> publishAnalysis(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
-      @PathVariable("id") String id) {
-    return analysisService.publish(accessToken, studyId, id);
+      @PathVariable("id") String id,
+      @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
+      @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false) boolean ignoreUndefinedMd5) {
+    return analysisService.publish(accessToken, studyId, id, ignoreUndefinedMd5);
   }
 
   @ApiOperation(value = "SuppressAnalysis", notes = "Suppress an analysis. Used if a previously published analysis is"

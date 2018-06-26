@@ -17,31 +17,9 @@
 
 package org.icgc.dcc.song.server.model.entity.file;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
+public interface FileContent {
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString(callSuper = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class FileUpdateRequest implements FileData {
-
-  private Long fileSize;
-  private String fileMd5sum;
-  private String fileAccess;
-  private JsonNode info;
-
-  public static FileUpdateRequest createFileUpdateRequest(@NonNull Long fileSize,
-      @NonNull String fileMd5sum, @NonNull String fileAccess, @NonNull JsonNode info) {
-    return new FileUpdateRequest(fileSize, fileMd5sum, fileAccess, info);
-  }
+  String getFileMd5sum();
+  Long getFileSize();
 
 }

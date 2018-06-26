@@ -15,24 +15,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.entity.file;
+package org.icgc.dcc.song.server.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.icgc.dcc.song.server.model.enums.AnalysisStates;
-import org.icgc.dcc.song.server.model.enums.FileUpdateTypes;
+import lombok.NonNull;
+import lombok.Value;
+import org.icgc.dcc.song.server.model.entity.file.FileContent;
 
-@Data
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+@Value
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class FileUpdateResponse {
-  private FileUpdateTypes fileUpdateType;
-  private AnalysisStates originalAnalysisState;
-  private boolean unpublishedAnalysis;
-  private String message;
-  private File originalFile;
+public class StorageObject implements FileContent {
+
+  @NonNull private final String objectId;
+  private final String fileMd5sum;
+  @NonNull private final Long fileSize;
+
+  public boolean isMd5Defined(){
+    return !isNullOrEmpty(fileMd5sum);
+  }
 
 }

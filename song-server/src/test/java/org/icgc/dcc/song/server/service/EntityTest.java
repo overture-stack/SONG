@@ -18,13 +18,11 @@
 package org.icgc.dcc.song.server.service;
 
 import lombok.val;
-import org.icgc.dcc.song.server.model.legacy.LegacyEntity;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.Upload;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.file.File;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.Study;
@@ -32,15 +30,20 @@ import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.model.entity.composites.SpecimenWithSamples;
 import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
+import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.enums.FileTypes;
 import org.icgc.dcc.song.server.model.enums.UploadStates;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
+import org.icgc.dcc.song.server.model.legacy.LegacyEntity;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
@@ -48,7 +51,6 @@ import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.AnalysisStates.resolveAnalysisState;
-import static org.icgc.dcc.song.server.model.enums.Constants.FILE_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.LIBRARY_STRATEGY;
 import static org.icgc.dcc.song.server.model.enums.Constants.SAMPLE_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.SPECIMEN_CLASS;
@@ -60,7 +62,7 @@ public class EntityTest {
   private static final List<String> SPECIMEN_CLASSES = newArrayList(SPECIMEN_CLASS);
   private static final List<String> SPECIMEN_TYPES = newArrayList(SPECIMEN_TYPE);
   private static final List<String> SAMPLE_TYPES = newArrayList(SAMPLE_TYPE);
-  private static final List<String> FILE_TYPES = newArrayList(FILE_TYPE);
+  private static final List<String> FILE_TYPES = stream(FileTypes.values()).map(FileTypes::toString).collect(toList());
   private static final List<String> LIBRARY_STRATEGIES = newArrayList(LIBRARY_STRATEGY);
 
   @Test
