@@ -20,9 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.converter.FileConverter;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
-import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest;
-import org.icgc.dcc.song.server.model.enums.AccessTypes;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
+import org.icgc.dcc.song.core.model.file.FileUpdateRequest;
+import org.icgc.dcc.song.core.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,15 +41,15 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
-import static org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest.createFileUpdateRequest;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.resolveAnalysisState;
-import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.CONTENT_UPDATE;
-import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.METADATA_UPDATE;
-import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.NO_UPDATE;
-import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.resolveFileUpdateType;
+import static org.icgc.dcc.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static org.icgc.dcc.song.core.model.enums.FileUpdateTypes.CONTENT_UPDATE;
+import static org.icgc.dcc.song.core.model.enums.FileUpdateTypes.METADATA_UPDATE;
+import static org.icgc.dcc.song.core.model.enums.FileUpdateTypes.NO_UPDATE;
+import static org.icgc.dcc.song.core.model.enums.FileUpdateTypes.resolveFileUpdateType;
 import static org.icgc.dcc.song.server.service.FileModificationService.doUnpublish;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_FILE_ID;
@@ -391,8 +391,8 @@ public class FileModificationServiceTest {
     assertThat(f1).isEqualTo(golden);
   }
 
-  private File buildReferenceFile(){
-    val referenceFile = File.builder()
+  private FileEntity buildReferenceFile(){
+    val referenceFile = FileEntity.builder()
         .analysisId("AN1")
         .objectId("FI1")
         .studyId("ABC123")

@@ -5,9 +5,9 @@ import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.config.ConverterConfig;
 import org.icgc.dcc.song.server.converter.FileConverter;
 import org.icgc.dcc.song.server.converter.LegacyEntityConverter;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
-import org.icgc.dcc.song.server.model.entity.file.FileData;
-import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
+import org.icgc.dcc.song.core.model.file.FileData;
+import org.icgc.dcc.song.core.model.file.FileUpdateRequest;
 import org.icgc.dcc.song.server.model.legacy.LegacyEntity;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import java.util.function.Function;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
-import static org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest.createFileUpdateRequest;
+import static org.icgc.dcc.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
 
 public class ConverterTest {
 
@@ -68,11 +68,11 @@ public class ConverterTest {
         assertConfigEqual(i, 1, FileData::getFileMd5sum, updatedFile, referenceFile);
         assertConfigEqual(i, 2, FileData::getFileSize, updatedFile, referenceFile);
         assertConfigEqual(i, 3, FileData::getInfo, updatedFile, referenceFile);
-        assertIsEqual(File::getAnalysisId, referenceFile, updatedFile);
-        assertIsEqual(File::getFileName, referenceFile, updatedFile);
-        assertIsEqual(File::getFileType, referenceFile, updatedFile);
-        assertIsEqual(File::getStudyId, referenceFile, updatedFile);
-        assertIsEqual(File::getObjectId, referenceFile, updatedFile);
+        assertIsEqual(FileEntity::getAnalysisId, referenceFile, updatedFile);
+        assertIsEqual(FileEntity::getFileName, referenceFile, updatedFile);
+        assertIsEqual(FileEntity::getFileType, referenceFile, updatedFile);
+        assertIsEqual(FileEntity::getStudyId, referenceFile, updatedFile);
+        assertIsEqual(FileEntity::getObjectId, referenceFile, updatedFile);
       }
     }
   }
@@ -104,8 +104,8 @@ public class ConverterTest {
     assertThat(isObjectsEqual(legacyDtoCopy, legacyDto)).isFalse();
   }
 
-  private static File buildReferenceFile(){
-    val referenceFile = File.builder()
+  private static FileEntity buildReferenceFile(){
+    val referenceFile = FileEntity.builder()
         .analysisId("AN1")
         .objectId("FI1")
         .studyId("ABC123")
@@ -124,7 +124,7 @@ public class ConverterTest {
   }
 
   private static void assertConfigEqual(int id, int parameterNumFrom0, Function<FileData, ?> getterCallback,
-      File updatedFile, File referenceFile){
+      FileEntity updatedFile, FileEntity referenceFile){
     if (isConfigEnabled(id, parameterNumFrom0)){
       assertThat(getterCallback.apply(updatedFile)).isNotEqualTo(getterCallback.apply(referenceFile));
     } else {

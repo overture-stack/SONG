@@ -15,30 +15,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.enums;
+package org.icgc.dcc.song.core.model.file;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.icgc.dcc.song.core.model.enums.AnalysisStates;
+import org.icgc.dcc.song.core.model.enums.FileUpdateTypes;
 
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
-
-@RequiredArgsConstructor
-public enum AccessTypes {
-  OPEN("open"),
-  CONTROLLED("controlled");
-
-  @NonNull private final String text;
-
-  public static AccessTypes resolveAccessType(@NonNull String accessType){
-    return stream(values())
-        .filter(x -> x.toString().equals(accessType))
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException(format("The access type '%s' cannot be resolved", accessType)));
-  }
-
-  public String toString(){
-    return text;
-  }
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class FileUpdateResponse {
+  private FileUpdateTypes fileUpdateType;
+  private AnalysisStates originalAnalysisState;
+  private boolean unpublishedAnalysis;
+  private String message;
+  private File originalFile;
 
 }

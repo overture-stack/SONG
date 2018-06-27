@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 import org.icgc.dcc.song.server.model.Metadata;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.Constants;
 import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
@@ -36,7 +36,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import java.util.List;
 
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 
@@ -70,7 +70,7 @@ public abstract class AbstractAnalysis extends Metadata {
     private List<CompositeEntity> sample;
 
     @Transient
-    private List<File> file;
+    private List<FileEntity> file;
 
     @Column(name = TableAttributeNames.TYPE, nullable = false)
     abstract public String getAnalysisType();

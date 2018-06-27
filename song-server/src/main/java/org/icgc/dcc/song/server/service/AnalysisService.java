@@ -32,8 +32,8 @@ import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
-import org.icgc.dcc.song.server.model.enums.AnalysisStates;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
+import org.icgc.dcc.song.core.model.enums.AnalysisStates;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
@@ -80,9 +80,9 @@ import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
 import static org.icgc.dcc.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static org.icgc.dcc.song.server.model.SampleSetPK.createSampleSetPK;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiSearchTerms;
@@ -289,12 +289,12 @@ public class AnalysisService {
     return unsecuredDeepRead(id);
   }
 
-  public List<File> securedReadFiles(@NonNull String studyId, String id) {
+  public List<FileEntity> securedReadFiles(@NonNull String studyId, String id) {
     checkAnalysisAndStudyRelated(studyId, id);
     return unsecuredReadFiles(id);
   }
 
-  public List<File> unsecuredReadFiles(@NonNull String id) {
+  public List<FileEntity> unsecuredReadFiles(@NonNull String id) {
     val files = fileRepository.findAllByAnalysisId(id).stream()
         .peek(f -> f.setInfo(fileInfoService.readNullableInfo(f.getObjectId()) ))
         .collect(toImmutableList());
@@ -362,11 +362,11 @@ public class AnalysisService {
         .get();
   }
 
-  private Map<File, StorageObject> getStorageObjectsForFiles(String accessToken, List<File> files){
+  private Map<FileEntity, StorageObject> getStorageObjectsForFiles(String accessToken, List<FileEntity> files){
     return transformToMap(files, f -> storageService.downloadObject(accessToken, f.getObjectId()));
   }
 
-  private void checkMissingFiles(String accessToken, String analysisId, List<File> files){
+  private void checkMissingFiles(String accessToken, String analysisId, List<FileEntity> files){
     val missingFileIds = files.stream()
         .filter(f -> !confirmUploaded(accessToken, f.getObjectId()))
         .collect(toImmutableList());
@@ -390,7 +390,7 @@ public class AnalysisService {
     return s;
   }
 
-  private List<String> saveFiles(String id, String studyId, List<File> files) {
+  private List<String> saveFiles(String id, String studyId, List<FileEntity> files) {
     return files.stream()
         .map(f -> fileService.save(id, studyId, f))
         .collect(toImmutableList());
@@ -525,11 +525,11 @@ public class AnalysisService {
     return ANALYSIS_CLASS_MAP.get(analysisType).newInstance();
   }
 
-  private static void checkMismatchingFileSizes(String analysisId, Map<File, StorageObject> fileStorageObjectMap){
+  private static void checkMismatchingFileSizes(String analysisId, Map<FileEntity, StorageObject> fileStorageObjectMap){
     val mismatchingFileSizes = fileStorageObjectMap.entrySet().stream()
         .filter(x -> isSizeMismatch(x.getKey(), x.getValue()))
         .map(Map.Entry::getKey)
-        .map(File::getObjectId)
+        .map(FileEntity::getObjectId)
         .collect(toImmutableList());
 
     checkServer(mismatchingFileSizes.isEmpty(), AnalysisService.class,
@@ -539,7 +539,7 @@ public class AnalysisService {
         SPACED_COMMA.join(mismatchingFileSizes), analysisId);
   }
 
-  private static void checkMismatchingFileMd5sums(String analysisId, Map<File, StorageObject> fileStorageObjectMap,
+  private static void checkMismatchingFileMd5sums(String analysisId, Map<FileEntity, StorageObject> fileStorageObjectMap,
       boolean ignoreUndefinedMd5){
 
     val undefinedMd5ObjectIds = fileStorageObjectMap.entrySet().stream()
@@ -583,11 +583,11 @@ public class AnalysisService {
     checkServer(noMd5Errors, AnalysisService.class, MISMATCHING_STORAGE_OBJECT_CHECKSUMS, sb.toString());
   }
 
-  private static boolean isMd5Mismatch(File file, StorageObject storageObject){
+  private static boolean isMd5Mismatch(FileEntity file, StorageObject storageObject){
     return !file.getFileMd5sum().equals(storageObject.getFileMd5sum());
   }
 
-  private static boolean isSizeMismatch(File file, StorageObject storageObject){
+  private static boolean isSizeMismatch(FileEntity file, StorageObject storageObject){
     return !file.getFileSize().equals(storageObject.getFileSize());
   }
 

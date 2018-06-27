@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
-import org.icgc.dcc.song.server.model.entity.file.FileData;
+import org.icgc.dcc.song.core.model.file.FileData;
 import org.icgc.dcc.song.server.model.enums.UploadStates;
 import org.icgc.dcc.song.server.repository.UploadRepository;
 import org.icgc.dcc.song.server.validation.SchemaValidator;

@@ -15,25 +15,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model;
+package org.icgc.dcc.song.core.model.enums;
 
-import lombok.Builder;
 import lombok.NonNull;
-import lombok.Value;
-import org.icgc.dcc.song.core.model.file.FileContent;
+import lombok.RequiredArgsConstructor;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
 
-@Value
-@Builder
-public class StorageObject implements FileContent {
+@RequiredArgsConstructor
+public enum AccessTypes {
+  OPEN("open"),
+  CONTROLLED("controlled");
 
-  @NonNull private final String objectId;
-  private final String fileMd5sum;
-  @NonNull private final Long fileSize;
+  @NonNull private final String text;
 
-  public boolean isMd5Defined(){
-    return !isNullOrEmpty(fileMd5sum);
+  public static AccessTypes resolveAccessType(@NonNull String accessType){
+    return stream(values())
+        .filter(x -> x.toString().equals(accessType))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException(format("The access type '%s' cannot be resolved", accessType)));
+  }
+
+  public String toString(){
+    return text;
   }
 
 }

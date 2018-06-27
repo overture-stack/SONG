@@ -18,9 +18,9 @@
 package org.icgc.dcc.song.server.converter;
 
 import org.icgc.dcc.song.server.model.StorageObject;
-import org.icgc.dcc.song.server.model.entity.file.FileData;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
-import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest;
+import org.icgc.dcc.song.core.model.file.FileData;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
+import org.icgc.dcc.song.core.model.file.FileUpdateRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValueCheckStrategy;
@@ -30,12 +30,12 @@ import java.util.List;
 @Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface FileConverter {
 
-  FileUpdateRequest fileEntityToFileUpdateRequest(File file);
-  void updateEntityFromData(FileData fileData, @MappingTarget File file);
-  File copyFile(File file);
-  List<File> copyFiles(List<File> files);
+  FileUpdateRequest fileEntityToFileUpdateRequest(FileEntity file);
+  void updateEntityFromData(FileData fileData, @MappingTarget FileEntity file);
+  FileEntity copyFile(FileEntity file);
+  List<FileEntity> copyFiles(List<FileEntity> files);
 
-  default StorageObject toStorageObject(File file){
+  default StorageObject toStorageObject(FileEntity file){
     return StorageObject.builder()
         .objectId(file.getObjectId())
         .fileSize(file.getFileSize())

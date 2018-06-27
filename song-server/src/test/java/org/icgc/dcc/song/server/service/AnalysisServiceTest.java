@@ -28,7 +28,7 @@ import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.icgc.dcc.song.server.repository.SampleRepository;
@@ -67,8 +67,8 @@ import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.resolveAnalysisState;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
@@ -434,7 +434,7 @@ public class AnalysisServiceTest {
     val fileName0 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.bam";
     val fileName1 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.bam";
     val fileName2 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.bam.bai";
-    val fileMap = Maps.<String, File>newHashMap();
+    val fileMap = Maps.<String, FileEntity>newHashMap();
 
     for (val file : a.getFile()){
       fileMap.put(file.getFileName(), file);
@@ -497,7 +497,7 @@ public class AnalysisServiceTest {
   public void testReadFiles() {
     val files = service.unsecuredReadFiles(DEFAULT_ANALYSIS_ID);
     System.err.printf("Got files '%s'", files);
-    val expectedFiles = new ArrayList<File>();
+    val expectedFiles = new ArrayList<FileEntity>();
 
     expectedFiles.add(fileService.securedRead(DEFAULT_STUDY_ID, "FI1"));
     expectedFiles.add(fileService.securedRead(DEFAULT_STUDY_ID, "FI2"));

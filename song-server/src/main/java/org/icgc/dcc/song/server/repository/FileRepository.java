@@ -16,15 +16,15 @@
  */
 package org.icgc.dcc.song.server.repository;
 
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface FileRepository extends JpaRepository<File, String> {
+public interface FileRepository extends JpaRepository<FileEntity, String> {
 
-  List<File> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
-  List<File> findAllByAnalysisId(String analysisId);
+  List<FileEntity> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
+  List<FileEntity> findAllByAnalysisId(String analysisId);
   void deleteAllByAnalysisId(String analysisId);
   long countAllByStudyIdAndObjectId(String studyId, String objectId);
 

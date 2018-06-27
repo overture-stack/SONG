@@ -21,10 +21,10 @@ import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.core.exceptions.ServerException;
 import org.icgc.dcc.song.server.converter.FileConverter;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
-import org.icgc.dcc.song.server.model.entity.file.FileData;
-import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateResponse;
-import org.icgc.dcc.song.server.model.enums.FileUpdateTypes;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
+import org.icgc.dcc.song.core.model.file.FileData;
+import org.icgc.dcc.song.core.model.file.FileUpdateResponse;
+import org.icgc.dcc.song.core.model.enums.FileUpdateTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,13 +33,13 @@ import static java.lang.String.format;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE_REQUEST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.CONTENT_UPDATE;
-import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.METADATA_UPDATE;
-import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.NO_UPDATE;
-import static org.icgc.dcc.song.server.model.enums.FileUpdateTypes.resolveFileUpdateType;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.FileUpdateTypes.CONTENT_UPDATE;
+import static org.icgc.dcc.song.core.model.enums.FileUpdateTypes.METADATA_UPDATE;
+import static org.icgc.dcc.song.core.model.enums.FileUpdateTypes.NO_UPDATE;
+import static org.icgc.dcc.song.core.model.enums.FileUpdateTypes.resolveFileUpdateType;
 
 @Service
 public class FileModificationService {
@@ -62,7 +62,7 @@ public class FileModificationService {
 
 
   @Transactional
-  public FileUpdateTypes updateWithRequest(@NonNull File originalFile, FileData fileUpdateRequest) {
+  public FileUpdateTypes updateWithRequest(@NonNull FileEntity originalFile, FileData fileUpdateRequest) {
     val updatedFile = createUpdateFile(originalFile, fileUpdateRequest);
     fileService.unsafeUpdate(updatedFile);
     return resolveFileUpdateType(originalFile, fileUpdateRequest);
@@ -134,7 +134,7 @@ public class FileModificationService {
     }
   }
 
-  private File createUpdateFile(@NonNull File baseFile, @NonNull FileData fileUpdateData){
+  private FileEntity createUpdateFile(@NonNull FileEntity baseFile, @NonNull FileData fileUpdateData){
     val updatedFile = fileConverter.copyFile(baseFile);
     fileConverter.updateEntityFromData(fileUpdateData, updatedFile);
     return updatedFile;

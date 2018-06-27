@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.client.command.ConfigCommand;
 import org.icgc.dcc.song.client.command.ExportCommand;
+import org.icgc.dcc.song.client.command.FileUpdateCommand;
 import org.icgc.dcc.song.client.command.ManifestCommand;
 import org.icgc.dcc.song.client.command.PublishCommand;
 import org.icgc.dcc.song.client.command.SaveCommand;
@@ -68,6 +69,7 @@ public class ClientMain implements CommandLineRunner {
     builder.register("publish", new PublishCommand(registry, config));
     builder.register("suppress", new SuppressCommand(registry, config));
     builder.register("export", new ExportCommand(registry));
+    builder.register("update-file", new FileUpdateCommand(config, registry));
     this.dispatcher = builder.build();
     this.errorStatusHeader = new ErrorStatusHeader(config);
     this.registry = registry;

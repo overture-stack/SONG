@@ -30,8 +30,8 @@ import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.model.entity.composites.SpecimenWithSamples;
 import org.icgc.dcc.song.server.model.entity.composites.StudyWithDonors;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
-import org.icgc.dcc.song.server.model.enums.FileTypes;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
+import org.icgc.dcc.song.core.model.enums.FileTypes;
 import org.icgc.dcc.song.server.model.enums.UploadStates;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
@@ -46,11 +46,11 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.SUPPRESSED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.resolveAnalysisState;
+import static org.icgc.dcc.song.core.model.enums.AccessTypes.CONTROLLED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static org.icgc.dcc.song.server.model.enums.Constants.LIBRARY_STRATEGY;
 import static org.icgc.dcc.song.server.model.enums.Constants.SAMPLE_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.SPECIMEN_CLASS;
@@ -597,7 +597,7 @@ public class EntityTest {
 
   @Test
   public void testFile(){
-    val file1 = new File();
+    val file1 = new FileEntity();
     file1.setAnalysisId("a1");
     file1.setFileAccess(CONTROLLED);
     file1.setFileMd5sum("b1");
@@ -607,7 +607,7 @@ public class EntityTest {
     file1.setObjectId("d1");
     file1.setStudyId("e1");
 
-    val file1_same = File.builder()
+    val file1_same = FileEntity.builder()
         .objectId("d1")
         .analysisId("a1")
         .fileName("c1")
@@ -619,7 +619,7 @@ public class EntityTest {
         .build();
     assertEntitiesEqual(file1, file1_same, true);
 
-    val file2 = File.builder()
+    val file2 = FileEntity.builder()
         .objectId("d2")
         .analysisId("a2")
         .fileName("c2")
@@ -879,7 +879,7 @@ public class EntityTest {
 
     val compositeGroup2 = newArrayList(compositeEntity21, compositeEntity22);
 
-    val file11 = File.builder()
+    val file11 = FileEntity.builder()
         .objectId("d11")
         .analysisId("a11")
         .fileName("c11")
@@ -890,7 +890,7 @@ public class EntityTest {
         .fileAccess(CONTROLLED.toString())
         .build();
 
-    val file12 = File.builder()
+    val file12 = FileEntity.builder()
         .objectId("d12")
         .analysisId("a12")
         .fileName("c12")
@@ -903,7 +903,7 @@ public class EntityTest {
 
     val fileGroup1 = newArrayList(file11, file12);
 
-    val file21 = File.builder()
+    val file21 = FileEntity.builder()
         .objectId("d21")
         .analysisId("a21")
         .fileName("c21")
@@ -914,7 +914,7 @@ public class EntityTest {
         .fileAccess(CONTROLLED.toString())
         .build();
 
-    val file22 = File.builder()
+    val file22 = FileEntity.builder()
         .objectId("d22")
         .analysisId("a22")
         .fileName("c22")
@@ -1201,7 +1201,7 @@ public class EntityTest {
 
     val compositeGroup2 = newArrayList(compositeEntity21, compositeEntity22);
 
-    val file11 = File.builder()
+    val file11 = FileEntity.builder()
         .objectId("d11")
         .analysisId("a11")
         .fileName("c11")
@@ -1212,7 +1212,7 @@ public class EntityTest {
         .fileAccess(CONTROLLED.toString())
         .build();
 
-    val file12 = File.builder()
+    val file12 = FileEntity.builder()
         .objectId("d12")
         .analysisId("a12")
         .fileName("c12")
@@ -1225,7 +1225,7 @@ public class EntityTest {
 
     val fileGroup1 = newArrayList(file11, file12);
 
-    val file21 = File.builder()
+    val file21 = FileEntity.builder()
         .objectId("d21")
         .analysisId("a21")
         .fileName("c21")
@@ -1236,7 +1236,7 @@ public class EntityTest {
         .fileAccess(CONTROLLED.toString())
         .build();
 
-    val file22 = File.builder()
+    val file22 = FileEntity.builder()
         .objectId("d22")
         .analysisId("a22")
         .fileName("c22")

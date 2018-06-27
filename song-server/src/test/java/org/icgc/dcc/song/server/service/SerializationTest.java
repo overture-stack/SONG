@@ -23,7 +23,7 @@ import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.model.entity.composites.DonorWithSpecimens;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.junit.Test;
@@ -222,7 +222,7 @@ public class SerializationTest {
     val files=root.get("file");
     String fileJson=JsonUtils.toJson(files);
 
-    List<File> f = Arrays.asList(JsonUtils.fromJson(fileJson, File[].class));
+    List<FileEntity> f = Arrays.asList(JsonUtils.fromJson(fileJson, FileEntity[].class));
 
     assertThat(f.size()).isEqualTo(2);
     assertThat(f.get(0).getFileName()).isEqualTo("dna3.bam");

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.enums;
+package org.icgc.dcc.song.core.model.enums;
 
 import lombok.NonNull;
 import org.icgc.dcc.common.core.util.stream.Streams;

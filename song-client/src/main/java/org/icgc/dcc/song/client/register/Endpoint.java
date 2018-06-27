@@ -69,6 +69,10 @@ public class Endpoint {
         serverUrl, studyId, analysisId, ignoreUndefinedMd5);
   }
 
+  public String updateFile(String studyId, String objectId){
+    return format("%s/studies/%s/files/%s", serverUrl, studyId, objectId);
+  }
+
   public String exportAnalysisIds(List<String> analysisIds, boolean includeAnalysisId) {
     return format("%s/export/analysis/%s?includeAnalysisId=%s",
         serverUrl,COMMA.join(analysisIds),includeAnalysisId);

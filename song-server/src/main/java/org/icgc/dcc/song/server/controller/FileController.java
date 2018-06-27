@@ -20,9 +20,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
-import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateRequest;
-import org.icgc.dcc.song.server.model.entity.file.impl.FileUpdateResponse;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
+import org.icgc.dcc.song.core.model.file.FileUpdateRequest;
+import org.icgc.dcc.song.core.model.file.FileUpdateResponse;
 import org.icgc.dcc.song.server.service.FileModificationService;
 import org.icgc.dcc.song.server.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ public class FileController {
   @ApiOperation(value = "ReadFile", notes = "Retrieves file data for a fileId")
   @GetMapping(value = "/files/{id}")
   @ResponseBody
-  public File read(
+  public FileEntity read(
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     return fileService.securedRead(studyId,id);

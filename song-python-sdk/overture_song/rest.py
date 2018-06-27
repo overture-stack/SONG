@@ -84,8 +84,9 @@ class Rest(object):
     def post(self, url, dict_data=None):
         return self._intercept(requests.post)(url, json=dict_data, headers=self.__header_generator.get_json_header())
 
-    def put(self, url):
-        return self._intercept(requests.put)(url, headers=self.__header_generator.get_json_header())
+    def put(self, url, dict_data=None):
+        return self._intercept(requests.put)(url, json=dict_data, headers=self.__header_generator.get_json_header())
+
 
     @classmethod
     def __convert_params(cls, **kwargs):

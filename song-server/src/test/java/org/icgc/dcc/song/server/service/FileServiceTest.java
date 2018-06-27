@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,8 +36,8 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
-import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
-import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
+import static org.icgc.dcc.song.core.model.enums.AccessTypes.CONTROLLED;
+import static org.icgc.dcc.song.core.model.enums.AccessTypes.OPEN;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
@@ -78,7 +78,7 @@ public class FileServiceTest {
     val metadata = JsonUtils.fromSingleQuoted("{'info':'<XML>Not even well-formed <XML></XML>'}");
     val file = fileService.securedRead(study, id);
 
-    val expected = File.builder()
+    val expected = FileEntity.builder()
         .objectId(id)
         .analysisId(analysisId)
         .fileName(name)
@@ -97,7 +97,7 @@ public class FileServiceTest {
     val studyId = DEFAULT_STUDY_ID;
     val analysisId = DEFAULT_ANALYSIS_ID;
     val metadata = JsonUtils.fromSingleQuoted("{'species': 'human'}");
-    val f = new File();
+    val f = new FileEntity();
 
     f.setObjectId("");
     f.setFileName("ABC-TC285G87-A5-sqrl.bai");
@@ -116,7 +116,7 @@ public class FileServiceTest {
 
     assertThat(status).isEqualTo(id);
 
-    File check = fileService.securedRead(studyId, id);
+    FileEntity check = fileService.securedRead(studyId, id);
     assertThat(check).isEqualToComparingFieldByField(f);
 
     fileService.securedDelete(studyId, id);
@@ -156,7 +156,7 @@ public class FileServiceTest {
     val access = CONTROLLED;
     val metadata = JsonUtils.fromSingleQuoted("'language': 'English'");
 
-    val s = File.builder()
+    val s = FileEntity.builder()
         .objectId(id)
         .analysisId(analysisId)
         .fileName(name)
@@ -170,7 +170,7 @@ public class FileServiceTest {
     fileService.create(analysisId, study, s);
     val id2 = s.getObjectId();
 
-    val s2 = File.builder()
+    val s2 = FileEntity.builder()
         .objectId(id2)
         .analysisId(analysisId)
         .fileName("File 102.fai")
@@ -192,7 +192,7 @@ public class FileServiceTest {
     val existingFileId= DEFAULT_FILE_ID;
     assertThat(fileService.isFileExist(existingFileId)).isTrue();
     fileService.checkFileExists(existingFileId);
-    val file = new File();
+    val file = new FileEntity();
     file.setObjectId(existingFileId);
     fileService.checkFileExists(file);
 
@@ -239,8 +239,8 @@ public class FileServiceTest {
     secureFileTester.runSecureTest((s,f) -> fileService.securedDelete(s, newArrayList(f)));
   }
 
-  private File createRandomFile(String studyId, String analysisId){
-    return File.builder()
+  private FileEntity createRandomFile(String studyId, String analysisId){
+    return FileEntity.builder()
         .objectId( randomGenerator.generateRandomUUIDAsString())
         .analysisId(analysisId)
         .fileName(randomGenerator.generateRandomUUIDAsString()+".bam")

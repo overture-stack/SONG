@@ -15,11 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.entity.file;
+package org.icgc.dcc.song.core.model.file;
 
-public interface FileContent {
-
-  String getFileMd5sum();
-  Long getFileSize();
-
-}
+public interface FileData extends  FileContent, FileMetadata { }
