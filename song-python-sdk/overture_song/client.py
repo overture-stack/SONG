@@ -35,6 +35,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")
 
 
+
 class Api(object):
 
     def __init__(self, config):
@@ -124,8 +125,22 @@ class Api(object):
         endpoint = self.__endpoints.save_study(study.studyId)
         return self.__rest.post(endpoint, dict_data=study.__dict__)
 
+    def update_file(self, object_id, file_update_request):
+        self.check_is_alive()
+        endpoint = self.__endpoints.update_file(self.config.study_id, object_id)
+        input = Api.__remove_null_keys(file_update_request.to_dict())
+        return self.__rest.put(endpoint, dict_data=input)
+
     def check_is_alive(self):
         check_state(self.is_alive(), "The SONG server may not be running on '{}'".format(self.config.server_url))
+
+    @classmethod
+    def __remove_null_keys(cls, d ):
+        out = {}
+        for k in d.keys():
+            if d[k] is not None:
+                out[k] = d[k]
+        return out
 
 
 class StudyClient(object):
@@ -221,6 +236,9 @@ class Endpoints(object):
 
     def is_alive(self):
         return "{}/isAlive".format(self.__server_url)
+
+    def update_file(self, study_id, object_id):
+        return "{}/studies/{}/files/{}".format(self.__server_url, study_id, object_id)
 
     def publish(self, study_id, analysis_id):
         return "{}/studies/{}/analysis/publish/{}".format(self.__server_url, study_id, analysis_id)

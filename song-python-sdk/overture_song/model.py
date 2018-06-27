@@ -140,6 +140,23 @@ class ServerErrors(enum.Enum):
         raise Exception("Could not resolve the errorId '{}'".format(error_id))
 
 
+@dataclass(frozen=False, init=False)
+class FileUpdateRequest(Entity):
+    """
+    Mutable request object used to update file data.
+
+    :param str file_md5: MD5 checksum value to update
+    :param int file_size: File size (bytes) to update
+    :param int file_access: Access type to update
+    :param dict file_info: json info metadata to update
+
+    """
+    fileMd5sum: str = None
+    fileSize: int = None
+    fileAccess: str = None
+    info: dict = None
+
+
 @dataclass(frozen=True)
 class ApiConfig(object):
     """
