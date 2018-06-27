@@ -46,7 +46,7 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
+import static org.icgc.dcc.song.core.model.enums.AccessTypes.CONTROLLED;
 import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;

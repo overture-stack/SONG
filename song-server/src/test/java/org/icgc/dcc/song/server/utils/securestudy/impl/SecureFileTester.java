@@ -4,7 +4,7 @@ import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.entity.FileEntity;
-import org.icgc.dcc.song.server.model.enums.AccessTypes;
+import org.icgc.dcc.song.core.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.icgc.dcc.song.core.model.enums.FileTypes;
 import org.icgc.dcc.song.server.service.AnalysisService;

@@ -27,7 +27,7 @@ import lombok.ToString;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.core.model.file.File;
 import org.icgc.dcc.song.core.model.file.FileData;
-import org.icgc.dcc.song.server.model.enums.AccessTypes;
+import org.icgc.dcc.song.core.model.enums.AccessTypes;
 import org.icgc.dcc.song.core.model.enums.FileTypes;
 import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
 import org.icgc.dcc.song.server.model.enums.TableNames;
@@ -38,7 +38,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 
-import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
+import static org.icgc.dcc.song.core.model.enums.AccessTypes.resolveAccessType;
 
 @Entity
 @Table(name = TableNames.FILE)

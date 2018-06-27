@@ -21,6 +21,7 @@ import lombok.Setter;
 import lombok.val;
 import org.icgc.dcc.song.client.cli.Status;
 import org.icgc.dcc.song.client.config.Config;
+import org.icgc.dcc.song.core.model.file.FileData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -129,6 +130,12 @@ public class Registry {
     checkServerAlive();
     val url = endpoint.suppress(studyId, analysisId);
     return restClient.putAuth(accessToken, url);
+  }
+
+  public Status updateFile(String studyId, String objectId, FileData fileUpdateRequest){
+    checkServerAlive();
+    val url = endpoint.updateFile(studyId, objectId);
+    return restClient.putAuthObject(accessToken, url, fileUpdateRequest);
   }
 
   public Status idSearch(String studyId,

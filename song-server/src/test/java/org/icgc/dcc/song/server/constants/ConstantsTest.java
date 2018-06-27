@@ -18,7 +18,7 @@
 package org.icgc.dcc.song.server.constants;
 
 import lombok.val;
-import org.icgc.dcc.song.server.model.enums.AccessTypes;
+import org.icgc.dcc.song.core.model.enums.AccessTypes;
 import org.icgc.dcc.song.core.model.enums.AnalysisStates;
 import org.icgc.dcc.song.core.model.enums.FileTypes;
 import org.icgc.dcc.song.server.model.enums.InfoSearchResponseColumns;
@@ -28,9 +28,9 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.icgc.dcc.song.server.model.enums.AccessTypes.CONTROLLED;
-import static org.icgc.dcc.song.server.model.enums.AccessTypes.OPEN;
-import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType;
+import static org.icgc.dcc.song.core.model.enums.AccessTypes.CONTROLLED;
+import static org.icgc.dcc.song.core.model.enums.AccessTypes.OPEN;
+import static org.icgc.dcc.song.core.model.enums.AccessTypes.resolveAccessType;
 import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static org.icgc.dcc.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;

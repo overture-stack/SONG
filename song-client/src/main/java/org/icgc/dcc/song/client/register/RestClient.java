@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.function.Function;
 
 import static java.util.Objects.isNull;
+import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
@@ -69,12 +70,21 @@ public class RestClient {
     return post(url, "");
   }
 
+
+  public Status putObject(String url,  Object o) {
+    return put(url, toJson(o));
+  }
+
   public Status put(String url, String json) {
     return _put(buildJsonContentHttpHeader(), url, json);
   }
 
   public Status put(String url) {
     return put(url,"");
+  }
+
+  public Status putAuthObject(@NonNull String accessToken,  String url,  Object o) {
+    return putAuth(accessToken, url, toJson(o));
   }
 
   public Status putAuth(@NonNull String accessToken, String url, String json) {

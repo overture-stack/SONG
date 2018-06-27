@@ -12,7 +12,7 @@ import org.icgc.dcc.song.server.converter.FileConverter;
 import org.icgc.dcc.song.server.model.StorageObject;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.entity.FileEntity;
-import org.icgc.dcc.song.server.model.enums.AccessTypes;
+import org.icgc.dcc.song.core.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.junit.Before;
 import org.junit.Test;
