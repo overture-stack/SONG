@@ -3,10 +3,10 @@ package org.icgc.dcc.song.server.utils.securestudy.impl;
 import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
-import org.icgc.dcc.song.server.model.enums.FileTypes;
+import org.icgc.dcc.song.core.model.enums.FileTypes;
 import org.icgc.dcc.song.server.service.AnalysisService;
 import org.icgc.dcc.song.server.service.FileService;
 import org.icgc.dcc.song.server.service.StudyService;
@@ -44,7 +44,7 @@ public class SecureFileTester extends AbstractSecureTester {
     val existingAnalysisId = analysisData.getExistingId();
 
     val type = getRandomGenerator().randomEnum(FileTypes.class).toString();
-    val file = File.builder()
+    val file = FileEntity.builder()
         .fileAccess(getRandomGenerator().randomEnum(AccessTypes.class).toString())
         .fileMd5sum(getRandomGenerator().generateRandomMD5())
         .fileType(type)

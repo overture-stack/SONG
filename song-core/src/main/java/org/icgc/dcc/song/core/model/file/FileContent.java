@@ -15,13 +15,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.entity.file;
+package org.icgc.dcc.song.core.model.file;
 
-import com.fasterxml.jackson.databind.JsonNode;
+public interface FileContent {
 
-public interface FileMetadata {
-
-  String getFileAccess();
-  JsonNode getInfo();
+  String getFileMd5sum();
+  Long getFileSize();
 
 }

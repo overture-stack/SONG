@@ -25,7 +25,7 @@ import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.model.entity.Info;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
@@ -163,7 +163,7 @@ public class InfoSearchTest {
     assertThat(a1.getAnalysisState()).isEqualTo(a2.getAnalysisState());
     assertThat(a1.getFile().size()).isEqualTo(a2.getFile().size());
     assertThat(a1.getInfoAsString()).isEqualTo(a2.getInfoAsString());
-    val f2Map = a2.getFile().stream().collect(groupingBy(File::getFileName));
+    val f2Map = a2.getFile().stream().collect(groupingBy(FileEntity::getFileName));
     for (val f1 : a1.getFile()){
       assertThat(f2Map).containsKey(f1.getFileName());
       val f2result = f2Map.get(f1.getFileName());
@@ -202,7 +202,7 @@ public class InfoSearchTest {
     assertThat(s1.getSampleType()).isEqualTo(s2.getSampleType());
     assertThat(s1.getInfoAsString()).isEqualTo(s2.getInfoAsString());
   }
-  private static void assertFileData(File f1, File f2){
+  private static void assertFileData(FileEntity f1, FileEntity f2){
     assertThat(f1.getFileAccess()).isEqualTo(f2.getFileAccess());
     assertThat(f1.getFileMd5sum()).isEqualTo(f2.getFileMd5sum());
     assertThat(f1.getFileName()).isEqualTo(f2.getFileName());

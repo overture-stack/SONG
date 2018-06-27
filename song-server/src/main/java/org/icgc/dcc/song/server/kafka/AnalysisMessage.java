@@ -20,7 +20,7 @@ package org.icgc.dcc.song.server.kafka;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import org.icgc.dcc.song.server.model.enums.AnalysisStates;
+import org.icgc.dcc.song.core.model.enums.AnalysisStates;
 
 import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.song.core.utils.Checkers.checkNotBlank;

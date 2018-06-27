@@ -16,6 +16,8 @@
  */
 package org.icgc.dcc.song.server.model.enums;
 
+import org.icgc.dcc.song.core.model.enums.AnalysisStates;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;

@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
 import org.icgc.dcc.song.server.converter.FileConverter;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +55,7 @@ public class FileService {
   @Autowired
   FileConverter fileConverter;
 
-  public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
+  public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull FileEntity file) {
     studyService.checkStudyExist(studyId);
 
     val id = idService.generateFileId(analysisId, file.getFileName());
@@ -87,16 +87,16 @@ public class FileService {
     fileNotFoundCheck(isFileExist(id), id);
   }
 
-  public void checkFileExists(@NonNull File file){
+  public void checkFileExists(@NonNull FileEntity file){
     checkFileExists(file.getObjectId());
   }
 
-  public File securedRead(@NonNull String studyId, String id) {
+  public FileEntity securedRead(@NonNull String studyId, String id) {
     checkFileAndStudyRelated(studyId, id);
     return unsecuredRead(id);
   }
 
-  public void unsafeUpdate(File file){
+  public void unsafeUpdate(FileEntity file){
     repository.save(file);
     infoService.update(file.getObjectId(), file.getInfoAsString());
   }
@@ -116,11 +116,11 @@ public class FileService {
   public Optional<String> findByBusinessKey(@NonNull String analysisId, @NonNull String fileName){
     return repository.findAllByAnalysisIdAndFileName(analysisId, fileName)
         .stream()
-        .map(File::getObjectId)
+        .map(FileEntity::getObjectId)
         .findFirst();
   }
 
-  public String save(@NonNull String analysisId, @NonNull String studyId, @NonNull File file) {
+  public String save(@NonNull String analysisId, @NonNull String studyId, @NonNull FileEntity file) {
     studyService.checkStudyExist(studyId);
     val result = findByBusinessKey(analysisId, file.getFileName());
     String fileId;
@@ -135,7 +135,7 @@ public class FileService {
     return fileId;
   }
 
-  private File unsecuredRead(@NonNull String id) {
+  private FileEntity unsecuredRead(@NonNull String id) {
     val result = repository.findById(id);
     fileNotFoundCheck(result.isPresent(), id);
     val transientFile = fileConverter.copyFile(result.get());

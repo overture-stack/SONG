@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.entity.file.impl;
+package org.icgc.dcc.song.server.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -25,9 +25,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.icgc.dcc.song.server.model.Metadata;
-import org.icgc.dcc.song.server.model.entity.file.FileData;
+import org.icgc.dcc.song.core.model.file.File;
+import org.icgc.dcc.song.core.model.file.FileData;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
-import org.icgc.dcc.song.server.model.enums.FileTypes;
+import org.icgc.dcc.song.core.model.enums.FileTypes;
 import org.icgc.dcc.song.server.model.enums.TableAttributeNames;
 import org.icgc.dcc.song.server.model.enums.TableNames;
 
@@ -47,7 +48,7 @@ import static org.icgc.dcc.song.server.model.enums.AccessTypes.resolveAccessType
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
-public class File extends Metadata implements Serializable, FileData {
+public class FileEntity extends Metadata implements Serializable, FileData, File {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
@@ -74,7 +75,7 @@ public class File extends Metadata implements Serializable, FileData {
   @Column(name = TableAttributeNames.ACCESS, nullable = false)
   private String fileAccess;
 
-  public File(String objectId, String studyId, String analysisId, String fileName, Long fileSize,
+  public FileEntity(String objectId, String studyId, String analysisId, String fileName, Long fileSize,
       String fileType, String fileMd5sum, String fileAccess) {
     this.objectId = objectId;
     this.studyId = studyId;

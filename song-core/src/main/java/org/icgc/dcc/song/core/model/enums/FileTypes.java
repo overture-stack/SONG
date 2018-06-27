@@ -1,4 +1,4 @@
-package org.icgc.dcc.song.server.model.enums;
+package org.icgc.dcc.song.core.model.enums;
 
 import lombok.Getter;
 import lombok.NonNull;

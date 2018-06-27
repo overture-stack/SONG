@@ -11,7 +11,7 @@ import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.converter.FileConverter;
 import org.icgc.dcc.song.server.model.StorageObject;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.model.enums.AccessTypes;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.junit.Before;
@@ -39,10 +39,10 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJ
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.randomList;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.PUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.AnalysisStates.UNPUBLISHED;
-import static org.icgc.dcc.song.server.model.enums.FileTypes.BAM;
-import static org.icgc.dcc.song.server.model.enums.FileTypes.VCF;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.FileTypes.BAM;
+import static org.icgc.dcc.song.core.model.enums.FileTypes.VCF;
 import static org.icgc.dcc.song.server.service.PublishAnalysisTest.RangeType.ALL;
 import static org.icgc.dcc.song.server.service.PublishAnalysisTest.RangeType.NONE;
 import static org.icgc.dcc.song.server.service.PublishAnalysisTest.RangeType.SOME;
@@ -61,7 +61,7 @@ public class PublishAnalysisTest {
   private static final String STORAGE_SERVICE = "storageService";
   private static final int MAX_FILES = 1 << 4;
   private static final int MIN_SIZE = 1 << 3;
-  private static final List<File> EMPTY_FILE_LIST = ImmutableList.of();
+  private static final List<FileEntity> EMPTY_FILE_LIST = ImmutableList.of();
   private static final String DEFAULT_ACCESS_TOKEN = "myAccessToken";
 
   @Autowired
@@ -78,7 +78,7 @@ public class PublishAnalysisTest {
   /**
    * State
    */
-  private List<File> testFiles;
+  private List<FileEntity> testFiles;
   private AbstractAnalysis testAnalysis;
   private String testAnalysisId;
   private String testStudyId;
@@ -100,7 +100,7 @@ public class PublishAnalysisTest {
     // Delete any previous files
     fileService.securedDelete(DEFAULT_STUDY_ID,
         testAnalysis.getFile().stream()
-            .map(File::getObjectId)
+            .map(FileEntity::getObjectId)
             .collect(toList()));
 
     this.testFiles = generateFiles(MAX_FILES, testAnalysis );
@@ -283,7 +283,7 @@ public class PublishAnalysisTest {
     val storageObjects = generator.generateStorageObjects();
     val storageObjectIds = storageObjects.stream().map(StorageObject::getObjectId).collect(toImmutableSet());
     val nonExistingObjectIds = testFiles.stream()
-        .map(File::getObjectId)
+        .map(FileEntity::getObjectId)
         .filter(x -> !storageObjectIds.contains(x))
         .collect(toImmutableList());
 
@@ -299,14 +299,14 @@ public class PublishAnalysisTest {
     ReflectionTestUtils.setField(service, STORAGE_SERVICE, mockStorageService);
   }
 
-  public List<File> generateFiles(int maxSize, AbstractAnalysis a){
+  public List<FileEntity> generateFiles(int maxSize, AbstractAnalysis a){
     return randomList(() -> generateFile(a), maxSize);
   }
 
   /**
    * Generate a random file given an input analysis
    */
-  public File generateFile(AbstractAnalysis a){
+  public FileEntity generateFile(AbstractAnalysis a){
     val analysisType = AnalysisTypes.resolveAnalysisType(a.getAnalysisType()) ;
     String fileType = null;
     String fileName = randomGenerator.generateRandomUUIDAsString()+".";
@@ -318,7 +318,7 @@ public class PublishAnalysisTest {
       fileType = VCF.toString();
       fileName += VCF.getExtension()+".gz";
     }
-    val file = File.builder()
+    val file = FileEntity.builder()
         .studyId(a.getStudy())
         .analysisId(a.getAnalysisId())
         .fileType(fileType)
@@ -343,7 +343,7 @@ public class PublishAnalysisTest {
 
     private static final FileConverter FILE_CONVERTER = Mappers.getMapper(FileConverter.class);
 
-    @NonNull private final List<File> files;
+    @NonNull private final List<FileEntity> files;
     @NonNull private final RangeType existingRange;
     @NonNull private final RangeType undefinedMd5Range;
     @NonNull private final RangeType mismatchingMd5Range;
@@ -361,9 +361,9 @@ public class PublishAnalysisTest {
           .collect(toImmutableList());
     }
 
-    private List<File> processMismatchingMd5Files(List<File> definedMd5Files){
+    private List<FileEntity> processMismatchingMd5Files(List<FileEntity> definedMd5Files){
       val maxtry = 10000;
-      val out = ImmutableList.<File>builder();
+      val out = ImmutableList.<FileEntity>builder();
       for (val file: filter(definedMd5Files, mismatchingMd5Range)){
         int trynum = 0;
         String candidateMd5 = randomGenerator.generateRandomMD5();
@@ -380,36 +380,36 @@ public class PublishAnalysisTest {
       return out.build();
     }
 
-    private List<File> getDefinedMd5Files(List<File> existingFiles, List<File> undefinedFiles){
+    private List<FileEntity> getDefinedMd5Files(List<FileEntity> existingFiles, List<FileEntity> undefinedFiles){
       val set = newHashSet(undefinedFiles);
       return existingFiles.stream()
           .filter(x -> !set.contains(x))
           .collect(toImmutableList());
     }
 
-    private List<File> getExistingFiles(){
+    private List<FileEntity> getExistingFiles(){
       return FILE_CONVERTER.copyFiles(filter(files, existingRange));
     }
 
-    private List<File> processUndefinedMd5Files(List<File> existingFiles){
+    private List<FileEntity> processUndefinedMd5Files(List<FileEntity> existingFiles){
       return filter(existingFiles, undefinedMd5Range).stream()
           .peek(x -> x.setFileMd5sum(null))
           .collect(toImmutableList());
     }
 
-    private List<File> processMismatchingSize(List<File> existingFiles){
+    private List<FileEntity> processMismatchingSize(List<FileEntity> existingFiles){
       return filter(existingFiles, mismatchingSizeRange).stream()
           .peek(x -> x.setFileSize(x.getFileSize()+777))
           .collect(toImmutableList());
     }
 
-    private List<File> getSome(List<File> input){
+    private List<FileEntity> getSome(List<FileEntity> input){
       assertThat(input.size()).isGreaterThanOrEqualTo(2);
       val size = input.size()/2;
       return randomGenerator.randomSublist(input, size);
     }
 
-    private List<File> filter(List<File> input, RangeType rangeType){
+    private List<FileEntity> filter(List<FileEntity> input, RangeType rangeType){
       if (rangeType == ALL){
         return input;
       } else if (rangeType == SOME) {

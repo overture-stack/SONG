@@ -15,12 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model.enums;
+package org.icgc.dcc.song.core.model.enums;
 
 import lombok.val;
-import org.icgc.dcc.song.server.model.entity.file.FileContent;
-import org.icgc.dcc.song.server.model.entity.file.FileData;
-import org.icgc.dcc.song.server.model.entity.file.FileMetadata;
+import org.icgc.dcc.song.core.model.file.FileContent;
+import org.icgc.dcc.song.core.model.file.FileData;
+import org.icgc.dcc.song.core.model.file.FileMetadata;
 
 import java.util.function.Function;
 

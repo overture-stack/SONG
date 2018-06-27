@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.repository.search.IdSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchRequest;
 import org.icgc.dcc.song.server.repository.search.InfoSearchResponse;
@@ -138,7 +138,7 @@ public class AnalysisController {
    */
   @ApiOperation(value = "ReadAnalysisFiles", notes = "Retrieve the file objects for an analysisId")
   @GetMapping(value = "/{id}/files")
-  public List<File> getFilesById(
+  public List<FileEntity> getFilesById(
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     return analysisService.securedReadFiles(studyId, id);

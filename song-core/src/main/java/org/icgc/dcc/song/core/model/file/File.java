@@ -15,25 +15,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.icgc.dcc.song.server.model;
+package org.icgc.dcc.song.core.model.file;
 
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
-import org.icgc.dcc.song.core.model.file.FileContent;
+public interface File extends FileMetadata, FileContent {
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+  String getObjectId();
 
-@Value
-@Builder
-public class StorageObject implements FileContent {
+  String getStudyId();
 
-  @NonNull private final String objectId;
-  private final String fileMd5sum;
-  @NonNull private final Long fileSize;
+  String getAnalysisId();
 
-  public boolean isMd5Defined(){
-    return !isNullOrEmpty(fileMd5sum);
-  }
+  String getFileName();
+
+  String getFileType();
 
 }

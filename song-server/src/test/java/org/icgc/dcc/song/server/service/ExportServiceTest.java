@@ -12,7 +12,7 @@ import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
 import org.icgc.dcc.song.server.model.entity.Donor;
-import org.icgc.dcc.song.server.model.entity.file.impl.File;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.Specimen;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
@@ -210,7 +210,7 @@ public class ExportServiceTest {
         .map(Donor::getDonorId)
         .forEach(x -> donorService.securedDelete(a.getStudy(), x));
     a.getFile().stream()
-        .map(File::getObjectId)
+        .map(FileEntity::getObjectId)
         .forEach(x -> fileService.securedDelete(a.getStudy(), x));
     analysisRepository.deleteById(a.getAnalysisId());
   }
@@ -403,8 +403,8 @@ public class ExportServiceTest {
     assertSetsMatch(actualDonorIds, expectedDonorIds);
   }
 
-  private static Set<String> collectObjectIds(List<File> files){
-    return files.stream().map(File::getObjectId).collect(toSet());
+  private static Set<String> collectObjectIds(List<FileEntity> files){
+    return files.stream().map(FileEntity::getObjectId).collect(toSet());
   }
 
   private static Set<String> collectSampleSubmitterIds(List<? extends Sample> samples){
