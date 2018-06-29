@@ -18,8 +18,29 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
-from setup import SONG_VERSION
+import json
+import xml.etree.ElementTree as ET
+from datetime import datetime as dt
+
+# SONG_PYTHON_SDK_PATH = '../song-python-sdk'
+# sys.path.insert(0, os.path.abspath(SONG_PYTHON_SDK_PATH))
+sys.path.insert(0, os.path.abspath('.'))
+
+# ------------- Version extraction ----------------
+# Extract the version from the root pom.xml file
+# -------------------------------------------------
+pom_loc = '../../pom.xml'
+def get_version_from_pom():
+    tree = ET.parse(pom_loc)
+    root = tree.getroot()
+    for child in root:
+        if 'version' in child.tag:
+            print("version is: "+child.text)
+            return child.text
+
+def get_current_year():
+    return str(dt.now().year)
+
 
 
 # -- General configuration ------------------------------------------------
@@ -51,7 +72,7 @@ autoclass_content = 'both'
 
 # General information about the project.
 project = u'overture_song'
-copyright = u'2018, The Ontario Institute For Cancer Research'
+copyright = get_current_year()+', The Ontario Institute For Cancer Research'
 author = u'The Ontario Institute For Cancer Research'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -59,9 +80,9 @@ author = u'The Ontario Institute For Cancer Research'
 # built documents.
 #
 # The short X.Y version.
-version = SONG_VERSION
+version = get_version_from_pom()
 # The full version, including alpha/beta/rc tags.
-release = SONG_VERSION
+release = version
 
 html_show_copyright = True
 html_show_sourcelink = True

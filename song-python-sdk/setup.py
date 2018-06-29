@@ -31,15 +31,27 @@ from __future__ import print_function, absolute_import
 from codecs import open as open_
 from os import path
 import sys
+import xml.etree.ElementTree as ET
+from datetime import datetime as dt
 
 # Always prefer setuptools over distutils
 from setuptools import setup
-SONG_VERSION = '1.0.0'
 REQUIRED_PY_VERSION = (3, 6, 0)
+
+# ------------- Version extraction ----------------
+# Extract the version from the root pom.xml file
+# -------------------------------------------------
+pom_loc = '../pom.xml'
+def get_version_from_pom():
+    tree = ET.parse(pom_loc)
+    root = tree.getroot()
+    for child in root:
+        if 'version' in child.tag:
+            print("version is: "+child.text)
+            return child.text
 
 def get_required_py_version_string():
     return ".".join([str(i) for i in REQUIRED_PY_VERSION])
-
 
 def get_current_py_version_string():
     v = sys.version_info
@@ -66,7 +78,7 @@ def run():
         # single-sourcing the version across setup.py and the project code,
         # see
         # https://packaging.python.org/en/latest/single_source_version.html
-        version=SONG_VERSION,
+        version=get_version_from_pom(),
         description="A Python library interface to the SONG REST Server",
         long_description=long_description,
 
