@@ -1,7 +1,7 @@
 FROM song_base-db:latest
 MAINTAINER ICGC <dcc-support@icgc.org>
 
-ENV SERVER_RELEASE_VERSION 1.0.3
+ENV SERVER_RELEASE_VERSION 1.1.0
 ENV PGDATA /var/lib/postgresql/data/pgdata
 ENV POSTGRES_INIT_SQL /docker-entrypoint-initdb.d/init.sql
 
