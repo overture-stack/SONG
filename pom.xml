@@ -20,7 +20,7 @@
     <groupId>org.icgc.dcc</groupId>
     <artifactId>song</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
     <modules>
         <module>song-core</module>
         <module>song-server</module>
