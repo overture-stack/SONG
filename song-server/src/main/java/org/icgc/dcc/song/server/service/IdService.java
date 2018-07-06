@@ -26,8 +26,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
 
@@ -53,10 +55,21 @@ public class IdService {
     return idClient.createSampleId(submittedSampleId, study);
   }
 
+  private void checkGeneratedId(String id){
+    checkState(isNotBlank(id), "The generated id cannot be blank");
+    try {
+      UUID.fromString(id);
+    } catch (IllegalArgumentException e){
+      throw new IllegalStateException(format("The generated id '%s' is not in UUID format", id));
+    }
+  }
+
   public String generateFileId(@NonNull String analysisId, @NonNull String fileName) {
     val opt = idClient.getObjectId(analysisId, fileName);
     if (opt.isPresent()) {
-      return opt.get();
+      val id = opt.get();
+      checkGeneratedId(id);
+      return id;
     } else {
       throw new IllegalStateException("Generating objectId should not yield missing value.");
     }
