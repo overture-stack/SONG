@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.RestTemplate;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -57,12 +56,10 @@ public class IdServiceTest {
 
   private RandomGenerator randomGenerator;
   private IdService idService;
-  private String idServiceUrl;
-  private RestTemplate restTemplate = new RestTemplate();
 
   @Before
   public void beforeTest(){
-    idServiceUrl = "http://localhost:"+wireMockRule.port();
+    val idServiceUrl = "http://localhost:"+wireMockRule.port();
     val idClient = new HttpIdClient(idServiceUrl, "", "");
     idService = new IdService(idClient);
     randomGenerator = createRandomGenerator(this.getClass().getSimpleName());
