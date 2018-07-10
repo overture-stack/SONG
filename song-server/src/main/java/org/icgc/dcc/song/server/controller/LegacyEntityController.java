@@ -62,10 +62,10 @@ public class LegacyEntityController {
   @ResponseBody
   @GetMapping
   public ResponseEntity<JsonNode> find(
-      @RequestParam MultiValueMap<String, String> params,
+      @RequestParam MultiValueMap<String, String> fields,
       @ModelAttribute LegacyDto probe,
       @PageableDefault(sort = "id") Pageable pageable) {
-    return ok(legacyEntityService.find(params, probe, pageable));
+    return ok(legacyEntityService.find(fields, probe, pageable));
   }
 
 }
