@@ -19,6 +19,8 @@ package org.icgc.dcc.song.server.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.song.server.model.legacy.Legacy;
@@ -58,14 +60,20 @@ public class LegacyEntityController {
     return ok(legacyEntityService.getEntity(id));
   }
 
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+          value = "Results page you want to retrieve (0..N)"),
+      @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
+          value = "Number of records per page.")
+  })
   @ApiOperation(value = "FindLegacyEntities", notes = "Page through LegacyEntity data")
   @ResponseBody
   @GetMapping
   public ResponseEntity<JsonNode> find(
-      @RequestParam MultiValueMap<String, String> params,
+      @RequestParam(required = false) MultiValueMap<String, String> fields,
       @ModelAttribute LegacyDto probe,
       @PageableDefault(sort = "id") Pageable pageable) {
-    return ok(legacyEntityService.find(params, probe, pageable));
+    return ok(legacyEntityService.find(fields, probe, pageable));
   }
 
 }
