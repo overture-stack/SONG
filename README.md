@@ -1,5 +1,8 @@
-# SONG
-SONG - Metadata and Validation system 
+<h1 align="center">SONG</h1>
+
+<p align="center">Quickly and reliably track genome metadata scattered across multiple Cloud storage systems.</p>
+
+<p align="center"><a href="http://www.overture.bio/products/song" target="_blank"><img alt="General Availability" title="General Availability" src="http://www.overture.bio/img/progress-horizontal-GA.svg" width="320" /></a></p>
 
 [![Build Status](https://travis-ci.org/overture-stack/SONG.svg?branch=develop)](https://travis-ci.org/overture-stack/SONG)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c3515fa60c114da1a7a4be8d46674eca)](https://www.codacy.com/app/overture-stack/SONG?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=overture-stack/SONG&amp;utm_campaign=Badge_Grade)
