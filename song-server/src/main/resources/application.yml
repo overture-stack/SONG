@@ -96,6 +96,8 @@ spring:
     include: [fastTest]
   datasource:
     initialization-mode: always
+    hikari:
+      connection-timeout: 500
 
 management:
   server:
