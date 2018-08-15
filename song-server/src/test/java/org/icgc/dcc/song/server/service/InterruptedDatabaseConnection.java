@@ -31,7 +31,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import java.io.IOException;
+import java.io.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -48,7 +48,6 @@ public class InterruptedDatabaseConnection {
   @Autowired
   StudyService service;
   private final RandomGenerator randomGenerator = createRandomGenerator(StudyServiceTest.class.getSimpleName());
-  private final String postgres_data_directory="/users/khartmann/postgres";
   public void testThatServiceWorks() {
     // Random test copied from StudyServiceTest;
     // it gets data from postgres when the database is up.
@@ -66,13 +65,15 @@ public class InterruptedDatabaseConnection {
   @Test
   public void testInterruptConnection() throws IOException, InterruptedException {
     // run a copy of a unit test that uses the database to get a study
+    val db_directory=getDatabaseDirectory();
     testThatServiceWorks();
     killDatabase();
-    Thread.sleep(1000);
+    //Thread.sleep(1000);
     // make sure our fails now that there's no database to connect to
     assertConnectionFails();
     // start postgres up again
-    restoreDatabase();
+    //Thread.sleep(500);
+    restoreDatabase(db_directory);
     // make sure the test still works
     testThatServiceWorks();
     // run a second test that makes sure we aren't caching, and that
@@ -80,7 +81,20 @@ public class InterruptedDatabaseConnection {
     testThatServiceReallyWorks();
   }
 
+  public String getDatabaseDirectory() throws IOException, InterruptedException {
+    val p = Runtime.getRuntime().exec("../db_dir.sh");
+    val exitStatus=p.waitFor();
+    assertThat(exitStatus).isEqualTo(0);
+
+    val reader=new BufferedReader(new InputStreamReader(p.getInputStream()));
+    val line=reader.readLine().trim();
+    reader.close();
+    System.err.printf(line);
+    return line;
+  }
+
   public void exec(String cmd) throws InterruptedException, IOException {
+    System.err.printf("\nRunning command='%s'\n",cmd);
     val p = Runtime.getRuntime().exec(cmd);
     val exitStatus=p.waitFor();
     assertThat(exitStatus).isEqualTo(0);
@@ -115,9 +129,8 @@ public class InterruptedDatabaseConnection {
     assertThat(ex).isNotNull();
   }
 
-  public void restoreDatabase() throws IOException, InterruptedException {
-    Runtime.getRuntime().exec("/usr/local/bin/postgres -D " + postgres_data_directory);
-    Thread.sleep(500);
+  public void restoreDatabase(String postgres_data_directory) throws IOException, InterruptedException {
+    Runtime.getRuntime().exec("/usr/local/bin/pg_ctl start -D " + postgres_data_directory);
   }
 
 }
