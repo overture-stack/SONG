@@ -46,7 +46,7 @@ import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 public class InterruptedDatabaseConnection {
 
   @Autowired
-  StudyService service;
+  private StudyService service;
   private final RandomGenerator randomGenerator = createRandomGenerator(StudyServiceTest.class.getSimpleName());
   public void testThatServiceWorks() {
     // Random test copied from StudyServiceTest;
