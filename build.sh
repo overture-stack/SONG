@@ -10,6 +10,17 @@ if ! type "$PROG" &> /dev/null; then
     exit 1
 else
     echo "SUCCESS - Postgresql is installed"
-    song-server/src/main/resources/db/setup.sh $DB
+    echo "select 1" | $PROG $DB &> /dev/null 
+
+    if [ $? != 0 ]; then
+       echo "Postgres is not running..."
+       if [ -z "$PGDATA" ];then 
+          initdb $DB 
+          pg_ctl start -D $DB 
+       else 
+          pg_ctl start 
+       fi
+    fi
+    echo "create database $DB;" | psql postgres 
     mvn clean package
 fi
