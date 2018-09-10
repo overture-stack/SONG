@@ -431,7 +431,7 @@ public class UploadServiceTest {
 
   @Test
   @Transactional
-  public void testSave2SamplesWithSameSpecimen(){
+  public void testSave2PayloadsWithSameSpecimen(){
     // Set up generators
     val studyGenerator = createStudyGenerator(studyService, randomGenerator);
     val payloadGenerator = createPayloadGenerator(randomGenerator);
