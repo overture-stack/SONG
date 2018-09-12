@@ -47,15 +47,21 @@ public class CompositeEntityService {
     return out;
   }
 
+  /**
+   * The mutable CompositeEntity is really bad practice and needs to be refactored.
+   * Having any sort of mutation of method arguments makes testing very
+   * difficult and allows for bugs to creep in easier.
+   */
   public String save(String studyId, CompositeEntity s) {
     String id = sampleService.findByBusinessKey(studyId, s.getSampleSubmitterId());
-    s.setSampleId(id);
     if (isNull(id)) {
       val sampleCreateRequest = buildPersistentSample(s);
       s.setSpecimenId(getSampleParent(studyId, s));
       sampleCreateRequest.setSpecimenId(s.getSpecimenId());
       id = sampleService.create(studyId, sampleCreateRequest);
+      s.setSampleId(id);
     } else {
+      s.setSampleId(id);
       sampleService.update(s);
     }
     return id;
@@ -64,11 +70,11 @@ public class CompositeEntityService {
   private String getSampleParent(String studyId, CompositeEntity s) {
     val specimen = s.getSpecimen();
     String id = specimenService.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
+    specimen.setDonorId(getSpecimenParent(studyId, s));
     if (isNull(id)) {
-      specimen.setDonorId(getSpecimenParent(studyId, s));
       id = specimenService.create(studyId, specimen);
     } else {
-      s.setSpecimenId(id);
+      specimen.setSpecimenId(id);
       specimenService.update(specimen);
     }
     return id;

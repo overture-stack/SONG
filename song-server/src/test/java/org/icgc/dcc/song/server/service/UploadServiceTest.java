@@ -28,7 +28,10 @@ import org.icgc.dcc.id.client.core.IdClient;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.Upload;
+import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
+import org.icgc.dcc.song.server.model.entity.Sample;
+import org.icgc.dcc.song.server.service.export.ExportService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,8 @@ import java.nio.file.Files;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.newArrayList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
@@ -52,6 +57,8 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALID
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
+import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureUploadTester.createSecureUploadTester;
@@ -74,6 +81,9 @@ public class UploadServiceTest {
 
   @Autowired
   AnalysisService analysisService;
+
+  @Autowired
+  ExportService exportService;
 
   @Autowired
   StudyService studyService;
@@ -417,6 +427,57 @@ public class UploadServiceTest {
     secureUploadTester.runSecureTest((s,u) -> uploadService.checkUploadRelatedToStudy(s, u));
     secureUploadTester.runSecureTest((s,u) -> uploadService.securedRead(s, u));
     secureUploadTester.runSecureTest((s,u) -> uploadService.save(s, u, false));
+  }
+
+  @Test
+  @Transactional
+  public void testSave2PayloadsWithSameSpecimen(){
+    // Set up generators
+    val studyGenerator = createStudyGenerator(studyService, randomGenerator);
+    val payloadGenerator = createPayloadGenerator(randomGenerator);
+
+    // Create new unique study
+    val studyId = studyGenerator.createRandomStudy();
+
+    // Create payload1 and save it
+    val payload1 = payloadGenerator.generateDefaultRandomPayload(SequencingReadAnalysis.class);
+    val previousSampleSubmitterIds =  payload1.getSample().stream().map(Sample::getSampleSubmitterId).collect( toImmutableSet());
+    val an1 = analysisService.create(studyId, payload1, false);
+
+    // Export the previously uploaded payload using the analysis id
+    val exportedPayloads = exportService.exportPayload(newArrayList(an1), false);
+    assertThat(exportedPayloads).hasSize(1);
+    val exportedPayload = exportedPayloads.get(0);
+    assertThat(exportedPayload.getStudyId()).isEqualTo(studyId);
+    assertThat(exportedPayload.getPayloads()).hasSize(1);
+    val jsonPayload = exportedPayload.getPayloads().get(0);
+
+    // Create payload 2
+    val payload2 = JsonUtils.fromJson(jsonPayload, AbstractAnalysis.class);
+
+    // Modify the exported payload with a different sampleSubmmiterId
+    payload2.getSample().forEach(x -> x.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString()));
+    payload2.getSample().get(0).setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+
+    // Assert that none of the sampleSubmmiterIds between payload1 and payload2 match
+    val currentSampleSubmitterIds =  payload2.getSample().stream().map(Sample::getSampleSubmitterId).collect( toImmutableSet());
+    val hasMatch = previousSampleSubmitterIds.stream().anyMatch(currentSampleSubmitterIds::contains);
+    assertThat(hasMatch).isFalse();
+
+    // Save payload 2
+    val an2 = analysisService.create(studyId, payload2, false);
+
+    // Validate both analysis have the same specimen and donor submitterIds, and studies, but different analysisIds and sample submitterIds
+    val a1 = analysisService.unsecuredDeepRead(an1);
+    val a2 = analysisService.unsecuredDeepRead(an2);
+    assertThat(a1.getStudy()).isEqualTo(studyId);
+    assertThat(a2.getStudy()).isEqualTo(studyId);
+    assertThat(a1.getAnalysisId()).isNotEqualTo(a2.getAnalysisId());
+    assertThat(a1.getSample()).hasSize(1);
+    assertThat(a2.getSample()).hasSize(1);
+    assertThat(a1.getSample().get(0).getDonor().getDonorId()).isEqualTo(a2.getSample().get(0).getDonor().getDonorId());
+    assertThat(a1.getSample().get(0).getSpecimen().getSpecimenId()).isEqualTo(a2.getSample().get(0).getSpecimen().getSpecimenId());
+    assertThat(a1.getSample().get(0).getSampleId()).isNotEqualTo(a2.getSample().get(0).getSampleId());
   }
 
   private String createUniqueAnalysisId(){
