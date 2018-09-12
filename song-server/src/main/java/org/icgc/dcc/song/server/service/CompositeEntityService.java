@@ -47,6 +47,11 @@ public class CompositeEntityService {
     return out;
   }
 
+  /**
+   * The mutable CompositeEntity is really bad practice and needs to be refactored.
+   * Having any sort of mutation of method arguments makes testing very
+   * difficult and allows for bugs to creep in easier.
+   */
   public String save(String studyId, CompositeEntity s) {
     String id = sampleService.findByBusinessKey(studyId, s.getSampleSubmitterId());
     if (isNull(id)) {
