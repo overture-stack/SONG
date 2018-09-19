@@ -17,11 +17,13 @@
 package org.icgc.dcc.song.server.service;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.core.model.enums.AnalysisStates;
 import org.icgc.dcc.song.server.kafka.AnalysisMessage;
 import org.icgc.dcc.song.server.kafka.Sender;
 import org.icgc.dcc.song.server.model.SampleSet;
@@ -31,9 +33,8 @@ import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.Analysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
-import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.entity.FileEntity;
-import org.icgc.dcc.song.core.model.enums.AnalysisStates;
+import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
 import org.icgc.dcc.song.server.model.enums.AnalysisTypes;
 import org.icgc.dcc.song.server.model.experiment.SequencingRead;
 import org.icgc.dcc.song.server.model.experiment.VariantCall;
@@ -57,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 
 import static java.lang.String.format;
@@ -68,6 +70,7 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FI
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
@@ -76,13 +79,14 @@ import static org.icgc.dcc.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerException.buildServerException;
 import static org.icgc.dcc.song.core.exceptions.ServerException.checkServer;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.Responses.ok;
 import static org.icgc.dcc.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static org.icgc.dcc.song.server.model.SampleSetPK.createSampleSetPK;
-import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static org.icgc.dcc.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static org.icgc.dcc.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
 import static org.icgc.dcc.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiSearchTerms;
@@ -93,6 +97,7 @@ import static org.icgc.dcc.song.server.repository.search.SearchTerm.createMultiS
 public class AnalysisService {
 
   private static final Joiner SPACED_COMMA = Joiner.on(" , ");
+  private static final Set<String> DEFAULT_ANALYSIS_STATES = ImmutableSet.of(PUBLISHED.toString());
 
   private static final Map<String, Class<? extends AbstractAnalysis>> ANALYSIS_CLASS_MAP =
       new HashMap<String, Class<? extends AbstractAnalysis>>(){{
@@ -202,11 +207,25 @@ public class AnalysisService {
    * Gets all analysis for a given study.
    * This method should be watched in case performance becomes a problem.
    * @param studyId the study ID
+   * @param analysisStates only return analyses that have values from this non-empty list
    * @return returns a List of analysis with the child entities.
    */
-  public List<AbstractAnalysis> getAnalysis(@NonNull String studyId) {
-    val analysisList = repository.findAllByStudy(studyId)
+  public List<AbstractAnalysis> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
+
+    Set<String> finalStates = DEFAULT_ANALYSIS_STATES;
+    if (!analysisStates.isEmpty()) {
+      val errorSet = findIncorrectAnalysisStates(analysisStates);
+      checkServer(errorSet.isEmpty(), getClass(), MALFORMED_PARAMETER,
+          "The following are not AnalysisStates: '%s'", Joiner.on("', '").join(errorSet) );
+      finalStates = analysisStates;
+    }
+
+    //TODO: this implementation is not efficient since a query is made for each analysisState.
+    // Once hibernate is properly integrated with song, we will be able to use the criteria api to create queries.
+    val analysisList = finalStates
         .stream()
+        .map(state -> repository.findAllByStudyAndAnalysisState(studyId, state))
+        .flatMap(Collection::stream)
         .map(this::cloneAnalysis)
         .collect(toImmutableList());
     if (analysisList.isEmpty()){

@@ -16,6 +16,7 @@
  */
 package org.icgc.dcc.song.server.controller;
 
+import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static org.icgc.dcc.common.core.util.Splitters.COMMA;
 import static org.icgc.dcc.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -74,11 +76,13 @@ public class AnalysisController {
   @Autowired
   private final AnalysisService analysisService;
 
-  @ApiOperation(value = "GetAnalysesForStudy", notes = "Retrieve all analysis objects for a studyId")
+  @ApiOperation(value = "GetPublishedAnalysesForStudy", notes = "Retrieve all analysis objects for a studyId")
   @GetMapping(value = "")
   public List<AbstractAnalysis> getAnalysis(
-      @PathVariable("studyId") String studyId) {
-    return analysisService.getAnalysis(studyId);
+      @PathVariable("studyId") String studyId,
+      @ApiParam(value = "Non-empty comma separated list of analysis states to filter by")
+      @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false) String analysisStates) {
+    return analysisService.getAnalysis(studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)) );
   }
 
   /**

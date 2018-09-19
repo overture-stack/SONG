@@ -89,6 +89,8 @@ spring:
   profiles:
     include: [dev]
 
+
+
 ---
 spring.profiles: dev
 spring:
@@ -98,6 +100,7 @@ spring:
     initialization-mode: always
     hikari:
       connection-timeout: 500
+
 
 management:
   server:
@@ -119,6 +122,17 @@ spring.datasource:
   max-active: 10
   max-idle: 1
   min-idle: 1
+
+---
+
+
+# To disable initialization, just use the active profiles:    dev,dev-test in that order.
+spring.profiles: dev-ext
+spring:
+  profiles:
+    include: [dev]
+  datasource:
+    initialization-mode: never
 
 ---
 

@@ -23,7 +23,7 @@ import java.util.List;
 
 public interface AnalysisRepository extends JpaRepository<Analysis, String> {
 
-  List<Analysis> findAllByStudy(String studyId);
+  List<Analysis> findAllByStudyAndAnalysisState(String studyId, String state);
 
   long countAllByStudyAndAnalysisId(String studyId, String analysisId);
 

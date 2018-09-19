@@ -31,13 +31,17 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static org.icgc.dcc.song.server.utils.TestFiles.getInfoName;
 
+
+//@Ignore("need to replace this with something that doesnt make system calls")
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
