@@ -16,19 +16,21 @@
  */
 package org.icgc.dcc.song.server.service;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.song.core.model.enums.AnalysisStates;
 import org.icgc.dcc.song.core.utils.JsonUtils;
 import org.icgc.dcc.song.core.utils.RandomGenerator;
 import org.icgc.dcc.song.server.model.Metadata;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
+import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.model.entity.Sample;
 import org.icgc.dcc.song.server.model.entity.composites.CompositeEntity;
-import org.icgc.dcc.song.server.model.entity.FileEntity;
 import org.icgc.dcc.song.server.repository.AnalysisRepository;
 import org.icgc.dcc.song.server.repository.FileRepository;
 import org.icgc.dcc.song.server.repository.SampleRepository;
@@ -50,25 +52,33 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
+import static org.icgc.dcc.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static org.icgc.dcc.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static org.icgc.dcc.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static org.icgc.dcc.song.core.testing.SongErrorAssertions.assertSongError;
 import static org.icgc.dcc.song.core.utils.JsonUtils.fromJson;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toJson;
 import static org.icgc.dcc.song.core.utils.RandomGenerator.createRandomGenerator;
-import static org.icgc.dcc.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static org.icgc.dcc.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static org.icgc.dcc.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
@@ -77,6 +87,7 @@ import static org.icgc.dcc.song.server.utils.AnalysisGenerator.createAnalysisGen
 import static org.icgc.dcc.song.server.utils.PayloadGenerator.createPayloadGenerator;
 import static org.icgc.dcc.song.server.utils.StudyGenerator.createStudyGenerator;
 import static org.icgc.dcc.song.server.utils.TestFiles.assertInfoKVPair;
+import static org.icgc.dcc.song.server.utils.TestFiles.assertSetsMatch;
 import static org.icgc.dcc.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static org.icgc.dcc.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 
@@ -89,6 +100,10 @@ public class AnalysisServiceTest {
 
   private static final String DEFAULT_STUDY_ID = "ABC123";
   private static final String DEFAULT_ANALYSIS_ID = "AN1";
+  private static final Set<String> PUBLISHED_ONLY = ImmutableSet.of(PUBLISHED.toString());
+  private static final Set<String> ALL_STATES = stream(AnalysisStates.values())
+      .map(AnalysisStates::toString)
+      .collect(toImmutableSet());
 
   @Autowired
   FileService fileService;
@@ -588,8 +603,7 @@ public class AnalysisServiceTest {
     assertThat(expectedSRAs).hasSize(sraMap.keySet().size());
     assertThat(expectedVCAs).hasSize(vcaMap.keySet().size());
 
-
-    val actualAnalyses = service.getAnalysis(studyId);
+    val actualAnalyses = service.getAnalysis(studyId, ALL_STATES);
     val actualSRAs = actualAnalyses.stream()
         .filter(x -> resolveAnalysisType(x.getAnalysisType()) == SEQUENCING_READ)
         .collect(toSet());
@@ -611,9 +625,35 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  public void testOnlyGetPublishedAnalyses(){
+    val studyId = studyGenerator.createRandomStudy();
+    val analysisGenerator = createAnalysisGenerator(studyId, service, randomGenerator);
+    val numAnalysis = 10;
+    val expectedMap = IntStream.range(0, numAnalysis)
+        .boxed()
+        .map(x -> {
+          AbstractAnalysis a = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
+          AnalysisStates randomState = x == 0 ? PUBLISHED : randomGenerator.randomEnum(AnalysisStates.class);
+          a.setAnalysisState(randomState.toString());
+          service.securedUpdateState(studyId, a.getAnalysisId(), randomState);
+          return a;
+        })
+        .collect(groupingBy(AbstractAnalysis::getAnalysisState));
+
+    val actualMap = service.getAnalysis(studyId, PUBLISHED_ONLY).stream()
+        .collect(groupingBy(AbstractAnalysis::getAnalysisState));
+
+    assertThat(actualMap.keySet()).hasSize(1);
+    assertThat(expectedMap).containsKey(PUBLISHED.toString());
+    assertThat(actualMap).containsKey(PUBLISHED.toString());
+    assertThat(actualMap.get(PUBLISHED.toString())).hasSameSizeAs(expectedMap.get(PUBLISHED.toString()));
+    assertThat(actualMap.get(PUBLISHED.toString())).containsExactlyElementsOf(expectedMap.get(PUBLISHED.toString()));
+  }
+
+  @Test
   public void testGetAnalysisEmptyStudy(){
     val studyId = studyGenerator.createRandomStudy();
-    assertThat(service.getAnalysis(studyId)).isEmpty();
+    assertThat(service.getAnalysis(studyId, PUBLISHED_ONLY)).isEmpty();
   }
 
   @Test
@@ -626,7 +666,7 @@ public class AnalysisServiceTest {
   @Test
   public void testGetAnalysisDNEStudy() {
     val nonExistentStudyId = studyGenerator.generateNonExistingStudyId();
-    assertSongError(() -> service.getAnalysis(nonExistentStudyId), STUDY_ID_DOES_NOT_EXIST);
+    assertSongError(() -> service.getAnalysis(nonExistentStudyId, PUBLISHED_ONLY), STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
@@ -712,6 +752,70 @@ public class AnalysisServiceTest {
     assertThat(analysisRepository.existsById(nonExistentAnalysisId)).isFalse();
   }
 
+  @Test
+  public void testGetAnalysisForStudyFilteredByStates(){
+    val studyId = studyGenerator.createRandomStudy();
+    val generator = createAnalysisGenerator(studyId, service, randomGenerator);
+
+    val numCopies = 2;
+    val expectedAnalyses = IntStream.range(0, numCopies).boxed()
+        .flatMap(x -> stream(AnalysisStates.values()))
+        .map(x -> createSRAnalysisWithState(generator, x))
+        .collect(toImmutableSet());
+
+    // 0 - Empty
+    assertGetAnalysesForStudy(expectedAnalyses, studyId);
+
+    // 1 - PUBLISHED
+    assertGetAnalysesForStudy(expectedAnalyses, studyId, PUBLISHED);
+
+    // 2 - UNPUBLISHED
+    assertGetAnalysesForStudy(expectedAnalyses, studyId, UNPUBLISHED);
+
+    // 3 - SUPPRESSED
+    assertGetAnalysesForStudy(expectedAnalyses, studyId, SUPPRESSED);
+
+    // 4 - PUBLISHED,UNPUBLISHED
+    assertGetAnalysesForStudy(expectedAnalyses, studyId, PUBLISHED, UNPUBLISHED);
+
+    // 5 - PUBLISHED,SUPPRESSED
+    assertGetAnalysesForStudy(expectedAnalyses, studyId, PUBLISHED, SUPPRESSED);
+
+    // 6 - UNPUBLISHED,SUPPRESSED
+    assertGetAnalysesForStudy(expectedAnalyses, studyId, UNPUBLISHED, SUPPRESSED);
+
+    // 7 - PUBLISHED,UNPUBLISHED,SUPPRESSED
+    assertGetAnalysesForStudy(expectedAnalyses, studyId, UNPUBLISHED, SUPPRESSED, PUBLISHED);
+
+    assertSongError(() -> service.getAnalysis(studyId, newHashSet(PUBLISHED.toString(), "SomethingElse")),
+        MALFORMED_PARAMETER);
+
+    assertSongError(() -> service.getAnalysis(studyId, newHashSet("SomethingElse")),
+        MALFORMED_PARAMETER);
+  }
+
+  private void assertGetAnalysesForStudy(Set<AbstractAnalysis> expectedAnalyses, String studyId, AnalysisStates ... states){
+    Set<String> stateStrings = stream(states).map(AnalysisStates::toString).collect(toImmutableSet());
+    if (states.length == 0){
+      stateStrings = PUBLISHED_ONLY;
+    }
+    val finalStates = stateStrings;
+
+    val results = service.getAnalysis(studyId, states.length == 0 ? newHashSet() : newHashSet(finalStates));
+    val actual = results.stream().map(AbstractAnalysis::getAnalysisId).collect(toImmutableSet());
+    val expected = expectedAnalyses.stream()
+        .filter(x -> finalStates.contains(x.getAnalysisState()))
+        .map(AbstractAnalysis::getAnalysisId)
+        .collect(toImmutableSet());
+    assertSetsMatch(actual, expected);
+  }
+
+
+  private AbstractAnalysis createSRAnalysisWithState(AnalysisGenerator generator, AnalysisStates state){
+    val a = generator.createDefaultRandomSequencingReadAnalysis();
+    service.securedUpdateState(a.getStudy(),a.getAnalysisId(), state);
+    return service.unsecuredDeepRead(a.getAnalysisId());
+  }
 
   private void runAnalysisMissingSamplesTest(Class<? extends AbstractAnalysis> analysisClass) {
     // Create random analysis,

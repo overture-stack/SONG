@@ -20,13 +20,19 @@ package org.icgc.dcc.song.core.model.enums;
 import lombok.NonNull;
 import org.icgc.dcc.common.core.util.stream.Streams;
 
+import java.util.Collection;
+import java.util.Set;
+
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 public enum AnalysisStates {
   PUBLISHED,
   UNPUBLISHED,
   SUPPRESSED;
+
+  private static final Set<String> SET = Streams.stream(values()).map(AnalysisStates::toString).collect(toImmutableSet());
 
   public String toString(){
     return this.name();
@@ -44,6 +50,12 @@ public enum AnalysisStates {
     return stream(values())
         .map(Enum::name)
         .toArray(String[]::new);
+  }
+
+  public static Set<String> findIncorrectAnalysisStates(@NonNull Collection<String> analysisStates){
+    return analysisStates.stream()
+        .filter(x -> !SET.contains(x))
+        .collect(toImmutableSet());
   }
 
 }

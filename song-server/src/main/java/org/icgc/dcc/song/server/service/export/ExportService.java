@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.icgc.dcc.song.core.model.ExportedPayload;
+import org.icgc.dcc.song.core.model.enums.AnalysisStates;
 import org.icgc.dcc.song.server.model.analysis.AbstractAnalysis;
 import org.icgc.dcc.song.server.model.analysis.SequencingReadAnalysis;
 import org.icgc.dcc.song.server.model.analysis.VariantCallAnalysis;
@@ -15,10 +16,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.groupingBy;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.icgc.dcc.song.core.model.ExportedPayload.createExportedPayload;
 import static org.icgc.dcc.song.core.utils.JsonUtils.readTree;
 import static org.icgc.dcc.song.core.utils.JsonUtils.toPrettyJson;
@@ -30,6 +34,10 @@ import static org.icgc.dcc.song.server.service.export.PayloadParser.createPayloa
 
 @Service
 public class ExportService {
+
+  private static final Set<String> ALL_ANALYSIS_STATES = stream(AnalysisStates.values())
+      .map(AnalysisStates::toString)
+      .collect(toImmutableSet());
 
   @Autowired
   private AnalysisService analysisService;
@@ -46,7 +54,7 @@ public class ExportService {
   @SneakyThrows
   public List<ExportedPayload> exportPayloadsForStudy(@NonNull String studyId,
       boolean includeAnalysisId){
-    val payloads = analysisService.getAnalysis(studyId).stream()
+    val payloads = analysisService.getAnalysis(studyId, ALL_ANALYSIS_STATES).stream()
         .map(x -> convertToPayload(x, includeAnalysisId))
         .collect(toImmutableList());
     return ImmutableList.of(createExportedPayload(studyId, payloads));
