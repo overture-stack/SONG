@@ -17,12 +17,12 @@
 
 package bio.overture.song.server.model.entity;
 
+import bio.overture.song.server.model.enums.TableNames;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Immutable;
-import bio.overture.song.server.model.enums.TableNames;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

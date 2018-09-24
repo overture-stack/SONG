@@ -17,13 +17,13 @@
 
 package bio.overture.song.server.model.entity.composites;
 
+import bio.overture.song.server.model.entity.Donor;
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.model.entity.Specimen;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.val;
-import bio.overture.song.server.model.entity.Donor;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
 
 @EqualsAndHashCode(callSuper=true)
 @Data

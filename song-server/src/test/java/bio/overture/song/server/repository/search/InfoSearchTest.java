@@ -16,15 +16,9 @@
  */
 package bio.overture.song.server.repository.search;
 
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import com.google.common.collect.Maps;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.assertj.core.api.Assertions;
-import org.icgc.dcc.common.core.json.JsonNodeBuilders;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Info;
@@ -34,6 +28,12 @@ import bio.overture.song.server.repository.InfoRepository;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.UploadService;
+import com.google.common.collect.Maps;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.assertj.core.api.Assertions;
+import org.icgc.dcc.common.core.json.JsonNodeBuilders;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

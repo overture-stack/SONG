@@ -16,10 +16,10 @@
  */
 package bio.overture.song.client.register;
 
-import lombok.NonNull;
-import lombok.val;
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.errors.ServerResponseErrorHandler;
+import lombok.NonNull;
+import lombok.val;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,11 +30,11 @@ import org.springframework.web.client.RestTemplate;
 import java.util.function.Function;
 
 import static java.util.Objects.isNull;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 
 @Component
 public class RestClient {

@@ -17,10 +17,10 @@
 
 package bio.overture.song.server.model;
 
+import bio.overture.song.core.model.file.FileContent;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-import bio.overture.song.core.model.file.FileContent;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 

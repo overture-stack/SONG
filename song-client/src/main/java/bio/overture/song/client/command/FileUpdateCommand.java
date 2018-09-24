@@ -17,7 +17,11 @@
 
 package bio.overture.song.client.command;
 
+import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
+import bio.overture.song.core.model.enums.AccessTypes;
+import bio.overture.song.core.model.file.FileUpdateRequest;
+import bio.overture.song.core.utils.JsonUtils;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -26,10 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.client.config.Config;
-import bio.overture.song.core.model.enums.AccessTypes;
-import bio.overture.song.core.model.file.FileUpdateRequest;
-import bio.overture.song.core.utils.JsonUtils;
 
 import java.io.IOException;
 

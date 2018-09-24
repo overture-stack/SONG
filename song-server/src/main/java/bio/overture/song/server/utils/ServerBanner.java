@@ -16,6 +16,7 @@
  */
 package bio.overture.song.server.utils;
 
+import bio.overture.song.core.utils.VersionUtils;
 import bio.overture.song.server.config.ValidationConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +25,6 @@ import com.google.common.collect.Sets;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import bio.overture.song.core.utils.VersionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.StandardEnvironment;
@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +41,7 @@ import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.padEnd;
 import static com.google.common.base.Strings.repeat;
+import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static org.icgc.dcc.common.core.util.Joiners.WHITESPACE;
 
 @Slf4j
@@ -115,7 +115,7 @@ public class ServerBanner {
   }
 
   private List<String> getJavaArguments() {
-    return ManagementFactory.getRuntimeMXBean().getInputArguments();
+    return getRuntimeMXBean().getInputArguments();
   }
 
   private String getJarName() {

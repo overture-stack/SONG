@@ -20,6 +20,7 @@ import lombok.Data;
 import lombok.NonNull;
 import org.fusesource.jansi.AnsiConsole;
 
+import static java.lang.String.format;
 import static org.fusesource.jansi.Ansi.Color.GREEN;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -64,14 +65,14 @@ public class Status {
   }
 
   public void err(String format, Object... args) {
-    err(String.format(format, args));
+    err(format(format, args));
   }
 
   public void output(String format, Object... args) {
     if (args.length == 0) {
       outputs += format;
     } else {
-      outputs += String.format(format, args);
+      outputs += format(format, args);
     }
   }
 

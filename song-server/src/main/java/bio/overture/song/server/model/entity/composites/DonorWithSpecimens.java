@@ -17,12 +17,12 @@
 
 package bio.overture.song.server.model.entity.composites;
 
+import bio.overture.song.server.model.entity.Donor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import lombok.val;
-import bio.overture.song.server.model.entity.Donor;
 
 import java.util.ArrayList;
 import java.util.List;

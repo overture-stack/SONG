@@ -17,11 +17,11 @@
 
 package bio.overture.song.server.utils;
 
+import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Study;
+import bio.overture.song.server.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.service.StudyService;
 
 import static lombok.AccessLevel.PRIVATE;
 

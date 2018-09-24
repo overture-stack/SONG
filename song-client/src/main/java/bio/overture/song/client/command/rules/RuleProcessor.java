@@ -17,11 +17,11 @@
 
 package bio.overture.song.client.command.rules;
 
+import bio.overture.song.client.cli.Status;
 import com.google.common.collect.Maps;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.client.cli.Status;
 
 import java.util.Map;
 

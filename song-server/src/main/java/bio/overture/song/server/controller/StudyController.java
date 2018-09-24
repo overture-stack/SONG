@@ -18,11 +18,11 @@ package bio.overture.song.server.controller;
 
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.model.entity.composites.StudyWithDonors;
+import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.service.StudyWithDonorsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import bio.overture.song.server.service.StudyService;
-import bio.overture.song.server.service.StudyWithDonorsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

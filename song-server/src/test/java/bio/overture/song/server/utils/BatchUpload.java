@@ -19,7 +19,6 @@ package bio.overture.song.server.utils;
 
 import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.enums.UploadStates;
-import lombok.Lombok;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -38,6 +37,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.nio.file.Files.newInputStream;
 import static lombok.AccessLevel.PRIVATE;
+import static lombok.Lombok.sneakyThrow;
 import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
@@ -140,7 +140,7 @@ public class BatchUpload {
           try{
             return toJson(readTree(newInputStream(f)));
           } catch(IOException e){
-            throw Lombok.sneakyThrow(e);
+            throw sneakyThrow(e);
           }
         })
         .collect(toImmutableList());

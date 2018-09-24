@@ -17,10 +17,10 @@
 
 package bio.overture.song.server.converter;
 
-import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.model.file.FileUpdateRequest;
+import bio.overture.song.server.model.StorageObject;
+import bio.overture.song.server.model.entity.FileEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValueCheckStrategy;

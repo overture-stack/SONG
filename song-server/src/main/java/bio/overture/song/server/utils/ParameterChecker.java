@@ -17,11 +17,11 @@
 
 package bio.overture.song.server.utils;
 
+import bio.overture.song.core.exceptions.ServerError;
 import com.google.common.collect.ImmutableMap;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.core.exceptions.ServerError;
 
 import java.lang.reflect.Field;
 import java.util.Map;

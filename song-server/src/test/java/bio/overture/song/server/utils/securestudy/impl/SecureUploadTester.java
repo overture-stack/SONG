@@ -17,13 +17,13 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
-import lombok.SneakyThrows;
-import lombok.val;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.UploadService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
+import lombok.SneakyThrows;
+import lombok.val;
 
 import java.util.List;
 import java.util.function.BiConsumer;

@@ -1,5 +1,5 @@
 FROM song_base-ubuntu:latest
-MAINTAINER ICGC <dcc-support@icgc.org>
+MAINTAINER OVERTURE <contact@overture.bio>
 
 ENV CLIENT_RELEASE_VERSION 1.2.0
 ENV CLIENT_HOME $DCC_DATA

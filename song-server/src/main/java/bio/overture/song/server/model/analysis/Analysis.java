@@ -17,11 +17,11 @@
 
 package bio.overture.song.server.model.analysis;
 
+import bio.overture.song.server.model.enums.TableAttributeNames;
+import bio.overture.song.server.model.enums.TableNames;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import bio.overture.song.server.model.enums.TableAttributeNames;
-import bio.overture.song.server.model.enums.TableNames;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

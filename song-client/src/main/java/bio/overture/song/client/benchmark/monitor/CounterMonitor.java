@@ -17,13 +17,13 @@
 
 package bio.overture.song.client.benchmark.monitor;
 
+import bio.overture.song.client.benchmark.counter.Counter;
+import bio.overture.song.client.benchmark.counter.LongCounter;
 import com.google.common.base.Stopwatch;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import bio.overture.song.client.benchmark.counter.Counter;
-import bio.overture.song.client.benchmark.counter.LongCounter;
 import org.slf4j.Logger;
 
 import java.util.concurrent.TimeUnit;

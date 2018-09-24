@@ -16,16 +16,14 @@
  */
 package bio.overture.song.client.cli;
 
-import java.util.Map;
-
 import bio.overture.song.client.command.Command;
 import bio.overture.song.client.command.ErrorCommand;
-
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-
 import lombok.AllArgsConstructor;
 import lombok.val;
+
+import java.util.Map;
 
 @AllArgsConstructor
 class CommandParser {

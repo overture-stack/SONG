@@ -16,6 +16,8 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.model.file.FileData;
+import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
@@ -30,8 +32,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.model.file.FileData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

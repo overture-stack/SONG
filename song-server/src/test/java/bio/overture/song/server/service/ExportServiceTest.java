@@ -17,6 +17,8 @@
 
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
@@ -25,15 +27,6 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.assertj.core.api.Assertions;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.AnalysisRepository;
 import bio.overture.song.server.repository.SampleSetRepository;
@@ -41,6 +34,13 @@ import bio.overture.song.server.repository.SequencingReadRepository;
 import bio.overture.song.server.repository.VariantCallRepository;
 import bio.overture.song.server.service.export.ExportService;
 import bio.overture.song.server.utils.StudyGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

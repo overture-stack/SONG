@@ -16,11 +16,11 @@
  */
 package bio.overture.song.client.command;
 
+import bio.overture.song.client.cli.Status;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.val;
-import bio.overture.song.client.cli.Status;
 
 import java.io.IOException;
 

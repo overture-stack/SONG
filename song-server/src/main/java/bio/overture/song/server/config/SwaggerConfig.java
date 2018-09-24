@@ -47,7 +47,7 @@ public class SwaggerConfig {
     return new Docket(DocumentationType.SWAGGER_2)
         .apiInfo(apiInfo())
         .select()
-        .apis(basePackage("org.icgc.dcc.song.server.controller"))
+        .apis(basePackage("bio.overture.song.server.controller"))
         .paths(any())
         .build()
         .pathMapping("/");

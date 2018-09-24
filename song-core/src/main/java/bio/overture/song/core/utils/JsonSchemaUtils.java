@@ -24,6 +24,8 @@ import lombok.val;
 
 import java.io.InputStream;
 
+import static java.lang.String.format;
+
 public class JsonSchemaUtils extends JsonDocUtils {
 
   @SneakyThrows
@@ -41,7 +43,7 @@ public class JsonSchemaUtils extends JsonDocUtils {
   public static String extractFromSchemaId(String id) {
     int separatorPosition = id.lastIndexOf("/");
     if (separatorPosition < 0) {
-      throw new IllegalArgumentException(String.format("Invalid JSON Schema id found: %s", id));
+      throw new IllegalArgumentException(format("Invalid JSON Schema id found: %s", id));
     } else {
       return id.substring(separatorPosition + 1);
     }

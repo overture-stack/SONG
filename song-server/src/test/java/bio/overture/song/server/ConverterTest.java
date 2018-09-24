@@ -17,15 +17,15 @@
 
 package bio.overture.song.server;
 
+import bio.overture.song.core.model.file.FileData;
+import bio.overture.song.core.model.file.FileUpdateRequest;
+import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.config.ConverterConfig;
+import bio.overture.song.server.converter.FileConverter;
+import bio.overture.song.server.converter.LegacyEntityConverter;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import lombok.val;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.converter.FileConverter;
-import bio.overture.song.server.converter.LegacyEntityConverter;
-import bio.overture.song.core.model.file.FileData;
-import bio.overture.song.core.model.file.FileUpdateRequest;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,8 +33,8 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 
 public class ConverterTest {
 

@@ -17,14 +17,13 @@
 
 package bio.overture.song.client.benchmark.monitor;
 
+import bio.overture.song.client.benchmark.model.Stat;
+import bio.overture.song.client.benchmark.model.StatComposite;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Value;
-import bio.overture.song.client.benchmark.model.Stat;
-import bio.overture.song.client.benchmark.model.StatComposite;
 
 import static java.lang.String.format;
-import static bio.overture.song.client.benchmark.monitor.CounterMonitor.createCounterMonitor;
 
 @Value
 public class StudyMonitor {

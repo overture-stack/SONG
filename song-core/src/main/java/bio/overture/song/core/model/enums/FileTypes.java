@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.icgc.dcc.common.core.util.stream.Streams;
 
 import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 
 @RequiredArgsConstructor
 public enum FileTypes {
@@ -40,7 +41,7 @@ public enum FileTypes {
  @Getter private final String extension;
 
  public static FileTypes resolveFileType(@NonNull String fileType){
-  return Streams.stream(values())
+  return stream(values())
       .filter(x -> x.toString().equals(fileType))
       .findFirst()
       .orElseThrow(() -> new IllegalStateException(format("The file type '%s' cannot be resolved", fileType)));

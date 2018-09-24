@@ -16,6 +16,9 @@
  */
 package bio.overture.song.server.model.entity;
 
+import bio.overture.song.server.model.Metadata;
+import bio.overture.song.server.model.enums.TableAttributeNames;
+import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,9 +26,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import bio.overture.song.server.model.Metadata;
-import bio.overture.song.server.model.enums.TableAttributeNames;
-import bio.overture.song.server.model.enums.TableNames;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

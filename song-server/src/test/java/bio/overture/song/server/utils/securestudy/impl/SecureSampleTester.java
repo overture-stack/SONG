@@ -17,18 +17,17 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
+import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.enums.Constants;
-import com.google.common.collect.Lists;
-import lombok.NonNull;
-import lombok.val;
-import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.SampleService;
 import bio.overture.song.server.service.SpecimenService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
+import com.google.common.collect.Lists;
+import lombok.NonNull;
+import lombok.val;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
 
 public class SecureSampleTester extends AbstractSecureTester<String>{

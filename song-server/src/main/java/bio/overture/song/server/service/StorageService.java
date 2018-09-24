@@ -32,14 +32,15 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URL;
 
+import static java.lang.Boolean.parseBoolean;
 import static org.icgc.dcc.common.core.util.Joiners.SLASH;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.GET;
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
 import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -104,7 +105,7 @@ public class StorageService {
   }
 
   private Boolean doGetBoolean(String accessToken, String url){
-    return Boolean.parseBoolean(doGetString(accessToken, url));
+    return parseBoolean(doGetString(accessToken, url));
   }
 
   @SneakyThrows

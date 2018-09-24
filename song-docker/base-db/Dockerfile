@@ -1,5 +1,5 @@
 FROM postgres:9.6
-MAINTAINER ICGC <dcc-support@icgc.org>
+MAINTAINER OVERTURE <contact@overture.bio>
 
 ENV DCC_HOME /opt/dcc
 ENV DCC_DATA $DCC_HOME/data

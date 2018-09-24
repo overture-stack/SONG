@@ -17,10 +17,10 @@
 
 package bio.overture.song.server.exceptions;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -50,7 +50,7 @@ public class ServerExceptionHandler {
 
   @ExceptionHandler(ServerException.class)
   public ResponseEntity<String> handleServerException(HttpServletRequest request, HttpServletResponse response, ServerException ex){
-    val baseSongError =ex.getSongError();
+    val baseSongError = ex.getSongError();
     val modifiedSongError = SongError.builder()
         .debugMessage(baseSongError.getDebugMessage())
         .httpStatusCode(baseSongError.getHttpStatusCode())

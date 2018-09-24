@@ -17,13 +17,13 @@
 
 package bio.overture.song.server.utils;
 
+import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.core.utils.RandomGenerator;
 
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.fail;

@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Potentially extract a Validator interface if we want to pursue a Strategy pattern of multiple validation rules or
  * something
@@ -64,7 +66,7 @@ public class SchemaValidator {
   private void debugDelay(){
     if (validationDelayMs > -1L){
       log.info("Sleeping for {} ms", validationDelayMs);
-      Thread.sleep(validationDelayMs);
+      sleep(validationDelayMs);
     }
   }
 }

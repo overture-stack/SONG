@@ -35,6 +35,7 @@ import java.util.List;
 
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithInfo;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -94,7 +95,7 @@ public class SearchRepository {
 
   @SneakyThrows
   private static InfoSearchResponse mapWithInfo(Object[] results){
-    return InfoSearchResponse.createWithInfo(extractAnalysisId(results), readTree(extractInfo(results)));
+    return createWithInfo(extractAnalysisId(results), readTree(extractInfo(results)));
   }
 
   private static String extractAnalysisId(Object[] result){

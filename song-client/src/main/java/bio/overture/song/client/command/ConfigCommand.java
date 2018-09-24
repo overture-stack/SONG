@@ -17,9 +17,7 @@
 package bio.overture.song.client.command;
 
 import bio.overture.song.client.config.Config;
-
 import com.beust.jcommander.Parameters;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;

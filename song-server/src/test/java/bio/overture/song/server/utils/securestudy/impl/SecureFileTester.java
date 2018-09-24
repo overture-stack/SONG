@@ -17,18 +17,18 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.enums.AnalysisTypes;
-import bio.overture.song.server.service.FileService;
-import lombok.NonNull;
-import lombok.val;
-import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.FileTypes;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.enums.AnalysisTypes;
 import bio.overture.song.server.service.AnalysisService;
+import bio.overture.song.server.service.FileService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
+import lombok.NonNull;
+import lombok.val;
 
 import java.util.function.BiConsumer;
 

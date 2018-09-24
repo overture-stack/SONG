@@ -17,12 +17,12 @@
 
 package bio.overture.song.client.benchmark;
 
+import bio.overture.song.client.benchmark.model.UploadData;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.client.benchmark.model.UploadData;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

@@ -16,6 +16,7 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.entity.Info;
 import bio.overture.song.server.model.entity.InfoPK;
 import bio.overture.song.server.model.enums.InfoTypes;
@@ -23,7 +24,6 @@ import bio.overture.song.server.repository.InfoRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.core.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +33,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.server.model.entity.Info.createInfo;
+import static bio.overture.song.server.model.entity.InfoPK.createInfoPK;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +59,7 @@ abstract class InfoService {
   }
 
   private InfoPK buildPK(String id){
-    return InfoPK.createInfoPK(id, type.toString());
+    return createInfoPK(id, type.toString());
   }
 
   public void checkInfoExists(@NonNull String id){
@@ -77,13 +78,13 @@ abstract class InfoService {
     checkServer(!isInfoExist(id),getClass(), INFO_ALREADY_EXISTS,
     "Could not create Info record for id='%s' and type='%s' because it already exists",
     id, type.toString());
-    val infoObj = Info.createInfo(buildPK(id), info);
+    val infoObj = createInfo(buildPK(id), info);
     infoRepository.save(infoObj);
   }
 
   public void update(@NonNull String id, String info) {
     checkInfoExists(id);
-    val infoObj = Info.createInfo(buildPK(id), info);
+    val infoObj = createInfo(buildPK(id), info);
     infoRepository.save(infoObj);
   }
 

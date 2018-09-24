@@ -17,12 +17,12 @@
 
 package bio.overture.song.server.model.entity.composites;
 
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.model.entity.Specimen;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import lombok.val;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
 
 import java.util.ArrayList;
 import java.util.List;

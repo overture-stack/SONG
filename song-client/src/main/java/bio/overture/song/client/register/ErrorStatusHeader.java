@@ -17,9 +17,9 @@
 
 package bio.overture.song.client.register;
 
-import lombok.val;
 import bio.overture.song.client.config.Config;
 import bio.overture.song.core.exceptions.SongError;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

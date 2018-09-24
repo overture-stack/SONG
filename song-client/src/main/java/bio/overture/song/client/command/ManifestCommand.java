@@ -16,6 +16,10 @@
  */
 package bio.overture.song.client.command;
 
+import bio.overture.song.client.config.Config;
+import bio.overture.song.client.json.JsonObject;
+import bio.overture.song.client.model.Manifest;
+import bio.overture.song.client.model.ManifestEntry;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -24,10 +28,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.client.config.Config;
-import bio.overture.song.client.json.JsonObject;
-import bio.overture.song.client.model.Manifest;
-import bio.overture.song.client.model.ManifestEntry;
 
 import java.io.IOException;
 import java.nio.file.Files;

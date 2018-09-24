@@ -16,10 +16,12 @@
  */
 package bio.overture.song.client.command;
 
+import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.command.rules.ModeRule;
 import bio.overture.song.client.command.rules.ParamTerm;
 import bio.overture.song.client.command.rules.RuleProcessor;
 import bio.overture.song.client.register.Registry;
+import bio.overture.song.core.model.ExportedPayload;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,8 +33,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import bio.overture.song.client.cli.Status;
-import bio.overture.song.core.model.ExportedPayload;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Stopwatch.createUnstarted;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.partition;
@@ -130,7 +131,7 @@ public class ExportCommand extends Command {
   private ModeRule studyMode;
   private ModeRule analysisMode;
   private ParamTerm<String> inputFileTerm;
-  private Stopwatch stopwatch = Stopwatch.createUnstarted();
+  private Stopwatch stopwatch = createUnstarted();
 
   @Override
   public void run() {
@@ -173,8 +174,8 @@ public class ExportCommand extends Command {
         .createParamTerm( INPUT_FILE_SWITCH_SHORT, INPUT_FILE_SWITCH_LONG, inputFilename, IS_STRING_DEFINED_FUNCTION);
 
     // Create Rules
-    studyMode = ModeRule.createModeRule(STUDY_MODE, studyTerm);
-    analysisMode = ModeRule.createModeRule(ANALYSIS_MODE, analysisTerm, threadTerm, inputFileTerm);
+    studyMode = createModeRule(STUDY_MODE, studyTerm);
+    analysisMode = createModeRule(ANALYSIS_MODE, analysisTerm, threadTerm, inputFileTerm);
 
     // Process Rules
     val ruleProcessor = RuleProcessor.createRuleProcessor(studyMode, analysisMode);

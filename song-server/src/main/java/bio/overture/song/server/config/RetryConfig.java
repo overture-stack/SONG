@@ -35,7 +35,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.springframework.retry.backoff.ExponentialBackOffPolicy.DEFAULT_MULTIPLIER;
 
 @Configuration
-//@Profile("secure")
 public class RetryConfig {
 
   private static final int DEFAULT_MAX_RETRIES = 5;

@@ -37,7 +37,7 @@ public class StorageConfig {
   @Autowired
   private ValidationService validationService;
 
-  @Value("${dcc-storage.url}")
+  @Value("${score.url}")
   private String storageUrl;
 
   @Bean

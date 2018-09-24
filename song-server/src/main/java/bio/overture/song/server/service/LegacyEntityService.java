@@ -17,6 +17,7 @@
 
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.converter.LegacyEntityConverter;
 import bio.overture.song.server.model.legacy.LegacyDto;
 import bio.overture.song.server.model.legacy.LegacyEntity;
@@ -26,7 +27,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.bohnman.squiggly.Squiggly;
 import lombok.NonNull;
 import lombok.val;
-import bio.overture.song.core.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.exceptions.ServerErrors.LEGACY_ENTITY_NOT_FOUND;
@@ -98,7 +99,7 @@ public class LegacyEntityService {
   private String buildLegacyEntityPageFilter(Set<String> filteredFieldNames){
     String filter = SQUIGGLY_ALL_FILTER;
     if (!filteredFieldNames.isEmpty()){
-      filter = String.format("%s,content[%s]", SQUIGGLY_ALL_FILTER, COMMA.join(filteredFieldNames));
+      filter = format("%s,content[%s]", SQUIGGLY_ALL_FILTER, COMMA.join(filteredFieldNames));
     }
     return filter;
   }

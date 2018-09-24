@@ -19,9 +19,9 @@ package bio.overture.song.server.model.enums;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.icgc.dcc.common.core.util.stream.Streams;
 
 import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 
 @RequiredArgsConstructor
 public enum AnalysisTypes {
@@ -36,11 +36,10 @@ public enum AnalysisTypes {
   }
 
   public static AnalysisTypes resolveAnalysisType(@NonNull String analysisType){
-    return Streams.stream(values())
+    return stream(values())
         .filter(x -> x.toString().equals(analysisType))
         .findFirst()
         .orElseThrow(() -> new IllegalStateException(format("The analysis type '%s' cannot be resolved", analysisType)));
   }
-
 
 }

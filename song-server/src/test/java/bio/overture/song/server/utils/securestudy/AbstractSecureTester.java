@@ -17,13 +17,13 @@
 
 package bio.overture.song.server.utils.securestudy;
 
+import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.service.StudyService;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.service.StudyService;
 
 import java.util.function.BiConsumer;
 

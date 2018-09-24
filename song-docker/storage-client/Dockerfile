@@ -1,5 +1,5 @@
 FROM overture/score:1.1.1
-MAINTAINER ICGC <dcc-support@icgc.org>
+MAINTAINER OVERTURE <contact@overture.bio>
 
 ENV DCC_HOME /opt/dcc
 ENV DCC_CONFIG /opt/dcc/config
@@ -10,7 +10,7 @@ ENV EXPAND_SCRIPT $DCC_HOME/tools/expand.py
 ENV INPUT_FILE $DCC_CONFIG/application-aws.properties.template
 ENV OUTPUT_FILE $DCC_DATA/conf/application-aws.properties
 
-CMD cp -r /icgc/icgc-storage-client/* $DCC_DATA && \
+CMD cp -r /score/score-client/* $DCC_DATA && \
     mkdir -p $DCC_DATA/logs && \
     chmod -R 777 $DCC_DATA && \
     rm -f $DCC_DATA/conf/application.properties && \

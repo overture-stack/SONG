@@ -17,19 +17,20 @@
 
 package bio.overture.song.server.utils;
 
+import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import bio.overture.song.server.model.enums.AnalysisTypes;
+import bio.overture.song.server.service.AnalysisService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.service.AnalysisService;
 
 import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.PayloadGenerator.resolveDefaultPayloadFilename;
 
@@ -101,7 +102,7 @@ public class AnalysisGenerator {
 
   public static AnalysisGenerator createAnalysisGenerator(String studyId, AnalysisService service, String
       randomGeneratorName) {
-    val randomGenerator = RandomGenerator.createRandomGenerator(randomGeneratorName);
+    val randomGenerator = createRandomGenerator(randomGeneratorName);
     return createAnalysisGenerator(studyId, service, randomGenerator);
   }
 

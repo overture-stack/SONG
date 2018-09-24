@@ -17,6 +17,11 @@
 
 package bio.overture.song.server.model.analysis;
 
+import bio.overture.song.server.model.Metadata;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.model.enums.Constants;
+import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -24,11 +29,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
-import bio.overture.song.server.model.Metadata;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.model.enums.Constants;
-import bio.overture.song.server.model.enums.TableAttributeNames;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -39,6 +39,7 @@ import java.util.List;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
 import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
+import static bio.overture.song.server.model.enums.Constants.validate;
 
 @MappedSuperclass
 @Data
@@ -76,7 +77,7 @@ public abstract class AbstractAnalysis extends Metadata {
     abstract public String getAnalysisType();
 
     public void setAnalysisState(String state) {
-        Constants.validate(Constants.ANALYSIS_STATE, state);
+        validate(Constants.ANALYSIS_STATE, state);
         this.analysisState=state;
     }
 

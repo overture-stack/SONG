@@ -17,6 +17,9 @@
 
 package bio.overture.song.server.model.entity;
 
+import bio.overture.song.server.model.Metadata;
+import bio.overture.song.server.model.enums.TableAttributeNames;
+import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
@@ -24,15 +27,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import bio.overture.song.server.model.Metadata;
-import bio.overture.song.server.model.enums.Constants;
-import bio.overture.song.server.model.enums.TableAttributeNames;
-import bio.overture.song.server.model.enums.TableNames;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
+import static bio.overture.song.server.model.enums.Constants.validate;
 
 @Entity
 @Table(name = TableNames.SAMPLE)
@@ -66,7 +68,7 @@ public class Sample extends Metadata {
   }
 
   public void setSampleType(String type) {
-    Constants.validate(Constants.SAMPLE_TYPE, type);
+    validate(SAMPLE_TYPE, type);
     sampleType = type;
   }
 

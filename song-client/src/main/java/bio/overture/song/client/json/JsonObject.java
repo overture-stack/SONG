@@ -17,8 +17,9 @@
 package bio.overture.song.client.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import lombok.val;
+
+import static java.lang.String.format;
 
 public class JsonObject {
 
@@ -31,7 +32,7 @@ public class JsonObject {
   public String get(String key) {
     val jsonString = node.get(key);
     if (jsonString == null) {
-      return String.format("<Invalid or missing %s>", key);
+      return format("<Invalid or missing %s>", key);
     }
     return jsonString.asText();
   }

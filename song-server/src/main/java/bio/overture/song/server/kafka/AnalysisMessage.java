@@ -17,10 +17,10 @@
 
 package bio.overture.song.server.kafka;
 
+import bio.overture.song.core.model.enums.AnalysisStates;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import bio.overture.song.core.model.enums.AnalysisStates;
 
 import static lombok.AccessLevel.PRIVATE;
 import static bio.overture.song.core.utils.Checkers.checkNotBlank;

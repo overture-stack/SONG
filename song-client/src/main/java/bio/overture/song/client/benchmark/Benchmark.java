@@ -17,9 +17,14 @@
 
 package bio.overture.song.client.benchmark;
 
+import bio.overture.song.client.benchmark.model.UploadData;
 import bio.overture.song.client.benchmark.monitor.BenchmarkMonitor;
 import bio.overture.song.client.benchmark.monitor.CounterMonitor;
 import bio.overture.song.client.benchmark.monitor.StudyMonitor;
+import bio.overture.song.client.config.Config;
+import bio.overture.song.client.register.Registry;
+import bio.overture.song.client.register.RestClient;
+import bio.overture.song.core.utils.JsonUtils;
 import com.google.common.collect.Lists;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +32,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.codehaus.jackson.map.ObjectMapper;
-import bio.overture.song.client.benchmark.model.UploadData;
-import bio.overture.song.client.config.Config;
-import bio.overture.song.client.register.Registry;
-import bio.overture.song.client.register.RestClient;
-import bio.overture.song.core.utils.JsonUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

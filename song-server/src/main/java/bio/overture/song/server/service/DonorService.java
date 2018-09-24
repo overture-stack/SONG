@@ -22,7 +22,6 @@ import bio.overture.song.server.repository.DonorRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.core.exceptions.ServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,7 +87,7 @@ public class DonorService {
     if (numDonors < 1){
       studyService.checkStudyExist(studyId);
       val donor = unsecuredRead(id);
-      throw ServerException.buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
+      throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
           "The donorId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
           id, studyId, donor.getStudyId() );
     }

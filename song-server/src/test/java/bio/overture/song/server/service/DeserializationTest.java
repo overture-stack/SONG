@@ -20,9 +20,9 @@ package bio.overture.song.server.service;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
+import bio.overture.song.server.utils.TestFiles;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import bio.overture.song.server.utils.TestFiles;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

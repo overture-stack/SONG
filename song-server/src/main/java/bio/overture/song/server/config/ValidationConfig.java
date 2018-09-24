@@ -16,19 +16,19 @@
  */
 package bio.overture.song.server.config;
 
+import bio.overture.song.core.utils.JsonDocUtils;
+import bio.overture.song.core.utils.JsonSchemaUtils;
+import bio.overture.song.server.model.entity.IdView;
+import bio.overture.song.server.model.legacy.LegacyEntity;
+import bio.overture.song.server.repository.search.IdSearchRequest;
+import bio.overture.song.server.utils.ParameterChecker;
+import bio.overture.song.server.validation.SchemaValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import bio.overture.song.core.utils.JsonDocUtils;
-import bio.overture.song.core.utils.JsonSchemaUtils;
-import bio.overture.song.server.model.legacy.LegacyEntity;
-import bio.overture.song.server.model.entity.IdView;
-import bio.overture.song.server.repository.search.IdSearchRequest;
-import bio.overture.song.server.utils.ParameterChecker;
-import bio.overture.song.server.validation.SchemaValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -16,11 +16,11 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.entity.Study;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Study;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

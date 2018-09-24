@@ -17,11 +17,11 @@
 
 package bio.overture.song.client.benchmark.rest;
 
+import bio.overture.song.core.utils.JsonUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
-import bio.overture.song.core.utils.JsonUtils;
 import org.springframework.http.HttpStatus;
 
 import java.util.stream.Collectors;

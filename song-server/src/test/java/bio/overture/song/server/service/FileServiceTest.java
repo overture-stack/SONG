@@ -16,13 +16,13 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.utils.RandomGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,10 +36,10 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
 import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;

@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
@@ -136,13 +137,13 @@ public class SchemaValidationTests {
 
   protected JsonSchema getJsonSchemaFromClasspath(String name) throws Exception {
     JsonSchemaFactory factory = new JsonSchemaFactory();
-    InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+    InputStream is = currentThread().getContextClassLoader().getResourceAsStream(name);
     JsonSchema schema = factory.getSchema(is);
     return schema;
   }
 
   protected JsonNode getJsonNodeFromClasspath(String name) throws Exception {
-    InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+    InputStream is1 = currentThread().getContextClassLoader().getResourceAsStream(name);
     ObjectMapper mapper = new ObjectMapper();
     JsonNode node = mapper.readTree(is1);
     return node;

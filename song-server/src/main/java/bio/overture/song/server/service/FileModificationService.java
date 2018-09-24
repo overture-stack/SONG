@@ -17,14 +17,14 @@
 
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.exceptions.ServerException;
+import bio.overture.song.core.model.enums.FileUpdateTypes;
+import bio.overture.song.core.model.file.FileData;
+import bio.overture.song.core.model.file.FileUpdateResponse;
+import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.entity.FileEntity;
 import lombok.NonNull;
 import lombok.val;
-import bio.overture.song.core.exceptions.ServerException;
-import bio.overture.song.server.converter.FileConverter;
-import bio.overture.song.core.model.file.FileData;
-import bio.overture.song.core.model.file.FileUpdateResponse;
-import bio.overture.song.core.model.enums.FileUpdateTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static java.lang.String.format;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE_REQUEST;
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
@@ -127,7 +128,7 @@ public class FileModificationService {
   public void checkFileUpdateRequestValidation(String id, FileData fileUpdateRequest){
     val validationResponse = validationService.validate(fileUpdateRequest);
     if (validationResponse.isPresent()){
-      throw ServerException.buildServerException(getClass(),
+      throw buildServerException(getClass(),
           INVALID_FILE_UPDATE_REQUEST,
           "The file update request for objectId '%s' failed with the following errors: %s",
           id, validationResponse.get());

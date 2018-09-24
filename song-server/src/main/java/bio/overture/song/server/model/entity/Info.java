@@ -17,6 +17,7 @@
 
 package bio.overture.song.server.model.entity;
 
+import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,7 +27,6 @@ import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.val;
 import org.hibernate.annotations.Type;
-import bio.overture.song.core.utils.JsonUtils;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;

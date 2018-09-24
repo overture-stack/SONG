@@ -16,6 +16,7 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.enums.IdPrefix;
@@ -27,8 +28,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import bio.overture.song.core.exceptions.ServerException;
-import bio.overture.song.core.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,6 +40,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.springframework.http.ResponseEntity.ok;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
@@ -49,7 +49,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALID
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
-import static org.springframework.http.ResponseEntity.ok;
 
 @RequiredArgsConstructor
 @Service
@@ -147,7 +146,7 @@ public class UploadService {
     val upload = securedRead(studyId, uploadId);
     val uploadState = UploadStates.resolveState(upload.getState());
 
-    ServerException.checkServer(uploadState == UploadStates.SAVED || uploadState == UploadStates.VALIDATED, this.getClass(),
+    checkServer(uploadState == UploadStates.SAVED || uploadState == UploadStates.VALIDATED, this.getClass(),
         UPLOAD_ID_NOT_VALIDATED,
         "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
         uploadId, uploadState.getText(), UploadStates.VALIDATED.getText());

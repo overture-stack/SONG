@@ -17,12 +17,12 @@
 
 package bio.overture.song.client.errors;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.utils.JsonUtils;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 

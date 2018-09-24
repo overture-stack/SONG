@@ -16,13 +16,13 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.repository.AnalysisRepository;
+import bio.overture.song.server.repository.FileRepository;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
-import bio.overture.song.server.converter.FileConverter;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

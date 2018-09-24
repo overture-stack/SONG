@@ -17,18 +17,18 @@
 
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.server.config.ConverterConfig;
+import bio.overture.song.server.converter.LegacyEntityConverter;
 import bio.overture.song.server.model.legacy.LegacyDto;
 import bio.overture.song.server.model.legacy.LegacyEntity;
+import bio.overture.song.server.repository.LegacyEntityRepository;
 import bio.overture.song.server.utils.ParameterChecker;
+import bio.overture.song.server.utils.TestFiles;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.server.converter.LegacyEntityConverter;
-import bio.overture.song.server.repository.LegacyEntityRepository;
-import bio.overture.song.server.utils.TestFiles;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -55,14 +55,12 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILTER_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_QUERY_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.LEGACY_ENTITY_NOT_FOUND;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.convertValue;
 import static bio.overture.song.server.service.LegacyEntityService.createLegacyEntityService;
-import static bio.overture.song.server.utils.ParameterChecker.createParameterChecker;
-import static org.mockito.Mockito.when;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)

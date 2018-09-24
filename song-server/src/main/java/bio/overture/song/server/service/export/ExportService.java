@@ -17,6 +17,8 @@
 
 package bio.overture.song.server.service.export;
 
+import bio.overture.song.core.model.ExportedPayload;
+import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
@@ -27,8 +29,6 @@ import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
-import bio.overture.song.core.model.ExportedPayload;
-import bio.overture.song.core.model.enums.AnalysisStates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +44,11 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
+import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
+import static bio.overture.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
+import static bio.overture.song.server.service.export.PayloadConverter.createPayloadConverter;
+import static bio.overture.song.server.service.export.PayloadParser.createPayloadParser;
 
 @Service
 public class ExportService {
@@ -90,11 +95,11 @@ public class ExportService {
   @SneakyThrows
   private static JsonNode convertToPayload(@NonNull AbstractAnalysis a, boolean includeAnalysisId) {
     JsonNode output;
-    val analysisType = AnalysisTypes.resolveAnalysisType(a.getAnalysisType());
-    if (analysisType == AnalysisTypes.SEQUENCING_READ) {
+    val analysisType = resolveAnalysisType(a.getAnalysisType());
+    if (analysisType == SEQUENCING_READ) {
       val seqRead = (SequencingReadAnalysis) a;
       output = readTree(toPrettyJson(seqRead));
-    } else if (analysisType == AnalysisTypes.VARIANT_CALL) {
+    } else if (analysisType == VARIANT_CALL) {
       val varCall = (VariantCallAnalysis) a;
       output = readTree(toPrettyJson(varCall));
     } else {
@@ -103,8 +108,8 @@ public class ExportService {
               a.getAnalysisType()));
     }
 
-    val payloadConverter = PayloadConverter.createPayloadConverter(includeAnalysisId);
-    val payloadParser = PayloadParser.createPayloadParser(output);
+    val payloadConverter = createPayloadConverter(includeAnalysisId);
+    val payloadParser = createPayloadParser(output);
     return payloadConverter.convert(payloadParser);
   }
 

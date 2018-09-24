@@ -17,26 +17,26 @@
 
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.model.enums.FileTypes;
+import bio.overture.song.server.model.Metadata;
+import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
 import bio.overture.song.server.model.entity.composites.StudyWithDonors;
+import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.model.experiment.SequencingRead;
 import bio.overture.song.server.model.experiment.VariantCall;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import bio.overture.song.server.model.Metadata;
-import bio.overture.song.server.model.Upload;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.core.model.enums.FileTypes;
-import bio.overture.song.server.model.enums.UploadStates;
 import org.junit.Test;
 
 import java.time.LocalDateTime;

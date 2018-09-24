@@ -17,13 +17,13 @@
 
 package bio.overture.song.server.constants;
 
-import lombok.val;
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.server.model.enums.InfoSearchResponseColumns;
 import bio.overture.song.server.model.enums.InfoTypes;
 import bio.overture.song.server.model.enums.UploadStates;
+import lombok.val;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

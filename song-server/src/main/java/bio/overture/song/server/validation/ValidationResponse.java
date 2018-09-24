@@ -16,11 +16,12 @@
  */
 package bio.overture.song.server.validation;
 
-import java.util.Set;
-import static java.util.stream.Collectors.joining;
-
 import com.networknt.schema.ValidationMessage;
 import lombok.Data;
+
+import java.util.Set;
+
+import static java.util.stream.Collectors.joining;
 
 @Data
 public class ValidationResponse {

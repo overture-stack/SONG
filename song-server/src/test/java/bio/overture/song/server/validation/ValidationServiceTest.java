@@ -16,12 +16,12 @@
  */
 package bio.overture.song.server.validation;
 
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.service.ValidationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
 import lombok.val;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.service.ValidationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -32,6 +32,7 @@ import java.nio.file.Paths;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
@@ -60,7 +61,7 @@ public class TestFiles {
 
   @SneakyThrows
   public static JsonNode getJsonNodeFromClasspath(String pathname) {
-    InputStream is1 = Thread.currentThread().getContextClassLoader().getResourceAsStream(pathname);
+    InputStream is1 = currentThread().getContextClassLoader().getResourceAsStream(pathname);
     checkNotNull(is1, "null reference. Path '%s' could be incorrect", pathname);
     return readTree(is1);
   }

@@ -16,6 +16,8 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.RandomGenerator;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +25,6 @@ import lombok.val;
 import org.assertj.core.api.Assertions;
 import org.icgc.dcc.id.client.http.HttpIdClient;
 import org.icgc.dcc.id.client.util.HashIdClient;
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.RandomGenerator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,14 +38,13 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.springframework.http.HttpStatus.OK;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
 import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
 import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
 import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
-import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 public class IdServiceTest {

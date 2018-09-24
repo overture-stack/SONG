@@ -16,9 +16,14 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.service.export.ExportService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
@@ -29,11 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
 import org.icgc.dcc.id.client.core.IdClient;
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.Upload;
-import bio.overture.song.server.service.export.ExportService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,12 +51,12 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.springframework.http.HttpStatus.OK;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
 import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
@@ -64,7 +64,6 @@ import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static bio.overture.song.server.utils.securestudy.impl.SecureUploadTester.createSecureUploadTester;
-import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @SpringBootTest

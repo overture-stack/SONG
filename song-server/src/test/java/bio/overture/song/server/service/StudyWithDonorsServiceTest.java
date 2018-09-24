@@ -16,6 +16,7 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.Sample;
@@ -23,12 +24,11 @@ import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
+import bio.overture.song.server.utils.StudyGenerator;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.utils.StudyGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

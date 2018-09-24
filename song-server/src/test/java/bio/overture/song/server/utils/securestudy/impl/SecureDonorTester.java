@@ -17,21 +17,20 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
+import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.model.enums.Constants;
-import com.google.common.collect.Lists;
-import lombok.NonNull;
-import lombok.val;
-import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.DonorService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
+import com.google.common.collect.Lists;
+import lombok.NonNull;
+import lombok.val;
 
 import java.util.function.BiConsumer;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 
 public class SecureDonorTester extends AbstractSecureTester {

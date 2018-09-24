@@ -16,17 +16,14 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.command.rules.ModeRule;
-import bio.overture.song.client.command.rules.ParamTerm;
-import bio.overture.song.client.command.rules.RuleProcessor;
+import bio.overture.song.client.cli.Status;
+import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import bio.overture.song.client.cli.Status;
-import bio.overture.song.client.config.Config;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,6 +32,8 @@ import java.util.Objects;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.nonNull;
 import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
+import static bio.overture.song.client.command.rules.ParamTerm.createParamTerm;
+import static bio.overture.song.client.command.rules.RuleProcessor.createRuleProcessor;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Search for analysis objects for the current studyId" )
@@ -130,18 +129,18 @@ public class SearchCommand extends Command {
   }
 
   private Status checkRules() {
-    val fileTerm = ParamTerm.createParamTerm(F_SWITCH, FILE_ID_SWITCH, fileId, Objects::nonNull);
-    val sampleTerm = ParamTerm.createParamTerm(SA_SWITCH, SAMPLE_ID_SWITCH, sampleId, Objects::nonNull);
-    val specimenTerm = ParamTerm.createParamTerm(SP_SWITCH, SPECIMEN_ID_SWITCH, specimenId, Objects::nonNull);
-    val donorTerm = ParamTerm.createParamTerm(D_SWITCH, DONOR_ID_SWITCH, donorId, Objects::nonNull);
-    val analysisIdTerm = ParamTerm.createParamTerm(A_SWITCH, ANALYSIS_ID_SWITCH, analysisId, Objects::nonNull);
-    val infoTerm = ParamTerm.createParamTerm(I_SWITCH, INFO_SWITCH, includeInfo, x -> x);
-    val searchTerm = ParamTerm.createParamTerm(T_SWITCH, SEARCH_TERMS_SWITCH, infoSearchTerms, x -> x.size() > 0);
+    val fileTerm = createParamTerm(F_SWITCH, FILE_ID_SWITCH, fileId, Objects::nonNull);
+    val sampleTerm = createParamTerm(SA_SWITCH, SAMPLE_ID_SWITCH, sampleId, Objects::nonNull);
+    val specimenTerm = createParamTerm(SP_SWITCH, SPECIMEN_ID_SWITCH, specimenId, Objects::nonNull);
+    val donorTerm = createParamTerm(D_SWITCH, DONOR_ID_SWITCH, donorId, Objects::nonNull);
+    val analysisIdTerm = createParamTerm(A_SWITCH, ANALYSIS_ID_SWITCH, analysisId, Objects::nonNull);
+    val infoTerm = createParamTerm(I_SWITCH, INFO_SWITCH, includeInfo, x -> x);
+    val searchTerm = createParamTerm(T_SWITCH, SEARCH_TERMS_SWITCH, infoSearchTerms, x -> x.size() > 0);
 
-    val idSearchMode = ModeRule.createModeRule(ID_MODE, fileTerm, sampleTerm, specimenTerm, donorTerm);
-    val infoSearchMode = ModeRule.createModeRule(INFO_MODE, infoTerm, searchTerm);
-    val analysisSearchMode = ModeRule.createModeRule(ANALYSIS_MODE, analysisIdTerm);
-    val ruleProcessor = RuleProcessor.createRuleProcessor(idSearchMode, infoSearchMode, analysisSearchMode);
+    val idSearchMode = createModeRule(ID_MODE, fileTerm, sampleTerm, specimenTerm, donorTerm);
+    val infoSearchMode = createModeRule(INFO_MODE, infoTerm, searchTerm);
+    val analysisSearchMode = createModeRule(ANALYSIS_MODE, analysisIdTerm);
+    val ruleProcessor = createRuleProcessor(idSearchMode, infoSearchMode, analysisSearchMode);
     return ruleProcessor.check();
   }
 

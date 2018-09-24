@@ -16,6 +16,7 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
@@ -26,7 +27,6 @@ import bio.overture.song.server.model.experiment.SequencingRead;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import bio.overture.song.core.utils.JsonUtils;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -38,12 +38,12 @@ public class ServerException extends RuntimeException {
   }
 
   public static ServerException buildServerException(String context, ServerError serverError, String formattedMessage, Object...args ){
-    val songError = SongError.createSongError(context, serverError, formattedMessage, args);
+    val songError = createSongError(context, serverError, formattedMessage, args);
     return new ServerException(songError);
   }
 
   public static ServerException buildServerException(Class<?> clazz, ServerError serverError, String formattedMessage, Object...args ){
-    val songError = SongError.createSongError(clazz, serverError, formattedMessage, args);
+    val songError = createSongError(clazz, serverError, formattedMessage, args);
     return new ServerException(songError);
   }
 

@@ -17,14 +17,14 @@
 
 package bio.overture.song.server.model.legacy;
 
+import bio.overture.song.server.model.enums.TableAttributeNames;
+import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Immutable;
-import bio.overture.song.server.model.enums.TableAttributeNames;
-import bio.overture.song.server.model.enums.TableNames;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

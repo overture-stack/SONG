@@ -17,13 +17,13 @@
 
 package bio.overture.song.server.validation;
 
-import bio.overture.song.server.utils.ParameterChecker;
-import com.google.common.collect.Sets;
-import lombok.val;
 import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.legacy.LegacyDto;
+import bio.overture.song.server.utils.ParameterChecker;
+import com.google.common.collect.Sets;
+import lombok.val;
 import org.junit.Test;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class ParameterCheckerTests {
 
   private static final Class<?> REGISTERED_TYPE = LegacyDto.class;
   private static final Class<?> UNREGISTERED_TYPE = Donor.class;
-  private ParameterChecker parameterChecker = ParameterChecker.createParameterChecker(REGISTERED_TYPE);
+  private ParameterChecker parameterChecker = createParameterChecker(REGISTERED_TYPE);
   private static Set<String> expectedFieldNames = newHashSet("id", "fileName", "access", "projectCode", "gnosId");
   private final RandomGenerator randomGenerator = createRandomGenerator(ParameterCheckerTests.class.getSimpleName());
 
