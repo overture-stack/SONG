@@ -1,5 +1,5 @@
 FROM song_base-ubuntu:latest
-MAINTAINER ICGC <dcc-support@icgc.org>
+MAINTAINER OVERTURE <contact@overture.bio>
 
 ENV AUTH_INIT $DCC_HOME/init
 ENV AUTH_DATA $DCC_HOME/auth_data

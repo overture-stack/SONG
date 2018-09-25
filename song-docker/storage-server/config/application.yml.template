@@ -64,7 +64,7 @@ upload:
   clean.enabled: true
 
 # Debug
-logging.level.org.icgc.dcc.storage.server: DEBUG
+logging.level.bio.overture.score.server: DEBUG
 logging.level.org.apache.http.wire: DEBUG
 logging.level.org.apache.http.headers: DEBUG
 
