@@ -55,6 +55,9 @@ id:
   authToken: "idToken"
   realIds: false
   persistInMemory: false
+  maxRetries: 10
+  multiplier: 2
+  initialBackoffSeconds: 2
 
 validation:
   delayMs: 30
