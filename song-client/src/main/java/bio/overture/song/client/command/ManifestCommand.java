@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Paths.get;
@@ -74,8 +73,15 @@ public class ManifestCommand extends Command {
 
     inputDirPath = get(inputDirName);
 
-    checkArgument(exists(inputDirPath), "The input path '%s' does not exist", inputDirName);
-    checkArgument(isDirectory(inputDirPath), "The input path '%s' is not a directory", inputDirName);
+    if(!exists(inputDirPath)){
+      err("[SONG_CLIENT_ERROR]: The input path '%s' does not exist", inputDirName);
+      return;
+    }
+
+    if (!isDirectory(inputDirPath)){
+      err("[SONG_CLIENT_ERROR]: The input path '%s' is not a directory", inputDirName);
+      return;
+    }
 
     val status = registry.getAnalysisFiles(config.getStudyId(), analysisId);
 
