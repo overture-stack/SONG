@@ -446,7 +446,9 @@ Generate the Manifest
 ----------------------
 With an analysis created, a manifest file must be generated using the
 :class:`ManifestClient <overture_song.client.ManifestClient>`
-, the analysisId from the previously generated analysis, and an output file path. By calling the
+, the analysisId from the previously generated analysis, a path to the directory containing the files to be uploaded
+, and an output file path. If the `source_dir` does not exist or if the files to be uploaded are not present in that directory
+, then an error will be shown. By calling the
 :func:`write_manifest <overture_song.client.ManifestClient.write_manifest>` method, a
 :class:`Manifest <overture_song.model.Manifest>` object is generated and then written to a file.
 This step is required for the next section involving the upload of the object files to the storage server.
@@ -455,16 +457,17 @@ This step is required for the next section involving the upload of the object fi
 
     from overture_song.client import ManifestClient
     manifest_client = ManifestClient(api)
+    source_dir = "/path/to/directory/containing/files"
     manifest_file_path = './manifest.txt'
-    manifest_client.write_manifest('23c61f55-12b4-11e8-b46b-23a48c7b1324', manifest_file_path)
+    manifest_client.write_manifest('23c61f55-12b4-11e8-b46b-23a48c7b1324', source_dir, manifest_file_path)
 
 After successful execution, a ``manifest.txt`` file will be generated and will have the following contents:
 
 .. code-block:: bash
 
     23c61f55-12b4-11e8-b46b-23a48c7b1324
-    f553bbe8-876b-5a9c-a436-ff47ceef53fb    myFilename1.bam    myMd51
-    6e2ee06b-e95d-536a-86b5-f2af9594185f    myFilename2.bam    myMd52
+    f553bbe8-876b-5a9c-a436-ff47ceef53fb    /path/to/directory/containing/files/myFilename1.bam    myMd51
+    6e2ee06b-e95d-536a-86b5-f2af9594185f    /path/to/directory/containing/files/myFilename2.bam    myMd52
 
 
 Upload the Object Files
