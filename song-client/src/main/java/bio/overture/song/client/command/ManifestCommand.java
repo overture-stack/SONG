@@ -52,7 +52,7 @@ public class ManifestCommand extends Command {
   private String analysisId;
 
   @Parameter(names = { "--file", "-f" },
-      description = "Filename to save file in (if not set, displays manifest on standard output", required = true)
+      description = "Filename to save file in (if not set, displays manifest on standard output")
   private String fileName;
 
   @Parameter(names = { "-d", "--input-dir"}, description = "Directory containing the files", required = true)
