@@ -20,6 +20,7 @@
 #
 import enum
 import logging
+import os
 
 from dataclasses import dataclass, fields, field
 
@@ -190,7 +191,7 @@ class ManifestEntry(object):
     md5sum: str
 
     @classmethod
-    def create_manifest_entry(cls, data):
+    def create_manifest_entry(cls, input_dir, data):
         """
         Creates a :class:`ManifestEntry <overture_song.model.ManifestEntry>` object
 
@@ -199,7 +200,7 @@ class ManifestEntry(object):
         """
         d = data.__dict__
         file_id = get_required_field(d, 'objectId')
-        file_name = get_required_field(d, 'fileName')
+        file_name = os.path.realpath(input_dir)+os.path.sep+get_required_field(d, 'fileName')
         md5sum = get_required_field(d, 'fileMd5sum')
         return ManifestEntry(file_id, file_name, md5sum)
 
