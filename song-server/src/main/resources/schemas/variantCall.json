@@ -151,7 +151,8 @@
         ],
         "properties": {
           "fileName": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$"
           },
           "fileSize": {
             "type": "integer"

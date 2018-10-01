@@ -17,10 +17,10 @@
 
 package bio.overture.song.server.utils;
 
+import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
-import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;

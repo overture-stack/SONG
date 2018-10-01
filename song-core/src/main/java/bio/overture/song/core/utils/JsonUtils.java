@@ -40,7 +40,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.icgc.dcc.common.core.util.Joiners.DOT;
 
 /**
  * Utility functions related to deal with JSON
