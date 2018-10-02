@@ -57,6 +57,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
@@ -64,6 +65,7 @@ import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static bio.overture.song.server.utils.securestudy.impl.SecureUploadTester.createSecureUploadTester;
+
 
 @Slf4j
 @SpringBootTest
@@ -163,7 +165,7 @@ public class UploadServiceTest {
 
   @SneakyThrows
   public String fromStatus( ResponseEntity<String> uploadStatus, String key) {
-    val uploadId = JsonUtils.readTree(uploadStatus.getBody()).at("/"+key).asText("");
+    val uploadId = readTree(uploadStatus.getBody()).at("/"+key).asText("");
     return uploadId;
   }
 

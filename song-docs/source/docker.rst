@@ -202,11 +202,11 @@ Stage 2: SONG Saving and Manifest Generation
 
     ./data/client/bin/sing search -a <analysisId>    |  jq ‘.analysisState’
 
-4. Generate a manifest for the ``icgc-storage-client`` in :ref:`Stage 3 <stage_3_ref>`
+4. Generate a manifest for the ``icgc-storage-client`` in :ref:`Stage 3 <stage_3_ref>` with the files located in the `./example` source directory
 
 .. code-block:: bash
 
-    sudo ./data/client/bin/sing manifest -a <analysisId> -f manifest.txt
+    sudo ./data/client/bin/sing manifest -a <analysisId> -f manifest.txt -d ./example
 
 
 .. _stage_3_ref:

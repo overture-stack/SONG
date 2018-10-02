@@ -29,7 +29,7 @@ from overture_song.entities import Study
 from overture_song.model import ManifestEntry, Manifest, SongError, ServerErrors
 from overture_song.rest import ObjectRest
 from overture_song.utils import SongClientException, convert_to_url_param_list, \
-    check_type, write_object, check_state
+    check_type, write_object, check_state, check_song_state
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("song.client")
@@ -198,15 +198,23 @@ class ManifestClient(object):
             raise SongClientException("manifest.service", "The argument must be an instance of Api")
         self.__api = api
 
-    def create_manifest(self, analysis_id):
+    def create_manifest(self, source_dir, analysis_id):
         manifest = Manifest(analysis_id)
         for file_object in self.__api.get_analysis_files(analysis_id):
-            manifest_entry = ManifestEntry.create_manifest_entry(file_object)
+            manifest_entry = ManifestEntry.create_manifest_entry(source_dir, file_object)
             manifest.add_entry(manifest_entry)
         return manifest
 
-    def write_manifest(self, analysis_id, output_file_path):
-        manifest = self.create_manifest(analysis_id)
+    def write_manifest(self, analysis_id, source_dir, output_file_path):
+        check_song_state(os.path.exists(source_dir), "manifest.service",
+                         "The source directory '{}' does not exist", source_dir)
+        manifest = self.create_manifest(source_dir, analysis_id)
+        missing_files = [me.fileName for me in manifest.entries if not os.path.exists(me.fileName)]
+
+        check_song_state(len(missing_files) == 0, "manifest.service",
+                         "The following files do not exist: \n '{}'",
+                         "',\n'".join(missing_files))
+
         write_object(manifest, output_file_path, overwrite=True)
 
 

@@ -16,12 +16,16 @@
  */
 package bio.overture.song.server.validation;
 
+import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
+import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.common.core.util.stream.Streams;
@@ -34,6 +38,9 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
 
 @Slf4j
 public class SchemaValidationTests {
@@ -123,9 +130,58 @@ public class SchemaValidationTests {
     assertThat(errors.size()).isEqualTo(6);
   }
 
+
+  @Test
+  @SneakyThrows
+  public void testFilenameValidation(){
+    val payloadGenerator = createPayloadGenerator("FileValidationTest");
+    val testMap = Maps.<String, Boolean>newHashMap();
+    testMap.put( "myFile.(name)-some_cool[characters]", true);
+    testMap.put("/myFile.(name)-some_cool[characters]",false);
+    testMap.put("myFile.(name)-so/me_cool[characters]",false);
+    testMap.put("myFile.(name)-so/me_co/ol[characters]",false);
+    testMap.put("./myFile.(name)-so/me_co/ol[characters]",false);
+    testMap.put("/",false);
+    val analysesTypes = newArrayList(VariantCallAnalysis.class, SequencingReadAnalysis.class );
+    for ( val analysisTypeClass : analysesTypes){
+      String ext;
+      String schemaFilename;
+      String fixtureFilename;
+      if (analysisTypeClass.equals(VariantCallAnalysis.class)) {
+        ext = "vcf.gz";
+        schemaFilename = "schemas/variantCall.json";
+        fixtureFilename = "documents/variantcall-valid.json";
+      } else {
+        ext = "bam";
+        schemaFilename = "schemas/sequencingRead.json";
+        fixtureFilename = "documents/sequencingread-valid.json";
+      }
+      for (val entry : testMap.entrySet()){
+        val filename = entry.getKey()+"."+ext;
+        log.info("Testing Filename validation: '{}'", filename);
+        val isGood = entry.getValue();
+        val payload = payloadGenerator.generateRandomPayload(analysisTypeClass, fixtureFilename);
+        payload.setAnalysisId(null);
+        payload.getFile().get(0).setFileName(filename);
+        val payloadNode = readTree(toJson(payload));
+        val errors = validate(schemaFilename, payloadNode);
+
+        if (isGood) {
+          assertThat(errors).hasSize(0);
+        } else {
+          assertThat(errors).hasSize(1);
+        }
+      }
+    }
+  }
+
   protected Set<ValidationMessage> validate(String schemaFile, String documentFile) throws Exception {
-    JsonSchema schema = getJsonSchemaFromClasspath(schemaFile);
-    JsonNode node = getJsonNodeFromClasspath(documentFile);
+    val node = getJsonNodeFromClasspath(documentFile);
+    return validate(schemaFile, node);
+  }
+
+  protected Set<ValidationMessage> validate(String schemaFile, JsonNode node) throws Exception {
+    val schema = getJsonSchemaFromClasspath(schemaFile);
     val errors = schema.validate(node);
     if (errors.size() > 0) {
       for (val msg : errors) {

@@ -241,6 +241,7 @@ public class FileServiceTest {
     secureFileTester.runSecureTest((s,f) -> fileService.securedDelete(s, newArrayList(f)));
   }
 
+
   private FileEntity createRandomFile(String studyId, String analysisId){
     return FileEntity.builder()
         .objectId( randomGenerator.generateRandomUUIDAsString())
