@@ -26,13 +26,8 @@ import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
-import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.FullView;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.model.enums.AnalysisTypes;
 import bio.overture.song.server.model.enums.Constants;
 import bio.overture.song.server.model.experiment.SequencingRead;
 import bio.overture.song.server.model.experiment.VariantCall;
@@ -65,12 +60,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
@@ -84,6 +80,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
 import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
+import static bio.overture.song.core.exceptions.ServerErrors.NOT_IMPLEMENTED_YET;
 import static bio.overture.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static bio.overture.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
@@ -94,10 +91,12 @@ import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Responses.ok;
+import static bio.overture.song.server.converter.FullViewConverter.processAnalysisForType;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
+import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
+import static bio.overture.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static bio.overture.song.server.repository.search.SearchTerm.createMultiSearchTerms;
 
 @Slf4j
@@ -111,7 +110,7 @@ public class AnalysisService {
   private static final Map<String, Class<? extends AbstractAnalysis>> ANALYSIS_CLASS_MAP =
       new HashMap<String, Class<? extends AbstractAnalysis>>(){{
         put(SEQUENCING_READ.toString(), SequencingReadAnalysis.class);
-        put(AnalysisTypes.VARIANT_CALL.toString(), VariantCallAnalysis.class);
+        put(VARIANT_CALL.toString(), VariantCallAnalysis.class);
       }};
 
   @Autowired
@@ -214,147 +213,66 @@ public class AnalysisService {
     return ok("AnalysisId %s was updated successfully", analysis.getAnalysisId());
   }
 
-  private static <T,R> Set<R> transformImmutableSet(List<T> list, Function<T, R> trFunction){
-    return list.stream()
-        .map(trFunction)
-        .collect(toImmutableSet());
-  }
-
-  private static  FileEntity extractFile(FullView fullView){
-    val f = FileEntity.builder()
-        .analysisId(fullView.getAnalysisId())
-        .fileAccess(fullView.getFileAccess())
-        .fileMd5sum(fullView.getFileMd5())
-        .fileName(fullView.getFileName())
-        .fileSize(fullView.getFileSize())
-        .fileType(fullView.getFileType())
-        .objectId(fullView.getFileObjectId())
-        .studyId(fullView.getStudyId())
-        .build();
-    f.setInfo(toJsonNode(fullView.getFileInfo()));
-    return f;
-  }
-
-  private static List<FileEntity> extractFiles(List<FullView> fullViews){
-    return ImmutableList.copyOf(transformImmutableSet(fullViews, AnalysisService::extractFile));
-  }
-
-  private static Sample extractSample(FullView fullView){
-    val s = Sample.builder()
-        .sampleId(fullView.getSampleId())
-        .sampleSubmitterId(fullView.getSampleSubmitterId())
-        .sampleType(fullView.getSampleType())
-        .specimenId(fullView.getSpecimenId())
-        .build();
-    s.setInfo(toJsonNode(fullView.getSampleInfo()));
-    return s;
-  }
-
-  private static Specimen extractSpecimen(FullView fullView){
-    val s = Specimen.builder()
-        .specimenId(fullView.getSpecimenId())
-        .specimenSubmitterId(fullView.getSpecimenSubmitterId())
-        .specimenType(fullView.getSpecimenType())
-        .specimenClass(fullView.getSpecimenClass())
-        .donorId(fullView.getDonorId())
-        .build();
-    s.setInfo(toJsonNode(fullView.getSpecimenInfo()));
-    return s;
-  }
-
-  private static Donor extractDonor(FullView fullView){
-    val d = Donor.builder()
-        .donorId(fullView.getDonorId())
-        .studyId(fullView.getStudyId())
-        .donorSubmitterId(fullView.getDonorSubmitterId())
-        .donorGender(fullView.getDonorGender())
-        .build();
-    d.setInfo(toJsonNode(fullView.getDonorInfo()));
-    return d;
-  }
-
-  private static List<Donor> extractDonors(List<FullView> fullViews){
-    return ImmutableList.copyOf(transformImmutableSet(fullViews, AnalysisService::extractDonor));
-  }
-
-  private static Optional<Specimen> extractSpecimenForSample(List<FullView> fullViews, String sampleId){
-    return fullViews.stream()
-        .filter(x -> x.getSampleId().equals(sampleId))
-        .map(AnalysisService::extractSpecimen)
-        .findFirst();
-  }
-
-  private static Optional<Donor> extractDonorForSpecimen(List<FullView> fullViews, String specimenId){
-    return fullViews.stream()
-        .filter(x -> x.getSpecimenId().equals(specimenId))
-        .map(AnalysisService::extractDonor)
-        .findFirst();
-  }
-
-  private static List<Specimen> extractSpecimens(List<FullView> fullViews){
-    return ImmutableList.copyOf(transformImmutableSet(fullViews, AnalysisService::extractSpecimen));
-  }
-
-  private static List<CompositeEntity> extractCompositeEntities(List<FullView> fullViews){
-    val samples = extractSamples(fullViews);
-    val list = ImmutableList.<CompositeEntity>builder();
-    for (val sample : samples){
-      val specimen = extractSpecimenForSample(fullViews, sample.getSampleId())
-          .orElseThrow(() -> new IllegalStateException(
-              format("The specimen '%s' for sampleId '%s' does not exist",
-                  sample.getSpecimenId(), sample.getSampleId())));
-
-      val donor = extractDonorForSpecimen(fullViews, specimen.getSpecimenId())
-          .orElseThrow(() -> new IllegalStateException(
-              format("The donor '%s' for specimenId '%s' does not exist",
-                  specimen.getDonorId(), specimen.getSpecimenId())));
-      val c = new CompositeEntity();
-      c.setDonor(donor);
-      c.setSpecimen(specimen);
-      c.setWithSample(sample);
-      list.add(c);
-    }
-    return list.build();
-  }
-
-  private static List<Sample> extractSamples(List<FullView> fullViews){
-    return ImmutableList.copyOf(transformImmutableSet(fullViews, AnalysisService::extractSample));
-  }
-
-  public List<AbstractAnalysis> getAnalysis2(@NonNull String studyId, @NonNull Set<String> analysisStates) {
-    studyService.checkStudyExist(studyId);
-
+  private static Set<String> resolveSelectedAnalysisStates(Set<String> analysisStates){
     Set<String> finalStates = DEFAULT_ANALYSIS_STATES;
     if (!analysisStates.isEmpty()) {
       val errorSet = findIncorrectAnalysisStates(analysisStates);
-      checkServer(errorSet.isEmpty(), getClass(), MALFORMED_PARAMETER,
+      checkServer(errorSet.isEmpty(), AnalysisService.class, MALFORMED_PARAMETER,
           "The following are not AnalysisStates: '%s'", Joiner.on("', '").join(errorSet) );
       finalStates = analysisStates;
     }
+    return ImmutableSet.copyOf(finalStates);
+  }
 
+  private void processSequencingReadsInPlace(List<AbstractAnalysis> analyses){
+    val analysisIds = analyses.stream()
+        .map(AbstractAnalysis::getAnalysisId)
+        .collect(toImmutableSet());
+    val srMap = sequencingReadRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
+        .stream()
+        .collect(toMap(SequencingRead::getAnalysisId, x->x));
+
+    analyses.forEach(x -> {
+      SequencingReadAnalysis sra = (SequencingReadAnalysis)x;
+      sra.setExperiment(srMap.get(x.getAnalysisId()));
+    });
+  }
+
+  private void processVariantCallsInPlace(List<AbstractAnalysis> analyses){
+    val analysisIds = analyses.stream()
+        .map(AbstractAnalysis::getAnalysisId)
+        .collect(toImmutableSet());
+
+    val vcMap = variantCallRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
+        .stream()
+        .collect(toMap(VariantCall::getAnalysisId, x->x));
+    analyses.forEach(x -> {
+      VariantCallAnalysis vca = (VariantCallAnalysis)x;
+      vca.setExperiment(vcMap.get(x.getAnalysisId()));
+    });
+  }
+
+  public List<AbstractAnalysis> getAnalysisByView(@NonNull String studyId, @NonNull Set<String> analysisStates) {
+    studyService.checkStudyExist(studyId);
+    val finalStates = resolveSelectedAnalysisStates(analysisStates);
     val results = fullViewRepository.findAllByStudyIdAndAnalysisStateIn(studyId, ImmutableList.copyOf(finalStates));
-    val analysisMap = results.stream().collect(groupingBy(FullView::getAnalysisId));
+    val analysisTypeMap = results.stream().collect(groupingBy(x -> resolveAnalysisType(x.getAnalysisType())));
     val outputList = ImmutableList.<AbstractAnalysis>builder();
-    for (val analysisEntry : analysisMap.entrySet()){
-      val rows = analysisEntry.getValue();
-      val first = rows.get(0);
-      val analysisId = analysisEntry.getKey();
-      val analysisState = first.getAnalysisState();
-      val analysisType = first.getAnalysisType();
-      val analysisInfo = toJsonNode(first.getAnalysisInfo());
 
-      val a = instantiateAnalysis(analysisType);
-      a.setAnalysisId(analysisId);
-      a.setAnalysisState(analysisState);
-      a.setStudy(studyId);
-      a.setInfo(analysisInfo);
+    for (val analysisTypeEntry : analysisTypeMap.entrySet()){
+      val analysisType = analysisTypeEntry.getKey();
+      val analysisTypeResults = analysisTypeEntry.getValue();
+      val analysesForType = processAnalysisForType(analysisTypeResults, analysisType, AnalysisService::instantiateAnalysis);
 
-      val files = extractFiles(rows);
-      a.setFile(files);
-
-      val compositeEntites = extractCompositeEntities(rows);
-      a.setSample(compositeEntites);
-      outputList.add(a);
+      if (analysisType == SEQUENCING_READ){
+        processSequencingReadsInPlace(analysesForType);
+      } else if (analysisType == VARIANT_CALL){
+        processVariantCallsInPlace(analysesForType);
+      } else {
+        throw buildServerException(getClass(), NOT_IMPLEMENTED_YET,
+            "The analysisType '%s' has not been implemented yet", analysisType);
+      }
+      outputList.addAll(analysesForType);
     }
     return outputList.build();
   }
