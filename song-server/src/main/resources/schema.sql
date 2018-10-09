@@ -250,7 +250,7 @@ SELECT
        I_D.info as donor_info,
        I_SR.info as sequencingread_info,
        I_VC.info as variantcall_info
-from Analysis A
+FROM Analysis A
        left join Info I_A on I_A.id = A.id and I_A.id_type = 'Analysis'
        left join File F on F.analysis_id = A.id
        left join Info I_F on I_F.id = F.id and I_F.id_type = 'File'
