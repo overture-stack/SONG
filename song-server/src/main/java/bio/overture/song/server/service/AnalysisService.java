@@ -213,45 +213,14 @@ public class AnalysisService {
     return ok("AnalysisId %s was updated successfully", analysis.getAnalysisId());
   }
 
-  private static Set<String> resolveSelectedAnalysisStates(Set<String> analysisStates){
-    Set<String> finalStates = DEFAULT_ANALYSIS_STATES;
-    if (!analysisStates.isEmpty()) {
-      val errorSet = findIncorrectAnalysisStates(analysisStates);
-      checkServer(errorSet.isEmpty(), AnalysisService.class, MALFORMED_PARAMETER,
-          "The following are not AnalysisStates: '%s'", Joiner.on("', '").join(errorSet) );
-      finalStates = analysisStates;
-    }
-    return ImmutableSet.copyOf(finalStates);
-  }
-
-  private void processSequencingReadsInPlace(List<AbstractAnalysis> analyses){
-    val analysisIds = analyses.stream()
-        .map(AbstractAnalysis::getAnalysisId)
-        .collect(toImmutableSet());
-    val srMap = sequencingReadRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
-        .stream()
-        .collect(toMap(SequencingRead::getAnalysisId, x->x));
-
-    analyses.forEach(x -> {
-      SequencingReadAnalysis sra = (SequencingReadAnalysis)x;
-      sra.setExperiment(srMap.get(x.getAnalysisId()));
-    });
-  }
-
-  private void processVariantCallsInPlace(List<AbstractAnalysis> analyses){
-    val analysisIds = analyses.stream()
-        .map(AbstractAnalysis::getAnalysisId)
-        .collect(toImmutableSet());
-
-    val vcMap = variantCallRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
-        .stream()
-        .collect(toMap(VariantCall::getAnalysisId, x->x));
-    analyses.forEach(x -> {
-      VariantCallAnalysis vca = (VariantCallAnalysis)x;
-      vca.setExperiment(vcMap.get(x.getAnalysisId()));
-    });
-  }
-
+  /**
+   * Gets all analysis for a given study.
+   * This method should be watched in case performance becomes a problem.
+      * @param studyId the study ID
+   * @param analysisStates only return analyses that have values from this non-empty list
+   * @return returns a List of analysis with the child entities.
+   *
+   */
   public List<AbstractAnalysis> getAnalysisByView(@NonNull String studyId, @NonNull Set<String> analysisStates) {
     studyService.checkStudyExist(studyId);
     val finalStates = resolveSelectedAnalysisStates(analysisStates);
@@ -278,12 +247,10 @@ public class AnalysisService {
   }
 
   /**
-   * Gets all analysis for a given study.
-   * This method should be watched in case performance becomes a problem.
-   * @param studyId the study ID
-   * @param analysisStates only return analyses that have values from this non-empty list
-   * @return returns a List of analysis with the child entities.
+   * NOTE: this was the older implementation that is now used as a reference for testing.It has been
+   * replaced with getAnalysisByView. Refer to SONG-338
    */
+  @Deprecated
   public List<AbstractAnalysis> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
 
     Set<String> finalStates = DEFAULT_ANALYSIS_STATES;
@@ -613,6 +580,34 @@ public class AnalysisService {
     sender.send(toJson(message));
   }
 
+  private void processSequencingReadsInPlace(List<AbstractAnalysis> analyses){
+    val analysisIds = analyses.stream()
+        .map(AbstractAnalysis::getAnalysisId)
+        .collect(toImmutableSet());
+    val srMap = sequencingReadRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
+        .stream()
+        .collect(toMap(SequencingRead::getAnalysisId, x->x));
+
+    analyses.forEach(x -> {
+      SequencingReadAnalysis sra = (SequencingReadAnalysis)x;
+      sra.setExperiment(srMap.get(x.getAnalysisId()));
+    });
+  }
+
+  private void processVariantCallsInPlace(List<AbstractAnalysis> analyses){
+    val analysisIds = analyses.stream()
+        .map(AbstractAnalysis::getAnalysisId)
+        .collect(toImmutableSet());
+
+    val vcMap = variantCallRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
+        .stream()
+        .collect(toMap(VariantCall::getAnalysisId, x->x));
+    analyses.forEach(x -> {
+      VariantCallAnalysis vca = (VariantCallAnalysis)x;
+      vca.setExperiment(vcMap.get(x.getAnalysisId()));
+    });
+  }
+
   @SneakyThrows
   private static AbstractAnalysis instantiateAnalysis(@NonNull String analysisType){
     return ANALYSIS_CLASS_MAP.get(analysisType).newInstance();
@@ -688,5 +683,17 @@ public class AnalysisService {
     return input.stream()
         .collect(toImmutableMap( x -> x, functionCallback));
   }
+
+  private static Set<String> resolveSelectedAnalysisStates(Set<String> analysisStates){
+    Set<String> finalStates = DEFAULT_ANALYSIS_STATES;
+    if (!analysisStates.isEmpty()) {
+      val errorSet = findIncorrectAnalysisStates(analysisStates);
+      checkServer(errorSet.isEmpty(), AnalysisService.class, MALFORMED_PARAMETER,
+          "The following are not AnalysisStates: '%s'", Joiner.on("', '").join(errorSet) );
+      finalStates = analysisStates;
+    }
+    return ImmutableSet.copyOf(finalStates);
+  }
+
 
 }
