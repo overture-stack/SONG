@@ -20,7 +20,6 @@ import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.config.Config;
 import bio.overture.song.core.model.file.FileData;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,7 +33,6 @@ import static java.lang.String.format;
 @Component
 public class Registry {
 
-  @Setter
   private final RestClient restClient;
   private final Endpoint endpoint;
   private final String accessToken;
