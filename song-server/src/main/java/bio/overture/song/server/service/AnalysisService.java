@@ -28,6 +28,7 @@ import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.model.enums.AnalysisTypes;
 import bio.overture.song.server.model.enums.Constants;
 import bio.overture.song.server.model.experiment.SequencingRead;
 import bio.overture.song.server.model.experiment.VariantCall;
@@ -587,10 +588,13 @@ public class AnalysisService {
     val srMap = sequencingReadRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
         .stream()
         .collect(toMap(SequencingRead::getAnalysisId, x->x));
+    val srInfoMap = sequencingReadInfoService.getInfoMap(analysisIds);
 
     analyses.forEach(x -> {
       SequencingReadAnalysis sra = (SequencingReadAnalysis)x;
-      sra.setExperiment(srMap.get(x.getAnalysisId()));
+      SequencingRead sr = srMap.get(x.getAnalysisId());
+      sr.setInfo(srInfoMap.get(x.getAnalysisId()));
+      sra.setExperiment(sr);
     });
   }
 
@@ -602,9 +606,14 @@ public class AnalysisService {
     val vcMap = variantCallRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
         .stream()
         .collect(toMap(VariantCall::getAnalysisId, x->x));
+
+    val vcInfoMap = variantCallInfoService.getInfoMap(analysisIds);
+
     analyses.forEach(x -> {
       VariantCallAnalysis vca = (VariantCallAnalysis)x;
-      vca.setExperiment(vcMap.get(x.getAnalysisId()));
+      VariantCall vc = vcMap.get(x.getAnalysisId());
+      vc.setInfo(vcInfoMap.get(x.getAnalysisId()));
+      vca.setExperiment(vc);
     });
   }
 

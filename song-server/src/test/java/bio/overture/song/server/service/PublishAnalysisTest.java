@@ -67,7 +67,7 @@ import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.ALL
 import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.NONE;
 import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.SOME;
 import static bio.overture.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
+import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
 
 @Slf4j
 @SpringBootTest
@@ -107,16 +107,17 @@ public class PublishAnalysisTest {
    */
   @Before
   public void beforeTest(){
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
     this.randomGenerator = createRandomGenerator(PublishAnalysisTest.class.getSimpleName());
-    val analysisGenerator = createAnalysisGenerator(DEFAULT_STUDY_ID, service, randomGenerator);
+    val newStudyId = createStudyGenerator(studyService, randomGenerator).createRandomStudy();
+    assertThat(studyService.isStudyExist(newStudyId)).isTrue();
+    val analysisGenerator = createAnalysisGenerator(newStudyId, service, randomGenerator);
 
     this.testAnalysis = analysisGenerator.createDefaultRandomAnalysis(randomGenerator.randomEnum(AnalysisTypes.class));
     this.testAnalysisId = testAnalysis.getAnalysisId();
     this.testStudyId = testAnalysis.getStudy();
 
     // Delete any previous files
-    fileService.securedDelete(DEFAULT_STUDY_ID,
+    fileService.securedDelete(newStudyId,
         testAnalysis.getFile().stream()
             .map(FileEntity::getObjectId)
             .collect(toList()));

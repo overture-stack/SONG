@@ -27,13 +27,21 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.server.model.entity.Info.createInfo;
 import static bio.overture.song.server.model.entity.InfoPK.createInfoPK;
+import static bio.overture.song.server.model.enums.InfoTypes.SEQUENCING_READ;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +53,12 @@ abstract class InfoService {
   public Optional<String> readInfo(@NonNull String id) {
     checkInfoExists(id); //TODO: optimize by returning Info entity, so that only 1 db read is done instead of 2.
     return unsafeRead(id);
+  }
+
+  public Map<String, String> getInfoMap(@NonNull Set<String> ids){
+    return findInfo(ids)
+        .stream()
+        .collect(toMap(x -> x.getInfoPK().getId(), x -> toJson(toJsonNode(x.getInfo()))));
   }
 
   private Optional<String> unsafeRead(String id){
@@ -91,6 +105,13 @@ abstract class InfoService {
   public void delete(@NonNull String id) {
     checkInfoExists(id);
     infoRepository.deleteById(buildPK(id));
+  }
+
+  private List<Info> findInfo(@NonNull Set<String> ids){
+    val searchRequest = ids.stream()
+        .map(this::buildPK)
+        .collect(toList());
+    return infoRepository.findAllByInfoPKIn(searchRequest);
   }
 
 }
@@ -155,7 +176,7 @@ class VariantCallInfoService extends InfoService {
 class SequencingReadInfoService extends InfoService {
   @Autowired
   SequencingReadInfoService(InfoRepository repo) {
-    super(InfoTypes.SEQUENCING_READ, repo);
+    super(SEQUENCING_READ, repo);
   }
 }
 

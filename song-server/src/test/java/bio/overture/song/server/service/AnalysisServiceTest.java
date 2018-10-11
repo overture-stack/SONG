@@ -872,13 +872,16 @@ public class AnalysisServiceTest {
     assertSongError(() -> service.readSamples(analysisId), ANALYSIS_MISSING_SAMPLES);
   }
 
+  private static <T,R> void assertFunctionEqual(T l, T r, Function<T,R> trFunction){
+    assertThat(trFunction.apply(l)).isEqualTo(trFunction.apply(r));
+  }
+
   private static void diff(AbstractAnalysis l, AbstractAnalysis r){
-    int count = diff(l, r, AbstractAnalysis::getAnalysisId);
-    count += diff(l, r, AbstractAnalysis::getAnalysisState);
-    count += diff(l, r, AbstractAnalysis::getAnalysisType);
-    count += diff(l, r, AbstractAnalysis::getStudy);
-    count += diff(l, r, AbstractAnalysis::getInfoAsString);
-    assertThat(count).isZero();
+    assertFunctionEqual(l, r, AbstractAnalysis::getAnalysisId);
+    assertFunctionEqual(l, r, AbstractAnalysis::getAnalysisState);
+    assertFunctionEqual(l, r, AbstractAnalysis::getAnalysisType);
+    assertFunctionEqual(l, r, AbstractAnalysis::getStudy);
+    assertFunctionEqual(l, r, AbstractAnalysis::getInfoAsString);
 
     val leftFiles = Sets.newHashSet(l.getFile());
     val rightFiles = Sets.newHashSet(r.getFile());
@@ -887,6 +890,14 @@ public class AnalysisServiceTest {
     val leftSamples = Sets.newHashSet(l.getSample());
     val rightSamples = Sets.newHashSet(r.getSample());
     assertSetsMatch(leftSamples, rightSamples);
+
+    assertThat(l.getInfo()).isEqualTo(r.getInfo());
+    if (l instanceof SequencingReadAnalysis && r instanceof SequencingReadAnalysis){
+      assertThat(((SequencingReadAnalysis)l).getExperiment()).isEqualTo(((SequencingReadAnalysis)r).getExperiment());
+    } else if (l instanceof VariantCallAnalysis && r instanceof VariantCallAnalysis){
+      assertThat(((VariantCallAnalysis)l).getExperiment()).isEqualTo(((VariantCallAnalysis)r).getExperiment());
+    }
+
   }
 
   private static <T,R> int diff (T l, T r, Function<T, R> trFunction){
