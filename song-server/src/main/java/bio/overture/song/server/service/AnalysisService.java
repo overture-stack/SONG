@@ -34,6 +34,7 @@ import bio.overture.song.server.model.experiment.SequencingRead;
 import bio.overture.song.server.model.experiment.VariantCall;
 import bio.overture.song.server.repository.AnalysisRepository;
 import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.repository.FullViewRepository;
 import bio.overture.song.server.repository.SampleSetRepository;
 import bio.overture.song.server.repository.SequencingReadRepository;
 import bio.overture.song.server.repository.VariantCallRepository;
@@ -42,6 +43,7 @@ import bio.overture.song.server.repository.search.InfoSearchRequest;
 import bio.overture.song.server.repository.search.InfoSearchResponse;
 import bio.overture.song.server.repository.search.SearchRepository;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -62,10 +64,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
@@ -75,6 +81,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
 import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
+import static bio.overture.song.core.exceptions.ServerErrors.NOT_IMPLEMENTED_YET;
 import static bio.overture.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static bio.overture.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
@@ -86,7 +93,11 @@ import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.Responses.ok;
+import static bio.overture.song.server.converter.FullViewConverter.processAnalysisForType;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
+import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
+import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
+import static bio.overture.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static bio.overture.song.server.repository.search.SearchTerm.createMultiSearchTerms;
 
 @Slf4j
@@ -99,8 +110,8 @@ public class AnalysisService {
 
   private static final Map<String, Class<? extends AbstractAnalysis>> ANALYSIS_CLASS_MAP =
       new HashMap<String, Class<? extends AbstractAnalysis>>(){{
-        put(AnalysisTypes.SEQUENCING_READ.toString(), SequencingReadAnalysis.class);
-        put(AnalysisTypes.VARIANT_CALL.toString(), VariantCallAnalysis.class);
+        put(SEQUENCING_READ.toString(), SequencingReadAnalysis.class);
+        put(VARIANT_CALL.toString(), VariantCallAnalysis.class);
       }};
 
   @Autowired
@@ -135,6 +146,8 @@ public class AnalysisService {
   private final SampleSetRepository sampleSetRepository;
   @Autowired
   private final FileRepository fileRepository;
+  @Autowired
+  private final FullViewRepository fullViewRepository;
 
   public String create(String studyId, AbstractAnalysis a, boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);
@@ -204,10 +217,41 @@ public class AnalysisService {
   /**
    * Gets all analysis for a given study.
    * This method should be watched in case performance becomes a problem.
-   * @param studyId the study ID
+      * @param studyId the study ID
    * @param analysisStates only return analyses that have values from this non-empty list
    * @return returns a List of analysis with the child entities.
+   *
    */
+  public List<AbstractAnalysis> getAnalysisByView(@NonNull String studyId, @NonNull Set<String> analysisStates) {
+    studyService.checkStudyExist(studyId);
+    val finalStates = resolveSelectedAnalysisStates(analysisStates);
+    val results = fullViewRepository.findAllByStudyIdAndAnalysisStateIn(studyId, ImmutableList.copyOf(finalStates));
+    val analysisTypeMap = results.stream().collect(groupingBy(x -> resolveAnalysisType(x.getAnalysisType())));
+    val outputList = ImmutableList.<AbstractAnalysis>builder();
+
+    for (val analysisTypeEntry : analysisTypeMap.entrySet()){
+      val analysisType = analysisTypeEntry.getKey();
+      val analysisTypeResults = analysisTypeEntry.getValue();
+      val analysesForType = processAnalysisForType(analysisTypeResults, analysisType, AnalysisService::instantiateAnalysis);
+
+      if (analysisType == SEQUENCING_READ){
+        processSequencingReadsInPlace(analysesForType);
+      } else if (analysisType == VARIANT_CALL){
+        processVariantCallsInPlace(analysesForType);
+      } else {
+        throw buildServerException(getClass(), NOT_IMPLEMENTED_YET,
+            "The analysisType '%s' has not been implemented yet", analysisType);
+      }
+      outputList.addAll(analysesForType);
+    }
+    return outputList.build();
+  }
+
+  /**
+   * NOTE: this was the older implementation that is now used as a reference for testing.It has been
+   * replaced with getAnalysisByView. Refer to SONG-338
+   */
+  @Deprecated
   public List<AbstractAnalysis> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
 
     Set<String> finalStates = DEFAULT_ANALYSIS_STATES;
@@ -537,6 +581,42 @@ public class AnalysisService {
     sender.send(toJson(message));
   }
 
+  private void processSequencingReadsInPlace(List<AbstractAnalysis> analyses){
+    val analysisIds = analyses.stream()
+        .map(AbstractAnalysis::getAnalysisId)
+        .collect(toImmutableSet());
+    val srMap = sequencingReadRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
+        .stream()
+        .collect(toMap(SequencingRead::getAnalysisId, x->x));
+    val srInfoMap = sequencingReadInfoService.getInfoMap(analysisIds);
+
+    analyses.forEach(x -> {
+      SequencingReadAnalysis sra = (SequencingReadAnalysis)x;
+      SequencingRead sr = srMap.get(x.getAnalysisId());
+      sr.setInfo(srInfoMap.get(x.getAnalysisId()));
+      sra.setExperiment(sr);
+    });
+  }
+
+  private void processVariantCallsInPlace(List<AbstractAnalysis> analyses){
+    val analysisIds = analyses.stream()
+        .map(AbstractAnalysis::getAnalysisId)
+        .collect(toImmutableSet());
+
+    val vcMap = variantCallRepository.findAllByAnalysisIdIn(newArrayList(analysisIds))
+        .stream()
+        .collect(toMap(VariantCall::getAnalysisId, x->x));
+
+    val vcInfoMap = variantCallInfoService.getInfoMap(analysisIds);
+
+    analyses.forEach(x -> {
+      VariantCallAnalysis vca = (VariantCallAnalysis)x;
+      VariantCall vc = vcMap.get(x.getAnalysisId());
+      vc.setInfo(vcInfoMap.get(x.getAnalysisId()));
+      vca.setExperiment(vc);
+    });
+  }
+
   @SneakyThrows
   private static AbstractAnalysis instantiateAnalysis(@NonNull String analysisType){
     return ANALYSIS_CLASS_MAP.get(analysisType).newInstance();
@@ -612,5 +692,17 @@ public class AnalysisService {
     return input.stream()
         .collect(toImmutableMap( x -> x, functionCallback));
   }
+
+  private static Set<String> resolveSelectedAnalysisStates(Set<String> analysisStates){
+    Set<String> finalStates = DEFAULT_ANALYSIS_STATES;
+    if (!analysisStates.isEmpty()) {
+      val errorSet = findIncorrectAnalysisStates(analysisStates);
+      checkServer(errorSet.isEmpty(), AnalysisService.class, MALFORMED_PARAMETER,
+          "The following are not AnalysisStates: '%s'", Joiner.on("', '").join(errorSet) );
+      finalStates = analysisStates;
+    }
+    return ImmutableSet.copyOf(finalStates);
+  }
+
 
 }

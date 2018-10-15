@@ -14,16 +14,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package bio.overture.song.server.repository;
 
-import bio.overture.song.server.model.entity.Info;
-import bio.overture.song.server.model.entity.InfoPK;
+import bio.overture.song.server.model.entity.FullView;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface InfoRepository extends JpaRepository<Info, InfoPK>{
+public interface FullViewRepository extends JpaRepository<FullView, String> {
 
-  List<Info> findAllByInfoPKIn(List<InfoPK> infoPKS);
+  List<FullView> findAllByAnalysisIdIn(List<String> analysisIds);
+  List<FullView> findAllByStudyIdAndAnalysisStateIn(String studyId, List<String> analysisStates);
 
 }

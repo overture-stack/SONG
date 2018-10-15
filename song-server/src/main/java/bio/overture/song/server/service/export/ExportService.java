@@ -22,7 +22,6 @@ import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
-import bio.overture.song.server.model.enums.AnalysisTypes;
 import bio.overture.song.server.service.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
@@ -72,7 +71,7 @@ public class ExportService {
   @SneakyThrows
   public List<ExportedPayload> exportPayloadsForStudy(@NonNull String studyId,
       boolean includeAnalysisId){
-    val payloads = analysisService.getAnalysis(studyId, ALL_ANALYSIS_STATES).stream()
+    val payloads = analysisService.getAnalysisByView(studyId, ALL_ANALYSIS_STATES).stream()
         .map(x -> convertToPayload(x, includeAnalysisId))
         .collect(toImmutableList());
     return ImmutableList.of(createExportedPayload(studyId, payloads));

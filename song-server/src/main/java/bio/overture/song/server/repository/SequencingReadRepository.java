@@ -20,6 +20,10 @@ package bio.overture.song.server.repository;
 import bio.overture.song.server.model.experiment.SequencingRead;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface SequencingReadRepository extends JpaRepository<SequencingRead, String>{
+
+  List<SequencingRead> findAllByAnalysisIdIn(List<String> analysisIds);
 
 }

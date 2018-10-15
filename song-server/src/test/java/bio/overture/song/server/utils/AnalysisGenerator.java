@@ -31,6 +31,8 @@ import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
+import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.PayloadGenerator.resolveDefaultPayloadFilename;
 
@@ -69,9 +71,9 @@ public class AnalysisGenerator {
   }
 
   public <T extends AbstractAnalysis> T createDefaultRandomAnalysis(AnalysisTypes analysisType){
-    if (analysisType == AnalysisTypes.SEQUENCING_READ){
+    if (analysisType == SEQUENCING_READ){
       return (T)createDefaultRandomAnalysis(SequencingReadAnalysis.class);
-    } else if (analysisType == AnalysisTypes.VARIANT_CALL){
+    } else if (analysisType == VARIANT_CALL){
       return (T)createDefaultRandomAnalysis(VariantCallAnalysis.class);
     } else {
       throw new IllegalStateException(format("the analysis type '%s' cannot be processed", analysisType.toString()));

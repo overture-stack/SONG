@@ -82,7 +82,7 @@ public class AnalysisController {
       @PathVariable("studyId") String studyId,
       @ApiParam(value = "Non-empty comma separated list of analysis states to filter by")
       @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false) String analysisStates) {
-    return analysisService.getAnalysis(studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)) );
+    return analysisService.getAnalysisByView(studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)) );
   }
 
   /**

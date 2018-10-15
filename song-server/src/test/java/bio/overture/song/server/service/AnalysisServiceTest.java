@@ -17,7 +17,6 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.Metadata;
@@ -43,7 +42,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,13 +54,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.stream.IntStream;
+import java.util.function.Function;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
@@ -82,6 +82,8 @@ import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
+import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static bio.overture.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
@@ -126,7 +128,7 @@ public class AnalysisServiceTest {
   @Autowired
   private SampleSetRepository sampleSetRepository;
 
-  private final RandomGenerator randomGenerator = createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
+  private final RandomGenerator randomGenerator = createRandomGenerator(AnalysisServiceTest.class.getSimpleName(), 1539118165994L);//createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
 
   private PayloadGenerator payloadGenerator;
   private AnalysisGenerator analysisGenerator;
@@ -159,7 +161,7 @@ public class AnalysisServiceTest {
     val a = service.securedDeepRead(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
     val expectedState = resolveAnalysisState(a.getAnalysisState());
     val actualState = service.readState(a.getAnalysisId());
-    Assertions.assertThat(actualState).isEqualTo(expectedState);
+    assertThat(actualState).isEqualTo(expectedState);
   }
 
   @Test
@@ -196,7 +198,7 @@ public class AnalysisServiceTest {
     analysis.setAnalysisId(randomAnalysisId);
     assertThat(service.isAnalysisExist(randomAnalysisId)).isFalse();
     val actualAnalysisId = service.create(DEFAULT_STUDY_ID, analysis, false);
-    Assertions.assertThat(actualAnalysisId).isEqualTo(randomAnalysisId);
+    assertThat(actualAnalysisId).isEqualTo(randomAnalysisId);
     assertThat(service.isAnalysisExist(randomAnalysisId)).isTrue();
   }
 
@@ -229,9 +231,8 @@ public class AnalysisServiceTest {
   @Test
   public void testReadAnalysisDNE() {
     val nonExistentAnalysisId = analysisGenerator.generateNonExistingAnalysisId();
-    SongErrorAssertions
-        .assertSongError(() -> service.securedDeepRead(DEFAULT_STUDY_ID, nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
-    SongErrorAssertions.assertSongError(() -> service.unsecuredDeepRead(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.securedDeepRead(DEFAULT_STUDY_ID, nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.unsecuredDeepRead(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
   }
 
   @Test
@@ -242,9 +243,8 @@ public class AnalysisServiceTest {
 
     variantCallRepository.deleteById(analysisId);
     assertThat(variantCallRepository.findById(analysisId)).isEmpty();
-    SongErrorAssertions
-        .assertSongError(() -> service.securedDeepRead(analysis.getStudy(), analysisId), VARIANT_CALL_NOT_FOUND);
-    SongErrorAssertions.assertSongError(() -> service.unsecuredDeepRead(analysisId), VARIANT_CALL_NOT_FOUND);
+    assertSongError(() -> service.securedDeepRead(analysis.getStudy(), analysisId), VARIANT_CALL_NOT_FOUND);
+    assertSongError(() -> service.unsecuredDeepRead(analysisId), VARIANT_CALL_NOT_FOUND);
   }
 
   @Test
@@ -255,9 +255,8 @@ public class AnalysisServiceTest {
 
     sequencingReadRepository.deleteById(analysisId);
     assertThat(sequencingReadRepository.findById(analysisId)).isEmpty();
-    SongErrorAssertions
-        .assertSongError(() -> service.securedDeepRead(analysis.getStudy(), analysisId), SEQUENCING_READ_NOT_FOUND);
-    SongErrorAssertions.assertSongError(() -> service.unsecuredDeepRead(analysisId), SEQUENCING_READ_NOT_FOUND);
+    assertSongError(() -> service.securedDeepRead(analysis.getStudy(), analysisId), SEQUENCING_READ_NOT_FOUND);
+    assertSongError(() -> service.unsecuredDeepRead(analysisId), SEQUENCING_READ_NOT_FOUND);
   }
 
   @Test
@@ -283,55 +282,55 @@ public class AnalysisServiceTest {
     assertInfoKVPair(experiment, "extraExperimentInfo","some more data for a variantCall experiment ex01");
 
     //Asserting Sample
-    Assertions.assertThat(a.getSample()).hasSize(2);
+    assertThat(a.getSample()).hasSize(2);
     val sample0 = a.getSample().get(0);
-    Assertions.assertThat(sample0.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fs01");
-    Assertions.assertThat(sample0.getSampleType()).isEqualTo("Total RNA");
+    assertThat(sample0.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fs01");
+    assertThat(sample0.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample0, "extraSampleInfo","some more data for a variantCall sample_fs01");
 
     val donor00 = sample0.getDonor();
-    Assertions.assertThat(donor00.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
-    Assertions.assertThat(donor00.getDonorGender()).isEqualTo("male");
-    Assertions.assertThat(donor00.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fs01");
+    assertThat(donor00.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(donor00.getDonorGender()).isEqualTo("male");
+    assertThat(donor00.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fs01");
     assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a variantCall donor_fs01");
 
     val specimen00 = sample0.getSpecimen();
-    Assertions.assertThat(specimen00.getDonorId()).isEqualTo(donor00.getDonorId());
-    Assertions.assertThat(specimen00.getSpecimenClass()).isEqualTo("Tumour");
-    Assertions.assertThat(specimen00.getSpecimenType()).isEqualTo("Primary tumour - other");
-    Assertions.assertThat(sample0.getSpecimenId()).isEqualTo(specimen00.getSpecimenId());
+    assertThat(specimen00.getDonorId()).isEqualTo(donor00.getDonorId());
+    assertThat(specimen00.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen00.getSpecimenType()).isEqualTo("Primary tumour - other");
+    assertThat(sample0.getSpecimenId()).isEqualTo(specimen00.getSpecimenId());
     assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a variantCall specimen_fs01");
     assertInfoKVPair(specimen00, "extraSpecimenInfo_1", "second data for a variantCall specimen_fs01");
 
     val sample1 = a.getSample().get(1);
-    Assertions.assertThat(sample1.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fs02");
-    Assertions.assertThat(sample1.getSampleType()).isEqualTo("Total RNA");
+    assertThat(sample1.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fs02");
+    assertThat(sample1.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample1, "extraSampleInfo","some more data for a variantCall sample_fs02");
 
     val donor01 = sample1.getDonor();
-    Assertions.assertThat(donor01.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
-    Assertions.assertThat(donor01.getDonorGender()).isEqualTo("female");
-    Assertions.assertThat(donor01.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fs02");
+    assertThat(donor01.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(donor01.getDonorGender()).isEqualTo("female");
+    assertThat(donor01.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fs02");
     assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a variantCall donor_fs02");
     assertInfoKVPair(donor01, "extraDonorInfo_1","second data for a variantCall donor_fs02");
 
     val specimen01 = sample1.getSpecimen();
-    Assertions.assertThat(specimen01.getDonorId()).isEqualTo(donor01.getDonorId());
-    Assertions.assertThat(specimen01.getSpecimenClass()).isEqualTo("Tumour");
-    Assertions.assertThat(specimen01.getSpecimenType()).isEqualTo("Primary tumour - other");
-    Assertions.assertThat(sample1.getSpecimenId()).isEqualTo(specimen01.getSpecimenId());
+    assertThat(specimen01.getDonorId()).isEqualTo(donor01.getDonorId());
+    assertThat(specimen01.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen01.getSpecimenType()).isEqualTo("Primary tumour - other");
+    assertThat(sample1.getSpecimenId()).isEqualTo(specimen01.getSpecimenId());
     assertInfoKVPair(specimen01, "extraSpecimenInfo", "some more data for a variantCall specimen_fs02");
 
-    Assertions.assertThat(a.getFile()).hasSize(3);
+    assertThat(a.getFile()).hasSize(3);
     val file0 = a.getFile().get(0);
     val file1 = a.getFile().get(1);
     val file2 = a.getFile().get(2);
-    Assertions.assertThat(file0.getAnalysisId()).isEqualTo(analysisId);
-    Assertions.assertThat(file1.getAnalysisId()).isEqualTo(analysisId);
-    Assertions.assertThat(file2.getAnalysisId()).isEqualTo(analysisId);
-    Assertions.assertThat(file0.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
-    Assertions.assertThat(file1.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
-    Assertions.assertThat(file2.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file0.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file1.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file2.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file0.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file1.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file2.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
 
     val fileName0 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz";
     val fileName1 ="a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz";
@@ -339,27 +338,27 @@ public class AnalysisServiceTest {
 
     for (val file : a.getFile()){
       if (file.getFileName().equals(fileName0)){
-        Assertions.assertThat(file.getFileName()).isEqualTo(fileName0);
-        Assertions.assertThat(file.getFileSize()).isEqualTo(376953);
-        Assertions.assertThat(file.getFileMd5sum()).isEqualTo("652b2e2b7133229a89650de27ad7fc41");
-        Assertions.assertThat(file.getFileAccess()).isEqualTo("controlled");
-        Assertions.assertThat(file.getFileType()).isEqualTo("VCF");
+        assertThat(file.getFileName()).isEqualTo(fileName0);
+        assertThat(file.getFileSize()).isEqualTo(376953);
+        assertThat(file.getFileMd5sum()).isEqualTo("652b2e2b7133229a89650de27ad7fc41");
+        assertThat(file.getFileAccess()).isEqualTo("controlled");
+        assertThat(file.getFileType()).isEqualTo("VCF");
         assertInfoKVPair(file, "extraFileInfo_0", "first data for variantCall file_fn1");
         assertInfoKVPair(file, "extraFileInfo_1", "second data for variantCall file_fn1");
       } else if (file.getFileName().equals(fileName1)){
-        Assertions.assertThat(file.getFileName()).isEqualTo(fileName1);
-        Assertions.assertThat(file.getFileSize()).isEqualTo(983820);
-        Assertions.assertThat(file.getFileMd5sum()).isEqualTo("b8b743a499e461922accad58fdbf25d2");
-        Assertions.assertThat(file.getFileAccess()).isEqualTo("open");
-        Assertions.assertThat(file.getFileType()).isEqualTo("VCF");
+        assertThat(file.getFileName()).isEqualTo(fileName1);
+        assertThat(file.getFileSize()).isEqualTo(983820);
+        assertThat(file.getFileMd5sum()).isEqualTo("b8b743a499e461922accad58fdbf25d2");
+        assertThat(file.getFileAccess()).isEqualTo("open");
+        assertThat(file.getFileType()).isEqualTo("VCF");
         assertInfoKVPair(file, "extraFileInfo", "some more data for variantCall file_fn2");
 
       } else if (file.getFileName().equals(fileName2)){
-        Assertions.assertThat(file.getFileName()).isEqualTo(fileName2);
-        Assertions.assertThat(file.getFileSize()).isEqualTo(4840);
-        Assertions.assertThat(file.getFileMd5sum()).isEqualTo("2b80298c2f312df7db482105053f889b");
-        Assertions.assertThat(file.getFileAccess()).isEqualTo("open");
-        Assertions.assertThat(file.getFileType()).isEqualTo("IDX");
+        assertThat(file.getFileName()).isEqualTo(fileName2);
+        assertThat(file.getFileSize()).isEqualTo(4840);
+        assertThat(file.getFileMd5sum()).isEqualTo("2b80298c2f312df7db482105053f889b");
+        assertThat(file.getFileAccess()).isEqualTo("open");
+        assertThat(file.getFileType()).isEqualTo("IDX");
         assertInfoKVPair(file, "extraFileInfo", "some more data for variantCall file_fn3");
       } else {
         fail(String.format("the fileName %s is not recognized", file.getFileName()));
@@ -397,57 +396,57 @@ public class AnalysisServiceTest {
 
 
     //Asserting Sample
-    Assertions.assertThat(a.getSample()).hasSize(2);
+    assertThat(a.getSample()).hasSize(2);
     val sample0 = a.getSample().get(0);
     sampleMap.put(sample0.getSampleId(), sample0);
-    Assertions.assertThat(sample0.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr01");
-    Assertions.assertThat(sample0.getSampleType()).isEqualTo("Total RNA");
+    assertThat(sample0.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr01");
+    assertThat(sample0.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample0, "extraSampleInfo","some more data for a sequencingRead sample_fr01");
 
     val donor00 = sample0.getDonor();
-    Assertions.assertThat(donor00.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
-    Assertions.assertThat(donor00.getDonorGender()).isEqualTo("male");
-    Assertions.assertThat(donor00.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fr01");
+    assertThat(donor00.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(donor00.getDonorGender()).isEqualTo("male");
+    assertThat(donor00.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fr01");
     assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a sequencingRead donor_fr01");
 
     val specimen00 = sample0.getSpecimen();
-    Assertions.assertThat(specimen00.getDonorId()).isEqualTo(donor00.getDonorId());
-    Assertions.assertThat(specimen00.getSpecimenClass()).isEqualTo("Tumour");
-    Assertions.assertThat(specimen00.getSpecimenType()).isEqualTo("Primary tumour - other");
-    Assertions.assertThat(sample0.getSpecimenId()).isEqualTo(specimen00.getSpecimenId());
+    assertThat(specimen00.getDonorId()).isEqualTo(donor00.getDonorId());
+    assertThat(specimen00.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen00.getSpecimenType()).isEqualTo("Primary tumour - other");
+    assertThat(sample0.getSpecimenId()).isEqualTo(specimen00.getSpecimenId());
     assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a sequencingRead specimen_fr01");
     assertInfoKVPair(specimen00, "extraSpecimenInfo_1", "second data for a sequencingRead specimen_fr01");
 
     val sample1 = a.getSample().get(1);
     sampleMap.put(sample1.getSampleId(), sample1);
-    Assertions.assertThat(sample1.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr02");
-    Assertions.assertThat(sample1.getSampleType()).isEqualTo("Total RNA");
+    assertThat(sample1.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr02");
+    assertThat(sample1.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample1, "extraSampleInfo","some more data for a sequencingRead sample_fr02");
 
     val donor01 = sample1.getDonor();
-    Assertions.assertThat(donor01.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
-    Assertions.assertThat(donor01.getDonorGender()).isEqualTo("female");
-    Assertions.assertThat(donor01.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fr02");
+    assertThat(donor01.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(donor01.getDonorGender()).isEqualTo("female");
+    assertThat(donor01.getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00_fr02");
     assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a sequencingRead donor_fr02");
     assertInfoKVPair(donor01, "extraDonorInfo_1","second data for a sequencingRead donor_fr02");
 
     val specimen01 = sample1.getSpecimen();
-    Assertions.assertThat(specimen01.getDonorId()).isEqualTo(donor01.getDonorId());
-    Assertions.assertThat(specimen01.getSpecimenClass()).isEqualTo("Tumour");
-    Assertions.assertThat(specimen01.getSpecimenType()).isEqualTo("Primary tumour - other");
-    Assertions.assertThat(sample1.getSpecimenId()).isEqualTo(specimen01.getSpecimenId());
+    assertThat(specimen01.getDonorId()).isEqualTo(donor01.getDonorId());
+    assertThat(specimen01.getSpecimenClass()).isEqualTo("Tumour");
+    assertThat(specimen01.getSpecimenType()).isEqualTo("Primary tumour - other");
+    assertThat(sample1.getSpecimenId()).isEqualTo(specimen01.getSpecimenId());
     assertInfoKVPair(specimen01, "extraSpecimenInfo", "some more data for a sequencingRead specimen_fr02");
 
-    Assertions.assertThat(a.getFile()).hasSize(3);
+    assertThat(a.getFile()).hasSize(3);
     val file0 = a.getFile().get(0);
     val file1 = a.getFile().get(1);
     val file2 = a.getFile().get(2);
-    Assertions.assertThat(file0.getAnalysisId()).isEqualTo(analysisId);
-    Assertions.assertThat(file1.getAnalysisId()).isEqualTo(analysisId);
-    Assertions.assertThat(file2.getAnalysisId()).isEqualTo(analysisId);
-    Assertions.assertThat(file0.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
-    Assertions.assertThat(file1.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
-    Assertions.assertThat(file2.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file0.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file1.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file2.getAnalysisId()).isEqualTo(analysisId);
+    assertThat(file0.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file1.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
+    assertThat(file2.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
 
     val fileName0 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.bam";
     val fileName1 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.bam";
@@ -457,27 +456,27 @@ public class AnalysisServiceTest {
     for (val file : a.getFile()){
       fileMap.put(file.getFileName(), file);
       if (file.getFileName().equals(fileName0)){
-        Assertions.assertThat(file.getFileName()).isEqualTo(fileName0);
-        Assertions.assertThat(file.getFileSize()).isEqualTo(1212121);
-        Assertions.assertThat(file.getFileMd5sum()).isEqualTo("e2324667df8085eddfe95742047e153f");
-        Assertions.assertThat(file.getFileAccess()).isEqualTo("controlled");
-        Assertions.assertThat(file.getFileType()).isEqualTo("BAM");
+        assertThat(file.getFileName()).isEqualTo(fileName0);
+        assertThat(file.getFileSize()).isEqualTo(1212121);
+        assertThat(file.getFileMd5sum()).isEqualTo("e2324667df8085eddfe95742047e153f");
+        assertThat(file.getFileAccess()).isEqualTo("controlled");
+        assertThat(file.getFileType()).isEqualTo("BAM");
         assertInfoKVPair(file, "extraFileInfo_0", "first data for sequencingRead file_fn1");
         assertInfoKVPair(file, "extraFileInfo_1", "second data for sequencingRead file_fn1");
       } else if (file.getFileName().equals(fileName1)){
-        Assertions.assertThat(file.getFileName()).isEqualTo(fileName1);
-        Assertions.assertThat(file.getFileSize()).isEqualTo(34343);
-        Assertions.assertThat(file.getFileMd5sum()).isEqualTo("8b5379a29aac642d6fe1808826bd9e49");
-        Assertions.assertThat(file.getFileAccess()).isEqualTo("open");
-        Assertions.assertThat(file.getFileType()).isEqualTo("BAM");
+        assertThat(file.getFileName()).isEqualTo(fileName1);
+        assertThat(file.getFileSize()).isEqualTo(34343);
+        assertThat(file.getFileMd5sum()).isEqualTo("8b5379a29aac642d6fe1808826bd9e49");
+        assertThat(file.getFileAccess()).isEqualTo("open");
+        assertThat(file.getFileType()).isEqualTo("BAM");
         assertInfoKVPair(file, "extraFileInfo", "some more data for sequencingRead file_fn2");
 
       } else if (file.getFileName().equals(fileName2)){
-        Assertions.assertThat(file.getFileName()).isEqualTo(fileName2);
-        Assertions.assertThat(file.getFileSize()).isEqualTo(4840);
-        Assertions.assertThat(file.getFileMd5sum()).isEqualTo("61da923f32863a9c5fa3d2a0e19bdee3");
-        Assertions.assertThat(file.getFileAccess()).isEqualTo("open");
-        Assertions.assertThat(file.getFileType()).isEqualTo("BAI");
+        assertThat(file.getFileName()).isEqualTo(fileName2);
+        assertThat(file.getFileSize()).isEqualTo(4840);
+        assertThat(file.getFileMd5sum()).isEqualTo("61da923f32863a9c5fa3d2a0e19bdee3");
+        assertThat(file.getFileAccess()).isEqualTo("open");
+        assertThat(file.getFileType()).isEqualTo("BAI");
         assertInfoKVPair(file, "extraFileInfo", "some more data for sequencingRead file_fn3");
       } else {
         fail(String.format("the fileName %s is not recognized", file.getFileName()));
@@ -520,23 +519,23 @@ public class AnalysisServiceTest {
     expectedFiles.add(fileService.securedRead(DEFAULT_STUDY_ID, "FI1"));
     expectedFiles.add(fileService.securedRead(DEFAULT_STUDY_ID, "FI2"));
 
-    Assertions.assertThat(files).containsAll(expectedFiles);
+    assertThat(files).containsAll(expectedFiles);
     assertThat(expectedFiles).containsAll(files);
     val files2 = service.securedReadFiles(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
-    Assertions.assertThat(files2).containsOnlyElementsOf(files);
+    assertThat(files2).containsOnlyElementsOf(files);
   }
 
   @Test
   public void testReadFilesError() {
     val nonExistingAnalysisId = analysisGenerator.generateNonExistingAnalysisId();
-    SongErrorAssertions.assertSongError(() -> service.unsecuredReadFiles(nonExistingAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.unsecuredReadFiles(nonExistingAnalysisId), ANALYSIS_ID_NOT_FOUND);
 
   }
 
   @Test
   public void testDuplicateAnalysisAttemptError() {
     val an1 = service.securedDeepRead(DEFAULT_STUDY_ID,"AN1");
-    SongErrorAssertions.assertSongError(() -> service.create(an1.getStudy(), an1, true),
+    assertSongError(() -> service.create(an1.getStudy(), an1, true),
         DUPLICATE_ANALYSIS_ATTEMPT);
   }
 
@@ -552,7 +551,7 @@ public class AnalysisServiceTest {
         + ".json");
     analysisRaw.setAnalysisId(expectedAnalysisId);
     val actualAnalysisId = service.create(study, analysisRaw, false);
-    Assertions.assertThat(actualAnalysisId).isEqualTo(expectedAnalysisId);
+    assertThat(actualAnalysisId).isEqualTo(expectedAnalysisId);
     val analysis = service.securedDeepRead(study, actualAnalysisId);
     for (val file : analysis.getFile()){
       val filename = file.getFileName();
@@ -574,8 +573,7 @@ public class AnalysisServiceTest {
     payload.setAnalysisId(null);
 
     assertThat(payload.getAnalysisId()).isNull();
-    SongErrorAssertions
-        .assertSongError(() -> service.create(nonExistentStudyId, payload, false), STUDY_ID_DOES_NOT_EXIST);
+    assertSongError(() -> service.create(nonExistentStudyId, payload, false), STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
@@ -612,20 +610,20 @@ public class AnalysisServiceTest {
         .filter(x -> AnalysisTypes.resolveAnalysisType(x.getAnalysisType()) == AnalysisTypes.SEQUENCING_READ)
         .collect(toSet());
     val actualVCAs = actualAnalyses.stream()
-        .filter(x -> AnalysisTypes.resolveAnalysisType(x.getAnalysisType()) == AnalysisTypes.VARIANT_CALL)
+        .filter(x -> AnalysisTypes.resolveAnalysisType(x.getAnalysisType()) == VARIANT_CALL)
         .collect(toSet());
 
-    Assertions.assertThat(actualSRAs).hasSize(sraMap.keySet().size());
-    Assertions.assertThat(actualVCAs).hasSize(vcaMap.keySet().size());
-    Assertions.assertThat(actualSRAs).containsAll(expectedSRAs);
-    Assertions.assertThat(actualVCAs).containsAll(expectedVCAs);
+    assertThat(actualSRAs).hasSize(sraMap.keySet().size());
+    assertThat(actualVCAs).hasSize(vcaMap.keySet().size());
+    assertThat(actualSRAs).containsAll(expectedSRAs);
+    assertThat(actualVCAs).containsAll(expectedVCAs);
 
     // Do a study-wide idSearch and verify the response effectively has the same
     // number of results as the getAnalysis method
     val searchedAnalyses = service.idSearch(studyId,
         createIdSearchRequest(null, null, null, null));
-    Assertions.assertThat(searchedAnalyses).hasSameSizeAs(expectedAnalyses);
-    Assertions.assertThat(searchedAnalyses).containsOnlyElementsOf(expectedAnalyses);
+    assertThat(searchedAnalyses).hasSameSizeAs(expectedAnalyses);
+    assertThat(searchedAnalyses).containsOnlyElementsOf(expectedAnalyses);
   }
 
   @Test
@@ -633,7 +631,7 @@ public class AnalysisServiceTest {
     val studyId = studyGenerator.createRandomStudy();
     val analysisGenerator = createAnalysisGenerator(studyId, service, randomGenerator);
     val numAnalysis = 10;
-    val expectedMap = IntStream.range(0, numAnalysis)
+    val expectedMap = range(0, numAnalysis)
         .boxed()
         .map(x -> {
           AbstractAnalysis a = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
@@ -649,7 +647,7 @@ public class AnalysisServiceTest {
 
     assertThat(actualMap.keySet()).hasSize(1);
     assertThat(expectedMap).containsKey(PUBLISHED.toString());
-    Assertions.assertThat(actualMap).containsKey(PUBLISHED.toString());
+    assertThat(actualMap).containsKey(PUBLISHED.toString());
     assertThat(actualMap.get(PUBLISHED.toString())).hasSameSizeAs(expectedMap.get(PUBLISHED.toString()));
     assertThat(actualMap.get(PUBLISHED.toString())).containsExactlyElementsOf(expectedMap.get(PUBLISHED.toString()));
   }
@@ -670,16 +668,14 @@ public class AnalysisServiceTest {
   @Test
   public void testGetAnalysisDNEStudy() {
     val nonExistentStudyId = studyGenerator.generateNonExistingStudyId();
-    SongErrorAssertions
-        .assertSongError(() -> service.getAnalysis(nonExistentStudyId, PUBLISHED_ONLY), STUDY_ID_DOES_NOT_EXIST);
+    assertSongError(() -> service.getAnalysis(nonExistentStudyId, PUBLISHED_ONLY), STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
   public void testIdSearchDNEStudy(){
     val nonExistentStudyId = studyGenerator.generateNonExistingStudyId();
     val idSearchRequest = createIdSearchRequest(null, null, null, null);
-    SongErrorAssertions
-        .assertSongError(() -> service.idSearch(nonExistentStudyId, idSearchRequest), STUDY_ID_DOES_NOT_EXIST);
+    assertSongError(() -> service.idSearch(nonExistentStudyId, idSearchRequest), STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
@@ -689,17 +685,15 @@ public class AnalysisServiceTest {
 
     fileRepository.deleteAllByAnalysisId(analysisId1);
     assertThat(fileRepository.findAllByAnalysisId(analysisId1)).isEmpty();
-    SongErrorAssertions.assertSongError(() -> service.unsecuredReadFiles(analysisId1), ANALYSIS_MISSING_FILES);
-    SongErrorAssertions
-        .assertSongError(() -> service.securedReadFiles(analysis1.getStudy(), analysisId1), ANALYSIS_MISSING_FILES);
+    assertSongError(() -> service.unsecuredReadFiles(analysisId1), ANALYSIS_MISSING_FILES);
+    assertSongError(() -> service.securedReadFiles(analysis1.getStudy(), analysisId1), ANALYSIS_MISSING_FILES);
 
     val analysis2 = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId2 = analysis2.getAnalysisId();
     fileRepository.deleteAllByAnalysisId(analysisId2);
     assertThat(fileRepository.findAllByAnalysisId(analysisId2)).isEmpty();
-    SongErrorAssertions.assertSongError(() -> service.unsecuredReadFiles(analysisId2), ANALYSIS_MISSING_FILES);
-    SongErrorAssertions
-        .assertSongError(() -> service.securedReadFiles(analysis2.getStudy(), analysisId2), ANALYSIS_MISSING_FILES);
+    assertSongError(() -> service.unsecuredReadFiles(analysisId2), ANALYSIS_MISSING_FILES);
+    assertSongError(() -> service.securedReadFiles(analysis2.getStudy(), analysisId2), ANALYSIS_MISSING_FILES);
   }
 
   @Test
@@ -720,14 +714,12 @@ public class AnalysisServiceTest {
     assertSongError(() -> service.checkAnalysisAndStudyRelated(DEFAULT_STUDY_ID, nonExistentAnalysisId),
         ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.checkAnalysisExists(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
-    SongErrorAssertions
-        .assertSongError(() -> service.securedDeepRead(DEFAULT_STUDY_ID ,nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
-    SongErrorAssertions.assertSongError(() -> service.unsecuredDeepRead(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
-    SongErrorAssertions.assertSongError(() -> service.unsecuredReadFiles(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
-    SongErrorAssertions
-        .assertSongError(() -> service.securedReadFiles(DEFAULT_STUDY_ID, nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
-    SongErrorAssertions.assertSongError(() -> service.readSamples(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
-    SongErrorAssertions.assertSongError(() -> service.readState(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.securedDeepRead(DEFAULT_STUDY_ID ,nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.unsecuredDeepRead(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.unsecuredReadFiles(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.securedReadFiles(DEFAULT_STUDY_ID, nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.readSamples(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    assertSongError(() -> service.readState(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
   }
 
   @Test
@@ -744,7 +736,7 @@ public class AnalysisServiceTest {
   @Transactional
   public void testCheckAnalysisUnrelatedToStudy(){
     secureAnalysisTester.runSecureTest((s,a) -> service.checkAnalysisAndStudyRelated(s, a));
-    secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), AnalysisTypes.VARIANT_CALL);
+    secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), VARIANT_CALL);
     secureAnalysisTester.runSecureTest((s,a) -> service.securedDeepRead(s, a), AnalysisTypes.SEQUENCING_READ);
     secureAnalysisTester.runSecureTest((s,a) -> service.suppress(s, a));
     secureAnalysisTester.runSecureTest((s,a) -> service.securedReadFiles(s,a));
@@ -768,7 +760,7 @@ public class AnalysisServiceTest {
     val generator = createAnalysisGenerator(studyId, service, randomGenerator);
 
     val numCopies = 2;
-    val expectedAnalyses = IntStream.range(0, numCopies).boxed()
+    val expectedAnalyses = range(0, numCopies).boxed()
         .flatMap(x -> stream(AnalysisStates.values()))
         .map(x -> createSRAnalysisWithState(generator, x))
         .collect(toImmutableSet());
@@ -797,12 +789,52 @@ public class AnalysisServiceTest {
     // 7 - PUBLISHED,UNPUBLISHED,SUPPRESSED
     assertGetAnalysesForStudy(expectedAnalyses, studyId, UNPUBLISHED, SUPPRESSED, PUBLISHED);
 
-    SongErrorAssertions
-        .assertSongError(() -> service.getAnalysis(studyId, newHashSet(PUBLISHED.toString(), "SomethingElse")),
+    assertSongError(() -> service.getAnalysis(studyId, newHashSet(PUBLISHED.toString(), "SomethingElse")),
         MALFORMED_PARAMETER);
 
-    SongErrorAssertions.assertSongError(() -> service.getAnalysis(studyId, newHashSet("SomethingElse")),
+    assertSongError(() -> service.getAnalysis(studyId, newHashSet("SomethingElse")),
         MALFORMED_PARAMETER);
+  }
+
+  private static AnalysisTypes selectAnalysisType(int select){
+    return select % 2 == 0 ? VARIANT_CALL : SEQUENCING_READ;
+  }
+
+  @Test
+  @Transactional
+  public void testGetAnalysisForStudyView(){
+    val numAnalysesPerStudy = 100;
+    val numStudies = 3;
+    val studyIds = range(0, numStudies).boxed().map(x -> studyGenerator.createRandomStudy()).collect(toImmutableSet());
+    val study2AnalysesMap = studyIds.stream()
+        .map(x -> createAnalysisGenerator(x, service, randomGenerator))
+        .map(x ->
+            range(0, numAnalysesPerStudy).boxed()
+                .map(a -> (AbstractAnalysis)x.createDefaultRandomAnalysis(selectAnalysisType(a))))
+        .flatMap(x -> x)
+        .collect(groupingBy(AbstractAnalysis::getStudy));
+
+    val studyId = study2AnalysesMap.keySet().stream().findFirst().get();
+    val expectedAnalyses = study2AnalysesMap.get(studyId);
+
+    val expectedAnalysisMap = expectedAnalyses.stream()
+        .collect(toMap(x -> ((AbstractAnalysis) x).getAnalysisId(), x -> x));
+
+    val expectedAnalysisIds = expectedAnalysisMap.keySet();
+
+    val analysisStates = ImmutableSet.of(UNPUBLISHED.toString());
+
+    val actualAnalyses1 = service.getAnalysis(studyId, analysisStates);
+    val actualAnalyses2 = service.getAnalysisByView(studyId, analysisStates);
+
+    val actualAnalysisIds1 = actualAnalyses1.stream().map(AbstractAnalysis::getAnalysisId).collect(toImmutableSet());
+    val actualAnalysisIds2 = actualAnalyses2.stream().map(AbstractAnalysis::getAnalysisId).collect(toImmutableSet());
+
+    assertSetsMatch(actualAnalysisIds1, expectedAnalysisIds);
+    assertSetsMatch(actualAnalysisIds2, expectedAnalysisIds);
+
+    actualAnalyses1.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())) );
+    actualAnalyses2.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())) );
   }
 
   private void assertGetAnalysesForStudy(Set<AbstractAnalysis> expectedAnalyses, String studyId, AnalysisStates ... states){
@@ -837,7 +869,35 @@ public class AnalysisServiceTest {
     analysis.getSample().stream()
         .map(Sample::getSampleId)
         .forEach(sampleRepository::deleteById);
-    SongErrorAssertions.assertSongError(() -> service.readSamples(analysisId), ANALYSIS_MISSING_SAMPLES);
+    assertSongError(() -> service.readSamples(analysisId), ANALYSIS_MISSING_SAMPLES);
+  }
+
+  private static <T,R> void assertFunctionEqual(T l, T r, Function<T,R> trFunction){
+    assertThat(trFunction.apply(l)).isEqualTo(trFunction.apply(r));
+  }
+
+  private static void diff(AbstractAnalysis l, AbstractAnalysis r){
+    assertFunctionEqual(l, r, AbstractAnalysis::getAnalysisId);
+    assertFunctionEqual(l, r, AbstractAnalysis::getAnalysisState);
+    assertFunctionEqual(l, r, AbstractAnalysis::getAnalysisType);
+    assertFunctionEqual(l, r, AbstractAnalysis::getStudy);
+    assertFunctionEqual(l, r, AbstractAnalysis::getInfoAsString);
+
+    val leftFiles = newHashSet(l.getFile());
+    val rightFiles = newHashSet(r.getFile());
+    assertSetsMatch(leftFiles, rightFiles);
+
+    val leftSamples = newHashSet(l.getSample());
+    val rightSamples = newHashSet(r.getSample());
+    assertSetsMatch(leftSamples, rightSamples);
+
+    assertThat(l.getInfo()).isEqualTo(r.getInfo());
+    if (l instanceof SequencingReadAnalysis && r instanceof SequencingReadAnalysis){
+      assertThat(((SequencingReadAnalysis)l).getExperiment()).isEqualTo(((SequencingReadAnalysis)r).getExperiment());
+    } else if (l instanceof VariantCallAnalysis && r instanceof VariantCallAnalysis){
+      assertThat(((VariantCallAnalysis)l).getExperiment()).isEqualTo(((VariantCallAnalysis)r).getExperiment());
+    }
+
   }
 
 }
