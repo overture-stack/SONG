@@ -883,12 +883,12 @@ public class AnalysisServiceTest {
     assertFunctionEqual(l, r, AbstractAnalysis::getStudy);
     assertFunctionEqual(l, r, AbstractAnalysis::getInfoAsString);
 
-    val leftFiles = Sets.newHashSet(l.getFile());
-    val rightFiles = Sets.newHashSet(r.getFile());
+    val leftFiles = newHashSet(l.getFile());
+    val rightFiles = newHashSet(r.getFile());
     assertSetsMatch(leftFiles, rightFiles);
 
-    val leftSamples = Sets.newHashSet(l.getSample());
-    val rightSamples = Sets.newHashSet(r.getSample());
+    val leftSamples = newHashSet(l.getSample());
+    val rightSamples = newHashSet(r.getSample());
     assertSetsMatch(leftSamples, rightSamples);
 
     assertThat(l.getInfo()).isEqualTo(r.getInfo());
@@ -898,10 +898,6 @@ public class AnalysisServiceTest {
       assertThat(((VariantCallAnalysis)l).getExperiment()).isEqualTo(((VariantCallAnalysis)r).getExperiment());
     }
 
-  }
-
-  private static <T,R> int diff (T l, T r, Function<T, R> trFunction){
-    return  trFunction.apply(l).equals(trFunction.apply(r)) ? 0 : 1;
   }
 
 }
