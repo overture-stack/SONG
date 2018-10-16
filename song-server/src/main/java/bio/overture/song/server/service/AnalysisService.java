@@ -64,6 +64,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.google.common.collect.Iterables.partition;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
@@ -234,7 +235,7 @@ public class AnalysisService {
       val analysisType = analysisTypeEntry.getKey();
       val analysisTypeResults = analysisTypeEntry.getValue();
       val analysesForType = processAnalysisForType(analysisTypeResults, analysisType, AnalysisService::instantiateAnalysis);
-      val partitions = Iterables.partition(analysesForType, BATCH_SIZE);
+      val partitions = partition(analysesForType, BATCH_SIZE);
 
       for (val analysesForPartition : partitions){
         if (analysisType == SEQUENCING_READ){
