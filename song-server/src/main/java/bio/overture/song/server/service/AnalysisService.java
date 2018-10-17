@@ -28,7 +28,6 @@ import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.model.enums.AnalysisTypes;
 import bio.overture.song.server.model.enums.Constants;
 import bio.overture.song.server.model.experiment.SequencingRead;
 import bio.overture.song.server.model.experiment.VariantCall;
@@ -45,6 +44,7 @@ import bio.overture.song.server.repository.search.SearchRepository;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -64,6 +64,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.google.common.collect.Iterables.partition;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
@@ -113,6 +114,7 @@ public class AnalysisService {
         put(SEQUENCING_READ.toString(), SequencingReadAnalysis.class);
         put(VARIANT_CALL.toString(), VariantCallAnalysis.class);
       }};
+  private static final int BATCH_SIZE = 5000;
 
   @Autowired
   private final AnalysisRepository repository;
@@ -233,16 +235,19 @@ public class AnalysisService {
       val analysisType = analysisTypeEntry.getKey();
       val analysisTypeResults = analysisTypeEntry.getValue();
       val analysesForType = processAnalysisForType(analysisTypeResults, analysisType, AnalysisService::instantiateAnalysis);
+      val partitions = partition(analysesForType, BATCH_SIZE);
 
-      if (analysisType == SEQUENCING_READ){
-        processSequencingReadsInPlace(analysesForType);
-      } else if (analysisType == VARIANT_CALL){
-        processVariantCallsInPlace(analysesForType);
-      } else {
-        throw buildServerException(getClass(), NOT_IMPLEMENTED_YET,
-            "The analysisType '%s' has not been implemented yet", analysisType);
+      for (val analysesForPartition : partitions){
+        if (analysisType == SEQUENCING_READ){
+          processSequencingReadsInPlace(analysesForPartition);
+        } else if (analysisType == VARIANT_CALL){
+          processVariantCallsInPlace(analysesForPartition);
+        } else {
+          throw buildServerException(getClass(), NOT_IMPLEMENTED_YET,
+              "The analysisType '%s' has not been implemented yet", analysisType);
+        }
+        outputList.addAll(analysesForPartition);
       }
-      outputList.addAll(analysesForType);
     }
     return outputList.build();
   }
