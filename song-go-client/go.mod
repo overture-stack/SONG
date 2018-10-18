@@ -1,6 +1,7 @@
 module github.com/overture-stack/SONG/song-go-client
 
 require (
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/google/pprof v0.0.0-20181002142953-f36417847b1c // indirect
 	github.com/ianlancetaylor/demangle v0.0.0-20180714043527-fcd258a6f0b4 // indirect

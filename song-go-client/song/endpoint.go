@@ -98,3 +98,7 @@ func (s *Endpoint) ExportStudy(studyID string) url.URL {
 func (s *Endpoint) ExportAnalyses(analysesIds []string) url.URL {
 	return s.makeURL("export", "analysis", strings.Join(analysesIds, ","))
 }
+
+func (s *Endpoint) UpdateFile(studyID string, fileID string) url.URL {
+	return s.makeURL("studies", studyID, "files", fileID)
+}

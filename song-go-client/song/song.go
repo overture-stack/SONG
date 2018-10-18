@@ -118,3 +118,8 @@ func (c *Client) ExportStudy(studyID string) string {
 func (c *Client) ExportAnalyses(analysisIds []string) string {
 	return c.get(c.endpoint.ExportAnalyses(analysisIds))
 }
+
+// UpdateFile update file metadata
+func (c *Client) UpdateFile(studyID string, fileID string, data []byte) string {
+	return c.put(c.endpoint.UpdateFile(studyID, fileID), data)
+}

@@ -127,3 +127,11 @@ func TestExportAnalyses(t *testing.T) {
 	x := e.ExportAnalyses(analysisIds)
 	assert.Equal(t, x.String(), "http://xyz.ai:23/export/analysis/1,2", "ExportAnalyses()")
 }
+
+func TestUpdateFile(t *testing.T) {
+	e := createEndpoint("http://xyz.ai:23")
+	studyID := "123"
+	fileID := "456"
+	x := e.UpdateFile(studyID, fileID)
+	assert.Equal(t, x.String(), "http://xyz.ai:23/studies/123/files/456", "TestUpdateFile()")
+}
