@@ -85,18 +85,13 @@ public class ValidationService {
     log.info(format("Analysis type='%s'",analysisType));
     try {
       val jsonNode = JsonUtils.readTree(payload);
+      val schemaId = "upload" + upperCaseFirstLetter(analysisType);
+      val response = validator.validate(schemaId, jsonNode);
 
-      if (jsonNode.has(STUDY)) {
-        errors =  "Uploaded JSON document must not contain a study field";
+      if (response.isValid()) {
+        errors = null;
       } else {
-        val schemaId = "upload" + upperCaseFirstLetter(analysisType);
-        val response = validator.validate(schemaId, jsonNode);
-
-        if (response.isValid()) {
-          errors = null;
-        } else {
-          errors =  response.getValidationErrors();
-        }
+        errors =  response.getValidationErrors();
       }
     } catch (JsonProcessingException jpe) {
       log.error(jpe.getMessage());

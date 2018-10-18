@@ -28,6 +28,7 @@ import bio.overture.song.server.repository.InfoRepository;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.UploadService;
+import bio.overture.song.server.utils.TestFiles;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -55,16 +56,17 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.entity.InfoPK.createInfoPK;
 import static bio.overture.song.server.repository.search.InfoSearchRequest.createInfoSearchRequest;
 import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithInfo;
 import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithoutInfo;
 import static bio.overture.song.server.repository.search.SearchTerm.parseSearchTerms;
+import static bio.overture.song.server.utils.PayloadGenerator.updateStudyInPayload;
 import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
-import static bio.overture.song.server.utils.TestFiles.SEARCH_TEST_DIR;
-import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
 @Slf4j
 @SpringBootTest
@@ -259,11 +261,12 @@ public class InfoSearchTest {
 
   @SneakyThrows
   private InfoSearchResponse extractResponse(String study, String payloadPath){
-    val testDataPath = PATH.join(SEARCH_TEST_DIR, payloadPath);
-    val testDataString = getJsonStringFromClasspath(testDataPath);
+    val testDataPath = PATH.join(TestFiles.SEARCH_TEST_DIR, payloadPath);
+    val testDataNode = getJsonNodeFromClasspath(testDataPath);
+    updateStudyInPayload(testDataNode, study);
+    val testDataString = toJson(testDataNode);
     return loadAndCreateResponse1(study, testDataString);
   }
-
 
   @SneakyThrows
   private String fromStatus( ResponseEntity<String> uploadStatus, String key) {

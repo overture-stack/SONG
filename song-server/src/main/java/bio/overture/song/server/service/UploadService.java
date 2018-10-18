@@ -39,16 +39,22 @@ import java.util.List;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.http.ResponseEntity.ok;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
 
 @RequiredArgsConstructor
 @Service
@@ -88,15 +94,21 @@ public class UploadService {
 
   @Transactional
   @SneakyThrows
-  public ResponseEntity<String> upload(@NonNull String studyId, @NonNull String payload, boolean isAsyncValidation) {
-    studyService.checkStudyExist(studyId);
+  public ResponseEntity<String> upload(@NonNull String studyIdFromUrlPath, @NonNull String payload, boolean isAsyncValidation) {
+    studyService.checkStudyExist(studyIdFromUrlPath);
     String analysisType;
     String uploadId;
     val status = JsonUtils.ObjectNode();
     status.put("status","ok");
 
     try {
-      val analysisId=JsonUtils.readTree(payload).at("/analysisId").asText();
+      val analysisId= readTree(payload).at("/"+ ANALYSIS_ID).asText();
+      val payloadStudyId = readTree(payload).at("/"+ STUDY).asText();
+      checkServer(!isBlank(payloadStudyId), getClass(), STUDY_ID_MISSING,
+          "The field '%s' is missing in the payload", STUDY);
+      checkServer(studyIdFromUrlPath.equals(payloadStudyId), getClass(), STUDY_ID_MISMATCH,
+          "The studyId in the URL path '%s' should match the studyId '%s' in the payload",
+          studyIdFromUrlPath, payloadStudyId);
       List<String> ids;
 
       if (isNullOrEmpty(analysisId)) {
@@ -104,12 +116,12 @@ public class UploadService {
         // even if the rest of the content is duplicated.
         ids = Collections.emptyList();
       } else {
-        ids = findByBusinessKey(studyId, analysisId);
+        ids = findByBusinessKey(studyIdFromUrlPath, analysisId);
       }
 
       if (isNull(ids) || ids.isEmpty()) {
         uploadId = id.generate(IdPrefix.UPLOAD_PREFIX);
-        create(studyId, analysisId, uploadId, payload);
+        create(studyIdFromUrlPath, analysisId, uploadId, payload);
       } else if (ids.size() == 1) {
         uploadId = ids.get(0);
         val previousUpload = uploadRepository.findById(uploadId).get();
@@ -122,13 +134,13 @@ public class UploadService {
       } else {
         throw buildServerException(getClass(), UPLOAD_ID_NOT_FOUND,
             "Multiple upload ids found for analysisId='%s', study='%s'",
-            analysisId, studyId);
+            analysisId, studyIdFromUrlPath);
       }
-      analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
+      analysisType = readTree(payload).at("/analysisType").asText("");
     } catch (JsonProcessingException jpe){
       log.error(jpe.getCause().getMessage());
       throw buildServerException(getClass(), PAYLOAD_PARSING,
-          "Unable parse the input payload: %s ",payload);
+          "Unable parse the input payload %s ",payload);
     }
 
     if (isAsyncValidation){

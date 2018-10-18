@@ -35,12 +35,12 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
+import static bio.overture.song.server.utils.TestFiles.SEARCH_TEST_DIR;
 import static bio.overture.song.server.repository.search.SearchQueryBuilder.createSearchQueryBuilder;
 import static bio.overture.song.server.repository.search.SearchTerm.createMultiSearchTerms;
 import static bio.overture.song.server.repository.search.SearchTerm.createSearchTerm;
 import static bio.overture.song.server.repository.search.SearchTerm.parseSearchTerm;
 import static bio.overture.song.server.repository.search.SearchTerm.parseSearchTerms;
-import static bio.overture.song.server.utils.TestFiles.SEARCH_TEST_DIR;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
 @Slf4j

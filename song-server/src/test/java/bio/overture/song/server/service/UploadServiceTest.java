@@ -483,6 +483,7 @@ public class UploadServiceTest {
     assertThat(a1.getSample().get(0).getSampleId()).isNotEqualTo(a2.getSample().get(0).getSampleId());
   }
 
+
   private String createUniqueAnalysisId(){
     return format("AN-56789-%s",ANALYSIS_ID_COUNT++);
   }
