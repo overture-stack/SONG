@@ -16,16 +16,7 @@
  */
 package bio.overture.song.client.cli;
 
-import bio.overture.song.client.command.ConfigCommand;
-import bio.overture.song.client.command.ExportCommand;
-import bio.overture.song.client.command.FileUpdateCommand;
-import bio.overture.song.client.command.ManifestCommand;
-import bio.overture.song.client.command.PublishCommand;
-import bio.overture.song.client.command.SaveCommand;
-import bio.overture.song.client.command.SearchCommand;
-import bio.overture.song.client.command.StatusCommand;
-import bio.overture.song.client.command.SuppressCommand;
-import bio.overture.song.client.command.UploadCommand;
+import bio.overture.song.client.command.*;
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.ErrorStatusHeader;
 import bio.overture.song.client.register.Registry;
@@ -67,6 +58,7 @@ public class ClientMain implements CommandLineRunner {
     builder.register("search", new SearchCommand(registry, config));
     builder.register("manifest", new ManifestCommand(registry, config));
     builder.register("publish", new PublishCommand(registry, config));
+    builder.register("unpublish", new UnpublishCommand(registry, config));
     builder.register("suppress", new SuppressCommand(registry, config));
     builder.register("export", new ExportCommand(registry));
     builder.register("update-file", new FileUpdateCommand(config, registry));
