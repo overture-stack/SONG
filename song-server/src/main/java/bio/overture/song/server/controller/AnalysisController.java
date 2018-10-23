@@ -55,7 +55,7 @@ import static bio.overture.song.server.repository.search.IdSearchRequest.createI
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}/analysis")
-@Api(tags = "Analysis", description = "Read, publish, suppress and search analyses")
+@Api(tags = "Analysis", description = "Read, publish, unpublish, suppress and search analyses")
 public class AnalysisController {
 
   private static final String EXAMPLE_ANALYSIS_INFO_JSON = "{\n"

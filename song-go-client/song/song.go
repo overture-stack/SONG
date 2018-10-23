@@ -73,6 +73,11 @@ func (c *Client) Publish(studyID string, analysisID string) string {
 	return c.put(c.endpoint.Publish(studyID, analysisID), nil)
 }
 
+// Unpublish publishes a specified saved analysisID
+func (c *Client) Unpublish(studyID string, analysisID string) string {
+	return c.put(c.endpoint.Unpublish(studyID, analysisID), nil)
+}
+
 func (c *Client) Suppress(studyID string, analysisID string) string {
 	return c.put(c.endpoint.Suppress(studyID, analysisID), nil)
 }

@@ -71,6 +71,11 @@ func (s *Endpoint) Publish(studyID string, analysisID string) url.URL {
 	return s.makeURL("studies", studyID, "analysis", "publish", analysisID)
 }
 
+// Unpublish unpublishes a specified saved analysisID
+func (s *Endpoint) Unpublish(studyID string, analysisID string) url.URL {
+	return s.makeURL("studies", studyID, "analysis", "unpublish", analysisID)
+}
+
 func (s *Endpoint) Suppress(studyID string, analysisID string) url.URL {
 	return s.makeURL("studies", studyID, "analysis", "suppress", analysisID)
 }
