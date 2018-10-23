@@ -110,6 +110,18 @@ public class AnalysisController {
     return analysisService.publish(accessToken, studyId, id, ignoreUndefinedMd5);
   }
 
+  @ApiOperation(value = "UnpublishAnalysis",
+          notes = "Unpublish an analysis. Set the analysis status to unpublished")
+  @PutMapping(value="/unpublish/{id}")
+  @SneakyThrows
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public ResponseEntity<String> unpublishAnalysis(
+          @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+          @PathVariable("studyId") String studyId,
+          @PathVariable("id") String id) {
+    return analysisService.unpublish(studyId, id);
+  }
+
   @ApiOperation(value = "SuppressAnalysis", notes = "Suppress an analysis. Used if a previously published analysis is"
       + " no longer needed. Instead of removing the analysis, it is marked as \"suppressed\"")
   @PutMapping(value="/suppress/{id}")

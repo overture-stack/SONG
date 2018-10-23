@@ -389,6 +389,13 @@ public class AnalysisService {
   }
 
   @Transactional
+  public ResponseEntity<String> unpublish(@NonNull String studyId, @NonNull String id) {
+    checkAnalysisAndStudyRelated(studyId, id);
+    checkedUpdateState(id, UNPUBLISHED);
+    return ok("AnalysisId %s successfully unpublished", id);
+  }
+
+  @Transactional
   public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
     checkedUpdateState(id, SUPPRESSED);

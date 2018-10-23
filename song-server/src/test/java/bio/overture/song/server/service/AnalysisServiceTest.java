@@ -499,15 +499,19 @@ public class AnalysisServiceTest {
   }
 
   @Test
-  public void testSuppress() {
+  public void testSuppressAndUnpublish() {
     val an = analysisGenerator.createDefaultRandomAnalysis(SequencingReadAnalysis.class);
     assertThat(an.getAnalysisState()).isEqualTo("UNPUBLISHED");
     val id = an.getAnalysisId();
     val studyId = an.getStudy();
-    service.suppress(studyId, id);
 
+    service.suppress(studyId, id);
     val analysis = service.securedDeepRead(studyId, id);
     assertThat(analysis.getAnalysisState()).isEqualTo("SUPPRESSED");
+
+    service.unpublish(studyId, id);
+    val analysis2 = service.securedDeepRead(studyId, id);
+    assertThat(analysis2.getAnalysisState()).isEqualTo("UNPUBLISHED");
   }
 
   @Test
