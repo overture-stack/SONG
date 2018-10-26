@@ -69,22 +69,6 @@ public class ValidationServiceTest {
   }
 
   @Test
-  public void testValidateSequencingReadWithStudy() {
-    val payload=getJsonFile("sequencingReadStudy.json").toString();
-    val results=service.validate(payload,SEQ_READ);
-    assertThat(results).isNotEmpty();
-    assertThat(results).hasValue("Uploaded JSON document must not contain a study field");
-  }
-
-  @Test
-  public void testValidateVariantCallWithStudy() {
-    val payload=getJsonFile("variantCallStudy.json").toString();
-    val results=service.validate(payload,VAR_CALL);
-    assertThat(results).isNotEmpty();
-    assertThat(results).hasValue("Uploaded JSON document must not contain a study field");
-  }
-
-  @Test
   public void testValidateVariantCallMissingAnalysisType() {
     val payload=getJsonFile("variantCall.json");
     ((ObjectNode)payload).put("analysisType", (String)null);
@@ -179,17 +163,6 @@ public class ValidationServiceTest {
       runAnalysisIdValidationErrorTest(randomGenerator.generateRandomAsciiString(2), schemaType, true);
       runAnalysisIdValidationErrorTest(randomGenerator.generateRandomAsciiString(3), schemaType, false);
       runAnalysisIdValidationErrorTest(randomGenerator.generateRandomAsciiString(36), schemaType, false);
-    }
-  }
-
-  /**
-   * Related to Song-308 https://github.com/overture-stack/SONG/issues/308
-   */
-  @Test
-  public void testSong308_StudyIdValidation(){
-    for (val schemaType : DEFAULT_TEST_FILE_MAP.keySet()){
-      val payload = toObjectNode(schemaType);
-      runRequiredStringForPayloadTest(payload,() -> payload, STUDY, schemaType);
     }
   }
 

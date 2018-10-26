@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 
 @Slf4j
 public class SchemaValidationTests {

@@ -63,10 +63,10 @@ import static bio.overture.song.server.repository.search.InfoSearchRequest.creat
 import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithInfo;
 import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithoutInfo;
 import static bio.overture.song.server.repository.search.SearchTerm.parseSearchTerms;
-import static bio.overture.song.server.utils.PayloadGenerator.updateStudyInPayload;
-import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
 @SpringBootTest

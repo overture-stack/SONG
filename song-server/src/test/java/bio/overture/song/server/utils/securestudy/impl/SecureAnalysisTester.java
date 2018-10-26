@@ -30,7 +30,7 @@ import java.util.function.BiConsumer;
 
 import static java.lang.String.format;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 
 /**
  * Utility test class that tests study security associated with analysis entities. Ensures that

@@ -21,9 +21,10 @@ import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.EndpointTester;
-import bio.overture.song.server.utils.StudyGenerator;
 import bio.overture.song.server.utils.TestFiles;
+import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Before;
@@ -46,9 +47,10 @@ import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
-import static bio.overture.song.server.utils.PayloadGenerator.updateStudyInPayload;
-import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -91,8 +93,9 @@ public class UploadControllerTest {
 
   @Test
   public void missingStudyInPayloadTest(){
-    streamPayloadNodes().forEach(x ->
-        runEndpointSongErrorTest(format("/upload/%s/", DEFAULT_STUDY_ID), x, STUDY_ID_MISSING) );
+    streamPayloadNodes()
+        .peek(x -> ((ObjectNode)x).remove(STUDY))
+        .forEach(x -> runEndpointSongErrorTest(format("/upload/%s/", DEFAULT_STUDY_ID), x, STUDY_ID_MISSING) );
   }
 
   @SneakyThrows

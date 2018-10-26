@@ -87,7 +87,6 @@ public class ValidationService {
       val jsonNode = JsonUtils.readTree(payload);
       val schemaId = "upload" + upperCaseFirstLetter(analysisType);
       val response = validator.validate(schemaId, jsonNode);
-
       if (response.isValid()) {
         errors = null;
       } else {
