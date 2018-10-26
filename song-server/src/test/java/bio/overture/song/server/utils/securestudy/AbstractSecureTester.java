@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Getter
 @RequiredArgsConstructor

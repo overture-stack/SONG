@@ -49,7 +49,6 @@ public class PayloadConverter {
       removeAnalysisId(parser);
     }
 
-    removeRootFields(parser);
     removeExperimentFields(parser);
     removeSamplesFields(parser);
     removeDonorFields(parser);
@@ -77,10 +76,6 @@ public class PayloadConverter {
 
   private static void removeAnalysisId(PayloadParser parser){
     removePath(parser.getRootNode(), ANALYSIS_ID);
-  }
-
-  private static void removeRootFields(PayloadParser parser){
-    removePath(parser.getRootNode(), STUDY, ANALYSIS_STATE);
   }
 
   private static void removeExperimentFields(PayloadParser parser){

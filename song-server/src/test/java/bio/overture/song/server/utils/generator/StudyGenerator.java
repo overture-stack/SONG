@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package bio.overture.song.server.utils;
+package bio.overture.song.server.utils.generator;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Study;

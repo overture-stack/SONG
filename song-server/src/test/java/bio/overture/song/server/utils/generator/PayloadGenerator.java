@@ -15,12 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package bio.overture.song.server.utils;
+package bio.overture.song.server.utils.generator;
 
-import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
+import bio.overture.song.server.model.analysis.VariantCallAnalysis;
+import bio.overture.song.server.utils.TestFiles;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -29,6 +32,7 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.fail;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
 
 @RequiredArgsConstructor(access = PRIVATE)
 public class PayloadGenerator {
@@ -82,6 +86,10 @@ public class PayloadGenerator {
 
   public static PayloadGenerator createPayloadGenerator(String randomGeneratorName) {
     return new PayloadGenerator(createRandomGenerator(randomGeneratorName));
+  }
+
+  public static void updateStudyInPayload(JsonNode payload, String studyId){
+    ((ObjectNode)payload).put(STUDY, studyId);
   }
 
 }
