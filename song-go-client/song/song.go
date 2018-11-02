@@ -103,9 +103,9 @@ func (c *Client) InfoSearch(studyID string, includeInfo bool, terms map[string]s
 }
 
 // Manifest search info
-func (c *Client) Manifest(studyID string, analysisID string) string {
+func (c *Client) Manifest(studyID string, analysisID string, path string) string {
 	var data = c.getAnalysisFiles(studyID, analysisID)
-	manifest := createManifest(analysisID, data)
+	manifest := createManifest(analysisID, data, path)
 	return manifest
 }
 
