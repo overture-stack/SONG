@@ -121,3 +121,25 @@ func TestInfoSearch(t *testing.T) {
 	x := e.InfoSearch(studyId)
 	assert.Equal(t, x.String(), "http://xyz.ai:23/studies/XYZ2345/analysis/search/info", "InfoSearch()")
 }
+
+func TestExportStudy(t *testing.T) {
+	e := createEndpoint("http://xyz.ai:23")
+	studyId := "XYZ2345"
+	x := e.ExportStudy(studyId)
+	assert.Equal(t, x.String(), "http://xyz.ai:23/export/studies/XYZ2345", "ExportStudy()")
+}
+
+func TestExportAnalyses(t *testing.T) {
+	e := createEndpoint("http://xyz.ai:23")
+	analysisIds := []string{"1", "2"}
+	x := e.ExportAnalyses(analysisIds)
+	assert.Equal(t, x.String(), "http://xyz.ai:23/export/analysis/1,2", "ExportAnalyses()")
+}
+
+func TestUpdateFile(t *testing.T) {
+	e := createEndpoint("http://xyz.ai:23")
+	studyID := "123"
+	fileID := "456"
+	x := e.UpdateFile(studyID, fileID)
+	assert.Equal(t, x.String(), "http://xyz.ai:23/studies/123/files/456", "TestUpdateFile()")
+}

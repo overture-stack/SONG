@@ -17,17 +17,19 @@
 package bio.overture.song.server.validation;
 
 import com.networknt.schema.ValidationMessage;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Set;
 
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.joining;
 
 @Data
+@AllArgsConstructor
 public class ValidationResponse {
 
   private Set<ValidationMessage> messages;
-  private boolean valid = true;
 
   public String getValidationErrors() {
     return messages.stream()
@@ -35,11 +37,12 @@ public class ValidationResponse {
         .collect(joining("|"));
   }
 
-  ValidationResponse(Set<ValidationMessage> messages) {
-    this.messages = messages;
-    if ((messages != null) && !messages.isEmpty()) {
-      valid = false;
-    }
+  public boolean isValid(){
+    return isNull(messages) || messages.isEmpty();
+  }
+
+  public void merge(ValidationResponse validationResponse){
+    this.messages.addAll(validationResponse.getMessages());
   }
 
 }

@@ -59,6 +59,7 @@ func (c *Client) GetStatus(studyID string, uploadID string) string {
 	return c.get(c.endpoint.GetStatus(studyID, uploadID))
 }
 
+// GetServerStatus return whether server is alive
 func (c *Client) GetServerStatus() string {
 	return c.get(c.endpoint.IsAlive())
 }
@@ -78,6 +79,7 @@ func (c *Client) Unpublish(studyID string, analysisID string) string {
 	return c.put(c.endpoint.Unpublish(studyID, analysisID), nil)
 }
 
+// Suppress supress an analysis
 func (c *Client) Suppress(studyID string, analysisID string) string {
 	return c.put(c.endpoint.Suppress(studyID, analysisID), nil)
 }
@@ -90,6 +92,7 @@ func (c *Client) getAnalysisFiles(studyID string, analysisID string) string {
 	return c.get(c.endpoint.GetAnalysisFiles(studyID, analysisID))
 }
 
+// IdSearch search id
 func (c *Client) IdSearch(studyID string, ids map[string]string) string {
 	searchTerms, err := json.Marshal(ids)
 	if err != nil {
@@ -98,13 +101,30 @@ func (c *Client) IdSearch(studyID string, ids map[string]string) string {
 	return c.post(c.endpoint.IdSearch(studyID), searchTerms)
 }
 
+// InfoSearch search info
 func (c *Client) InfoSearch(studyID string, includeInfo bool, terms map[string]string) string {
 	searchRequest := createInfoSearchJSON(includeInfo, terms)
 	return c.post(c.endpoint.InfoSearch(studyID), searchRequest)
 }
 
+// Manifest search info
 func (c *Client) Manifest(studyID string, analysisID string) string {
 	var data = c.getAnalysisFiles(studyID, analysisID)
 	manifest := createManifest(analysisID, data)
 	return manifest
+}
+
+// ExportStudy export study
+func (c *Client) ExportStudy(studyID string) string {
+	return c.get(c.endpoint.ExportStudy(studyID))
+}
+
+// ExportAnalyses export analyses
+func (c *Client) ExportAnalyses(analysisIds []string) string {
+	return c.get(c.endpoint.ExportAnalyses(analysisIds))
+}
+
+// UpdateFile update file metadata
+func (c *Client) UpdateFile(studyID string, fileID string, data []byte) string {
+	return c.put(c.endpoint.UpdateFile(studyID, fileID), data)
 }

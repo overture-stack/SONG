@@ -32,7 +32,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.util.Splitters.PIPE;
@@ -44,8 +46,10 @@ import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("dev")
 public class ValidationServiceTest {
+
   private static final String SEQ_READ="SequencingRead";
   private static final String VAR_CALL="VariantCall";
+  private static final String STUDY = "study";
 
   @Autowired
   private ValidationService service;
@@ -62,22 +66,6 @@ public class ValidationServiceTest {
     val payload=getJsonFile("variantCall.json").toString();
     val results=service.validate(payload,VAR_CALL);
     assertThat(results).isEmpty();
-  }
-
-  @Test
-  public void testValidateSequencingReadWithStudy() {
-    val payload=getJsonFile("sequencingReadStudy.json").toString();
-    val results=service.validate(payload,SEQ_READ);
-    assertThat(results).isNotEmpty();
-    assertThat(results).hasValue("Uploaded JSON document must not contain a study field");
-  }
-
-  @Test
-  public void testValidateVariantCallWithStudy() {
-    val payload=getJsonFile("variantCallStudy.json").toString();
-    val results=service.validate(payload,VAR_CALL);
-    assertThat(results).isNotEmpty();
-    assertThat(results).hasValue("Uploaded JSON document must not contain a study field");
   }
 
   @Test
@@ -178,6 +166,29 @@ public class ValidationServiceTest {
     }
   }
 
+  private void runRequiredStringForPayloadTest(ObjectNode payload, Supplier<ObjectNode> nodeGetter,
+      String fieldName, String schemaType){
+    val node = nodeGetter.get();
+    node.put(fieldName, "");
+    val emptyResults = service.validate(payload.toString(), schemaType);
+    assertThat(emptyResults).isNotEmpty();
+    assertThat(emptyResults.get()).endsWith(format("%s: must be at least 1 characters long", fieldName));
+
+    node.put(fieldName, (String)null);
+    val nullResults = service.validate(payload.toString(), schemaType);
+    assertThat(nullResults).isNotEmpty();
+    assertThat(nullResults.get()).endsWith(format("%s: null found, string expected", fieldName));
+
+    node.remove(fieldName);
+    val missingResults = service.validate(payload.toString(), schemaType);
+    assertThat(missingResults).isNotEmpty();
+    assertThat(missingResults.get()).endsWith(format("%s: is missing but it is required", fieldName));
+
+    node.put(fieldName, randomGenerator.generateRandomAsciiString(randomGenerator.generateRandomIntRange(1,4)));
+    val goodResults = service.validate(payload.toString(), schemaType);
+    assertThat(goodResults).isEmpty();
+  }
+
   private final RandomGenerator randomGenerator = createRandomGenerator(ValidationServiceTest.class.getSimpleName());
 
   private static final Map<String, String> DEFAULT_TEST_FILE_MAP = Maps.newHashMap();
@@ -186,11 +197,14 @@ public class ValidationServiceTest {
     DEFAULT_TEST_FILE_MAP.put(VAR_CALL, "variantCall.json");
   }
 
-  private void runAnalysisIdValidationErrorTest(String analysisId, String schemaType, boolean shouldBeError){
+  private ObjectNode toObjectNode(String schemaType ){
     val testFileName = DEFAULT_TEST_FILE_MAP.get(schemaType);
+    return (ObjectNode)getJsonFile(testFileName);
+  }
 
-    val payload = getJsonFile(testFileName);
-    ((ObjectNode)payload).put("analysisId", analysisId);
+  private void runAnalysisIdValidationErrorTest(String analysisId, String schemaType, boolean shouldBeError){
+    val payload = toObjectNode(schemaType);
+    payload.put("analysisId", analysisId);
 
     val results = service.validate(payload.toString(), schemaType);
 

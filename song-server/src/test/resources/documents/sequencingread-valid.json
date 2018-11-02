@@ -1,4 +1,5 @@
 {
+  "study" : "ABC123",
   "analysisType": "sequencingRead",
   "experiment": {
     "libraryStrategy": "WXS",

@@ -33,7 +33,7 @@ import bio.overture.song.server.repository.SampleSetRepository;
 import bio.overture.song.server.repository.SequencingReadRepository;
 import bio.overture.song.server.repository.VariantCallRepository;
 import bio.overture.song.server.service.export.ExportService;
-import bio.overture.song.server.utils.StudyGenerator;
+import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -69,10 +69,10 @@ import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static bio.overture.song.server.model.enums.UploadStates.resolveState;
-import static bio.overture.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.TestFiles.DEFAULT_EMPTY_VALUE;
 import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
 @SpringBootTest
@@ -455,7 +455,6 @@ public class ExportServiceTest {
     }
 
     if (!includeOtherIds){
-      a.setStudy(DEFAULT_EMPTY_VALUE);
       a.getFile()
           .forEach(x -> {
             x.setAnalysisId(DEFAULT_EMPTY_VALUE);

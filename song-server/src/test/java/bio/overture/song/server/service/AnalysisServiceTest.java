@@ -33,9 +33,9 @@ import bio.overture.song.server.repository.SampleRepository;
 import bio.overture.song.server.repository.SampleSetRepository;
 import bio.overture.song.server.repository.SequencingReadRepository;
 import bio.overture.song.server.repository.VariantCallRepository;
-import bio.overture.song.server.utils.AnalysisGenerator;
-import bio.overture.song.server.utils.PayloadGenerator;
-import bio.overture.song.server.utils.StudyGenerator;
+import bio.overture.song.server.utils.generator.AnalysisGenerator;
+import bio.overture.song.server.utils.generator.PayloadGenerator;
+import bio.overture.song.server.utils.generator.StudyGenerator;
 import bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -87,12 +87,12 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static bio.overture.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
 import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
 import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 
 @Slf4j
