@@ -29,8 +29,8 @@ import (
 
 type FileMetaData struct {
 	FileAccess string      `json:"fileAccess,omitempty"`
-	Md5        string      `json:"md5,omitempty"`
-	Size       *int        `json:"size,omitempty"`
+	Md5        string      `json:"fileMd5sum,omitempty"`
+	Size       *int        `json:"fileSize,omitempty"`
 	Info       interface{} `json:"info,omitempty"`
 }
 
