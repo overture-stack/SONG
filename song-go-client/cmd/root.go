@@ -109,7 +109,7 @@ func initConfig() {
 	if songURLFlag != "" {
 		viper.Set("songURL", songURLFlag)
 	}
-	if songURLFlag != "" {
+	if studyFlag != "" {
 		viper.Set("study", studyFlag)
 	}
 

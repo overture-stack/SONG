@@ -20,6 +20,7 @@ package song
 import (
 	"net/url"
 	"path"
+	"strings"
 )
 
 type Endpoint struct {
@@ -66,7 +67,6 @@ func (s *Endpoint) Save(studyID string, uploadID string, ignoreCollisions bool) 
 	return u
 }
 
-// Publish publishes a specified saved analysisID
 func (s *Endpoint) Publish(studyID string, analysisID string) url.URL {
 	return s.makeURL("studies", studyID, "analysis", "publish", analysisID)
 }
@@ -89,4 +89,16 @@ func (s *Endpoint) IdSearch(studyID string) url.URL {
 
 func (s *Endpoint) InfoSearch(studyID string) url.URL {
 	return s.makeURL("studies", studyID, "analysis", "search", "info")
+}
+
+func (s *Endpoint) ExportStudy(studyID string) url.URL {
+	return s.makeURL("export", "studies", studyID)
+}
+
+func (s *Endpoint) ExportAnalyses(analysesIds []string) url.URL {
+	return s.makeURL("export", "analysis", strings.Join(analysesIds, ","))
+}
+
+func (s *Endpoint) UpdateFile(studyID string, fileID string) url.URL {
+	return s.makeURL("studies", studyID, "files", fileID)
 }
