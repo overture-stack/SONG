@@ -31,7 +31,7 @@ func unpublish(analysisID string) {
 	client := createClient()
 	studyID := viper.GetString("study")
 
-	responseBody := client.Publish(studyID, analysisID)
+	responseBody := client.Unpublish(studyID, analysisID)
 	fmt.Println(string(responseBody))
 }
 
