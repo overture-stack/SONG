@@ -113,6 +113,12 @@ public class Registry {
     return restClient.putAuth(accessToken, url);
   }
 
+  public Status unpublish(String studyId, String analysisId){
+    checkServerAlive();
+    val url = endpoint.unpublish(studyId, analysisId);
+    return restClient.putAuth(accessToken, url);
+  }
+
   public Status exportStudy(@NonNull String studyId, boolean includeAnalysisId){
     checkServerAlive();
     val url = endpoint.exportStudy(studyId, includeAnalysisId);

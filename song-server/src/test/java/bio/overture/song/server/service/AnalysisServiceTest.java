@@ -55,6 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
@@ -73,6 +74,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
 import static bio.overture.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
@@ -504,8 +506,8 @@ public class AnalysisServiceTest {
     assertThat(an.getAnalysisState()).isEqualTo("UNPUBLISHED");
     val id = an.getAnalysisId();
     val studyId = an.getStudy();
-    service.suppress(studyId, id);
 
+    service.suppress(studyId, id);
     val analysis = service.securedDeepRead(studyId, id);
     assertThat(analysis.getAnalysisState()).isEqualTo("SUPPRESSED");
   }
@@ -837,6 +839,44 @@ public class AnalysisServiceTest {
     actualAnalyses2.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())) );
   }
 
+  @Test
+  public void testUnpublishState() {
+    Stream.of(VARIANT_CALL, SEQUENCING_READ).forEach(this::runUnpublishStateTest);
+  }
+
+  private void runUnpublishStateTest(AnalysisTypes analysisType){
+    val a = analysisGenerator.createDefaultRandomAnalysis(analysisType);
+    val analysisId = a.getAnalysisId();
+    val studyId = a.getStudy();
+
+    // 1: UNPUBLISHED -> UNPUBLISHED
+    service.securedUpdateState(studyId, analysisId, UNPUBLISHED);
+    val a11 = service.unsecuredDeepRead(analysisId);
+    val actualState11 = resolveAnalysisState(a11.getAnalysisState());
+    assertThat(actualState11).isEqualTo(UNPUBLISHED);
+    service.unpublish(studyId, analysisId);
+    val a12 = service.unsecuredDeepRead(analysisId);
+    val actualState12 = resolveAnalysisState(a12.getAnalysisState());
+    assertThat(actualState12).isEqualTo(UNPUBLISHED);
+
+    // 2: PUBLISHED -> UNPUBLISHED
+    service.securedUpdateState(studyId, analysisId, PUBLISHED);
+    val a21 = service.unsecuredDeepRead(analysisId);
+    val actualState21 = resolveAnalysisState(a21.getAnalysisState());
+    assertThat(actualState21).isEqualTo(PUBLISHED);
+    service.unpublish(studyId, analysisId);
+    val a22 = service.unsecuredDeepRead(analysisId);
+    val actualState22 = resolveAnalysisState(a22.getAnalysisState());
+    assertThat(actualState22).isEqualTo(UNPUBLISHED);
+
+    // 3: SUPPRESSED -> UNPUBLISHED
+    service.securedUpdateState(studyId, analysisId, SUPPRESSED);
+    val a31 = service.unsecuredDeepRead(analysisId);
+    val actualState31 = resolveAnalysisState(a31.getAnalysisState());
+    assertThat(actualState31).isEqualTo(SUPPRESSED);
+    assertSongError(() -> service.unpublish(studyId, analysisId), SUPPRESSED_STATE_TRANSITION);
+  }
+
   private void assertGetAnalysesForStudy(Set<AbstractAnalysis> expectedAnalyses, String studyId, AnalysisStates ... states){
     Set<String> stateStrings = stream(states).map(AnalysisStates::toString).collect(toImmutableSet());
     if (states.length == 0){
@@ -852,7 +892,6 @@ public class AnalysisServiceTest {
         .collect(toImmutableSet());
     assertSetsMatch(actual, expected);
   }
-
 
   private AbstractAnalysis createSRAnalysisWithState(AnalysisGenerator generator, AnalysisStates state){
     val a = generator.createDefaultRandomSequencingReadAnalysis();

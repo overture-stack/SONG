@@ -79,6 +79,14 @@ func TestPublish(t *testing.T) {
 		"Publish()")
 }
 
+func TestUnpublish(t *testing.T) {
+	e := createEndpoint("http://example.org:12345")
+	studyId, analysisId := "XQA-𝜆123", "A2345-999-7012"
+	x := e.Unpublish(studyId, analysisId)
+	assert.Equal(t, x.String(), "http://example.org:12345/studies/XQA-%F0%9D%9C%86123/analysis/unpublish/A2345-999-7012",
+		"Unpublish()")
+}
+
 func TestSuppress(t *testing.T) {
 	e := createEndpoint("http://www.testing.com")
 	studyId, analysisId := "ABC123", "AN-123579"

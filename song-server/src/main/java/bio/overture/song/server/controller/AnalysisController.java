@@ -55,7 +55,7 @@ import static bio.overture.song.server.repository.search.IdSearchRequest.createI
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}/analysis")
-@Api(tags = "Analysis", description = "Read, publish, suppress and search analyses")
+@Api(tags = "Analysis", description = "Read, publish, unpublish, suppress and search analyses")
 public class AnalysisController {
 
   private static final String EXAMPLE_ANALYSIS_INFO_JSON = "{\n"
@@ -108,6 +108,18 @@ public class AnalysisController {
       @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
       @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false) boolean ignoreUndefinedMd5) {
     return analysisService.publish(accessToken, studyId, id, ignoreUndefinedMd5);
+  }
+
+  @ApiOperation(value = "UnpublishAnalysis",
+          notes = "Unpublish an analysis. Set the analysis status to unpublished")
+  @PutMapping(value="/unpublish/{id}")
+  @SneakyThrows
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public ResponseEntity<String> unpublishAnalysis(
+          @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+          @PathVariable("studyId") String studyId,
+          @PathVariable("id") String id) {
+    return analysisService.unpublish(studyId, id);
   }
 
   @ApiOperation(value = "SuppressAnalysis", notes = "Suppress an analysis. Used if a previously published analysis is"
