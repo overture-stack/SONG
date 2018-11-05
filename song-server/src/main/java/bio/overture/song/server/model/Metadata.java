@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.isNull;
 import static bio.overture.song.core.utils.JsonUtils.convertValue;
 import static bio.overture.song.core.utils.JsonUtils.toMap;
 
@@ -78,8 +79,9 @@ public class Metadata {
       val j = JsonUtils.ObjectNode().put("info", json);
       m = convertValue(j, Map.class);
     }
-    info.putAll(m);
-
+    if (!isNull(m)){
+      info.putAll(m);
+    }
   }
 
 }
