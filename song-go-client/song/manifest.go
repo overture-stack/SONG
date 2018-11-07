@@ -46,7 +46,7 @@ func createManifest(analysisID string, data string, path string) string {
 	if err != nil {
 		panic("Couldn't convert the following JSON string to an array of manifestFile objects: '" + data + "'")
 	}
-	for i, _ := range files {
+	for i := range files {
 		absPath, err := filepath.Abs(filepath.Join(path, files[i].FileName))
 		if err != nil {
 			panic(err)
