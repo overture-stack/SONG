@@ -24,14 +24,19 @@ import (
 	"io/ioutil"
 )
 
+var inputDirName string
+
 func init() {
 	RootCmd.AddCommand(manifestCmd)
+
+	manifestCmd.Flags().StringVarP(&inputDirName, "input-dir", "d", "", "Directory containing the files")
+	manifestCmd.MarkFlagRequired("input-dir")
 }
 
 func manifest(analysisID string, filePath string) {
 	client := createClient()
 	studyID := viper.GetString("study")
-	responseBody := client.Manifest(studyID, analysisID)
+	responseBody := client.Manifest(studyID, analysisID, inputDirName)
 
 	// read the file
 	err := ioutil.WriteFile(filePath, []byte(responseBody), 0644)
@@ -42,8 +47,9 @@ func manifest(analysisID string, filePath string) {
 
 var manifestCmd = &cobra.Command{
 	Use:   "manifest <analysisID> <filename>",
-	Short: "Upload Analysis Metadata",
-	Long:  `Uploads Metadata JSON describing an analysis and files for validation`,
+	Short: "Generate a manifest file",
+	Long:  "Generate a manifest file for the analysis specified by analysisID",
+	Args:  cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		manifest(args[0], args[1])
 	},

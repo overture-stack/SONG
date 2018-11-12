@@ -19,6 +19,8 @@ package song
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 )
 
 type manifestFile struct {
@@ -35,15 +37,24 @@ type manifestFile struct {
 
 func (f *manifestFile) String() string {
 	return f.ObjectId + "\t" + f.FileName + "\t" + f.FileMd5sum
-	return ""
 }
 
-func createManifest(analysisID string, data string) string {
+func createManifest(analysisID string, data string, path string) string {
 	var files []manifestFile
 
 	err := json.Unmarshal([]byte(data), &files)
 	if err != nil {
 		panic("Couldn't convert the following JSON string to an array of manifestFile objects: '" + data + "'")
+	}
+	for i := range files {
+		absPath, err := filepath.Abs(filepath.Join(path, files[i].FileName))
+		if err != nil {
+			panic(err)
+		}
+		if _, err := os.Stat(absPath); os.IsNotExist(err) {
+			panic(absPath + " does not exist")
+		}
+		files[i].FileName = absPath
 	}
 
 	manifest := analysisID + "\t\t\n"
