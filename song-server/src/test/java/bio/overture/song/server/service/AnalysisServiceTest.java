@@ -42,14 +42,17 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.id.client.core.IdClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -66,6 +69,9 @@ import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
@@ -85,11 +91,11 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
 import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
 import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 
@@ -835,6 +841,42 @@ public class AnalysisServiceTest {
 
     actualAnalyses1.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())) );
     actualAnalyses2.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())) );
+  }
+
+  @Autowired IdClient idClient;
+
+
+  @Test
+  public void testRevokeAnalysisId(){
+    //1 - create id using spy-ed isAnalysisId method that returns false
+    //2 - create id using a spy-ed analysisInfoService where its create method throws an exception
+    //      - also test transaction handling here and that everything was rolled back
+
+    val analysisInfoServiceMock = Mockito.mock(AnalysisInfoService.class);
+
+    when(analysisInfoServiceMock.isInfoExist(anyString()))
+        .thenThrow(new IllegalStateException("purposely failing"));
+    doCallRealMethod().when(analysisInfoServiceMock).create(anyString(), anyString());
+    ReflectionTestUtils.setField(service, "analysisInfoService", analysisInfoServiceMock);
+
+
+    val id = idService.resolveAnalysisId("", false);
+    assertThat(service.isAnalysisExist(id)).isFalse();
+    val payload = payloadGenerator.generateDefaultRandomPayload(SequencingReadAnalysis.class);
+    payload.setAnalysisId(id);
+    assertThat(service.isAnalysisExist(id)).isFalse();
+
+//    service.create(DEFAULT_STUDY_ID, payload, false);
+    boolean hasError = false;
+    try{
+      service.create(DEFAULT_STUDY_ID, payload, false);
+    } catch (IllegalStateException e){
+      hasError = true;
+    }
+    assertThat(hasError).as("An exception was not thrown").isTrue();
+    assertThat(service.isAnalysisExist(id)).isFalse();
+    assertThat(idClient.getAnalysisId(id)).isEmpty();
+
   }
 
   private void assertGetAnalysesForStudy(Set<AbstractAnalysis> expectedAnalyses, String studyId, AnalysisStates ... states){

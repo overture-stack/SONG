@@ -44,7 +44,6 @@ import bio.overture.song.server.repository.search.SearchRepository;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -154,6 +153,8 @@ public class AnalysisService {
   public String create(String studyId, AbstractAnalysis a, boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);
     val candidateAnalysisId = a.getAnalysisId();
+
+    // This doesnt commit the id to the id server
     val id = idService.resolveAnalysisId(candidateAnalysisId, ignoreAnalysisIdCollisions);
     /**
      * [Summary]: Guard from misleading response
@@ -192,6 +193,12 @@ public class AnalysisService {
      // shouldn't be possible if we validated our JSON first...
      throw new IllegalArgumentException("Invalid analysis type");
    }
+    // If there were no errors before, then commit the id to the id server.
+    // If the id was created by some other client on the id server in the time
+    // between the resolveAnalysisId method and the createAnalysisId method,
+    // then commit anyways. Entities have already been created using the id,
+    // as well, the probability of a collision is very low
+    idService.createAnalysisId(id);
     sendAnalysisMessage(createAnalysisMessage(id, UNPUBLISHED));
    return id;
   }
