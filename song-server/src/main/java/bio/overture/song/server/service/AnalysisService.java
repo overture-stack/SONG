@@ -150,6 +150,7 @@ public class AnalysisService {
   @Autowired
   private final FullViewRepository fullViewRepository;
 
+  @Transactional
   public String create(String studyId, AbstractAnalysis a, boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);
     val candidateAnalysisId = a.getAnalysisId();
