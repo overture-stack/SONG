@@ -27,9 +27,15 @@ import org.icgc.dcc.id.client.util.HashIdClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -39,13 +45,6 @@ import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.springframework.http.HttpStatus.OK;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
 
 @Slf4j
 public class IdServiceTest {
@@ -53,7 +52,7 @@ public class IdServiceTest {
   private static final String SUBMITTER_ID_1 = "AN8899";
   private static final String SUBMITTER_ID_2 = "AN112233";
 
-  @Autowired IdClient idClient;
+  private IdClient idClient = new HashIdClient();
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
@@ -150,7 +149,8 @@ public class IdServiceTest {
 
   @Test
   public void testUndefinedAnalysisId(){
-    val idService = createHashIdService();
+    val idClient = new HashIdClient(true);
+    val idService = new IdService(idClient);
 
     val id1 = idService.resolveAnalysisId("",false);
     assertThat(id1).isNotNull();
@@ -178,12 +178,13 @@ public class IdServiceTest {
     val id3Committed = idService.resolveAndCommitAnalysisId(null,false);
     assertThat(id1).isNotNull();
     assertThat(id1).isNotEqualTo(id3Committed);
-    assertThat(idClient.getAnalysisId(id3)).isNotEmpty();
+    assertThat(idClient.getAnalysisId(id3Committed)).isNotEmpty();
   }
 
   @Test
   public void testAnalysisIdNormal(){
-    val idService = createHashIdService();
+    val idClient = new HashIdClient(true);
+    val idService = new IdService(idClient);
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
     assertThat(id1).isEqualTo(SUBMITTER_ID_1);
@@ -196,7 +197,8 @@ public class IdServiceTest {
 
   @Test
   public void testIgnoreAnalysisIdCollision(){
-    val idService = createHashIdService();
+    val idClient = new HashIdClient(true);
+    val idService = new IdService(idClient);
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
     assertThat(id1).isEqualTo(SUBMITTER_ID_1);
@@ -212,7 +214,8 @@ public class IdServiceTest {
 
   @Test
   public void testAnalysisIdCollision(){
-    val idService = createHashIdService();
+    val idClient = new HashIdClient(true);
+    val idService = new IdService(idClient);
 
     val id1 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_1,false);
     assertThat(id1).isEqualTo(SUBMITTER_ID_1);
@@ -249,10 +252,6 @@ public class IdServiceTest {
         "No exception was thrown, but should have been thrown "
             + "since ignoreAnalysisIdCollisions=false and"
             + " the same id was attempted to be created");
-  }
-
-  private static final IdService createHashIdService(){
-    return new IdService(new HashIdClient(true));
   }
 
 }

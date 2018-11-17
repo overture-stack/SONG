@@ -21,36 +21,26 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"io/ioutil"
 )
 
-var inputDirName string
-
 func init() {
-	RootCmd.AddCommand(manifestCmd)
-
-	manifestCmd.Flags().StringVarP(&inputDirName, "input-dir", "d", "", "Directory containing the files")
-	manifestCmd.MarkFlagRequired("input-dir")
+	RootCmd.AddCommand(unpublishCmd)
 }
 
-func manifest(analysisID string, filePath string) {
+func unpublish(analysisID string) {
 	client := createClient()
 	studyID := viper.GetString("study")
-	responseBody := client.Manifest(studyID, analysisID, inputDirName)
 
-	// read the file
-	err := ioutil.WriteFile(filePath, []byte(responseBody), 0644)
-	if err != nil {
-		fmt.Print(err)
-	}
+	responseBody := client.Unpublish(studyID, analysisID)
+	fmt.Println(string(responseBody))
 }
 
-var manifestCmd = &cobra.Command{
-	Use:   "manifest <analysisID> <filename>",
-	Short: "Generate a manifest file",
-	Long:  "Generate a manifest file for the analysis specified by analysisID",
-	Args:  cobra.MinimumNArgs(2),
+var unpublishCmd = &cobra.Command{
+	Use:   "unpublish <analysisID>",
+	Short: "Unpublish a saved Analysis",
+	Long:  `Unpublish a saved Analysis by specifying the AnalysisID`,
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		manifest(args[0], args[1])
+		unpublish(args[0])
 	},
 }

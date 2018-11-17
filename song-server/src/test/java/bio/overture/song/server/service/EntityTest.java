@@ -35,6 +35,7 @@ import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.model.experiment.SequencingRead;
 import bio.overture.song.server.model.experiment.VariantCall;
 import bio.overture.song.server.model.legacy.LegacyEntity;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.val;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -65,6 +66,14 @@ public class EntityTest {
   private static final List<String> SAMPLE_TYPES = newArrayList(SAMPLE_TYPE);
   private static final List<String> FILE_TYPES = stream(FileTypes.values()).map(FileTypes::toString).collect(toList());
   private static final List<String> LIBRARY_STRATEGIES = newArrayList(LIBRARY_STRATEGY);
+
+  @Test
+  public void testNullMetadata(){
+    val m = new Metadata();
+    m.setInfo((String)null);
+    m.setInfo((JsonNode)null);
+    m.addInfo(null);
+  }
 
   @Test
   public void testCompositeEntity(){

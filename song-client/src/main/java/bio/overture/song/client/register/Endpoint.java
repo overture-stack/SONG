@@ -69,6 +69,11 @@ public class Endpoint {
         serverUrl, studyId, analysisId, ignoreUndefinedMd5);
   }
 
+  public String unpublish(String studyId, String analysisId) {
+    return format("%s/studies/%s/analysis/unpublish/%s",
+            serverUrl, studyId, analysisId);
+  }
+
   public String updateFile(String studyId, String objectId){
     return format("%s/studies/%s/files/%s", serverUrl, studyId, objectId);
   }

@@ -83,6 +83,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE
 import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
 import static bio.overture.song.core.exceptions.ServerErrors.NOT_IMPLEMENTED_YET;
 import static bio.overture.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
 import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static bio.overture.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
@@ -91,6 +92,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.server.converter.FullViewConverter.processAnalysisForType;
@@ -397,6 +399,15 @@ public class AnalysisService {
   }
 
   @Transactional
+  public ResponseEntity<String> unpublish(@NonNull String studyId, @NonNull String id) {
+    checkAnalysisAndStudyRelated(studyId, id);
+    checkNotSuppressed(id, "Cannot change the analysis state for analysisId '%s' from '%s' to '%s'",
+    id, SUPPRESSED, UNPUBLISHED);
+    checkedUpdateState(id, UNPUBLISHED);
+    return ok("AnalysisId %s successfully unpublished", id);
+  }
+
+  @Transactional
   public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
     checkedUpdateState(id, SUPPRESSED);
@@ -438,6 +449,11 @@ public class AnalysisService {
 
   private Map<FileEntity, StorageObject> getStorageObjectsForFiles(String accessToken, List<FileEntity> files){
     return transformToMap(files, f -> storageService.downloadObject(accessToken, f.getObjectId()));
+  }
+
+  private void checkNotSuppressed(String id, String format, Object...args){
+    checkServer(resolveAnalysisState(shallowRead(id).getAnalysisState()) != SUPPRESSED,
+        getClass(), SUPPRESSED_STATE_TRANSITION, format, args);
   }
 
   private void checkMissingFiles(String accessToken, String analysisId, List<FileEntity> files){

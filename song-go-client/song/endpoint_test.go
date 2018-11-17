@@ -79,6 +79,14 @@ func TestPublish(t *testing.T) {
 		"Publish()")
 }
 
+func TestUnpublish(t *testing.T) {
+	e := createEndpoint("http://example.org:12345")
+	studyId, analysisId := "XQA-𝜆123", "A2345-999-7012"
+	x := e.Unpublish(studyId, analysisId)
+	assert.Equal(t, x.String(), "http://example.org:12345/studies/XQA-%F0%9D%9C%86123/analysis/unpublish/A2345-999-7012",
+		"Unpublish()")
+}
+
 func TestSuppress(t *testing.T) {
 	e := createEndpoint("http://www.testing.com")
 	studyId, analysisId := "ABC123", "AN-123579"
@@ -112,4 +120,26 @@ func TestInfoSearch(t *testing.T) {
 	studyId := "XYZ2345"
 	x := e.InfoSearch(studyId)
 	assert.Equal(t, x.String(), "http://xyz.ai:23/studies/XYZ2345/analysis/search/info", "InfoSearch()")
+}
+
+func TestExportStudy(t *testing.T) {
+	e := createEndpoint("http://xyz.ai:23")
+	studyId := "XYZ2345"
+	x := e.ExportStudy(studyId)
+	assert.Equal(t, x.String(), "http://xyz.ai:23/export/studies/XYZ2345", "ExportStudy()")
+}
+
+func TestExportAnalyses(t *testing.T) {
+	e := createEndpoint("http://xyz.ai:23")
+	analysisIds := []string{"1", "2"}
+	x := e.ExportAnalyses(analysisIds)
+	assert.Equal(t, x.String(), "http://xyz.ai:23/export/analysis/1,2", "ExportAnalyses()")
+}
+
+func TestUpdateFile(t *testing.T) {
+	e := createEndpoint("http://xyz.ai:23")
+	studyID := "123"
+	fileID := "456"
+	x := e.UpdateFile(studyID, fileID)
+	assert.Equal(t, x.String(), "http://xyz.ai:23/studies/123/files/456", "TestUpdateFile()")
 }

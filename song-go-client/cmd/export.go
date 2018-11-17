@@ -18,39 +18,42 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"io/ioutil"
 )
 
-var inputDirName string
-
 func init() {
-	RootCmd.AddCommand(manifestCmd)
-
-	manifestCmd.Flags().StringVarP(&inputDirName, "input-dir", "d", "", "Directory containing the files")
-	manifestCmd.MarkFlagRequired("input-dir")
+	RootCmd.AddCommand(exportCmd)
 }
 
-func manifest(analysisID string, filePath string) {
-	client := createClient()
+func export(analysisIds []string) {
 	studyID := viper.GetString("study")
-	responseBody := client.Manifest(studyID, analysisID, inputDirName)
 
-	// read the file
-	err := ioutil.WriteFile(filePath, []byte(responseBody), 0644)
-	if err != nil {
-		fmt.Print(err)
+	client := createClient()
+	var responseBody string
+	if len(analysisIds) == 0 {
+		responseBody = client.ExportStudy(studyID)
+	} else {
+		responseBody = client.ExportAnalyses(analysisIds)
 	}
+
+	var formattedJson bytes.Buffer
+	if err := json.Indent(&formattedJson, []byte(responseBody), "", "  "); err != nil {
+		panic("Response from server is not a valid json string")
+	}
+
+	fmt.Println(formattedJson.String())
 }
 
-var manifestCmd = &cobra.Command{
-	Use:   "manifest <analysisID> <filename>",
-	Short: "Generate a manifest file",
-	Long:  "Generate a manifest file for the analysis specified by analysisID",
-	Args:  cobra.MinimumNArgs(2),
+var exportCmd = &cobra.Command{
+	Use:   "export [analysisId]...",
+	Short: "Export payloads",
+	Long:  `Export analysis or study payloads in json format`,
+	Args:  cobra.MinimumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		manifest(args[0], args[1])
+		export(args)
 	},
 }
