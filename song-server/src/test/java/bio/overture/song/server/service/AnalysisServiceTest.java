@@ -877,7 +877,7 @@ public class AnalysisServiceTest {
   /**
    * Tests that if an error occurs during the create method of the AnalysisService, that any entities created
    * in the method are rolled back (using transactions) and that the id is not committed to the id server.
-   * This test does not use the @Transactional becuase we are testing rolling back of a failed analysisService.create
+   * This test does not use the @Transactional because we are testing rolling back of a failed analysisService.create
    * call.
    */
   @Test
@@ -893,10 +893,10 @@ public class AnalysisServiceTest {
 
     /**
      * Mock the analysisInfoService. This service is called during the create method of AnalysisService
-     * and when it exceptions out. Since the analysisService has way to many dependencies (this is an anti-pattern),
-     * mocking it the right way is ridiculous. Instead, we can mock an internal service (i.e analysisInfoService) and
-     * using a runtime surgical tool such as ReflectionTestUtils, replace the actual analysisInfoService with the
-     * mocked one to forcefully throw an exception to test the revoke feature. This is dirty hack and is characteristic
+     * and then it exceptions out. Since the analysisService has way to many dependencies (not good),
+     * mocking it the right way is ridiculous. Instead, we can mock an internal service (i.e analysisInfoService)
+     * using a runtime surgical tool such as ReflectionTestUtils, to replace the actual analysisInfoService with the
+     * mocked one to forcefully throw an exception to test the revoke feature. This is a dirty hack and is characteristic
      * of poor design at the service layer.
      */
     val analysisInfoServiceMock = mock(AnalysisInfoService.class);
@@ -913,7 +913,7 @@ public class AnalysisServiceTest {
     // Ensure everything was rolled back properly
     assertThat(service.isAnalysisExist(id)).isFalse();
 
-    // Ensure the id was not commited to the id server
+    // Ensure the id was not committed to the id server
     assertThat(idClient.getAnalysisId(id)).isEmpty();
 
     // Plug the original analysisInfoService back into service so other tests can function properly. This is a reset.
