@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.id.client.core.IdClient;
 import org.icgc.dcc.id.client.http.HttpIdClient;
 import org.icgc.dcc.id.client.util.HashIdClient;
 import org.junit.Before;
@@ -51,8 +50,6 @@ public class IdServiceTest {
 
   private static final String SUBMITTER_ID_1 = "AN8899";
   private static final String SUBMITTER_ID_2 = "AN112233";
-
-  private IdClient idClient = new HashIdClient();
 
   @Rule
   public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
