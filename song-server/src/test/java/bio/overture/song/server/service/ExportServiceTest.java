@@ -154,14 +154,24 @@ public class ExportServiceTest {
   @Test
   @Transactional
   public void testPayloadFixture(){
+    // Create new study
     val studyId = studyGenerator.createRandomStudy();
+
+    // Load the payload fixture, and modify its study to match the generated one above
     val expectedPayloadNode = (ObjectNode)getJsonNodeFromClasspath("documents/variantcall-valid.json");
     expectedPayloadNode.put("study", studyId);
     val expectedPayloadString = JsonUtils.toJson(expectedPayloadNode);
+
+    // Upload the payload
     val uploadId = fromStatus(uploadService.upload(studyId, expectedPayloadString, false), "uploadId");
+
+    // Save the payload
     val analysisId = fromStatus(uploadService.save(studyId, uploadId, false), "analysisId");
 
+    // Export the payload
     val exportedPayloadsForStudies = exportService.exportPayload(newArrayList(analysisId), false);
+
+    // Verify the input (expected) payload matches the output (actual) payload
     assertThat(exportedPayloadsForStudies).hasSize(1);
     val exportedPayloadForStudy = exportedPayloadsForStudies.get(0);
     assertThat(exportedPayloadForStudy.getStudyId()).isEqualTo(studyId);
