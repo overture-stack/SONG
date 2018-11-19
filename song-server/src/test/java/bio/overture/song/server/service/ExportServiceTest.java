@@ -35,6 +35,7 @@ import bio.overture.song.server.repository.VariantCallRepository;
 import bio.overture.song.server.service.export.ExportService;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
@@ -59,6 +60,9 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.range;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
@@ -69,9 +73,10 @@ import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static bio.overture.song.server.model.enums.UploadStates.resolveState;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.TestFiles.DEFAULT_EMPTY_VALUE;
 import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
@@ -145,6 +150,26 @@ public class ExportServiceTest {
     runSingleExportTest(VariantCallAnalysis.class, true);
     assert(true);
   }
+
+  @Test
+  @Transactional
+  public void testPayloadFixture(){
+    val studyId = studyGenerator.createRandomStudy();
+    val expectedPayloadNode = (ObjectNode)getJsonNodeFromClasspath("documents/variantcall-valid.json");
+    expectedPayloadNode.put("study", studyId);
+    val expectedPayloadString = JsonUtils.toJson(expectedPayloadNode);
+    val uploadId = fromStatus(uploadService.upload(studyId, expectedPayloadString, false), "uploadId");
+    val analysisId = fromStatus(uploadService.save(studyId, uploadId, false), "analysisId");
+
+    val exportedPayloadsForStudies = exportService.exportPayload(newArrayList(analysisId), false);
+    assertThat(exportedPayloadsForStudies).hasSize(1);
+    val exportedPayloadForStudy = exportedPayloadsForStudies.get(0);
+    assertThat(exportedPayloadForStudy.getStudyId()).isEqualTo(studyId);
+    assertThat(exportedPayloadForStudy.getPayloads()).hasSize(1);
+    val actualPayloadNode = exportedPayloadForStudy.getPayloads().get(0);
+    assertJsonEquals(expectedPayloadNode, actualPayloadNode, when(IGNORING_ARRAY_ORDER));
+  }
+
 
   private void runSingleExportTest(Class<? extends AbstractAnalysis> analysisClass,
       boolean includeAnalysisId){
