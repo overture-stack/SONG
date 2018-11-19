@@ -58,6 +58,4 @@ public class IdConfig {
 //    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new HashIdClient(persistInMemory);
   }
 
-
-
 }

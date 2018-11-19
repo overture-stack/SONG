@@ -152,9 +152,12 @@ public class AnalysisService {
   @Autowired
   private final FullViewRepository fullViewRepository;
 
+  @Transactional
   public String create(String studyId, AbstractAnalysis a, boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);
     val candidateAnalysisId = a.getAnalysisId();
+
+    // This doesnt commit the id to the id server
     val id = idService.resolveAnalysisId(candidateAnalysisId, ignoreAnalysisIdCollisions);
     /**
      * [Summary]: Guard from misleading response
@@ -193,6 +196,12 @@ public class AnalysisService {
      // shouldn't be possible if we validated our JSON first...
      throw new IllegalArgumentException("Invalid analysis type");
    }
+    // If there were no errors before, then commit the id to the id server.
+    // If the id was created by some other client on the id server in the time
+    // between the resolveAnalysisId method and the createAnalysisId method,
+    // then commit anyways. Entities have already been created using the id,
+    // as well, the probability of a collision is very low
+    idService.createAnalysisId(id);
     sendAnalysisMessage(createAnalysisMessage(id, UNPUBLISHED));
    return id;
   }
