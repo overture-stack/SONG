@@ -33,15 +33,16 @@ import bio.overture.song.server.repository.SampleRepository;
 import bio.overture.song.server.repository.SampleSetRepository;
 import bio.overture.song.server.repository.SequencingReadRepository;
 import bio.overture.song.server.repository.VariantCallRepository;
-import bio.overture.song.server.utils.AnalysisGenerator;
-import bio.overture.song.server.utils.PayloadGenerator;
-import bio.overture.song.server.utils.StudyGenerator;
+import bio.overture.song.server.utils.generator.AnalysisGenerator;
+import bio.overture.song.server.utils.generator.PayloadGenerator;
+import bio.overture.song.server.utils.generator.StudyGenerator;
 import bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.id.client.core.IdClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,22 +51,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.IntStream.range;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
@@ -73,6 +66,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
 import static bio.overture.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
@@ -85,21 +79,34 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static bio.overture.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
 import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
 import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.IntStream.range;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.fail;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("dev")
-@Transactional
 public class AnalysisServiceTest {
 
+  private static final String ANALYSIS_INFO_SERVICE = "analysisInfoService";
   private static final String DEFAULT_STUDY_ID = "ABC123";
   private static final String DEFAULT_ANALYSIS_ID = "AN1";
   private static final Set<String> PUBLISHED_ONLY = ImmutableSet.of(PUBLISHED.toString());
@@ -127,6 +134,8 @@ public class AnalysisServiceTest {
   private FileRepository fileRepository;
   @Autowired
   private SampleSetRepository sampleSetRepository;
+  @Autowired
+  private IdClient idClient;
 
   private final RandomGenerator randomGenerator = createRandomGenerator(AnalysisServiceTest.class.getSimpleName(), 1539118165994L);//createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
 
@@ -157,6 +166,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testReadState(){
     val a = service.securedDeepRead(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
     val expectedState = resolveAnalysisState(a.getAnalysisState());
@@ -165,6 +175,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testCreateAndUpdate() {
     val created = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId = created.getAnalysisId();
@@ -192,6 +203,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testIsAnalysisExist(){
     val analysis = payloadGenerator.generateDefaultRandomPayload(VariantCallAnalysis.class);
     val randomAnalysisId = randomGenerator.generateRandomUUIDAsString();
@@ -203,6 +215,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testCreateAndUpdateVariantCall() {
     val created = analysisGenerator.createRandomAnalysis(VariantCallAnalysis.class,
         "documents/variantcall-valid-1.json");
@@ -229,6 +242,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testReadAnalysisDNE() {
     val nonExistentAnalysisId = analysisGenerator.generateNonExistingAnalysisId();
     assertSongError(() -> service.securedDeepRead(DEFAULT_STUDY_ID, nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
@@ -236,6 +250,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testReadVariantCallDNE() {
 
     val analysis = analysisGenerator.createDefaultRandomVariantCallAnalysis();
@@ -248,6 +263,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testReadSequencingReadDNE() {
 
     val analysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
@@ -260,6 +276,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testReadVariantCall(){
     val json = getJsonStringFromClasspath("documents/variantcall-read-test.json");
     val analysisRaw = fromJson(json, VariantCallAnalysis.class);
@@ -367,6 +384,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testReadSequencingRead(){
     val json = getJsonStringFromClasspath("documents/sequencingread-read-test.json");
     val analysisRaw = fromJson(json, SequencingReadAnalysis.class);
@@ -499,18 +517,20 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testSuppress() {
     val an = analysisGenerator.createDefaultRandomAnalysis(SequencingReadAnalysis.class);
     assertThat(an.getAnalysisState()).isEqualTo("UNPUBLISHED");
     val id = an.getAnalysisId();
     val studyId = an.getStudy();
-    service.suppress(studyId, id);
 
+    service.suppress(studyId, id);
     val analysis = service.securedDeepRead(studyId, id);
     assertThat(analysis.getAnalysisState()).isEqualTo("SUPPRESSED");
   }
 
   @Test
+  @Transactional
   public void testReadFiles() {
     val files = service.unsecuredReadFiles(DEFAULT_ANALYSIS_ID);
     System.err.printf("Got files '%s'", files);
@@ -526,6 +546,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testReadFilesError() {
     val nonExistingAnalysisId = analysisGenerator.generateNonExistingAnalysisId();
     assertSongError(() -> service.unsecuredReadFiles(nonExistingAnalysisId), ANALYSIS_ID_NOT_FOUND);
@@ -533,6 +554,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testDuplicateAnalysisAttemptError() {
     val an1 = service.securedDeepRead(DEFAULT_STUDY_ID,"AN1");
     assertSongError(() -> service.create(an1.getStudy(), an1, true),
@@ -540,6 +562,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testCustomAnalysisId(){
     val study= DEFAULT_STUDY_ID;
     val expectedAnalysisId = "AN-1234";
@@ -565,6 +588,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testCreateAnalysisStudyDNE(){
     val nonExistentStudyId = randomGenerator.generateRandomUUID().toString();
     assertThat(studyService.isStudyExist(nonExistentStudyId)).isFalse();
@@ -577,6 +601,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testGetAnalysisAndIdSearch(){
     val studyId = studyGenerator.createRandomStudy();
 
@@ -627,6 +652,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testOnlyGetPublishedAnalyses(){
     val studyId = studyGenerator.createRandomStudy();
     val analysisGenerator = createAnalysisGenerator(studyId, service, randomGenerator);
@@ -653,12 +679,14 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testGetAnalysisEmptyStudy(){
     val studyId = studyGenerator.createRandomStudy();
     assertThat(service.getAnalysis(studyId, PUBLISHED_ONLY)).isEmpty();
   }
 
   @Test
+  @Transactional
   public void testIdSearchEmptyStudy(){
     val studyId = studyGenerator.createRandomStudy();
     val idSearchRequest = createIdSearchRequest(null, null, null, null);
@@ -666,12 +694,14 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testGetAnalysisDNEStudy() {
     val nonExistentStudyId = studyGenerator.generateNonExistingStudyId();
     assertSongError(() -> service.getAnalysis(nonExistentStudyId, PUBLISHED_ONLY), STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
+  @Transactional
   public void testIdSearchDNEStudy(){
     val nonExistentStudyId = studyGenerator.generateNonExistingStudyId();
     val idSearchRequest = createIdSearchRequest(null, null, null, null);
@@ -679,6 +709,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testAnalysisMissingFilesException(){
     val analysis1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val analysisId1 = analysis1.getAnalysisId();
@@ -697,18 +728,21 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testSequencingReadAnalysisMissingSamplesException() {
     runAnalysisMissingSamplesTest(SequencingReadAnalysis.class);
     assert(true);
   }
 
   @Test
+  @Transactional
   public void testVariantCallAnalysisMissingSamplesException() {
     runAnalysisMissingSamplesTest(VariantCallAnalysis.class);
     assert(true);
   }
 
   @Test
+  @Transactional
   public void testAnalysisIdDneException(){
     val nonExistentAnalysisId = analysisGenerator.generateNonExistingAnalysisId();
     assertSongError(() -> service.checkAnalysisAndStudyRelated(DEFAULT_STUDY_ID, nonExistentAnalysisId),
@@ -723,6 +757,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testCheckAnalysisAndStudyRelated(){
     val existingAnalysisId = DEFAULT_ANALYSIS_ID;
     val existingStudyId =  DEFAULT_STUDY_ID;
@@ -745,6 +780,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testAnalysisExistence(){
     val existingAnalysisId  = DEFAULT_ANALYSIS_ID;
     val nonExistentAnalysisId = randomGenerator.generateRandomUUID().toString();
@@ -755,6 +791,7 @@ public class AnalysisServiceTest {
   }
 
   @Test
+  @Transactional
   public void testGetAnalysisForStudyFilteredByStates(){
     val studyId = studyGenerator.createRandomStudy();
     val generator = createAnalysisGenerator(studyId, service, randomGenerator);
@@ -837,6 +874,90 @@ public class AnalysisServiceTest {
     actualAnalyses2.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())) );
   }
 
+  /**
+   * Tests that if an error occurs during the create method of the AnalysisService, that any entities created
+   * in the method are rolled back (using transactions) and that the id is not committed to the id server.
+   * This test does not use the @Transactional because we are testing rolling back of a failed analysisService.create
+   * call.
+   */
+  @Test
+  public void testRevokeAnalysisId(){
+
+    // Find an analysisId that is unique and doesnt exist
+    val id = idService.resolveAnalysisId("", false);
+    assertThat(service.isAnalysisExist(id)).isFalse();
+
+    // Generate a payload using the analysisId
+    val payload = payloadGenerator.generateDefaultRandomPayload(SequencingReadAnalysis.class);
+    payload.setAnalysisId(id);
+
+    /**
+     * Mock the analysisInfoService. This service is called during the create method of AnalysisService
+     * and then it exceptions out. Since the analysisService has way to many dependencies (not good),
+     * mocking it the right way is ridiculous. Instead, we can mock an internal service (i.e analysisInfoService)
+     * using a runtime surgical tool such as ReflectionTestUtils, to replace the actual analysisInfoService with the
+     * mocked one to forcefully throw an exception to test the revoke feature. This is a dirty hack and is characteristic
+     * of poor design at the service layer.
+     */
+    val analysisInfoServiceMock = mock(AnalysisInfoService.class);
+    doThrow(new IllegalStateException("some error happened during the ")).when(analysisInfoServiceMock).create(id, payload.getInfoAsString());
+    val originalAnalysisInfoService = ReflectionTestUtils.getField(service, ANALYSIS_INFO_SERVICE);
+    ReflectionTestUtils.setField(service, ANALYSIS_INFO_SERVICE, analysisInfoServiceMock);
+    assertThat(service.isAnalysisExist(id)).isFalse();
+
+
+    // Ensure the mock is used and that an error was actually thrown
+    val throwable = catchThrowable(() -> service.create(DEFAULT_STUDY_ID, payload, false));
+    assertThat(throwable).as("An exception was not thrown").isInstanceOf(IllegalStateException.class);
+
+    // Ensure everything was rolled back properly
+    assertThat(service.isAnalysisExist(id)).isFalse();
+
+    // Ensure the id was not committed to the id server
+    assertThat(idClient.getAnalysisId(id)).isEmpty();
+
+    // Plug the original analysisInfoService back into service so other tests can function properly. This is a reset.
+    ReflectionTestUtils.setField(service, ANALYSIS_INFO_SERVICE, originalAnalysisInfoService);
+  }
+
+  @Test
+  public void testUnpublishState() {
+    Stream.of(VARIANT_CALL, SEQUENCING_READ).forEach(this::runUnpublishStateTest);
+  }
+
+  private void runUnpublishStateTest(AnalysisTypes analysisType){
+    val a = analysisGenerator.createDefaultRandomAnalysis(analysisType);
+    val analysisId = a.getAnalysisId();
+    val studyId = a.getStudy();
+
+    // 1: UNPUBLISHED -> UNPUBLISHED
+    service.securedUpdateState(studyId, analysisId, UNPUBLISHED);
+    val a11 = service.unsecuredDeepRead(analysisId);
+    val actualState11 = resolveAnalysisState(a11.getAnalysisState());
+    assertThat(actualState11).isEqualTo(UNPUBLISHED);
+    service.unpublish(studyId, analysisId);
+    val a12 = service.unsecuredDeepRead(analysisId);
+    val actualState12 = resolveAnalysisState(a12.getAnalysisState());
+    assertThat(actualState12).isEqualTo(UNPUBLISHED);
+
+    // 2: PUBLISHED -> UNPUBLISHED
+    service.securedUpdateState(studyId, analysisId, PUBLISHED);
+    val a21 = service.unsecuredDeepRead(analysisId);
+    val actualState21 = resolveAnalysisState(a21.getAnalysisState());
+    assertThat(actualState21).isEqualTo(PUBLISHED);
+    service.unpublish(studyId, analysisId);
+    val a22 = service.unsecuredDeepRead(analysisId);
+    val actualState22 = resolveAnalysisState(a22.getAnalysisState());
+    assertThat(actualState22).isEqualTo(UNPUBLISHED);
+
+    // 3: SUPPRESSED -> UNPUBLISHED
+    service.securedUpdateState(studyId, analysisId, SUPPRESSED);
+    val a31 = service.unsecuredDeepRead(analysisId);
+    val actualState31 = resolveAnalysisState(a31.getAnalysisState());
+    assertThat(actualState31).isEqualTo(SUPPRESSED);
+    assertSongError(() -> service.unpublish(studyId, analysisId), SUPPRESSED_STATE_TRANSITION);
+  }
+
   private void assertGetAnalysesForStudy(Set<AbstractAnalysis> expectedAnalyses, String studyId, AnalysisStates ... states){
     Set<String> stateStrings = stream(states).map(AnalysisStates::toString).collect(toImmutableSet());
     if (states.length == 0){
@@ -853,7 +974,6 @@ public class AnalysisServiceTest {
     assertSetsMatch(actual, expected);
   }
 
-
   private AbstractAnalysis createSRAnalysisWithState(AnalysisGenerator generator, AnalysisStates state){
     val a = generator.createDefaultRandomSequencingReadAnalysis();
     service.securedUpdateState(a.getStudy(),a.getAnalysisId(), state);
@@ -866,6 +986,7 @@ public class AnalysisServiceTest {
     val analysisId = analysis.getAnalysisId();
 
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(analysisId);
+    assertThat(sampleSetRepository.findAllBySampleSetPK_AnalysisId(analysisId)).hasSize(0);
     analysis.getSample().stream()
         .map(Sample::getSampleId)
         .forEach(sampleRepository::deleteById);

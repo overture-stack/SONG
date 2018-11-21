@@ -16,6 +16,12 @@
  */
 package bio.overture.song.client.command;
 
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.isDirectory;
+import static java.nio.file.Paths.get;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
+
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.json.JsonObject;
 import bio.overture.song.client.model.Manifest;
@@ -26,42 +32,38 @@ import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Paths.get;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RequiredArgsConstructor
-@Parameters(commandDescription = "Generate a manifest file for the analysis with the specified analysis id")
+@Parameters(
+    commandDescription = "Generate a manifest file for the analysis with the specified analysis id")
 public class ManifestCommand extends Command {
 
   private static final String JSON_PATH_TO_FILES = "";
 
-  @Parameter(names = { "-a", "--analysis-id" })
+  @Parameter(names = {"-a", "--analysis-id"})
   private String analysisId;
 
-  @Parameter(names = { "--file", "-f" },
+  @Parameter(
+      names = {"--file", "-f"},
       description = "Filename to save file in (if not set, displays manifest on standard output")
   private String fileName;
 
-  @Parameter(names = { "-d", "--input-dir"}, description = "Directory containing the files", required = true)
+  @Parameter(
+      names = {"-d", "--input-dir"},
+      description = "Directory containing the files",
+      required = true)
   private String inputDirName;
 
-  @NonNull
-  private Registry registry;
+  @NonNull private Registry registry;
 
-  @NonNull
-  private Config config;
+  @NonNull private Config config;
 
   private Path inputDirPath;
 
@@ -73,12 +75,12 @@ public class ManifestCommand extends Command {
 
     inputDirPath = get(inputDirName);
 
-    if(!exists(inputDirPath)){
+    if (!exists(inputDirPath)) {
       err("[SONG_CLIENT_ERROR]: The input path '%s' does not exist", inputDirName);
       return;
     }
 
-    if (!isDirectory(inputDirPath)){
+    if (!isDirectory(inputDirPath)) {
       err("[SONG_CLIENT_ERROR]: The input path '%s' is not a directory", inputDirName);
       return;
     }
@@ -91,18 +93,22 @@ public class ManifestCommand extends Command {
     }
 
     val m = createManifest(analysisId, status.getOutputs());
-    val missingFiles = m.getEntries().stream()
-        .map(ManifestEntry::getFileName)
-        .map(Paths::get)
-        .filter(x -> !Files.exists(x))
-        .collect(toList());
+    val missingFiles =
+        m.getEntries()
+            .stream()
+            .map(ManifestEntry::getFileName)
+            .map(Paths::get)
+            .filter(x -> !Files.exists(x))
+            .collect(toList());
 
-    if(m.getEntries().size() == 0){
+    if (m.getEntries().size() == 0) {
       err("[SONG_CLIENT_ERROR]: the analysisId '%s' returned 0 files", analysisId);
+    } else if (missingFiles.size() > 0) {
+      err(
+          "[SONG_CLIENT_ERROR]: The following files do not exist: \n'%s'",
+          Joiner.on("',\n'").join(missingFiles));
     } else if (fileName == null) {
       output(m.toString());
-    } else if (missingFiles.size() > 0){
-      err("[SONG_CLIENT_ERROR]: The following files do not exist: \n'%s'", Joiner.on("',\n'").join(missingFiles));
     } else {
       Files.write(get(fileName), m.toString().getBytes());
       output("Wrote manifest file '%s' for analysisId '%s'", fileName, analysisId);
@@ -116,9 +122,8 @@ public class ManifestCommand extends Command {
     val m = new Manifest(analysisId);
 
     Iterable<JsonNode> iter = () -> root.at(JSON_PATH_TO_FILES).iterator();
-    m.addAll(stream(iter.spliterator(), false)
-        .map(this::jsonNodeToManifestEntry)
-        .collect(toList()));
+    m.addAll(
+        stream(iter.spliterator(), false).map(this::jsonNodeToManifestEntry).collect(toList()));
     return m;
   }
 
@@ -131,5 +136,4 @@ public class ManifestCommand extends Command {
     val path = inputDirPath.resolve(fileName);
     return new ManifestEntry(fileId, path.toAbsolutePath().normalize().toString(), fileMd5);
   }
-
 }

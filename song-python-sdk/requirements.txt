@@ -1,5 +1,5 @@
 dataclasses==0.4
-requests==2.18.4
+requests==2.20.0
 sphinx_rtd_theme
 sphinx-autobuild
 urllib3

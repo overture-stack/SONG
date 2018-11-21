@@ -24,7 +24,7 @@ import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
-import bio.overture.song.server.utils.StudyGenerator;
+import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -44,9 +44,9 @@ import java.util.Collection;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
 @SpringBootTest

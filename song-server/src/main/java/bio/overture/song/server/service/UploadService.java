@@ -35,20 +35,31 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.http.ResponseEntity.ok;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.UploadStates.CREATED;
+import static bio.overture.song.server.model.enums.UploadStates.SAVED;
+import static bio.overture.song.server.model.enums.UploadStates.UPDATED;
+import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
 
 @RequiredArgsConstructor
 @Service
@@ -88,15 +99,16 @@ public class UploadService {
 
   @Transactional
   @SneakyThrows
-  public ResponseEntity<String> upload(@NonNull String studyId, @NonNull String payload, boolean isAsyncValidation) {
-    studyService.checkStudyExist(studyId);
+  public ResponseEntity<String> upload(@NonNull String studyIdFromUrlPath, @NonNull String payload, boolean isAsyncValidation) {
+    studyService.checkStudyExist(studyIdFromUrlPath);
     String analysisType;
     String uploadId;
     val status = JsonUtils.ObjectNode();
     status.put("status","ok");
 
     try {
-      val analysisId=JsonUtils.readTree(payload).at("/analysisId").asText();
+      val analysisId= readTree(payload).at("/"+ ANALYSIS_ID).asText();
+      checkStudyInPayload(studyIdFromUrlPath, payload);
       List<String> ids;
 
       if (isNullOrEmpty(analysisId)) {
@@ -104,12 +116,12 @@ public class UploadService {
         // even if the rest of the content is duplicated.
         ids = Collections.emptyList();
       } else {
-        ids = findByBusinessKey(studyId, analysisId);
+        ids = findByBusinessKey(studyIdFromUrlPath, analysisId);
       }
 
       if (isNull(ids) || ids.isEmpty()) {
         uploadId = id.generate(IdPrefix.UPLOAD_PREFIX);
-        create(studyId, analysisId, uploadId, payload);
+        create(studyIdFromUrlPath, analysisId, uploadId, payload);
       } else if (ids.size() == 1) {
         uploadId = ids.get(0);
         val previousUpload = uploadRepository.findById(uploadId).get();
@@ -117,18 +129,16 @@ public class UploadService {
             format("WARNING: replaced content for analysisId '%s'",
                 analysisId));
         status.put("replaced", previousUpload.getPayload());
-        update(uploadId, payload);
-
+        update(uploadId, studyIdFromUrlPath, payload);
       } else {
         throw buildServerException(getClass(), UPLOAD_ID_NOT_FOUND,
             "Multiple upload ids found for analysisId='%s', study='%s'",
-            analysisId, studyId);
+            analysisId, studyIdFromUrlPath);
       }
-      analysisType = JsonUtils.readTree(payload).at("/analysisType").asText("");
+      analysisType = readTree(payload).at("/analysisType").asText("");
     } catch (JsonProcessingException jpe){
-      log.error(jpe.getCause().getMessage());
-      throw buildServerException(getClass(), PAYLOAD_PARSING,
-          "Unable parse the input payload: %s ",payload);
+      log.error(jpe.getMessage());
+      throw buildServerException(getClass(), PAYLOAD_PARSING, "Unable parse the input payload");
     }
 
     if (isAsyncValidation){
@@ -146,10 +156,10 @@ public class UploadService {
     val upload = securedRead(studyId, uploadId);
     val uploadState = UploadStates.resolveState(upload.getState());
 
-    checkServer(uploadState == UploadStates.SAVED || uploadState == UploadStates.VALIDATED, this.getClass(),
+    checkServer(uploadState == SAVED || uploadState == VALIDATED, this.getClass(),
         UPLOAD_ID_NOT_VALIDATED,
         "UploadId %s is in state '%s', but must be in state '%s' before it can be saved",
-        uploadId, uploadState.getText(), UploadStates.VALIDATED.getText());
+        uploadId, uploadState.getText(), VALIDATED.getText());
     val json = upload.getPayload();
     val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
     val analysisId = analysisService.create(studyId, analysis, ignoreAnalysisIdCollisions);
@@ -173,15 +183,16 @@ public class UploadService {
         .uploadId(uploadId)
         .analysisId(analysisId)
         .studyId(studyId)
-        .state(UploadStates.CREATED.getText())
+        .state(CREATED.getText())
         .payload(jsonPayload)
         .build();
     uploadRepository.save(upload);
   }
 
-  private void update(@NonNull String uploadId, @NonNull String jsonPayload) {
+  private void update(@NonNull String uploadId, @NonNull String studyIdUrlParam, @NonNull String jsonPayload) {
+    checkStudyInPayload(studyIdUrlParam, jsonPayload);
     val upload = unsecuredRead(uploadId);
-    upload.setState(UploadStates.UPDATED);
+    upload.setState(UPDATED);
     upload.setPayload(jsonPayload);
     uploadRepository.save(upload);
   }
@@ -194,8 +205,24 @@ public class UploadService {
 
   private void updateAsSaved(@NonNull String uploadId) {
     val upload = unsecuredRead(uploadId);
-    upload.setState(UploadStates.SAVED);
+    upload.setState(SAVED);
     uploadRepository.save(upload);
+  }
+
+  @SneakyThrows
+  private static void checkStudyInPayload(String expectedStudyId, String payload){
+    val payloadStudyIdOpt = getPayloadStudyId(payload);
+    checkServer(payloadStudyIdOpt.isPresent(), UploadService.class, STUDY_ID_MISSING,
+        "The field '%s' is missing in the payload", STUDY);
+    checkServer(expectedStudyId.equals(payloadStudyIdOpt.get()), UploadService.class, STUDY_ID_MISMATCH,
+        "The studyId in the URL path '%s' should match the studyId '%s' in the payload",
+        expectedStudyId, payloadStudyIdOpt.get());
+  }
+
+  @SneakyThrows
+  private static Optional<String> getPayloadStudyId(String payload){
+    val payloadStudyId = readTree(payload).at("/"+ STUDY).asText();
+    return isBlank(payloadStudyId) ? Optional.empty() : Optional.of(payloadStudyId);
   }
 
 }

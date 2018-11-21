@@ -66,8 +66,8 @@ import static bio.overture.song.core.utils.RandomGenerator.randomList;
 import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.ALL;
 import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.NONE;
 import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.SOME;
-import static bio.overture.song.server.utils.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
 @SpringBootTest

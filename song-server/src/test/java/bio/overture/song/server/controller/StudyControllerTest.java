@@ -1,5 +1,7 @@
 package bio.overture.song.server.controller;
 
+import bio.overture.song.server.utils.EndpointTester;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +11,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -23,15 +23,20 @@ public class StudyControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private EndpointTester endpointTester;
+
+    @Before
+    public void beforeTest(){
+        this.endpointTester = createEndpointTester(mockMvc);
+    }
+
     @Test
-    public void saveStudyShouldValidateStudyId() throws Exception {
-        this.mockMvc
-            .perform(
-                post("/studies/123/")
-                    .contentType(APPLICATION_JSON)
-                    .accept(APPLICATION_JSON)
-                    .content("{\"studyId\": \"456\"}"))
-            .andExpect(status().is(STUDY_ID_MISMATCH.getHttpStatus().value()));
+    public void saveStudyShouldValidateStudyId() {
+        endpointTester.testPostError(
+            "/studies/123/",
+            "{\"studyId\": \"456\"}",
+            STUDY_ID_MISMATCH
+        );
     }
 
 }

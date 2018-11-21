@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package bio.overture.song.server.utils;
+package bio.overture.song.server.utils.generator;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
@@ -23,6 +23,7 @@ import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import bio.overture.song.server.model.enums.AnalysisTypes;
 import bio.overture.song.server.service.AnalysisService;
+import bio.overture.song.server.utils.TestFiles;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -33,8 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
-import static bio.overture.song.server.utils.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.PayloadGenerator.resolveDefaultPayloadFilename;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.resolveDefaultPayloadFilename;
 
 @RequiredArgsConstructor(access = PRIVATE)
 public class AnalysisGenerator {

@@ -1,4 +1,5 @@
 {
+  "study" : "ABC123",
   "analysisType": "variantCall",
   "analysisId": "VariantCall-X24Alpha",
   "experiment": {

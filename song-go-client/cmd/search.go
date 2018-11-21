@@ -18,6 +18,8 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -81,7 +83,12 @@ func search() {
 		responseBody = client.IdSearch(studyID, getIds())
 	}
 
-	fmt.Println(string(responseBody))
+	var formattedJson bytes.Buffer
+	if err := json.Indent(&formattedJson, []byte(responseBody), "", "  "); err != nil {
+		panic("Response from server is not a valid json string")
+	}
+
+	fmt.Println(formattedJson.String())
 }
 
 var searchCmd = &cobra.Command{

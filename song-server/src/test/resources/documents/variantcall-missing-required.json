@@ -1,4 +1,6 @@
-{ "analysisType": "variantCall",
+{
+  "study" : "ABC123",
+  "analysisType": "variantCall",
   "experiment": {
   },
   "sample": [

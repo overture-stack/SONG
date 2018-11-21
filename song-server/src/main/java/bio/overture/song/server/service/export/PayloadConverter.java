@@ -39,7 +39,6 @@ public class PayloadConverter {
   private static final String SAMPLE_ID = "sampleId";
   private static final String SPECIMEN_ID = "specimenId";
   private static final String DONOR_ID = "donorId";
-  private static final String STUDY = "study";
   private static final String ANALYSIS_STATE= "analysisState";
 
   private final boolean includeAnalysisId;
@@ -49,7 +48,7 @@ public class PayloadConverter {
       removeAnalysisId(parser);
     }
 
-    removeRootFields(parser);
+    removeAnalysisState(parser);
     removeExperimentFields(parser);
     removeSamplesFields(parser);
     removeDonorFields(parser);
@@ -79,13 +78,14 @@ public class PayloadConverter {
     removePath(parser.getRootNode(), ANALYSIS_ID);
   }
 
-  private static void removeRootFields(PayloadParser parser){
-    removePath(parser.getRootNode(), STUDY, ANALYSIS_STATE);
+  private static void removeAnalysisState(PayloadParser parser){
+    removePath(parser.getRootNode(), ANALYSIS_STATE);
   }
 
   private static void removeExperimentFields(PayloadParser parser){
     removePath(parser.getExperimentNode(), ANALYSIS_ID);
   }
+
 
   private static void removeFilesFields(PayloadParser parser){
     parser.getFileNodes()

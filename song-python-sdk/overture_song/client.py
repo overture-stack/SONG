@@ -89,6 +89,11 @@ class Api(object):
         endpoint = self.__endpoints.publish(self.config.study_id, analysis_id)
         return self.__rest.put(endpoint)
 
+    def unpublish(self, analysis_id):
+        self.check_is_alive()
+        endpoint = self.__endpoints.unpublish(self.config.study_id, analysis_id)
+        return self.__rest.put(endpoint)
+
     def suppress(self, analysis_id):
         self.check_is_alive()
         endpoint = self.__endpoints.suppress(self.config.study_id, analysis_id)
@@ -250,6 +255,9 @@ class Endpoints(object):
 
     def publish(self, study_id, analysis_id):
         return "{}/studies/{}/analysis/publish/{}".format(self.__server_url, study_id, analysis_id)
+
+    def unpublish(self, study_id, analysis_id):
+        return "{}/studies/{}/analysis/unpublish/{}".format(self.__server_url, study_id, analysis_id)
 
     def suppress(self, study_id, analysis_id):
         return "{}/studies/{}/analysis/suppress/{}".format(self.__server_url, study_id, analysis_id)

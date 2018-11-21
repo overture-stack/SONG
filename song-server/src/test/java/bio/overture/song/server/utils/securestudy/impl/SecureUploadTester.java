@@ -33,6 +33,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
 
 public class SecureUploadTester extends AbstractSecureTester {
   private static final String SEQUENCING_READ_DEFAULT_FILENAME = "documents/sequencingread-valid.json";
@@ -59,6 +60,7 @@ public class SecureUploadTester extends AbstractSecureTester {
   @SneakyThrows
   @Override protected String createId(String existingStudyId, Object context) {
     val payload = getJsonNodeFromClasspath(getRandomGenerator().randomElement(FILENAMES));
+    updateStudyInPayload(payload, existingStudyId);
     val response = uploadService.upload(existingStudyId, toJson(payload), false);
     val id = readTree(response.getBody()).path("uploadId").textValue();
     return id;
