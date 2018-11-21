@@ -50,3 +50,40 @@ jobs:
 
       # build
       - run: mvn clean package
+
+  build_client:
+    docker:
+      - image: circleci/golang:1.11.2
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Build for all platforms
+          command: |
+            cd song-go-client
+            for GOOS in darwin linux windows; do
+              for GOARCH in 386 amd64; do
+                if [[ $GOOS == windows ]]; then
+                  suffix='.exe'
+                else suffix=''
+                fi
+                go build -v -o binaries/song-go-client-$GOOS-${GOARCH}${suffix}
+              done
+            done
+      - run:
+          name: Test
+          command: |
+            cd song-go-client
+            go test github.com/overture-stack/SONG/song-go-client/song -v
+      - store_artifacts:
+          path: ~/repo/song-go-client/binaries
+          destination: song-go-client
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - build_client
+
+
