@@ -107,8 +107,8 @@ public class InfoServiceTest {
     val donorId = genDonorId();
     infoService.create(donorId, getDummyInfo("someKey", "234433rff"));
     val dd  = getDummyInfo("someKey", "999999993333333333");
-    assertSongError(() -> infoService.create(donorId, dd), INFO_ALREADY_EXISTS);
-    assertSongError(() -> infoService.create(donorId, null), INFO_ALREADY_EXISTS);
+    SongErrorAssertions.assertSongErrorRunnable(() -> infoService.create(donorId, dd), INFO_ALREADY_EXISTS);
+    SongErrorAssertions.assertSongErrorRunnable(() -> infoService.create(donorId, null), INFO_ALREADY_EXISTS);
   }
 
   @Test
@@ -120,8 +120,9 @@ public class InfoServiceTest {
   @Test
   public void testUpdateError(){
     val nonExistentDonorId = genDonorId();
-    assertSongError(() -> infoService.update(nonExistentDonorId, getDummyInfo("someKey", "239dk")), INFO_NOT_FOUND);
-    assertSongError(() -> infoService.update(nonExistentDonorId, null), INFO_NOT_FOUND);
+    SongErrorAssertions
+        .assertSongErrorRunnable(() -> infoService.update(nonExistentDonorId, getDummyInfo("someKey", "239dk")), INFO_NOT_FOUND);
+    SongErrorAssertions.assertSongErrorRunnable(() -> infoService.update(nonExistentDonorId, null), INFO_NOT_FOUND);
   }
 
   @Test
@@ -143,7 +144,7 @@ public class InfoServiceTest {
   @Test
   public void testDeleteError(){
     val nonExistentDonorId = genDonorId();
-    assertSongError(() -> infoService.delete(nonExistentDonorId), INFO_NOT_FOUND);
+    SongErrorAssertions.assertSongErrorRunnable(() -> infoService.delete(nonExistentDonorId), INFO_NOT_FOUND);
   }
 
   @Test

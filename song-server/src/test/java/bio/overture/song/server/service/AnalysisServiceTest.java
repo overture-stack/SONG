@@ -17,6 +17,7 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.model.enums.AnalysisStates;
+import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.Metadata;
@@ -745,9 +746,11 @@ public class AnalysisServiceTest {
   @Transactional
   public void testAnalysisIdDneException(){
     val nonExistentAnalysisId = analysisGenerator.generateNonExistingAnalysisId();
-    assertSongError(() -> service.checkAnalysisAndStudyRelated(DEFAULT_STUDY_ID, nonExistentAnalysisId),
+    SongErrorAssertions
+        .assertSongErrorRunnable(() -> service.checkAnalysisAndStudyRelated(DEFAULT_STUDY_ID, nonExistentAnalysisId),
         ANALYSIS_ID_NOT_FOUND);
-    assertSongError(() -> service.checkAnalysisExists(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
+    SongErrorAssertions
+        .assertSongErrorRunnable(() -> service.checkAnalysisExists(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.securedDeepRead(DEFAULT_STUDY_ID ,nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.unsecuredDeepRead(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.unsecuredReadFiles(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);

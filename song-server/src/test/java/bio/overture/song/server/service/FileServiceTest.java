@@ -200,8 +200,9 @@ public class FileServiceTest {
 
     val randomFile = createRandomFile(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
     assertThat(fileService.isFileExist(randomFile.getObjectId())).isFalse();
-    assertSongError(() -> fileService.checkFileExists(randomFile.getObjectId()), FILE_NOT_FOUND);
-    assertSongError(() -> fileService.checkFileExists(randomFile), FILE_NOT_FOUND);
+    SongErrorAssertions
+        .assertSongErrorRunnable(() -> fileService.checkFileExists(randomFile.getObjectId()), FILE_NOT_FOUND);
+    SongErrorAssertions.assertSongErrorRunnable(() -> fileService.checkFileExists(randomFile), FILE_NOT_FOUND);
   }
 
   @Test

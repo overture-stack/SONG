@@ -121,7 +121,7 @@
             <!-- Hibernate Validator              -->
             <!--Validates annotations at build time-->
             <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator-annotation-processor</artifactId>
                 <version>${hibernate-validator.version}</version>
             </dependency>
@@ -222,6 +222,17 @@
                 <version>${json-unit.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <!-- update Hibernate dependency on Javassist to 3.23.1 for Java 11 compatibility -->
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${java-assist.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -235,16 +246,27 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <inherited>true</inherited>
                     <configuration>
+                        <release>11</release>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <showWarnings>true</showWarnings>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <!-- update compiler plugin dependency on
+                            ASM for Java 11 compatibility -->
+                            <groupId>org.ow2.asm</groupId>
+                            <artifactId>asm</artifactId>
+                            <version>6.2</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
 
                 <!-- Test -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                     <configuration>
                         <forkCount>1</forkCount>
                         <reuseForks>false</reuseForks>
@@ -254,6 +276,9 @@
                         <systemProperties>
                             <java.awt.headless>true</java.awt.headless>
                         </systemProperties>
+                        <argLine>
+                            --illegal-access=permit
+                        </argLine>
                     </configuration>
                 </plugin>
             </plugins>
@@ -284,10 +309,11 @@
 
     <properties>
         <!-- Project Related Properties -->
-        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <!--<java.version>1.11</java.version>-->
+        <java.version>11</java.version>
         <test.redirectTestOutputToFile>true</test.redirectTestOutputToFile>
         <test.useFile>true</test.useFile>
 
@@ -301,24 +327,30 @@
         <logback.version>1.2.3</logback.version>
         <assertj.version>3.5.2</assertj.version>
         <assertj-guava.version>3.1.0</assertj-guava.version>
-        <lombok.version>1.16.20</lombok.version>
+        <lombok.version>1.18.4</lombok.version>
 
         <jackson.version>2.9.4</jackson.version>
         <networknt.version>0.1.5</networknt.version>
         <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
         <wiremock.version>2.14.0</wiremock.version>
-        <springfox.version>2.7.0</springfox.version>
+        <springfox.version>2.9.0</springfox.version>
         <dcc-id.version>5.2.0</dcc-id.version>
+        <!--<spring-security-oauth2.version>2.3.4.RELEASE</spring-security-oauth2.version>-->
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
         <hibernate-native-json.version>0.4</hibernate-native-json.version>
-        <hibernate-validator.version>6.0.9.Final</hibernate-validator.version>
+        <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
         <guava.version>24.1-jre</guava.version>
         <jcommander.version>1.69</jcommander.version>
         <jansi.version>1.16</jansi.version>
         <squiggly.version>1.3.11</squiggly.version>
         <mapstruct.version>1.2.0.Final</mapstruct.version>
-        <mockito.version>2.23.0</mockito.version>
+        <mockito.version>2.22.0</mockito.version>
         <json-unit.version>2.0.3</json-unit.version>
+        <jaxb.version>2.3.1</jaxb.version>
+        <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <java-assist.version>3.23.1-GA</java-assist.version>
 
     </properties>
 
