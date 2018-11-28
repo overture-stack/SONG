@@ -115,6 +115,16 @@ class Api(object):
         endpoint = self.__endpoints.get_study(study_id)
         return self.__rest.get(endpoint)
 
+    def get_schema(self, schema_id):
+        self.check_is_alive()
+        endpoint = self.__endpoints.get_schema(schema_id)
+        return self.__rest.get(endpoint)
+
+    def list_schemas(self):
+        self.check_is_alive()
+        endpoint = self.__endpoints.list_schemas()
+        return self.__rest.get(endpoint)
+
     def get_entire_study(self, study_id):
         self.check_is_alive()
         endpoint = self.__endpoints.get_entire_study(study_id)
@@ -261,6 +271,12 @@ class Endpoints(object):
 
     def suppress(self, study_id, analysis_id):
         return "{}/studies/{}/analysis/suppress/{}".format(self.__server_url, study_id, analysis_id)
+
+    def list_schemas(self):
+        return "{}/schema/list".format(self.__server_url)
+
+    def get_schema(self, schema_id):
+        return "{}/schema/{}".format(self.__server_url, schema_id)
 
     def id_search(self, study_id, sample_id=None, specimen_id=None, donor_id=None, file_id=None):
         return self.__id_search(study_id, sampleId=sample_id, specimenId=specimen_id, donorId=donor_id, fileId=file_id)
