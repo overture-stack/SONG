@@ -159,6 +159,18 @@ public class Registry {
     return restClient.get(accessToken, url);
   }
 
+  public Status getSchema(String schemaId){
+    checkServerAlive();
+    val url = endpoint.getSchema(schemaId);
+    return restClient.get(url);
+  }
+
+  public Status listSchemas(){
+    checkServerAlive();
+    val url = endpoint.listSchemas();
+    return restClient.get(url);
+  }
+
   public void checkServerAlive(){
     if (!isAlive()){
       throw new RestClientException(format("The song server '%s' is not reachable", serverUrl));
