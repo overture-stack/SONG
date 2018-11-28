@@ -100,6 +100,14 @@ func (s *Endpoint) ExportStudy(studyID string) url.URL {
 	return s.makeURL("export", "studies", studyID)
 }
 
+func (s *Endpoint) GetSchema(schemaId string) url.URL {
+	return s.makeURL("schema",  schemaId)
+}
+
+func (s *Endpoint) ListSchemas() url.URL {
+	return s.makeURL("schema",  "list")
+}
+
 func (s *Endpoint) ExportAnalyses(analysesIds []string) url.URL {
 	return s.makeURL("export", "analysis", strings.Join(analysesIds, ","))
 }
