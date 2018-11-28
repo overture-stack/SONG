@@ -120,4 +120,13 @@ public class Endpoint {
     return format("%s/studies/%s/analysis/search/info?includeInfo=%s&%s", serverUrl, studyId, includeInfo, params);
   }
 
+
+  public String getSchema(@NonNull String schemaId){
+    return format("%s/schema/%s", serverUrl, schemaId);
+  }
+
+  public String listSchemas(){
+    return format("%s/schema/list", serverUrl);
+  }
+
 }

@@ -58,6 +58,7 @@ public class ClientMain implements CommandLineRunner {
     builder.register("search", new SearchCommand(registry, config));
     builder.register("manifest", new ManifestCommand(registry, config));
     builder.register("publish", new PublishCommand(registry, config));
+    builder.register("schema", new SchemaCommand(registry));
     builder.register("unpublish", new UnpublishCommand(registry, config));
     builder.register("suppress", new SuppressCommand(registry, config));
     builder.register("export", new ExportCommand(registry));

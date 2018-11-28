@@ -88,6 +88,14 @@ func (c *Client) getAnalysis(studyID string, analysisID string) string {
 	return c.get(c.endpoint.GetAnalysis(studyID, analysisID))
 }
 
+func (c *Client) GetSchema(schemaId string) string {
+	return c.get(c.endpoint.GetSchema(schemaId))
+}
+
+func (c *Client) ListSchemas() string {
+	return c.get(c.endpoint.ListSchemas())
+}
+
 func (c *Client) getAnalysisFiles(studyID string, analysisID string) string {
 	return c.get(c.endpoint.GetAnalysisFiles(studyID, analysisID))
 }
