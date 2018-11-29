@@ -30,7 +30,7 @@ The source can be built and run using maven.
 ```bash
 $ git clone git@github.com:icgc-dcc/SONG.git
 $ cd SONG/song-server
-$ mvn spring-boot:run -Drun.profiles=dev,test
+$ mvn spring-boot:run -Dspring-boot.run.profiles=dev,test
 ```
 
 Both the server and client when compiled and built produce  uber jars which can be run easily from the command line.
