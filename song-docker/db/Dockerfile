@@ -1,11 +1,11 @@
 FROM song_base-db:latest
 MAINTAINER OVERTURE <contact@overture.bio>
 
-ENV SERVER_RELEASE_VERSION 1.2.0
+ENV SERVER_RELEASE_VERSION 1.3.0
 ENV PGDATA /var/lib/postgresql/data/pgdata
 ENV POSTGRES_INIT_SQL /docker-entrypoint-initdb.d/init.sql
 
-ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/${SERVER_RELEASE_VERSION}/song-server-${SERVER_RELEASE_VERSION}.jar 
+ENV DOWNLOAD_URL https://artifacts.oicr.on.ca/artifactory/dcc-release/bio/overture/song-server/${SERVER_RELEASE_VERSION}/song-server-${SERVER_RELEASE_VERSION}.jar 
 ENV JAR  $DCC_HOME/song-server.jar
 ENV INIT_FILE /docker-entrypoint-initdb.d/init.sh
 

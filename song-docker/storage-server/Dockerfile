@@ -4,7 +4,7 @@ MAINTAINER OVERTURE <contact@overture.bio>
 #
 # Configuration
 #
-ENV SCORE_SERVER_VERSION 1.4.0
+ENV SCORE_SERVER_VERSION 1.5.0
 ENV SCORE_HOME $DCC_HOME/score-server
 ENV SCORE_LOGS $SCORE_HOME/logs
 
@@ -35,7 +35,7 @@ RUN wget $DOWNLOAD_URL -O $TARBALL && \
 #        wrapper.app.parameter.5=--spring.profiles.active=collaboratory,prod,secure \
 CMD python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
 	/bin/bash -c $DCC_SCRIPTS/create-buckets.sh && \
-        $SCORE_HOME/bin/dcc-storage-server start  \
+        $SCORE_HOME/bin/score-server start  \
 	wrapper.java.additional.2=-Dcom.sun.management.jmxremote.port=${STORAGE_SERVER_JMX_PORT} \
         wrapper.app.parameter.6=--server.port=${STORAGE_SERVER_PORT} \
         wrapper.app.parameter.5=--spring.profiles.active=amazon,collaboratory,prod,secure \
