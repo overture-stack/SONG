@@ -1,7 +1,7 @@
 FROM song_base-ubuntu:latest
 MAINTAINER OVERTURE <contact@overture.bio>
 
-ENV CLIENT_RELEASE_VERSION 1.3.0
+ENV CLIENT_RELEASE_VERSION 1.3.1
 ENV CLIENT_HOME $DCC_DATA
 ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/bio/overture/song-client/${CLIENT_RELEASE_VERSION}/song-client-${CLIENT_RELEASE_VERSION}-dist.tar.gz
 ENV TARBALL $DCC_HOME/download.tar.gz
