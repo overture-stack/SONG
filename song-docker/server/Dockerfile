@@ -4,7 +4,7 @@ MAINTAINER OVERTURE <contact@overture.bio>
 #
 # Configuration
 #
-ENV SERVER_RELEASE_VERSION 1.3.0
+ENV SERVER_RELEASE_VERSION 1.3.1
 ENV SONG_HOME $DCC_HOME/song-server
 ENV SONG_LOGS $DCC_HOME/song-server/logs
 ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/bio/overture/song-server/${SERVER_RELEASE_VERSION}/song-server-${SERVER_RELEASE_VERSION}-dist.tar.gz  
