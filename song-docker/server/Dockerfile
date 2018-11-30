@@ -4,18 +4,18 @@ MAINTAINER OVERTURE <contact@overture.bio>
 #
 # Configuration
 #
-ENV SERVER_RELEASE_VERSION 1.2.0
+ENV SERVER_RELEASE_VERSION 1.3.0
 ENV SONG_HOME $DCC_HOME/song-server
 ENV SONG_LOGS $DCC_HOME/song-server/logs
-ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/${SERVER_RELEASE_VERSION}/song-server-${SERVER_RELEASE_VERSION}-dist.tar.gz  
+ENV DOWNLOAD_URL  https://artifacts.oicr.on.ca/artifactory/dcc-release/bio/overture/song-server/${SERVER_RELEASE_VERSION}/song-server-${SERVER_RELEASE_VERSION}-dist.tar.gz  
 ENV TARBALL $DCC_HOME/song-server.tar.gz
 
 ADD config $DCC_CONFIG
 
 ENV WAIT_FOR_POSTGRES_SCRIPT $DCC_HOME/tools/wait-for-postgres.sh
 ENV EXPAND_SCRIPT $DCC_HOME/tools/expand.py
-ENV INPUT_FILE  $DCC_CONFIG/application.yml.template
-ENV OUTPUT_FILE $SONG_HOME/conf/application.yml
+ENV INPUT_FILE  $DCC_CONFIG/application-secure.properties.template
+ENV OUTPUT_FILE $SONG_HOME/conf/application-secure.properties
 
 RUN apt install -y postgresql && \
         wget $DOWNLOAD_URL -O $TARBALL && \
