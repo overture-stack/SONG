@@ -23,6 +23,7 @@ server:
   port: 8080
 
 score:
+  downloadAccessToken: "download-token"
   url: "https://storage.cancercollaboratory.org"
 
 # Hibernate

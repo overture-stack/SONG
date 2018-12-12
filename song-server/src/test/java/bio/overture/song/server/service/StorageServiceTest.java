@@ -75,7 +75,7 @@ public class StorageServiceTest {
   public void beforeTest(){
     val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
     this.storageService = StorageService
-        .createStorageService(new RestTemplate(), retryTemplate, testStorageUrl, validationService);
+        .createStorageService(new RestTemplate(), retryTemplate, testStorageUrl, validationService, DEFAULT_ACCESS_TOKEN);
   }
 
   @Test
@@ -160,7 +160,7 @@ public class StorageServiceTest {
         .build();
     setupStorageMockService(expectedResponse.getObjectId(),existingConfig);
     assertSongError(
-        () -> storageService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId()),
+        () -> storageService.downloadObject(expectedResponse.getObjectId()),
         INVALID_STORAGE_DOWNLOAD_RESPONSE);
   }
 
@@ -177,11 +177,11 @@ public class StorageServiceTest {
         .build();
     setupStorageMockService(expectedResponse.getObjectId(),existingConfig);
     if (exists){
-      val result = storageService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId());
+      val result = storageService.downloadObject(expectedResponse.getObjectId());
       assertThat(result).isEqualTo(expectedResponse);
     } else {
       assertSongError(
-          () -> storageService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId()),
+          () -> storageService.downloadObject(expectedResponse.getObjectId()),
           STORAGE_OBJECT_NOT_FOUND);
     }
   }

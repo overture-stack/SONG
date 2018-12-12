@@ -40,9 +40,12 @@ public class StorageConfig {
   @Value("${score.url}")
   private String storageUrl;
 
+  @Value("${score.downloadAccessToken}")
+  private String downloadAccessToken;
+
   @Bean
   public StorageService storageService(){
-    return StorageService.createStorageService(new RestTemplate(),retryTemplate,storageUrl, validationService);
+    return StorageService.createStorageService(new RestTemplate(),retryTemplate,storageUrl, validationService, downloadAccessToken);
   }
 
 }

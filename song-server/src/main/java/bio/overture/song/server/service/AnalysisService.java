@@ -391,7 +391,7 @@ public class AnalysisService {
     checkAnalysisAndStudyRelated(studyId, id);
     val files = unsecuredReadFiles(id);
     checkMissingFiles(accessToken, id, files);
-    val file2storageObjectMap = getStorageObjectsForFiles(accessToken, files);
+    val file2storageObjectMap = getStorageObjectsForFiles(files);
     checkMismatchingFileSizes(id, file2storageObjectMap);
     checkMismatchingFileMd5sums(id, file2storageObjectMap, ignoreUndefinedMd5 );
     checkedUpdateState(id, PUBLISHED);
@@ -447,8 +447,8 @@ public class AnalysisService {
         .get();
   }
 
-  private Map<FileEntity, StorageObject> getStorageObjectsForFiles(String accessToken, List<FileEntity> files){
-    return transformToMap(files, f -> storageService.downloadObject(accessToken, f.getObjectId()));
+  private Map<FileEntity, StorageObject> getStorageObjectsForFiles(List<FileEntity> files){
+    return transformToMap(files, f -> storageService.downloadObject(f.getObjectId()));
   }
 
   private void checkNotSuppressed(String id, String format, Object...args){

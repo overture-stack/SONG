@@ -310,7 +310,7 @@ public class PublishAnalysisTest {
     val mockStorageService = mock(StorageService.class);
 
     for(val storageObject : storageObjects){
-      when(mockStorageService.downloadObject(DEFAULT_ACCESS_TOKEN, storageObject.getObjectId())).thenReturn(storageObject);
+      when(mockStorageService.downloadObject(storageObject.getObjectId())).thenReturn(storageObject);
       when(mockStorageService.isObjectExist(DEFAULT_ACCESS_TOKEN, storageObject.getObjectId())).thenReturn(true);
     }
     for(val objectId : nonExistingObjectIds){
