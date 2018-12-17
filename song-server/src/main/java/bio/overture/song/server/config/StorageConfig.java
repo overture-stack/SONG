@@ -17,15 +17,16 @@
 
 package bio.overture.song.server.config;
 
-import bio.overture.song.server.service.StorageService;
-import bio.overture.song.server.service.ValidationService;
-import lombok.NoArgsConstructor;
+import static bio.overture.song.server.service.StorageService.createStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
+import bio.overture.song.server.service.StorageService;
+import bio.overture.song.server.service.ValidationService;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Configuration
@@ -40,12 +41,12 @@ public class StorageConfig {
   @Value("${score.url}")
   private String storageUrl;
 
-  @Value("${score.downloadAccessToken}")
-  private String downloadAccessToken;
+  @Value("${score.accessToken}")
+  private String scoreAccessToken;
 
   @Bean
   public StorageService storageService(){
-    return StorageService.createStorageService(new RestTemplate(),retryTemplate,storageUrl, validationService, downloadAccessToken);
+    return createStorageService(new RestTemplate(), retryTemplate, storageUrl, validationService, scoreAccessToken);
   }
 
 }

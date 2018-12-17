@@ -58,7 +58,7 @@ public class StorageService {
   @NonNull private final RetryTemplate retryTemplate;
   @NonNull private final String storageUrl;
   @NonNull private final ValidationService validationService;
-  @NonNull private final String downloadAccessToken;
+  @NonNull private final String scoreAccessToken;
 
   @SneakyThrows
   public boolean isObjectExist(@NonNull String accessToken, @NonNull String objectId) {
@@ -67,10 +67,10 @@ public class StorageService {
 
   @SneakyThrows
   public StorageObject downloadObject(@NonNull String objectId){
-    val objectExists = isObjectExist(downloadAccessToken, objectId);
+    val objectExists = isObjectExist(scoreAccessToken, objectId);
     checkServer(objectExists,getClass(), STORAGE_OBJECT_NOT_FOUND,
         "The object with objectId '%s' does not exist in the storage server", objectId);
-    return convertStorageDownloadResponse(objectId, getStorageDownloadResponse(downloadAccessToken, objectId));
+    return convertStorageDownloadResponse(objectId, getStorageDownloadResponse(scoreAccessToken, objectId));
   }
 
   private JsonNode getStorageDownloadResponse(String accessToken, String objectId){
