@@ -46,7 +46,7 @@ public class StorageConfig {
 
   @Bean
   public StorageService storageService(){
-    return createStorageService(new RestTemplate(), retryTemplate, storageUrl, validationService, scoreAccessToken);
+    return createStorageService(new RestTemplate(), retryTemplate, storageUrl, validationService, "Bearer " + scoreAccessToken);
   }
 
 }
