@@ -15,7 +15,7 @@ The SCORE client (formally the :term:`icgc-storage-client`) is used to upload an
 Installation
 =================
 
-For installation, please see `Installing icgc-storage-client from Tarball <http://docs.icgc.org/cloud/guide/#install-from-tarball>`_ instructions.
+For installation, please see `Installing icgc-storage-client from Tarball <http://docs.icgc.org/download/guide/#install-from-tarball>`_ instructions.
 
 Configuration
 ===============
@@ -41,4 +41,4 @@ Usage
 .. todo::
     replace this link when score read the docs is up
 
-For more information about the usage of the client, refer to `ICGC Storage Client Usage <https://docs.icgc.org/cloud/guide/#storage-client-usage>`_ documentation.
+For more information about the usage of the client, refer to `ICGC Storage Client Usage <https://docs.icgc.org/download/guide/#score-client-usage>`_ documentation.
