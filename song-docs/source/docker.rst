@@ -213,7 +213,7 @@ Stage 2: SONG Saving and Manifest Generation
 
 Stage 3: SCORE Upload
 -------------------------------------
-Upload the manifest file to the ``score-server`` (formally the ``icgc-dcc-storage`` server) using the `icgc-storage-client <http://docs.icgc.org/software/binaries/#storage-client>`_. This will upload the files specified in the `exampleVariantCall.json <https://github.com/overture-stack/SONG/blob/develop/song-docker/example/exampleVariantCall.json>`_ payload, which are located in the ``./example`` directory
+Upload the manifest file to the ``score-server`` (formally the ``icgc-dcc-storage`` server) using the `icgc-storage-client <http://docs.icgc.org/software/download/#score-client>`_. This will upload the files specified in the `exampleVariantCall.json <https://github.com/overture-stack/SONG/blob/develop/song-docker/example/exampleVariantCall.json>`_ payload, which are located in the ``./example`` directory
 
 .. code-block:: bash
 
