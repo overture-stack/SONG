@@ -21,6 +21,7 @@ import bio.overture.song.server.model.entity.Study;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 
 
-//@Ignore("need to replace this with something that doesnt make system calls")
+@Ignore("need to replace this with something that doesnt make system calls")
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
