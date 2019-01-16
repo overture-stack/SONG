@@ -103,9 +103,6 @@ spring:
     initialization-mode: always
     hikari:
       connection-timeout: 500
-  flyway:
-    locations: ["classpath:db/migration", "classpath:db/data"]
-
 
 management:
   server:
