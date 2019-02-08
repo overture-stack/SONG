@@ -26,6 +26,7 @@ import bio.overture.song.server.model.enums.UploadStates;
 import lombok.val;
 import org.junit.Test;
 
+import static bio.overture.song.core.model.enums.FileTypes.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
@@ -34,16 +35,6 @@ import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.FileTypes.BAI;
-import static bio.overture.song.core.model.enums.FileTypes.BAM;
-import static bio.overture.song.core.model.enums.FileTypes.FAI;
-import static bio.overture.song.core.model.enums.FileTypes.FASTA;
-import static bio.overture.song.core.model.enums.FileTypes.FASTQ;
-import static bio.overture.song.core.model.enums.FileTypes.IDX;
-import static bio.overture.song.core.model.enums.FileTypes.TBI;
-import static bio.overture.song.core.model.enums.FileTypes.VCF;
-import static bio.overture.song.core.model.enums.FileTypes.XML;
-import static bio.overture.song.core.model.enums.FileTypes.resolveFileType;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.INFO;
 import static bio.overture.song.server.model.enums.InfoTypes.ANALYSIS;
@@ -102,6 +93,7 @@ public class ConstantsTest {
     assertThat(TBI.toString()).isEqualTo("TBI");
     assertThat(IDX.toString()).isEqualTo("IDX");
     assertThat(XML.toString()).isEqualTo("XML");
+    assertThat(TGZ.toString()).isEqualTo("TGZ");
 
     assertThat(FASTA.getExtension()).isEqualTo("fasta");
     assertThat(FAI.getExtension())  .isEqualTo("fai");
@@ -112,8 +104,9 @@ public class ConstantsTest {
     assertThat(TBI.getExtension()).isEqualTo("tbi");
     assertThat(IDX.getExtension()).isEqualTo("idx");
     assertThat(XML.getExtension()).isEqualTo("xml");
+    assertThat(TGZ.getExtension()).isEqualTo("tgz");
 
-    assertThat(FileTypes.values()).hasSize(9);
+    assertThat(FileTypes.values()).hasSize(10);
 
     assertThat(resolveFileType("FASTA")).isEqualTo(FASTA);
     assertThat(resolveFileType("FAI")).isEqualTo(FAI);
@@ -124,6 +117,7 @@ public class ConstantsTest {
     assertThat(resolveFileType("TBI")).isEqualTo(TBI);
     assertThat(resolveFileType("IDX")).isEqualTo(IDX);
     assertThat(resolveFileType("XML")).isEqualTo(XML);
+    assertThat(resolveFileType("TGZ")).isEqualTo(TGZ);
 
     val thrown = catchThrowable(() -> resolveFileType("somethingThatsNotAFileType"));
     assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
