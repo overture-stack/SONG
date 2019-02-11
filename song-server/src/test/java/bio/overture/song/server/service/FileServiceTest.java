@@ -44,6 +44,7 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @Slf4j
 @SpringBootTest
@@ -158,6 +159,21 @@ public class FileServiceTest {
     val updatedFileId = fileService.save(analysisId, studyId, actualFile);
     val updatedFile = fileService.securedRead(studyId, updatedFileId);
     assertThat(updatedFile).isEqualToComparingFieldByFieldRecursively(actualFile);
+  }
+
+  @Test
+  public void testCreateFileUnknownType(){
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(
+      () -> FileEntity.builder()
+        .fileAccess("controlled")
+        .fileMd5sum(randomGenerator.generateRandomMD5())
+        .fileName(randomGenerator.generateRandomAsciiString(10))
+        .fileSize((long)randomGenerator.generateRandomInt(100, 100000))
+        .analysisId(randomGenerator.generateRandomUUIDAsString())
+        .objectId(randomGenerator.generateRandomUUIDAsString())
+        .studyId(randomGenerator.generateRandomAsciiString(7))
+        .fileType("TGZZZZZ")
+        .build());
   }
 
   @Test
