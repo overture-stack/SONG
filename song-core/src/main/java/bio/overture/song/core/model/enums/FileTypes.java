@@ -36,7 +36,8 @@ public enum FileTypes {
  VCF("vcf"),
  TBI("tbi"),
  IDX("idx"),
- XML("xml");
+ XML("xml"),
+ TGZ("tgz");
 
  @Getter private final String extension;
 

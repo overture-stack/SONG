@@ -62,6 +62,13 @@ public class ValidationServiceTest {
   }
 
   @Test
+  public void testValidateValidSequencingReadWithArchive() {
+    val payload=getJsonFile("sequencingReadWithArchive.json").toString();
+    val results=service.validate(payload,SEQ_READ);
+    assertThat(results).isEmpty();
+  }
+
+  @Test
   public void testValidateValidVariantCall() {
     val payload=getJsonFile("variantCall.json").toString();
     val results=service.validate(payload,VAR_CALL);
