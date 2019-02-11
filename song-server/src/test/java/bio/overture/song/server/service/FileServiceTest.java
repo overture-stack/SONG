@@ -60,7 +60,6 @@ public class FileServiceTest {
   AnalysisService analysisService;
 
   private final RandomGenerator randomGenerator = createRandomGenerator(FileServiceTest.class.getSimpleName());
-  private final String UNIQUE_MD6_1 = randomGenerator.generateRandomMD5();
 
   @Before
   public void beforeTest(){
@@ -76,8 +75,6 @@ public class FileServiceTest {
     val type = "BAM";
     val size = 122333444455555L;
     val md5 = "20de2982390c60e33452bf8736c3a9f1";
-    val access = OPEN;
-    val metadata = JsonUtils.fromSingleQuoted("{'info':'<XML>Not even well-formed <XML></XML>'}");
     val file = fileService.securedRead(study, id);
 
     val expected = FileEntity.builder()
@@ -88,7 +85,7 @@ public class FileServiceTest {
         .fileSize(size)
         .fileType(type)
         .fileMd5sum(md5)
-        .fileAccess(access.toString())
+        .fileAccess(OPEN.toString())
         .build();
     expected.setInfo("name", "file1");
     assertThat(file).isEqualToComparingFieldByField(expected);
@@ -132,6 +129,25 @@ public class FileServiceTest {
     analysisService.checkAnalysisExists(analysisId);
 
     val randomFile = createRandomFile(studyId, analysisId);
+    val fileId = fileService.save(analysisId, studyId, randomFile);
+    val actualFile = fileService.securedRead(studyId, fileId);
+    assertThat(actualFile).isEqualToComparingFieldByFieldRecursively(randomFile);
+
+    actualFile.setFileSize(1010101L);
+    assertThat(actualFile).isNotEqualTo(randomFile);
+
+    val updatedFileId = fileService.save(analysisId, studyId, actualFile);
+    val updatedFile = fileService.securedRead(studyId, updatedFileId);
+    assertThat(updatedFile).isEqualToComparingFieldByFieldRecursively(actualFile);
+  }
+
+  @Test
+  public void testSaveFileAsTgz(){
+    val analysisId = DEFAULT_ANALYSIS_ID;
+    val studyId = DEFAULT_STUDY_ID;
+    analysisService.checkAnalysisExists(analysisId);
+
+    val randomFile = createRandomFileWithType(studyId, analysisId, "TGZ", ".tgz");
     val fileId = fileService.save(analysisId, studyId, randomFile);
     val actualFile = fileService.securedRead(studyId, fileId);
     assertThat(actualFile).isEqualToComparingFieldByFieldRecursively(randomFile);
@@ -243,16 +259,20 @@ public class FileServiceTest {
 
 
   private FileEntity createRandomFile(String studyId, String analysisId){
+    return createRandomFileWithType(studyId, analysisId, "BAM", ".bam");
+  }
+
+  private FileEntity createRandomFileWithType(String studyId, String analysisId, String fileType, String extension) {
     return FileEntity.builder()
-        .objectId( randomGenerator.generateRandomUUIDAsString())
-        .analysisId(analysisId)
-        .fileName(randomGenerator.generateRandomUUIDAsString()+".bam")
-        .studyId(studyId)
-        .fileSize((long)randomGenerator.generateRandomInt())
-        .fileType("BAM")
-        .fileMd5sum(randomGenerator.generateRandomMD5())
-        .fileAccess(CONTROLLED.toString())
-        .build();
+      .objectId( randomGenerator.generateRandomUUIDAsString())
+      .analysisId(analysisId)
+      .fileName(randomGenerator.generateRandomUUIDAsString()+extension)
+      .studyId(studyId)
+      .fileSize((long)randomGenerator.generateRandomInt())
+      .fileType(fileType)
+      .fileMd5sum(randomGenerator.generateRandomMD5())
+      .fileAccess(CONTROLLED.toString())
+      .build();
   }
 
 
