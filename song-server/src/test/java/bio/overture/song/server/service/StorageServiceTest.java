@@ -193,7 +193,7 @@ public class StorageServiceTest {
             .withStatus(OK.value())
             .withBody(Boolean.toString(config.isObjectExists()))));
 
-    wireMockRule.stubFor(get(urlMatching(format("/download/%s\\?offset=0&length=-1", objectId)))
+    wireMockRule.stubFor(get(urlMatching(format("/download/%s\\?offset=0&length=-1&exclude-urls=true", objectId)))
         .willReturn(aResponse()
             .withStatus(OK.value())
             .withBody(toJson(config.getExpectedStorageResponse()))));

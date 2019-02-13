@@ -126,7 +126,7 @@ public class StorageService {
   }
 
   private String getDownloadObjectUrl(String objectId){
-    return joinUrl(storageUrl, DOWNLOAD, objectId)+"?offset=0&length=-1";
+    return joinUrl(storageUrl, DOWNLOAD, objectId)+"?offset=0&length=-1&exclude-urls=true";
   }
 
   public static StorageService createStorageService(RestTemplate restTemplate,
