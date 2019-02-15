@@ -386,11 +386,11 @@ public class AnalysisService {
   }
 
   @Transactional
-  public ResponseEntity<String> publish(@NonNull String accessToken,
-      @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
+  public ResponseEntity<String> publish(@NonNull String studyId,
+                                        @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
     val files = unsecuredReadFiles(id);
-    checkMissingFiles(accessToken, id, files);
+    checkMissingFiles(id, files);
     val file2storageObjectMap = getStorageObjectsForFiles(files);
     checkMismatchingFileSizes(id, file2storageObjectMap);
     checkMismatchingFileMd5sums(id, file2storageObjectMap, ignoreUndefinedMd5 );
@@ -456,9 +456,9 @@ public class AnalysisService {
         getClass(), SUPPRESSED_STATE_TRANSITION, format, args);
   }
 
-  private void checkMissingFiles(String accessToken, String analysisId, List<FileEntity> files){
+  private void checkMissingFiles(String analysisId, List<FileEntity> files){
     val missingFileIds = files.stream()
-        .filter(f -> !confirmUploaded(accessToken, f.getObjectId()))
+        .filter(f -> !confirmUploaded(f.getObjectId()))
         .collect(toImmutableList());
     val isMissingFiles = missingFileIds.size() > 0;
     checkServer(!isMissingFiles,getClass(), MISSING_STORAGE_OBJECTS,
@@ -535,8 +535,8 @@ public class AnalysisService {
     sendAnalysisMessage(createAnalysisMessage(id, analysisState));
   }
 
-  private boolean confirmUploaded(String accessToken, String fileId) {
-    return storageService.isObjectExist(accessToken,fileId);
+  private boolean confirmUploaded(String fileId) {
+    return storageService.isObjectExist(fileId);
   }
 
   /**

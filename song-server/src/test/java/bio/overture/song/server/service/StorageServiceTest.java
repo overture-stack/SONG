@@ -74,8 +74,13 @@ public class StorageServiceTest {
   @Before
   public void beforeTest(){
     val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
-    this.storageService = StorageService
-        .createStorageService(new RestTemplate(), retryTemplate, testStorageUrl, validationService, DEFAULT_ACCESS_TOKEN);
+    this.storageService = StorageService.builder()
+            .restTemplate(new RestTemplate())
+            .retryTemplate(retryTemplate)
+            .storageUrl(testStorageUrl)
+            .validationService(validationService)
+            .scoreAuthorizationHeader(DEFAULT_ACCESS_TOKEN)
+            .build();
   }
 
   @Test
@@ -93,7 +98,7 @@ public class StorageServiceTest {
         .expectedStorageResponse(storageResponse)
         .build();
     setupStorageMockService(expectedStorageObject.getObjectId(), nonExistingConfig);
-    val result = storageService.isObjectExist(DEFAULT_ACCESS_TOKEN, expectedStorageObject.getObjectId());
+    val result = storageService.isObjectExist(expectedStorageObject.getObjectId());
     assertThat(result).isFalse();
 
     // Test existing
@@ -102,7 +107,7 @@ public class StorageServiceTest {
         .expectedStorageResponse(storageResponse)
         .build();
     setupStorageMockService(expectedStorageObject.getObjectId(), existingConfig);
-    val result2 = storageService.isObjectExist(DEFAULT_ACCESS_TOKEN, expectedStorageObject.getObjectId());
+    val result2 = storageService.isObjectExist(expectedStorageObject.getObjectId());
     assertThat(result2).isTrue();
   }
 

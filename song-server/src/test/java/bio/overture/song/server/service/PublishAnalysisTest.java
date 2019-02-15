@@ -80,7 +80,6 @@ public class PublishAnalysisTest {
   private static final int MAX_FILES = 1 << 4;
   private static final int MIN_SIZE = 1 << 3;
   private static final List<FileEntity> EMPTY_FILE_LIST = ImmutableList.of();
-  private static final String DEFAULT_ACCESS_TOKEN = "myAccessToken";
 
   @Autowired
   private AnalysisService service;
@@ -253,7 +252,7 @@ public class PublishAnalysisTest {
 
       // Test publish changes to published state
       assertThat(service.readState(testAnalysisId)).isEqualTo(UNPUBLISHED);
-      service.publish(DEFAULT_ACCESS_TOKEN, testStudyId, testAnalysisId, ignoreUndefinedMd5 );
+      service.publish(testStudyId, testAnalysisId, ignoreUndefinedMd5 );
       assertThat(service.readState(testAnalysisId)).isEqualTo(PUBLISHED);
     }
   }
@@ -272,7 +271,7 @@ public class PublishAnalysisTest {
     assertThat(options.size()).isGreaterThan(0);
     for(val ignoreUndefinedMd5 : options){
       SongErrorAssertions
-          .assertSongError(() -> service.publish(DEFAULT_ACCESS_TOKEN, testStudyId, testAnalysisId, ignoreUndefinedMd5 ),
+          .assertSongError(() -> service.publish(testStudyId, testAnalysisId, ignoreUndefinedMd5 ),
           expectedServerError);
     }
     assertThat(service.readState(testAnalysisId)).isEqualTo(UNPUBLISHED);
@@ -311,10 +310,10 @@ public class PublishAnalysisTest {
 
     for(val storageObject : storageObjects){
       when(mockStorageService.downloadObject(storageObject.getObjectId())).thenReturn(storageObject);
-      when(mockStorageService.isObjectExist(DEFAULT_ACCESS_TOKEN, storageObject.getObjectId())).thenReturn(true);
+      when(mockStorageService.isObjectExist(storageObject.getObjectId())).thenReturn(true);
     }
     for(val objectId : nonExistingObjectIds){
-      when(mockStorageService.isObjectExist(DEFAULT_ACCESS_TOKEN, objectId)) .thenReturn(false);
+      when(mockStorageService.isObjectExist(objectId)) .thenReturn(false);
     }
     ReflectionTestUtils.setField(service, STORAGE_SERVICE, mockStorageService);
   }
