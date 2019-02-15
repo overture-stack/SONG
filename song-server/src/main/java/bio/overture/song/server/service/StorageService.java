@@ -19,11 +19,8 @@ package bio.overture.song.server.service;
 
 import bio.overture.song.server.model.StorageObject;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -32,18 +29,19 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URL;
 
-import static java.lang.Boolean.parseBoolean;
-import static org.icgc.dcc.common.core.util.Joiners.SLASH;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
 import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static java.lang.Boolean.parseBoolean;
+import static org.icgc.dcc.common.core.util.Joiners.SLASH;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
 @RequiredArgsConstructor
+@Builder
 public class StorageService {
 
   private static final String UPLOAD = "upload";
@@ -128,11 +126,6 @@ public class StorageService {
 
   private String getDownloadObjectUrl(String objectId){
     return joinUrl(storageUrl, DOWNLOAD, objectId)+"?offset=0&length=-1";
-  }
-
-  public static StorageService createStorageService(RestTemplate restTemplate,
-      RetryTemplate retryTemplate, String baseUrl, ValidationService validationService, String downloadAccessToken){
-    return new StorageService(restTemplate, retryTemplate,baseUrl, validationService, downloadAccessToken);
   }
 
   private static String joinUrl(String ... path){
