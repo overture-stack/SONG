@@ -59,11 +59,14 @@ Microservice Architecture
 ---------------------------
 * Each box represents a docker container, and the lines connecting them indicate a TCP/IP connection.
 * Each Postgres database is its own docker container.
-* ``storage-client`` and ``song-client`` are command line tools and used locally. They are used to communicate with the ``storage-server`` and ``song-server``, respectively
+* ``score-client`` and ``song-client`` are command line tools and used locally. They are used to communicate with the ``score-server`` and ``song-server``, respectively
 
 .. todo::
     In the image, replace "DCC-Storage Server" with "SCORE Server"
 
+.. note::
+    the ``DCC-Storage Server``is now ``SCORE``
+    
 .. image:: song-docker-service-architecture.svg
 
 Prerequisites
@@ -152,7 +155,7 @@ This tutorial assumes current working directory is the ``song-docker`` directory
     :ref:`Java CLI Client <java_cli_ref>` 
 
 .. note::
-    Although this tutorial uses the ``icgc-storage-client``, it is in the process of being renamed to the ``score-client``
+    the ``icgc-storage-client``is now renamed to ``score-client``
 
 
 
@@ -202,7 +205,7 @@ Stage 2: SONG Saving and Manifest Generation
 
     ./data/client/bin/sing search -a <analysisId>    |  jq ‘.analysisState’
 
-4. Generate a manifest for the ``icgc-storage-client`` in :ref:`Stage 3 <stage_3_ref>` with the files located in the `./example` source directory
+4. Generate a manifest for the ``score-client`` in :ref:`Stage 3 <stage_3_ref>` with the files located in the `./example` source directory
 
 .. code-block:: bash
 
@@ -213,11 +216,11 @@ Stage 2: SONG Saving and Manifest Generation
 
 Stage 3: SCORE Upload
 -------------------------------------
-Upload the manifest file to the ``score-server`` (formally the ``icgc-dcc-storage`` server) using the `icgc-storage-client <http://docs.icgc.org/software/download/#score-client>`_. This will upload the files specified in the `exampleVariantCall.json <https://github.com/overture-stack/SONG/blob/develop/song-docker/example/exampleVariantCall.json>`_ payload, which are located in the ``./example`` directory
+Upload the manifest file to the ``score-server`` (formally the ``icgc-dcc-storage`` server) using the `score-client <http://docs.icgc.org/software/download/#score-client>`_. This will upload the files specified in the `exampleVariantCall.json <https://github.com/overture-stack/SONG/blob/develop/song-docker/example/exampleVariantCall.json>`_ payload, which are located in the ``./example`` directory
 
 .. code-block:: bash
 
-    ./data/storage-client/bin/icgc-storage-client upload --manifest manifest.txt
+    ./data/storage-client/bin/score-client upload --manifest manifest.txt
 
 Stage 4: SONG Publish
 ------------------------
