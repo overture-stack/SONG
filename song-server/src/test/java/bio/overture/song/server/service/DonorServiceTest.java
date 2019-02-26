@@ -55,7 +55,7 @@ import static bio.overture.song.server.utils.securestudy.impl.SecureDonorTester.
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class DonorServiceTest {
 
   @Autowired

@@ -54,7 +54,7 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class StorageServiceTest {
 
   private static final String DEFAULT_ACCESS_TOKEN = "anyToken";

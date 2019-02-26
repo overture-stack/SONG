@@ -72,7 +72,7 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 @Transactional
 public class PublishAnalysisTest {
 

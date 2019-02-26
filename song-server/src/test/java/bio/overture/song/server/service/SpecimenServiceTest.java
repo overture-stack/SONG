@@ -63,7 +63,7 @@ import static bio.overture.song.server.utils.securestudy.impl.SecureSpecimenTest
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class SpecimenServiceTest {
 
     @Autowired

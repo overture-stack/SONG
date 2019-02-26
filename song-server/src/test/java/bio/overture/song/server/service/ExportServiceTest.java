@@ -82,7 +82,7 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class ExportServiceTest {
   private static final String ANALYSIS_ID = "analysisId";
   private static final int DEFAULT_NUM_STUDIES = 3;
