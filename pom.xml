@@ -222,6 +222,13 @@
                 <version>${json-unit.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>javax.interceptor</groupId>
+                <artifactId>javax.interceptor-api</artifactId>
+                <version>${javax.interceptor-api.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers</artifactId>
@@ -335,7 +342,7 @@
         <mapstruct.version>1.2.0.Final</mapstruct.version>
         <mockito.version>2.23.0</mockito.version>
         <json-unit.version>2.0.3</json-unit.version>
-
+        <javax.interceptor-api.version>1.2</javax.interceptor-api.version>
         <testcontainers.version>1.10.6</testcontainers.version>
 
     </properties>
