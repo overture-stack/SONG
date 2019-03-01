@@ -17,11 +17,9 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Study;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +33,11 @@ import org.testcontainers.jdbc.ContainerDatabaseDriver;
 
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 
@@ -77,7 +76,7 @@ public class InterruptedDatabaseConnection {
     // it gets data from postgres when the database is up.
     // Unfortunately, it doesn't return anything when it hangs...
     val study = service.read("ABC123");
-    Assertions.assertThat(study).isNotNull();
+    assertThat(study).isNotNull();
     assertThat(study.getStudyId()).isEqualTo("ABC123");
     assertThat(study.getName()).isEqualTo("X1-CA");
     assertThat(study.getDescription()).isEqualTo("A fictional study");
@@ -99,17 +98,11 @@ public class InterruptedDatabaseConnection {
 
   private void testThatServiceReallyWorks(){
     val studyIds = service.findAllStudies();
-    Assertions.assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
-    val study = Study.builder()
-            .studyId(randomGenerator.generateRandomUUIDAsString())
-            .name( randomGenerator.generateRandomUUIDAsString())
-            .organization(randomGenerator.generateRandomUUIDAsString())
-            .description(randomGenerator.generateRandomUUIDAsString())
-            .build();
-
-    service.saveStudy(study);
+    assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
+    val studyId = createStudyGenerator(service, randomGenerator).createRandomStudy();
+    val study = service.read(studyId);
     val studyIds2 = service.findAllStudies();
-    Assertions.assertThat(studyIds2).contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId());
+    assertThat(studyIds2).contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId());
   }
 
   /**
