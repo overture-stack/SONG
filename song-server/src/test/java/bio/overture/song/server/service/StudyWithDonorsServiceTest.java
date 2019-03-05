@@ -52,7 +52,7 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class StudyWithDonorsServiceTest {
 
   @Autowired

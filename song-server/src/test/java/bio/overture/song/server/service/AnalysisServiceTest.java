@@ -103,7 +103,7 @@ import static org.mockito.Mockito.mock;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class AnalysisServiceTest {
 
   private static final String ANALYSIS_INFO_SERVICE = "analysisInfoService";

@@ -61,7 +61,7 @@ import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.c
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class FileModificationServiceTest {
 
   @Autowired

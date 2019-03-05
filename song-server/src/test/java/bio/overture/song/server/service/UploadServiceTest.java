@@ -84,7 +84,7 @@ import static bio.overture.song.server.utils.securestudy.impl.SecureUploadTester
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
-@ActiveProfiles({"dev", "secure", "async-test"})
+@ActiveProfiles({"test", "secure", "async-test"})
 @Transactional
 public class UploadServiceTest {
 

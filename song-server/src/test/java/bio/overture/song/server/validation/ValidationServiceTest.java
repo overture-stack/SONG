@@ -44,7 +44,7 @@ import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class ValidationServiceTest {
 
   private static final String SEQ_READ="SequencingRead";

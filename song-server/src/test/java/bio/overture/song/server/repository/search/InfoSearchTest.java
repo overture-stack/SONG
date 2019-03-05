@@ -71,7 +71,7 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class InfoSearchTest {
 
   private static final Set<String> TEST_PAYLOAD_FILENAMES_1 = newHashSet(

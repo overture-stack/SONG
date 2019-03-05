@@ -53,7 +53,7 @@ import static bio.overture.song.server.utils.securestudy.impl.SecureSampleTester
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class SampleServiceTest {
 
   @Autowired
