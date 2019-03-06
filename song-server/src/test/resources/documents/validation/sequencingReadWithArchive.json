@@ -1,0 +1,77 @@
+{
+  "study": "ABC123",
+  "analysisType": "sequencingRead",
+  "experiment": {
+    "libraryStrategy": "WXS",
+    "pairedEnd": false,
+    "insertSize": 900,
+    "aligned": true,
+    "alignmentTool": "MUSE variant call pipeline",
+    "referenceGenome": "hs37d5",
+    "info": {
+      "marginOfError": "0.01%"
+    }
+  },
+  "sample": [
+    {
+      "sampleSubmitterId": "internal_sample_123456789_01",
+      "sampleType": "Total RNA",
+      "tissueCollectionMethod": "IV",
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_123456789_01",
+        "specimenClass": "Normal",
+        "specimenType": "Normal - solid tissue"
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789_01",
+        "donorGender": "male",
+        "ageCategory": "18-25",
+        "riskCategory": "3b"
+      }
+    }
+  ],
+  "file": [
+    {
+      "fileType": "VCF",
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "fileSize": 132394,
+      "fileMd5sum": "d3cec975acc69a42b8cc3b76ec01ec21",
+      "fileAccess": "controlled",
+      "compression": "gzip"
+    },
+    {
+      "fileType": "IDX",
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+      "fileSize": 2394,
+      "fileAccess": "controlled",
+      "fileMd5sum": "65ef4aac7bffcb9f3595a69e48ff2f79"
+    },
+    {
+      "fileType": "TGZ",
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e01.metadatabundle.tgz",
+      "fileSize": 12345,
+      "fileAccess": "controlled",
+      "fileMd5sum": "65ef4aac7bffcb9f3595a69e48ff2f79"
+    }
+  ],
+  "info": {
+    "access": "controlled",
+    "dataCategorization": {
+      "dataType": "SGV",
+      "experimentalStrategy": "WGS"
+    },
+    "referenceGenome": {
+      "genomeBuild": "GRCh37",
+      "referenceName": "hs37d5",
+      "downloadUrl": "ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz"
+    },
+    "analysisMethod": {
+      "analysisType": "Variant calling",
+      "software": "Broad variant call pipeline"
+    },
+    "study": [
+      "PCAWG",
+      "EGA"
+    ]
+  }
+}

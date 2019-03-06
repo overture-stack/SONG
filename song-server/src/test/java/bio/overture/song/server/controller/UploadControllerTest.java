@@ -55,7 +55,7 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(secure = false)
-@ActiveProfiles({ "dev", "test" })
+@ActiveProfiles({ "test" })
 public class UploadControllerTest {
 
   private static final String UPLOAD_TEST_DIR = "documents";

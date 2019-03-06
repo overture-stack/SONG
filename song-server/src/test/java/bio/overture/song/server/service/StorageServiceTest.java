@@ -54,7 +54,7 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class StorageServiceTest {
 
   private static final String DEFAULT_ACCESS_TOKEN = "anyToken";
@@ -193,7 +193,7 @@ public class StorageServiceTest {
             .withStatus(OK.value())
             .withBody(Boolean.toString(config.isObjectExists()))));
 
-    wireMockRule.stubFor(get(urlMatching(format("/download/%s\\?offset=0&length=-1", objectId)))
+    wireMockRule.stubFor(get(urlMatching(format("/download/%s\\?offset=0&length=-1&exclude-urls=true", objectId)))
         .willReturn(aResponse()
             .withStatus(OK.value())
             .withBody(toJson(config.getExpectedStorageResponse()))));

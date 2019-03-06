@@ -17,7 +17,7 @@ import static bio.overture.song.server.utils.EndpointTester.createEndpointTester
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(secure = false)
-@ActiveProfiles({ "dev", "test" })
+@ActiveProfiles({ "test" })
 public class StudyControllerTest {
 
     @Autowired

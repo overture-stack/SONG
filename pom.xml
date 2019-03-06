@@ -20,7 +20,7 @@
     <groupId>bio.overture</groupId>
     <artifactId>song</artifactId>
     <packaging>pom</packaging>
-    <version>1.3.2-SNAPSHOT</version>
+    <version>1.4.2-SNAPSHOT</version>
     <modules>
         <module>song-core</module>
         <module>song-server</module>
@@ -222,6 +222,29 @@
                 <version>${json-unit.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>javax.interceptor</groupId>
+                <artifactId>javax.interceptor-api</artifactId>
+                <version>${javax.interceptor-api.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>jdbc</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -319,6 +342,8 @@
         <mapstruct.version>1.2.0.Final</mapstruct.version>
         <mockito.version>2.23.0</mockito.version>
         <json-unit.version>2.0.3</json-unit.version>
+        <javax.interceptor-api.version>1.2</javax.interceptor-api.version>
+        <testcontainers.version>1.10.6</testcontainers.version>
 
     </properties>
 

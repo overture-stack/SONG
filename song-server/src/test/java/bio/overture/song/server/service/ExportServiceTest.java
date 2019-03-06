@@ -50,7 +50,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
+import javax.transaction.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -82,7 +82,7 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class ExportServiceTest {
   private static final String ANALYSIS_ID = "analysisId";
   private static final int DEFAULT_NUM_STUDIES = 3;
