@@ -24,7 +24,7 @@ kj
 [Flyway](https://flywaydb.org/) is used to manage database migrations. Usually, you do not need to worry about it. But if you have existing database that does not align with the flyway migrations, please [baseline](https://flywaydb.org/documentation/command/baseline) the database by:
 
 ```bash
-flyway baseline
+./mvnw -pl song-server flyway:baseline
 ```
 
 Once you have the data structure set up, you may want to load test data.
