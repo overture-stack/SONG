@@ -65,16 +65,14 @@ public class InterruptedDatabaseConnectionTest {
   @Test
   @SneakyThrows
   public void testInterruptDBConnection() {
-    if (driverClassName.equals("org.testcontainers.jdbc.ContainerDatabaseDriver")) {
-      testThatServiceWorks();
-      val dataSourceContainer = getDataSourceContainer();
-      //simulate a db outage
-      stopDB(dataSourceContainer);
-      assertDatabaseIsUnreachable();
-      resumeDB(dataSourceContainer);
-      // make sure the app service recovered and able to connect
-      testThatServiceReallyWorks();
-    }
+    testThatServiceWorks();
+    val dataSourceContainer = getDataSourceContainer();
+    //simulate a db outage
+    stopDB(dataSourceContainer);
+    assertDatabaseIsUnreachable();
+    resumeDB(dataSourceContainer);
+    // make sure the app service recovered and able to connect
+    testThatServiceReallyWorks();
   }
 
   private void testThatServiceWorks() {
