@@ -1,5 +1,3 @@
-truncate study,info cascade;
-
 insert into Study (id, name,description,organization) values ('ABC123','X1-CA','A fictional study', 'Sample Data Research Institute');
 insert into Study (id, name,description,organization) values ('XYZ234','X2-CA','A new study', 'Sample Data Research Institute');
 insert into Info(id, id_type, info) values ('ABC123',  'Study', '{"name":"study1"}' );

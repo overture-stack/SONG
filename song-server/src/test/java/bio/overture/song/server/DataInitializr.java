@@ -17,8 +17,10 @@ public class DataInitializr {
 
     @EventListener({ApplicationReadyEvent.class})
     public void prepareTestData() {
-        Resource resource = new ClassPathResource("data.sql");
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator(resource);
+        ResourceDatabasePopulator databasePurger = new ResourceDatabasePopulator(new ClassPathResource("purge.sql"));
+        databasePurger.execute(dataSource);
+
+        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator(new ClassPathResource("data.sql"));
         databasePopulator.execute(dataSource);
     }
 }
