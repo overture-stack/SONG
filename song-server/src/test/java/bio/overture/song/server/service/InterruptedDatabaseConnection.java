@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 
-@Ignore("need to replace this with something that doesnt make system calls")
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -60,17 +59,22 @@ public class InterruptedDatabaseConnection {
   @Value("${spring.datasource.url}")
   private String dataSourceUrl;
 
+  @Value("${spring.datasource.driver-class-name}")
+  private String driverClassName;
+
   @Test
   @SneakyThrows
   public void testInterruptDBConnection() {
-    testThatServiceWorks();
-    val dataSourceContainer = getDataSourceContainer();
-    //simulate a db outage
-    stopDB(dataSourceContainer);
-    assertDatabaseIsUnreachable();
-    resumeDB(dataSourceContainer);
-    // make sure the app service recovered and able to connect
-    testThatServiceReallyWorks();
+    if (driverClassName.equals("org.testcontainers.jdbc.ContainerDatabaseDriver")) {
+      testThatServiceWorks();
+      val dataSourceContainer = getDataSourceContainer();
+      //simulate a db outage
+      stopDB(dataSourceContainer);
+      assertDatabaseIsUnreachable();
+      resumeDB(dataSourceContainer);
+      // make sure the app service recovered and able to connect
+      testThatServiceReallyWorks();
+    }
   }
 
   private void testThatServiceWorks() {
