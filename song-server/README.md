@@ -21,11 +21,27 @@ Note: inorder to prevent the spring-boot-maven-plugin from overwriting the origi
 
 ## Flyway
 
-[Flyway](https://flywaydb.org/) is used to manage database migrations. Usually, you do not need to worry about it. But if you have existing database that does not align with the flyway migrations, please [baseline](https://flywaydb.org/documentation/command/baseline) the database by:
+Database migrations and versioning is managed by flyway [Flyway](https://flywaydb.org/).
+
+To see current database's migration info:
+
+```bash
+./mvnw -pl song-server flyway:info -Dflyway.url='jdbc:postgresql://localhost:5432/test_db?user=postgres'
+```
+
+Migrate database to the latest version:
+
+```bash
+./mvnw -pl song-server flyway:migrate -Dflyway.url='jdbc:postgresql://localhost:5432/test_db?user=postgres'
+```
+
+If you have existing database that does not align with the flyway migrations, please [baseline](https://flywaydb.org/documentation/command/baseline) the database by:
 
 ```bash
 ./mvnw -pl song-server flyway:baseline
 ```
+
+To see the migration [naming convention](https://flywaydb.org/documentation/migrations#naming).
 
 Once you have the data structure set up, you may want to load test data.
 
