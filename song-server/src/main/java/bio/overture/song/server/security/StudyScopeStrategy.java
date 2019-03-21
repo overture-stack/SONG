@@ -63,7 +63,7 @@ public class StudyScopeStrategy {
   }
 
   private String getEndUserScope(String studyId){
-    return DOT.join(scopePrefix, studyId.toUpperCase(), scopeSuffix);
+    return DOT.join(scopePrefix, studyId, scopeSuffix);
   }
 
   private String getSystemScope(){
