@@ -22,7 +22,7 @@ docker run  \
     --log-driver json-file \
     --detach \
     --network host \
-    --name song_server_$VERSION \
+    --name song-server-$VERSION \
     -e SERVER_PORT=$SERVER_PORT \
 	-e STORAGE_SERVER_URL=$STORAGE_SERVER_URL \
 	-e SERVER_MANAGEMENT_PORT=$SERVER_MANAGEMENT_PORT \
@@ -36,5 +36,5 @@ docker run  \
 	-e AUTH_SERVER_URL=$AUTH_SERVER_URL \
 	-e AUTH_SERVER_CLIENTID=$AUTH_SERVER_CLIENTID \
 	-e AUTH_SERVER_CLIENTSECRET=$AUTH_SERVER_CLIENTSECRET \
-    overture/song:$VERSION
+    overture/song-server:$VERSION
 
