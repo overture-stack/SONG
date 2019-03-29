@@ -37,7 +37,7 @@ ENV JAR_FILE            $SONG_LIB/song-server.jar
 RUN mkdir -p $SONG_HOME $SONG_TOOLS $SONG_CONF $SONG_TEMPLATES $SONG_LIB $SONG_LOGS
 
 COPY tools/expand.py  $EXPAND_SCRIPT
-COPY song/application-secure.properties.template $INPUT_FILE
+#COPY song/application-secure.properties.template $INPUT_FILE
 COPY song/logback.xml $LOGGING_CONFIG_FILE
 
 RUN wget https://artifacts.oicr.on.ca/artifactory/$SONG_ARTIFACTORY_REPO_NAME/bio/overture/song-server/$SONG_VERSION/song-server-$SONG_VERSION-exec.jar -O $JAR_FILE
