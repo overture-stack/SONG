@@ -1,12 +1,12 @@
-# server.port=${SERVER_PORT}
-# score.url=${STORAGE_SERVER_URL}
-# management.server.port=${SERVER_MANAGEMENT_PORT}
-# id.idUrl=${ID_URL}
-# id.authToken=${AUTH_TOKEN}
-# id.realIds=true
-# spring.datasource.url=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?stringtype=unspecified
-# spring.datasource.username=${DB_USER}
-# spring.datasource.password=${DB_PASSWORD}
+server.port=${SERVER_PORT}
+score.url=${STORAGE_SERVER_URL}
+management.server.port=${SERVER_MANAGEMENT_PORT}
+id.idUrl=${ID_URL}
+id.authToken=${AUTH_TOKEN}
+id.realIds=true
+spring.datasource.url=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?stringtype=unspecified
+spring.datasource.username=${DB_USER}
+spring.datasource.password=${DB_PASSWORD}
 auth.server.url=${AUTH_SERVER_URL}
 auth.server.clientId=${AUTH_SERVER_CLIENTID}
 auth.server.clientSecret=${AUTH_SERVER_CLIENTSECRET}
