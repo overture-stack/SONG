@@ -1,0 +1,12 @@
+# server.port=${SERVER_PORT}
+score.url=${SCORE_URL}
+# management.server.port=${SERVER_MANAGEMENT_PORT}
+id.idUrl=${ID_IDURL}
+id.authToken=${ID_AUTHTOKEN}
+id.realIds=${ID_REALIDS}
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+auth.server.url=${AUTH_SERVER_URL}
+auth.server.clientId=${AUTH_SERVER_CLIENTID}
+auth.server.clientSecret=${AUTH_SERVER_CLIENTSECRET}
