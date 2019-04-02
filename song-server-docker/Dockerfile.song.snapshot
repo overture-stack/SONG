@@ -50,7 +50,7 @@ COPY song/logback.xml $LOGGING_CONFIG_FILE
 #RUN wget https://artifacts.oicr.on.ca/artifactory/$SONG_ARTIFACTORY_REPO_NAME/bio/overture/song-server/$SONG_VERSION/song-server-$SONG_VERSION-exec.jar -O $JAR_FILE
 #RUN wget https://artifacts.oicr.on.ca/artifactory/dcc-snapshot/bio/overture/song-server/1.4.2-SNAPSHOT/song-server-1.4.2-20190325.170029-8-dist.tar.gz
 #RUN wget https://artifacts.oicr.on.ca/artifactory/dcc-snapshot/bio/overture/song-server/1.4.2-SNAPSHOT/song-server-1.4.2-20190213.201907-1-exec.jar -O $SONG_LIB/song-server.jar
-RUN wget https://artifacts.oicr.on.ca/artifactory/$SONG_ARTIFACTORY_REPO_NAME/bio/overture/song-server/SONG_VERSION/song-server-1SONG_VERSION_DATE-exec.jar -O $SONG_LIB/song-server.jar
+RUN wget https://artifacts.oicr.on.ca/artifactory/$SONG_ARTIFACTORY_REPO_NAME/bio/overture/song-server/SONG_VERSION/song-server-$SONG_VERSION_DATE-exec.jar -O $SONG_LIB/song-server.jar
 
 WORKDIR $SONG_HOME
 
