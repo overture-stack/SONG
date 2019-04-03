@@ -1,6 +1,3 @@
-# server.port=${SERVER_PORT}
-score.url=${SCORE_URL}
-# management.server.port=${SERVER_MANAGEMENT_PORT}
 id.idUrl=${ID_IDURL}
 id.authToken=${ID_AUTHTOKEN}
 id.realIds=${ID_REALIDS}
