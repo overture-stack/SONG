@@ -7,10 +7,10 @@ help:
 	@grep '^[A-Za-z0-9_-]\+:.*' ./Makefile | sed 's/:.*//'
 
 docker-server-clean:
-	docker kill $(DOCKER_CONTAINER_NAME)
+	-docker kill $(DOCKER_CONTAINER_NAME)
 
 docker-server-purge: docker-server-clean
-	docker rmi $(DOCKER_IMAGE_NAME)
+	-docker rmi $(DOCKER_IMAGE_NAME)
 
 docker-server-logs:
 	docker logs $(DOCKER_CONTAINER_NAME)

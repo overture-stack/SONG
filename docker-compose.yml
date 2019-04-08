@@ -2,7 +2,7 @@ version: '3.2'
 services:
   server:
     container_name: "song-server-$VERSION"
-    image: "overture-stack/song-server:$VERSION"
+    image: "overture/song-server:$VERSION"
     build:
       context: ./
       dockerfile: Dockerfile.server
