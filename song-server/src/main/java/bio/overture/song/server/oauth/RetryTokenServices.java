@@ -34,6 +34,8 @@ import org.springframework.web.client.RestClientException;
 
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
+import static java.lang.Enum.valueOf;
+
 import java.net.ConnectException;
 
 @NoArgsConstructor
@@ -50,7 +52,8 @@ public class RetryTokenServices extends RemoteTokenServices {
       return retryTemplate.execute(context -> RetryTokenServices.super.loadAuthentication(accessToken));
     } catch (HttpClientErrorException ex) {
       if (ex.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-        throw new InvalidTokenException(ex.getMessage());
+
+        throw new InvalidTokenException("Unauthorized");
       }
       throw (ex);
     } catch (ResourceAccessException ex2) {
