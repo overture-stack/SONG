@@ -10,7 +10,10 @@ docker push $DOCKER_REPO:edge
 
 regex="song-([0-9]+\.[0-9]+\.[0-9]+)"
 echo "SOURCE_BRANCH=${SOURCE_BRANCH}"
-if [[ ${SOURCE_BRANCH} =~ $regex ]]; then
+tag=`git describe --tags`
+echo "TAG=${tag}"
+
+if [[ ${tag} =~ $regex ]]; then
     version="${BASH_REMATCH[1]}"
 
     echo "Tagging image $DOCKER_REPO:$SOURCE_COMMIT with tag $DOCKER_REPO:${version}"
