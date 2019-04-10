@@ -45,7 +45,18 @@ The server provides swagger docs documenting the API.
 
 When running locally they can be accessed here: http://localhost:8080/swagger-ui.html
 
-
+## Dockerhub Configuration
+1. Edit build configurations by selecting the `Builds` tab at the top, then click `Build Configuration`
+2. Create a new build rule by clicking the `+` sign beside the `BUILD RULES` text
+3. Edit the configuration as follows:
+   Source Type: `branch`
+   Source: `develop`
+   Docker Tag: `develop`
+   Dockerfile Location: `Dockerfile`
+   Build Context: `/`
+   `Autobuild` is set to the ON position
+   `Build Caching` is set to the ON position
+4. Then save the configuration
 
 ### Notes
 
