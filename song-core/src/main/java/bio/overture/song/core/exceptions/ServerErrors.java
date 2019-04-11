@@ -21,13 +21,7 @@ import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
+import static org.springframework.http.HttpStatus.*;
 
 public enum ServerErrors implements ServerError {
 
@@ -71,6 +65,7 @@ public enum ServerErrors implements ServerError {
   SEQUENCING_READ_NOT_FOUND(NOT_FOUND),
   VARIANT_CALL_NOT_FOUND(NOT_FOUND),
   UNAUTHORIZED_TOKEN(UNAUTHORIZED),
+  EGO_IS_DOWN(GATEWAY_TIMEOUT),
   SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE),
   NOT_IMPLEMENTED_YET(NOT_IMPLEMENTED),
   SAMPLE_REPOSITORY_CREATE_RECORD(INTERNAL_SERVER_ERROR),
