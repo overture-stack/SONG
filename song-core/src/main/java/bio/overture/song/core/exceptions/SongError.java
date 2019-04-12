@@ -54,7 +54,7 @@ import static bio.overture.song.core.utils.Responses.contextMessage;
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({ "errorId", "httpStatusCode", "httpStatusName",
     "requestUrl", "datetime", "timestamp",  "message", "debugMessage", "stackTrace" })
-@Builder
+@Builder(toBuilder = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
