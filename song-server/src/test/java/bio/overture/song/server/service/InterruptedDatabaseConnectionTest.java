@@ -20,6 +20,8 @@ import bio.overture.song.core.utils.RandomGenerator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +43,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 
-//@Ignore("need to replace this with something that doesnt make system calls")
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"test"})
-public class InterruptedDatabaseConnection {
+public class InterruptedDatabaseConnectionTest {
 
   private static final String JDBC_URL_CONTAINER_CACHE_FIELD_NAME = "jdbcUrlContainerCache";
 
@@ -57,6 +58,9 @@ public class InterruptedDatabaseConnection {
 
   @Value("${spring.datasource.url}")
   private String dataSourceUrl;
+
+  @Value("${spring.datasource.driver-class-name}")
+  private String driverClassName;
 
   @Test
   @SneakyThrows

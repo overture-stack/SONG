@@ -121,6 +121,10 @@ spring.profiles: dev
 spring:
   profiles:
     include: [fastTest]
+  datasource:
+    initialization-mode: always
+    hikari:
+      connection-timeout: 500
 
 management:
   server:

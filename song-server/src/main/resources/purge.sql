@@ -1,0 +1,2 @@
+truncate study,info cascade;
+
