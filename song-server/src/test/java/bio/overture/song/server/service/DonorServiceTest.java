@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
+import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
@@ -55,7 +55,7 @@ import static bio.overture.song.server.utils.securestudy.impl.SecureDonorTester.
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class DonorServiceTest {
 
   @Autowired

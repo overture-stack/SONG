@@ -33,16 +33,26 @@ spring:
     properties:
       hibernate:
         dialect: com.marvinformatics.hibernate.json.PostgreSQLJsonDialect
-# disable driver's feature detection. This is required for the following bug in SpringBoot 2.0.0+
-# https://hibernate.atlassian.net/browse/HHH-12368
+        # disable driver's feature detection. This is required for the following bug in SpringBoot 2.0.0+
+        # https://hibernate.atlassian.net/browse/HHH-12368
         temp.use_jdbc_metadata_defaults: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/test_db?stringtype=unspecified
+    username: postgres
+    password:
+    max-active: 10
+    max-idle: 1
+    min-idle: 1
+    initialization-mode: always
+    hikari:
+      connection-timeout: 500
 
 # Uncomment this to see the generated SQL stetements
-# logging.level.org.hibernate.SQL: DEBUG
+#logging.level.org.hibernate.SQL: DEBUG
 
 # Uncomment this to see the binding parameters for generated SQL statements
-# logging.level.org.hibernate.type.descriptor.sql: TRACE
-
+#logging.level.org.hibernate.type.descriptor.sql: TRACE
 
 # Management
 management:
@@ -69,7 +79,6 @@ validation:
   queue:
     capacity: 100
 
-
 auth:
   # Connection retries in case of connection failure
   connection:
@@ -86,15 +95,28 @@ auth:
 
 ---
 spring.profiles: async-test
-validation.delayMs: 5000
+validation.delayMs: 1000
 
 ---
 spring.profiles: test
 spring:
   profiles:
     include: [dev]
+  autoconfigure.exclude: SecurityConfig.class
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgresql:9.6.12://blabla:5432/test_db?stringtype=unspecified
+    username:
+    password:
+    max-active: 10
+    max-idle: 1
+    min-idle: 1
+    hikari:
+      connection-timeout: 500
+      validation-timeout: 250
 
-
+id.persistInMemory: true
+dcc-storage.url: http://localhost:8087
 
 ---
 spring.profiles: dev
@@ -105,7 +127,6 @@ spring:
     initialization-mode: always
     hikari:
       connection-timeout: 500
-
 
 management:
   server:
@@ -118,19 +139,7 @@ auth:
     prefix: "song"
     suffix: "upload"
 
-# Datasource
-spring.datasource:
-  driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost:5432/test_db?stringtype=unspecified
-  username:
-  password:
-  max-active: 10
-  max-idle: 1
-  min-idle: 1
-
 ---
-
-
 # To disable initialization, just use the active profiles:    dev,dev-test in that order.
 spring.profiles: dev-ext
 spring:
@@ -140,7 +149,6 @@ spring:
     initialization-mode: never
 
 ---
-
 spring:
   profiles: secure
 
@@ -154,24 +162,22 @@ auth:
     prefix: "song"
     suffix: "upload"
 ---
-
 spring:
   profiles: fastTest
 
 auth:
   connection:
-          # Max number of retries
-          maxRetries: 5
+    # Max number of retries
+    maxRetries: 5
 
-          # Initial timeoutMs before the first retry. In milliseconds.
-          initialBackoff: 50
+    # Initial timeoutMs before the first retry. In milliseconds.
+    initialBackoff: 50
 
-          # Multiplier that defines value of consequent timeouts before the next retry.
-          # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
-          multiplier: 1.2
+    # Multiplier that defines value of consequent timeouts before the next retry.
+    # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
+    multiplier: 1.2
 
 ---
-
 spring:
   profiles: prod
   datasource:
@@ -186,14 +192,6 @@ spring.datasource:
   max-active: 10
   max-idle: 1
   min-idle: 1
-
----
-spring:
-  profiles: test
-  autoconfigure.exclude: SecurityConfig.class
-
-id.persistInMemory: true
-dcc-storage.url: http://localhost:8087
 
 ---
 spring:

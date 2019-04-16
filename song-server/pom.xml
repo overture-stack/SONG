@@ -18,7 +18,7 @@
     <parent>
         <artifactId>song</artifactId>
         <groupId>bio.overture</groupId>
-        <version>1.3.2-SNAPSHOT</version>
+        <version>1.4.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>bio.overture</groupId>
             <artifactId>song-core</artifactId>
-            <version>1.3.2-SNAPSHOT</version>
+            <version>1.4.2-SNAPSHOT</version>
         </dependency>
 
         <!-- Spring -->
@@ -194,6 +194,31 @@
         <dependency>
             <groupId>org.icgc.dcc</groupId>
             <artifactId>dcc-id-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+        <!-- needed to use javax.transaction.Transactional annotation-->
+        <!-- https://stackoverflow.com/questions/27808734/jdk8-error-class-file-for-javax-interceptor-interceptorbinding-not-found-whe -->
+        <dependency>
+            <groupId>javax.interceptor</groupId>
+            <artifactId>javax.interceptor-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
 
     </dependencies>

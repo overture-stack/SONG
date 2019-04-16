@@ -1,7 +1,7 @@
 FROM song_base-db:latest
 MAINTAINER OVERTURE <contact@overture.bio>
 
-ENV SERVER_RELEASE_VERSION 1.3.1
+ENV SERVER_RELEASE_VERSION 1.4.1
 ENV PGDATA /var/lib/postgresql/data/pgdata
 ENV POSTGRES_INIT_SQL /docker-entrypoint-initdb.d/init.sql
 

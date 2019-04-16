@@ -44,7 +44,7 @@ import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class ValidationServiceTest {
 
   private static final String SEQ_READ="SequencingRead";
@@ -57,6 +57,13 @@ public class ValidationServiceTest {
   @Test
   public void testValidateValidSequencingRead() {
     val payload=getJsonFile("sequencingRead.json").toString();
+    val results=service.validate(payload,SEQ_READ);
+    assertThat(results).isEmpty();
+  }
+
+  @Test
+  public void testValidateValidSequencingReadWithArchive() {
+    val payload=getJsonFile("sequencingReadWithArchive.json").toString();
     val results=service.validate(payload,SEQ_READ);
     assertThat(results).isEmpty();
   }

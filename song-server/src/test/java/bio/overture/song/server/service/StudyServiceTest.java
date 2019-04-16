@@ -39,7 +39,7 @@ import static bio.overture.song.server.utils.TestFiles.getInfoName;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class StudyServiceTest {
 
   @Autowired

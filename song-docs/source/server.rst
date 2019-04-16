@@ -38,10 +38,10 @@ Installation
 Once the desired release tag and therefore ``$VERSION`` are known, the corresponding distibution can be downloaded using the command:
 
 .. code-block:: bash
-    
-   curl "https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/$VERSION/song-server-$VERSION-dist.tar.gz" -Ls -o song-server-$VERSION-dist.tar.gz
 
-This distibution contains the default configuration and jars for running the server. To unarchive, run the command:
+   curl "https://artifacts.oicr.on.ca/artifactory/dcc-release/bio/overture/song-server/$VERSION/song-server-$VERSION-dist.tar.gz" -Ls -o song-server-$VERSION-dist.tar.gz
+
+This distribution contains the default configuration and jars for running the server. To unarchive, run the command:
 
 .. code-block:: bash
 
@@ -53,11 +53,11 @@ Configuration
 
 Server
 ---------------
-By default, the SONG server distibution is configured to run in secure production mode. The server can easily be configured by creating the file ``./conf/application-secure.properties`` with the following contents:
+By default, the SONG server distribution is configured to run in secure production mode. The server can easily be configured by creating the file ``./conf/application-secure.properties`` with the following contents:
 
 .. code-block:: bash
 
-    
+
     ################################
     #     SONG Server Config       #
     ################################
@@ -89,7 +89,7 @@ By default, the SONG server distibution is configured to run in secure productio
     # ID server auth token, which has id.create scope
     id.authToken=<id-server-auth-token>
 
-    # Enabled to use an ID server. If false, will use 
+    # Enabled to use an ID server. If false, will use
     # and in-memory id server (use only for testing)
     id.realIds=true
 
@@ -106,8 +106,8 @@ By default, the SONG server distibution is configured to run in secure productio
     ################################
 
     # URL used to ensure files exist in the storage server
-    # Note: The same SONG auth token will be used for requests sent 
-    #       to the SCORE server. This means the same scope must be 
+    # Note: The same SONG auth token will be used for requests sent
+    #       to the SCORE server. This means the same scope must be
     #       authorized to access the SCORE storage service.
     dcc-storage.url=https://storage.cancercollaboratory.org
 
@@ -134,14 +134,14 @@ If the user chooses to host their own song server database, it can easily be set
 
 .. code-block:: bash
 
-    wget ‘https://artifacts.oicr.on.ca/artifactory/dcc-release/org/icgc/dcc/song-server/$VERSION/song-server-$VERSION.jar’ -O /tmp/song-server.jar
+    wget ‘https://artifacts.oicr.on.ca/artifactory/dcc-release/bio/overture/song-server/$VERSION/song-server-$VERSION.jar’ -O /tmp/song-server.jar
 
 
 4. Extract the schema.sql from the song-server jar archive.
 
 .. code-block:: bash
 
-    unzip -p /tmp/song-server.jar  schema.sql > /tmp/schema.sql 
+    unzip -p /tmp/song-server.jar  schema.sql > /tmp/schema.sql
 
 5. Load the schema.sql into the ``song`` db.
 
@@ -153,10 +153,10 @@ If the user chooses to host their own song server database, it can easily be set
 Running as a Service
 ===============================
 
-Although the SONG server distribution could be run as a **standalone** application, it must be manually started or stopped by the user. 
-For a long-running server, sudden power loss or a hard reboot would mean the standalone application would need to be restarted manually. 
+Although the SONG server distribution could be run as a **standalone** application, it must be manually started or stopped by the user.
+For a long-running server, sudden power loss or a hard reboot would mean the standalone application would need to be restarted manually.
 However, if the SONG server distribution is run as a **service**, the OS would be responsible for automatically restarting the service upon reboot.
-For this reason, the distibution should be configured as a service that is always started on boot. 
+For this reason, the distribution should be configured as a service that is always started on boot.
 
 Linux (SysV)
 -------------
@@ -171,14 +171,14 @@ as a SysV service on any Linux host supporting SysV and the :ref:`Prerequisites<
 
   # Start on boot (defaults)
   sudo update-rc.d song-server defaults
-    
+
 It can also be manually managed using serveral commands:
 
 .. code-block:: bash
 
     # Start the service
     sudo service song-server start
-    
+
     # Stop the service
     sudo service song-server stop
 
@@ -208,5 +208,3 @@ It can also be manually managed using serveral commands:
     Running NGINX as a Service
     ---------------------------
     sdfsd
-
-

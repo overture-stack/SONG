@@ -179,7 +179,8 @@
               "VCF",
               "TBI",
               "IDX",
-              "XML"
+              "XML",
+              "TGZ"
             ]
           },
           "fileMd5sum": {

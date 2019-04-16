@@ -27,12 +27,7 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.enums.AnalysisTypes;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
-import bio.overture.song.server.repository.SequencingReadRepository;
-import bio.overture.song.server.repository.VariantCallRepository;
+import bio.overture.song.server.repository.*;
 import bio.overture.song.server.utils.generator.AnalysisGenerator;
 import bio.overture.song.server.utils.generator.PayloadGenerator;
 import bio.overture.song.server.utils.generator.StudyGenerator;
@@ -59,19 +54,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
-import static bio.overture.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.exceptions.ServerErrors.*;
+import static bio.overture.song.core.model.enums.AnalysisStates.*;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
@@ -79,9 +63,7 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
-import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
-import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.TestFiles.*;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
@@ -89,13 +71,9 @@ import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTest
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 import static java.util.stream.IntStream.range;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -103,7 +81,7 @@ import static org.mockito.Mockito.mock;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("dev")
+@ActiveProfiles("test")
 public class AnalysisServiceTest {
 
   private static final String ANALYSIS_INFO_SERVICE = "analysisInfoService";
@@ -300,8 +278,10 @@ public class AnalysisServiceTest {
 
     //Asserting Sample
     assertThat(a.getSample()).hasSize(2);
-    val sample0 = a.getSample().get(0);
-    assertThat(sample0.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fs01");
+    val sample0 = a.getSample().stream()
+            .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fs01"))
+            .findAny()
+            .orElse(null);
     assertThat(sample0.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample0, "extraSampleInfo","some more data for a variantCall sample_fs01");
 
@@ -319,7 +299,10 @@ public class AnalysisServiceTest {
     assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a variantCall specimen_fs01");
     assertInfoKVPair(specimen00, "extraSpecimenInfo_1", "second data for a variantCall specimen_fs01");
 
-    val sample1 = a.getSample().get(1);
+    val sample1 = a.getSample().stream()
+            .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fs02"))
+            .findAny()
+            .orElse(null);
     assertThat(sample1.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fs02");
     assertThat(sample1.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample1, "extraSampleInfo","some more data for a variantCall sample_fs02");
@@ -412,12 +395,12 @@ public class AnalysisServiceTest {
 
     val sampleMap = Maps.<String, CompositeEntity>newHashMap();
 
-
     //Asserting Sample
     assertThat(a.getSample()).hasSize(2);
-    val sample0 = a.getSample().get(0);
+    val sample0 = a.getSample().stream()
+            .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fr01"))
+            .findFirst().get();
     sampleMap.put(sample0.getSampleId(), sample0);
-    assertThat(sample0.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr01");
     assertThat(sample0.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample0, "extraSampleInfo","some more data for a sequencingRead sample_fr01");
 
@@ -435,9 +418,10 @@ public class AnalysisServiceTest {
     assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a sequencingRead specimen_fr01");
     assertInfoKVPair(specimen00, "extraSpecimenInfo_1", "second data for a sequencingRead specimen_fr01");
 
-    val sample1 = a.getSample().get(1);
+    val sample1 = a.getSample().stream()
+            .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fr02"))
+            .findFirst().get();
     sampleMap.put(sample1.getSampleId(), sample1);
-    assertThat(sample1.getSampleSubmitterId()).isEqualTo("internal_sample_98024759826836_fr02");
     assertThat(sample1.getSampleType()).isEqualTo("Total RNA");
     assertInfoKVPair(sample1, "extraSampleInfo","some more data for a sequencingRead sample_fr02");
 
@@ -675,7 +659,7 @@ public class AnalysisServiceTest {
     assertThat(expectedMap).containsKey(PUBLISHED.toString());
     assertThat(actualMap).containsKey(PUBLISHED.toString());
     assertThat(actualMap.get(PUBLISHED.toString())).hasSameSizeAs(expectedMap.get(PUBLISHED.toString()));
-    assertThat(actualMap.get(PUBLISHED.toString())).containsExactlyElementsOf(expectedMap.get(PUBLISHED.toString()));
+    assertThat(actualMap.get(PUBLISHED.toString())).hasSameElementsAs(expectedMap.get(PUBLISHED.toString()));
   }
 
   @Test
