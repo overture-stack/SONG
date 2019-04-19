@@ -23,6 +23,8 @@ server:
   port: 8080
 
 score:
+  # Require both upload and download scopes
+  accessToken: "download-token"
   url: "https://storage.cancercollaboratory.org"
 
 # Hibernate
