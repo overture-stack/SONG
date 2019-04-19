@@ -17,7 +17,7 @@ ENV EXPAND_SCRIPT $DCC_HOME/tools/expand.py
 ENV INPUT_FILE  $DCC_CONFIG/application-secure.properties.template
 ENV OUTPUT_FILE $SONG_HOME/conf/application-secure.properties
 
-RUN apt install -y postgresql && \
+RUN cd $DCC_HOME && apt install -y postgresql && \
         wget $DOWNLOAD_URL -O $TARBALL && \
 	    tar zxvf $TARBALL &&  \
 	    mv -f $DCC_HOME/song-server-*  $DCC_HOME/song-server && \

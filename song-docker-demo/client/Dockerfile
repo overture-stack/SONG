@@ -12,7 +12,8 @@ ENV EXPAND_SCRIPT $DCC_HOME/tools/expand.py
 ENV INPUT_FILE  $DCC_CONFIG/application.yml.template
 ENV OUTPUT_FILE  $CLIENT_HOME/conf/application.yml
 
-RUN wget $DOWNLOAD_URL -O  $TARBALL && \
+RUN cd $DCC_HOME && \
+	wget $DOWNLOAD_URL -O  $TARBALL && \
     tar zxvf $TARBALL && \
     mv -f $DCC_HOME/song-client-* $DCC_HOME/song-client
 
