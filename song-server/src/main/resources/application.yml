@@ -137,7 +137,7 @@ id.persistInMemory: true
 auth:
   server:
     prefix: "song"
-    suffix: "upload"
+    suffix: "WRITE"
 
 ---
 # To disable initialization, just use the active profiles:    dev,dev-test in that order.
@@ -154,13 +154,13 @@ spring:
 
 auth:
   server:
-    url: "http://localhost:8000/check_token/"
+    url: "http://localhost:8000/o/check_token/"
     clientId: "clientId"
     clientSecret: "clientSecret"
     enableStrictSSL: false
     enableHttpLogging: false
     prefix: "song"
-    suffix: "upload"
+    suffix: "WRITE"
 ---
 spring:
   profiles: fastTest

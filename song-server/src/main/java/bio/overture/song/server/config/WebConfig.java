@@ -20,12 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Configuration
-public class WebConfig extends WebMvcConfigurerAdapter {
+public class WebConfig implements WebMvcConfigurer {
 
   @Autowired
   private SwaggerConfig swaggerConfig;
@@ -38,5 +38,4 @@ public class WebConfig extends WebMvcConfigurerAdapter {
   @Override public void addViewControllers(ViewControllerRegistry registry) {
     registry.addRedirectViewController(swaggerConfig.getAlternateSwaggerUrl(), "/swagger-ui.html");
   }
-
 }
