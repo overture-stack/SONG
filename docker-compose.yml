@@ -1,8 +1,6 @@
 version: '3.2'
 services:
   server:
-    container_name: "song-server-${SOURCE_COMMIT}"
-    image: "${DOCKER_REPO}:${SOURCE_COMMIT}"
     build:
       context: ./
       dockerfile: Dockerfile
@@ -22,3 +20,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_LOCATIONS: "classpath:db/migration"
+
