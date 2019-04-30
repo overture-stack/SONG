@@ -1,8 +1,6 @@
 version: '3.2'
 services:
   server:
-    container_name: "song-server-${SOURCE_COMMIT}"
-    image: "${DOCKER_REPO}:${SOURCE_COMMIT}"
     build:
       context: ./
       dockerfile: Dockerfile
