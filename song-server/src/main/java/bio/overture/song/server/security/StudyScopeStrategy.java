@@ -70,7 +70,7 @@ public class StudyScopeStrategy {
     return DOT.join(scopePrefix,scopeSuffix);
   }
 
-  private boolean verify(@NonNull Set<String> grantedScopes, @NonNull final String studyId) {
+  public boolean verify(@NonNull Set<String> grantedScopes, @NonNull final String studyId) {
     val check = grantedScopes.stream().filter(s -> isGranted(s,studyId)).collect(toList());
     return !check.isEmpty();
   }

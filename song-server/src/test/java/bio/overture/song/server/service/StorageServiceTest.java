@@ -74,8 +74,13 @@ public class StorageServiceTest {
   @Before
   public void beforeTest(){
     val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
-    this.storageService = StorageService
-        .createStorageService(new RestTemplate(), retryTemplate, testStorageUrl, validationService);
+    this.storageService = StorageService.builder()
+            .restTemplate(new RestTemplate())
+            .retryTemplate(retryTemplate)
+            .storageUrl(testStorageUrl)
+            .validationService(validationService)
+            .scoreAuthorizationHeader(DEFAULT_ACCESS_TOKEN)
+            .build();
   }
 
   @Test
@@ -93,7 +98,7 @@ public class StorageServiceTest {
         .expectedStorageResponse(storageResponse)
         .build();
     setupStorageMockService(expectedStorageObject.getObjectId(), nonExistingConfig);
-    val result = storageService.isObjectExist(DEFAULT_ACCESS_TOKEN, expectedStorageObject.getObjectId());
+    val result = storageService.isObjectExist(expectedStorageObject.getObjectId());
     assertThat(result).isFalse();
 
     // Test existing
@@ -102,7 +107,7 @@ public class StorageServiceTest {
         .expectedStorageResponse(storageResponse)
         .build();
     setupStorageMockService(expectedStorageObject.getObjectId(), existingConfig);
-    val result2 = storageService.isObjectExist(DEFAULT_ACCESS_TOKEN, expectedStorageObject.getObjectId());
+    val result2 = storageService.isObjectExist(expectedStorageObject.getObjectId());
     assertThat(result2).isTrue();
   }
 
@@ -160,7 +165,7 @@ public class StorageServiceTest {
         .build();
     setupStorageMockService(expectedResponse.getObjectId(),existingConfig);
     assertSongError(
-        () -> storageService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId()),
+        () -> storageService.downloadObject(expectedResponse.getObjectId()),
         INVALID_STORAGE_DOWNLOAD_RESPONSE);
   }
 
@@ -177,11 +182,11 @@ public class StorageServiceTest {
         .build();
     setupStorageMockService(expectedResponse.getObjectId(),existingConfig);
     if (exists){
-      val result = storageService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId());
+      val result = storageService.downloadObject(expectedResponse.getObjectId());
       assertThat(result).isEqualTo(expectedResponse);
     } else {
       assertSongError(
-          () -> storageService.downloadObject(DEFAULT_ACCESS_TOKEN, expectedResponse.getObjectId()),
+          () -> storageService.downloadObject(expectedResponse.getObjectId()),
           STORAGE_OBJECT_NOT_FOUND);
     }
   }

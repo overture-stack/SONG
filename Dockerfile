@@ -1,12 +1,9 @@
-FROM openjdk:8-jdk-alpine as builder 
-
-RUN apk update && apk upgrade && \
-    apk add --no-cache maven
+FROM openjdk:8-jdk-alpine as builder
 
 # Build song-server jar
-WORKDIR /srv
 COPY . /srv
-RUN mvn package -DskipTests
+WORKDIR /srv
+RUN ./mvnw clean package -DskipTests
 
 ###############################################################################################################
 
@@ -26,5 +23,3 @@ CMD mkdir -p  $SONG_HOME $SONG_LOGS \
         -jar $JAR_FILE \
         --spring.config.location=classpath:/application.yml \
         --spring.profiles.active=prod,secure,default
-
-#&& FOR_100_YEARS=$((100*365*24*60*60));while true;do sleep $FOR_100_YEARS;done

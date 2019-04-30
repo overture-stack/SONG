@@ -102,12 +102,11 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> publishAnalysis(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
       @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
       @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false) boolean ignoreUndefinedMd5) {
-    return analysisService.publish(accessToken, studyId, id, ignoreUndefinedMd5);
+    return analysisService.publish(studyId, id, ignoreUndefinedMd5);
   }
 
   @ApiOperation(value = "UnpublishAnalysis",
@@ -116,7 +115,6 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> unpublishAnalysis(
-          @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
           @PathVariable("studyId") String studyId,
           @PathVariable("id") String id) {
     return analysisService.unpublish(studyId, id);
@@ -128,7 +126,6 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> suppressAnalysis(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     return analysisService.suppress(studyId, id);

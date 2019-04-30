@@ -40,9 +40,18 @@ public class StorageConfig {
   @Value("${score.url}")
   private String storageUrl;
 
+  @Value("#{'Bearer '.concat('${score.accessToken}')}")
+  private String scoreAuthorizationHeader;
+
   @Bean
   public StorageService storageService(){
-    return StorageService.createStorageService(new RestTemplate(),retryTemplate,storageUrl, validationService);
+    return StorageService.builder()
+            .restTemplate(new RestTemplate())
+            .retryTemplate(retryTemplate)
+            .storageUrl(storageUrl)
+            .validationService(validationService)
+            .scoreAuthorizationHeader(scoreAuthorizationHeader)
+            .build();
   }
 
 }

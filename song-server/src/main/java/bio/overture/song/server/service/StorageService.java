@@ -19,11 +19,8 @@ package bio.overture.song.server.service;
 
 import bio.overture.song.server.model.StorageObject;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -32,18 +29,19 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URL;
 
-import static java.lang.Boolean.parseBoolean;
-import static org.icgc.dcc.common.core.util.Joiners.SLASH;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
 import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static java.lang.Boolean.parseBoolean;
+import static org.icgc.dcc.common.core.util.Joiners.SLASH;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.GET;
 
 @Slf4j
 @RequiredArgsConstructor
+@Builder
 public class StorageService {
 
   private static final String UPLOAD = "upload";
@@ -58,22 +56,23 @@ public class StorageService {
   @NonNull private final RetryTemplate retryTemplate;
   @NonNull private final String storageUrl;
   @NonNull private final ValidationService validationService;
+  @NonNull private final String scoreAuthorizationHeader;
 
   @SneakyThrows
-  public boolean isObjectExist(@NonNull String accessToken, @NonNull String objectId) {
-    return doGetBoolean(accessToken, getObjectExistsUrl(objectId));
+  public boolean isObjectExist(@NonNull String objectId) {
+    return doGetBoolean(scoreAuthorizationHeader, getObjectExistsUrl(objectId));
   }
 
   @SneakyThrows
-  public StorageObject downloadObject(@NonNull String accessToken, @NonNull String objectId){
-    val objectExists = isObjectExist(accessToken, objectId);
+  public StorageObject downloadObject(@NonNull String objectId){
+    val objectExists = isObjectExist(objectId);
     checkServer(objectExists,getClass(), STORAGE_OBJECT_NOT_FOUND,
         "The object with objectId '%s' does not exist in the storage server", objectId);
-    return convertStorageDownloadResponse(objectId, getStorageDownloadResponse(accessToken, objectId));
+    return convertStorageDownloadResponse(objectId, getStorageDownloadResponse(objectId));
   }
 
-  private JsonNode getStorageDownloadResponse(String accessToken, String objectId){
-    val objectSpecification = doGetJson(accessToken, getDownloadObjectUrl(objectId));
+  private JsonNode getStorageDownloadResponse(String objectId){
+    val objectSpecification = doGetJson(scoreAuthorizationHeader, getDownloadObjectUrl(objectId));
     val validationError = validationService.validateStorageDownloadResponse(objectSpecification);
     if (validationError.isPresent()){
       throw buildServerException(getClass(),
@@ -127,11 +126,6 @@ public class StorageService {
 
   private String getDownloadObjectUrl(String objectId){
     return joinUrl(storageUrl, DOWNLOAD, objectId)+"?offset=0&length=-1&exclude-urls=true";
-  }
-
-  public static StorageService createStorageService(RestTemplate restTemplate,
-      RetryTemplate retryTemplate, String baseUrl, ValidationService validationService){
-    return new StorageService(restTemplate, retryTemplate,baseUrl, validationService);
   }
 
   private static String joinUrl(String ... path){
