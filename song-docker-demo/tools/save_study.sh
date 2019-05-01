@@ -9,9 +9,10 @@ AUTH_TOKEN=$3
 max_repeats=100
 seconds_until_retry=5
 
+_curl=curl -sS
 
 is_alive(){
-	curl ${SERVER_URL}/isAlive
+	$_curl ${SERVER_URL}/isAlive
 }
 
 n=0
@@ -26,7 +27,7 @@ done
 value=$(curl ${SERVER_URL}/studies/${STUDY_ID} | jq .errorId | xargs echo)
 echo "VALUE: ${value}"
 if [ "${value}" == "study.id.does.not.exist" ];then
-	curl -XPOST --header 'Accept: application/json' --header 'Content-Type: application/json' --header "Authorization: Bearer ${AUTH_TOKEN}" -d "{\"studyId\":\"${STUDY_ID}\"}"  ${SERVER_URL}/studies/${STUDY_ID}/
+	$_curl -XPOST --header 'Accept: application/json' --header 'Content-Type: application/json' --header "Authorization: Bearer ${AUTH_TOKEN}" -d "{\"studyId\":\"${STUDY_ID}\"}"  ${SERVER_URL}/studies/${STUDY_ID}/
 else 
 	echo "The study \"${STUDY_ID}\" already exists. doing nothing"
 fi
