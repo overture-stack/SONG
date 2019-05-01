@@ -92,6 +92,7 @@ services:
       context: ./
       dockerfile: Dockerfile
       target: client
+    network_mode: host
     environment:
       AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
       SERVER_URL: http://localhost:8080

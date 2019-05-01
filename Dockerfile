@@ -15,7 +15,8 @@ ENV DCC_CONFIG $DCC_HOME/config
 ENV CLIENT_HOME $DCC_DATA
 ENV TARBALL $DCC_HOME/download.tar.gz
 
-COPY song-docker-demo/client/config/* $DCC_CONFIG
+RUN apt install -y jq
+COPY song-docker-demo/client/config/* $DCC_CONFIG/
 
 ENV SAVE_STUDY_SCRIPT $DCC_TOOLS/save_study.sh
 ENV EXPAND_SCRIPT $DCC_TOOLS/expand.py

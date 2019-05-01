@@ -25,7 +25,7 @@ done
 
 value=$(curl ${SERVER_URL}/studies/${STUDY_ID} | jq .errorId | xargs echo)
 echo "VALUE: ${value}"
-if [ ${value} == "study.id.does.not.exist" ];then
+if [ "${value}" == "study.id.does.not.exist" ];then
 	curl -XPOST --header 'Accept: application/json' --header 'Content-Type: application/json' --header "Authorization: Bearer ${AUTH_TOKEN}" -d "{\"studyId\":\"${STUDY_ID}\"}"  ${SERVER_URL}/studies/${STUDY_ID}/
 else 
 	echo "The study \"${STUDY_ID}\" already exists. doing nothing"
