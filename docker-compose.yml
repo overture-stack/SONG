@@ -7,10 +7,9 @@ services:
     command: echo "do nothing"
   db:
     image: "postgres:9.6"
-    ports:
-      - "8082:5432"
+    network_mode: host
     environment:
-      PGPORT: 5432
+      PGPORT: 8082
       POSTGRES_DB: song
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
