@@ -8,6 +8,7 @@ ENV TARBALL $DCC_HOME/download.tar.gz
 
 ADD config $DCC_CONFIG
 
+ENV SAVE_STUDY_SCRIPT $DCC_HOME/tools/save_study.sh
 ENV EXPAND_SCRIPT $DCC_HOME/tools/expand.py
 ENV INPUT_FILE  $DCC_CONFIG/application.yml.template
 ENV OUTPUT_FILE  $CLIENT_HOME/conf/application.yml
@@ -19,5 +20,7 @@ RUN cd $DCC_HOME && \
 
 CMD rm -rf $CLIENT_HOME/* && \
         cp -rf $DCC_HOME/song-client/* $CLIENT_HOME && \
-        python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE
+        python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
+		$SAVE_STUDY_SCRIPT $SERVER_URL $CLIENT_STUDY_ID $AUTH_TOKEN 
+
 

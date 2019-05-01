@@ -3,5 +3,7 @@ Dockerfile
 docker-compose.yml
 README.md
 Makefile
+song-docker-demo
+!song-docker-demo/client
 .*
 !.mvn
