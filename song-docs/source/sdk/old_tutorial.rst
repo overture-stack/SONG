@@ -262,7 +262,7 @@ Using the previous ``uploadId``, the status of the upload can be requested and w
         "studyId": "ABC123",
         "state": "VALIDATED",
         "createdAt": [
-            2018,
+            2019,
             2,
             16,
             0,
@@ -271,7 +271,7 @@ Using the previous ``uploadId``, the status of the upload can be requested and w
             73774000
         ],
         "updatedAt": [
-            2018,
+            2019,
             2,
             16,
             0,
