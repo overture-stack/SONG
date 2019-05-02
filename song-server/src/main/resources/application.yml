@@ -29,6 +29,9 @@ score:
 
 # Hibernate
 spring:
+  flyway:
+    enabled: true
+    locations: "classpath:db/migration"
   jpa:
     properties:
       hibernate:
