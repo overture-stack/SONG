@@ -3,5 +3,9 @@ Dockerfile
 docker-compose.yml
 README.md
 Makefile
+song-docker-demo
+song-docs
+song-python-sdk
+!song-docker-demo/client
 .*
 !.mvn

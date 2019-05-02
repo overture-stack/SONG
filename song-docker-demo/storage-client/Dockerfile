@@ -1,4 +1,4 @@
-FROM overture/score:1.6.1
+FROM overture/score:1.6.2
 MAINTAINER OVERTURE <contact@overture.bio>
 
 ENV DCC_HOME /opt/dcc

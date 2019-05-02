@@ -1,10 +1,10 @@
 .. _score_client_ref:
 
 ======================
-SCORE Client
+SCORe Client
 ======================
 
-The SCORE client (formally the :term:`icgc-storage-client`) is used to upload and download object data to and from the SCORE Server. 
+The SCORe client (formally the :term:`icgc-storage-client`) is used to upload and download object data to and from the SCORe Server. 
 
 .. todo::
     replace the seealso with the official score readthe docs
@@ -15,7 +15,7 @@ The SCORE client (formally the :term:`icgc-storage-client`) is used to upload an
 Installation
 =================
 
-For installation, please see `Installing icgc-storage-client from Tarball <http://docs.icgc.org/download/guide/#install-from-tarball>`_ instructions.
+For installation, please see `Installing SCORe client from Tarball <http://docs.icgc.org/download/guide/#install-from-tarball>`_ instructions.
 
 Configuration
 ===============
@@ -41,4 +41,4 @@ Usage
 .. todo::
     replace this link when score read the docs is up
 
-For more information about the usage of the client, refer to `ICGC Storage Client Usage <https://docs.icgc.org/download/guide/#score-client-usage>`_ documentation.
+For more information about the usage of the client, refer to `SCORe Client Usage <https://docs.icgc.org/download/guide/#score-client-usage>`_ documentation.

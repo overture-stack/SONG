@@ -16,11 +16,13 @@ ENV INPUT_FILE  $DCC_CONFIG/application-production.properties.template
 ENV OUTPUT_FILE $ID_HOME/conf/application-production.properties
 
         #cp -f $DCC_CONFIG/logback.xml $ID_HOME/conf/logback.xml && \
-RUN  apt install -y postgresql && \
+RUN  cd $DCC_HOME && \
+		apt install -y postgresql && \
         wget $DOWNLOAD_URL -O $TARBALL && \
         tar zxvf $TARBALL && \
+        rm -rf $TARBALL && \
         mv $DCC_HOME/dcc-id-server-* $ID_HOME && \
-        rm -rf $TARBALL $ID_HOME/logs && \
+        rm -rf $ID_HOME/logs && \
         ln -s $DCC_HOME/id_logs $ID_HOME/logs
  
 CMD $WAIT_FOR_POSTGRES_SCRIPT ${POSTGRES_HOST} ${POSTGRES_PORT} ${POSTGRES_USER}  ${POSTGRES_PASSWORD} && \

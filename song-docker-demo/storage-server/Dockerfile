@@ -4,7 +4,7 @@ MAINTAINER OVERTURE <contact@overture.bio>
 #
 # Configuration
 #
-ENV SCORE_SERVER_VERSION 1.6.1
+ENV SCORE_SERVER_VERSION 1.6.2
 ENV SCORE_HOME $DCC_HOME/score-server
 ENV SCORE_LOGS $SCORE_HOME/logs
 
@@ -22,7 +22,8 @@ ENV EXPAND_SCRIPT $DCC_HOME/tools/expand.py
 ENV INPUT_FILE $DCC_CONFIG/application.properties.template
 ENV OUTPUT_FILE $SCORE_HOME/conf/application-secure.properties
 
-RUN wget $DOWNLOAD_URL -O $TARBALL && \
+RUN  cd $DCC_HOME && \
+		wget $DOWNLOAD_URL -O $TARBALL && \
 	    tar zxvf $TARBALL && \
 	    mv -f $DCC_HOME/score-server-*  $SCORE_HOME && \
 	    rm -rf $TARBALL $SCORE_HOME/conf/application.* && \

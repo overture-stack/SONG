@@ -1,17 +1,72 @@
-version: '3.2'
+version: '3.4'
 services:
+  base-ubuntu:
+    build: ./song-docker-demo/base-ubuntu
+  base-db:
+    build: ./song-docker-demo/base-db
+    command: echo "do nothing"
+  db:
+    image: "postgres:9.6"
+    network_mode: host
+    environment:
+      PGPORT: 8082
+      POSTGRES_DB: song
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+  id-db:
+    build: ./song-docker-demo/id-db
+    network_mode: host
+    environment:
+      PGPORT: 8088
+      POSTGRES_DB: dcc_identifier
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    depends_on:
+      - base-db
+    volumes:
+      - "id-db-data:/var/lib/postgresql/data/pgdata"
+  auth:
+    build: ./song-docker-demo/auth
+    network_mode: host
+    environment:
+      AUTH_PORT: 8084
+    volumes:
+      - "auth-data:/opt/dcc/auth_data"
+  id:
+    build: ./song-docker-demo/id
+    network_mode: host
+    environment:
+      ID_PORT: 8086
+      ID_JMX_PORT: 10017
+      ID_MANAGEMENT_PORT: 8089
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 8088
+      POSTGRES_DB: dcc_identifier
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      AUTH_SERVER_URL: http://localhost:8084/check_token/
+      AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
+      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
+    depends_on:
+      - base-ubuntu
+      - id-db
+      - auth
+    volumes:
+      - "./song-docker-demo/logs/id_logs:/opt/dcc/id_logs"
+      - "./song-docker-demo/tools:/opt/dcc/tools"
   server:
     build:
       context: ./
       dockerfile: Dockerfile
+      target: server
     network_mode: host
     environment:
       SERVER_PORT: 8080
       AUTH_SERVER_URL: http://localhost:8084/check_token/
       AUTH_SERVER_CLIENTID: 3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
       AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
-      AUTH_SERVER_UPLOADSCOPE: collab.upload
-      AUTH_SERVER_DOWNLOADSCOPE: collab.download
+      AUTH_SERVER_PREFIX: collab
+      AUTH_SERVER_SUFFIX: upload
       SCORE_URL: http://localhost:8087
       SCORE_ACCESSTOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
       MANAGEMENT_SERVER_PORT: 8081
@@ -21,4 +76,88 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_LOCATIONS: "classpath:db/migration"
+    restart: always
+    depends_on:
+      - db 
+      - id
+      - auth
+    volumes:
+      - "./song-docker-demo/logs/server_logs:/opt/dcc/server_logs"
+      - "./song-docker-demo/tools:/opt/dcc/tools"
+  client:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: client
+    network_mode: host
+    environment:
+      AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+      SERVER_URL: http://localhost:8080
+      CLIENT_STUDY_ID: ABC123
+      CLIENT_DEBUG_ENABLED: "false"
+    depends_on:
+      - base-ubuntu
+      - server
+    volumes:
+      - "./song-docker-demo/data/client:/opt/dcc/data"
+      - "./song-docker-demo/tools:/opt/dcc/tools"
+  object-storage:
+    image: minio/minio:RELEASE.2018-05-11T00-29-24Z
+    network_mode: host
+    volumes:
+      - "./song-docker-demo/data/minio:/opt/dcc/data"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_PORT: 8085
+    deploy:
+        restart_policy:
+            delay: 10s
+            max_attempts: 10
+            window: 60s
+    command: server --address=0.0.0.0:8085 /opt/dcc/data
+  storage-server:
+    build: ./song-docker-demo/storage-server
+    network_mode: host
+    environment:
+      OBJECT_STORAGE_URL: http://localhost:8085
+      OBJECT_STORAGE_ACCESS_KEY: minio
+      OBJECT_STORAGE_SECRET_KEY: minio123
+      AUTH_SERVER_URL: http://localhost:8084/check_token/
+      AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
+      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
+      SERVER_URL: http://localhost:8080
+      STORAGE_SERVER_PORT: 8087
+      STORAGE_SERVER_JMX_PORT: 10018
+      STORAGE_SERVER_DATA_BUCKET: oicr.icgc.test
+      STORAGE_SERVER_STATE_BUCKET: oicr.icgc.test
+      STORAGE_SERVER_DATA_DIR: data
+      STORAGE_SERVER_OBJECT_SENTINEL: heliograph
+    depends_on:
+      - base-ubuntu
+      - object-storage
+      - server
+      - auth
+    volumes:
+      - "./song-docker-demo/logs/storage_server_logs:/opt/dcc/storage_server_logs"
+      - "./song-docker-demo/tools:/opt/dcc/tools"
+      - "./song-docker-demo/data:/opt/dcc/data"
+  storage-client:
+    build: ./song-docker-demo/storage-client
+    environment:
+      AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+      SERVER_URL: http://localhost:8080
+      STORAGE_SERVER_URL: http://localhost:8087
+    depends_on:
+      - storage-server
+      - server
+    volumes:
+      - "./song-docker-demo/data/storage-client:/opt/dcc/data"
+      - "./song-docker-demo/tools:/opt/dcc/tools"
 
+volumes:
+    db-data: {}
+    id-db-data: {}
+    auth-data: {}

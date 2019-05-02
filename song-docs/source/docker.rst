@@ -4,7 +4,7 @@
 Docker for SONG
 =============================
 ..
-    .. image:: ../../song-docker/song-logo.gif
+    .. image:: ../../song-docker-demo/song-logo.gif
        :align:  center
        :scale: 60%
 
@@ -65,7 +65,7 @@ Microservice Architecture
     In the image, replace "DCC-Storage Server" with "SCORE Server"
 
 .. note::
-    the ``DCC-Storage Server``is now ``SCORE``
+    the ``DCC-Storage Server`` is now the ``SCORE Server``
     
 .. image:: song-docker-service-architecture.svg
 
@@ -92,7 +92,7 @@ In order to run the Docker for SONG, the latest release must be downloaded. Befo
 Find the Latest Official Release Tag
 -------------------------------------
 
-To find the latest official release tag, refer to :ref:`server_official_releases`. Instead of using the ``song-`` prefex for the regex, replace it with ``^song-docker-\\d+\\.\\d+\\.\\d+$``. For example ``song-docker-1.0.0``.
+To find the latest official release tag, refer to :ref:`server_official_releases`.
 
 
 Download
@@ -125,37 +125,37 @@ Download using GIT
 
 Build and Run
 ===============
-From the ``song-docker`` directory, run:
+From the root ``song`` directory, run:
 
 .. code-block:: bash
 
     docker-compose build
-    docker-compose up
+    docker-compose up -d
 
 .. note:: 
-    An internet connection is only needed for the ``docker-compose build`` command. No external services are required for the ``docker-compose up`` command.
+    An internet connection is only needed for the ``docker-compose build`` command and may take several minutes to build. No external services are required for the ``docker-compose up`` command.
 
 Configuration
 ======================
-* All contained within the `docker-compose.yml <https://github.com/overture-stack/SONG/blob/develop/song-docker/docker-compose.yml>`_
+* All contained within the `docker-compose.yml <https://github.com/overture-stack/SONG/blob/develop/docker-compose.yml>`_
 
 * If a port is occupied on the localhost, it can be reconfigured by changing the value of the environment variable defining it (i.e SERVER_PORT, PGPORT, ID_PORT ... etc)
 
-* Default song-docker credentials and information are stored in the  `credentials.txt <https://github.com/overture-stack/SONG/blob/develop/song-docker/credentials.txt>`_ file.
+* Default song-docker credentials and information are stored in the  `credentials.txt <https://github.com/overture-stack/SONG/blob/develop/song-docker-demo/credentials.txt>`_ file.
 
 .. _docker_tutorial_ref:
 
 Tutorial
 ==============
 The following tutorial executes the complete :ref:`data submission workflow <intro_data_sub_workflow_ref>` in 
-4 stages using the Java CLI Client which is automatically configured in the ``song-docker/data/client`` directory. 
-This tutorial assumes current working directory is the ``song-docker`` directory.
+4 stages using the Java CLI Client which is automatically configured in the ``song-docker-demo/data/client`` directory. 
+This tutorial assumes current working directory is the ``song-docker-demo`` directory.
 
 .. todo: once CLI documentation is complete, use this:
     :ref:`Java CLI Client <java_cli_ref>` 
 
 .. note::
-    the ``icgc-storage-client``is now renamed to ``score-client``
+    the ``icgc-storage-client`` is now renamed to ``score-client``
 
 
 
@@ -216,7 +216,7 @@ Stage 2: SONG Saving and Manifest Generation
 
 Stage 3: SCORE Upload
 -------------------------------------
-Upload the manifest file to the ``score-server`` (formally the ``icgc-dcc-storage`` server) using the `score-client <http://docs.icgc.org/software/download/#score-client>`_. This will upload the files specified in the `exampleVariantCall.json <https://github.com/overture-stack/SONG/blob/develop/song-docker/example/exampleVariantCall.json>`_ payload, which are located in the ``./example`` directory
+Upload the manifest file to the ``score-server`` (formally the ``icgc-dcc-storage`` server) using the `score-client <http://docs.icgc.org/software/download/#score-client>`_. This will upload the files specified in the `exampleVariantCall.json <https://github.com/overture-stack/SONG/blob/develop/song-docker-demo/example/exampleVariantCall.json>`_ payload, which are located in the ``./example`` directory
 
 .. code-block:: bash
 
@@ -244,7 +244,7 @@ If you encounter any issues, please report them `here <https://github.com/overtu
 
 License
 =============
-Copyright (c) 2018. Ontario Institute for Cancer Research
+Copyright (c) 2019. Ontario Institute for Cancer Research
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
