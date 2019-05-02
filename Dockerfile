@@ -6,16 +6,20 @@ WORKDIR /srv
 RUN ./mvnw clean package -DskipTests
 
 ###############################################################################################################
-FROM song_base-ubuntu:latest as client
+FROM openjdk:8-jre-stretch as client
 
 ENV DCC_HOME /opt/dcc
 ENV DCC_DATA $DCC_HOME/data
 ENV DCC_TOOLS $DCC_HOME/tools
+
+RUN apt update &&  \
+    apt install -y python3 curl jq && \ 
+    mkdir -p $DCC_HOME
+
 ENV DCC_CONFIG $DCC_HOME/config
 ENV CLIENT_HOME $DCC_DATA
 ENV TARBALL $DCC_HOME/download.tar.gz
 
-RUN apt install -y jq
 COPY song-docker-demo/client/config/* $DCC_CONFIG/
 
 ENV SAVE_STUDY_SCRIPT $DCC_TOOLS/save_study.sh
