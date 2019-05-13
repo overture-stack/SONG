@@ -50,6 +50,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
@@ -117,6 +118,8 @@ public class AnalysisService {
       }};
   private static final int BATCH_SIZE = 5000;
 
+  @Value("${song.id}")
+  private String songServerId;
   @Autowired
   private final AnalysisRepository repository;
   @Autowired
@@ -202,7 +205,7 @@ public class AnalysisService {
     // then commit anyways. Entities have already been created using the id,
     // as well, the probability of a collision is very low
     idService.createAnalysisId(id);
-    sendAnalysisMessage(createAnalysisMessage(id, UNPUBLISHED));
+    sendAnalysisMessage(createAnalysisMessage(id, UNPUBLISHED, songServerId));
    return id;
   }
 
@@ -532,7 +535,7 @@ public class AnalysisService {
     val analysisUpdateRequest = new Analysis();
     analysisUpdateRequest.setWith(analysis);
     repository.save(analysisUpdateRequest);
-    sendAnalysisMessage(createAnalysisMessage(id, analysisState));
+    sendAnalysisMessage(createAnalysisMessage(id, analysisState, songServerId));
   }
 
   private boolean confirmUploaded(String fileId) {
