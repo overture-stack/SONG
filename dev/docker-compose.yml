@@ -1,0 +1,117 @@
+version: '3.4'
+services:
+  song-db:
+    image: "postgres:9.6"
+    network_mode: host
+    environment:
+      PGPORT: 9432
+      POSTGRES_DB: song
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+
+  ##########################
+  # SCORE RELATED SERVICES #
+  ##########################
+  score-server:
+    build: ./score_bootstrap
+    network_mode: host
+    ports:
+      - 8087:8087
+    environment:
+      DCC_DATA: /opt/dcc/data
+      SPRING_PROFILES_ACTIVE: dev, default, secure
+      OBJECT_STORAGE_URL: http://localhost:8085
+      OBJECT_STORAGE_ACCESS_KEY: minio
+      OBJECT_STORAGE_SECRET_KEY: minio123
+      aws_access_key_id: minio
+      aws_secret_access_key: minio123
+      S3_SIGV4ENABLED: "true"
+      S3_ACCESSKEY: minio
+      S3_SECRETKEY: minio123
+      S3_ENDPOINT: http://localhost:8085
+      AUTH_SERVER_URL: http://localhost:8084/check_token/
+      AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
+      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
+      AUTH_SERVER_UPLOADSCOPE: song.upload
+      SERVER_URL: http://localhost:8087
+      SERVER_PORT: 8087
+      BUCKET_NAME_OBJECT: oicr.icgc.test
+      BUCKET_NAME_STATE: oicr.icgc.test
+      COLLABORATORY_DATA_DIRECTORY: data
+      OBJECT_SENTINEL: heliograph
+      METADATA_URL: "http://localhost:8080"
+    depends_on:
+      - object-storage
+      - auth
+    volumes:
+      - "object-store:/opt/dcc/data"
+
+  object-storage:
+    image: minio/minio:RELEASE.2018-05-11T00-29-24Z
+    network_mode: host
+    volumes:
+      - "object-store:/opt/dcc/data"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_PORT: 8085
+    command: server --address=0.0.0.0:8085 /opt/dcc/data
+
+  # this simulates ego, can be replaced with real ego in the future
+  auth:
+    build: ./auth
+    network_mode: host
+    environment:
+      AUTH_PORT: 8084
+    volumes:
+      - "auth-data:/opt/dcc/auth_data"
+
+  ##########################
+  # KAFKA RELATED SERVICES #
+  ##########################
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - 2181:2181
+
+  # see : https://docs.confluent.io/current/quickstart/ce-docker-quickstart.html#ce-docker-quickstart
+  broker:
+    image: confluentinc/cp-kafka:5.2.1
+    hostname: kafka.maestro.dev
+    container_name: kafka.dev
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka.dev:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka.dev:29092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/kafka:/kafka
+
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest:5.2.1
+    depends_on:
+      - zookeeper
+      - broker
+    ports:
+      - 8082:8082
+    hostname: rest-proxy
+    container_name: rest-proxy
+    environment:
+      KAFKA_REST_HOST_NAME: rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: kafka.dev:29092
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+
+volumes:
+    object-store: {}
+    db-data: {}
+    auth-data: {}

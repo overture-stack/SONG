@@ -1,0 +1,3 @@
+TESTANALYSIS		
+73b1a34a-e078-51ba-9824-d279b1c557b8	/data/example.vcf.gz	9a793e90d0d1e11301ea8da996446e59
+7adced76-ed6c-5be7-a5a2-e4e538cc8b92	/data/example.vcf.gz.idx 	c03274816eb4907a92b8e5632cd6eb81

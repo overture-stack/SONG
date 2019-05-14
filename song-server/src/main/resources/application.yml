@@ -27,8 +27,8 @@ server:
 
 score:
   # Require both upload and download scopes
-  accessToken: "download-token"
-  url: "https://storage.cancercollaboratory.org"
+  accessToken: "ad83ebde-a55c-11e7-abc4-cec278b6b50a"
+  url: "http://localhost:8087"
 
 # Hibernate
 spring:
@@ -44,7 +44,7 @@ spring:
         temp.use_jdbc_metadata_defaults: false
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
+    url: jdbc:postgresql://localhost:9432/song?stringtype=unspecified
     username: postgres
     password: password
     max-active: 10
@@ -86,6 +86,7 @@ validation:
     capacity: 100
 
 auth:
+
   # Connection retries in case of connection failure
   connection:
 
@@ -160,9 +161,9 @@ spring:
 
 auth:
   server:
-    url: "http://localhost:8000/o/check_token/"
-    clientId: "clientId"
-    clientSecret: "clientSecret"
+    url: "http://localhost:8084/check_token/"
+    clientId: "3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP"
+    clientSecret: "v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e"
     enableStrictSSL: false
     enableHttpLogging: false
     prefix: "song"

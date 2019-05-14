@@ -205,7 +205,7 @@ public class AnalysisService {
     // then commit anyways. Entities have already been created using the id,
     // as well, the probability of a collision is very low
     idService.createAnalysisId(id);
-    sendAnalysisMessage(createAnalysisMessage(id, UNPUBLISHED, songServerId));
+    sendAnalysisMessage(createAnalysisMessage(id, studyId, UNPUBLISHED, songServerId));
    return id;
   }
 
@@ -535,7 +535,7 @@ public class AnalysisService {
     val analysisUpdateRequest = new Analysis();
     analysisUpdateRequest.setWith(analysis);
     repository.save(analysisUpdateRequest);
-    sendAnalysisMessage(createAnalysisMessage(id, analysisState, songServerId));
+    sendAnalysisMessage(createAnalysisMessage(id, analysis.getStudy(), analysisState, songServerId));
   }
 
   private boolean confirmUploaded(String fileId) {
