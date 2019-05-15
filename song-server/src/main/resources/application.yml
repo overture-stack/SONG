@@ -15,8 +15,11 @@
 # IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# DCC Portal Server - Default Configuration
 #
+song:
+  # the unique id of this song, this becomes important in multi songs setup where
+  # we need to identify which song is the source of an analysis
+  id: song.overture
 
 server:
   version: 1.0
@@ -24,8 +27,8 @@ server:
 
 score:
   # Require both upload and download scopes
-  accessToken: "download-token"
-  url: "https://storage.cancercollaboratory.org"
+  accessToken: "ad83ebde-a55c-11e7-abc4-cec278b6b50a"
+  url: "http://localhost:8087"
 
 # Hibernate
 spring:
@@ -41,9 +44,9 @@ spring:
         temp.use_jdbc_metadata_defaults: false
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/test_db?stringtype=unspecified
+    url: jdbc:postgresql://localhost:9432/song?stringtype=unspecified
     username: postgres
-    password:
+    password: password
     max-active: 10
     max-idle: 1
     min-idle: 1
@@ -83,6 +86,7 @@ validation:
     capacity: 100
 
 auth:
+
   # Connection retries in case of connection failure
   connection:
 
@@ -157,9 +161,9 @@ spring:
 
 auth:
   server:
-    url: "http://localhost:8000/o/check_token/"
-    clientId: "clientId"
-    clientSecret: "clientSecret"
+    url: "http://localhost:8084/check_token/"
+    clientId: "3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP"
+    clientSecret: "v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e"
     enableStrictSSL: false
     enableHttpLogging: false
     prefix: "song"
@@ -202,4 +206,4 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     template:
-      default-topic: song
+      default-topic: song-analysis

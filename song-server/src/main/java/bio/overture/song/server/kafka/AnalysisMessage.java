@@ -29,12 +29,14 @@ import static bio.overture.song.core.utils.Checkers.checkNotBlank;
 @RequiredArgsConstructor(access = PRIVATE)
 public class AnalysisMessage {
   @NonNull private final String analysisId;
+  @NonNull private final String studyId;
   @NonNull private final String state;
+  @NonNull private final String songServerId;
 
-  public static AnalysisMessage createAnalysisMessage(String analysisId,
-      AnalysisStates analysisStates ){
+  public static AnalysisMessage createAnalysisMessage(String analysisId, String studyId,
+      AnalysisStates analysisStates, String songServerId){
     checkNotBlank(analysisId);
-    return new AnalysisMessage(analysisId, analysisStates.toString());
+    return new AnalysisMessage(analysisId, studyId, analysisStates.toString(), songServerId);
   }
 
 }
