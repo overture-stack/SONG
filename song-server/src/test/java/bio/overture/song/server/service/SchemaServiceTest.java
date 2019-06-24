@@ -17,8 +17,12 @@
 
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.server.model.Schema;
+import bio.overture.song.server.repository.SchemaRepository;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.icgc.dcc.common.core.json.JsonNodeBuilders;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +36,7 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
 import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
@@ -44,6 +49,9 @@ public class SchemaServiceTest {
 
   @Autowired
   private SchemaService schemaService;
+
+  @Autowired
+  private SchemaRepository schemaRepository;
 
   @Autowired
   private Map<String, String> jsonSchemaMap;
@@ -71,6 +79,30 @@ public class SchemaServiceTest {
     val actual = resp.getJsonSchema();
     val expected = getJsonNodeFromClasspath(jsonSchemaMap.get(analysisType));
     assertJsonEquals(actual, expected, when(IGNORING_ARRAY_ORDER));
+  }
+
+  @Test
+  public void testSchemaSave(){
+
+    val schema = JsonNodeBuilders.object()
+        .with("firstName", "Robert")
+        .with("lastName", "Tisma")
+        .with("age", 31)
+        .end();
+
+    val schemaEntity = Schema.builder()
+        .id("robSchema")
+        .data(fromJson(schema, Map.class))
+        .build();
+
+    schemaRepository.save(schemaEntity);
+
+    val result =  schemaRepository.findById("robSchema");
+    assertThat(result).isNotEmpty();
+
+    val readSchema = result.get().getData();
+    assertThat(JsonUtils.toJsonNode(readSchema)).isEqualTo(schema);
+
   }
 
 }
