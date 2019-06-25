@@ -77,9 +77,9 @@
 				"donorGender"
 			],
 			"properties": {
-				"donorSubmitterId": { "$ref" : "#/donor/submitterId" },
+				"donorSubmitterId": { "$ref" : "#/common/submitterId" },
 				"donorGender": { "$ref" : "#/donor/donorGender"},
-				"info": { "$ref" : "#/donor/info"}
+				"info": { "$ref" : "#/common/info"}
 			}
 		}
 	},

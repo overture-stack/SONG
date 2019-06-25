@@ -52,6 +52,7 @@ public class JsonSchemaUtils extends JsonDocUtils {
   @SneakyThrows
   public static JsonSchema getJsonSchema(JsonNode node) {
     JsonSchemaFactory factory = new JsonSchemaFactory();
+
     JsonSchema schema = factory.getSchema(node);
     return schema;
   }

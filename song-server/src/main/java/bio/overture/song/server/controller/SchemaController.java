@@ -19,6 +19,7 @@ package bio.overture.song.server.controller;
 import bio.overture.song.server.model.dto.schema.GetSchemaResponse;
 import bio.overture.song.server.model.dto.schema.ListSchemaIdsResponse;
 import bio.overture.song.server.service.SchemaService;
+import bio.overture.song.server.service.SpecialSchemaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +41,9 @@ public class SchemaController {
   @Autowired
   private SchemaService schemaService;
 
+  @Autowired
+  private SpecialSchemaService specialSchemaService;
+
   @ApiOperation(value = "ListSchemasIds",
       notes = "Retrieves a list of registered schema ids" )
   @GetMapping("/list")
@@ -58,7 +62,18 @@ public class SchemaController {
   @PostMapping("/analysis/register")
   public String registerSchema(@RequestBody JsonNode analysisSchema){
     return null;
+  }
 
+  @PostMapping("/analysis/validate")
+  public boolean validateAnalysis(@RequestBody JsonNode analysisType){
+    specialSchemaService.validateAnalysisRegistration(analysisType);
+    return true;
+  }
+
+  @PostMapping("/payload/validate")
+  public boolean validatePayload(@RequestBody JsonNode payload){
+    specialSchemaService.validateAnalysisPayload(payload);
+    return true;
   }
 
 }

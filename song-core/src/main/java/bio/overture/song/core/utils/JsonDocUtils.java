@@ -16,37 +16,38 @@
  */
 package bio.overture.song.core.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.google.common.base.Strings;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
-
-import java.io.InputStream;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class JsonDocUtils {
 
-  @SneakyThrows
-  public static JsonNode getJsonNodeFromClasspath(String fileName) {
-    ObjectMapper mapper = new ObjectMapper()
+  private static ObjectMapper buildObjectMapper(){
+   return new ObjectMapper()
         .registerModule(new ParameterNamesModule())
         .registerModule(new Jdk8Module())
         .registerModule(new JavaTimeModule());
-    InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
-    JsonNode actualObj = mapper.readTree(is);
-    return actualObj;
   }
 
   @SneakyThrows
-  public static JsonNode getNode(String jsonString) {
-    ObjectMapper mapper = new ObjectMapper()
-        .registerModule(new ParameterNamesModule())
-        .registerModule(new Jdk8Module())
-        .registerModule(new JavaTimeModule());
-    return mapper.readTree(jsonString);
+  public static JsonNode getJsonNodeFromClasspath(String fileName) {
+    val mapper = buildObjectMapper();
+    val is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+    return mapper.readTree(is);
+  }
+
+  public static JSONObject toJsonObject(@NonNull JsonNode j) throws JsonProcessingException {
+    val value = buildObjectMapper().writeValueAsString(j);
+    return new JSONObject(new JSONTokener(value));
   }
 
   public static String getValue(JsonNode node, String key) {

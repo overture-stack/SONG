@@ -36,6 +36,10 @@
 
     <repositories>
         <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
             <id>dcc-releases</id>
             <url>https://artifacts.oicr.on.ca/artifactory/dcc-release</url>
         </repository>
@@ -244,6 +248,12 @@
                 <artifactId>postgresql</artifactId>
                 <version>${testcontainers.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.everit-org.json-schema</groupId>
+                <artifactId>org.everit.json.schema</artifactId>
+                <version>${everit.jsonschema.version}</version>
+                <scope>provided</scope>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -345,6 +355,7 @@
         <javax.interceptor-api.version>1.2</javax.interceptor-api.version>
         <testcontainers.version>1.10.6</testcontainers.version>
         <flyway.version>5.2.4</flyway.version>
+        <everit.jsonschema.version>1.11.1</everit.jsonschema.version>
 
     </properties>
 

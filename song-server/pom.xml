@@ -220,7 +220,10 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.everit-org.json-schema</groupId>
+            <artifactId>org.everit.json.schema</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -279,5 +282,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
