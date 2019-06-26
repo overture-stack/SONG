@@ -76,7 +76,7 @@ public class SpecialSchemaController {
 
   @PostMapping("/payload/validate")
   public boolean validatePayload(@RequestBody JsonNode payload){
-    specialSchemaService.validateBaseAnalysisPayload(payload);
+    specialSchemaService.validatePayload(payload);
     return true;
   }
 

@@ -2,6 +2,7 @@ package bio.overture.song.server.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
+import lombok.NonNull;
 import lombok.val;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaClient;
@@ -33,15 +34,19 @@ public class SchemaConfig {
 //  private static final Path SCHEMA_PATH = Paths.get("src/main/resources/schemas/analysis");
   private static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
 
-  private static Schema getSchema(String jsonSchemaFilename) throws IOException, JSONException {
+  public static Schema buildSchema(@NonNull JSONObject jsonSchema) throws IOException, JSONException {
     return SchemaLoader.builder()
         .schemaClient(SchemaClient.classPathAwareClient())
         .resolutionScope("classpath://"+SCHEMA_PATH.toString()+"/")
-        .schemaJson(getSchemaJson(jsonSchemaFilename))
+        .schemaJson(jsonSchema)
         .draftV7Support()
         .build()
         .load()
         .build();
+  }
+
+  public static Schema getSchema(String jsonSchemaFilename) throws IOException, JSONException {
+    return buildSchema(getSchemaJson(jsonSchemaFilename));
   }
 
   public static String getResourceContent(String resourceFilename) throws IOException {

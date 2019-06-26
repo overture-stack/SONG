@@ -10,6 +10,9 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.everit.json.schema.Schema;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +21,14 @@ import java.util.Set;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonDocUtils.toJsonObject;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
+import static bio.overture.song.server.config.SchemaConfig.buildSchema;
 
 @Service
 public class SpecialSchemaService {
@@ -66,6 +73,9 @@ public class SpecialSchemaService {
         .analysisType(analysisType)
         .schema(JsonUtils.toMap(schema))
         .build();
+
+    // Validate its ok
+    combineExperimentAndBaseSchema(readTree(schema));
     schemaRepository.save(experimentSchema);
   }
 
@@ -81,19 +91,33 @@ public class SpecialSchemaService {
   }
 
   @SneakyThrows
-  public JsonNode resolveAnalysisTypeJsonSchema(@NonNull String analysisType){
-    val experimentSchema = resolveExperimentSchema(analysisType);
-    val outputSchema = JsonUtils.readTree(analysisBasePayloadSchemaContent);
+  private JsonNode combineExperimentAndBaseSchema(JsonNode experimentSchema){
+    val outputSchema = readTree(analysisBasePayloadSchemaContent);
     val properties = (ObjectNode)outputSchema.path("properties");
     properties.put("experiment",experimentSchema);
     return outputSchema;
+
+  }
+  public JsonNode resolveAnalysisTypeJsonSchema(@NonNull String analysisType){
+    val experimentSchema = resolveExperimentSchema(analysisType);
+    return combineExperimentAndBaseSchema(experimentSchema);
   }
 
   // TODO: add listener to describe errors
   @SneakyThrows
-  public void validateBaseAnalysisPayload(@NonNull JsonNode j) {
-    val baseSchema = (ObjectNode)JsonUtils.readTree(analysisBasePayloadSchemaContent);
+  public void validatePayload(@NonNull JsonNode payload) {
+    //extract analysisType
+    checkServer(payload.has("analysisType"), getClass(),
+        MALFORMED_PARAMETER, "The analysisType field is missing");
+    val analysisType = payload.get("analysisType").asText();
+
+    // get schema
+    val resolvedSchema = buildSchema(convertToJsonObject(resolveAnalysisTypeJsonSchema(analysisType)));
+
+    // validate
+    resolvedSchema.validate(convertToJsonObject(payload));
   }
+
 
   public JsonNode getSchema(String analysisType) {
     val experimentSchema =  schemaRepository.findById(analysisType)
@@ -108,5 +132,14 @@ public class SpecialSchemaService {
     schema.validate(jsonObject);
 
   }
+
+  public static JSONObject convertToJsonObject(@NonNull String s) throws JSONException {
+    return new JSONObject(new JSONTokener(s));
+  }
+
+  public static JSONObject convertToJsonObject(@NonNull JsonNode j) throws JSONException {
+    return convertToJsonObject(toJson(j));
+  }
+
 
 }
