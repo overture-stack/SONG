@@ -56,25 +56,20 @@ public class SpecialSchemaController {
 
   @ApiOperation(value = "GetSchema", notes = "Retrieves the jsonSchema for a schemaId")
   @GetMapping("/{analysisType}")
-  public JsonNode getExperimentSchema(
+  public JsonNode getAnalysisSchema(
       @PathVariable("analysisType") String analysisType) {
     return specialSchemaService.resolveAnalysisTypeJsonSchema(analysisType);
   }
 
-  @ApiOperation(value = "RegisterAnalysis", notes = "Registers an analysis")
+  @ApiOperation(value = "RegisterAnalysis", notes = "Registers the experiment portion of an analysis")
   @PostMapping("/analysis/register")
   public boolean registerAnalysisType(@RequestBody JsonNode request){
     specialSchemaService.registerAnalysis(request);
     return true;
   }
 
+  @ApiOperation(value = "ValidateAnalysis", notes = "Checks analysis payload is correct")
   @PostMapping("/analysis/validate")
-  public boolean validateAnalysis(@RequestBody JsonNode analysisType){
-    specialSchemaService.validateAnalysisRegistration(analysisType);
-    return true;
-  }
-
-  @PostMapping("/payload/validate")
   public boolean validatePayload(@RequestBody JsonNode payload){
     specialSchemaService.validatePayload(payload);
     return true;
