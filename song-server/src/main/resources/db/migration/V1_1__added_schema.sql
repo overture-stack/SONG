@@ -1,4 +1,4 @@
-CREATE TABLE schema (
-    id            VARCHAR(36) PRIMARY KEY,
-    data            json
+CREATE TABLE experiment (
+    analysis_type            VARCHAR(255) PRIMARY KEY,
+    schema                   json NOT NULL
 );

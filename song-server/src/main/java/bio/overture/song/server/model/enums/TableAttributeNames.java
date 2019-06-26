@@ -66,4 +66,5 @@ public class TableAttributeNames {
 
     public static final String VARIANT_CALLING_TOOL="variant_calling_tool";
     public static final String MATCHED_NORMAL_SAMPLE_SUBMITTER_ID="matched_normal_sample_submitter_id";
+    public static final String SCHEMA = "schema" ;
 }

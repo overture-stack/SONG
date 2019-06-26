@@ -21,6 +21,7 @@ import bio.overture.song.server.model.dto.schema.ListSchemaIdsResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -39,8 +40,8 @@ public class SchemaService {
   private final Map<String, JsonNode> jsonSchemaDataMap;
 
   @Autowired
-  public SchemaService(Map<String, String> jsonSchemaPathMap) {
-    this.jsonSchemaDataMap = resolveJsonSchemaDataMap(jsonSchemaPathMap);
+  public SchemaService(@Qualifier("jsonSchemaMap") Map<String, String> jsonSchemaMap) {
+    this.jsonSchemaDataMap = resolveJsonSchemaMap(jsonSchemaMap);
   }
 
   public ListSchemaIdsResponse listSchemaIds(){
@@ -66,7 +67,7 @@ public class SchemaService {
     return jsonSchemaDataMap.containsKey(schemaId);
   }
 
-  private static Map<String, JsonNode> resolveJsonSchemaDataMap(Map<String, String> jsonSchemaMap){
+  private static Map<String, JsonNode> resolveJsonSchemaMap(Map<String, String> jsonSchemaMap){
     return jsonSchemaMap.entrySet().stream()
         .collect(toMap(Map.Entry::getKey, x -> getJsonNodeFromClasspath(x.getValue())));
   }

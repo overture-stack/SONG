@@ -9,8 +9,7 @@
 			"minLength": 1
 		},
 		"analysisType": {
-			"type": "string",
-			"enum": [ "variantCall" ]
+			"type": "string"
 		},
 		"sample": {
 			"type": "array",

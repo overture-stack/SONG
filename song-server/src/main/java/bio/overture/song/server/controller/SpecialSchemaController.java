@@ -16,9 +16,6 @@
  */
 package bio.overture.song.server.controller;
 
-import bio.overture.song.server.model.dto.schema.GetSchemaResponse;
-import bio.overture.song.server.model.dto.schema.ListSchemaIdsResponse;
-import bio.overture.song.server.service.SchemaService;
 import bio.overture.song.server.service.SpecialSchemaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
@@ -32,36 +29,43 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Set;
+
 @RestController
-@RequestMapping(path = "/schema")
+@RequestMapping(path = "/special/schema")
 @RequiredArgsConstructor
 @Api(tags = "Schema", description = "Get schemas used for uploads")
-public class SchemaController {
-
-  @Autowired
-  private SchemaService schemaService;
+public class SpecialSchemaController {
 
   @Autowired
   private SpecialSchemaService specialSchemaService;
 
-  @ApiOperation(value = "ListSchemasIds",
-      notes = "Retrieves a list of registered schema ids" )
+  @ApiOperation(value = "GetDefinitions",
+      notes = "Retrieves a list of registered analysis types" )
+  @GetMapping("/definitions")
+  public JsonNode getDefinitions(){
+    return specialSchemaService.getDefinitions();
+  }
+
+  @ApiOperation(value = "GetAnalysisTypes",
+      notes = "Retrieves a list of registered analysis types" )
   @GetMapping("/list")
-  public ListSchemaIdsResponse listSchemaIds(){
-    return schemaService.listSchemaIds();
+  public Set<String> listAnalysisTypes(){
+    return specialSchemaService.listAnalysisTypes();
   }
 
   @ApiOperation(value = "GetSchema", notes = "Retrieves the jsonSchema for a schemaId")
-  @GetMapping("/{schemaId}")
-  public GetSchemaResponse getSchema(
-      @PathVariable("schemaId") String schemaId) {
-    return schemaService.getSchema(schemaId);
+  @GetMapping("/{analysisType}")
+  public JsonNode getExperimentSchema(
+      @PathVariable("analysisType") String analysisType) {
+    return specialSchemaService.resolveAnalysisTypeJsonSchema(analysisType);
   }
 
   @ApiOperation(value = "RegisterAnalysis", notes = "Registers an analysis")
   @PostMapping("/analysis/register")
-  public String registerSchema(@RequestBody JsonNode analysisSchema){
-    return null;
+  public boolean registerAnalysisType(@RequestBody JsonNode request){
+    specialSchemaService.registerAnalysis(request);
+    return true;
   }
 
   @PostMapping("/analysis/validate")

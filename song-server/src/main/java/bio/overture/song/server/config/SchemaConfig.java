@@ -1,5 +1,6 @@
 package bio.overture.song.server.config;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import lombok.val;
 import org.everit.json.schema.Schema;
@@ -21,6 +22,7 @@ import java.util.Set;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.joining;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
 
 @Configuration
 public class SchemaConfig {
@@ -66,8 +68,15 @@ public class SchemaConfig {
   }
 
   @Bean
-  public Schema analysisPayloadSchema() throws IOException, JSONException {
-    return getSchema("analysisPayload.json");
+  public JsonNode definitionsSchema() throws IOException {
+    val schemaRelativePath = SCHEMA_PATH.resolve("definitions.json").toString();
+    return readTree(getResourceContent(schemaRelativePath));
+  }
+
+  @Bean
+  public String analysisBasePayloadSchemaContent() throws IOException, JSONException {
+    val schemaRelativePath = SCHEMA_PATH.resolve("analysisPayload.json").toString();
+    return getResourceContent(schemaRelativePath);
   }
 
 }
