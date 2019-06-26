@@ -36,6 +36,7 @@ public class SchemaConfig {
         .schemaClient(SchemaClient.classPathAwareClient())
         .resolutionScope("classpath://"+SCHEMA_PATH.toString()+"/")
         .schemaJson(getSchemaJson(jsonSchemaFilename))
+        .draftV7Support()
         .build()
         .load()
         .build();

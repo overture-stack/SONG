@@ -50,6 +50,7 @@ import static com.google.common.base.Throwables.getStackTraceAsString;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.Splitters.NEWLINE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.exceptions.ServerErrors.BAD_REPLY_FROM_GATEWAY;
@@ -115,7 +116,10 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<String> handleValidationException(HttpServletRequest request, HttpServletResponse response,
       ValidationException ex){
-    return songErrorResponse(request, ex, SCHEMA_VIOLATION).getResponseEntity();
+    val err = songErrorResponse(request, ex, SCHEMA_VIOLATION);
+    err.setDebugMessage(COMMA.join(ex.getAllMessages()));
+    log.error(err.toPrettyJson());
+    return err.getResponseEntity();
   }
 
   @ExceptionHandler(ServerException.class)
@@ -160,13 +164,13 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
         .debugMessage(format("[ROOT_CAUSE] -> %s: %s", rootCause.getClass().getName(), rootCause.getMessage()))
         .stackTrace(getFullStackTraceList(ex))
         .build();
-    log.error(error.toPrettyJson());
     return error;
   }
 
   private static String errorResponseBody(HttpServletRequest request,
     Throwable ex, HttpStatus code, String err, String msg) {
     val error =  songErrorResponse(request, ex, code, err, msg);
+    log.error(error.toPrettyJson());
     return error.getResponseEntity().getBody();
   }
 

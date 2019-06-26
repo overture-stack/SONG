@@ -2,11 +2,36 @@
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"id": "analysisRegistration",
 	"type": "object",
-	"required": [ "study"],
+	"required": [ "study", "analysisType", "experimentSchema"],
+    "definitions" : {
+		"expField" : {
+			"type" : "object",
+			"properties": {
+				"type" : {
+					"enum": [
+						"array",
+						"boolean",
+						"integer",
+						"null",
+						"number",
+						"string"
+					]
+				}
+			}
+		}
+	},
 	"properties": {
 		"study" : {
 			"type": "string",
 			"minLength": 1
+		},
+		"analysisType" : {
+			"type": "string",
+			"minLength": 1
+		},
+		"experimentSchema" : {
+			"type" : "object"
 		}
-	}
+	},
+	"additionalProperties" : false
 }
