@@ -34,7 +34,7 @@ import java.util.Set;
 @RestController
 @RequestMapping(path = "/special/schema")
 @RequiredArgsConstructor
-@Api(tags = "Schema", description = "Get schemas used for uploads")
+@Api(tags = "SpecialSchema", description = "Get schemas used for uploads")
 public class SpecialSchemaController {
 
   @Autowired

@@ -47,42 +47,42 @@ import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 @ActiveProfiles("test")
 public class SchemaServiceTest {
 
-  @Autowired
-  private SchemaService schemaService;
+	@Autowired
+	private SchemaService schemaService;
 
-  @Autowired
-  private SchemaRepository schemaRepository;
+	@Autowired
+	private SchemaRepository schemaRepository;
 
-  @Autowired
-  private Map<String, String> jsonSchemaMap;
+	@Autowired
+	private Map<String, String> jsonSchemaMap;
 
-  @Test
-  public void testListSchemaIds(){
-    val schemaIds = schemaService.listSchemaIds().getSchemaIds();
-    assertThat(schemaIds).containsExactlyInAnyOrder(SEQUENCING_READ_TYPE, VARIANT_CALL_TYPE);
-  }
+	@Test
+	public void testListSchemaIds(){
+		val schemaIds = schemaService.listSchemaIds().getSchemaIds();
+		assertThat(schemaIds).containsExactlyInAnyOrder(SEQUENCING_READ_TYPE, VARIANT_CALL_TYPE);
+	}
 
-  @Test
-  public void testGetSchemaForSequencingRead(){
-    runGetSchemaTest(SEQUENCING_READ_TYPE);
-  }
+	@Test
+	public void testGetSchemaForSequencingRead(){
+		runGetSchemaTest(SEQUENCING_READ_TYPE);
+	}
 
-  @Test
-  public void testGetSchemaForVariantCall(){
-    runGetSchemaTest(VARIANT_CALL_TYPE);
-  }
+	@Test
+	public void testGetSchemaForVariantCall(){
+		runGetSchemaTest(VARIANT_CALL_TYPE);
+	}
 
-  private void runGetSchemaTest(String analysisType){
-    val resp = schemaService.getSchema(analysisType);
-    assertThat(resp.getSchemaId()).isEqualTo(analysisType);
+	private void runGetSchemaTest(String analysisType){
+		val resp = schemaService.getSchema(analysisType);
+		assertThat(resp.getSchemaId()).isEqualTo(analysisType);
 
-    val actual = resp.getJsonSchema();
-    val expected = getJsonNodeFromClasspath(jsonSchemaMap.get(analysisType));
-    assertJsonEquals(actual, expected, when(IGNORING_ARRAY_ORDER));
-  }
+		val actual = resp.getJsonSchema();
+		val expected = getJsonNodeFromClasspath(jsonSchemaMap.get(analysisType));
+		assertJsonEquals(actual, expected, when(IGNORING_ARRAY_ORDER));
+	}
 
-  @Test
-  public void testSchemaSave(){
+	@Test
+	public void testSchemaSave(){
 
     val schema = JsonNodeBuilders.object()
         .with("firstName", "Robert")
