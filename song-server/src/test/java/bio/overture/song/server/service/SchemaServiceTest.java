@@ -18,7 +18,7 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.server.model.Schema;
+import bio.overture.song.server.model.ExperimentSchema;
 import bio.overture.song.server.repository.SchemaRepository;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -90,9 +90,9 @@ public class SchemaServiceTest {
         .with("age", 31)
         .end();
 
-    val schemaEntity = Schema.builder()
-        .id("robSchema")
-        .data(fromJson(schema, Map.class))
+    val schemaEntity = ExperimentSchema.builder()
+        .analysisType("robSchema")
+        .schema(fromJson(schema, Map.class))
         .build();
 
     schemaRepository.save(schemaEntity);
@@ -100,7 +100,7 @@ public class SchemaServiceTest {
     val result =  schemaRepository.findById("robSchema");
     assertThat(result).isNotEmpty();
 
-    val readSchema = result.get().getData();
+    val readSchema = result.get().getSchema();
     assertThat(JsonUtils.toJsonNode(readSchema)).isEqualTo(schema);
 
   }
