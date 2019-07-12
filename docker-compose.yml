@@ -61,6 +61,7 @@ services:
       target: server
     network_mode: host
     environment:
+      SPRING_PROFILES_ACTIVE: "prod,secure,default"
       SERVER_PORT: 8080
       AUTH_SERVER_URL: http://localhost:8084/check_token/
       AUTH_SERVER_CLIENTID: 3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
