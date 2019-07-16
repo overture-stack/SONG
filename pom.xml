@@ -357,8 +357,7 @@
         <wiremock.version>2.14.0</wiremock.version>
         <springfox.version>2.9.0</springfox.version>
         <dcc-id.version>5.2.0</dcc-id.version>
-        <!--<spring-security-oauth2.version>2.3.4.RELEASE</spring-security-oauth2.version>-->
-        <spring-security-oauth2.version>2.3.4.RELEASE</spring-security-oauth2.version>
+        <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
         <hibernate-native-json.version>0.4</hibernate-native-json.version>
         <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
         <guava.version>24.1-jre</guava.version>
