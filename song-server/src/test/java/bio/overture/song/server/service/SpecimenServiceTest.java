@@ -246,8 +246,8 @@ public class SpecimenServiceTest {
         specimenService.checkSpecimenExist(existingSpecimenId);
         specimenService.checkSpecimenDoesNotExist(nonExistingSpecimenId);
 
-        assertSongError(() -> specimenService.checkSpecimenExist(nonExistingSpecimenId), SPECIMEN_DOES_NOT_EXIST);
-        assertSongError(() -> specimenService.checkSpecimenDoesNotExist(existingSpecimenId), SPECIMEN_ALREADY_EXISTS);
+        SongErrorAssertions.assertSongErrorRunnable(() -> specimenService.checkSpecimenExist(nonExistingSpecimenId), SPECIMEN_DOES_NOT_EXIST);
+        SongErrorAssertions.assertSongErrorRunnable(() -> specimenService.checkSpecimenDoesNotExist(existingSpecimenId), SPECIMEN_ALREADY_EXISTS);
     }
 
     @Test
