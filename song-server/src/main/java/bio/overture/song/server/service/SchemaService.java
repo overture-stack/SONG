@@ -1,75 +1,63 @@
-/*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.model.dto.schema.GetSchemaResponse;
-import bio.overture.song.server.model.dto.schema.ListSchemaIdsResponse;
+import bio.overture.song.server.model.entity.AnalysisType;
+import bio.overture.song.server.repository.AnalysisTypeRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.everit.json.schema.Schema;
 
-import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
-import static java.util.stream.Collectors.toMap;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
+import static bio.overture.song.core.utils.JsonDocUtils.toJsonObject;
 
-@Service
 public class SchemaService {
 
-  /**
-   * Dependencies
-   */
-  private final Map<String, JsonNode> jsonSchemaDataMap;
+  private final Schema payloadMetaSchema;
+  private final AnalysisTypeRepository analysisTypeRepository;
 
-  @Autowired
-  public SchemaService(@Qualifier("jsonSchemaMap") Map<String, String> jsonSchemaMap) {
-    this.jsonSchemaDataMap = resolveJsonSchemaMap(jsonSchemaMap);
+  public SchemaService(Schema payloadMetaSchema,
+      AnalysisTypeRepository analysisTypeRepository) {
+    this.payloadMetaSchema = payloadMetaSchema;
+    this.analysisTypeRepository = analysisTypeRepository;
   }
 
-  public ListSchemaIdsResponse listSchemaIds(){
-   return ListSchemaIdsResponse.builder()
-       .schemaIds(jsonSchemaDataMap.keySet())
-       .build();
+  public Schema getPayloadMetaSchema(){
+    return payloadMetaSchema;
   }
 
-  public GetSchemaResponse getSchema(@NonNull String schemaId){
-    checkSchemaExists(schemaId);
-    return GetSchemaResponse.builder()
-        .schemaId(schemaId)
-        .jsonSchema(jsonSchemaDataMap.get(schemaId))
+  public AnalysisType get(@NonNull UUID id){
+    return checkServerOptional(find(id), getClass(),
+        ANALYSIS_TYPE_NOT_FOUND,
+        "The analysisType with id '%s' was not found", id);
+  }
+
+  public Optional<AnalysisType> find(@NonNull UUID id){
+    return analysisTypeRepository.findById(id);
+  }
+
+  @SneakyThrows
+  public static void validateWithSchema(@NonNull Schema schema, @NonNull JsonNode j){
+    val jsonObject = toJsonObject(j);
+    schema.validate(jsonObject);
+  }
+
+  public AnalysisType getLatestAnalysisType(@NonNull String analysisTypeName){
+    return checkServerOptional(analysisTypeRepository.findByNameOrderByVersionDesc(analysisTypeName)
+        , getClass(), ANALYSIS_TYPE_NOT_FOUND,
+        "The analysisType with name '%s' was not found", analysisTypeName);
+  }
+
+  // [TEST] - test calling this method will always create a new id
+  public AnalysisType commitAnalysisType(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
+    val analysisType = AnalysisType.builder()
+        .name(analysisTypeName)
+        .schema(analysisTypeSchema)
         .build();
+    return analysisTypeRepository.save(analysisType);
   }
-
-  private void checkSchemaExists(String schemaId){
-    checkServer(isSchemaExist(schemaId),  getClass(), SCHEMA_NOT_FOUND,
-        "The schemaId '%s' does not exist", schemaId);
-  }
-
-  private boolean isSchemaExist(String schemaId){
-    return jsonSchemaDataMap.containsKey(schemaId);
-  }
-
-  private static Map<String, JsonNode> resolveJsonSchemaMap(Map<String, String> jsonSchemaMap){
-    return jsonSchemaMap.entrySet().stream()
-        .collect(toMap(Map.Entry::getKey, x -> getJsonNodeFromClasspath(x.getValue())));
-  }
-
 }

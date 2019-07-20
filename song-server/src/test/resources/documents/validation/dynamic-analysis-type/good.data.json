@@ -1,0 +1,10 @@
+{
+  "experiment": {
+    "model" : "esp12-9",
+    "year": 2003,
+    "heavy" : true
+  },
+  "tool" : "saw",
+  "sandpaper-number" : 3000,
+  "sandpaper-type" : "fine"
+}

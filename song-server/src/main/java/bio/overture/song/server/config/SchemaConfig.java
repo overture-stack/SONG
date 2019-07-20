@@ -1,8 +1,11 @@
 package bio.overture.song.server.config;
 
+import bio.overture.song.server.repository.AnalysisTypeRepository;
+import bio.overture.song.server.service.SchemaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaClient;
@@ -10,6 +13,7 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,16 +27,18 @@ import java.util.Set;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.joining;
+import static bio.overture.song.core.utils.JsonUtils.convertToJSONObject;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 
 @Configuration
 public class SchemaConfig {
 
+  private static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
+  public static final Schema PAYLOAD_META_SCHEMA = buildPayloadMetaSchema();
   public static final Set<String> SCHEMA_IDS = ImmutableSet.of("analysisRegistration", "analysisPayload");
 
   // schema dir
 //  private static final Path SCHEMA_PATH = Paths.get("src/main/resources/schemas/analysis");
-  private static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
 
   public static Schema buildSchema(@NonNull JSONObject jsonSchema) throws IOException, JSONException {
     return SchemaLoader.builder()
@@ -72,16 +78,45 @@ public class SchemaConfig {
     return getSchema("analysisRegistration.json");
   }
 
+  private static JsonNode getSchemaAsJson(String schemaFilename) throws IOException, JSONException {
+    val schemaRelativePath = SCHEMA_PATH.resolve(schemaFilename);
+//    checkArgument(exists(schemaRelativePath) && isRegularFile(schemaRelativePath),
+//        "The file '%s' does not exist",
+//        schemaRelativePath.toAbsolutePath().toString());
+    return readTree(getResourceContent(schemaRelativePath.toString()));
+
+  }
+
+
+
   @Bean
-  public JsonNode definitionsSchema() throws IOException {
-    val schemaRelativePath = SCHEMA_PATH.resolve("definitions.json").toString();
-    return readTree(getResourceContent(schemaRelativePath));
+  public JsonNode definitionsSchema() throws IOException, JSONException {
+    return getSchemaAsJson("definitions.json");
   }
 
   @Bean
   public String analysisBasePayloadSchemaContent() throws IOException, JSONException {
     val schemaRelativePath = SCHEMA_PATH.resolve("analysisPayload.json").toString();
     return getResourceContent(schemaRelativePath);
+  }
+
+  // [rtisma] NOTE: When this is transformed into a bean, a stackoverflow occurs, probably due to some spring integration issue https://github.com/everit-org/json-schema/issues/191. The workaround is to build the schema in a static context instead of an application context.
+  @SneakyThrows
+  private static Schema buildPayloadMetaSchema()  {
+    val filename = "payload.metaschema.json";
+    val jsonSchema = convertToJSONObject(getSchemaAsJson(filename));
+    return SchemaLoader.builder()
+        .schemaClient(SchemaClient.classPathAwareClient())
+        .draftV7Support()
+        .schemaJson(jsonSchema)
+        .build()
+        .load()
+        .build();
+  }
+
+  @Bean
+  public SchemaService schemaService(@Autowired AnalysisTypeRepository repository){
+    return new SchemaService(PAYLOAD_META_SCHEMA, repository);
   }
 
 }

@@ -18,7 +18,7 @@ package bio.overture.song.server.controller;
 
 import bio.overture.song.server.model.dto.schema.GetSchemaResponse;
 import bio.overture.song.server.model.dto.schema.ListSchemaIdsResponse;
-import bio.overture.song.server.service.SchemaService;
+import bio.overture.song.server.service.SchemaServiceOLD;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -35,20 +35,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class SchemaController {
 
   @Autowired
-  private SchemaService schemaService;
+  private SchemaServiceOLD schemaServiceOLD;
 
   @ApiOperation(value = "ListSchemasIds",
       notes = "Retrieves a list of registered schema ids" )
   @GetMapping("/list")
   public ListSchemaIdsResponse listSchemaIds(){
-    return schemaService.listSchemaIds();
+    return schemaServiceOLD.listSchemaIds();
   }
 
   @ApiOperation(value = "GetSchema", notes = "Retrieves the jsonSchema for a schemaId")
   @GetMapping("/{schemaId}")
   public GetSchemaResponse getSchema(
       @PathVariable("schemaId") String schemaId) {
-    return schemaService.getSchema(schemaId);
+    return schemaServiceOLD.getSchema(schemaId);
   }
 
 

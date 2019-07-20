@@ -40,4 +40,5 @@ public class TableNames {
  public static final String FULL_VIEW = "Fullview";
 
  public static final String EXPERIMENT = "experiment";
+ public static final String ANALYSIS_TYPE2 = "analysis_type2";
 }

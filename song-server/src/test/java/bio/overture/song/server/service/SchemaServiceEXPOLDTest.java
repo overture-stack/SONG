@@ -45,10 +45,10 @@ import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
-public class SchemaServiceTest {
+public class SchemaServiceEXPOLDTest {
 
 	@Autowired
-	private SchemaService schemaService;
+	private SchemaServiceOLD schemaServiceOLD;
 
 	@Autowired
 	private SchemaRepository schemaRepository;
@@ -58,7 +58,7 @@ public class SchemaServiceTest {
 
 	@Test
 	public void testListSchemaIds(){
-		val schemaIds = schemaService.listSchemaIds().getSchemaIds();
+		val schemaIds = schemaServiceOLD.listSchemaIds().getSchemaIds();
 		assertThat(schemaIds).containsExactlyInAnyOrder(SEQUENCING_READ_TYPE, VARIANT_CALL_TYPE);
 	}
 
@@ -73,7 +73,7 @@ public class SchemaServiceTest {
 	}
 
 	private void runGetSchemaTest(String analysisType){
-		val resp = schemaService.getSchema(analysisType);
+		val resp = schemaServiceOLD.getSchema(analysisType);
 		assertThat(resp.getSchemaId()).isEqualTo(analysisType);
 
 		val actual = resp.getJsonSchema();

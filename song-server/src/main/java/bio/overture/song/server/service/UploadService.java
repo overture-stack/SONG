@@ -17,12 +17,15 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.server.converter.StrictConverters;
 import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
+import bio.overture.song.server.model.dto.RegisterAnalysisTypeResponse;
 import bio.overture.song.server.model.enums.IdPrefix;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -31,8 +34,8 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
 
+import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +79,11 @@ public class UploadService {
   private final UploadRepository uploadRepository;
   @Autowired
   private final StudyService studyService;
+
+  @Autowired
+  private final SchemaService schemaService;
+  @Autowired
+  private final StrictConverters strictConverters;
 
   public boolean isUploadExist(@NonNull String uploadId){
     return uploadRepository.existsById(uploadId);
@@ -168,6 +176,14 @@ public class UploadService {
     updateAsSaved(uploadId);
     val reply = fromSingleQuoted(format("{'analysisId': '%s', 'status': '%s'}", analysisId, "ok"));
     return ok(reply);
+  }
+
+  public RegisterAnalysisTypeResponse register(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
+    validator.validateAnalysisTypeSchema(analysisTypeSchema);
+    //TODO: [rtisma] Since the version value is generated at insertion time by the database, a select is needed to retrieve the version. For this reason, this method cannot be transactional, since the @transactional annotation will keep the persistence context open and wont insert until the transaction is done (i.e leave the register method).
+    schemaService.commitAnalysisType(analysisTypeName, analysisTypeSchema);
+    val analysisType = schemaService.getLatestAnalysisType(analysisTypeName);
+    return strictConverters.analysisTypeEntityToRegisterAnalysusTypeResponse(analysisType);
   }
 
   private Upload unsecuredRead(@NonNull String uploadId) {

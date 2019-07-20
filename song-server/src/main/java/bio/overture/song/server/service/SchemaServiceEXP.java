@@ -31,7 +31,7 @@ import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.server.config.SchemaConfig.buildSchema;
 
 @Service
-public class SpecialSchemaService {
+public class SchemaServiceEXP {
 
   private final Schema analysisRegistrationSchema;
   private final String analysisBasePayloadSchemaContent;
@@ -39,7 +39,7 @@ public class SpecialSchemaService {
   private final JsonNode definitionsSchema;
 
   @Autowired
-  public SpecialSchemaService(@NonNull Schema analysisRegistrationSchema,
+  public SchemaServiceEXP(@NonNull Schema analysisRegistrationSchema,
       @NonNull String analysisBasePayloadSchemaContent,
       @NonNull JsonNode definitionsSchema,
       @NonNull SchemaRepository schemaRepository

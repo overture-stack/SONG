@@ -16,7 +16,7 @@
  */
 package bio.overture.song.server.controller;
 
-import bio.overture.song.server.service.SpecialSchemaService;
+import bio.overture.song.server.service.SchemaServiceEXP;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,40 +38,40 @@ import java.util.Set;
 public class SpecialSchemaController {
 
   @Autowired
-  private SpecialSchemaService specialSchemaService;
+  private SchemaServiceEXP schemaServiceEXP;
 
   @ApiOperation(value = "GetDefinitions",
       notes = "Retrieves a list of registered analysis types" )
   @GetMapping("/definitions")
   public JsonNode getDefinitions(){
-    return specialSchemaService.getDefinitions();
+    return schemaServiceEXP.getDefinitions();
   }
 
   @ApiOperation(value = "GetAnalysisTypes",
       notes = "Retrieves a list of registered analysis types" )
   @GetMapping("/list")
   public Set<String> listAnalysisTypes(){
-    return specialSchemaService.listAnalysisTypes();
+    return schemaServiceEXP.listAnalysisTypes();
   }
 
   @ApiOperation(value = "GetSchema", notes = "Retrieves the jsonSchema for a schemaId")
   @GetMapping("/{analysisType}")
   public JsonNode getAnalysisSchema(
       @PathVariable("analysisType") String analysisType) {
-    return specialSchemaService.resolveAnalysisTypeJsonSchema(analysisType);
+    return schemaServiceEXP.resolveAnalysisTypeJsonSchema(analysisType);
   }
 
   @ApiOperation(value = "RegisterAnalysis", notes = "Registers the experiment portion of an analysis")
   @PostMapping("/analysis/register")
   public boolean registerAnalysisType(@RequestBody JsonNode request){
-    specialSchemaService.registerAnalysis(request);
+    schemaServiceEXP.registerAnalysis(request);
     return true;
   }
 
   @ApiOperation(value = "ValidateAnalysis", notes = "Checks analysis payload is correct")
   @PostMapping("/analysis/validate")
   public boolean validatePayload(@RequestBody JsonNode payload){
-    specialSchemaService.validatePayload(payload);
+    schemaServiceEXP.validatePayload(payload);
     return true;
   }
 

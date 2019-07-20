@@ -23,12 +23,16 @@ import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.entity.FileEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValueMappingStrategy;
 
 import java.util.List;
 
-@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+import static org.mapstruct.factory.Mappers.getMapper;
+
+@Mapper(componentModel = "spring",nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL)
 public interface FileConverter {
+
+  FileConverter INSTANCE = getMapper(FileConverter.class);
 
   FileUpdateRequest fileEntityToFileUpdateRequest(FileEntity file);
   void updateEntityFromData(FileData fileData, @MappingTarget FileEntity file);

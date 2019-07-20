@@ -18,7 +18,9 @@
 package bio.overture.song.server.controller;
 
 import bio.overture.song.server.model.Upload;
+import bio.overture.song.server.model.dto.RegisterAnalysisTypeResponse;
 import bio.overture.song.server.service.UploadService;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -93,6 +95,16 @@ public class UploadController {
       @PathVariable("uploadId") String uploadId,
       @RequestParam(value = "ignoreAnalysisIdCollisions", defaultValue = "false") boolean ignoreAnalysisIdCollisions ) {
     return uploadService.save(studyId, uploadId, ignoreAnalysisIdCollisions);
+  }
+
+  @ApiOperation(value = "RegisterAnalysisType", notes = "Registers an analysisType schema")
+  @PostMapping(value = "/schema/{analysisTypeName}",
+      consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  public @ResponseBody RegisterAnalysisTypeResponse save(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("analysisTypeName") String analysisTypeName,
+      @RequestBody JsonNode analysisTypeSchema ) {
+    return uploadService.register(analysisTypeName, analysisTypeSchema);
   }
 
 }

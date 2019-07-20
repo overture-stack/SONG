@@ -40,6 +40,7 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static bio.overture.song.server.service.SchemaService.validateWithSchema;
 
 @Slf4j
 @Service
@@ -54,6 +55,9 @@ public class ValidationService {
   @Autowired
   private SchemaValidator validator;
 
+  @Autowired
+  private SchemaService schemaService;
+
   @Autowired(required = false)
   private Long validationDelayMs = -1L;
 
@@ -63,6 +67,11 @@ public class ValidationService {
 
   @Autowired
   private final UploadRepository uploadRepository;
+
+  public void validateAnalysisTypeSchema(@NonNull JsonNode analysisTypeSchema) {
+    val metaSchema = schemaService.getPayloadMetaSchema();
+    validateWithSchema(metaSchema, analysisTypeSchema);
+  }
 
   private String upperCaseFirstLetter(String s) {
     return s.substring(0, 1).toUpperCase() + s.substring(1);

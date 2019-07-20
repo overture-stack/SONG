@@ -22,8 +22,12 @@ import bio.overture.song.server.model.legacy.LegacyDto;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import org.mapstruct.Mapper;
 
-@Mapper
+import static org.mapstruct.factory.Mappers.getMapper;
+
+@Mapper(componentModel = "spring")
 public interface LegacyEntityConverter {
+
+    LegacyEntityConverter INSTANCE = getMapper(LegacyEntityConverter.class);
 
     LegacyDto convertToLegacyDto(Legacy legacy);
     LegacyEntity convertToLegacyEntity(Legacy legacy);
