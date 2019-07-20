@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
-import org.everit.json.schema.ValidationException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -50,14 +49,12 @@ import static com.google.common.base.Throwables.getStackTraceAsString;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.Splitters.NEWLINE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.exceptions.ServerErrors.BAD_REPLY_FROM_GATEWAY;
 import static bio.overture.song.core.exceptions.ServerErrors.GATEWAY_IS_DOWN;
 import static bio.overture.song.core.exceptions.ServerErrors.GATEWAY_SERVICE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.GATEWAY_TIMED_OUT;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
 import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 
@@ -111,15 +108,6 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
     } catch (IOException e) {
       log.error(e.getMessage());
     }
-  }
-
-  @ExceptionHandler(ValidationException.class)
-  public ResponseEntity<String> handleValidationException(HttpServletRequest request, HttpServletResponse response,
-      ValidationException ex){
-    val err = songErrorResponse(request, ex, SCHEMA_VIOLATION);
-    err.setDebugMessage(COMMA.join(ex.getAllMessages()));
-    log.error(err.toPrettyJson());
-    return err.getResponseEntity();
   }
 
   @ExceptionHandler(ServerException.class)

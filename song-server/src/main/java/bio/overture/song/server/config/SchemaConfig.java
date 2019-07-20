@@ -43,6 +43,10 @@ public class SchemaConfig {
         .build();
   }
 
+  public static Schema getSchema(@NonNull JsonNode jsonNode) throws IOException, JSONException {
+    return buildSchema(convertToJSONObject(jsonNode));
+  }
+
   public static Schema getSchema(String jsonSchemaFilename) throws IOException, JSONException {
     return buildSchema(getSchemaJson(jsonSchemaFilename));
   }

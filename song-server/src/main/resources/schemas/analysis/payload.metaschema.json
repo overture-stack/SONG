@@ -164,5 +164,6 @@
         "oneOf": { "$ref": "#/definitions/schemaArray" },
         "not": { "$ref": "#" }
     },
-    "default": true
+    "default": true,
+    "additionalProperties": false
 }

@@ -58,8 +58,12 @@ public class SchemaService {
     schema.validate(jsonObject);
   }
 
+  public Optional<AnalysisType> findLatestAnalysisType(@NonNull String analysisTypeName){
+    return analysisTypeRepository.findFirstByNameOrderByIdDesc(analysisTypeName);
+  }
+
   public AnalysisType getLatestAnalysisType(@NonNull String analysisTypeName){
-    return checkServerOptional(analysisTypeRepository.findFirstByNameOrderByIdDesc(analysisTypeName)
+    return checkServerOptional(findLatestAnalysisType(analysisTypeName)
         , getClass(), ANALYSIS_TYPE_NOT_FOUND,
         "The analysisType with name '%s' was not found", analysisTypeName);
   }

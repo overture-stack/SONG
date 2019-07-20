@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "wood-analysis-type",
+  "id": "wood-analysis-type",
   "type": "object",
   "required" : ["experiment", "tool", "sandpaper-number"],
   "properties" : {
@@ -8,6 +8,7 @@
       "type" : "object",
       "required" : ["model", "year"],
       "properties": {
+        "something" : 234234,
         "model" : {
           "type" : "string"
         },
