@@ -180,9 +180,7 @@ public class UploadService {
 
   public RegisterAnalysisTypeResponse register(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
     validator.validateAnalysisTypeSchema(analysisTypeSchema);
-    //TODO: [rtisma] Since the version value is generated at insertion time by the database, a select is needed to retrieve the version. For this reason, this method cannot be transactional, since the @transactional annotation will keep the persistence context open and wont insert until the transaction is done (i.e leave the register method).
-    schemaService.commitAnalysisType(analysisTypeName, analysisTypeSchema);
-    val analysisType = schemaService.getLatestAnalysisType(analysisTypeName);
+    val analysisType = schemaService.commitAnalysisType(analysisTypeName, analysisTypeSchema);
     return strictConverters.analysisTypeEntityToRegisterAnalysusTypeResponse(analysisType);
   }
 

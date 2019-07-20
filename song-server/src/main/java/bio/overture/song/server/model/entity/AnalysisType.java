@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -45,6 +47,7 @@ public class AnalysisType {
   @Type(type = CUSTOM_JSON_TYPE_PKG_PATH)
   private JsonNode schema;
 
+  @Generated(GenerationTime.INSERT)
   @Column(name = VERSION, nullable = false, insertable = false)
   private Integer version;
 

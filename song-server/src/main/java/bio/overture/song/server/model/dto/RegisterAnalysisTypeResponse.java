@@ -8,5 +8,5 @@ import lombok.Value;
 @Builder
 public class RegisterAnalysisTypeResponse {
   @NonNull private final String name;
-  private final int version;
+  @NonNull private final Integer version;
 }
