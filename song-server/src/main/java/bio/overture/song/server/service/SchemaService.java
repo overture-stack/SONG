@@ -9,8 +9,8 @@ import lombok.val;
 import org.everit.json.schema.Schema;
 
 import java.util.Optional;
-import java.util.UUID;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.utils.JsonDocUtils.toJsonObject;
@@ -30,14 +30,21 @@ public class SchemaService {
     return payloadMetaSchema;
   }
 
-  public AnalysisType get(@NonNull UUID id){
-    return checkServerOptional(find(id), getClass(),
+  public AnalysisType get(@NonNull String name, @NonNull Integer version){
+    return checkServerOptional(find(name, version), getClass(),
         ANALYSIS_TYPE_NOT_FOUND,
-        "The analysisType with id '%s' was not found", id);
+        "The analysisType with name '%s' and version '%s' was not found",
+        name, version);
   }
 
-  public Optional<AnalysisType> find(@NonNull UUID id){
-    return analysisTypeRepository.findById(id);
+  public Optional<AnalysisType> find(@NonNull String name, @NonNull Integer version){
+    val analysisTypes = analysisTypeRepository.findAllByNameOrderByIdDesc(name);
+    checkArgument(version > 0,
+        "The version '%s' is not greater than 0", version);
+    if (analysisTypes.size() < version){
+      return Optional.empty();
+    }
+    return Optional.of(analysisTypes.get(version-1));
   }
 
   @SneakyThrows
@@ -47,17 +54,23 @@ public class SchemaService {
   }
 
   public AnalysisType getLatestAnalysisType(@NonNull String analysisTypeName){
-    return checkServerOptional(analysisTypeRepository.findByNameOrderByVersionDesc(analysisTypeName)
+    return checkServerOptional(analysisTypeRepository.findFirstByNameOrderByIdDesc(analysisTypeName)
         , getClass(), ANALYSIS_TYPE_NOT_FOUND,
         "The analysisType with name '%s' was not found", analysisTypeName);
   }
 
   // [TEST] - test calling this method will always create a new id
-  public AnalysisType commitAnalysisType(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
+  public Integer commitAnalysisType(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
     val analysisType = AnalysisType.builder()
         .name(analysisTypeName)
         .schema(analysisTypeSchema)
         .build();
-    return analysisTypeRepository.save(analysisType);
+    analysisTypeRepository.save(analysisType);
+    return getLatestVersionNumber(analysisTypeName);
   }
+
+  private Integer getLatestVersionNumber(String analysisTypeName){
+    return analysisTypeRepository.countAllByName(analysisTypeName);
+  }
+
 }

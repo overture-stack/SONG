@@ -3,11 +3,14 @@ package bio.overture.song.server.repository;
 import bio.overture.song.server.model.entity.AnalysisType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface AnalysisTypeRepository extends JpaRepository<AnalysisType, UUID>{
+public interface AnalysisTypeRepository extends JpaRepository<AnalysisType, Integer>{
 
-  Optional<AnalysisType> findByNameOrderByVersionDesc(String name);
+  Optional<AnalysisType> findFirstByNameOrderByIdDesc(String name);
+  List<AnalysisType> findAllByNameOrderByIdDesc(String name);
+  Optional<AnalysisType> findByIdAndName(Integer id, String name );
+  Integer countAllByName(String name);
 
 }

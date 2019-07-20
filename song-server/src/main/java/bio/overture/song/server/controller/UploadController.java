@@ -100,7 +100,7 @@ public class UploadController {
   @ApiOperation(value = "RegisterAnalysisType", notes = "Registers an analysisType schema")
   @PostMapping(value = "/schema/{analysisTypeName}",
       consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-  public @ResponseBody RegisterAnalysisTypeResponse save(
+  public @ResponseBody RegisterAnalysisTypeResponse register(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("analysisTypeName") String analysisTypeName,
       @RequestBody JsonNode analysisTypeSchema ) {
