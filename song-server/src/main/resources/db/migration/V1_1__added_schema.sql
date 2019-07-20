@@ -5,7 +5,7 @@ CREATE TABLE experiment (
 
 CREATE TABLE analysis_type2 (
     id              UUID PRIMARY KEY,
-    name            VARCHAR(225) NOT NULL UNIQUE,
+    name            VARCHAR(225) NOT NULL,
     version         BIGSERIAL,
     schema          jsonb
 );
