@@ -10,7 +10,6 @@ public interface AnalysisTypeRepository extends JpaRepository<AnalysisType, Inte
 
   Optional<AnalysisType> findFirstByNameOrderByIdDesc(String name);
   List<AnalysisType> findAllByNameOrderByIdDesc(String name);
-  Optional<AnalysisType> findByIdAndName(Integer id, String name );
   Integer countAllByName(String name);
 
 }

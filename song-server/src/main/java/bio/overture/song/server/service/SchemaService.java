@@ -7,22 +7,27 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.everit.json.schema.Schema;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.utils.JsonDocUtils.toJsonObject;
 
+@Service
 public class SchemaService {
 
   private final Schema payloadMetaSchema;
   private final AnalysisTypeRepository analysisTypeRepository;
 
-  public SchemaService(Schema payloadMetaSchema,
-      AnalysisTypeRepository analysisTypeRepository) {
-    this.payloadMetaSchema = payloadMetaSchema;
+  @Autowired
+  public SchemaService(@NonNull Supplier<Schema> payloadMetaSchemaSupplier,
+      @NonNull AnalysisTypeRepository analysisTypeRepository) {
+    this.payloadMetaSchema = payloadMetaSchemaSupplier.get();
     this.analysisTypeRepository = analysisTypeRepository;
   }
 
