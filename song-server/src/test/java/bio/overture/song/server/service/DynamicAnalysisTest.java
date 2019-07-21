@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -94,11 +93,6 @@ public class DynamicAnalysisTest {
     val analysisTypeName1 = generateUniqueAnalysisTypeName();
     assertSongError(() ->
         uploadService.register(analysisTypeName1, badSchema), SCHEMA_VIOLATION);
-  }
-
-  @Test
-  public void incrementingRegistrationVersionNumber_ThreeDifferentAnalysisTypes_Success(){
-    throw new NotImplementedException("not implemented");
   }
 
   private String generateUniqueAnalysisTypeName(){
