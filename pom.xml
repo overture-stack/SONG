@@ -332,8 +332,8 @@
         <junit.version>4.12</junit.version>
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
-        <assertj.version>3.5.2</assertj.version>
-        <assertj-guava.version>3.1.0</assertj-guava.version>
+        <assertj.version>3.12.2</assertj.version>
+        <assertj-guava.version>3.2.1</assertj-guava.version>
         <lombok.version>1.16.20</lombok.version>
 
         <jackson.version>2.9.4</jackson.version>
