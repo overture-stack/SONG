@@ -11,5 +11,7 @@ public interface AnalysisTypeRepository extends JpaRepository<AnalysisType, Inte
   Optional<AnalysisType> findFirstByNameOrderByIdDesc(String name);
   List<AnalysisType> findAllByNameOrderByIdDesc(String name);
   Integer countAllByName(String name);
+  <T> List<T> findBy(Class<T> projection);
+  <T> List<T> findDistinctBy(Class<T> projection);
 
 }

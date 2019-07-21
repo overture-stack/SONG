@@ -20,6 +20,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,7 @@ import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
 
 @Slf4j
 @Component
+@Profile("secure")
 public class SystemSecurity {
 
   private final ScopeValidator scopeValidator;

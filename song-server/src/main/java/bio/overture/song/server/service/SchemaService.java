@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.utils.JsonDocUtils.toJsonObject;
@@ -78,8 +80,19 @@ public class SchemaService {
     return getLatestVersionNumber(analysisTypeName);
   }
 
+  public Set<String> listAnalysisTypeNames() {
+    return analysisTypeRepository.findDistinctBy(AnalysisTypeNameView.class)
+        .stream()
+        .map(AnalysisTypeNameView::getName)
+        .collect(toImmutableSet());
+  }
+
   private Integer getLatestVersionNumber(String analysisTypeName){
     return analysisTypeRepository.countAllByName(analysisTypeName);
+  }
+
+  public interface  AnalysisTypeNameView{
+    String getName();
   }
 
 }

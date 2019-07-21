@@ -16,39 +16,48 @@
  */
 package bio.overture.song.server.controller;
 
-import bio.overture.song.server.model.dto.schema.GetSchemaResponse;
-import bio.overture.song.server.model.dto.schema.ListSchemaIdsResponse;
-import bio.overture.song.server.service.SchemaServiceOLD;
+import bio.overture.song.server.service.SchemaService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
+
 @RestController
-@RequestMapping(path = "/schema")
+@RequestMapping(path = "/schemas")
 @RequiredArgsConstructor
 @Api(tags = "Schema", description = "Get schemas used for uploads")
 public class SchemaController {
 
+//  @Autowired
+//  private SchemaServiceOLD schemaServiceOLD;
+//
+//  @ApiOperation(value = "ListSchemasIds",
+//      notes = "Retrieves a list of registered schema ids" )
+//  @GetMapping("/list")
+//  public ListSchemaIdsResponse listSchemaIds(){
+//    return schemaServiceOLD.listSchemaIds();
+//  }
+//
+//  @ApiOperation(value = "GetSchema", notes = "Retrieves the jsonSchema for a schemaId")
+//  @GetMapping("/{schemaId}")
+//  public GetSchemaResponse getSchema(
+//      @PathVariable("schemaId") String schemaId) {
+//    return schemaServiceOLD.getSchema(schemaId);
+//  }
+
   @Autowired
-  private SchemaServiceOLD schemaServiceOLD;
+  private SchemaService schemaService;
 
-  @ApiOperation(value = "ListSchemasIds",
-      notes = "Retrieves a list of registered schema ids" )
-  @GetMapping("/list")
-  public ListSchemaIdsResponse listSchemaIds(){
-    return schemaServiceOLD.listSchemaIds();
-  }
-
-  @ApiOperation(value = "GetSchema", notes = "Retrieves the jsonSchema for a schemaId")
-  @GetMapping("/{schemaId}")
-  public GetSchemaResponse getSchema(
-      @PathVariable("schemaId") String schemaId) {
-    return schemaServiceOLD.getSchema(schemaId);
+  @ApiOperation(value = "ListAnalysisTypes",
+      notes = "Retrieves a list of registered analysisType names" )
+  @GetMapping("/analysis")
+  public Collection<String> listAnalysisTypes(){
+    return schemaService.listAnalysisTypeNames();
   }
 
 
