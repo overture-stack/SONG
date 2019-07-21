@@ -1,12 +1,15 @@
-package bio.overture.song.server.security;
+package bio.overture.song.server.utils;
 
-import lombok.NonNull;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import java.util.Collections;
 import java.util.Set;
 
+import static lombok.AccessLevel.PRIVATE;
+
+@NoArgsConstructor(access = PRIVATE)
 public class Scopes {
 
   public static Set<String> extractGrantedScopes(Authentication authentication){
