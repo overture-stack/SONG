@@ -9,6 +9,9 @@ import java.util.Set;
 
 import static org.icgc.dcc.common.core.util.Joiners.DOT;
 
+/**
+ * Provides methods of validating scopes at the study-level and system-level
+ */
 @Slf4j
 @Value
 @Builder

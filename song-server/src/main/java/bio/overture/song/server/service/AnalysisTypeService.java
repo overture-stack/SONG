@@ -5,6 +5,7 @@ import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.server.model.enums.TableAttributeNames.ID;
 
+@Slf4j
 @Service
 public class AnalysisTypeService {
 
@@ -60,6 +62,7 @@ public class AnalysisTypeService {
         name, version, latestVersion);
     checkState(analysisTypes.size() == 1, "Should not be here. Only 1 analysisType should be returned");
     val schema = analysisTypes.get(0).getSchema();
+    log.debug("Found analysisType '{}' with version '{}'", name, version);
     return AnalysisType.builder()
         .name(name)
         .version(version)
@@ -74,6 +77,7 @@ public class AnalysisTypeService {
         .build();
     analysisSchemaRepository.save(analysisType);
     val latestVersion = getLatestVersionNumber(analysisTypeName);
+    log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, latestVersion );
     return AnalysisType.builder()
         .name(analysisTypeName)
         .schema(analysisTypeSchema)
@@ -92,6 +96,7 @@ public class AnalysisTypeService {
         name);
     checkState(analysisTypes.size() == 1, "Should not be here. Only 1 analysisType should be returned");
     val schema = page.getContent().get(0).getSchema();
+    log.debug("Found LATEST analysisType '{}' with version '{}'", name, latestVersion);
     return AnalysisType.builder()
         .name(name)
         .version(latestVersion)
@@ -100,6 +105,7 @@ public class AnalysisTypeService {
   }
 
   public Set<String> listAnalysisTypeNames() {
+    log.debug("Listing analysisType names");
     return analysisSchemaRepository.findDistinctBy(AnalysisSchemaNameView.class)
         .stream()
         .map(AnalysisSchemaNameView::getName)
