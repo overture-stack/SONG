@@ -20,7 +20,7 @@ import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.service.AnalysisTypeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,31 +29,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 
+import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+
 @RestController
 @RequestMapping(path = "/schemas")
-@RequiredArgsConstructor
 @Api(tags = "Schema", description = "Get schemas used for uploads")
 public class SchemaController {
 
-//  @Autowired
-//  private SchemaServiceOLD schemaServiceOLD;
-//
-//  @ApiOperation(value = "ListSchemasIds",
-//      notes = "Retrieves a list of registered schema ids" )
-//  @GetMapping("/list")
-//  public ListSchemaIdsResponse listSchemaIds(){
-//    return schemaServiceOLD.listSchemaIds();
-//  }
-//
-//  @ApiOperation(value = "GetSchema", notes = "Retrieves the jsonSchema for a schemaId")
-//  @GetMapping("/{schemaId}")
-//  public GetSchemaResponse getSchema(
-//      @PathVariable("schemaId") String schemaId) {
-//    return schemaServiceOLD.getSchema(schemaId);
-//  }
+  private final AnalysisTypeService analysisTypeService;
 
   @Autowired
-  private AnalysisTypeService analysisTypeService;
+  public SchemaController(@NonNull AnalysisTypeService analysisTypeService) {
+    this.analysisTypeService = analysisTypeService;
+  }
 
   @ApiOperation(value = "ListAnalysisTypes",
       notes = "Retrieves a list of registered analysisType names" )
@@ -73,9 +61,16 @@ public class SchemaController {
 
   @ApiOperation(value = "GetLatestAnalysisType",
       notes = "Retrieves the latest version of a schema for an analysisType" )
-  @GetMapping("/analysis/{name}")
+  @GetMapping("/analysis/{name}/latest")
   public AnalysisType getLatestSchema(@PathVariable("name") String name){
     return analysisTypeService.getLatestAnalysisType(name);
+  }
+
+  @ApiOperation(value = "GetAnalysisTypeMetaSchema",
+      notes = "Retrieves the meta-schema used to validate AnalysisType schemas" )
+  @GetMapping("/analysis/meta")
+  public String getAnalysisTypeMetaSchema(){
+    return toPrettyJson(analysisTypeService.getAnalysisTypeMetaSchemaJson());
   }
 
 }

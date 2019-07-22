@@ -44,6 +44,7 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
@@ -98,14 +99,21 @@ public class AnalysisTypeServiceTest {
 	}
 
 	@Test
-	public void getAnalysisType_versionDNE_notFound(){
-	  val repeats = 5;
+	public void getAnalysisType_malformedVersion_malformedParameter(){
+		val repeats = 5;
 		val data = generateData(repeats);
 		val testName = data.get(data.size()-1).getName();
 
 		// test when version <= 0
-		assertSongError(() ->  analysisTypeService.getAnalysisType(testName, 0), ANALYSIS_TYPE_NOT_FOUND);
-		assertSongError(() ->  analysisTypeService.getAnalysisType(testName, -1), ANALYSIS_TYPE_NOT_FOUND);
+		assertSongError(() ->  analysisTypeService.getAnalysisType(testName, 0), MALFORMED_PARAMETER);
+		assertSongError(() ->  analysisTypeService.getAnalysisType(testName, -1), MALFORMED_PARAMETER);
+	}
+
+	@Test
+	public void getAnalysisType_versionDNE_notFound(){
+	  val repeats = 5;
+		val data = generateData(repeats);
+		val testName = data.get(data.size()-1).getName();
 
 	  // test when version > latest
 		assertSongError(() ->  analysisTypeService.getAnalysisType(testName, repeats+1), ANALYSIS_TYPE_NOT_FOUND);

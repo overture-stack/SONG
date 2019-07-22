@@ -30,7 +30,7 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 public class SchemaConfig {
 
   private static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
-  private static final Schema PAYLOAD_META_SCHEMA = buildPayloadMetaSchema();
+  private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
 
   public static Schema buildSchema(@NonNull JSONObject jsonSchema) throws IOException, JSONException {
     return SchemaLoader.builder()
@@ -87,8 +87,8 @@ public class SchemaConfig {
   // [rtisma] NOTE: When this is transformed into a bean, a stackoverflow occurs, probably due to some spring integration issue https://github.com/everit-org/json-schema/issues/191. The workaround is to create a bean that is a callback to the method
   @Bean
   @SneakyThrows
-  public Supplier<Schema> payloadMetaSchemaSupplier()  {
-    return () -> PAYLOAD_META_SCHEMA;
+  public Supplier<Schema> analysisTypeMetaSchemaSupplier()  {
+    return () -> ANALYSIS_TYPE_META_SCHEMA;
   }
 
   private static JsonNode getSchemaAsJson(String schemaFilename) throws IOException, JSONException {
@@ -97,8 +97,8 @@ public class SchemaConfig {
   }
 
   @SneakyThrows
-  private static Schema buildPayloadMetaSchema()  {
-    val filename = "payload.metaschema.json";
+  private static Schema buildAnalysisTypeMetaSchema()  {
+    val filename = "analysisType.metaschema.json";
     val jsonSchema = convertToJSONObject(getSchemaAsJson(filename));
     return SchemaLoader.builder()
         .schemaClient(SchemaClient.classPathAwareClient())

@@ -75,7 +75,7 @@ public class ValidationService {
 
   @SneakyThrows
   public void validateAnalysisTypeSchema(@NonNull JsonNode analysisTypeSchema) {
-    val metaSchema = analysisTypeService.getPayloadMetaSchema();
+    val metaSchema = analysisTypeService.getAnalysisTypeMetaSchema();
     try{
       validateWithSchema(metaSchema, analysisTypeSchema);
     } catch (ValidationException e){

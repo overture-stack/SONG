@@ -5,6 +5,7 @@ import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.everit.json.schema.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,28 +22,35 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.server.model.enums.TableAttributeNames.ID;
 
 @Service
 public class AnalysisTypeService {
 
-  private final Schema payloadMetaSchema;
+  private final Schema analysisTypeMetaSchema;
   private final AnalysisSchemaRepository analysisSchemaRepository;
 
   @Autowired
-  public AnalysisTypeService(@NonNull Supplier<Schema> payloadMetaSchemaSupplier,
+  public AnalysisTypeService(@NonNull Supplier<Schema> analysisTypeMetaSchemaSupplier,
       @NonNull AnalysisSchemaRepository analysisSchemaRepository) {
-    this.payloadMetaSchema = payloadMetaSchemaSupplier.get();
+    this.analysisTypeMetaSchema = analysisTypeMetaSchemaSupplier.get();
     this.analysisSchemaRepository = analysisSchemaRepository;
   }
 
-  public Schema getPayloadMetaSchema(){
-    return payloadMetaSchema;
+  public Schema getAnalysisTypeMetaSchema(){
+    return analysisTypeMetaSchema;
+  }
+
+  @SneakyThrows
+  public JsonNode getAnalysisTypeMetaSchemaJson(){
+    return readTree(getAnalysisTypeMetaSchema().toString());
   }
 
   public AnalysisType getAnalysisType(@NonNull String name, @NonNull Integer version){
-    checkServer(version > 0,getClass(), ANALYSIS_TYPE_NOT_FOUND,
+    checkServer(version > 0,getClass(), MALFORMED_PARAMETER,
         "The version '%s' must be greater than 0", version);
 
     val page = filterAnalysisSchemaByAscIndex(name, version-1);
@@ -111,8 +119,6 @@ public class AnalysisTypeService {
             Sort.by(DESC, ID)));
   }
 
-  // TODO: [rtisma] query executes correct select with offset and limit, but followed by second count query.
-  //  Try to remove the count query
   private Page<AnalysisSchema> filterAnalysisSchemaByAscIndex(String name, Integer index){
     return analysisSchemaRepository.findAllByName(name,
         PageRequest.of(index, 1,

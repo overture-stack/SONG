@@ -2,8 +2,7 @@ package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import bio.overture.song.server.utils.ResourceFetcher;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -19,14 +18,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.Thread.currentThread;
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.isDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.ResourceFetcher.ResourceType.TEST;
 
 @Slf4j
 @SpringBootTest
@@ -38,6 +34,10 @@ public class DynamicAnalysisTest {
   private static final Path RESOURCE_DIR = Paths.get("src/test/resources");
   private static final String GOOD_SCHEMA_FILENAME = "good.schema.json";
   private static final String BAD_SCHEMA_FILENAME = "bad.schema.json";
+  private static final ResourceFetcher RESOURCE_FETCHER = ResourceFetcher.builder()
+      .resourceType(TEST)
+      .dataDir(TEST_DIR)
+      .build();
 
   @Autowired private UploadService uploadService;
   @Autowired private AnalysisSchemaRepository analysisSchemaRepository;
@@ -50,15 +50,12 @@ public class DynamicAnalysisTest {
 
   @BeforeClass
   public static void beforeClass(){
-    val path = RESOURCE_DIR.resolve(TEST_DIR);
-    checkArgument(exists(path) && isDirectory(path),
-        "The test directory '%s' does not exist",
-        path.toString());
+    RESOURCE_FETCHER.check();
   }
 
   @Test
   public void incrementingRegistrationVersionNumber_MultipleGoodSchemas_Success() throws IOException {
-    val goodSchema = readJsonNode(GOOD_SCHEMA_FILENAME);
+    val goodSchema = RESOURCE_FETCHER.readJsonNode(GOOD_SCHEMA_FILENAME);
 
     // Create analysisType1 and assert version 1
     val analysisTypeName1 = generateUniqueAnalysisSchemaName();
@@ -90,7 +87,7 @@ public class DynamicAnalysisTest {
 
   @Test
   public void incrementingRegistrationVersionNumber_BadSchema_BadRequest() throws IOException {
-    val badSchema = readJsonNode(BAD_SCHEMA_FILENAME);
+    val badSchema = RESOURCE_FETCHER.readJsonNode(BAD_SCHEMA_FILENAME);
     val analysisTypeName1 = generateUniqueAnalysisSchemaName();
     assertSongError(() ->
         uploadService.register(analysisTypeName1, badSchema), SCHEMA_VIOLATION);
@@ -102,15 +99,6 @@ public class DynamicAnalysisTest {
       analysisType = randomGenerator.generateRandomAsciiString(10);
     } while (analysisSchemaRepository.countAllByName(analysisType) > 0);
     return analysisType;
-  }
-
-  private static JsonNode readJsonNode(String filename) throws IOException {
-    return getJsonNodeFromClasspath(TEST_DIR.resolve(filename).toString());
-  }
-
-  private static JsonNode getJsonNodeFromClasspath(String name) throws IOException {
-    val is1 = currentThread().getContextClassLoader().getResourceAsStream(name);
-    return new ObjectMapper().readTree(is1);
   }
 
 }

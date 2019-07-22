@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "rob234",
-    "title": "Core schema meta-schema",
+    "$id": "analysis-type-meta-schema",
+    "title": "Meta-schema for validating AnalysisType schemas",
     "definitions": {
         "schemaArray": {
             "type": "array",
