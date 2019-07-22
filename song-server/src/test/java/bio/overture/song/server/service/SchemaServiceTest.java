@@ -92,13 +92,13 @@ public class SchemaServiceTest {
 	}
 
 	@Test
-	public void getSchema_AnalysisTypeDNE_NotFound(){
+	public void getSchema_analysisTypeDNE_notFound(){
 	  val nonExistingAnalysisType = generateUniqueAnalysisTypeName();
 		assertSongError(() -> schemaService.getSchema(nonExistingAnalysisType, 1), ANALYSIS_TYPE_NOT_FOUND);
 	}
 
 	@Test
-	public void getSchema_VersionDNE_NotFound(){
+	public void getSchema_versionDNE_notFound(){
 	  val repeats = 3;
 		val data = generateData(repeats);
 		val testName = data.get(data.size()-1).getName();
@@ -112,7 +112,7 @@ public class SchemaServiceTest {
   }
 
   @Test
-	public void getSchema_MultiNamesMultiVersions_Success(){
+	public void getSchema_multiNamesMultiVersions_Success(){
 	  // Generate test data
 		val repeats = 3;
 		val version = repeats-1;
