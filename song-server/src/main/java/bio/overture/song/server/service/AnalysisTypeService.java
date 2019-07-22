@@ -5,7 +5,6 @@ import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.val;
 import org.everit.json.schema.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,6 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.server.model.enums.TableAttributeNames.ID;
 
 @Service
@@ -42,11 +40,6 @@ public class AnalysisTypeService {
 
   public Schema getAnalysisTypeMetaSchema(){
     return analysisTypeMetaSchema;
-  }
-
-  @SneakyThrows
-  public JsonNode getAnalysisTypeMetaSchemaJson(){
-    return readTree(getAnalysisTypeMetaSchema().toString());
   }
 
   public AnalysisType getAnalysisType(@NonNull String name, @NonNull Integer version){

@@ -21,6 +21,7 @@ import bio.overture.song.server.service.AnalysisTypeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 
+import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 
 @RestController
@@ -66,11 +68,12 @@ public class SchemaController {
     return analysisTypeService.getLatestAnalysisType(name);
   }
 
+  @SneakyThrows
   @ApiOperation(value = "GetAnalysisTypeMetaSchema",
       notes = "Retrieves the meta-schema used to validate AnalysisType schemas" )
   @GetMapping("/analysis/meta")
   public String getAnalysisTypeMetaSchema(){
-    return toPrettyJson(analysisTypeService.getAnalysisTypeMetaSchemaJson());
+    return toPrettyJson(readTree(analysisTypeService.getAnalysisTypeMetaSchema().toString()));
   }
 
 }
