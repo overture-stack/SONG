@@ -84,7 +84,7 @@ public class SchemaConfig {
     return getResourceContent(schemaRelativePath);
   }
 
-  // [rtisma] NOTE: When this is transformed into a bean, a stackoverflow occurs, probably due to some spring integration issue https://github.com/everit-org/json-schema/issues/191. The workaround is to create a bean that is a callback to the method
+  // [rtisma] NOTE: When this is transformed into a bean, a stackoverflow occurs, probably due to some spring integration issue https://github.com/everit-org/json-schema/issues/191. The workaround is to create a bean that is a callback to the schema
   @Bean
   @SneakyThrows
   public Supplier<Schema> analysisTypeMetaSchemaSupplier()  {
