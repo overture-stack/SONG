@@ -26,8 +26,8 @@ import static bio.overture.song.server.repository.CustomJsonType.CUSTOM_JSON_TYP
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = TableNames.ANALYSIS_TYPE2)
-public class AnalysisType {
+@Table(name = TableNames.ANALYSIS_SCHEMA)
+public class AnalysisSchema {
 
   @Id
   @Column(name = ID)

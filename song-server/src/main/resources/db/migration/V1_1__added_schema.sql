@@ -3,7 +3,7 @@ CREATE TABLE experiment (
     schema                   json NOT NULL
 );
 
-CREATE TABLE analysis_type2 (
+CREATE TABLE analysis_schema (
     id              BIGSERIAL PRIMARY KEY ,
     name            VARCHAR(225) NOT NULL,
     schema          jsonb

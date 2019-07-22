@@ -1,6 +1,7 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class DynamicAnalysisTest {
   private static final String BAD_SCHEMA_FILENAME = "bad.schema.json";
 
   @Autowired private UploadService uploadService;
-  @Autowired private SchemaService schemaService;
+  @Autowired private AnalysisSchemaRepository analysisSchemaRepository;
   private RandomGenerator randomGenerator;
 
   @Before
@@ -60,13 +61,13 @@ public class DynamicAnalysisTest {
     val goodSchema = readJsonNode(GOOD_SCHEMA_FILENAME);
 
     // Create analysisType1 and assert version 1
-    val analysisTypeName1 = generateUniqueAnalysisTypeName();
+    val analysisTypeName1 = generateUniqueAnalysisSchemaName();
     val resp1 = uploadService.register(analysisTypeName1, goodSchema);
     assertThat(resp1.getName()).isEqualTo(analysisTypeName1);
     assertThat(resp1.getVersion()).isEqualTo(1);
 
     // Create analysisType2 and assert version 1
-    val analysisTypeName2 = generateUniqueAnalysisTypeName();
+    val analysisTypeName2 = generateUniqueAnalysisSchemaName();
     val resp2 = uploadService.register(analysisTypeName2, goodSchema);
     assertThat(resp2.getName()).isEqualTo(analysisTypeName2);
     assertThat(resp2.getVersion()).isEqualTo(1);
@@ -90,18 +91,17 @@ public class DynamicAnalysisTest {
   @Test
   public void incrementingRegistrationVersionNumber_BadSchema_BadRequest() throws IOException {
     val badSchema = readJsonNode(BAD_SCHEMA_FILENAME);
-    val analysisTypeName1 = generateUniqueAnalysisTypeName();
+    val analysisTypeName1 = generateUniqueAnalysisSchemaName();
     assertSongError(() ->
         uploadService.register(analysisTypeName1, badSchema), SCHEMA_VIOLATION);
   }
 
-  private String generateUniqueAnalysisTypeName(){
+  private String generateUniqueAnalysisSchemaName(){
     String analysisType = null;
     do{
       analysisType = randomGenerator.generateRandomAsciiString(10);
-    } while (schemaService.findLatestAnalysisType(analysisType).isPresent());
+    } while (analysisSchemaRepository.countAllByName(analysisType) > 0);
     return analysisType;
-
   }
 
   private static JsonNode readJsonNode(String filename) throws IOException {

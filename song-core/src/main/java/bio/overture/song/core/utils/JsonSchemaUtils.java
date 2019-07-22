@@ -19,8 +19,10 @@ package bio.overture.song.core.utils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
+import org.everit.json.schema.Schema;
 
 import java.io.InputStream;
 
@@ -63,5 +65,11 @@ public class JsonSchemaUtils extends JsonDocUtils {
     InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
     JsonSchema schema = factory.getSchema(is);
     return schema;
+  }
+
+  @SneakyThrows
+  public static void validateWithSchema(@NonNull Schema schema, @NonNull JsonNode j){
+    val jsonObject = toJsonObject(j);
+    schema.validate(jsonObject);
   }
 }

@@ -19,7 +19,7 @@ package bio.overture.song.server.service;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import bio.overture.song.server.model.dto.RegisterAnalysisTypeResponse;
+import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.enums.IdPrefix;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
@@ -80,7 +80,7 @@ public class UploadService {
   private final StudyService studyService;
 
   @Autowired
-  private final SchemaService schemaService;
+  private final AnalysisTypeService analysisTypeService;
 
   public boolean isUploadExist(@NonNull String uploadId){
     return uploadRepository.existsById(uploadId);
@@ -175,13 +175,9 @@ public class UploadService {
     return ok(reply);
   }
 
-  public RegisterAnalysisTypeResponse register(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
+  public AnalysisType register(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
     validator.validateAnalysisTypeSchema(analysisTypeSchema);
-    val version = schemaService.commitAnalysisType(analysisTypeName, analysisTypeSchema);
-    return RegisterAnalysisTypeResponse.builder()
-        .name(analysisTypeName)
-        .version(version)
-        .build();
+    return analysisTypeService.commitAnalysisType(analysisTypeName, analysisTypeSchema);
   }
 
   private Upload unsecuredRead(@NonNull String uploadId) {

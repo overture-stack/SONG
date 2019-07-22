@@ -16,9 +16,8 @@
  */
 package bio.overture.song.server.controller;
 
-import bio.overture.song.server.model.dto.GetAnalysisTypeResponse;
-import bio.overture.song.server.service.SchemaService;
-import com.fasterxml.jackson.databind.JsonNode;
+import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.server.service.AnalysisTypeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -54,30 +53,29 @@ public class SchemaController {
 //  }
 
   @Autowired
-  private SchemaService schemaService;
+  private AnalysisTypeService analysisTypeService;
 
   @ApiOperation(value = "ListAnalysisTypes",
       notes = "Retrieves a list of registered analysisType names" )
   @GetMapping("/analysis")
   public Collection<String> listAnalysisTypes(){
-    return schemaService.listAnalysisTypeNames();
+    return analysisTypeService.listAnalysisTypeNames();
   }
 
   @ApiOperation(value = "GetAnalysisTypeVersion",
       notes = "Retrieves a specific version of a schema for an analysisType" )
   @GetMapping("/analysis/{name}/{version}")
-  public GetAnalysisTypeResponse getSchemaVersion(
+  public AnalysisType getAnalysisTypeVersion(
       @PathVariable("name") String name,
       @PathVariable("version") Integer version){
-    return schemaService.getSchema(name, version);
+    return analysisTypeService.getAnalysisType(name, version);
   }
 
   @ApiOperation(value = "GetLatestAnalysisType",
       notes = "Retrieves the latest version of a schema for an analysisType" )
   @GetMapping("/analysis/{name}")
-  public GetAnalysisTypeResponse getLatestSchema(@PathVariable("name") String name){
-    return schemaService.getLatestSchema(name);
+  public AnalysisType getLatestSchema(@PathVariable("name") String name){
+    return analysisTypeService.getLatestAnalysisType(name);
   }
-
 
 }

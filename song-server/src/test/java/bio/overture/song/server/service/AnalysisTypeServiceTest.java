@@ -18,10 +18,9 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.dto.GetAnalysisTypeResponse;
-import bio.overture.song.server.model.dto.RegisterAnalysisTypeResponse;
-import bio.overture.song.server.model.entity.AnalysisType;
-import bio.overture.song.server.repository.AnalysisTypeRepository;
+import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.server.model.entity.AnalysisSchema;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -53,10 +52,10 @@ import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
-public class SchemaServiceTest {
+public class AnalysisTypeServiceTest {
 
-	@Autowired private SchemaService schemaService;
-	@Autowired private AnalysisTypeRepository analysisTypeRepository;
+	@Autowired private AnalysisTypeService analysisTypeService;
+	@Autowired private AnalysisSchemaRepository analysisSchemaRepository;
 
 	private RandomGenerator randomGenerator;
 
@@ -68,10 +67,10 @@ public class SchemaServiceTest {
 	@Test
 	public void listAnalysisTypes_nonExisting_empty(){
 	  // Since the database could already contain elements from previous tests, the dao needs to be mocked
-		val repo = mock(AnalysisTypeRepository.class);
-		when(repo.findDistinctBy(SchemaService.AnalysisTypeNameView.class))
+		val repo = mock(AnalysisSchemaRepository.class);
+		when(repo.findDistinctBy(AnalysisTypeService.AnalysisSchemaNameView.class))
 				.thenReturn(emptyList());
-		val service = new SchemaService(() -> (Schema)null, repo);
+		val service = new AnalysisTypeService(() -> (Schema)null, repo);
 		assertThat(service.listAnalysisTypeNames()).isEmpty();
 	}
 
@@ -83,37 +82,37 @@ public class SchemaServiceTest {
 		val data = generateData(repeats);
 
 		// Extract expected names
-		val expectedNames = mapToImmutableSet(data, RegisterAnalysisTypeResponse::getName);
+		val expectedNames = mapToImmutableSet(data, AnalysisType::getName);
 
 		// Get actual names
-		val actualNames = schemaService.listAnalysisTypeNames();
+		val actualNames = analysisTypeService.listAnalysisTypeNames();
 
 		// Assert actualNames contains all the expectedNames (actual names could have more elements due to previous tests)
 		assertThat(actualNames).containsAll(expectedNames);
 	}
 
 	@Test
-	public void getSchema_analysisTypeDNE_notFound(){
-	  val nonExistingAnalysisType = generateUniqueAnalysisTypeName();
-		assertSongError(() -> schemaService.getSchema(nonExistingAnalysisType, 1), ANALYSIS_TYPE_NOT_FOUND);
+	public void getAnalysisType_analysisTypeDNE_notFound(){
+	  val nonExistingAnalysisTypeName = generateUniqueAnalysisTypeName();
+		assertSongError(() -> analysisTypeService.getAnalysisType(nonExistingAnalysisTypeName, 1), ANALYSIS_TYPE_NOT_FOUND);
 	}
 
 	@Test
-	public void getSchema_versionDNE_notFound(){
+	public void getAnalysisType_versionDNE_notFound(){
 	  val repeats = 3;
 		val data = generateData(repeats);
 		val testName = data.get(data.size()-1).getName();
 
 		// test when version <= 0
-		assertSongError(() ->  schemaService.getSchema(testName, 0), ANALYSIS_TYPE_NOT_FOUND);
-		assertSongError(() ->  schemaService.getSchema(testName, -1), ANALYSIS_TYPE_NOT_FOUND);
+		assertSongError(() ->  analysisTypeService.getAnalysisType(testName, 0), ANALYSIS_TYPE_NOT_FOUND);
+		assertSongError(() ->  analysisTypeService.getAnalysisType(testName, -1), ANALYSIS_TYPE_NOT_FOUND);
 
 	  // test when version > latest
-		assertSongError(() ->  schemaService.getSchema(testName, repeats+1), ANALYSIS_TYPE_NOT_FOUND);
+		assertSongError(() ->  analysisTypeService.getAnalysisType(testName, repeats+1), ANALYSIS_TYPE_NOT_FOUND);
   }
 
   @Test
-	public void getSchema_multiNamesMultiVersions_Success(){
+	public void getAnalysisType_multiNamesMultiVersions_success(){
 	  // Generate test data
 		val repeats = 3;
 		val version = repeats-1;
@@ -121,28 +120,28 @@ public class SchemaServiceTest {
 		val testName = data.get(data.size()-1).getName();
 
 		// Find all analysisTypes matching the name, sort descending by id and store as expectedAnalysisTypes
-		val expectedAnalysisTypesForName = analysisTypeRepository.findAll().stream()
+		val expectedAnalysisSchemasByName = analysisSchemaRepository.findAll().stream()
 				.filter(x -> x.getName().equals(testName))
-        .sorted((at1, at2) ->  comparingInt(AnalysisType::getId).compare(at1, at2))
+        .sorted((at1, at2) ->  comparingInt(AnalysisSchema::getId).compare(at1, at2))
 				.collect(toImmutableList());
-		assertThat(expectedAnalysisTypesForName).hasSize(repeats);
+		assertThat(expectedAnalysisSchemasByName).hasSize(repeats);
 
 		// Get the expectedAnalysisType
-		val expectedAnalysisTypeForVersion = expectedAnalysisTypesForName.get(version-1);
-		val expectedAnalysisType = GetAnalysisTypeResponse.builder()
+		val expectedAnalysisSchemaForVersion = expectedAnalysisSchemasByName.get(version-1);
+		val expectedAnalysisType = AnalysisType.builder()
 				.name(testName)
 				.version(version)
-				.schema( expectedAnalysisTypeForVersion.getSchema())
+				.schema(expectedAnalysisSchemaForVersion.getSchema())
 				.build();
 
 		// Get the actual Schema
-		val actualSchema = schemaService.getSchema(testName, version);
+		val actualAnalysisType = analysisTypeService.getAnalysisType(testName, version);
 
 		// Assert the schemas match
-		assertThat(actualSchema).isEqualTo(expectedAnalysisType);
+		assertThat(actualAnalysisType).isEqualTo(expectedAnalysisType);
 	}
 
-	private List<RegisterAnalysisTypeResponse> generateData(int repeats){
+	private List<AnalysisType> generateData(int repeats){
 		val names = IntStream.range(0, repeats)
 				.boxed()
 				.map(x -> "exampleAnalysisType-"+randomGenerator.generateRandomAsciiString(10) )
@@ -153,11 +152,7 @@ public class SchemaServiceTest {
 				.map(i -> {
 					val name = names.get(i%repeats);
 					val schema = JsonNodeBuilders.object().with("$id", randomGenerator.generateRandomUUIDAsString()).end();
-					val version = schemaService.commitAnalysisType(name, schema);
-					return RegisterAnalysisTypeResponse.builder()
-							.name(name)
-							.version(version)
-							.build();
+					return analysisTypeService.commitAnalysisType(name, schema);
 				})
 				.collect(toImmutableList());
 	}
@@ -166,7 +161,7 @@ public class SchemaServiceTest {
 		String analysisType = null;
 		do{
 			analysisType = randomGenerator.generateRandomAsciiString(10);
-		} while (analysisTypeRepository.countAllByName(analysisType) > 0);
+		} while (analysisSchemaRepository.countAllByName(analysisType) > 0);
 		return analysisType;
 	}
 

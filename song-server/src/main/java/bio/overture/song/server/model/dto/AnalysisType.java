@@ -7,7 +7,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class GetAnalysisTypeResponse {
+public class AnalysisType {
   @NonNull private final String name;
   @NonNull private final Integer version;
   @NonNull private final JsonNode schema;
