@@ -78,7 +78,7 @@ public class AnalysisTypeServiceTest {
 	@SneakyThrows
 	public void listAnalysisTypes_multiVersionMultiAnalysisTypes_NonDuplicateListOfNames(){
 	  // Generate data
-		val repeats = 3;
+		val repeats = 5;
 		val data = generateData(repeats);
 
 		// Extract expected names
@@ -99,7 +99,7 @@ public class AnalysisTypeServiceTest {
 
 	@Test
 	public void getAnalysisType_versionDNE_notFound(){
-	  val repeats = 3;
+	  val repeats = 5;
 		val data = generateData(repeats);
 		val testName = data.get(data.size()-1).getName();
 
@@ -114,7 +114,7 @@ public class AnalysisTypeServiceTest {
   @Test
 	public void getAnalysisType_multiNamesMultiVersions_success(){
 	  // Generate test data
-		val repeats = 3;
+		val repeats = 5;
 		val version = repeats-1;
 		val data = generateData(repeats);
 		val testName = data.get(data.size()-1).getName();
@@ -126,7 +126,7 @@ public class AnalysisTypeServiceTest {
 				.collect(toImmutableList());
 		assertThat(expectedAnalysisSchemasByName).hasSize(repeats);
 
-		// Get the expectedAnalysisType
+		// Get the expectedAnalysisType for the specified version
 		val expectedAnalysisSchemaForVersion = expectedAnalysisSchemasByName.get(version-1);
 		val expectedAnalysisType = AnalysisType.builder()
 				.name(testName)
@@ -134,11 +134,47 @@ public class AnalysisTypeServiceTest {
 				.schema(expectedAnalysisSchemaForVersion.getSchema())
 				.build();
 
-		// Get the actual Schema
+		// Get the actual Schema for the specified version
 		val actualAnalysisType = analysisTypeService.getAnalysisType(testName, version);
 
-		// Assert the schemas match
+		// Assert the schemas match for the specified version
 		assertThat(actualAnalysisType).isEqualTo(expectedAnalysisType);
+	}
+
+	@Test
+	public void getLatestAnalysisType_multiNamesMultiVersions_success(){
+		// Generate test data
+		val repeats = 5;
+		val latestVersion = repeats;
+		val data = generateData(repeats);
+		val testName = data.get(data.size()-1).getName();
+
+		// Find all analysisTypes matching the name, sort descending by id and store as expectedAnalysisTypes
+		val expectedAnalysisSchemasByName = analysisSchemaRepository.findAll().stream()
+				.filter(x -> x.getName().equals(testName))
+				.sorted((at1, at2) ->  comparingInt(AnalysisSchema::getId).compare(at1, at2))
+				.collect(toImmutableList());
+		assertThat(expectedAnalysisSchemasByName).hasSize(repeats);
+
+		// Get the expectedLatestAnalysisType for the latest version
+		val expectedLatestAnalysisSchema = expectedAnalysisSchemasByName.get(latestVersion-1);
+		val expectedLatestAnalysisType = AnalysisType.builder()
+				.name(testName)
+				.version(latestVersion)
+				.schema(expectedLatestAnalysisSchema.getSchema())
+				.build();
+
+		// Get the actual Schema for the latest version
+		val actualLatestAnalysisType = analysisTypeService.getLatestAnalysisType(testName);
+
+		// Assert the schemas match for the latest version
+		assertThat(actualLatestAnalysisType).isEqualTo(expectedLatestAnalysisType);
+	}
+
+	@Test
+	public void getLatestAnalysisType_analysisTypeDNE_notFound(){
+		val nonExistingAnalysisTypeName = generateUniqueAnalysisTypeName();
+		assertSongError(() -> analysisTypeService.getLatestAnalysisType(nonExistingAnalysisTypeName), ANALYSIS_TYPE_NOT_FOUND);
 	}
 
 	private List<AnalysisType> generateData(int repeats){

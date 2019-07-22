@@ -45,7 +45,7 @@ public class AnalysisTypeService {
     checkServer(version > 0,getClass(), ANALYSIS_TYPE_NOT_FOUND,
         "The version '%s' must be greater than 0", version);
 
-    val page = filterAnalysisSchemaByDescIndex(name, version-1);
+    val page = filterAnalysisSchemaByAscIndex(name, version-1);
     val latestVersion = page.getTotalElements();
     val analysisTypeNameExists = page.getTotalElements() > 0;
     val analysisTypeVersionExists = version <= latestVersion;
@@ -108,15 +108,15 @@ public class AnalysisTypeService {
   private Page<AnalysisSchema> filterLatestAnalysisSchema(String name){
     return analysisSchemaRepository.findAllByName(name,
         PageRequest.of(0, 1,
-            Sort.by(ASC, ID)));
+            Sort.by(DESC, ID)));
   }
 
   // TODO: [rtisma] query executes correct select with offset and limit, but followed by second count query.
   //  Try to remove the count query
-  private Page<AnalysisSchema> filterAnalysisSchemaByDescIndex(String name, Integer index){
+  private Page<AnalysisSchema> filterAnalysisSchemaByAscIndex(String name, Integer index){
     return analysisSchemaRepository.findAllByName(name,
         PageRequest.of(index, 1,
-            Sort.by(DESC, ID)));
+            Sort.by(ASC, ID)));
   }
 
   private Integer getLatestVersionNumber(String analysisTypeName){
