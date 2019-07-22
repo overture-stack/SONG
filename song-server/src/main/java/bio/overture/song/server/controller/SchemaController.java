@@ -16,6 +16,7 @@
  */
 package bio.overture.song.server.controller;
 
+import bio.overture.song.server.model.dto.GetAnalysisTypeResponse;
 import bio.overture.song.server.service.SchemaService;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
@@ -65,10 +66,17 @@ public class SchemaController {
   @ApiOperation(value = "GetAnalysisTypeVersion",
       notes = "Retrieves a specific version of a schema for an analysisType" )
   @GetMapping("/analysis/{name}/{version}")
-  public JsonNode getSchemaVersion(
+  public GetAnalysisTypeResponse getSchemaVersion(
       @PathVariable("name") String name,
       @PathVariable("version") Integer version){
     return schemaService.getSchema(name, version);
+  }
+
+  @ApiOperation(value = "GetLatestAnalysisType",
+      notes = "Retrieves the latest version of a schema for an analysisType" )
+  @GetMapping("/analysis/{name}")
+  public GetAnalysisTypeResponse getLatestSchema(@PathVariable("name") String name){
+    return schemaService.getLatestSchema(name);
   }
 
 

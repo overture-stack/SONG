@@ -18,6 +18,7 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.dto.GetAnalysisTypeResponse;
 import bio.overture.song.server.model.dto.RegisterAnalysisTypeResponse;
 import bio.overture.song.server.model.entity.AnalysisType;
 import bio.overture.song.server.repository.AnalysisTypeRepository;
@@ -126,15 +127,19 @@ public class SchemaServiceTest {
 				.collect(toImmutableList());
 		assertThat(expectedAnalysisTypesForName).hasSize(repeats);
 
-		// Get the expected Schema
+		// Get the expectedAnalysisType
 		val expectedAnalysisTypeForVersion = expectedAnalysisTypesForName.get(version-1);
-		val expectedSchema = expectedAnalysisTypeForVersion.getSchema();
+		val expectedAnalysisType = GetAnalysisTypeResponse.builder()
+				.name(testName)
+				.version(version)
+				.schema( expectedAnalysisTypeForVersion.getSchema())
+				.build();
 
 		// Get the actual Schema
 		val actualSchema = schemaService.getSchema(testName, version);
 
 		// Assert the schemas match
-		assertThat(actualSchema).isEqualTo(expectedSchema);
+		assertThat(actualSchema).isEqualTo(expectedAnalysisType);
 	}
 
 	private List<RegisterAnalysisTypeResponse> generateData(int repeats){
