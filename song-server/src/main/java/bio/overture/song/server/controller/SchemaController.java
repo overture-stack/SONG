@@ -17,11 +17,13 @@
 package bio.overture.song.server.controller;
 
 import bio.overture.song.server.service.SchemaService;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -58,6 +60,15 @@ public class SchemaController {
   @GetMapping("/analysis")
   public Collection<String> listAnalysisTypes(){
     return schemaService.listAnalysisTypeNames();
+  }
+
+  @ApiOperation(value = "GetAnalysisTypeVersion",
+      notes = "Retrieves a specific version of a schema for an analysisType" )
+  @GetMapping("/analysis/{name}/{version}")
+  public JsonNode getSchemaVersion(
+      @PathVariable("name") String name,
+      @PathVariable("version") Integer version){
+    return schemaService.getSchema(name, version);
   }
 
 
