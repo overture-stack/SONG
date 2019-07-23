@@ -50,7 +50,6 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
         .authorizeRequests()
         .antMatchers("/health").permitAll()
         .antMatchers("/isAlive").permitAll()
-        .antMatchers("/special/**").permitAll()
         .antMatchers("/studies/**").permitAll()
         .antMatchers("/upload/**").permitAll()
         .antMatchers("/entities/**").permitAll()

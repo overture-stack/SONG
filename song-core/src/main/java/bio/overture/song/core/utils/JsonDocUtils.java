@@ -16,18 +16,14 @@
  */
 package bio.overture.song.core.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.google.common.base.Strings;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 public class JsonDocUtils {
 
@@ -43,11 +39,6 @@ public class JsonDocUtils {
     val mapper = buildObjectMapper();
     val is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
     return mapper.readTree(is);
-  }
-
-  public static JSONObject toJsonObject(@NonNull JsonNode j) throws JsonProcessingException {
-    val value = buildObjectMapper().writeValueAsString(j);
-    return new JSONObject(new JSONTokener(value));
   }
 
   public static String getValue(JsonNode node, String key) {

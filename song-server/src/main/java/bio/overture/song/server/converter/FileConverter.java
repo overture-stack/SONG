@@ -43,16 +43,16 @@ public interface FileConverter {
 
   FileUpdateRequest fileEntityToFileUpdateRequest(FileEntity file);
 
-	@Mapping(target = "fileType", ignore = true)
-	@Mapping(target = "objectId", ignore = true)
-	@Mapping(target = "studyId", ignore = true)
-	@Mapping(target = "analysisId", ignore = true)
-	@Mapping(target = "fileName", ignore = true)
+  @Mapping(target = "fileType", ignore = true)
+  @Mapping(target = "objectId", ignore = true)
+  @Mapping(target = "studyId", ignore = true)
+  @Mapping(target = "analysisId", ignore = true)
+  @Mapping(target = "fileName", ignore = true)
   void updateEntityFromData(FileData fileData, @MappingTarget FileEntity file);
 
-	void updateFileEntity(FileEntity ref, @MappingTarget FileEntity fileToUpdate);
+  void updateFileEntity(FileEntity ref, @MappingTarget FileEntity fileToUpdate);
 
-	// NOTE: mapstruct cannot properly generate this method because it defaults to using the builder instead of the setters. Since the info field is not apart of the builder, it does not fully copy.
+  // NOTE: mapstruct cannot properly generate this method because it defaults to using the builder instead of the setters. Since the info field is not apart of the builder, it does not fully copy.
   default FileEntity copyFile(FileEntity ref){
     val copy = new FileEntity();
     updateFileEntity(ref, copy);

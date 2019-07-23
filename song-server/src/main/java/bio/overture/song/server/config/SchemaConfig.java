@@ -32,42 +32,6 @@ public class SchemaConfig {
   private static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
   private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
 
-  public static Schema buildSchema(@NonNull JSONObject jsonSchema) throws IOException, JSONException {
-    return SchemaLoader.builder()
-        .schemaClient(SchemaClient.classPathAwareClient())
-        .resolutionScope("classpath://"+SCHEMA_PATH.toString()+"/")
-        .schemaJson(jsonSchema)
-        .draftV7Support()
-        .build()
-        .load()
-        .build();
-  }
-
-  public static Schema getSchema(@NonNull JsonNode jsonNode) throws IOException, JSONException {
-    return buildSchema(convertToJSONObject(jsonNode));
-  }
-
-  public static Schema getSchema(String jsonSchemaFilename) throws IOException, JSONException {
-    return buildSchema(getSchemaJson(jsonSchemaFilename));
-  }
-
-  public static String getResourceContent(String resourceFilename) throws IOException {
-    try(val inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceFilename)) {
-      if(isNull(inputStream)){
-        throw new IOException(format("The classpath resource '%s' does not exist", resourceFilename));
-      }
-      return new BufferedReader(new InputStreamReader(inputStream))
-          .lines()
-          .collect(joining("\n"));
-    }
-  }
-
-  private static JSONObject getSchemaJson(String jsonSchemaFilename) throws IOException, JSONException {
-    val schemaRelativePath = SCHEMA_PATH.resolve(jsonSchemaFilename).toString();
-    val content = getResourceContent(schemaRelativePath);
-    return new JSONObject(new JSONTokener(content));
-  }
-
   @Bean
   public Schema analysisRegistrationSchema() throws IOException, JSONException {
     return getSchema("analysisRegistration.json");
@@ -107,6 +71,38 @@ public class SchemaConfig {
         .build()
         .load()
         .build();
+  }
+
+  private static JSONObject getSchemaJson(String jsonSchemaFilename) throws IOException, JSONException {
+    val schemaRelativePath = SCHEMA_PATH.resolve(jsonSchemaFilename).toString();
+    val content = getResourceContent(schemaRelativePath);
+    return new JSONObject(new JSONTokener(content));
+  }
+
+  private static Schema getSchema(String jsonSchemaFilename) throws IOException, JSONException {
+    return buildSchema(getSchemaJson(jsonSchemaFilename));
+  }
+
+  private static Schema buildSchema(@NonNull JSONObject jsonSchema) throws IOException, JSONException {
+    return SchemaLoader.builder()
+        .schemaClient(SchemaClient.classPathAwareClient())
+        .resolutionScope("classpath://"+SCHEMA_PATH.toString()+"/")
+        .schemaJson(jsonSchema)
+        .draftV7Support()
+        .build()
+        .load()
+        .build();
+  }
+
+  private static String getResourceContent(String resourceFilename) throws IOException {
+    try(val inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceFilename)) {
+      if(isNull(inputStream)){
+        throw new IOException(format("The classpath resource '%s' does not exist", resourceFilename));
+      }
+      return new BufferedReader(new InputStreamReader(inputStream))
+          .lines()
+          .collect(joining("\n"));
+    }
   }
 
 }
