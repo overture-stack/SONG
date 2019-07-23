@@ -52,7 +52,7 @@ public class AnalysisTypeService {
     val latestVersion = page.getTotalElements();
     val analysisTypeNameExists = page.getTotalElements() > 0;
     val analysisTypeVersionExists = version <= latestVersion;
-    val analysisTypes = page.getContent();
+    val analysisSchemas = page.getContent();
 
     checkServer(analysisTypeNameExists, getClass(), ANALYSIS_TYPE_NOT_FOUND,
         "The analysisType with name '%s' does not exist",
@@ -60,8 +60,8 @@ public class AnalysisTypeService {
     checkServer(analysisTypeVersionExists, getClass(), ANALYSIS_TYPE_NOT_FOUND,
         "Version '%s' of analysisType with name '%s' does not exist however exists for the latest version '%s'",
         name, version, latestVersion);
-    checkState(analysisTypes.size() == 1, "Should not be here. Only 1 analysisType should be returned");
-    val schema = analysisTypes.get(0).getSchema();
+    checkState(analysisSchemas.size() == 1, "Should not be here. Only 1 analysisType should be returned");
+    val schema = analysisSchemas.get(0).getSchema();
     log.debug("Found analysisType '{}' with version '{}'", name, version);
     return AnalysisType.builder()
         .name(name)
@@ -89,12 +89,12 @@ public class AnalysisTypeService {
     val page = filterLatestAnalysisSchema(name);
     val latestVersion = (int)page.getTotalElements();
     val analysisTypeNameExists = page.getTotalElements() > 0;
-    val analysisTypes = page.getContent();
+    val analysisSchemas = page.getContent();
 
     checkServer(analysisTypeNameExists, getClass(), ANALYSIS_TYPE_NOT_FOUND,
         "The analysisType with name '%s' does not exist",
         name);
-    checkState(analysisTypes.size() == 1, "Should not be here. Only 1 analysisType should be returned");
+    checkState(analysisSchemas.size() == 1, "Should not be here. Only 1 analysisType should be returned");
     val schema = page.getContent().get(0).getSchema();
     log.debug("Found LATEST analysisType '{}' with version '{}'", name, latestVersion);
     return AnalysisType.builder()
