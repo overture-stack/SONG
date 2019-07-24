@@ -14,34 +14,45 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package bio.overture.song.server.controller;
+package bio.overture.song.server.controller.analysisType;
 
 import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.AnalysisTypeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 
 @RestController
 @RequestMapping(path = "/schemas")
 @Api(tags = "Schema", description = "Get schemas used for uploads")
-public class SchemaController {
+public class AnalysisTypeController {
 
   private final AnalysisTypeService analysisTypeService;
 
   @Autowired
-  public SchemaController(@NonNull AnalysisTypeService analysisTypeService) {
+  public AnalysisTypeController(@NonNull AnalysisTypeService analysisTypeService) {
     this.analysisTypeService = analysisTypeService;
   }
 
@@ -61,7 +72,7 @@ public class SchemaController {
     return analysisTypeService.getAnalysisType(name, version);
   }
 
-  @ApiOperation(value = "GetLatestAnalysisType",
+  @ApiOperation(value = "GetLatestSchema",
       notes = "Retrieves the latest version of a schema for an analysisType" )
   @GetMapping("/analysis/{name}/latest")
   public AnalysisType getLatestSchema(@PathVariable("name") String name){
@@ -69,11 +80,41 @@ public class SchemaController {
   }
 
   @SneakyThrows
-  @ApiOperation(value = "GetAnalysisTypeMetaSchema",
+  @ApiOperation(value = "GetMetaSchema",
       notes = "Retrieves the meta-schema used to validate AnalysisType schemas" )
   @GetMapping("/meta")
   public String getAnalysisTypeMetaSchema(){
     return toPrettyJson(readTree(analysisTypeService.getAnalysisTypeMetaSchema().toString()));
   }
+
+  @ApiOperation(value = "RegisterAnalysisType", notes = "Registers an analysisType schema")
+  @PostMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PreAuthorize("@systemSecurity.authorize(authentication)")
+  public @ResponseBody AnalysisType register(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @RequestBody RegisterAnalysisTypeRequest request) {
+    return analysisTypeService.register(request.getName(), request.getSchema());
+  }
+
+  @ApiOperation(value = "ListAnalysisTypes",
+      notes = "Retrieves a list of registered analysisTypes" )
+  @GetMapping
+  public Page<AnalysisType> listAnalysisTypes(Pageable pageable){
+    return analysisTypeService.listAnalysisTypes(pageable);
+  }
+
+
+
+  // GET /schemas/meta
+  // POST /schemas --> register endpoint, that validates the schema against metaschema, and stores
+  // POST /schemas/{analysisTypeId} --> validate a payload.
+  // GET /schemas?name=<>&version=<>&limit=<>&offset=<>&sort=[ASC,DESC]&fields=[id,name,version,schema]
+  //  name param filters by name
+  //  version param filters by version
+  //  limit  param limits output (pageable)
+  //  offset param offsets the result (pageable)
+  //  sort param indicates the sort direction (pageable)
+  //  fields param indicates which fields are to show. The main DTO should have jackson configured to not show nulls, and the database should not retrieve more than it needs
+
 
 }

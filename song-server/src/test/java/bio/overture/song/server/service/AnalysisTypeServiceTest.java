@@ -18,8 +18,10 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.controller.analysisType.AnalysisTypePageable;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.entity.AnalysisSchema;
+import bio.overture.song.server.model.projections.AnalysisSchemaNameProjection;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -69,10 +71,23 @@ public class AnalysisTypeServiceTest {
   public void listAnalysisTypes_nonExisting_empty() {
     // Since the database could already contain elements from previous tests, the dao needs to be mocked
     val repo = mock(AnalysisSchemaRepository.class);
-    when(repo.findDistinctBy(AnalysisTypeService.AnalysisSchemaNameView.class))
+    when(repo.findDistinctBy(AnalysisSchemaNameProjection.class))
         .thenReturn(emptyList());
     val service = new AnalysisTypeService(() -> (Schema) null, repo);
     assertThat(service.listAnalysisTypeNames()).isEmpty();
+  }
+
+  @Test
+  public void testRob(){
+    val data = generateData(10);
+    val pageable = AnalysisTypePageable.builder()
+        .limit("20")
+        .offset("4")
+        .sortOrder("DESC")
+        .build();
+    val actualNames = analysisTypeService.listAnalysisTypes(pageable);
+    log.info("Sdf");
+
   }
 
   @Test
