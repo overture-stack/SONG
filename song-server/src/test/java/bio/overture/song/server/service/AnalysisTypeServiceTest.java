@@ -25,7 +25,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.Schema;
-import org.icgc.dcc.common.core.json.JsonNodeBuilders;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +45,7 @@ import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 
@@ -130,7 +130,7 @@ public class AnalysisTypeServiceTest {
     // Find all analysisTypes matching the name, sort descending by id and store as expectedAnalysisTypes
     val expectedAnalysisSchemasByName = analysisSchemaRepository.findAll().stream()
         .filter(x -> x.getName().equals(testName))
-        .sorted((at1, at2) -> comparingInt(AnalysisSchema::getId).compare(at1, at2))
+        .sorted((at1, at2) -> comparingInt(AnalysisSchema::getOrderId).compare(at1, at2))
         .collect(toImmutableList());
     assertThat(expectedAnalysisSchemasByName).hasSize(repeats);
 
@@ -160,7 +160,7 @@ public class AnalysisTypeServiceTest {
     // Find all analysisTypes matching the name, sort descending by id and store as expectedAnalysisTypes
     val expectedAnalysisSchemasByName = analysisSchemaRepository.findAll().stream()
         .filter(x -> x.getName().equals(testName))
-        .sorted((at1, at2) -> comparingInt(AnalysisSchema::getId).compare(at1, at2))
+        .sorted((at1, at2) -> comparingInt(AnalysisSchema::getOrderId).compare(at1, at2))
         .collect(toImmutableList());
     assertThat(expectedAnalysisSchemasByName).hasSize(repeats);
 
@@ -196,7 +196,7 @@ public class AnalysisTypeServiceTest {
         .boxed()
         .map(i -> {
           val name = names.get(i % repeats);
-          val schema = JsonNodeBuilders.object().with("$id", randomGenerator.generateRandomUUIDAsString()).end();
+          val schema = mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
           return analysisTypeService.commitAnalysisType(name, schema);
         })
         .collect(toImmutableList());

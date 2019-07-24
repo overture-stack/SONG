@@ -24,7 +24,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.server.model.enums.TableAttributeNames.ID;
+import static bio.overture.song.server.model.enums.TableAttributeNames.ORDER_ID;
 
 @Slf4j
 @Service
@@ -115,13 +115,13 @@ public class AnalysisTypeService {
   private Page<AnalysisSchema> filterLatestAnalysisSchema(String name){
     return analysisSchemaRepository.findAllByName(name,
         PageRequest.of(0, 1,
-            Sort.by(DESC, ID)));
+            Sort.by(DESC, ORDER_ID)));
   }
 
   private Page<AnalysisSchema> filterAnalysisSchemaByAscIndex(String name, Integer index){
     return analysisSchemaRepository.findAllByName(name,
         PageRequest.of(index, 1,
-            Sort.by(ASC, ID)));
+            Sort.by(ASC, ORDER_ID)));
   }
 
   private Integer getLatestVersionNumber(String analysisTypeName){
