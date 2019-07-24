@@ -17,13 +17,20 @@
 package bio.overture.song.server;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 /**
  * Application entry point.
  */
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
+
+// Excluded ManagementWebSecurityAutoConfiguration as it is an @AutoConfigurationBefore in
+// SecurityAutoConfiguration within Springboot 2.1.
+// This was done because a login page was appearing for all endpoints after upgrading.
+
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
+
 public class ServerMain {
 
   public static void main(String... args) {
