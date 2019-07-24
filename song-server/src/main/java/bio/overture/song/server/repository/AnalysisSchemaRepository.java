@@ -14,6 +14,6 @@ public interface AnalysisSchemaRepository extends JpaRepository<AnalysisSchema, 
   Page<AnalysisSchema> findAllByName(String name, Pageable pageable);
   Integer countAllByName(String name);
   <T> List<T> findDistinctBy(Class<T> projection);
-  List<AnalysisSchemaNameOrderProjection> findAllByNameInOrderByNameAscOrderIdAsc(Collection<String> names);
+  List<AnalysisSchemaNameOrderProjection> findAllByNameInOrderByNameAscIdAsc(Collection<String> names);
 
 }

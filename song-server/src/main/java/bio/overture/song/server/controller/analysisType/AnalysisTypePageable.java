@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ORDER_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ID;
 
 @Value
 @Builder
@@ -57,7 +57,7 @@ public class AnalysisTypePageable implements Pageable {
       direction = Sort.Direction.ASC;
     }
     // Need to sort by ORDER_ID so that the version can be calculated
-    return new Sort(direction, ORDER_ID);
+    return new Sort(direction, ID);
   }
 
   @Override

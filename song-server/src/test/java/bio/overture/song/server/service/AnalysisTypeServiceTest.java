@@ -49,6 +49,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 
 @Slf4j
@@ -145,18 +146,14 @@ public class AnalysisTypeServiceTest {
     // Find all analysisTypes matching the name, sort descending by id and store as expectedAnalysisTypes
     val expectedAnalysisSchemasByName = analysisSchemaRepository.findAll().stream()
         .filter(x -> x.getName().equals(testName))
-        .sorted((at1, at2) -> comparingInt(AnalysisSchema::getOrderId).compare(at1, at2))
+        .sorted((at1, at2) -> comparingInt(AnalysisSchema::getId).compare(at1, at2))
         .collect(toImmutableList());
     assertThat(expectedAnalysisSchemasByName).hasSize(repeats);
 
     // Get the expectedAnalysisType for the specified version
     val expectedAnalysisSchemaForVersion = expectedAnalysisSchemasByName.get(version - 1);
-    val expectedAnalysisType = AnalysisType.builder()
-        .id(expectedAnalysisSchemaForVersion.getId())
-        .name(testName)
-        .version(version)
-        .schema(expectedAnalysisSchemaForVersion.getSchema())
-        .build();
+    val expectedAnalysisType = buildAnalysisType(testName, version,
+        expectedAnalysisSchemaForVersion.getSchema());
 
     // Get the actual Schema for the specified version
     val actualAnalysisType = analysisTypeService.getAnalysisType(testName, version);
@@ -176,18 +173,14 @@ public class AnalysisTypeServiceTest {
     // Find all analysisTypes matching the name, sort descending by id and store as expectedAnalysisTypes
     val expectedAnalysisSchemasByName = analysisSchemaRepository.findAll().stream()
         .filter(x -> x.getName().equals(testName))
-        .sorted((at1, at2) -> comparingInt(AnalysisSchema::getOrderId).compare(at1, at2))
+        .sorted((at1, at2) -> comparingInt(AnalysisSchema::getId).compare(at1, at2))
         .collect(toImmutableList());
     assertThat(expectedAnalysisSchemasByName).hasSize(repeats);
 
     // Get the expectedLatestAnalysisType for the latest version
     val expectedLatestAnalysisSchema = expectedAnalysisSchemasByName.get(latestVersion - 1);
-    val expectedLatestAnalysisType = AnalysisType.builder()
-        .id(expectedLatestAnalysisSchema.getId())
-        .name(testName)
-        .version(latestVersion)
-        .schema(expectedLatestAnalysisSchema.getSchema())
-        .build();
+    val expectedLatestAnalysisType = buildAnalysisType(testName, latestVersion,
+        expectedLatestAnalysisSchema.getSchema());
 
     // Get the actual Schema for the latest version
     val actualLatestAnalysisType = analysisTypeService.getLatestAnalysisType(testName);
