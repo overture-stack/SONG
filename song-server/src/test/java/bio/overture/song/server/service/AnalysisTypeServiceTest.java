@@ -137,6 +137,7 @@ public class AnalysisTypeServiceTest {
     // Get the expectedAnalysisType for the specified version
     val expectedAnalysisSchemaForVersion = expectedAnalysisSchemasByName.get(version - 1);
     val expectedAnalysisType = AnalysisType.builder()
+        .id(expectedAnalysisSchemaForVersion.getId())
         .name(testName)
         .version(version)
         .schema(expectedAnalysisSchemaForVersion.getSchema())
@@ -167,6 +168,7 @@ public class AnalysisTypeServiceTest {
     // Get the expectedLatestAnalysisType for the latest version
     val expectedLatestAnalysisSchema = expectedAnalysisSchemasByName.get(latestVersion - 1);
     val expectedLatestAnalysisType = AnalysisType.builder()
+        .id(expectedLatestAnalysisSchema.getId())
         .name(testName)
         .version(latestVersion)
         .schema(expectedLatestAnalysisSchema.getSchema())
@@ -197,7 +199,7 @@ public class AnalysisTypeServiceTest {
         .map(i -> {
           val name = names.get(i % repeats);
           val schema = mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
-          return analysisTypeService.commitAnalysisType(name, schema);
+          return analysisTypeService.register(name, schema);
         })
         .collect(toImmutableList());
   }

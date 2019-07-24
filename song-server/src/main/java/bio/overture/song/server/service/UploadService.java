@@ -176,10 +176,7 @@ public class UploadService {
   }
 
   public AnalysisType register(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
-    log.debug("Validating analysisType '{}'...", analysisTypeName);
-    validator.validateAnalysisTypeSchema(analysisTypeSchema);
-    log.debug("Candidate AnalysisType '{}' has been validated", analysisTypeName);
-    return analysisTypeService.commitAnalysisType(analysisTypeName, analysisTypeSchema);
+    return analysisTypeService.register(analysisTypeName, analysisTypeSchema);
   }
 
   private Upload unsecuredRead(@NonNull String uploadId) {

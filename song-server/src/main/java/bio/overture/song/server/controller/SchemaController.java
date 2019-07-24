@@ -71,7 +71,7 @@ public class SchemaController {
   @SneakyThrows
   @ApiOperation(value = "GetAnalysisTypeMetaSchema",
       notes = "Retrieves the meta-schema used to validate AnalysisType schemas" )
-  @GetMapping("/analysis/meta")
+  @GetMapping("/meta")
   public String getAnalysisTypeMetaSchema(){
     return toPrettyJson(readTree(analysisTypeService.getAnalysisTypeMetaSchema().toString()));
   }

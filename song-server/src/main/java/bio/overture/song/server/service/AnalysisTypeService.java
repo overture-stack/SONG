@@ -5,9 +5,11 @@ import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,12 +20,16 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.JsonSchemaUtils.validateWithSchema;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ORDER_ID;
 
 @Slf4j
@@ -61,29 +67,22 @@ public class AnalysisTypeService {
         "Version '%s' of analysisType with name '%s' does not exist however exists for the latest version '%s'",
         name, version, latestVersion);
     checkState(analysisSchemas.size() == 1, "Should not be here. Only 1 analysisType should be returned");
-    val schema = analysisSchemas.get(0).getSchema();
+    val analysisSchema = analysisSchemas.get(0);
     log.debug("Found analysisType '{}' with version '{}'", name, version);
     return AnalysisType.builder()
+        .id(analysisSchema.getId())
         .name(name)
         .version(version)
-        .schema(schema)
+        .schema(analysisSchema.getSchema())
         .build();
   }
 
-  public AnalysisType commitAnalysisType(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
-    val analysisType = AnalysisSchema.builder()
-        .name(analysisTypeName)
-        .schema(analysisTypeSchema)
-        .build();
-    analysisSchemaRepository.save(analysisType);
-    val latestVersion = getLatestVersionNumber(analysisTypeName);
-    log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, latestVersion );
-    return AnalysisType.builder()
-        .name(analysisTypeName)
-        .schema(analysisTypeSchema)
-        .version(latestVersion)
-        .build();
+
+  public AnalysisType register(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema){
+    validateAnalysisTypeSchema(analysisTypeSchema);
+    return commitAnalysisType(analysisTypeName, analysisTypeSchema);
   }
+
 
   public AnalysisType getLatestAnalysisType(@NonNull String name) {
     val page = filterLatestAnalysisSchema(name);
@@ -95,12 +94,13 @@ public class AnalysisTypeService {
         "The analysisType with name '%s' does not exist",
         name);
     checkState(analysisSchemas.size() == 1, "Should not be here. Only 1 analysisType should be returned");
-    val schema = page.getContent().get(0).getSchema();
+    val analysisSchema = page.getContent().get(0);
     log.debug("Found LATEST analysisType '{}' with version '{}'", name, latestVersion);
     return AnalysisType.builder()
+        .id(analysisSchema.getId())
         .name(name)
         .version(latestVersion)
-        .schema(schema)
+        .schema(analysisSchema.getSchema())
         .build();
   }
 
@@ -126,6 +126,33 @@ public class AnalysisTypeService {
 
   private Integer getLatestVersionNumber(String analysisTypeName){
     return analysisSchemaRepository.countAllByName(analysisTypeName);
+  }
+
+  @SneakyThrows
+  private void validateAnalysisTypeSchema(@NonNull JsonNode analysisTypeSchema) {
+    val metaSchema = getAnalysisTypeMetaSchema();
+    try{
+      validateWithSchema(metaSchema, analysisTypeSchema);
+    } catch (ValidationException e){
+      throw buildServerException(getClass(), SCHEMA_VIOLATION,
+          COMMA.join(e.getAllMessages()));
+    }
+  }
+
+  private AnalysisType commitAnalysisType(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
+    val analysisSchema = AnalysisSchema.builder()
+        .name(analysisTypeName)
+        .schema(analysisTypeSchema)
+        .build();
+    analysisSchemaRepository.save(analysisSchema);
+    val latestVersion = getLatestVersionNumber(analysisTypeName);
+    log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, latestVersion );
+    return AnalysisType.builder()
+        .id(analysisSchema.getId())
+        .name(analysisTypeName)
+        .schema(analysisTypeSchema)
+        .version(latestVersion)
+        .build();
   }
 
   public interface AnalysisSchemaNameView {
