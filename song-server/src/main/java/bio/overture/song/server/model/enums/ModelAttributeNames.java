@@ -47,4 +47,5 @@ public class ModelAttributeNames {
   public static final String UPDATED_AT = "updatedAt";
   public static final String ERRORS = "errors";
   public static final String PAYLOAD = "payload";
+  public static final String ORDER_ID = "orderId";
 }

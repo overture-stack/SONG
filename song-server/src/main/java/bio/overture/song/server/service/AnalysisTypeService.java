@@ -24,7 +24,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.server.model.enums.TableAttributeNames.ORDER_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ORDER_ID;
 
 @Slf4j
 @Service
