@@ -21,7 +21,10 @@ import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.AnalysisTypeService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -40,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -49,9 +53,18 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.DEFAULT_LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.DEFAULT_OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.DEFAULT_SORT_VARIABLE;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.SORT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.SORTORDER;
 import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 
 @RestController
@@ -132,32 +145,81 @@ public class AnalysisTypeController {
 
 
 
+  @ApiImplicitParams({
+      @ApiImplicitParam(
+          name = LIMIT,
+          required = false,
+          dataType = "integer",
+          paramType = "query",
+          defaultValue = ""+DEFAULT_LIMIT,
+          value = "Number of results to retrieve"),
+      @ApiImplicitParam(
+          name = OFFSET,
+          required = false,
+          dataType = "integer",
+          paramType = "query",
+          defaultValue = ""+DEFAULT_OFFSET,
+          value = "Index of first result to retrieve"),
+      @ApiImplicitParam(
+          name = SORT,
+          required = false,
+          dataType = "string",
+          paramType = "query",
+          defaultValue = DEFAULT_SORT_VARIABLE,
+          value = "Comma separated fields to sort on"),
+      @ApiImplicitParam(
+          name = SORTORDER,
+          required = false,
+          dataType = "string",
+          paramType = "query",
+          value = "Sorting order: ASC|DESC. Default order: DESC"),
+  })
   @ApiOperation(value = "ListAnalysisTypes",
       notes = "Retrieves a list of registered analysisTypes" )
   @GetMapping
   public Page<AnalysisType> listAnalysisTypes(
+      @ApiParam(value = "Comma separated list of names", required = false, example = "name1,name4,name100", type = "string")
       @RequestParam(value = "names", required = false) List<String> names,
+
+      @ApiParam(value = "Comma separated list of versions", required = false, example = "4,5,9", type = "string")
       @RequestParam(value = "versions", required = false) Set<Integer> versions,
+
+      @ApiParam(value = "Hide the schema field from the response",type = "boolean", required = false)
       @RequestParam(value = "hideSchema", required = false, defaultValue = "false") boolean hideSchema,
       Pageable pageable){
-    Page<AnalysisType> analysisTypePage;
 
+    // Validate versions are greater than 0, if defined
+    validatePositiveVersionsIfDefined(versions);
+
+    // Get analysisTypes
+    Page<AnalysisType> analysisTypePage;
     if (isCollectionBlank(names)){
       analysisTypePage = analysisTypeService.listAllAnalysisTypes(pageable, hideSchema);
     }else {
       analysisTypePage = analysisTypeService.listAnalysisTypesFilterNames(names, pageable, hideSchema);
     }
 
+    // Filter only for requested versions
     val filteredView = filterByVersion(analysisTypePage.getContent(), versions);
     return new PageImpl<>(filteredView, pageable, analysisTypePage.getTotalElements());
   }
 
-  private static List<AnalysisType> filterByVersion(List<AnalysisType> analysisTypes,
-      Set<Integer> versionsToFilter){
-    return analysisTypes
-        .stream()
-        .filter(x-> versionsToFilter.contains(x.getVersion()))
-        .collect(toImmutableList());
+  private static void validatePositiveVersionsIfDefined(@Nullable Collection<Integer> versions){
+    checkServer(isCollectionBlank(versions) || versions.stream().noneMatch(x -> x < 1),
+        AnalysisTypeController.class, MALFORMED_PARAMETER,
+        "The requested versions must be greater than 0");
+  }
+
+  private static List<AnalysisType> filterByVersion(@NonNull List<AnalysisType> analysisTypes,
+      @Nullable Set<Integer> versionsToFilter){
+    if(isCollectionBlank(versionsToFilter)){
+      return analysisTypes;
+    } else {
+      return analysisTypes
+          .stream()
+          .filter(x-> versionsToFilter.contains(x.getVersion()))
+          .collect(toImmutableList());
+    }
   }
 
   // GET /schemas/meta
