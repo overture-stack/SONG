@@ -58,13 +58,13 @@ import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.DEFAULT_LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.DEFAULT_OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.DEFAULT_SORT_VARIABLE;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.SORT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2.SORTORDER;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_SORT_VARIABLE;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
 import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 
 @RestController

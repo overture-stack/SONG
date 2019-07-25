@@ -18,7 +18,6 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.controller.analysisType.AnalysisTypePageable;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.projections.AnalysisSchemaNameProjection;
@@ -49,6 +48,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.createDefaultPageable;
 import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 
@@ -81,11 +81,7 @@ public class AnalysisTypeServiceTest {
   @Test
   public void testRob(){
     val data = generateData(10);
-    val pageable = AnalysisTypePageable.builder()
-        .limit("20")
-        .offset("4")
-        .sortOrder("DESC")
-        .build();
+    val pageable = createDefaultPageable();
     val actualNames = analysisTypeService.listAllAnalysisTypes(pageable, false);
     log.info("Sdf");
 

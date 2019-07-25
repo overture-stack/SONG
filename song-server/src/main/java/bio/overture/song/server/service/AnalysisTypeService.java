@@ -1,6 +1,6 @@
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.controller.analysisType.AnalysisTypePageable2;
+import bio.overture.song.server.controller.analysisType.AnalysisTypePageable;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.entity.AnalysisSchema;
@@ -151,10 +151,10 @@ public class AnalysisTypeService {
 
   private Page<AnalysisType> findAnalysisTypes(Function<Pageable, Page<AnalysisSchema>> findCallback, Pageable pageable, boolean hideSchema){
     // Just incase...
-    checkArgument(pageable instanceof AnalysisTypePageable2,
+    checkArgument(pageable instanceof AnalysisTypePageable,
         "The input pageable object '%s' is not of type %s",
         pageable.getClass().getSimpleName(),
-        AnalysisTypePageable2.class.getSimpleName());
+        AnalysisTypePageable.class.getSimpleName());
 
     val analysisSchemaPage = findCallback.apply(pageable);
     // Filter by version if not empty

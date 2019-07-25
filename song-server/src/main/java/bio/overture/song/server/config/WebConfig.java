@@ -16,7 +16,7 @@
  */
 package bio.overture.song.server.config;
 
-import bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver2;
+import bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -44,7 +44,6 @@ public class WebConfig implements WebMvcConfigurer {
   }
 
   @Override public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-//    resolvers.add(new AnalysisTypePageableResolver());
-    resolvers.add(new AnalysisTypePageableResolver2());
+    resolvers.add(new AnalysisTypePageableResolver());
   }
 }
