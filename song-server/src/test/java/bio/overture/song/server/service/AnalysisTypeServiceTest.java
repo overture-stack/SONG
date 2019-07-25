@@ -18,6 +18,7 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.projections.AnalysisSchemaNameProjection;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -41,15 +43,20 @@ import static java.util.Comparator.comparingInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.emptyList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.createAnalysisTypePageable;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.createDefaultPageable;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.parseAnalysisTypePageable;
 import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
+import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 
 @Slf4j
@@ -75,7 +82,8 @@ public class AnalysisTypeServiceTest {
     when(repo.findDistinctBy(AnalysisSchemaNameProjection.class))
         .thenReturn(emptyList());
     val service = new AnalysisTypeService(() -> (Schema) null, repo);
-    assertThat(service.listAnalysisTypeNames()).isEmpty();
+    val pageable = AnalysisTypePageableResolver.createDefaultPageable();
+    assertThat(service.listAllAnalysisTypes(pageable, false)).isEmpty();
   }
 
   @Test
@@ -98,7 +106,13 @@ public class AnalysisTypeServiceTest {
     val expectedNames = mapToImmutableSet(data, AnalysisType::getName);
 
     // Get actual names
-    val actualNames = analysisTypeService.listAnalysisTypeNames();
+    val dummyPageable = createAnalysisTypePageable(0, 1, DESC);
+    val p = analysisTypeService.listAllAnalysisTypes(dummyPageable, true);
+    val max = (int)p.getTotalElements();
+    val pageable = createAnalysisTypePageable(0, max, DESC);
+    val actualNames = analysisTypeService.listAllAnalysisTypes(pageable, true).stream()
+        .map(AnalysisType::getName)
+        .collect(toImmutableSet());
 
     // Assert actualNames contains all the expectedNames (actual names could have more elements due to previous tests)
     assertThat(actualNames).containsAll(expectedNames);
@@ -107,7 +121,7 @@ public class AnalysisTypeServiceTest {
   @Test
   public void getAnalysisType_analysisTypeDNE_notFound() {
     val nonExistingAnalysisTypeName = generateUniqueAnalysisTypeName();
-    assertSongError(() -> analysisTypeService.getAnalysisType(nonExistingAnalysisTypeName, 1), ANALYSIS_TYPE_NOT_FOUND);
+    assertSongError(() -> analysisTypeService.getAnalysisType(resolveAnalysisTypeId(nonExistingAnalysisTypeName, 1)), ANALYSIS_TYPE_NOT_FOUND);
   }
 
   @Test
@@ -117,8 +131,8 @@ public class AnalysisTypeServiceTest {
     val testName = data.get(data.size() - 1).getName();
 
     // test when version <= 0
-    assertSongError(() -> analysisTypeService.getAnalysisType(testName, 0), MALFORMED_PARAMETER);
-    assertSongError(() -> analysisTypeService.getAnalysisType(testName, -1), MALFORMED_PARAMETER);
+    assertSongError(() -> analysisTypeService.getAnalysisType(resolveAnalysisTypeId(testName, 0)), MALFORMED_PARAMETER);
+    assertSongError(() -> analysisTypeService.getAnalysisType(resolveAnalysisTypeId(testName, -1)), MALFORMED_PARAMETER);
   }
 
   @Test
@@ -128,7 +142,8 @@ public class AnalysisTypeServiceTest {
     val testName = data.get(data.size() - 1).getName();
 
     // test when version > latest
-    assertSongError(() -> analysisTypeService.getAnalysisType(testName, repeats + 1), ANALYSIS_TYPE_NOT_FOUND);
+    val analysisTypeId = resolveAnalysisTypeId(testName, repeats + 1);
+    assertSongError(() -> analysisTypeService.getAnalysisType(analysisTypeId), ANALYSIS_TYPE_NOT_FOUND);
   }
 
   @Test
@@ -152,7 +167,8 @@ public class AnalysisTypeServiceTest {
         expectedAnalysisSchemaForVersion.getSchema());
 
     // Get the actual Schema for the specified version
-    val actualAnalysisType = analysisTypeService.getAnalysisType(testName, version);
+    val analysisTypeId = resolveAnalysisTypeId(testName, version);
+    val actualAnalysisType = analysisTypeService.getAnalysisType(analysisTypeId);
 
     // Assert the schemas match for the specified version
     assertThat(actualAnalysisType).isEqualTo(expectedAnalysisType);
@@ -179,17 +195,16 @@ public class AnalysisTypeServiceTest {
         expectedLatestAnalysisSchema.getSchema());
 
     // Get the actual Schema for the latest version
-    val actualLatestAnalysisType = analysisTypeService.getLatestAnalysisType(testName);
+    val pageable = parseAnalysisTypePageable("0", "1",
+        "version", "desc");
+
+    val actualLatestAnalysisTypePage = analysisTypeService.listAnalysisTypesFilterNames(ImmutableList.of(testName),
+        pageable, true);
+    assertThat(actualLatestAnalysisTypePage.getContent()).isEqualTo(1);
+    val actualLatestAnalysisType = actualLatestAnalysisTypePage.getContent().get(0);
 
     // Assert the schemas match for the latest version
     assertThat(actualLatestAnalysisType).isEqualTo(expectedLatestAnalysisType);
-  }
-
-  @Test
-  public void getLatestAnalysisType_analysisTypeDNE_notFound() {
-    val nonExistingAnalysisTypeName = generateUniqueAnalysisTypeName();
-    assertSongError(() -> analysisTypeService.getLatestAnalysisType(nonExistingAnalysisTypeName),
-        ANALYSIS_TYPE_NOT_FOUND);
   }
 
   private List<AnalysisType> generateData(int repeats) {

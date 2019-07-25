@@ -60,7 +60,6 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_SORT_VARIABLE;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
@@ -79,27 +78,13 @@ public class AnalysisTypeController {
     this.analysisTypeService = analysisTypeService;
   }
 
-  @ApiOperation(value = "ListAnalysisTypes",
-      notes = "Retrieves a list of registered analysisType names" )
-  @GetMapping("/analysis")
-  public Collection<String> listAnalysisTypes(){
-    return analysisTypeService.listAnalysisTypeNames();
-  }
-
   @ApiOperation(value = "GetAnalysisTypeVersion",
       notes = "Retrieves a specific version of a schema for an analysisType" )
-  @GetMapping("/analysis/{name}/{version}")
+  @GetMapping("/{analysisTypeId}")
   public AnalysisType getAnalysisTypeVersion(
-      @PathVariable("name") String name,
-      @PathVariable("version") Integer version){
-    return analysisTypeService.getAnalysisType(name, version);
-  }
-
-  @ApiOperation(value = "GetLatestSchema",
-      notes = "Retrieves the latest version of a schema for an analysisType" )
-  @GetMapping("/analysis/{name}/latest")
-  public AnalysisType getLatestSchema(@PathVariable("name") String name){
-    return analysisTypeService.getLatestAnalysisType(name);
+      @ApiParam(value = "Compound analysisType id in the form {name}:{version}", type = "string", required = false)
+      @PathVariable(value = "analysisTypeId", required = true) String analysisTypeIdString){
+    return analysisTypeService.getAnalysisType(analysisTypeIdString);
   }
 
   @SneakyThrows
@@ -118,32 +103,6 @@ public class AnalysisTypeController {
       @RequestBody RegisterAnalysisTypeRequest request) {
     return analysisTypeService.register(request.getName(), request.getSchema());
   }
-
-  @GetMapping("/test")
-  public List<String> getTest(){
-    val data = generateData2(analysisTypeService, 20);
-    return data.stream().map(x -> x.getName()).collect(toImmutableList());
-  }
-
-  public static List<AnalysisType> generateData2(AnalysisTypeService analysisTypeService, int repeats) {
-    val randomGenerator = RandomGenerator.createRandomGenerator("temp");
-    val names = IntStream.range(0, repeats)
-        .boxed()
-        .map(x -> "exampleAnalysisType-" + randomGenerator.generateRandomAsciiString(10))
-        .collect(toImmutableList());
-
-    return IntStream.range(0, repeats * repeats)
-        .boxed()
-        .map(i -> {
-          val name = names.get(i % repeats);
-          val schema = mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
-          return analysisTypeService.register(name, schema);
-        })
-        .collect(toImmutableList());
-  }
-
-
-
 
   @ApiImplicitParams({
       @ApiImplicitParam(
@@ -165,7 +124,6 @@ public class AnalysisTypeController {
           required = false,
           dataType = "string",
           paramType = "query",
-          defaultValue = DEFAULT_SORT_VARIABLE,
           value = "Comma separated fields to sort on"),
       @ApiImplicitParam(
           name = SORTORDER,
@@ -222,16 +180,31 @@ public class AnalysisTypeController {
     }
   }
 
-  // GET /schemas/meta
-  // POST /schemas --> register endpoint, that validates the schema against metaschema, and stores
-  // POST /schemas/{analysisTypeId} --> validate a payload.
-  // GET /schemas?name=<>&version=<>&limit=<>&offset=<>&sort=[ASC,DESC]&fields=[id,name,version,schema]
-  //  name param filters by name
-  //  version param filters by version
-  //  limit  param limits output (pageable)
-  //  offset param offsets the result (pageable)
-  //  sort param indicates the sort direction (pageable)
-  //  fields param indicates which fields are to show. The main DTO should have jackson configured to not show nulls, and the database should not retrieve more than it needs
+  /**
+   * DELETE THIS ENDPOINT BEFORE MERGE
+   */
+  @GetMapping("/test")
+  public List<String> getTest(){
+    val data = generateData2(analysisTypeService, 20);
+    return data.stream().map(x -> x.getName()).collect(toImmutableList());
+  }
+
+  public static List<AnalysisType> generateData2(AnalysisTypeService analysisTypeService, int repeats) {
+    val randomGenerator = RandomGenerator.createRandomGenerator("temp");
+    val names = IntStream.range(0, repeats)
+        .boxed()
+        .map(x -> "exampleAnalysisType-" + randomGenerator.generateRandomAsciiString(10))
+        .collect(toImmutableList());
+
+    return IntStream.range(0, repeats * repeats)
+        .boxed()
+        .map(i -> {
+          val name = names.get(i % repeats);
+          val schema = mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
+          return analysisTypeService.register(name, schema);
+        })
+        .collect(toImmutableList());
+  }
 
 
 }

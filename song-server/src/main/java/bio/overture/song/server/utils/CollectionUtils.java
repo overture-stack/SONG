@@ -30,4 +30,9 @@ public class CollectionUtils {
   public static boolean isCollectionBlank(Collection values){
     return isNull(values) || values.isEmpty();
   }
+
+  public static <T> boolean isArrayBlank(T[] values){
+    return isNull(values) || values.length==0;
+  }
+
 }

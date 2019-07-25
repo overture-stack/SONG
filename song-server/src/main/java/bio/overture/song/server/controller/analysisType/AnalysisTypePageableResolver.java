@@ -18,6 +18,8 @@ package bio.overture.song.server.controller.analysisType;
 
 import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.val;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Pageable;
@@ -28,12 +30,15 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.stream;
+import static java.util.Objects.isNull;
+import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -45,6 +50,7 @@ import static bio.overture.song.core.exceptions.ServerException.checkServerOptio
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
+import static bio.overture.song.server.utils.CollectionUtils.isArrayBlank;
 
 public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolver {
 
@@ -80,31 +86,36 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
       NativeWebRequest nativeWebRequest,
       WebDataBinderFactory webDataBinderFactory)
       throws Exception {
-    return buildAnalysisTypePageable(
-        nativeWebRequest.getParameter(LIMIT),
+    return parseAnalysisTypePageable(
         nativeWebRequest.getParameter(OFFSET),
+        nativeWebRequest.getParameter(LIMIT),
         nativeWebRequest.getParameter(SORT),
         nativeWebRequest.getParameter(SORTORDER)
 
     );
   }
 
-  public static Pageable createDefaultPageable() {
-    return buildAnalysisTypePageable(null, null, null, null);
+  public static AnalysisTypePageable createDefaultPageable() {
+    return createAnalysisTypePageable(null, null, null);
   }
 
-  public static AnalysisTypePageable buildAnalysisTypePageable(String limitString, String offsetString,
+  public static AnalysisTypePageable createAnalysisTypePageable(@Nullable Integer offset, @Nullable Integer limit,
+      @Nullable Direction sortOrder, @Nullable String... sortVariables){
+    val offsetValue = resolveInteger(OFFSET, DEFAULT_OFFSET, offset);
+    val limitValue = resolveInteger(LIMIT, DEFAULT_LIMIT, limit);
+    val sortOrderValue = resolveSortOrder(DEFAULT_SORT_ORDER, sortOrder);
+    val sortVariablesValue = resolveSortVariables(DEFAULT_SORT_VARIABLE, sortVariables);
+    val sort = new Sort(sortOrderValue, sortVariablesValue);
+    return new AnalysisTypePageable(offsetValue, limitValue, sort);
+  }
+
+  public static AnalysisTypePageable parseAnalysisTypePageable(String offsetString, String limitString,
       String sortVariableString, String sortOrderString){
-    val limit = resolveInteger(limitString, LIMIT, DEFAULT_LIMIT);
-    val offset = resolveInteger(offsetString, OFFSET, DEFAULT_OFFSET);
-    val sortVariables = resolveSortVariables(sortVariableString, DEFAULT_SORT_VARIABLE);
-    val sortOrder = resolveSortOrder(sortOrderString, DEFAULT_SORT_ORDER);
-    val sort = new Sort(sortOrder, sortVariables);
-    return AnalysisTypePageable.builder()
-        .limit(limit)
-        .offset(offset)
-        .sort(sort)
-        .build();
+    val offset = parseInteger(OFFSET, offsetString);
+    val limit = parseInteger(LIMIT, limitString);
+    val sortOrder = parseSortOrder(sortOrderString);
+    val sortVariables = parseSortVariables(sortVariableString);
+    return createAnalysisTypePageable(offset, limit, sortOrder, sortVariables);
   }
 
   private static void validateNonNegativeParam(@NonNull String paramName, int paramValue){
@@ -114,14 +125,42 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
         paramName, paramValue);
   }
 
-  private static Integer resolveInteger(String stringValue, String paramName, int defaultValue){
-    if (isEmpty(stringValue)) {
+  /**************************
+   * Resolvers
+   **************************/
+  private static Integer resolveInteger(@NonNull String paramName, int defaultValue, @Nullable Integer value){
+    if (isNull(value)){
       return defaultValue;
     } else {
+      validateNonNegativeParam(paramName, value);
+      return value;
+    }
+  }
+
+  private static Direction resolveSortOrder(@NonNull Direction defaultSortOrder, @Nullable Direction sortOrder){
+    return isNull(sortOrder) ? defaultSortOrder : sortOrder;
+  }
+
+  private static List<String> resolveSortVariables(@NonNull String defaultSortVariable, @Nullable String ... sortVariables){
+    if (isArrayBlank(sortVariables)){
+      return ImmutableList.of(parseVariable(defaultSortVariable));
+    } else {
+      return stream(sortVariables)
+          .map(AnalysisTypePageableResolver::parseVariable)
+          .collect(toImmutableList());
+    }
+  }
+
+  /**************************
+   * Parsers
+   **************************/
+
+  private static Integer parseInteger(@NonNull String paramName, @Nullable String stringValue){
+    if (isEmpty(stringValue)) {
+      return null;
+    } else {
       try {
-        val result = parseInt(stringValue);
-        validateNonNegativeParam(paramName, result);
-        return result;
+        return parseInt(stringValue);
       } catch (NumberFormatException e){
         throw buildServerException(AnalysisTypePageable.class, MALFORMED_PARAMETER,
             "The %s value '%s' is not an integer", paramName, stringValue);
@@ -129,30 +168,27 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
     }
   }
 
-  private static List<String> resolveSortVariables(String sort, String defaultSortVariable){
-    if (isEmpty(sort)){
-      return ImmutableList.of(defaultSortVariable);
+  private static String parseVariable(@NonNull String sortVariable){
+    // Sorting by ID is equivalent to sorting by version
+    if (sortVariable.equals(VERSION)){
+      return ID;
     } else {
-      return stream(sort.split(","))
-          .map(x -> {
-            // Sorting by ID is equivalent to sorting by version
-            if (x.equals(VERSION)){
-              return ID;
-            } else {
-              checkServer(ALLOWED_SORT_VARIABLES.contains(x),
-                  AnalysisTypePageable.class, MALFORMED_PARAMETER,
-                  "The sort variable '%s' is not one or more of [%s]",
-                  x, ALLOWED_SORT_VARIABLES);
-              return x;
-            }
-          })
-          .collect(toImmutableList());
+      checkServer(ALLOWED_SORT_VARIABLES.contains(sortVariable),
+          AnalysisTypePageable.class, MALFORMED_PARAMETER,
+          "The sort variable '%s' is not one or more of [%s]",
+          sortVariable, ALLOWED_SORT_VARIABLES);
+      return sortVariable;
     }
+
   }
 
-  private static Direction resolveSortOrder(String sortOrder, Direction defaultSortOrder){
+  private static String[] parseSortVariables(@Nullable String sortCSV){
+    return isEmpty(sortCSV) ? null : sortCSV.split(",");
+  }
+
+  private static Direction parseSortOrder(@Nullable String sortOrder){
     // set default sort direction
-    Direction direction = defaultSortOrder;
+    Direction direction = null;
     if (!isEmpty(sortOrder)){
       val result = stream(Direction.values())
           .filter(x -> x.name().equals(sortOrder.toUpperCase()) )
@@ -164,4 +200,56 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
     return direction;
   }
 
+  @Value
+  @RequiredArgsConstructor(access = PRIVATE)
+  public static class AnalysisTypePageable implements Pageable {
+
+    /**
+     * Config
+     */
+    private final int offset;
+    private final int limit;
+    @NonNull private final Sort sort;
+
+    @Override
+    public int getPageNumber() {
+      return 0;
+    }
+
+    @Override
+    public int getPageSize() {
+      return limit;
+    }
+
+    @Override
+    public long getOffset() {
+      return offset;
+    }
+
+    @Override
+    public Sort getSort() {
+      return sort;
+    }
+
+    @Override
+    public Pageable next() {
+      return null;
+    }
+
+    @Override
+    public Pageable previousOrFirst() {
+      return null;
+    }
+
+    @Override
+    public Pageable first() {
+      return null;
+    }
+
+    @Override
+    public boolean hasPrevious() {
+      return false;
+    }
+
+  }
 }

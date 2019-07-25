@@ -68,11 +68,11 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
   private static final String QUESTION_MARK = "?";
 
   static void report(Request request, Response response, Throwable t) {
-
     writeResponse(response, getJsonErrorMessage(request, t));
   }
 
   static String getJsonErrorMessage(Request request, Throwable t) {
+    log.error("Intercepting the exception {}: {}", t.getClass().getSimpleName(), t.getMessage());
     if (t.getCause() instanceof ConnectException) {
       return errorResponseBody(request, t, GATEWAY_IS_DOWN);
     } else if (t instanceof HttpStatusCodeException) {
@@ -159,7 +159,7 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
     Throwable ex, HttpStatus code, String err, String msg) {
     val error =  songErrorResponse(request, ex, code, err, msg);
     log.error(error.toPrettyJson());
-    return error.getResponseEntity().getBody();
+    return error.toPrettyJson();
   }
 
   private static List<String> getFullStackTraceList(Throwable t) {
