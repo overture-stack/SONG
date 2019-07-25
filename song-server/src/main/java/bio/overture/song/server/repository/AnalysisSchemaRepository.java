@@ -12,6 +12,7 @@ import java.util.List;
 public interface AnalysisSchemaRepository extends JpaRepository<AnalysisSchema, Integer>{
 
   Page<AnalysisSchema> findAllByName(String name, Pageable pageable);
+  Page<AnalysisSchema> findAllByNameIn(List<String> names, Pageable pageable);
   Integer countAllByName(String name);
   <T> List<T> findDistinctBy(Class<T> projection);
   List<AnalysisSchemaNameOrderProjection> findAllByNameInOrderByNameAscIdAsc(Collection<String> names);

@@ -23,8 +23,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -34,6 +36,7 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -45,7 +48,6 @@ import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonSchemaUtils.validateWithSchema;
 import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ID;
-import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableList;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 
 @Slf4j
@@ -147,27 +149,40 @@ public class AnalysisTypeService {
 
   }
 
-  public Page<AnalysisType> listAnalysisTypes(Pageable pageable) {
+  private Page<AnalysisType> findAnalysisTypes(Function<Pageable, Page<AnalysisSchema>> findCallback, Pageable pageable){
     // Just incase...
     checkArgument(pageable instanceof AnalysisTypePageable,
         "The input pageable object is not of type %s",
         AnalysisTypePageable.class.getSimpleName());
 
-    // Find analysisTypes within request limits
-    val analysisSchemaPage = analysisSchemaRepository.findAll(pageable);
+    val analysisSchemaPage = findCallback.apply(pageable);
+    // Filter by version if not empty
     val analysisSchemas = analysisSchemaPage.getContent();
     if (analysisSchemas.isEmpty()){
       return Page.empty();
     }
 
     // Extract a set of names from the result
-    val names = mapToImmutableSet(analysisSchemas, AnalysisSchema::getName);
+    val existingNames = mapToImmutableSet(analysisSchemas, AnalysisSchema::getName);
 
     // Create a lookup table of orderIds to versions for each of the names
-    val idToVersionLookup = buildIdVersionLookup(names);
-    val analysisTypes = mapToImmutableList(analysisSchemas, a -> convertToAnalysisType(a, idToVersionLookup));
+    val idToVersionLookup = buildIdVersionLookup(existingNames);
+
+    // convert to analysisTypes and filter only specified versions
+    val analysisTypes = analysisSchemas
+        .stream()
+        .map(a -> convertToAnalysisType(a, idToVersionLookup) )
+        .collect(toImmutableList());
     return new PageImpl<>(analysisTypes, pageable, analysisSchemaPage.getTotalElements());
   }
+  public Page<AnalysisType> listAnalysisTypesFilterNames(@NonNull List<String> requestedNames, @NonNull Pageable pageable){
+    return findAnalysisTypes(p -> analysisSchemaRepository.findAllByNameIn(requestedNames, p), pageable);
+  }
+
+  public Page<AnalysisType> listAllAnalysisTypes(@NonNull Pageable pageable){
+    return findAnalysisTypes(analysisSchemaRepository::findAll, pageable);
+  }
+
 
   private Page<AnalysisSchema> filterLatestAnalysisSchema(String name){
     return analysisSchemaRepository.findAllByName(name,

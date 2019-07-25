@@ -48,4 +48,8 @@ public class ModelAttributeNames {
   public static final String ERRORS = "errors";
   public static final String PAYLOAD = "payload";
   public static final String ID = "id";
+  public static final String VERSION = "version";
+  public static final String NAME = "name";
+  public static final String OFFSET = "offset" ;
+  public static final String LIMIT = "limit" ;
 }

@@ -25,6 +25,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolver {
 
+  public static final String SORT = "sort";
   public static final String SORTORDER = "sortOrder";
   public static final String OFFSET = "offset";
   public static final String LIMIT = "limit";
@@ -44,11 +45,13 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
     // get paging parameters
     String limit = nativeWebRequest.getParameter(LIMIT);
     String offset = nativeWebRequest.getParameter(OFFSET);
+    String sort = nativeWebRequest.getParameter(SORT);
     String sortOrder = nativeWebRequest.getParameter(SORTORDER);
 
     return AnalysisTypePageable.builder()
         .limit(limit)
         .offset(offset)
+        .sort(sort)
         .sortOrder(sortOrder)
         .build();
   }
@@ -57,6 +60,7 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
     return AnalysisTypePageable.builder()
         .limit(null)
         .offset(null)
+        .sort(null)
         .sortOrder(null)
         .build();
   }

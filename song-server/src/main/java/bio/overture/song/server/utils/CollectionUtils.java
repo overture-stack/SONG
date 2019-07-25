@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static java.util.Objects.isNull;
 import static java.util.stream.IntStream.range;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
@@ -26,4 +27,7 @@ public class CollectionUtils {
     return range(0, numberOfCalls).boxed().map(x -> callback.get()).collect(toImmutableList());
   }
 
+  public static boolean isCollectionBlank(Collection values){
+    return isNull(values) || values.isEmpty();
+  }
 }
