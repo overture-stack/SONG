@@ -86,7 +86,7 @@ public class AnalysisTypeServiceTest {
         .offset("4")
         .sortOrder("DESC")
         .build();
-    val actualNames = analysisTypeService.listAllAnalysisTypes(pageable);
+    val actualNames = analysisTypeService.listAllAnalysisTypes(pageable, false);
     log.info("Sdf");
 
   }

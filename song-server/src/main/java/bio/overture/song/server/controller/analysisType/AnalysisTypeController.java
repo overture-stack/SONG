@@ -20,13 +20,11 @@ import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.AnalysisTypeService;
-import bio.overture.song.server.utils.CollectionUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.icgc.dcc.common.core.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -47,13 +45,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 
 @RestController
 @RequestMapping(path = "/schemas")
@@ -110,7 +109,7 @@ public class AnalysisTypeController {
   @GetMapping("/test")
   public List<String> getTest(){
     val data = generateData2(analysisTypeService, 20);
-    return data.stream().map(x -> x.getName()).collect(Collectors.toImmutableList());
+    return data.stream().map(x -> x.getName()).collect(toImmutableList());
   }
 
   public static List<AnalysisType> generateData2(AnalysisTypeService analysisTypeService, int repeats) {
@@ -139,38 +138,26 @@ public class AnalysisTypeController {
   public Page<AnalysisType> listAnalysisTypes(
       @RequestParam(value = "names", required = false) List<String> names,
       @RequestParam(value = "versions", required = false) Set<Integer> versions,
-      @RequestParam(value = "ignoreSchema", required = false) boolean ignoreSchema,
+      @RequestParam(value = "hideSchema", required = false, defaultValue = "false") boolean hideSchema,
       Pageable pageable){
     Page<AnalysisType> analysisTypePage;
 
-    if (CollectionUtils.isCollectionBlank(names)){
-      analysisTypePage = analysisTypeService.listAllAnalysisTypes(pageable);
+    if (isCollectionBlank(names)){
+      analysisTypePage = analysisTypeService.listAllAnalysisTypes(pageable, hideSchema);
     }else {
-      analysisTypePage = analysisTypeService.listAnalysisTypesFilterNames(names, pageable);
+      analysisTypePage = analysisTypeService.listAnalysisTypesFilterNames(names, pageable, hideSchema);
     }
 
-    List<AnalysisType> filteredAnalysisTypes = analysisTypePage.getContent();
-    if(!CollectionUtils.isCollectionBlank(versions)){
-      filteredAnalysisTypes = analysisTypePage.getContent()
-          .stream()
-          .filter(x-> versions.contains(x.getVersion()))
-          .map(x -> resolveIgnoreSchema(x, ignoreSchema))
-          .collect(Collectors.toImmutableList());
-    }
-    return new PageImpl<>(filteredAnalysisTypes,pageable, analysisTypePage.getTotalElements());
+    val filteredView = filterByVersion(analysisTypePage.getContent(), versions);
+    return new PageImpl<>(filteredView, pageable, analysisTypePage.getTotalElements());
   }
 
-  private static AnalysisType resolveIgnoreSchema(AnalysisType input, boolean ignoreSchema){
-    if (ignoreSchema){
-      return AnalysisType.builder()
-          .id(input.getId())
-          .name(input.getName())
-          .version(input.getVersion())
-          .schema(null)
-          .build();
-    } else {
-      return input;
-    }
+  private static List<AnalysisType> filterByVersion(List<AnalysisType> analysisTypes,
+      Set<Integer> versionsToFilter){
+    return analysisTypes
+        .stream()
+        .filter(x-> versionsToFilter.contains(x.getVersion()))
+        .collect(toImmutableList());
   }
 
   // GET /schemas/meta

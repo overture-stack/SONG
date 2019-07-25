@@ -149,7 +149,7 @@ public class AnalysisTypeService {
 
   }
 
-  private Page<AnalysisType> findAnalysisTypes(Function<Pageable, Page<AnalysisSchema>> findCallback, Pageable pageable){
+  private Page<AnalysisType> findAnalysisTypes(Function<Pageable, Page<AnalysisSchema>> findCallback, Pageable pageable, boolean hideSchema){
     // Just incase...
     checkArgument(pageable instanceof AnalysisTypePageable,
         "The input pageable object is not of type %s",
@@ -171,16 +171,16 @@ public class AnalysisTypeService {
     // convert to analysisTypes and filter only specified versions
     val analysisTypes = analysisSchemas
         .stream()
-        .map(a -> convertToAnalysisType(a, idToVersionLookup) )
+        .map(a -> convertToAnalysisType(a, idToVersionLookup, hideSchema) )
         .collect(toImmutableList());
     return new PageImpl<>(analysisTypes, pageable, analysisSchemaPage.getTotalElements());
   }
-  public Page<AnalysisType> listAnalysisTypesFilterNames(@NonNull List<String> requestedNames, @NonNull Pageable pageable){
-    return findAnalysisTypes(p -> analysisSchemaRepository.findAllByNameIn(requestedNames, p), pageable);
+  public Page<AnalysisType> listAnalysisTypesFilterNames(@NonNull List<String> requestedNames, @NonNull Pageable pageable, boolean hideSchema){
+    return findAnalysisTypes(p -> analysisSchemaRepository.findAllByNameIn(requestedNames, p), pageable, hideSchema);
   }
 
-  public Page<AnalysisType> listAllAnalysisTypes(@NonNull Pageable pageable){
-    return findAnalysisTypes(analysisSchemaRepository::findAll, pageable);
+  public Page<AnalysisType> listAllAnalysisTypes(@NonNull Pageable pageable, boolean hideSchema){
+    return findAnalysisTypes(analysisSchemaRepository::findAll, pageable, hideSchema);
   }
 
 
@@ -222,16 +222,16 @@ public class AnalysisTypeService {
     return buildAnalysisType(analysisTypeName, latestVersion, analysisSchema.getSchema());
   }
 
-  private AnalysisType convertToAnalysisType(AnalysisSchema analysisSchema, Map<Integer, Integer> orderIdToVersionLookup){
+  private AnalysisType convertToAnalysisType(AnalysisSchema analysisSchema, Map<Integer, Integer> orderIdToVersionLookup, boolean hideSchema){
     val id = analysisSchema.getId();
     checkState(orderIdToVersionLookup.containsKey(id),
         "Could not find version for analysisSchema id '%s'", analysisSchema.getId());
     val name = analysisSchema.getName();
     val version = orderIdToVersionLookup.get(id);
-    return buildAnalysisType(name, version, analysisSchema.getSchema());
+    return buildAnalysisType(name, version, hideSchema ? null : analysisSchema.getSchema());
   }
 
-  public static AnalysisType buildAnalysisType(@NonNull String name, int version, @NonNull JsonNode schema){
+  public static AnalysisType buildAnalysisType(@NonNull String name, int version, JsonNode schema){
     return AnalysisType.builder()
         .id(resolveAnalysisTypeId(name, version))
         .name(name)
