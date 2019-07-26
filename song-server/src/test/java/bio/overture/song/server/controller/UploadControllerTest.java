@@ -80,7 +80,7 @@ public class UploadControllerTest {
     this.randomGenerator = createRandomGenerator(getClass().getSimpleName());
     this.studyGenerator = createStudyGenerator(studyService, randomGenerator);
     studyService.checkStudyExist(DEFAULT_STUDY_ID);
-    this.endpointTester = createEndpointTester(mockMvc);
+    this.endpointTester = createEndpointTester(mockMvc, true);
   }
 
   @Test

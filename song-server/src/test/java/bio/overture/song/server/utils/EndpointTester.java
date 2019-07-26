@@ -18,10 +18,16 @@
 package bio.overture.song.server.utils;
 
 import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.server.utils.web.StringResponseOption;
+import bio.overture.song.server.utils.web.StringWebResource;
+import com.google.common.base.Joiner;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -30,7 +36,10 @@ import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorCon
 @RequiredArgsConstructor
 public class EndpointTester {
 
+  public static final Joiner AMPERSAND = Joiner.on("&");
+
   @NonNull private final MockMvc mockMvc;
+  private final boolean enableLogging;
 
   @SneakyThrows
   public void testPostError(@NonNull String endpointPath, @NonNull String payload,
@@ -43,8 +52,26 @@ public class EndpointTester {
       .andExpect(songErrorContent(expectedServerError));
   }
 
-  public static EndpointTester createEndpointTester(MockMvc mockMvc) {
-    return new EndpointTester(mockMvc);
+  public StringWebResource initStringRequest() {
+    return new StringWebResource(mockMvc, "").logging();
+  }
+
+  public StringResponseOption getSchemaGetRequestAnd(
+      List<String> names, List<Integer> versions,
+      Integer offset, Integer limit, Sort.Direction sortOrder, String ... sortVariables){
+    return initStringRequest()
+        .endpoint("schemas")
+        .optionalQueryParamCollection("names", names)
+        .optionalQueryParamCollection("versions", versions)
+        .optionalQuerySingleParam("offset", offset)
+        .optionalQuerySingleParam("limit", limit)
+        .optionalQuerySingleParam("sortOrder", sortOrder)
+        .optionalQueryParamArray("sort", sortVariables)
+        .getAnd();
+  }
+
+  public static EndpointTester createEndpointTester(MockMvc mockMvc, boolean enableLogging) {
+    return new EndpointTester(mockMvc, enableLogging);
   }
 
 }

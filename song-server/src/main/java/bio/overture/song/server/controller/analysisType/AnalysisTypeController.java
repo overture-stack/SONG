@@ -16,7 +16,6 @@
  */
 package bio.overture.song.server.controller.analysisType;
 
-import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.AnalysisTypeService;
@@ -47,7 +46,6 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -55,7 +53,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
@@ -78,9 +75,9 @@ public class AnalysisTypeController {
     this.analysisTypeService = analysisTypeService;
   }
 
+  @GetMapping("/{analysisTypeId}")
   @ApiOperation(value = "GetAnalysisTypeVersion",
       notes = "Retrieves a specific version of a schema for an analysisType" )
-  @GetMapping("/{analysisTypeId}")
   public AnalysisType getAnalysisTypeVersion(
       @ApiParam(value = "Compound analysisType id in the form {name}:{version}", type = "string", required = false)
       @PathVariable(value = "analysisTypeId", required = true) String analysisTypeIdString){
@@ -88,16 +85,16 @@ public class AnalysisTypeController {
   }
 
   @SneakyThrows
+  @GetMapping("/meta")
   @ApiOperation(value = "GetMetaSchema",
       notes = "Retrieves the meta-schema used to validate AnalysisType schemas" )
-  @GetMapping("/meta")
   public String getAnalysisTypeMetaSchema(){
     return toPrettyJson(readTree(analysisTypeService.getAnalysisTypeMetaSchema().toString()));
   }
 
-  @ApiOperation(value = "RegisterAnalysisType", notes = "Registers an analysisType schema")
-  @PostMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
   @PreAuthorize("@systemSecurity.authorize(authentication)")
+  @PostMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @ApiOperation(value = "RegisterAnalysisType", notes = "Registers an analysisType schema")
   public @ResponseBody AnalysisType register(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @RequestBody RegisterAnalysisTypeRequest request) {
@@ -106,19 +103,19 @@ public class AnalysisTypeController {
 
   @ApiImplicitParams({
       @ApiImplicitParam(
-          name = LIMIT,
-          required = false,
-          dataType = "integer",
-          paramType = "query",
-          defaultValue = ""+DEFAULT_LIMIT,
-          value = "Number of results to retrieve"),
-      @ApiImplicitParam(
           name = OFFSET,
           required = false,
           dataType = "integer",
           paramType = "query",
           defaultValue = ""+DEFAULT_OFFSET,
           value = "Index of first result to retrieve"),
+      @ApiImplicitParam(
+          name = LIMIT,
+          required = false,
+          dataType = "integer",
+          paramType = "query",
+          defaultValue = ""+DEFAULT_LIMIT,
+          value = "Number of results to retrieve"),
       @ApiImplicitParam(
           name = SORT,
           required = false,
@@ -130,7 +127,7 @@ public class AnalysisTypeController {
           required = false,
           dataType = "string",
           paramType = "query",
-          value = "Sorting order: ASC|DESC. Default order: DESC"),
+          value = "Sorting order: ASC|DESC. Default order: DESC")
   })
   @ApiOperation(value = "ListAnalysisTypes",
       notes = "Retrieves a list of registered analysisTypes" )
@@ -179,32 +176,5 @@ public class AnalysisTypeController {
           .collect(toImmutableList());
     }
   }
-
-  /**
-   * DELETE THIS ENDPOINT BEFORE MERGE
-   */
-  @GetMapping("/test")
-  public List<String> getTest(){
-    val data = generateData2(analysisTypeService, 20);
-    return data.stream().map(x -> x.getName()).collect(toImmutableList());
-  }
-
-  public static List<AnalysisType> generateData2(AnalysisTypeService analysisTypeService, int repeats) {
-    val randomGenerator = RandomGenerator.createRandomGenerator("temp");
-    val names = IntStream.range(0, repeats)
-        .boxed()
-        .map(x -> "exampleAnalysisType-" + randomGenerator.generateRandomAsciiString(10))
-        .collect(toImmutableList());
-
-    return IntStream.range(0, repeats * repeats)
-        .boxed()
-        .map(i -> {
-          val name = names.get(i % repeats);
-          val schema = mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
-          return analysisTypeService.register(name, schema);
-        })
-        .collect(toImmutableList());
-  }
-
 
 }

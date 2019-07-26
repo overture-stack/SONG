@@ -2,17 +2,23 @@ package bio.overture.song.server.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
+import javax.validation.constraints.NotNull;
+
+@Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AnalysisType {
-  @NonNull private final String id;
-  @NonNull private final String name;
-  @NonNull private final Integer version;
+
+  @NotNull private String id;
+  @NotNull private String name;
+  @NotNull private Integer version;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  private final JsonNode schema;
+  private JsonNode schema;
 }

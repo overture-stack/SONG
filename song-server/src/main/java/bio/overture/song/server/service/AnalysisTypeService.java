@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +101,7 @@ public class AnalysisTypeService {
     return buildAnalysisType(name, version, analysisSchema.getSchema());
   }
 
+  @Transactional
   public AnalysisType register(@NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema){
     validateAnalysisTypeName(analysisTypeName);
     validateAnalysisTypeSchema(analysisTypeSchema);

@@ -91,7 +91,6 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
         nativeWebRequest.getParameter(LIMIT),
         nativeWebRequest.getParameter(SORT),
         nativeWebRequest.getParameter(SORTORDER)
-
     );
   }
 
@@ -109,8 +108,8 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
     return new AnalysisTypePageable(offsetValue, limitValue, sort);
   }
 
-  public static AnalysisTypePageable parseAnalysisTypePageable(String offsetString, String limitString,
-      String sortVariableString, String sortOrderString){
+  public static AnalysisTypePageable parseAnalysisTypePageable(@Nullable String offsetString, @Nullable String limitString,
+      @Nullable String sortVariableString, @Nullable String sortOrderString){
     val offset = parseInteger(OFFSET, offsetString);
     val limit = parseInteger(LIMIT, limitString);
     val sortOrder = parseSortOrder(sortOrderString);
