@@ -25,11 +25,8 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
  * Application entry point.
  */
 
-// Excluded ManagementWebSecurityAutoConfiguration as it is an @AutoConfigurationBefore in
-// SecurityAutoConfiguration within Springboot 2.1.
-// This was done because a login page was appearing for all endpoints after upgrading.
 
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class})
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 
 public class ServerMain {
 
