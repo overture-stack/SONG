@@ -18,6 +18,7 @@
 package bio.overture.song.server.validation;
 
 import bio.overture.song.core.exceptions.ServerErrors;
+import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.legacy.LegacyDto;
@@ -82,12 +83,12 @@ public class ParameterCheckerTests {
     //Test empty
     parameterChecker.checkQueryParameters(REGISTERED_TYPE, newHashSet());
 
-    assertSongError(() -> parameterChecker.checkQueryParameters(UNREGISTERED_TYPE, newHashSet(fieldNames)),
+    SongErrorAssertions.assertSongErrorRunnable(() -> parameterChecker.checkQueryParameters(UNREGISTERED_TYPE, newHashSet(fieldNames)),
         ServerErrors.UNREGISTERED_TYPE);
 
     val corruptedFieldNameSet = buildCorruptedFieldNameSet(fieldNames);
 
-    assertSongError(() -> parameterChecker.checkQueryParameters(REGISTERED_TYPE, newHashSet(corruptedFieldNameSet)),
+    SongErrorAssertions.assertSongErrorRunnable(() -> parameterChecker.checkQueryParameters(REGISTERED_TYPE, newHashSet(corruptedFieldNameSet)),
         ILLEGAL_QUERY_PARAMETER);
   }
 
@@ -99,12 +100,12 @@ public class ParameterCheckerTests {
     //Test empty
     parameterChecker.checkFilterParameters(REGISTERED_TYPE, newHashSet());
 
-    assertSongError(() -> parameterChecker.checkFilterParameters(UNREGISTERED_TYPE, newHashSet(fieldNames)),
+    SongErrorAssertions.assertSongErrorRunnable(() -> parameterChecker.checkFilterParameters(UNREGISTERED_TYPE, newHashSet(fieldNames)),
         ServerErrors.UNREGISTERED_TYPE);
 
     val corruptedFieldNameSet = buildCorruptedFieldNameSet(fieldNames);
 
-    assertSongError(() -> parameterChecker.checkFilterParameters(REGISTERED_TYPE, newHashSet(corruptedFieldNameSet)),
+    SongErrorAssertions.assertSongErrorRunnable(() -> parameterChecker.checkFilterParameters(REGISTERED_TYPE, newHashSet(corruptedFieldNameSet)),
         ILLEGAL_FILTER_PARAMETER);
   }
 

@@ -247,7 +247,7 @@ public class DonorServiceTest {
     val randomDonorGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
     val expectedId = idService.generateDonorId(randomDonorSubmitterId, DEFAULT_STUDY_ID);
     assertThat(service.isDonorExist(expectedId)).isFalse();
-    assertSongError(() -> service.checkDonorExists(randomDonorId), DONOR_DOES_NOT_EXIST);
+    SongErrorAssertions.assertSongErrorRunnable(() -> service.checkDonorExists(randomDonorId), DONOR_DOES_NOT_EXIST);
     val donorId = service.save(DEFAULT_STUDY_ID,
         Donor.builder()
         .donorId(null)

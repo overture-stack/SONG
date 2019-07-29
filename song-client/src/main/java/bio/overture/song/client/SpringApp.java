@@ -23,6 +23,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.function.Consumer;
 
+import static org.springframework.boot.WebApplicationType.NONE;
+
 @SpringBootApplication
 public class SpringApp {
 
@@ -31,7 +33,7 @@ public class SpringApp {
   public static void main(String... args) {
     val app = new SpringApplication(SpringApp.class);
     app.setBannerMode(Banner.Mode.OFF);
-    app.setWebEnvironment(false);
+    app.setWebApplicationType(NONE);
     app.setLogStartupInfo(false);
     app.setRegisterShutdownHook(false);
     app.setAddCommandLineProperties(false);

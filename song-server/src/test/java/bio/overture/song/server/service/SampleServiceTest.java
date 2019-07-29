@@ -182,8 +182,10 @@ public class SampleServiceTest {
     sampleService.checkSampleExists(existingSampleId);
     sampleService.checkSampleDoesNotExist(nonExistingSampleId);
 
-    assertSongError(() -> sampleService.checkSampleExists(nonExistingSampleId), SAMPLE_DOES_NOT_EXIST);
-    assertSongError(() -> sampleService.checkSampleDoesNotExist(existingSampleId), SAMPLE_ALREADY_EXISTS);
+    SongErrorAssertions
+        .assertSongErrorRunnable(() -> sampleService.checkSampleExists(nonExistingSampleId), SAMPLE_DOES_NOT_EXIST);
+    SongErrorAssertions
+        .assertSongErrorRunnable(() -> sampleService.checkSampleDoesNotExist(existingSampleId), SAMPLE_ALREADY_EXISTS);
   }
 
   @Test

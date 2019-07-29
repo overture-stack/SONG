@@ -68,6 +68,8 @@ management:
 swagger:
   alternateUrl: "/api-docs"
 
+security.basic.enabled: false
+
 id:
   idUrl: "http://localhost:9090"
   authToken: "idToken"

@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine as builder
+FROM openjdk:11-jdk as builder
 
 # Build song-server jar
 COPY . /srv
@@ -6,7 +6,7 @@ WORKDIR /srv
 RUN ./mvnw clean package -DskipTests
 
 ###############################################################################################################
-FROM openjdk:8-jre-stretch as client
+FROM openjdk:11-jre-stretch as client
 
 ENV DCC_HOME /opt/dcc
 ENV DCC_DATA $DCC_HOME/data
@@ -40,7 +40,7 @@ CMD rm -rf $CLIENT_HOME/* && \
 
 ###############################################################################################################
 
-FROM openjdk:8-jre-alpine as server
+FROM openjdk:11-jre as server
 
 # Paths
 ENV SONG_HOME /song-server

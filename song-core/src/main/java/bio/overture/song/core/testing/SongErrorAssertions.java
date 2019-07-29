@@ -32,15 +32,19 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 public class SongErrorAssertions {
   private static final Object EMPTY_OBJECT = new Object();
 
-  public static void assertSongError(Runnable runnable, ServerError expectedServerError){
-    assertSongError(runnable, expectedServerError, null);
+  // NOTE: for some reason, jvm11 does not like the below method name "assertSongError".
+  //       If the below method name was "assertSongError", although this is basic
+  //       method overloading, the compiler errors out with
+  //       "incompatible types: inference variable T has incompatible bounds"
+  public static void assertSongErrorRunnable(Runnable runnable, ServerError expectedServerError){
+    assertSongErrorRunnable(runnable, expectedServerError, null);
   }
 
   public static <T> void assertSongError(Supplier<T> supplier, ServerError expectedServerError){
     assertSongError(supplier, expectedServerError, null);
   }
 
-  public static void assertSongError(@NonNull Runnable runnable, ServerError expectedServerError,
+  public static void assertSongErrorRunnable(@NonNull Runnable runnable, ServerError expectedServerError,
       String formattedFailMessage, Object...objects){
     assertSongError(() -> {
       runnable.run();
