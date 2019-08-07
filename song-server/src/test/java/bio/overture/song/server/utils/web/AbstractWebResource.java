@@ -1,6 +1,6 @@
 package bio.overture.song.server.utils.web;
 
-import bio.overture.song.core.utils.JsonUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -23,8 +24,10 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.server.utils.CollectionUtils.isArrayBlank;
 import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.server.utils.EndpointTester.AMPERSAND;
@@ -33,7 +36,7 @@ import static bio.overture.song.server.utils.web.QueryParam.createQueryParam;
 @Slf4j
 @RequiredArgsConstructor
 public abstract class AbstractWebResource<
-    T, O extends ResponseOption<T, O>, W extends AbstractWebResource<T, O, W>> {
+    O extends ResponseOption<String, O>, W extends AbstractWebResource<O, W>> {
 
   private static final ObjectMapper REGULAR_MAPPER = new ObjectMapper();
   private static final ObjectMapper PRETTY_MAPPER = new ObjectMapper();
@@ -44,7 +47,7 @@ public abstract class AbstractWebResource<
 
   @NonNull private final MockMvc mockMvc;
   @NonNull private final String serverUrl;
-  @NonNull private final Class<T> responseType;
+  @NonNull private final Class<String> responseType;
 
   private String endpoint;
   private Set<QueryParam> queryParams = newHashSet();
@@ -53,7 +56,7 @@ public abstract class AbstractWebResource<
   private boolean enableLogging = false;
   private boolean pretty = false;
 
-  protected abstract O createResponseOption(ResponseEntity<T> responseEntity);
+  protected abstract O createResponseOption(ResponseEntity<String> responseEntity);
 
   private W thisInstance() {
     return (W) this;
@@ -125,19 +128,19 @@ public abstract class AbstractWebResource<
     return thisInstance();
   }
 
-  public ResponseEntity<T> get() {
+  public ResponseEntity<String> get() {
     return doRequest(null, HttpMethod.GET);
   }
 
-  public ResponseEntity<T> put() {
+  public ResponseEntity<String> put() {
     return doRequest(this.body, HttpMethod.PUT);
   }
 
-  public ResponseEntity<T> post() {
+  public ResponseEntity<String> post() {
     return doRequest(this.body, HttpMethod.POST);
   }
 
-  public ResponseEntity<T> delete() {
+  public ResponseEntity<String> delete() {
     return doRequest(null, HttpMethod.DELETE);
   }
 
@@ -167,11 +170,30 @@ public abstract class AbstractWebResource<
   }
 
   @SneakyThrows
-  private ResponseEntity<T> doRequest(Object body, HttpMethod httpMethod) {
+  private ResponseEntity<String> doRequest(Object body, HttpMethod httpMethod) {
     logRequest(enableLogging, pretty, httpMethod, getUrl(), body);
-    val mvcResponse = mockMvc.perform(MockMvcRequestBuilders.request(httpMethod,getUrl())).andReturn().getResponse();
-
-    val responseObject = responseType == String.class ? (T)mvcResponse.getContentAsString() : JsonUtils.fromJson(mvcResponse.getContentAsString(), this.responseType);
+    val mvcRequest = MockMvcRequestBuilders.request(httpMethod,getUrl()).headers(headers);
+    if (!isNull(body)){
+      if (body instanceof JsonNode){
+        mvcRequest.content(body.toString());
+      } else if (body instanceof  String){
+        mvcRequest.content((String)body);
+      } else {
+        mvcRequest.content(toJson(body));
+      }
+    }
+    val mvcResult = mockMvc.perform(mvcRequest).andReturn();
+    val mvcResponse = mvcResult.getResponse();
+    val httpStatus = HttpStatus.resolve(mvcResponse.getStatus());
+    String responseObject = null;
+    if (httpStatus.isError()){
+      responseObject = mvcResponse.getContentAsString();
+      if (isBlank(responseObject)){
+        responseObject = mvcResult.getResolvedException().getMessage();
+      }
+    } else {
+      responseObject = mvcResponse.getContentAsString();
+    }
     val response = ResponseEntity.status(mvcResponse.getStatus()).body(responseObject);
     logResponse(enableLogging, pretty, response);
     return response;

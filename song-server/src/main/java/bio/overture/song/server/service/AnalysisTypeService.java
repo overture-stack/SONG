@@ -223,6 +223,10 @@ public class AnalysisTypeService {
         .build();
   }
 
+  public static String resolveAnalysisTypeId(@NonNull AnalysisTypeId analysisTypeId){
+    return resolveAnalysisTypeId(analysisTypeId.getName(), analysisTypeId.getVersion());
+  }
+
   public static String resolveAnalysisTypeId(@NonNull String name, int version){
     return format(ANALYSIS_TYPE_ID_FORMAT, name, version);
   }

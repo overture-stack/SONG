@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
 public class StringWebResource
-    extends AbstractWebResource<String, StringResponseOption, StringWebResource> {
+    extends AbstractWebResource<StringResponseOption, StringWebResource> {
 
   public StringWebResource(MockMvc mockMvc, String serverUrl) {
     super(mockMvc, serverUrl, String.class);
