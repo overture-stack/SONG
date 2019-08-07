@@ -231,6 +231,10 @@ public class AnalysisTypeService {
     return format(ANALYSIS_TYPE_ID_FORMAT, name, version);
   }
 
+  public static String resolveAnalysisTypeId(@NonNull AnalysisType analysisType){
+    return resolveAnalysisTypeId(analysisType.getName(), analysisType.getVersion());
+  }
+
   private static AnalysisTypeId parseAnalysisTypeId(@NonNull String id){
     val matcher = ANALYSIS_TYPE_ID_PATTERN.matcher(id);
     checkServer(matcher.matches(), AnalysisTypeService.class, MALFORMED_PARAMETER,

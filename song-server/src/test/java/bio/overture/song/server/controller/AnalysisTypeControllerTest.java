@@ -82,12 +82,34 @@ public class AnalysisTypeControllerTest {
         .isEqualTo(expectedAnalysisType);
   }
 
+  @Test
+  @Transactional
+  public void getAnalysisTypeByVersion_existing_success(){
+    // Generate data
+    val data = generateData(10);
+    val expectedAnalysisType = randomGenerator.randomElement(data);
+
+    // Get the analysisTypeId using the service and assert it has the correct format
+    val requestAnalysisTypeId = resolveAnalysisTypeId(expectedAnalysisType);
+    assertThat(requestAnalysisTypeId).isEqualTo(expectedAnalysisType.getName()+":"+expectedAnalysisType.getVersion());
+
+    // Assert the actual retrieved resource matches the expected
+    endpointTester.getAnalysisTypeVersionGetRequestAnd(requestAnalysisTypeId)
+        .assertEntityOfType(AnalysisType.class)
+        .isEqualTo(expectedAnalysisType);
+  }
+
     @Test
     public void saveStudyShouldValidateStudyId() {
       generateData2(analysisTypeService, 10);
       val result = endpointTester.getSchemaGetRequestAnd(null, null, null, null, null, null).extractPageResults(AnalysisType.class);
       log.info("sdf");
     }
+
+
+  public List<AnalysisType> generateData(int repeats) {
+    return generateData2(analysisTypeService, repeats);
+  }
 
     public static List<AnalysisType> generateData2(AnalysisTypeService analysisTypeService, int repeats) {
         val randomGenerator = createRandomGenerator("temp");

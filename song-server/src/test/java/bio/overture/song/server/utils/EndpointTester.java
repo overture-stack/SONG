@@ -91,7 +91,7 @@ public class EndpointTester {
   }
 
   // POST /schemas
-  public ResponseOption registerAnalysisTypePostRequestAnd(RegisterAnalysisTypeRequest request){
+  public ResponseOption registerAnalysisTypePostRequestAnd(@NonNull RegisterAnalysisTypeRequest request){
     return initWebRequest()
         .endpoint(SCHEMAS)
         .body(request)
@@ -99,8 +99,7 @@ public class EndpointTester {
   }
 
   // GET /schemas/<name>:<version>
-  public ResponseOption getAnalysisTypeVersionGetRequestAnd(AnalysisTypeId analysisTypeId){
-    val analysisTypeIdString = resolveAnalysisTypeId(analysisTypeId);
+  public ResponseOption getAnalysisTypeVersionGetRequestAnd(@NonNull String analysisTypeIdString){
     return initWebRequest()
         .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString))
         .getAnd();
