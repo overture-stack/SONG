@@ -34,9 +34,7 @@ import static bio.overture.song.server.utils.web.QueryParam.createQueryParam;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class AbstractWebResource<
-    O extends ResponseOption<String, O>, W extends AbstractWebResource<O, W>> {
-
+public class WebResource {
   private static final ObjectMapper REGULAR_MAPPER = new ObjectMapper();
   private static final ObjectMapper PRETTY_MAPPER = new ObjectMapper();
 
@@ -46,7 +44,6 @@ public abstract class AbstractWebResource<
 
   @NonNull private final MockMvc mockMvc;
   @NonNull private final String serverUrl;
-  @NonNull private final Class<String> responseType;
 
   private String endpoint;
   private Set<QueryParam> queryParams = newHashSet();
@@ -55,73 +52,75 @@ public abstract class AbstractWebResource<
   private boolean enableLogging = false;
   private boolean pretty = false;
 
-  protected abstract O createResponseOption(ResponseEntity<String> responseEntity);
-
-  private W thisInstance() {
-    return (W) this;
+  private ResponseOption createResponseOption(ResponseEntity<String> responseEntity){
+    return new ResponseOption(responseEntity);
   }
 
-  public W endpoint(String formattedEndpoint, Object... args) {
+  private WebResource thisInstance() {
+    return this;
+  }
+
+  public WebResource endpoint(String formattedEndpoint, Object... args) {
     this.endpoint = format(formattedEndpoint, args);
     return thisInstance();
   }
 
-  public W body(Object body) {
+  public WebResource body(Object body) {
     this.body = body;
     return thisInstance();
   }
 
-  public W headers(HttpHeaders httpHeaders) {
+  public WebResource headers(HttpHeaders httpHeaders) {
     this.headers = httpHeaders;
     return thisInstance();
   }
 
-  public W logging() {
+  public WebResource logging() {
     return configLogging(true, false);
   }
 
-  public W prettyLogging() {
+  public WebResource prettyLogging() {
     return configLogging(true, true);
   }
 
-  public W optionalQueryParamCollection(String key, Collection values) {
+  public WebResource optionalQueryParamCollection(String key, Collection values) {
     if(!isCollectionBlank(values)){
       return queryParam(key, values);
     }
     return thisInstance();
   }
 
-  public W optionalQuerySingleParam(String key, Object value) {
+  public WebResource optionalQuerySingleParam(String key, Object value) {
     if(!isNull(value)){
       return querySingleParam(key, value);
     }
     return thisInstance();
   }
 
-  public W querySingleParam(String key, Object value) {
+  public WebResource querySingleParam(String key, Object value) {
     return queryParam(key, ImmutableList.of(value));
   }
 
-  public W optionalQueryParamArray(String key, Object[] values) {
+  public WebResource optionalQueryParamArray(String key, Object[] values) {
     if(!isArrayBlank(values)){
       return optionalQueryParamCollection(key, newArrayList(values));
     }
     return thisInstance();
   }
 
-  public W optionalQueryParamMulti(String key, Object ... values) {
+  public WebResource optionalQueryParamMulti(String key, Object ... values) {
     if(!isArrayBlank(values)){
       return optionalQueryParamCollection(key, newArrayList(values));
     }
     return thisInstance();
   }
 
-  public W queryParam(String key, Collection values) {
+  public WebResource queryParam(String key, Collection values) {
     queryParams.add(createQueryParam(key, values));
     return thisInstance();
   }
 
-  private W configLogging(boolean enable, boolean pretty) {
+  private WebResource configLogging(boolean enable, boolean pretty) {
     this.enableLogging = enable;
     this.pretty = pretty;
     return thisInstance();
@@ -143,19 +142,19 @@ public abstract class AbstractWebResource<
     return doRequest(null, HttpMethod.DELETE);
   }
 
-  public O deleteAnd() {
+  public ResponseOption deleteAnd() {
     return createResponseOption(delete());
   }
 
-  public O getAnd() {
+  public ResponseOption getAnd() {
     return createResponseOption(get());
   }
 
-  public O putAnd() {
+  public ResponseOption putAnd() {
     return createResponseOption(put());
   }
 
-  public O postAnd() {
+  public ResponseOption postAnd() {
     return createResponseOption(post());
   }
 
@@ -165,7 +164,8 @@ public abstract class AbstractWebResource<
   }
 
   private String getUrl() {
-    return PATH.join(this.serverUrl, this.endpoint) + getQuery().map(x -> "?" + x).orElse("");
+    return PATH.join(this.serverUrl, this.endpoint)
+        + getQuery().map(x -> "?" + x).orElse("");
   }
 
   private ResponseEntity<String> doRequest(Object objectBody, HttpMethod httpMethod) {
@@ -185,7 +185,7 @@ public abstract class AbstractWebResource<
     String responseObject = null;
     if (httpStatus.isError()){
       responseObject = mvcResponse.getContentAsString();
-      if (isBlank(responseObject)){
+      if (isBlank(responseObject) && !isNull(mvcResult.getResolvedException())){
         responseObject = mvcResult.getResolvedException().getMessage();
       }
     } else {

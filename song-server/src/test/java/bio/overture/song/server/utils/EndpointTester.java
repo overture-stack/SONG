@@ -20,8 +20,8 @@ package bio.overture.song.server.utils;
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
-import bio.overture.song.server.utils.web.StringResponseOption;
-import bio.overture.song.server.utils.web.StringWebResource;
+import bio.overture.song.server.utils.web.ResponseOption;
+import bio.overture.song.server.utils.web.WebResource;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
@@ -50,6 +50,7 @@ public class EndpointTester {
   private static final String SCHEMAS   = "schemas";
   private static final String NAMES     = "names";
   private static final String VERSIONS  = "versions";
+  private static final String META = "meta";
 
   public static final Joiner AMPERSAND = Joiner.on("&");
 
@@ -67,17 +68,18 @@ public class EndpointTester {
       .andExpect(songErrorContent(expectedServerError));
   }
 
-  public StringWebResource initStringRequest() {
+  public WebResource initWebRequest() {
     val headers = new HttpHeaders();
     headers.setContentType(APPLICATION_JSON);
     headers.setAccept(ImmutableList.of(APPLICATION_JSON));
-    return new StringWebResource(mockMvc, "").logging().headers(headers);
+    return new WebResource(mockMvc, "").logging().headers(headers);
   }
 
-  public StringResponseOption getSchemaGetRequestAnd(
+  // GET /schemas
+  public ResponseOption getSchemaGetRequestAnd(
       List<String> names, List<Integer> versions,
       Integer offset, Integer limit, Sort.Direction sortOrder, String ... sortVariables){
-    return initStringRequest()
+    return initWebRequest()
         .endpoint(SCHEMAS)
         .optionalQueryParamCollection(NAMES, names)
         .optionalQueryParamCollection(VERSIONS, versions)
@@ -88,23 +90,26 @@ public class EndpointTester {
         .getAnd();
   }
 
-  public StringResponseOption registerAnalysisTypePostRequestAnd(RegisterAnalysisTypeRequest request){
-    return initStringRequest()
+  // POST /schemas
+  public ResponseOption registerAnalysisTypePostRequestAnd(RegisterAnalysisTypeRequest request){
+    return initWebRequest()
         .endpoint(SCHEMAS)
         .body(request)
         .postAnd();
   }
 
-  public StringResponseOption getAnalysisTypeVersionGetRequestAnd(AnalysisTypeId analysisTypeId){
+  // GET /schemas/<name>:<version>
+  public ResponseOption getAnalysisTypeVersionGetRequestAnd(AnalysisTypeId analysisTypeId){
     val analysisTypeIdString = resolveAnalysisTypeId(analysisTypeId);
-    return initStringRequest()
+    return initWebRequest()
         .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString))
         .getAnd();
   }
 
-  public StringResponseOption getMetaSchemaGetRequestAnd(){
-    return initStringRequest()
-        .endpoint(Joiners.PATH.join(SCHEMAS, "meta"))
+  // GET /schemas/meta
+  public ResponseOption getMetaSchemaGetRequestAnd(){
+    return initWebRequest()
+        .endpoint(Joiners.PATH.join(SCHEMAS, META))
         .getAnd();
   }
 
