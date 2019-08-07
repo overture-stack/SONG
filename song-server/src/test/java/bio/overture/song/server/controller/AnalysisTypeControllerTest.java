@@ -7,9 +7,12 @@ import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.EndpointTester;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.everit.json.schema.Schema;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,11 +25,16 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
@@ -42,6 +50,9 @@ public class AnalysisTypeControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
+
+  @Autowired
+  private Supplier<Schema> analysisTypeMetaSchemaSupplier;
 
   @Autowired
   private AnalysisTypeService analysisTypeService;
@@ -126,6 +137,21 @@ public class AnalysisTypeControllerTest {
         .isEqualTo(expectedAnalysisType);
   }
 
+  /**
+   * Test that the meta schema can be requested
+   */
+  @Test
+  @SneakyThrows
+  @Transactional
+  public void getMetaSchema_existing_success(){
+    // Expected meta schema json
+    val expected = readTree(analysisTypeMetaSchemaSupplier.get().toString());
+
+    // Assert the actual retrieved resource matches the expected
+    val actual = endpointTester.getMetaSchemaGetRequestAnd()
+        .extractOneEntity(JsonNode.class);
+    assertJsonEquals(expected, actual, when(IGNORING_ARRAY_ORDER));
+  }
 
   private List<AnalysisType> generateData(int repeats) {
     return generateData2(analysisTypeService, repeats);
