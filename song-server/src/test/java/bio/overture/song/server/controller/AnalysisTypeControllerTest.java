@@ -7,6 +7,7 @@ import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.EndpointTester;
+import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -29,6 +30,7 @@ import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 
 @Slf4j
@@ -61,27 +63,52 @@ public class AnalysisTypeControllerTest {
    */
   @Test
   @Transactional
-  public void register_nonExistingName_success(){
+  public void createAndUpdate_nonExistingName_success(){
     // Generate unique name and schema, and create request
     val nonExistingName = generateUniqueName();
-    val schema = JsonUtils.mapper().createObjectNode()
+    val createSchema = JsonUtils.mapper().createObjectNode()
         .put("$id", randomGenerator.generateRandomUUIDAsString());
-    val request = RegisterAnalysisTypeRequest.builder()
+    val createRequest = RegisterAnalysisTypeRequest.builder()
         .name(nonExistingName)
-        .schema(schema)
+        .schema(createSchema)
         .build();
 
     // Build the expected AnalysisType using the AnalysisTypeService and also verify proper format
-    val expectedAnalysisType = buildAnalysisType(nonExistingName, 1, schema);
+    val expectedAnalysisType = buildAnalysisType(nonExistingName, 1, createSchema);
     assertThat(resolveAnalysisTypeId(nonExistingName, 1)).isEqualTo(nonExistingName+":1");
     assertThat(expectedAnalysisType.getId()).isEqualTo(resolveAnalysisTypeId(nonExistingName, 1));
 
     // Assert the schema and name were properly registered
-    endpointTester.registerAnalysisTypePostRequestAnd(request)
+    endpointTester.registerAnalysisTypePostRequestAnd(createRequest)
         .assertEntityOfType(AnalysisType.class)
         .isEqualTo(expectedAnalysisType);
+
+    // Update the schema for the same analysisTypeName
+    val updateSchema = JsonUtils.mapper().createObjectNode()
+        .put("$id", randomGenerator.generateRandomUUIDAsString());
+    val updateRequest = RegisterAnalysisTypeRequest.builder()
+        .name(nonExistingName)
+        .schema(updateSchema)
+        .build();
+    val expectedAnalysisTypeUpdate = buildAnalysisType(nonExistingName, 2, updateSchema);
+
+    // Assert the schema and name were properly registered
+    endpointTester.registerAnalysisTypePostRequestAnd(updateRequest)
+        .assertEntityOfType(AnalysisType.class)
+        .isEqualTo(expectedAnalysisTypeUpdate);
+
+    // Assert there are only 2 entries for the analysisType name
+    val results = endpointTester.getSchemaGetRequestAnd(ImmutableList.of(nonExistingName),
+        null, 0, 100, null, null)
+        .extractPageResults(AnalysisType.class);
+    val actualNames = mapToImmutableSet(results, AnalysisType::getName);
+    assertThat(actualNames).hasSize(1);
+    assertThat(actualNames).contains(nonExistingName);
   }
 
+  /**
+   * Happy Path: Test an analysisType can be read by requesting it by an analysisTypeId in the form <name>:<version>
+   */
   @Test
   @Transactional
   public void getAnalysisTypeByVersion_existing_success(){
@@ -99,34 +126,10 @@ public class AnalysisTypeControllerTest {
         .isEqualTo(expectedAnalysisType);
   }
 
-    @Test
-    public void saveStudyShouldValidateStudyId() {
-      generateData2(analysisTypeService, 10);
-      val result = endpointTester.getSchemaGetRequestAnd(null, null, null, null, null, null).extractPageResults(AnalysisType.class);
-      log.info("sdf");
-    }
 
-
-  public List<AnalysisType> generateData(int repeats) {
+  private List<AnalysisType> generateData(int repeats) {
     return generateData2(analysisTypeService, repeats);
   }
-
-    public static List<AnalysisType> generateData2(AnalysisTypeService analysisTypeService, int repeats) {
-        val randomGenerator = createRandomGenerator("temp");
-        val names = IntStream.range(0, repeats)
-            .boxed()
-            .map(x -> "exampleAnalysisType-" + randomGenerator.generateRandomAsciiString(10))
-            .collect(toImmutableList());
-
-        return IntStream.range(0, repeats * repeats)
-            .boxed()
-            .map(i -> {
-                val name = names.get(i % repeats);
-                val schema = mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
-                return analysisTypeService.register(name, schema);
-            })
-            .collect(toImmutableList());
-    }
 
   private String generateUniqueName(){
     String analysisType = null;
@@ -136,6 +139,22 @@ public class AnalysisTypeControllerTest {
     return analysisType;
   }
 
+  public static List<AnalysisType> generateData2(AnalysisTypeService analysisTypeService, int repeats) {
+    val randomGenerator = createRandomGenerator("temp");
+    val names = IntStream.range(0, repeats)
+        .boxed()
+        .map(x -> "exampleAnalysisType-" + randomGenerator.generateRandomAsciiString(10))
+        .collect(toImmutableList());
+
+    return IntStream.range(0, repeats * repeats)
+        .boxed()
+        .map(i -> {
+          val name = names.get(i % repeats);
+          val schema = mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
+          return analysisTypeService.register(name, schema);
+        })
+        .collect(toImmutableList());
+  }
 
 
 
