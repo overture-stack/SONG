@@ -7,6 +7,7 @@ import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.EndpointTester;
+import bio.overture.song.server.utils.ResourceFetcher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import lombok.SneakyThrows;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.Schema;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.transaction.Transactional;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -40,6 +43,7 @@ import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysis
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import static bio.overture.song.server.utils.ResourceFetcher.ResourceType.MAIN;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -142,7 +146,6 @@ public class AnalysisTypeControllerTest {
    */
   @Test
   @SneakyThrows
-  @Transactional
   public void getMetaSchema_existing_success(){
     // Expected meta schema json
     val expected = readTree(analysisTypeMetaSchemaSupplier.get().toString());
@@ -151,6 +154,35 @@ public class AnalysisTypeControllerTest {
     val actual = endpointTester.getMetaSchemaGetRequestAnd()
         .extractOneEntity(JsonNode.class);
     assertJsonEquals(expected, actual, when(IGNORING_ARRAY_ORDER));
+  }
+
+  @Test
+  @Ignore
+  @SneakyThrows
+  public void getLegacyVariantCall_existing_success(){
+    runLegacyVariantCallTest("variantCall");
+  }
+
+  @Test
+  @Ignore
+  @SneakyThrows
+  public void getLegacySequencingRead_existing_success(){
+    runLegacyVariantCallTest("sequencingRead");
+  }
+
+  private void runLegacyVariantCallTest(String name) {
+    val fetcher =
+        ResourceFetcher.builder().resourceType(MAIN).dataDir(Paths.get("schemas")).build();
+    val expected = fetcher.readJsonNode(name + ".json");
+
+    val results =
+        endpointTester
+            .getSchemaGetRequestAnd(ImmutableList.of(name), null, 0, 100, null, null)
+            .extractPageResults(AnalysisType.class);
+
+    val actualNames = mapToImmutableSet(results, AnalysisType::getName);
+    assertThat(actualNames).hasSize(1);
+    assertThat(actualNames).contains(name);
   }
 
   private List<AnalysisType> generateData(int repeats) {
