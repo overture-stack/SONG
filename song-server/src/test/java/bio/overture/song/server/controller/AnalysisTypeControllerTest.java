@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
 import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
@@ -168,6 +169,27 @@ public class AnalysisTypeControllerTest {
   @SneakyThrows
   public void getLegacySequencingRead_existing_success(){
     runLegacyVariantCallTest("sequencingRead");
+  }
+
+  /**
+   * Test the default size is DEFAULT_LIMIT
+   */
+  @Test
+  public void listAnalysisTypesDefaultSize_exist_success() {
+    // Generate data
+    generateData(10);
+    val actualAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(null, null, null, null, null, null)
+        .extractPageResults(AnalysisType.class);
+
+    // Assert default size is DEFAULT_LIMIT
+    assertThat(DEFAULT_LIMIT).isEqualTo(20);
+    assertThat(actualAnalysisTypes).hasSize(DEFAULT_LIMIT);
+  }
+
+  @Test
+  public void listFilterMultipleNames_allExistingNames_success(){
+
   }
 
   private void runLegacyVariantCallTest(String name) {
