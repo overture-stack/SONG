@@ -1,6 +1,5 @@
 package bio.overture.song.server.utils.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
@@ -169,18 +168,16 @@ public abstract class AbstractWebResource<
     return PATH.join(this.serverUrl, this.endpoint) + getQuery().map(x -> "?" + x).orElse("");
   }
 
+  private ResponseEntity<String> doRequest(Object objectBody, HttpMethod httpMethod) {
+    return doRequest(toJson(objectBody), httpMethod);
+  }
+
   @SneakyThrows
-  private ResponseEntity<String> doRequest(Object body, HttpMethod httpMethod) {
-    logRequest(enableLogging, pretty, httpMethod, getUrl(), body);
+  private ResponseEntity<String> doRequest(String stringBody, HttpMethod httpMethod) {
+    logRequest(enableLogging, pretty, httpMethod, getUrl(), stringBody);
     val mvcRequest = MockMvcRequestBuilders.request(httpMethod,getUrl()).headers(headers);
-    if (!isNull(body)){
-      if (body instanceof JsonNode){
-        mvcRequest.content(body.toString());
-      } else if (body instanceof  String){
-        mvcRequest.content((String)body);
-      } else {
-        mvcRequest.content(toJson(body));
-      }
+    if (!isNull(stringBody)){
+      mvcRequest.content(stringBody);
     }
     val mvcResult = mockMvc.perform(mvcRequest).andReturn();
     val mvcResponse = mvcResult.getResponse();
