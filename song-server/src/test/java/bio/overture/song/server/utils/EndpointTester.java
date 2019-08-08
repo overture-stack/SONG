@@ -18,7 +18,6 @@
 package bio.overture.song.server.utils;
 
 import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.ResponseOption;
 import bio.overture.song.server.utils.web.WebResource;
@@ -33,7 +32,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,7 +40,6 @@ import static bio.overture.song.server.controller.analysisType.AnalysisTypePagea
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
-import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
 
 @RequiredArgsConstructor
@@ -77,7 +75,7 @@ public class EndpointTester {
 
   // GET /schemas
   public ResponseOption getSchemaGetRequestAnd(
-      List<String> names, List<Integer> versions,
+      Collection<String> names, Collection<Integer> versions,
       Integer offset, Integer limit, Sort.Direction sortOrder, String ... sortVariables){
     return initWebRequest()
         .endpoint(SCHEMAS)

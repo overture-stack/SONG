@@ -10,6 +10,7 @@ import bio.overture.song.server.utils.EndpointTester;
 import bio.overture.song.server.utils.ResourceFetcher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -31,11 +32,12 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static java.util.stream.Collectors.toList;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -188,7 +190,25 @@ public class AnalysisTypeControllerTest {
   }
 
   @Test
-  public void listFilterMultipleNames_allExistingNames_success(){
+  @Transactional
+  public void listFilterMultipleNames_mulitipleNames_success(){
+    // Generate data
+    val data = generateData(10);
+    val names = ImmutableList.copyOf(mapToImmutableSet(data, AnalysisType::getName));
+
+    val expectedNames = ImmutableSet.copyOf(randomGenerator.randomSublist(names, names.size()/2));
+    val expectedAnalysisTypes = data.stream()
+        .filter(x -> expectedNames.contains(x.getName()))
+        .collect(toList());
+
+
+    // All existing
+    val actualAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(expectedNames,
+            null, null, null, null, null)
+        .extractPageResults(AnalysisType.class);
+
+    assertThat(actualAnalysisTypes).containsExactlyInAnyOrderElementsOf(expectedAnalysisTypes);
 
   }
 
