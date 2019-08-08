@@ -11,6 +11,7 @@ import bio.overture.song.server.utils.ResourceFetcher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -38,9 +39,11 @@ import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.RandomGenerator.randomStream;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
 import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
@@ -193,7 +196,8 @@ public class AnalysisTypeControllerTest {
   @Transactional
   public void listFilterMultipleNames_mulitipleNames_success(){
     // Generate data
-    val data = generateData(10);
+    val repeats = 10;
+    val data = generateData(repeats);
     val names = ImmutableList.copyOf(mapToImmutableSet(data, AnalysisType::getName));
 
     val expectedNames = ImmutableSet.copyOf(randomGenerator.randomSublist(names, names.size()/2));
@@ -202,14 +206,31 @@ public class AnalysisTypeControllerTest {
         .collect(toList());
 
 
-    // All existing
-    val actualAnalysisTypes = endpointTester
+    // All Existing Names
+    val actualAllAnalysisTypes = endpointTester
         .getSchemaGetRequestAnd(expectedNames,
-            null, null, null, null, null)
+            null, 0, expectedAnalysisTypes.size()*2, null, null)
         .extractPageResults(AnalysisType.class);
+    assertThat(actualAllAnalysisTypes).hasSameSizeAs(expectedAnalysisTypes);
+    assertThat(expectedAnalysisTypes).containsExactlyInAnyOrderElementsOf(actualAllAnalysisTypes);
 
-    assertThat(actualAnalysisTypes).containsExactlyInAnyOrderElementsOf(expectedAnalysisTypes);
+    // Some Existing Names
+    val someExisingNames = Sets.newHashSet(expectedNames);
+    randomStream(this::generateUniqueName, 4).forEach(someExisingNames::add);
+    val actualSomeAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(someExisingNames,
+            null, 0, expectedAnalysisTypes.size()*2, null, null)
+        .extractPageResults(AnalysisType.class);
+    assertThat(actualSomeAnalysisTypes).hasSameSizeAs(expectedAnalysisTypes);
+    assertThat(expectedAnalysisTypes).containsExactlyInAnyOrderElementsOf(actualSomeAnalysisTypes);
 
+    // No Existing Names
+    val noExisingNames = randomStream(this::generateUniqueName, 4).collect(toImmutableSet());
+    val actualNoAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(noExisingNames,
+            null, 0, expectedAnalysisTypes.size()*2, null, null)
+        .extractPageResults(AnalysisType.class);
+    assertThat(actualNoAnalysisTypes).isEmpty();
   }
 
   private void runLegacyVariantCallTest(String name) {
