@@ -11,7 +11,6 @@ import bio.overture.song.server.utils.ResourceFetcher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -33,6 +32,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
@@ -194,6 +194,73 @@ public class AnalysisTypeControllerTest {
 
   @Test
   @Transactional
+  public void listFilterMultipleVersions_mulitipleVersions_success() {
+    // Generate data
+    val repeats = 10;
+    val data = generateData(repeats);
+    val totalAnalysisTypes = (int)analysisSchemaRepository.count();
+
+    // Create selected versions to test on
+    val selectedVersions = newHashSet(4,7,9);
+    val selectedAnalysisTypes = data.stream()
+        .filter(x -> selectedVersions.contains(x.getVersion()))
+        .collect(toImmutableSet());
+    val selectedAnalysisTypeNames = mapToImmutableSet(selectedAnalysisTypes, AnalysisType::getName);
+
+    // ******************************
+    // All existing versions
+    // ******************************
+    val actualAllAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(null,
+            selectedVersions, 0, totalAnalysisTypes, null, null)
+        .extractPageResults(AnalysisType.class)
+        .stream()
+        // Since there may be other persisted data with same version number, ignore those analysisTypes
+        // since they are outside the scope of this test
+        .filter(x -> selectedAnalysisTypeNames.contains(x.getName()))
+        .collect(toImmutableList());
+    assertThat(actualAllAnalysisTypes).hasSameSizeAs(selectedAnalysisTypes);
+    assertThat(selectedAnalysisTypes).containsExactlyInAnyOrderElementsOf(actualAllAnalysisTypes);
+
+    // ******************************
+    // Some existing versions
+    // ******************************
+    val someExistingSelectedVersions = newHashSet(selectedVersions);
+    // These versions were not generated
+    someExistingSelectedVersions.add(repeats+3);
+    someExistingSelectedVersions.add(repeats+7);
+
+    // Ensure that adding additional non-existing version will not affect the end result (its ignored)
+    val actualSomeAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(null,
+            someExistingSelectedVersions, 0, totalAnalysisTypes, null, null)
+        .extractPageResults(AnalysisType.class)
+        .stream()
+        // Since there may be other persisted data with same version number, ignore those analysisTypes
+        // since they are outside the scope of this test
+        .filter(x -> selectedAnalysisTypeNames.contains(x.getName()))
+        .collect(toImmutableList());
+    assertThat(actualSomeAnalysisTypes).hasSameSizeAs(selectedAnalysisTypes);
+    assertThat(selectedAnalysisTypes).containsExactlyInAnyOrderElementsOf(actualSomeAnalysisTypes);
+
+    // ******************************
+    // No existing versions
+    // ******************************
+    val noExistingSelectedVersions = newHashSet(repeats+3, repeats+7);
+    val actualNoAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(null,
+            noExistingSelectedVersions, 0, totalAnalysisTypes, null, null)
+        .extractPageResults(AnalysisType.class)
+        .stream()
+        // Since there may be other persisted data with same version number, ignore those analysisTypes
+        // since they are outside the scope of this test
+        .filter(x -> selectedAnalysisTypeNames.contains(x.getName()))
+        .collect(toImmutableList());
+    assertThat(actualNoAnalysisTypes).isEmpty();
+  }
+
+  @Test
+  @Transactional
   public void listFilterMultipleNames_mulitipleNames_success(){
     // Generate data
     val repeats = 10;
@@ -215,7 +282,7 @@ public class AnalysisTypeControllerTest {
     assertThat(expectedAnalysisTypes).containsExactlyInAnyOrderElementsOf(actualAllAnalysisTypes);
 
     // Some Existing Names
-    val someExisingNames = Sets.newHashSet(expectedNames);
+    val someExisingNames = newHashSet(expectedNames);
     randomStream(this::generateUniqueName, 4).forEach(someExisingNames::add);
     val actualSomeAnalysisTypes = endpointTester
         .getSchemaGetRequestAnd(someExisingNames,
@@ -260,6 +327,10 @@ public class AnalysisTypeControllerTest {
     return analysisType;
   }
 
+  /**
+   * Generates data given the number of repeats
+   * If repeats = N, there will be N analysisType names, and for each analysisType N versions. In total it will generate N*N analysisTypes
+   */
   public static List<AnalysisType> generateData2(AnalysisTypeService analysisTypeService, int repeats) {
     val randomGenerator = createRandomGenerator("temp");
     val names = IntStream.range(0, repeats)
