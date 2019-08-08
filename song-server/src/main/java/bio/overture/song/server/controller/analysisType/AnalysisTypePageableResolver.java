@@ -19,7 +19,6 @@ package bio.overture.song.server.controller.analysisType;
 import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.val;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Pageable;
@@ -199,7 +198,6 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
     return direction;
   }
 
-  @Value
   @RequiredArgsConstructor(access = PRIVATE)
   public static class AnalysisTypePageable implements Pageable {
 
