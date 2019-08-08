@@ -1,6 +1,5 @@
 package bio.overture.song.server.controller;
 
-import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
@@ -30,10 +29,11 @@ import javax.transaction.Transactional;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
@@ -41,9 +41,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.RandomGenerator.randomList;
 import static bio.overture.song.core.utils.RandomGenerator.randomStream;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
 import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
@@ -81,6 +84,63 @@ public class AnalysisTypeControllerTest {
   }
 
   /**
+   * Unhappy Path: test a schema violation server error is returned when trying to
+   * register an invalid schema with a valid name
+   */
+  @Test
+  public void register_invalidSchema_schemaViolation(){
+    // Generate test data
+    val nonExistingName = generateUniqueName();
+
+    // Generate valid schema
+    val invalidSchema = mapper().createObjectNode();
+    invalidSchema.putObject("$id").put("someKey", "someValue");
+
+    // Assert registration of malformedNames results in MALFORMED_PARAMETER error
+    val request = RegisterAnalysisTypeRequest.builder()
+        .name(nonExistingName)
+        .schema(invalidSchema)
+        .build();
+    endpointTester.registerAnalysisTypePostRequestAnd(request)
+        .assertServerError(SCHEMA_VIOLATION);
+  }
+
+  /**
+   * Unhappy Path: test a malformed parameter error is returned when trying to
+   * register a valid schema with a malformed name
+   */
+  @Test
+  public void register_malformedName_malformedParameter(){
+    // Generate test data
+    val p = randomGenerator.generateRandomAsciiString(10);
+    val s = randomGenerator.generateRandomAsciiString(10);
+    val malformedNames = newHashSet(
+        p+"$"+s,
+        p+">"+s,
+        p+" "+s,
+        p+","+s,
+        p+":"+s,
+        " "+p+s,
+        p+s+" ",
+        " "+p+s+" "
+    );
+
+    // Generate valid schema
+    val schema = mapper().createObjectNode()
+        .put("$id", randomGenerator.generateRandomUUIDAsString());
+
+    // Assert registration of malformedNames results in MALFORMED_PARAMETER error
+    malformedNames.forEach(name -> {
+      val request = RegisterAnalysisTypeRequest.builder()
+          .name(name)
+          .schema(schema)
+          .build();
+      endpointTester.registerAnalysisTypePostRequestAnd(request)
+          .assertServerError(MALFORMED_PARAMETER);
+    });
+  }
+
+  /**
    * Happy Path: Test successful initial registration of an analysisType as well as an update, resulting in 2 versions
    */
   @Test
@@ -88,7 +148,7 @@ public class AnalysisTypeControllerTest {
   public void createAndUpdate_nonExistingName_success(){
     // Generate unique name and schema, and create request
     val nonExistingName = generateUniqueName();
-    val createSchema = JsonUtils.mapper().createObjectNode()
+    val createSchema = mapper().createObjectNode()
         .put("$id", randomGenerator.generateRandomUUIDAsString());
     val createRequest = RegisterAnalysisTypeRequest.builder()
         .name(nonExistingName)
@@ -106,7 +166,7 @@ public class AnalysisTypeControllerTest {
         .isEqualTo(expectedAnalysisType);
 
     // Update the schema for the same analysisTypeName
-    val updateSchema = JsonUtils.mapper().createObjectNode()
+    val updateSchema = mapper().createObjectNode()
         .put("$id", randomGenerator.generateRandomUUIDAsString());
     val updateRequest = RegisterAnalysisTypeRequest.builder()
         .name(nonExistingName)
@@ -193,6 +253,9 @@ public class AnalysisTypeControllerTest {
     assertThat(actualAnalysisTypes).hasSize(DEFAULT_LIMIT);
   }
 
+  /**
+   * Happy Path: test filtering the listing endpoint by multiple versions only
+   */
   @Test
   @Transactional
   public void listFilterMultipleVersions_mulitipleVersions_success() {
@@ -267,7 +330,7 @@ public class AnalysisTypeControllerTest {
   public void getAnalysisTypeByVersion_nonExistingName_notFound(){
     val nonExistingName = generateUniqueName();
     val analysisTypeId = resolveAnalysisTypeId(nonExistingName, 1);
-    endpointTester.getAnalysisTypeVersionGetRequestAnd(analysisTypeId).assertStatusCode(ANALYSIS_TYPE_NOT_FOUND);
+    endpointTester.getAnalysisTypeVersionGetRequestAnd(analysisTypeId).assertServerError(ANALYSIS_TYPE_NOT_FOUND);
   }
 
   /**
@@ -280,12 +343,99 @@ public class AnalysisTypeControllerTest {
     val existingAnalysisType = generateData(1).get(0);
     val nonExistingVersion = existingAnalysisType.getVersion()+1;
     val analysisTypeId = resolveAnalysisTypeId(existingAnalysisType.getName(), nonExistingVersion);
-    endpointTester.getAnalysisTypeVersionGetRequestAnd(analysisTypeId).assertStatusCode(ANALYSIS_TYPE_NOT_FOUND);
+    endpointTester.getAnalysisTypeVersionGetRequestAnd(analysisTypeId).assertServerError(ANALYSIS_TYPE_NOT_FOUND);
+  }
+
+  /**
+   * Unhappy Path: test that malformed analysisTypeIds return a malformedParameter
+   */
+  @Test
+  public void getAnalysisTypeByVersion_malformedId_malformedParameter(){
+    val malformedIds = newHashSet("som3th!ng$:4", "something-4", "something:bad", "something:-7", "something:1.0", "something4" );
+    malformedIds.forEach( analysisTypeId ->
+        endpointTester.getAnalysisTypeVersionGetRequestAnd(analysisTypeId).assertServerError(MALFORMED_PARAMETER)
+    );
   }
 
   @Test
   @Transactional
-  public void listFilterMultipleNames_mulitipleNames_success(){
+  public void listFilter_multiNamesVersions_success(){
+    // Generate data
+    val repeats = 10;
+    val numSelectedNames = 3;
+    val numSelectedVersions = 4;
+    val data = generateData(repeats);
+    val selectedNames = ImmutableSet.copyOf(randomGenerator.randomSublist(newArrayList(mapToImmutableSet(data, AnalysisType::getName)), numSelectedNames));
+    val selectedVersions = ImmutableSet.copyOf(randomGenerator.randomSublist(range(1, repeats+1).boxed().collect(toImmutableList()), numSelectedVersions));
+    val selectedData = data.stream()
+        .filter(x -> selectedNames.contains(x.getName()) && selectedVersions.contains(x.getVersion()))
+        .collect(toImmutableSet());
+
+    // ********************************
+    // All selected names and versions
+    // ********************************
+    val actualAllAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(selectedNames,
+            selectedVersions, 0, selectedData.size()*2, null, null)
+        .extractPageResults(AnalysisType.class);
+    assertThat(actualAllAnalysisTypes).hasSameSizeAs(selectedData);
+    assertThat(selectedData).containsExactlyInAnyOrderElementsOf(actualAllAnalysisTypes);
+
+    // ********************************
+    // Some selected names and versions
+    // ********************************
+    val someSelectedNames = newHashSet(selectedNames);
+    someSelectedNames.add(generateUniqueName());
+    someSelectedNames.add(generateUniqueName());
+
+    val someSelectedVersions = newHashSet(selectedVersions);
+    someSelectedVersions.add(repeats+3);
+    someSelectedVersions.add(repeats+7);
+
+    val actualSomeAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(someSelectedNames,
+            someSelectedVersions, 0, selectedData.size()*2, null, null)
+        .extractPageResults(AnalysisType.class);
+    assertThat(actualSomeAnalysisTypes).hasSameSizeAs(selectedData);
+    assertThat(selectedData).containsExactlyInAnyOrderElementsOf(actualSomeAnalysisTypes);
+
+    // ********************************
+    // No selected names and versions
+    // ********************************
+    val noSelectedNames = newHashSet(randomList(this::generateUniqueName, 10));
+    val noSelectedVersions = newHashSet(repeats+3, repeats+7);
+
+    val actualNoAnalysisTypes = endpointTester
+        .getSchemaGetRequestAnd(noSelectedNames,
+            noSelectedVersions, 0, selectedData.size()*2, null, null)
+        .extractPageResults(AnalysisType.class);
+    assertThat(actualNoAnalysisTypes).isEmpty();
+
+    // ********************************
+    // Existing name, non-existing version
+    // ********************************
+    val actualNoAnalysisTypes2 = endpointTester
+        .getSchemaGetRequestAnd(selectedNames,
+            noSelectedVersions, 0, selectedData.size()*2, null, null)
+        .extractPageResults(AnalysisType.class);
+    assertThat(actualNoAnalysisTypes2).isEmpty();
+
+    // ********************************
+    // Non-existing name, existing versions
+    // ********************************
+    val actualNoAnalysisTypes3 = endpointTester
+        .getSchemaGetRequestAnd(noSelectedNames,
+            selectedVersions, 0, selectedData.size()*2, null, null)
+        .extractPageResults(AnalysisType.class);
+    assertThat(actualNoAnalysisTypes3).isEmpty();
+  }
+
+  /**
+   * Happy Path: test filtering the listing endpoint by multiple names only
+   */
+  @Test
+  @Transactional
+  public void listFilterMultipleNames_multipleNames_success(){
     // Generate data
     val repeats = 10;
     val data = generateData(repeats);
@@ -306,19 +456,19 @@ public class AnalysisTypeControllerTest {
     assertThat(expectedAnalysisTypes).containsExactlyInAnyOrderElementsOf(actualAllAnalysisTypes);
 
     // Some Existing Names
-    val someExisingNames = newHashSet(expectedNames);
-    randomStream(this::generateUniqueName, 4).forEach(someExisingNames::add);
+    val someExistingNames = newHashSet(expectedNames);
+    randomStream(this::generateUniqueName, 4).forEach(someExistingNames::add);
     val actualSomeAnalysisTypes = endpointTester
-        .getSchemaGetRequestAnd(someExisingNames,
+        .getSchemaGetRequestAnd(someExistingNames,
             null, 0, expectedAnalysisTypes.size()*2, null, null)
         .extractPageResults(AnalysisType.class);
     assertThat(actualSomeAnalysisTypes).hasSameSizeAs(expectedAnalysisTypes);
     assertThat(expectedAnalysisTypes).containsExactlyInAnyOrderElementsOf(actualSomeAnalysisTypes);
 
     // No Existing Names
-    val noExisingNames = randomStream(this::generateUniqueName, 4).collect(toImmutableSet());
+    val noExistingNames = randomStream(this::generateUniqueName, 4).collect(toImmutableSet());
     val actualNoAnalysisTypes = endpointTester
-        .getSchemaGetRequestAnd(noExisingNames,
+        .getSchemaGetRequestAnd(noExistingNames,
             null, 0, expectedAnalysisTypes.size()*2, null, null)
         .extractPageResults(AnalysisType.class);
     assertThat(actualNoAnalysisTypes).isEmpty();
@@ -357,12 +507,12 @@ public class AnalysisTypeControllerTest {
    */
   public static List<AnalysisType> generateData2(AnalysisTypeService analysisTypeService, int repeats) {
     val randomGenerator = createRandomGenerator("temp");
-    val names = IntStream.range(0, repeats)
+    val names = range(0, repeats)
         .boxed()
         .map(x -> "exampleAnalysisType-" + randomGenerator.generateRandomAsciiString(10))
         .collect(toImmutableList());
 
-    return IntStream.range(0, repeats * repeats)
+    return range(0, repeats * repeats)
         .boxed()
         .map(i -> {
           val name = names.get(i % repeats);

@@ -24,6 +24,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 
 @Value
 public class ResponseOption {
@@ -58,8 +59,11 @@ public class ResponseOption {
         .map(x -> internalExtractManyEntitiesFromResponse(x, entityClass));
   }
 
-  public ResponseOption assertStatusCode(ServerError serverError) {
+  public ResponseOption assertServerError(ServerError serverError) {
+    val songError = parseErrorResponse(response);
+    assertThat(songError.getErrorId()).isEqualTo(serverError.getErrorId());
     return assertStatusCode(serverError.getHttpStatus());
+
   }
 
   public ResponseOption assertStatusCode(HttpStatus code) {
