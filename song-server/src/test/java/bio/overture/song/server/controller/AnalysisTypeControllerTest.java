@@ -40,6 +40,7 @@ import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -257,6 +258,29 @@ public class AnalysisTypeControllerTest {
         .filter(x -> selectedAnalysisTypeNames.contains(x.getName()))
         .collect(toImmutableList());
     assertThat(actualNoAnalysisTypes).isEmpty();
+  }
+
+  /**
+   *  Unhappy Path: test that a NOT_FOUND status code is returned when retrieving a non-existent analysisType name
+   */
+  @Test
+  public void getAnalysisTypeByVersion_nonExistingName_notFound(){
+    val nonExistingName = generateUniqueName();
+    val analysisTypeId = resolveAnalysisTypeId(nonExistingName, 1);
+    endpointTester.getAnalysisTypeVersionGetRequestAnd(analysisTypeId).assertStatusCode(ANALYSIS_TYPE_NOT_FOUND);
+  }
+
+  /**
+   *  Unhappy Path: test that a NOT_FOUND status code is returned when retrieving a non-existent analysisType version
+   *  for an existing name
+   */
+  @Test
+  @Transactional
+  public void getAnalysisTypeByVersion_nonExistingVersion_notFound(){
+    val existingAnalysisType = generateData(1).get(0);
+    val nonExistingVersion = existingAnalysisType.getVersion()+1;
+    val analysisTypeId = resolveAnalysisTypeId(existingAnalysisType.getName(), nonExistingVersion);
+    endpointTester.getAnalysisTypeVersionGetRequestAnd(analysisTypeId).assertStatusCode(ANALYSIS_TYPE_NOT_FOUND);
   }
 
   @Test
