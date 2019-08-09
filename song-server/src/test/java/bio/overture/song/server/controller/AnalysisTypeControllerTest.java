@@ -431,17 +431,6 @@ public class AnalysisTypeControllerTest {
   }
 
   /**
-   * Unhappy Path: test that malformed analysisTypeIds return a malformedParameter
-   */
-  @Test
-  public void getAnalysisTypeByVersion_malformedId_malformedParameter(){
-    val malformedIds = newHashSet("som3th!ng$:4", "something-4", "something:bad", "something:-7", "something:1.0", "something4" );
-    malformedIds.forEach( analysisTypeId ->
-        endpointTester.getAnalysisTypeVersionGetRequestAnd(analysisTypeId).assertStatusCode(MALFORMED_PARAMETER)
-    );
-  }
-
-  /**
    * Happy Path: test filtering the listing endpoint by multiple names only
    */
   @Test
