@@ -1,20 +1,16 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.entity.AnalysisSchema;
-import bio.overture.song.server.model.projections.AnalysisSchemaNameOrderProjection;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Optional;
 
-public interface AnalysisSchemaRepository extends JpaRepository<AnalysisSchema, Integer>{
+public interface AnalysisSchemaRepository extends JpaRepository<AnalysisSchema, Integer>, JpaSpecificationExecutor<AnalysisSchema> {
 
-  Page<AnalysisSchema> findAllByName(String name, Pageable pageable);
-  Page<AnalysisSchema> findAllByNameIn(List<String> names, Pageable pageable);
   Integer countAllByName(String name);
-  <T> List<T> findDistinctBy(Class<T> projection);
-  List<AnalysisSchemaNameOrderProjection> findAllByNameInOrderByNameAscIdAsc(Collection<String> names);
+  Integer countAllByNameAndIdLessThanEqual(String name, Integer id);
+  Optional<AnalysisSchema> findByNameAndVersion(String name, Integer version);
+
 
 }

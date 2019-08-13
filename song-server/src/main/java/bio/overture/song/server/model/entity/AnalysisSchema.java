@@ -19,6 +19,7 @@ import javax.validation.constraints.NotNull;
 import static bio.overture.song.server.model.enums.TableAttributeNames.ID;
 import static bio.overture.song.server.model.enums.TableAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.TableAttributeNames.SCHEMA;
+import static bio.overture.song.server.model.enums.TableAttributeNames.VERSION;
 import static bio.overture.song.server.repository.CustomJsonType.CUSTOM_JSON_TYPE_PKG_PATH;
 
 @Data
@@ -33,6 +34,9 @@ public class AnalysisSchema {
   @Column(name = ID)
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
+
+  @Column(name = VERSION)
+  private Integer version;
 
   @NotNull
   @Column(name = NAME)

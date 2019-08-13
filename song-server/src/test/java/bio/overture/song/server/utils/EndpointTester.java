@@ -49,6 +49,7 @@ public class EndpointTester {
   private static final String NAMES     = "names";
   private static final String VERSIONS  = "versions";
   private static final String META = "meta";
+  private static final String HIDE_SCHEMA= "hideSchema";
 
   public static final Joiner AMPERSAND = Joiner.on("&");
 
@@ -75,13 +76,14 @@ public class EndpointTester {
 
   // GET /schemas
   public ResponseOption getSchemaGetRequestAnd(
-      Collection<String> names, Collection<Integer> versions,
+      Collection<String> names, Collection<Integer> versions,Boolean hideSchema,
       Integer offset, Integer limit, Sort.Direction sortOrder, String ... sortVariables){
     return initWebRequest()
         .endpoint(SCHEMAS)
         .optionalQueryParamCollection(NAMES, names)
         .optionalQueryParamCollection(VERSIONS, versions)
         .optionalQuerySingleParam(OFFSET, offset)
+        .optionalQuerySingleParam(HIDE_SCHEMA, hideSchema)
         .optionalQuerySingleParam(LIMIT, limit)
         .optionalQuerySingleParam(SORTORDER, sortOrder)
         .optionalQueryParamArray(SORT, sortVariables)

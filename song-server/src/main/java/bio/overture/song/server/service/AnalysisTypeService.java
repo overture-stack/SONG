@@ -1,12 +1,11 @@
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.AnalysisTypePageable;
+import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Maps;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -16,28 +15,20 @@ import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.domain.Sort.Direction.DESC;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
@@ -45,8 +36,8 @@ import static bio.overture.song.core.exceptions.ServerException.buildServerExcep
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonSchemaUtils.validateWithSchema;
 import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ID;
-import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
+import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
+import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 
 @Slf4j
 @Service
@@ -80,23 +71,17 @@ public class AnalysisTypeService {
     checkServer(version > 0,getClass(), MALFORMED_PARAMETER,
         "The version '%s' must be greater than 0", version);
 
-    // Get a page of size 1 with the target version
-    val page = filterAnalysisSchemaByAscIndex(name, version-1);
-    val latestVersion = page.getTotalElements();
-    val analysisTypeNameExists = page.getTotalElements() > 0;
-    val analysisTypeVersionExists = version <= latestVersion;
-    val analysisSchemas = page.getContent();
-
-    checkServer(analysisTypeNameExists, getClass(), ANALYSIS_TYPE_NOT_FOUND,
-        "The analysisType with name '%s' does not exist",
-        name);
-
-    checkServer(analysisTypeVersionExists, getClass(), ANALYSIS_TYPE_NOT_FOUND,
-        "Version '%s' of analysisType with name '%s' does not exist however exists for the latest version '%s'",
-        name, version, latestVersion);
-
-    checkState(analysisSchemas.size() == 1, "Should not be here. Only 1 analysisType should be returned");
-    val analysisSchema = analysisSchemas.get(0);
+    val result = analysisSchemaRepository.findByNameAndVersion(name, version);
+    if(!result.isPresent()){
+      val latestVersion = getLatestVersionNumber(name);
+      checkServer(latestVersion>0, getClass(), ANALYSIS_TYPE_NOT_FOUND,
+          "The analysisType with name '%s' does not exist",
+          name);
+      throw buildServerException(getClass(), ANALYSIS_TYPE_NOT_FOUND,
+          "Version '%s' of analysisType with name '%s' does not exist however exists for the latest version '%s'",
+          name, version, latestVersion);
+    }
+    val analysisSchema = result.get();
     log.debug("Found analysisType '{}' with version '{}'", name, version);
     return buildAnalysisType(name, version, analysisSchema.getSchema());
   }
@@ -108,79 +93,21 @@ public class AnalysisTypeService {
     return commitAnalysisType(analysisTypeName, analysisTypeSchema);
   }
 
-  public Page<AnalysisType> listAnalysisTypesFilterNames(@NonNull List<String> requestedNames, @NonNull Pageable pageable, boolean hideSchema){
-    return findAnalysisTypes(p -> analysisSchemaRepository.findAllByNameIn(requestedNames, p), pageable, hideSchema);
-  }
-
-  public Page<AnalysisType> listAllAnalysisTypes(@NonNull Pageable pageable, boolean hideSchema){
-    return findAnalysisTypes(analysisSchemaRepository::findAll, pageable, hideSchema);
-  }
-
-  private Map<Integer, Integer> buildIdVersionLookup(Collection<String> names){
-    val projections = analysisSchemaRepository.findAllByNameInOrderByNameAscIdAsc(names);
-    val idToVersionLookup = Maps.<Integer,Integer>newHashMap();
-
-    if (!projections.isEmpty()) {
-      String previousName = projections.get(0).getName();
-      int version = 0;
-      for (val projection : projections) {
-        val id = projection.getId();
-        val currentName = projection.getName();
-        if (currentName.equals(previousName)) {
-          version++;
-        } else {
-          version = 1;
-          previousName = currentName;
-        }
-        idToVersionLookup.put(id, version);
-      }
-    }
-    return idToVersionLookup;
-  }
-
-  private Page<AnalysisType> findAnalysisTypes(Function<Pageable, Page<AnalysisSchema>> findCallback, Pageable pageable, boolean hideSchema){
-    // Just incase...
-    checkArgument(pageable instanceof AnalysisTypePageable,
-        "The input pageable object '%s' is not of type %s",
-        pageable.getClass().getSimpleName(),
-        AnalysisTypePageable.class.getSimpleName());
-
-    val analysisSchemaPage = findCallback.apply(pageable);
-    // Filter by version if not empty
-    val analysisSchemas = analysisSchemaPage.getContent();
-    if (analysisSchemas.isEmpty()){
-      return Page.empty();
-    }
-
-    // Extract a set of names from the result
-    val existingNames = mapToImmutableSet(analysisSchemas, AnalysisSchema::getName);
-
-    // Create a lookup table of orderIds to versions for each of the names
-    val idToVersionLookup = buildIdVersionLookup(existingNames);
-
-    // convert to analysisTypes and filter only specified versions
-    val analysisTypes = analysisSchemas
+  public Page<AnalysisType> listAnalysisTypes(@Nullable Collection<String> names,
+      @Nullable Collection<Integer> versions, @NonNull Pageable pageable, boolean hideSchema){
+    validatePositiveVersionsIfDefined(versions);
+    val spec = buildListQuery(names, versions);
+    val page = analysisSchemaRepository.findAll(spec, pageable);
+    val analysisTypes = page
+        .getContent()
         .stream()
-        .map(a -> convertToAnalysisType(a, idToVersionLookup, hideSchema) )
+        .map(a -> convertToAnalysisType(a, hideSchema))
         .collect(toImmutableList());
-    return new PageImpl<>(analysisTypes, pageable, analysisSchemaPage.getTotalElements());
+    return new PageImpl<>(analysisTypes, pageable, page.getTotalElements());
   }
 
-
-  private Page<AnalysisSchema> filterLatestAnalysisSchema(String name){
-    return analysisSchemaRepository.findAllByName(name,
-        PageRequest.of(0, 1,
-            Sort.by(DESC, ID)));
-  }
-
-  private Page<AnalysisSchema> filterAnalysisSchemaByAscIndex(String name, Integer index){
-    return analysisSchemaRepository.findAllByName(name,
-        PageRequest.of(index, 1,
-            Sort.by(ASC, ID)));
-  }
-
-  private Integer getLatestVersionNumber(String analysisTypeName){
-    return analysisSchemaRepository.countAllByName(analysisTypeName);
+  private Integer getLatestVersionNumber(String name){
+    return analysisSchemaRepository.countAllByName(name);
   }
 
   @SneakyThrows
@@ -200,18 +127,10 @@ public class AnalysisTypeService {
         .schema(analysisTypeSchema)
         .build();
     analysisSchemaRepository.save(analysisSchema);
-    val latestVersion = getLatestVersionNumber(analysisTypeName);
-    log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, latestVersion );
-    return buildAnalysisType(analysisTypeName, latestVersion, analysisSchema.getSchema());
-  }
-
-  private AnalysisType convertToAnalysisType(AnalysisSchema analysisSchema, Map<Integer, Integer> orderIdToVersionLookup, boolean hideSchema){
-    val id = analysisSchema.getId();
-    checkState(orderIdToVersionLookup.containsKey(id),
-        "Could not find version for analysisSchema id '%s'", analysisSchema.getId());
-    val name = analysisSchema.getName();
-    val version = orderIdToVersionLookup.get(id);
-    return buildAnalysisType(name, version, hideSchema ? null : analysisSchema.getSchema());
+    val version = analysisSchemaRepository.countAllByNameAndIdLessThanEqual(analysisTypeName, analysisSchema.getId());
+    analysisSchema.setVersion(version);
+    log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, version );
+    return buildAnalysisType(analysisTypeName, version, analysisSchema.getSchema());
   }
 
   public static AnalysisType buildAnalysisType(@NonNull String name, int version, JsonNode schema){
@@ -245,10 +164,20 @@ public class AnalysisTypeService {
     return createAnalysisTypeId(name, version);
   }
 
+  private static AnalysisType convertToAnalysisType(AnalysisSchema analysisSchema, boolean hideSchema){
+    return buildAnalysisType(analysisSchema.getName(), analysisSchema.getVersion(), hideSchema ? null : analysisSchema.getSchema());
+  }
+
   private static void validateAnalysisTypeName(@NonNull String analysisTypeName){
     checkServer(ANALYSIS_TYPE_NAME_PATTERN.matcher(analysisTypeName).matches(), AnalysisTypeService.class,
         MALFORMED_PARAMETER, "The analysisType name '%s' does not match the regex",
         analysisTypeName, ANALYSIS_TYPE_NAME_PATTERN.pattern());
+  }
+
+  private static void validatePositiveVersionsIfDefined(@Nullable Collection<Integer> versions){
+    checkServer(isCollectionBlank(versions) || versions.stream().noneMatch(x -> x < 1),
+        AnalysisTypeController.class, MALFORMED_PARAMETER,
+        "The requested versions must be greater than 0");
   }
 
 }

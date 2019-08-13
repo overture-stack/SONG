@@ -26,10 +26,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,17 +40,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
@@ -61,7 +54,6 @@ import static bio.overture.song.server.controller.analysisType.AnalysisTypePagea
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
-import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 
 @RestController
 @RequestMapping(path = "/schemas")
@@ -142,39 +134,7 @@ public class AnalysisTypeController {
       @ApiParam(value = "Hide the schema field from the response",type = "boolean", required = false)
       @RequestParam(value = "hideSchema", required = false, defaultValue = "false") boolean hideSchema,
       Pageable pageable){
-
-    // Validate versions are greater than 0, if defined
-    validatePositiveVersionsIfDefined(versions);
-
-    // Get analysisTypes
-    Page<AnalysisType> analysisTypePage;
-    if (isCollectionBlank(names)){
-      analysisTypePage = analysisTypeService.listAllAnalysisTypes(pageable, hideSchema);
-    }else {
-      analysisTypePage = analysisTypeService.listAnalysisTypesFilterNames(names, pageable, hideSchema);
-    }
-
-    // Filter only for requested versions
-    val filteredView = filterByVersion(analysisTypePage.getContent(), versions);
-    return new PageImpl<>(filteredView, pageable, analysisTypePage.getTotalElements());
-  }
-
-  private static void validatePositiveVersionsIfDefined(@Nullable Collection<Integer> versions){
-    checkServer(isCollectionBlank(versions) || versions.stream().noneMatch(x -> x < 1),
-        AnalysisTypeController.class, MALFORMED_PARAMETER,
-        "The requested versions must be greater than 0");
-  }
-
-  private static List<AnalysisType> filterByVersion(@NonNull List<AnalysisType> analysisTypes,
-      @Nullable Set<Integer> versionsToFilter){
-    if(isCollectionBlank(versionsToFilter)){
-      return analysisTypes;
-    } else {
-      return analysisTypes
-          .stream()
-          .filter(x-> versionsToFilter.contains(x.getVersion()))
-          .collect(toImmutableList());
-    }
+    return analysisTypeService.listAnalysisTypes(names, versions, pageable, hideSchema);
   }
 
 }
