@@ -39,6 +39,7 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXISTS;
@@ -83,7 +84,7 @@ public class DonorServiceTest {
   public void testReadDonor() {
     // check for data that we know exists in the H2 database already
     val d = service.readWithSpecimens(DEFAULT_DONOR_ID);
-    assertThat(d).isNotNull();
+    assertNotNull(d);
     assertEquals(d.getDonorId(),DEFAULT_DONOR_ID);
     assertEquals(d.getDonorGender(),"male");
     assertEquals(d.getDonorSubmitterId(),"Subject-X23Alpha7");

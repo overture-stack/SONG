@@ -164,7 +164,7 @@ public class AnalysisServiceTest {
     assertEquals(created.getSample().size(),1);
     val sample = created.getSample().get(0);
     val experiment = ((SequencingReadAnalysis) created).getExperiment();
-    assertThat(experiment).isNotNull();
+    assertNotNull(experiment);
     assertThat(experiment.getAlignmentTool().equals("BigWrench"));
     val expectedMetadata = new Metadata();
     expectedMetadata.setInfo("marginOfError", "0.01%");
@@ -205,7 +205,7 @@ public class AnalysisServiceTest {
     assertEquals(created.getSample().size(),1);
     val sample = created.getSample().get(0);
     val experiment = ((VariantCallAnalysis) created).getExperiment();
-    assertThat(experiment).isNotNull();
+    assertNotNull(experiment);
     assertEquals(experiment.getVariantCallingTool(),"silver bullet");
     assertThat(experiment.getInfoAsString()).isEqualTo(
             JsonUtils.fromSingleQuoted("{\"extraInfo\":\"this is extra info\"}"));

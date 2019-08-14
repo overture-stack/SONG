@@ -31,6 +31,7 @@ import lombok.val;
 import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
@@ -67,7 +68,7 @@ public class AnalysisGenerator {
       id = randomGenerator.generateRandomUUIDAsString();
       idExists = service.isAnalysisExist(id);
     }
-    assertThat(id).isNotNull();
+    assertNotNull(id);
     return id;
   }
 

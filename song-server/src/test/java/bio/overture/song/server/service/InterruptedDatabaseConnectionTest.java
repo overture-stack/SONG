@@ -40,6 +40,7 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -81,7 +82,7 @@ public class InterruptedDatabaseConnectionTest {
     // it gets data from postgres when the database is up.
     // Unfortunately, it doesn't return anything when it hangs...
     val study = service.read("ABC123");
-    assertThat(study).isNotNull();
+    assertNotNull(study);
     assertEquals(study.getStudyId(),"ABC123");
     assertEquals(study.getName(),"X1-CA");
     assertEquals(study.getDescription(),"A fictional study");

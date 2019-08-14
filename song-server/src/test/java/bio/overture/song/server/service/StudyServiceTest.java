@@ -30,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
@@ -52,7 +53,7 @@ public class StudyServiceTest {
   public void testReadStudy() {
     // check for data that we know exists in the database already
     val study = service.read(DEFAULT_STUDY_ID);
-    Assertions.assertThat(study).isNotNull();
+    Assertions.assertNotNull(study);
     assertEquals(study.getStudyId(),"ABC123");
     assertEquals(study.getName(),"X1-CA");
     assertEquals(study.getDescription(),"A fictional study");
