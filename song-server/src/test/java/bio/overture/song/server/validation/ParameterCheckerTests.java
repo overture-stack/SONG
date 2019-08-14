@@ -33,6 +33,7 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILTER_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_QUERY_PARAMETER;
@@ -62,7 +63,7 @@ public class ParameterCheckerTests {
   public void testFieldNameValidator(){
     val fieldNames = randomGenerator.randomSublist(newArrayList(expectedFieldNames));
     val result = parameterChecker.isLegal(REGISTERED_TYPE, newHashSet(fieldNames));
-    assertThat(result).isTrue();
+    assertTrue(result);
 
     val corruptedFieldNameSet = buildCorruptedFieldNameSet(fieldNames);
 
@@ -73,7 +74,7 @@ public class ParameterCheckerTests {
         ServerErrors.UNREGISTERED_TYPE);
 
     val result3 = parameterChecker.isLegal(REGISTERED_TYPE, newHashSet());
-    assertThat(result3).isTrue();
+    assertTrue(result3);
   }
 
   @Test

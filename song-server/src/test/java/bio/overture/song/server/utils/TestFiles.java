@@ -34,6 +34,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 
@@ -72,12 +73,12 @@ public class TestFiles {
 
   public static String getInfoName(Metadata metadata){
     val info = metadata.getInfo();
-    assertThat(info.has(NAME)).isTrue();
+    assertTrue(info.has(NAME));
     return metadata.getInfo().get(NAME).textValue();
   }
 
   public static String getInfoValue(@NonNull Metadata metadata, @NonNull String key) {
-    assertThat(metadata.getInfo().has(key)).isTrue();
+    assertTrue(metadata.getInfo().has(key));
     return metadata.getInfo().path(key).textValue();
   }
 
@@ -87,7 +88,7 @@ public class TestFiles {
   }
 
   public static void assertInfoKVPair(@NonNull Metadata metadata, @NonNull String key, @NonNull Object expectedValue){
-      assertThat(metadata.getInfo().has(key)).as("The input metadata does not have the key '%s'", key).isTrue();
+      assertTrue(metadata.getInfo().has(key)).as("The input metadata does not have the key '%s'", key);
       val actualValue  = metadata.getInfo().path(key).textValue();
       assertThat(actualValue)
           .as("Failed since field '%s' has actual=%s and expected=%s", key, actualValue, expectedValue)

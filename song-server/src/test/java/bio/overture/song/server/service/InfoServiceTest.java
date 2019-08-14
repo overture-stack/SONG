@@ -30,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
@@ -61,7 +62,7 @@ public class InfoServiceTest {
 
     infoService.create(id, info);
     val info1 = infoService.readInfo(id);
-    assertThat(info1.isPresent()).isTrue();
+    assertTrue(info1.isPresent());
     val json2 = JsonUtils.readTree(info1.get());
     assertEquals(json,json2);
 
@@ -70,7 +71,7 @@ public class InfoServiceTest {
 
     infoService.update(id, new_info);
     val info2 = infoService.readInfo(id);
-    assertThat(info2.isPresent()).isTrue();
+    assertTrue(info2.isPresent());
     val json3 = JsonUtils.readTree(info2.get());
 
     assertEquals(json3,json);
@@ -81,13 +82,13 @@ public class InfoServiceTest {
     val donorId = genDonorId();
     assertFalse(infoService.isInfoExist(donorId));
     infoService.create(donorId, getDummyInfo("someKey", "1234"));
-    assertThat(infoService.isInfoExist(donorId)).isTrue();
+    assertTrue(infoService.isInfoExist(donorId));
 
     // Also check that null info is properly handled when checking for existence
     val donorId2 = genDonorId();
     assertFalse(infoService.isInfoExist(donorId2));
     infoService.create(donorId2, null);
-    assertThat(infoService.isInfoExist(donorId2)).isTrue();
+    assertTrue(infoService.isInfoExist(donorId2));
   }
 
   @Test
@@ -96,7 +97,7 @@ public class InfoServiceTest {
     val expectedData = getDummyInfo("someKey", "234433rff");
     infoService.create(donorId, expectedData);
     val actualData = infoService.readInfo(donorId);
-    assertThat(actualData.isPresent()).isTrue();
+    assertTrue(actualData.isPresent());
     assertEquals(actualData.get(),expectedData);
 
     // Also check creation of null info fields
@@ -132,14 +133,14 @@ public class InfoServiceTest {
   public void testDelete(){
     val donorId = genDonorId();
     infoService.create(donorId, getDummyInfo("someKey", "234433rff"));
-    assertThat(infoService.isInfoExist(donorId)).isTrue();
+    assertTrue(infoService.isInfoExist(donorId));
     infoService.delete(donorId);
     assertFalse(infoService.isInfoExist(donorId));
 
     // Also check when info is null
     val donorId2 = genDonorId();
     infoService.create(donorId2, null);
-    assertThat(infoService.isInfoExist(donorId2)).isTrue();
+    assertTrue(infoService.isInfoExist(donorId2));
     infoService.delete(donorId2);
     assertFalse(infoService.isInfoExist(donorId2));
   }
@@ -154,13 +155,13 @@ public class InfoServiceTest {
   public void testReadNullableInfo(){
     val donorId = genDonorId();
     infoService.create(donorId, null);
-    assertThat(infoService.isInfoExist(donorId)).isTrue();
+    assertTrue(infoService.isInfoExist(donorId));
     assertNull(infoService.readNullableInfo(donorId));
 
     val donorId2 = genDonorId();
     val info = getDummyInfo("someKey", "2idj94");
     infoService.create(donorId2, info);
-    assertThat(infoService.isInfoExist(donorId2)).isTrue();
+    assertTrue(infoService.isInfoExist(donorId2));
     assertEquals(infoService.readNullableInfo(donorId2),info);
 
     val nonExistingDonorId = randomGenerator.generateRandomUUIDAsString();

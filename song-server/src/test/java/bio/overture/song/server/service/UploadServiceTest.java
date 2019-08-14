@@ -53,6 +53,7 @@ import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotEquals;
@@ -161,7 +162,7 @@ public class UploadServiceTest {
     assertNull(sa2.getAlignmentTool());
     assertNull(sa2.getInsertSize());
     assertEquals(sa2.getLibraryStrategy(),"WXS");
-    assertThat(sa2.getPairedEnd()).isTrue();
+    assertTrue(sa2.getPairedEnd());
     assertNull(sa2.getReferenceGenome());
   }
 
@@ -325,7 +326,7 @@ public class UploadServiceTest {
     assertEquals(uploadStatus.getStatusCode(),OK);
     val uploadId= fromStatus(uploadStatus,"uploadId");
     log.info(format("UploadId='%s'",uploadId));
-    assertThat(uploadId.startsWith("UP")).isTrue();
+    assertTrue(uploadId.startsWith("UP"));
 
     val initialState = read(study, uploadId);
     if (isAsyncValidation){
@@ -453,7 +454,7 @@ public class UploadServiceTest {
     val payload = createPayloadWithDifferentAnalysisId();
     val jsonPayload = payload.getJsonPayload();
     val uploadId1 = upload(DEFAULT_STUDY, jsonPayload, false );
-    assertThat(uploadService.isUploadExist(uploadId1)).isTrue();
+    assertTrue(uploadService.isUploadExist(uploadId1));
   }
 
   @Test

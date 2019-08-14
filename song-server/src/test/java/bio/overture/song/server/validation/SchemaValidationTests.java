@@ -37,6 +37,7 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
@@ -57,11 +58,11 @@ public class SchemaValidationTests {
     val schemaFiles = newArrayList("schemas/sequencingRead.json", "schemas/variantCall.json");
     for (val schemaFile : schemaFiles){
       val schema = getJsonNodeFromClasspath( schemaFile );
-      assertThat(schema.has(PROPERTIES)).isTrue();
+      assertTrue(schema.has(PROPERTIES));
       val propertiesSchema = schema.path(PROPERTIES);
-      assertThat(propertiesSchema.has(ANALYSIS_ID)).isTrue();
+      assertTrue(propertiesSchema.has(ANALYSIS_ID));
       val analysisIdSchema = propertiesSchema.path(ANALYSIS_ID);
-      assertThat(analysisIdSchema.has(PATTERN)).isTrue();
+      assertTrue(analysisIdSchema.has(PATTERN));
       assertThat(getTypes(analysisIdSchema)).contains(STRING);
       assertEquals(analysisIdSchema.path(PATTERN).textValue(),"^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{1,34}[a-zA-Z0-9]{1}$");
     }
@@ -75,7 +76,7 @@ public class SchemaValidationTests {
       val paths = Lists.newArrayList("properties", "file", "items", "properties", "fileMd5sum", "pattern");
       JsonNode currentNode = schema;
       for (val path : paths){
-        assertThat(currentNode.has(path)).isTrue();
+        assertTrue(currentNode.has(path));
         currentNode = currentNode.path(path);
       }
       assertEquals(currentNode.textValue(),"^[a-fA-F0-9]{32}$");
@@ -83,7 +84,7 @@ public class SchemaValidationTests {
   }
 
   private static Set<String> getTypes(JsonNode node){
-    assertThat(node.has(TYPE)).isTrue();
+    assertTrue(node.has(TYPE));
     return Streams.stream(node.path(TYPE).iterator())
         .filter(x -> !x.isArray())
         .map(JsonNode::textValue)

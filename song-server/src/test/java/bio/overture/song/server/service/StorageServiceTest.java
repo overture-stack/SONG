@@ -44,6 +44,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpStatus.OK;
@@ -110,7 +111,7 @@ public class StorageServiceTest {
         .build();
     setupStorageMockService(expectedStorageObject.getObjectId(), existingConfig);
     val result2 = storageService.isObjectExist(expectedStorageObject.getObjectId());
-    assertThat(result2).isTrue();
+    assertTrue(result2);
   }
 
   @Test

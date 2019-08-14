@@ -50,6 +50,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
@@ -109,7 +110,7 @@ public class PublishAnalysisTest {
   public void beforeTest(){
     this.randomGenerator = createRandomGenerator(PublishAnalysisTest.class.getSimpleName());
     val newStudyId = createStudyGenerator(studyService, randomGenerator).createRandomStudy();
-    assertThat(studyService.isStudyExist(newStudyId)).isTrue();
+    assertTrue(studyService.isStudyExist(newStudyId));
     val analysisGenerator = createAnalysisGenerator(newStudyId, service, randomGenerator);
 
     this.testAnalysis = analysisGenerator.createDefaultRandomAnalysis(randomGenerator.randomEnum(AnalysisTypes.class));

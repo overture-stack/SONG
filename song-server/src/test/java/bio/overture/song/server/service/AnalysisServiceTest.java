@@ -128,8 +128,8 @@ public class AnalysisServiceTest {
 
   @Before
   public void beforeTest(){
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
-    assertThat(service.isAnalysisExist(DEFAULT_ANALYSIS_ID)).isTrue();
+    assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
+    assertTrue(service.isAnalysisExist(DEFAULT_ANALYSIS_ID));
   }
 
   /**
@@ -190,7 +190,7 @@ public class AnalysisServiceTest {
     assertFalse(service.isAnalysisExist(randomAnalysisId));
     val actualAnalysisId = service.create(DEFAULT_STUDY_ID, analysis, false);
     assertEquals(actualAnalysisId,randomAnalysisId);
-    assertThat(service.isAnalysisExist(randomAnalysisId)).isTrue();
+    assertTrue(service.isAnalysisExist(randomAnalysisId));
   }
 
   @Test
@@ -389,7 +389,7 @@ public class AnalysisServiceTest {
     assertEquals(experiment.getLibraryStrategy(),"WXS");
     assertFalse(experiment.getPairedEnd());
     assertEquals(experiment.getInsertSize(),92736);
-    assertThat(experiment.getAligned()).isTrue();
+    assertTrue(experiment.getAligned());
     assertEquals(experiment.getAlignmentTool(),"myCool Sequence ReadingTool");
     assertEquals(experiment.getReferenceGenome(),"someSeq Genome");
     assertInfoKVPair(experiment, "extraExperimentInfo", "some more data for a sequencingRead experiment ex02");
@@ -748,8 +748,8 @@ public class AnalysisServiceTest {
   public void testCheckAnalysisAndStudyRelated(){
     val existingAnalysisId = DEFAULT_ANALYSIS_ID;
     val existingStudyId =  DEFAULT_STUDY_ID;
-    assertThat(service.isAnalysisExist(existingAnalysisId)).isTrue();
-    assertThat(studyService.isStudyExist(existingStudyId)).isTrue();
+    assertTrue(service.isAnalysisExist(existingAnalysisId));
+    assertTrue(studyService.isStudyExist(existingStudyId));
     service.checkAnalysisAndStudyRelated(existingStudyId, existingAnalysisId);
     assert(true);
   }
@@ -772,8 +772,8 @@ public class AnalysisServiceTest {
     val existingAnalysisId  = DEFAULT_ANALYSIS_ID;
     val nonExistentAnalysisId = randomGenerator.generateRandomUUID().toString();
     assertFalse(service.isAnalysisExist(nonExistentAnalysisId));
-    assertThat(service.isAnalysisExist(existingAnalysisId)).isTrue();
-    assertThat(analysisRepository.existsById(existingAnalysisId)).isTrue();
+    assertTrue(service.isAnalysisExist(existingAnalysisId));
+    assertTrue(analysisRepository.existsById(existingAnalysisId));
     assertFalse(analysisRepository.existsById(nonExistentAnalysisId));
   }
 

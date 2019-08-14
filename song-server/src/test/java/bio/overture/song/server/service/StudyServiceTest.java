@@ -30,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -99,7 +100,7 @@ public class StudyServiceTest {
   @Test
   public void testDuplicateSaveStudyError(){
     val existentStudyId = DEFAULT_STUDY_ID;
-    assertThat(service.isStudyExist(existentStudyId)).isTrue();
+    assertTrue(service.isStudyExist(existentStudyId));
     val study = service.read(existentStudyId);
     SongErrorAssertions.assertSongError(() -> service.saveStudy(study), STUDY_ALREADY_EXISTS);
   }
@@ -113,7 +114,7 @@ public class StudyServiceTest {
   @Test
   public void testStudyCheck(){
     val existentStudyId = DEFAULT_STUDY_ID;
-    assertThat(service.isStudyExist(existentStudyId)).isTrue();
+    assertTrue(service.isStudyExist(existentStudyId));
     val nonExistentStudyId = genStudyId();
     assertFalse(service.isStudyExist(nonExistentStudyId));
   }

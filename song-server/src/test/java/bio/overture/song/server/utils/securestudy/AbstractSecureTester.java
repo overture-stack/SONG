@@ -29,6 +29,7 @@ import lombok.val;
 import java.util.function.BiConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
@@ -89,10 +90,10 @@ public abstract class AbstractSecureTester<C> {
   public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, SecureTestData data){
 
     // Check data is correct
-    assertThat(isIdExist(data.getExistingId())).isTrue();
+    assertTrue(isIdExist(data.getExistingId()));
     assertFalse(isIdExist(data.getNonExistingId()));
-    assertThat(studyService.isStudyExist(data.getExistingStudyId())).isTrue();
-    assertThat(studyService.isStudyExist(data.getUnrelatedExistingStudyId())).isTrue();
+    assertTrue(studyService.isStudyExist(data.getExistingStudyId()));
+    assertTrue(studyService.isStudyExist(data.getUnrelatedExistingStudyId()));
     assertFalse(studyService.isStudyExist(data.getNonExistingStudyId()));
 
     // Test if study exists and id DNE

@@ -34,6 +34,7 @@ import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
@@ -67,7 +68,7 @@ public class FileServiceTest {
 
   @Before
   public void beforeTest(){
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+    assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
   }
 
   @Test
@@ -227,7 +228,7 @@ public class FileServiceTest {
   @Test
   public void testFileExists(){
     val existingFileId= DEFAULT_FILE_ID;
-    assertThat(fileService.isFileExist(existingFileId)).isTrue();
+    assertTrue(fileService.isFileExist(existingFileId));
     fileService.checkFileExists(existingFileId);
     val file = new FileEntity();
     file.setObjectId(existingFileId);

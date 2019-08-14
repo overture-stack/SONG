@@ -39,6 +39,7 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -77,7 +78,7 @@ public class DonorServiceTest {
 
   @Before
   public void beforeTest(){
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+    assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
     this.secureDonorTester = createSecureDonorTester(randomGenerator, studyService, service);
   }
 
@@ -173,14 +174,14 @@ public class DonorServiceTest {
     val donorId = service.save(studyId, d);
     val initialDonor = service.securedRead(studyId, donorId);
     assertEquals(initialDonor.getDonorGender(),"male");
-    assertThat(service.isDonorExist(donorId)).isTrue();
+    assertTrue(service.isDonorExist(donorId));
 
     val dUpdate = new DonorWithSpecimens();
     dUpdate.setDonorSubmitterId(donorSubmitterId);
     dUpdate.setStudyId(studyId);
     dUpdate.setDonorGender("female");
     val donorId2 = service.save(studyId, dUpdate);
-    assertThat(service.isDonorExist(donorId2)).isTrue();
+    assertTrue(service.isDonorExist(donorId2));
     assertEquals(donorId2,donorId);
     val updateDonor = service.securedRead(studyId, donorId2);
     assertEquals(updateDonor.getDonorGender(),"female");
@@ -198,7 +199,7 @@ public class DonorServiceTest {
     d.setStudyId(studyId);
     d.setDonorGender("male");
     val donorId = service.create(d);
-    assertThat(service.isDonorExist(donorId)).isTrue();
+    assertTrue(service.isDonorExist(donorId));
     SongErrorAssertions.assertSongError(() -> service.save(randomStudyId, d), STUDY_ID_DOES_NOT_EXIST);
 
     val d2 = new DonorWithSpecimens();
@@ -260,7 +261,7 @@ public class DonorServiceTest {
         .donorGender(randomDonorGender)
         .build());
     assertEquals(donorId,expectedId);
-    assertThat(service.isDonorExist(donorId)).isTrue();
+    assertTrue(service.isDonorExist(donorId));
     service.checkDonorExists(donorId);
   }
 

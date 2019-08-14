@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class SerializationTest {
@@ -146,7 +147,7 @@ public class SerializationTest {
       failed = true;
     }
 
-    assertThat(failed).isTrue();
+    assertTrue(failed);
 
   }
 

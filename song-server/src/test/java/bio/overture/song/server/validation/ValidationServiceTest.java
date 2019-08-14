@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.util.Lists.newArrayList;
@@ -114,7 +115,7 @@ public class ValidationServiceTest {
         .replaceFirst("\"", "");
     val results=service.validate(payload, SEQ_READ);
     assertFalse(results.isEmpty());
-    assertThat(results.get().contains("Invalid JSON document submitted:")).isTrue();
+    assertTrue(results.get().contains("Invalid JSON document submitted:"));
   }
 
   @Test

@@ -47,6 +47,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
@@ -713,12 +714,12 @@ public class EntityTest {
     assertEntitiesNotEqual(metadata1, metadata2);
 
     metadata2.addInfo(metadata1.getInfoAsString());
-    assertThat(metadata2.getInfo().has("key1")).isTrue();
+    assertTrue(metadata2.getInfo().has("key1"));
     assertThat(metadata2.getInfo().path("key1").textValue())
         .isEqualTo("f5c9381090a53c54358feb2ba5b7a3d7");
 
     metadata2.setInfo("something that is not json");
-    assertThat(metadata2.getInfo().has("info")).isTrue();
+    assertTrue(metadata2.getInfo().has("info"));
     assertEquals(metadata2.getInfo().path("info").textValue(),"something that is not json");
   }
 
@@ -1490,7 +1491,7 @@ public class EntityTest {
     assertEntitiesNotEqual(s1,s1_same);
 
     // Test getters
-    assertThat(s1.getAligned()).isTrue();
+    assertTrue(s1.getAligned());
     assertEquals(s1.getAlignmentTool(),"b1");
     assertEquals(s1.getAnalysisId(),"a1");
     assertEquals(s1.getInsertSize(),99999L);

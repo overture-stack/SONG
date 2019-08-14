@@ -44,6 +44,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
@@ -81,8 +82,8 @@ public class SpecimenServiceTest {
 
     @Before
     public void beforeTest(){
-        assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
-        assertThat(donorService.isDonorExist(DEFAULT_DONOR_ID)).isTrue();
+        assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
+        assertTrue(donorService.isDonorExist(DEFAULT_DONOR_ID));
     }
 
     @Test
@@ -171,7 +172,7 @@ public class SpecimenServiceTest {
 
         val status = specimenService.create(DEFAULT_STUDY_ID, s);
         val id = s.getSpecimenId();
-        assertThat(specimenService.isSpecimenExist(id)).isTrue();
+        assertTrue(specimenService.isSpecimenExist(id));
 
         // Issue #288 - unable to read specimen after deleting all its samples
         // This is neccessary since the BusinessKeyView does inner joins on donor, specimen and sample.
@@ -241,7 +242,7 @@ public class SpecimenServiceTest {
     @Test
     public void testSpecimenExists(){
         val existingSpecimenId= DEFAULT_SPECIMEN_ID;
-        assertThat(specimenService.isSpecimenExist(existingSpecimenId)).isTrue();
+        assertTrue(specimenService.isSpecimenExist(existingSpecimenId));
         specimenService.checkSpecimenExist(existingSpecimenId);
         val nonExistingSpecimenId = randomGenerator.generateRandomUUIDAsString();
         assertFalse(specimenService.isSpecimenExist(nonExistingSpecimenId));
@@ -273,7 +274,7 @@ public class SpecimenServiceTest {
 
         // Create a specimen
         val specimenId = specimenService.create(existingStudyId, specimen);
-        assertThat(specimenService.isSpecimenExist(specimenId)).isTrue();
+        assertTrue(specimenService.isSpecimenExist(specimenId));
 
         // Try to create the specimen again, and assert that the right exception is thrown
         SongErrorAssertions

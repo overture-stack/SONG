@@ -38,6 +38,7 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_ALREADY_EXISTS;
@@ -69,8 +70,8 @@ public class SampleServiceTest {
 
   @Before
   public void beforeTest(){
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
-    assertThat(specimenService.isSpecimenExist(DEFAULT_SPECIMEN_ID)).isTrue();
+    assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
+    assertTrue(specimenService.isSpecimenExist(DEFAULT_SPECIMEN_ID));
   }
 
   @Test
@@ -97,7 +98,7 @@ public class SampleServiceTest {
 
     val status = sampleService.create(DEFAULT_STUDY_ID, s);
     val id = s.getSampleId();
-    assertThat(sampleService.isSampleExist(id)).isTrue();
+    assertTrue(sampleService.isSampleExist(id));
 
     assertThat(id).startsWith("SA");
     assertEquals(status,id);
@@ -157,7 +158,7 @@ public class SampleServiceTest {
 
     // Create a sample
     val sampleId = sampleService.create(existingStudyId, sample);
-    assertThat(sampleService.isSampleExist(sampleId)).isTrue();
+    assertTrue(sampleService.isSampleExist(sampleId));
 
     // Try to create the sample again, and assert that the right exception is thrown
     SongErrorAssertions.assertSongError(() -> sampleService.create(existingStudyId, sample), SAMPLE_ALREADY_EXISTS);
@@ -177,7 +178,7 @@ public class SampleServiceTest {
   @Test
   public void testSampleExists(){
     val existingSampleId= DEFAULT_SAMPLE_ID;
-    assertThat(sampleService.isSampleExist(existingSampleId)).isTrue();
+    assertTrue(sampleService.isSampleExist(existingSampleId));
     sampleService.checkSampleExists(existingSampleId);
     val nonExistingSampleId = randomGenerator.generateRandomUUIDAsString();
     assertFalse(sampleService.isSampleExist(nonExistingSampleId));

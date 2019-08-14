@@ -26,6 +26,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
@@ -40,7 +41,7 @@ public class DeserializationTest {
     assertNull(sa1.getAnalysisId());
     assertNull(sa1.getMatchedNormalSampleSubmitterId());
     assertNull(sa1.getVariantCallingTool());
-    assertThat(sa1.getInfo().path("random").isNull()).isTrue();
+    assertTrue(sa1.getInfo().path("random").isNull());
 
     val a2 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/variantcall-deserialize2.json"),
         AbstractAnalysis.class);
@@ -63,7 +64,7 @@ public class DeserializationTest {
     assertEquals(sa1.getLibraryStrategy(),"WXS");
     assertNull(sa1.getPairedEnd());
     assertNull(sa1.getReferenceGenome());
-    assertThat(sa1.getInfo().path("random").isNull()).isTrue();
+    assertTrue(sa1.getInfo().path("random").isNull());
 
     val a2 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/sequencingread-deserialize2.json"),
         AbstractAnalysis.class);
@@ -73,7 +74,7 @@ public class DeserializationTest {
     assertNull(sa2.getAlignmentTool());
     assertNull(sa2.getInsertSize());
     assertEquals(sa2.getLibraryStrategy(),"WXS");
-    assertThat(sa2.getPairedEnd()).isTrue();
+    assertTrue(sa2.getPairedEnd());
     assertNull(sa2.getReferenceGenome());
 
   }

@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
@@ -85,9 +86,9 @@ public class FileModificationServiceTest {
 
   @Before
   public void beforeTest(){
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
-    assertThat(analysisService.isAnalysisExist(DEFAULT_ANALYSIS_ID)).isTrue();
-    assertThat(fileService.isFileExist(DEFAULT_FILE_ID)).isTrue();
+    assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
+    assertTrue(analysisService.isAnalysisExist(DEFAULT_ANALYSIS_ID));
+    assertTrue(fileService.isFileExist(DEFAULT_FILE_ID));
     this.uniqueMd5 = randomGenerator.generateRandomMD5();
   }
 
@@ -95,7 +96,7 @@ public class FileModificationServiceTest {
   public void testDoPublish(){
     assertFalse(doUnpublish(NO_UPDATE));
     assertFalse(doUnpublish(METADATA_UPDATE));
-    assertThat(doUnpublish(CONTENT_UPDATE)).isTrue();
+    assertTrue(doUnpublish(CONTENT_UPDATE));
   }
 
   @Test
@@ -165,7 +166,7 @@ public class FileModificationServiceTest {
     val originalFile3 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
-    assertThat(contentUpdateResponse.isUnpublishedAnalysis()).isTrue();
+    assertTrue(contentUpdateResponse.isUnpublishedAnalysis());
     assertEquals(contentUpdateResponse.getFileUpdateType(),CONTENT_UPDATE);
     assertEquals(contentUpdateResponse.getOriginalAnalysisState(),PUBLISHED);
     assertEquals(contentUpdateResponse.getOriginalFile(),originalFile3);
