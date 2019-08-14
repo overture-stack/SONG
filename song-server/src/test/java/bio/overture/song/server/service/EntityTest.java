@@ -47,6 +47,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -772,11 +774,11 @@ public class EntityTest {
 
     u1.setErrors("error1|error2|error3");
     assertThat(u1.getErrors()).containsExactlyInAnyOrder("error1", "error2", "error3");
-    assertThat(u1.getErrors()).hasSize(3);
+    assertThat(u1.getErrors(), hasSize(3));
 
     u1.addErrors(newArrayList("error4", "error5"));
     assertThat(u1.getErrors()).containsExactlyInAnyOrder("error1", "error2", "error3", "error4", "error5");
-    assertThat(u1.getErrors()).hasSize(5);
+    assertThat(u1.getErrors(), hasSize(5));
   }
 
   @Test

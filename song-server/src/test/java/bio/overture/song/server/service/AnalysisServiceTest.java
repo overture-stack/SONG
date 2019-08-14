@@ -278,7 +278,7 @@ public class AnalysisServiceTest {
     assertInfoKVPair(experiment, "extraExperimentInfo","some more data for a variantCall experiment ex01");
 
     //Asserting Sample
-    assertThat(a.getSample()).hasSize(2);
+    assertThat(a.getSample(), hasSize(2));
     val sample0 = a.getSample().stream()
             .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fs01"))
             .findAny()
@@ -322,7 +322,7 @@ public class AnalysisServiceTest {
     assertEquals(sample1.getSpecimenId(),specimen01.getSpecimenId());
     assertInfoKVPair(specimen01, "extraSpecimenInfo", "some more data for a variantCall specimen_fs02");
 
-    assertThat(a.getFile()).hasSize(3);
+    assertThat(a.getFile(), hasSize(3));
     val file0 = a.getFile().get(0);
     val file1 = a.getFile().get(1);
     val file2 = a.getFile().get(2);
@@ -397,7 +397,7 @@ public class AnalysisServiceTest {
     val sampleMap = Maps.<String, CompositeEntity>newHashMap();
 
     //Asserting Sample
-    assertThat(a.getSample()).hasSize(2);
+    assertThat(a.getSample(), hasSize(2));
     val sample0 = a.getSample().stream()
             .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fr01"))
             .findFirst().get();
@@ -440,7 +440,7 @@ public class AnalysisServiceTest {
     assertEquals(sample1.getSpecimenId(),specimen01.getSpecimenId());
     assertInfoKVPair(specimen01, "extraSpecimenInfo", "some more data for a sequencingRead specimen_fr02");
 
-    assertThat(a.getFile()).hasSize(3);
+    assertThat(a.getFile(), hasSize(3));
     val file0 = a.getFile().get(0);
     val file1 = a.getFile().get(1);
     val file2 = a.getFile().get(2);
@@ -608,12 +608,12 @@ public class AnalysisServiceTest {
         expectedAnalyses.add(vca);
       }
     }
-    assertThat(expectedAnalyses).hasSize(numAnalysis);
+    assertThat(expectedAnalyses, hasSize(numAnalysis));
     assertEquals(sraMap.keySet().size() + vcaMap.keySet().size(),numAnalysis);
     val expectedVCAs = newHashSet(vcaMap.values());
     val expectedSRAs = newHashSet(sraMap.values());
-    assertThat(expectedSRAs).hasSize(sraMap.keySet().size());
-    assertThat(expectedVCAs).hasSize(vcaMap.keySet().size());
+    assertThat(expectedSRAs, hasSize(sraMap.keySet().size()));
+    assertThat(expectedVCAs, hasSize(vcaMap.keySet().size()));
 
     val actualAnalyses = service.getAnalysis(studyId, ALL_STATES);
     val actualSRAs = actualAnalyses.stream()
@@ -623,8 +623,8 @@ public class AnalysisServiceTest {
         .filter(x -> AnalysisTypes.resolveAnalysisType(x.getAnalysisType()) == VARIANT_CALL)
         .collect(toSet());
 
-    assertThat(actualSRAs).hasSize(sraMap.keySet().size());
-    assertThat(actualVCAs).hasSize(vcaMap.keySet().size());
+    assertThat(actualSRAs, hasSize(sraMap.keySet().size()));
+    assertThat(actualVCAs, hasSize(vcaMap.keySet().size()));
     assertThat(actualSRAs).containsAll(expectedSRAs);
     assertThat(actualVCAs).containsAll(expectedVCAs);
 
@@ -656,7 +656,7 @@ public class AnalysisServiceTest {
     val actualMap = service.getAnalysis(studyId, PUBLISHED_ONLY).stream()
         .collect(groupingBy(AbstractAnalysis::getAnalysisState));
 
-    assertThat(actualMap.keySet()).hasSize(1);
+    assertThat(actualMap.keySet(), hasSize(1));
     assertThat(expectedMap).containsKey(PUBLISHED.toString());
     assertThat(actualMap).containsKey(PUBLISHED.toString());
     assertThat(actualMap.get(PUBLISHED.toString())).hasSameSizeAs(expectedMap.get(PUBLISHED.toString()));
@@ -973,7 +973,7 @@ public class AnalysisServiceTest {
     val analysisId = analysis.getAnalysisId();
 
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(analysisId);
-    assertThat(sampleSetRepository.findAllBySampleSetPK_AnalysisId(analysisId)).hasSize(0);
+    assertThat(sampleSetRepository.findAllBySampleSetPK_AnalysisId(analysisId), hasSize(0));
     analysis.getSample().stream()
         .map(Sample::getSampleId)
         .forEach(sampleRepository::deleteById);

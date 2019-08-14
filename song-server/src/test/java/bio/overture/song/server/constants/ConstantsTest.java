@@ -28,6 +28,8 @@ import org.junit.Test;
 
 import static bio.overture.song.core.model.enums.FileTypes.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
@@ -62,21 +64,21 @@ public class ConstantsTest {
     assertEquals(PUBLISHED.toString(),"PUBLISHED");
     assertEquals(UNPUBLISHED.toString(),"UNPUBLISHED");
     assertEquals(SUPPRESSED.toString(),"SUPPRESSED");
-    assertThat(AnalysisStates.values()).hasSize(3);
+    assertThat(AnalysisStates.values(), hasSize(3));
   }
 
   @Test
   public void testInfoSearchResponseColumns(){
     assertEquals(ANALYSIS_ID.toString(),"analysis_id");
     assertEquals(INFO.toString(),"info");
-    assertThat(InfoSearchResponseColumns.values()).hasSize(2);
+    assertThat(InfoSearchResponseColumns.values(), hasSize(2));
   }
 
   @Test
   public void testAccessTypes(){
     assertEquals(CONTROLLED.toString(),"controlled");
     assertEquals(OPEN.toString(),"open");
-    assertThat(AccessTypes.values()).hasSize(2);
+    assertThat(AccessTypes.values(), hasSize(2));
     assertEquals(resolveAccessType("open"),OPEN);
     assertEquals(resolveAccessType("controlled"),CONTROLLED);
     val thrown = catchThrowable(() -> resolveAccessType("somethingNotAccessType"));
@@ -107,7 +109,7 @@ public class ConstantsTest {
     assertEquals(XML.getExtension(),"xml");
     assertEquals(TGZ.getExtension(),"tgz");
 
-    assertThat(FileTypes.values()).hasSize(10);
+    assertThat(FileTypes.values(), hasSize(10));
 
     assertEquals(resolveFileType("FASTA"),FASTA);
     assertEquals(resolveFileType("FAI"),FAI);
@@ -134,7 +136,7 @@ public class ConstantsTest {
     assertEquals(ANALYSIS.toString(),"Analysis");
     assertEquals(SEQUENCING_READ.toString(),"SequencingRead");
     assertEquals(VARIANT_CALL.toString(),"VariantCall");
-    assertThat(InfoTypes.values()).hasSize(8);
+    assertThat(InfoTypes.values(), hasSize(8));
 
     assertEquals(resolveInfoType("Study"),STUDY);
     assertEquals(resolveInfoType("Donor"),DONOR);
@@ -157,7 +159,7 @@ public class ConstantsTest {
     assertEquals(UPLOADED.toString(),"UPLOADED");
     assertEquals(UPDATED.toString(),"UPDATED");
     assertEquals(SAVED.toString(),"SAVED");
-    assertThat(UploadStates.values()).hasSize(6);
+    assertThat(UploadStates.values(), hasSize(6));
 
     assertEquals(resolveState("CREATED"),CREATED);
     assertEquals(resolveState("VALIDATED"),VALIDATED);

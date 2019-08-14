@@ -55,6 +55,8 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -153,8 +155,8 @@ public class InfoSearchTest {
 
     val response1 = search(studyId1, true, term1, term2);
     val response2 = search(studyId2, true, term1, term2);
-    assertThat(response1).hasSize(1);
-    assertThat(response2).hasSize(1);
+    assertThat(response1, hasSize(1));
+    assertThat(response2, hasSize(1));
     val result1 = response1.get(0);
     val result2 = response2.get(0);
     assertNotEquals(result1.getAnalysisId(),result2.getAnalysisId());
@@ -175,7 +177,7 @@ public class InfoSearchTest {
     for (val f1 : a1.getFile()){
       assertThat(f2Map).containsKey(f1.getFileName());
       val f2result = f2Map.get(f1.getFileName());
-      assertThat(f2result).hasSize(1);
+      assertThat(f2result, hasSize(1));
       val f2 = f2result.get(0);
       assertFileData(f1, f2);
     }
@@ -184,7 +186,7 @@ public class InfoSearchTest {
     for (val s1 : a1.getSample()){
       assertThat(s2map).containsKey(s1.getSampleSubmitterId());
       val s2result = s2map.get(s1.getSampleSubmitterId());
-      assertThat(s2result).hasSize(1);
+      assertThat(s2result, hasSize(1));
       val s2 = s2result.get(0);
       assertSampleData(s1, s2);
       assertDonorData(s1.getDonor(), s2.getDonor());
@@ -222,7 +224,7 @@ public class InfoSearchTest {
   @SneakyThrows
   private void runBasicTermSearchTest(Supplier<List<InfoSearchResponse>> responseSupplier, boolean shouldHaveInfo){
     val actualResponseList1 = responseSupplier.get();
-    assertThat(actualResponseList1).hasSize(1);
+    assertThat(actualResponseList1, hasSize(1));
     val infoSearchResponse1 = actualResponseList1.get(0);
     assertThat(this.analysisRespMap).containsKey(infoSearchResponse1.getAnalysisId());
     if (shouldHaveInfo){

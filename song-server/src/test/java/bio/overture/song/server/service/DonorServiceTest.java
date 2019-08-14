@@ -39,6 +39,8 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -288,7 +290,7 @@ public class DonorServiceTest {
       donorIdSet.add(donorId);
     }
     val donors = service.readByParentId(studyId);
-    assertThat(donors).hasSize(numDonors);
+    assertThat(donors, hasSize(numDonors));
     assertThat(donors.stream().map(Donor::getDonorId).collect(toSet())).containsAll(donorIdSet);
   }
 

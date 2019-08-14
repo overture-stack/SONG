@@ -50,6 +50,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
@@ -124,7 +126,7 @@ public class PublishAnalysisTest {
             .collect(toList()));
 
     this.testFiles = generateFiles(MAX_FILES, testAnalysis );
-    assertThat(testFiles).hasSize(MAX_FILES);
+    assertThat(testFiles, hasSize(MAX_FILES));
     assertThat(MIN_SIZE).isLessThan(MAX_FILES);
 
   }

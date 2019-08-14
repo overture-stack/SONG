@@ -53,6 +53,8 @@ import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -483,10 +485,10 @@ public class UploadServiceTest {
 
     // Export the previously uploaded payload using the analysis id
     val exportedPayloads = exportService.exportPayload(newArrayList(an1), false);
-    assertThat(exportedPayloads).hasSize(1);
+    assertThat(exportedPayloads, hasSize(1));
     val exportedPayload = exportedPayloads.get(0);
     assertEquals(exportedPayload.getStudyId(),studyId);
-    assertThat(exportedPayload.getPayloads()).hasSize(1);
+    assertThat(exportedPayload.getPayloads(), hasSize(1));
     val jsonPayload = exportedPayload.getPayloads().get(0);
 
     // Create payload 2
@@ -510,8 +512,8 @@ public class UploadServiceTest {
     assertEquals(a1.getStudy(),studyId);
     assertEquals(a2.getStudy(),studyId);
     assertNotEquals(a1.getAnalysisId(),a2.getAnalysisId());
-    assertThat(a1.getSample()).hasSize(1);
-    assertThat(a2.getSample()).hasSize(1);
+    assertThat(a1.getSample(), hasSize(1));
+    assertThat(a2.getSample(), hasSize(1));
     assertEquals(a1.getSample().get(0).getDonor().getDonorId(),a2.getSample().get(0).getDonor().getDonorId());
     assertEquals(a1.getSample().get(0).getSpecimen().getSpecimenId(),a2.getSample().get(0).getSpecimen().getSpecimenId());
     assertNotEquals(a1.getSample().get(0).getSampleId(),a2.getSample().get(0).getSampleId());

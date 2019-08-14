@@ -36,6 +36,8 @@ import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
@@ -139,7 +141,7 @@ public class ValidationServiceTest {
       assertFalse(results.isEmpty());
 
       val errors = PIPE.splitToList(results.get());
-      assertThat(errors).hasSize(2);
+      assertThat(errors, hasSize(2));
       for (val error : errors){
         assertThat(error).contains("fileMd5sum: does not match the regex pattern");
       }

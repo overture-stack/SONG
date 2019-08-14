@@ -37,6 +37,8 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
@@ -169,9 +171,9 @@ public class SchemaValidationTests {
         val errors = validate(schemaFilename, payloadNode);
 
         if (isGood) {
-          assertThat(errors).hasSize(0);
+          assertThat(errors, hasSize(0));
         } else {
-          assertThat(errors).hasSize(1);
+          assertThat(errors, hasSize(1));
         }
       }
     }

@@ -53,6 +53,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
@@ -211,9 +213,9 @@ public class LegacyEntityServiceTest {
       val response = service.find(params,  singleResultProbe, DEFAULT_PAGEABLE);
       for (val node : response.path("content")){
         if (p==0){
-          assertThat(node).hasSize(legacyEntityFieldNames.size());
+          assertThat(node, hasSize(legacyEntityFieldNames.size()));
         } else {
-          assertThat(node).hasSize(fieldNames.size());
+          assertThat(node, hasSize(fieldNames.size()));
         }
         for (val fieldName : fieldNames){
           assertThat(node.has(fieldName));

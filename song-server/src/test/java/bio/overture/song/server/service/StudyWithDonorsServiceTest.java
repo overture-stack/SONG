@@ -43,6 +43,8 @@ import java.util.Collection;
 
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
@@ -94,7 +96,7 @@ public class StudyWithDonorsServiceTest {
         .flatMap(x -> x.getSample().stream())
         .map(CompositeEntity::getDonor)
         .collect(toSet());
-    assertThat(expectedDonors).hasSize(numAnalysis);
+    assertThat(expectedDonors, hasSize(numAnalysis));
     assertEquals(expectedDonors.stream().map(Donor::getDonorSubmitterId).distinct().count(),numAnalysis);
     assertEquals(expectedDonors.stream().filter(x -> x.getStudyId().equals(studyId)).count(),numAnalysis);
 
@@ -103,7 +105,7 @@ public class StudyWithDonorsServiceTest {
         .flatMap(x -> x.getSample().stream())
         .map(CompositeEntity::getSpecimen)
         .collect(toSet());
-    assertThat(expectedSpecimens).hasSize(numAnalysis);
+    assertThat(expectedSpecimens, hasSize(numAnalysis));
     assertEquals(expectedSpecimens.stream().map(Specimen::getSpecimenSubmitterId).distinct().count(),numAnalysis);
 
     // Extract expected samples and verify
@@ -111,8 +113,8 @@ public class StudyWithDonorsServiceTest {
         .flatMap(x -> x.getSample().stream())
         .collect(toSet());
     val expectedSampleSubmitterIds = expectedSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
-    assertThat(expectedSamples).hasSize(numAnalysis);
-    assertThat(expectedSampleSubmitterIds).hasSize(numAnalysis);
+    assertThat(expectedSamples, hasSize(numAnalysis));
+    assertThat(expectedSampleSubmitterIds, hasSize(numAnalysis));
 
     // Run the target method to test, readWithChildren
     val studyWithDonors = studyWithDonorsService.readWithChildren(studyId);

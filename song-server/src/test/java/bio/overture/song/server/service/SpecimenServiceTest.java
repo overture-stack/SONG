@@ -44,6 +44,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
@@ -355,14 +357,14 @@ public class SpecimenServiceTest {
 
         // ReadByParentId (newly created donorId)
         val specimens = specimenService.readByParentId(donorId);
-        assertThat(specimens).hasSize(numSpecimens);
+        assertThat(specimens, hasSize(numSpecimens));
         for(val specimen :  specimens){
             val actualSpecimenId = specimen.getSpecimenId();
             val actualSampleIds = specimen.getSamples().stream().map(Sample::getSampleId).collect(toSet());
             assertThat(expectedSpecimenIds).contains(actualSpecimenId);
-            assertThat(actualSampleIds).hasSize(numSamplesPerSpecimen);
+            assertThat(actualSampleIds, hasSize(numSamplesPerSpecimen));
             val expectedSampleIds = expectedSampleIdMap.get(actualSpecimenId);
-            assertThat(expectedSampleIds).hasSize(numSamplesPerSpecimen);
+            assertThat(expectedSampleIds, hasSize(numSamplesPerSpecimen));
             assertThat(actualSampleIds).isSubsetOf(expectedSampleIds);
             assertThat(expectedSampleIds).isSubsetOf(actualSampleIds);
         }

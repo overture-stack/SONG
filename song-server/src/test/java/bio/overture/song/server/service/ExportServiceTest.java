@@ -64,6 +64,8 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
@@ -173,10 +175,10 @@ public class ExportServiceTest {
     val exportedPayloadsForStudies = exportService.exportPayload(newArrayList(analysisId), false);
 
     // Verify the input (expected) payload matches the output (actual) payload
-    assertThat(exportedPayloadsForStudies).hasSize(1);
+    assertThat(exportedPayloadsForStudies, hasSize(1));
     val exportedPayloadForStudy = exportedPayloadsForStudies.get(0);
     assertEquals(exportedPayloadForStudy.getStudyId(),studyId);
-    assertThat(exportedPayloadForStudy.getPayloads()).hasSize(1);
+    assertThat(exportedPayloadForStudy.getPayloads(), hasSize(1));
     val actualPayloadNode = exportedPayloadForStudy.getPayloads().get(0);
     assertJsonEquals(expectedPayloadNode, actualPayloadNode, when(IGNORING_ARRAY_ORDER));
   }
@@ -191,14 +193,14 @@ public class ExportServiceTest {
     massageAnalysisInplace(expectedAnalysis, includeAnalysisId, DEFAULT_INCLUDE_OTHER_IDS);
 
     val exportedPayloads = exportService.exportPayload(newArrayList(analysisId), includeAnalysisId);
-    assertThat(exportedPayloads).hasSize(1);
+    assertThat(exportedPayloads, hasSize(1));
     val exportedPayload = exportedPayloads.get(0);
     assertEquals(exportedPayload.getStudyId(),studyId);
 
     val analyses = exportedPayload.getPayloads().stream()
         .map(x -> fromJson(x, AbstractAnalysis.class))
         .collect(toImmutableList());
-    assertThat(analyses).hasSize(1);
+    assertThat(analyses, hasSize(1));
     val actualAnalysis = analyses.get(0);
     assertAnalysis(actualAnalysis, expectedAnalysis);
   }
@@ -220,7 +222,7 @@ public class ExportServiceTest {
         .map(s -> exportService.exportPayloadsForStudy(s, includeAnalysisId))
         .flatMap(Collection::stream)
         .collect(toImmutableList());
-    assertThat(actualStudyModeExportedPayloads).hasSize(numStudies);
+    assertThat(actualStudyModeExportedPayloads, hasSize(numStudies));
     val actualStudyModeData = Maps.<String, List<? extends AbstractAnalysis>>newHashMap();
     for (val exportedPayload : actualStudyModeExportedPayloads){
       val studyId = exportedPayload.getStudyId();
@@ -238,7 +240,7 @@ public class ExportServiceTest {
             .collect(toImmutableList());
     val actualAnalysisModeExportedPayloads =
         exportService.exportPayload(expectedAnalysisIds, includeAnalysisId);
-    assertThat(actualAnalysisModeExportedPayloads).hasSize(numStudies);
+    assertThat(actualAnalysisModeExportedPayloads, hasSize(numStudies));
     val actualAnalysisModeData = Maps.<String, List<? extends AbstractAnalysis>>newHashMap();
     for (val exportedPayload : actualAnalysisModeExportedPayloads){
       val studyId = exportedPayload.getStudyId();
@@ -310,25 +312,25 @@ public class ExportServiceTest {
           AbstractAnalysis randomAnalysis = analyses.get(randomAnalysisPos);
           reducedData.put(studyId, randomAnalysis);
         });
-    assertThat(reducedData.keySet()).hasSize(numStudies);
-    assertThat(reducedData.values()).hasSize(numStudies);
+    assertThat(reducedData.keySet(), hasSize(numStudies));
+    assertThat(reducedData.values(), hasSize(numStudies));
 
     // Create a list of analysisIds that covers all the previously generated studies
     val requestedAnalysisIds = reducedData.values().stream()
         .map(AbstractAnalysis::getAnalysisId)
         .collect(toImmutableList());
-    assertThat(requestedAnalysisIds).hasSize(numStudies);
+    assertThat(requestedAnalysisIds, hasSize(numStudies));
 
     // Export the analysis for the requested analysisIds
     val exportedPayloads =  exportService.exportPayload(requestedAnalysisIds, includeAnalysisId);
 
     // There should be an ExportedPayload object for each study
-    assertThat(exportedPayloads).hasSize(numStudies);
+    assertThat(exportedPayloads, hasSize(numStudies));
 
     for (val exportedPayload : exportedPayloads){
       // There should be only 1 analysis for each study. Refer to the comment with REDUCTION_TAG.
       val studyId = exportedPayload.getStudyId();
-      assertThat(exportedPayload.getPayloads()).hasSize(1);
+      assertThat(exportedPayload.getPayloads(), hasSize(1));
       val payload = exportedPayload.getPayloads().get(0);
       val expectedAnalysis = reducedData.get(studyId);
 

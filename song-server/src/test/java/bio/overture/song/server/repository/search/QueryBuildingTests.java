@@ -33,6 +33,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
@@ -113,7 +115,7 @@ public class QueryBuildingTests {
   @Test
   public void testMultiSearchTerms(){
     val stList = createMultiSearchTerms("a.x.y", Lists.newArrayList("b", "c", "d"));
-    assertThat(stList).hasSize(3);
+    assertThat(stList, hasSize(3));
     val st0 = stList.get(0);
     val st1 = stList.get(1);
     val st2 = stList.get(2);
@@ -138,7 +140,7 @@ public class QueryBuildingTests {
     assertEquals(stManySeparators.getValue(),"b=c");
 
     val stList = parseSearchTerms("a=b", "c.d.e=f", "h.i=r=t");
-    assertThat(stList).hasSize(3);
+    assertThat(stList, hasSize(3));
 
     val st0 = stList.get(0);
     assertEquals(st0.getKey(),"a");
