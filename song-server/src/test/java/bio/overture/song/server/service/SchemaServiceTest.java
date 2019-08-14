@@ -32,6 +32,7 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
 import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
@@ -66,7 +67,7 @@ public class SchemaServiceTest {
 
   private void runGetSchemaTest(String analysisType){
     val resp = schemaService.getSchema(analysisType);
-    assertThat(resp.getSchemaId()).isEqualTo(analysisType);
+    assertEquals(resp.getSchemaId(),analysisType);
 
     val actual = resp.getJsonSchema();
     val expected = getJsonNodeFromClasspath(jsonSchemaMap.get(analysisType));

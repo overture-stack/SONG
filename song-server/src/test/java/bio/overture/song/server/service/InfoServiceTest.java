@@ -30,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_NOT_FOUND;
@@ -60,7 +61,7 @@ public class InfoServiceTest {
     val info1 = infoService.readInfo(id);
     assertThat(info1.isPresent()).isTrue();
     val json2 = JsonUtils.readTree(info1.get());
-    assertThat(json).isEqualTo(json2);
+    assertEquals(json,json2);
 
     json.put("species", "human");
     val new_info= JsonUtils.nodeToJSON(json);
@@ -70,7 +71,7 @@ public class InfoServiceTest {
     assertThat(info2.isPresent()).isTrue();
     val json3 = JsonUtils.readTree(info2.get());
 
-    assertThat(json3).isEqualTo(json);
+    assertEquals(json3,json);
   }
 
   @Test
@@ -94,7 +95,7 @@ public class InfoServiceTest {
     infoService.create(donorId, expectedData);
     val actualData = infoService.readInfo(donorId);
     assertThat(actualData.isPresent()).isTrue();
-    assertThat(actualData.get()).isEqualTo(expectedData);
+    assertEquals(actualData.get(),expectedData);
 
     // Also check creation of null info fields
     val nonExistentDonorId2 = genDonorId();
@@ -158,7 +159,7 @@ public class InfoServiceTest {
     val info = getDummyInfo("someKey", "2idj94");
     infoService.create(donorId2, info);
     assertThat(infoService.isInfoExist(donorId2)).isTrue();
-    assertThat(infoService.readNullableInfo(donorId2)).isEqualTo(info);
+    assertEquals(infoService.readNullableInfo(donorId2),info);
 
     val nonExistingDonorId = randomGenerator.generateRandomUUIDAsString();
     assertThat(infoService.isInfoExist(nonExistingDonorId)).isFalse();

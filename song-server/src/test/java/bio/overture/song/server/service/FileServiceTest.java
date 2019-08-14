@@ -34,6 +34,7 @@ import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
@@ -114,7 +115,7 @@ public class FileServiceTest {
     val status = fileService.create(analysisId,  studyId, f);
     val id = f.getObjectId();
 
-    Assertions.assertThat(status).isEqualTo(id);
+    Assertions.assertEquals(status,id);
 
     FileEntity check = fileService.securedRead(studyId, id);
     assertThat(check).isEqualToComparingFieldByField(f);

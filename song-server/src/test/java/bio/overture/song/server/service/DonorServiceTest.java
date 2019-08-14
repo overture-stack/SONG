@@ -39,6 +39,7 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
@@ -82,11 +83,11 @@ public class DonorServiceTest {
     // check for data that we know exists in the H2 database already
     val d = service.readWithSpecimens(DEFAULT_DONOR_ID);
     assertThat(d).isNotNull();
-    assertThat(d.getDonorId()).isEqualTo(DEFAULT_DONOR_ID);
-    assertThat(d.getDonorGender()).isEqualTo("male");
-    assertThat(d.getDonorSubmitterId()).isEqualTo("Subject-X23Alpha7");
-    assertThat(d.getSpecimens().size()).isEqualTo(2);
-    assertThat(getInfoName(d)).isEqualTo("donor1");
+    assertEquals(d.getDonorId(),DEFAULT_DONOR_ID);
+    assertEquals(d.getDonorGender(),"male");
+    assertEquals(d.getDonorSubmitterId(),"Subject-X23Alpha7");
+    assertEquals(d.getSpecimens().size(),2);
+    assertEquals(getInfoName(d),"donor1");
 
     // Just check that each specimen object that we get is the same as the one we get from the
     // specimen service. Let the specimen service tests verify that the contents are right.
@@ -115,7 +116,7 @@ public class DonorServiceTest {
     val id = d.getDonorId();
 
     Assertions.assertThat(id).startsWith("DO");
-    Assertions.assertThat(status).isEqualTo(id);
+    Assertions.assertEquals(status,id);
 
     DonorWithSpecimens check = service.readWithSpecimens(id);
     assertThat(d).isEqualToComparingFieldByField(check);
@@ -124,7 +125,7 @@ public class DonorServiceTest {
     assertThat(service.isDonorExist(id)).isFalse();
 
     val status2 = service.create(d);
-    Assertions.assertThat(status2).isEqualTo(id);
+    Assertions.assertEquals(status2,id);
     service.securedDelete("XYZ234", newArrayList(id));
     assertThat(service.isDonorExist(id)).isFalse();
   }
@@ -140,7 +141,7 @@ public class DonorServiceTest {
     d.setStudyId(studyId);
     d.setDonorGender("male");
     val id= service.create(d);
-    Assertions.assertThat(id).isEqualTo(d.getDonorId());
+    Assertions.assertEquals(id,d.getDonorId());
 
 
     val d2 = new Donor();
@@ -151,7 +152,7 @@ public class DonorServiceTest {
     d2.setInfo(info);
 
     val response = service.update(d2);
-    Assertions.assertThat(response).isEqualTo("OK");
+    Assertions.assertEquals(response,"OK");
 
     val d3 = service.securedRead(studyId, id);
     assertThat(d3).isEqualToComparingFieldByField(d2);
@@ -168,7 +169,7 @@ public class DonorServiceTest {
     d.setDonorGender("male");
     val donorId = service.save(studyId, d);
     val initialDonor = service.securedRead(studyId, donorId);
-    assertThat(initialDonor.getDonorGender()).isEqualTo("male");
+    assertEquals(initialDonor.getDonorGender(),"male");
     assertThat(service.isDonorExist(donorId)).isTrue();
 
     val dUpdate = new DonorWithSpecimens();
@@ -177,9 +178,9 @@ public class DonorServiceTest {
     dUpdate.setDonorGender("female");
     val donorId2 = service.save(studyId, dUpdate);
     assertThat(service.isDonorExist(donorId2)).isTrue();
-    Assertions.assertThat(donorId2).isEqualTo(donorId);
+    Assertions.assertEquals(donorId2,donorId);
     val updateDonor = service.securedRead(studyId, donorId2);
-    assertThat(updateDonor.getDonorGender()).isEqualTo("female");
+    assertEquals(updateDonor.getDonorGender(),"female");
   }
 
   @Test
@@ -229,7 +230,7 @@ public class DonorServiceTest {
     val actualDonorWithSpecimens = service.readByParentId(randomStudyId);
     Assertions.assertThat(actualDonorWithSpecimens).contains(d1, d2);
     val response = service.deleteByParentId(randomStudyId);
-    Assertions.assertThat(response).isEqualTo("OK");
+    Assertions.assertEquals(response,"OK");
     val emptyDonorWithSpecimens = service.readByParentId(randomStudyId);
     Assertions.assertThat(emptyDonorWithSpecimens).isEmpty();
   }
@@ -255,7 +256,7 @@ public class DonorServiceTest {
         .studyId(DEFAULT_STUDY_ID)
         .donorGender(randomDonorGender)
         .build());
-    Assertions.assertThat(donorId).isEqualTo(expectedId);
+    Assertions.assertEquals(donorId,expectedId);
     assertThat(service.isDonorExist(donorId)).isTrue();
     service.checkDonorExists(donorId);
   }
@@ -306,7 +307,7 @@ public class DonorServiceTest {
     donorWithSpecimens.setDonorGender(randomGender);
     donorWithSpecimens.setInfo("someKey", "someValue");
     val donorId = service.create(donorWithSpecimens);
-    Assertions.assertThat(donorId).isEqualTo(expectedId);
+    Assertions.assertEquals(donorId,expectedId);
 
     donorWithSpecimens.setDonorId("DO123");
     SongErrorAssertions.assertSongError(() -> service.create(donorWithSpecimens), DONOR_ID_IS_CORRUPTED);

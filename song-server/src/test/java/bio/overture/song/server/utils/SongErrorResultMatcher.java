@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 
 @RequiredArgsConstructor
@@ -36,9 +37,9 @@ public class SongErrorResultMatcher implements ResultMatcher {
     val expectedHttpStatus = expectedServerError.getHttpStatus();
     val body = mvcResult.getResponse().getContentAsString();
     val songError = parseErrorResponse(expectedHttpStatus, body);
-    assertThat(songError.getErrorId()).isEqualTo(expectedServerError.getErrorId());
-    assertThat(songError.getHttpStatusName()).isEqualTo(expectedHttpStatus.name());
-    assertThat(songError.getHttpStatusCode()).isEqualTo(expectedHttpStatus.value());
+    assertEquals(songError.getErrorId(),expectedServerError.getErrorId());
+    assertEquals(songError.getHttpStatusName(),expectedHttpStatus.name());
+    assertEquals(songError.getHttpStatusCode(),expectedHttpStatus.value());
   }
 
   public static SongErrorResultMatcher songErrorContent(ServerError expectedServerError){

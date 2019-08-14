@@ -38,6 +38,7 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_ID_IS_CORRUPTED;
@@ -75,10 +76,10 @@ public class SampleServiceTest {
   public void testReadSample() {
     val id = "SA1";
     val sample = sampleService.securedRead(DEFAULT_STUDY_ID,id);
-    assertThat(sample.getSampleId()).isEqualTo(id);
-    assertThat(sample.getSampleSubmitterId()).isEqualTo("T285-G7-A5");
-    assertThat(sample.getSampleType()).isEqualTo("DNA");
-    assertThat(getInfoName(sample)).isEqualTo("sample1");
+    assertEquals(sample.getSampleId(),id);
+    assertEquals(sample.getSampleSubmitterId(),"T285-G7-A5");
+    assertEquals(sample.getSampleType(),"DNA");
+    assertEquals(getInfoName(sample),"sample1");
   }
 
   @Test
@@ -98,7 +99,7 @@ public class SampleServiceTest {
     assertThat(sampleService.isSampleExist(id)).isTrue();
 
     assertThat(id).startsWith("SA");
-    Assertions.assertThat(status).isEqualTo(id);
+    Assertions.assertEquals(status,id);
 
     Sample check = sampleService.securedRead(DEFAULT_STUDY_ID, id);
     assertThat(check).isEqualToComparingFieldByField(s);
@@ -234,7 +235,7 @@ public class SampleServiceTest {
 
     // Delete by parent id
     val response = sampleService.deleteByParentId(specimenId);
-    Assertions.assertThat(response).isEqualTo("OK");
+    Assertions.assertEquals(response,"OK");
     val emptySampleList2 = sampleService.readByParentId(specimenId);
     Assertions.assertThat(emptySampleList2).isEmpty();
   }

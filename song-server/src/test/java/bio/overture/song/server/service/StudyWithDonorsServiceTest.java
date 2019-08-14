@@ -43,6 +43,7 @@ import java.util.Collection;
 
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
@@ -94,8 +95,8 @@ public class StudyWithDonorsServiceTest {
         .map(CompositeEntity::getDonor)
         .collect(toSet());
     assertThat(expectedDonors).hasSize(numAnalysis);
-    assertThat(expectedDonors.stream().map(Donor::getDonorSubmitterId).distinct().count()).isEqualTo(numAnalysis);
-    assertThat(expectedDonors.stream().filter(x -> x.getStudyId().equals(studyId)).count()).isEqualTo(numAnalysis);
+    assertEquals(expectedDonors.stream().map(Donor::getDonorSubmitterId).distinct().count(),numAnalysis);
+    assertEquals(expectedDonors.stream().filter(x -> x.getStudyId().equals(studyId)).count(),numAnalysis);
 
     // Extract expected specimens and verify
     val expectedSpecimens = analysisMap.values().stream()
@@ -103,7 +104,7 @@ public class StudyWithDonorsServiceTest {
         .map(CompositeEntity::getSpecimen)
         .collect(toSet());
     assertThat(expectedSpecimens).hasSize(numAnalysis);
-    assertThat(expectedSpecimens.stream().map(Specimen::getSpecimenSubmitterId).distinct().count()).isEqualTo(numAnalysis);
+    assertEquals(expectedSpecimens.stream().map(Specimen::getSpecimenSubmitterId).distinct().count(),numAnalysis);
 
     // Extract expected samples and verify
     val expectedSamples = analysisMap.values().stream()

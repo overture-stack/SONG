@@ -37,6 +37,7 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
@@ -62,7 +63,7 @@ public class SchemaValidationTests {
       val analysisIdSchema = propertiesSchema.path(ANALYSIS_ID);
       assertThat(analysisIdSchema.has(PATTERN)).isTrue();
       assertThat(getTypes(analysisIdSchema)).contains(STRING);
-      assertThat(analysisIdSchema.path(PATTERN).textValue()).isEqualTo("^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{1,34}[a-zA-Z0-9]{1}$");
+      assertEquals(analysisIdSchema.path(PATTERN).textValue(),"^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{1,34}[a-zA-Z0-9]{1}$");
     }
   }
 
@@ -77,7 +78,7 @@ public class SchemaValidationTests {
         assertThat(currentNode.has(path)).isTrue();
         currentNode = currentNode.path(path);
       }
-      assertThat(currentNode.textValue()).isEqualTo("^[a-fA-F0-9]{32}$");
+      assertEquals(currentNode.textValue(),"^[a-fA-F0-9]{32}$");
     }
   }
 
@@ -93,41 +94,41 @@ public class SchemaValidationTests {
   public void validate_submit_sequencing_read_happy_path() throws Exception {
     val errors =
         validate("schemas/sequencingRead.json", "documents/sequencingread-valid.json");
-    assertThat(errors.size()).isEqualTo(0);
+    assertEquals(errors.size(),0);
   }
 
   @Test
   public void validate_submit_sequencing_read_missing_required() throws Exception {
     val errors = validate("schemas/sequencingRead.json",
             "documents/sequencingread-missing-required.json");
-    assertThat(errors.size()).isEqualTo(4);
+    assertEquals(errors.size(),4);
   }
 
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
     val errors =
         validate("schemas/sequencingRead.json", "documents/sequencingread-invalid-enum.json");
-    assertThat(errors.size()).isEqualTo(6);
+    assertEquals(errors.size(),6);
   }
 
   @Test
   public void validate_submit_variant_call_happy_path() throws Exception {
     val errors = validate("schemas/variantCall.json", "documents/variantcall-valid.json");
-    assertThat(errors.size()).isEqualTo(0);
+    assertEquals(errors.size(),0);
   }
 
   @Test
   public void validate_submit_variant_call_missing_required() throws Exception {
     val errors =
         validate("schemas/variantCall.json", "documents/variantcall-missing-required.json");
-    assertThat(errors.size()).isEqualTo(4);
+    assertEquals(errors.size(),4);
   }
 
   @Test
   public void validate_submit_variant_call_invalid_enum() throws Exception {
     val errors =
         validate("schemas/variantCall.json", "documents/variantcall-invalid-enum.json");
-    assertThat(errors.size()).isEqualTo(6);
+    assertEquals(errors.size(),6);
   }
 
 

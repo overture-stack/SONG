@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class SerializationTest {
 
@@ -49,7 +50,7 @@ public class SerializationTest {
 
     @SuppressWarnings("rawtypes")
     val m = JsonUtils.fromJson(json, Map.class);
-    assertThat(Collections.emptyMap()).isEqualTo(m);
+    assertEquals(Collections.emptyMap(),m);
   }
 
   @Test
@@ -67,12 +68,12 @@ public class SerializationTest {
     val metadata = JsonUtils.fromSingleQuoted("{'roses':'red','violets':'blue'}");
     val json = JsonUtils.fromSingleQuoted(single);
     val donor = JsonUtils.fromJson(json, DonorWithSpecimens.class);
-    Assertions.assertThat(donor.getDonorId()).isEqualTo(donorId);
-    Assertions.assertThat(donor.getDonorSubmitterId()).isEqualTo(submitter);
-    Assertions.assertThat(donor.getStudyId()).isEqualTo(study);
-    Assertions.assertThat(donor.getDonorGender()).isEqualTo(gender);
-    assertThat(donor.getSpecimens()).isEqualTo(Collections.emptyList());
-    Assertions.assertThat(donor.getInfoAsString()).isEqualTo(metadata);
+    Assertions.assertEquals(donor.getDonorId(),donorId);
+    Assertions.assertEquals(donor.getDonorSubmitterId(),submitter);
+    Assertions.assertEquals(donor.getStudyId(),study);
+    Assertions.assertEquals(donor.getDonorGender(),gender);
+    assertEquals(donor.getSpecimens(),Collections.emptyList());
+    Assertions.assertEquals(donor.getInfoAsString(),metadata);
   }
 
   @Test
@@ -84,7 +85,7 @@ public class SerializationTest {
         "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null,"
             + "'info':{}}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertThat(json).isEqualTo(expectedJson);
+    assertEquals(json,expectedJson);
   }
 
   @Test
@@ -97,7 +98,7 @@ public class SerializationTest {
         "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null,"
             + "'info':{}}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertThat(json).isEqualTo(expectedJson);
+    assertEquals(json,expectedJson);
   }
 
   @Test
@@ -123,7 +124,7 @@ public class SerializationTest {
             + "'info':{%s}}",
         id, submitterId, studyId, gender, metadata);
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertThat(json).isEqualTo(expectedJson);
+    assertEquals(json,expectedJson);
   }
 
   @Test
@@ -176,7 +177,7 @@ public class SerializationTest {
             "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s,'referenceGenome':'%s','info':{%s}}",
             id, aligned, alignmentTool, insertSize, libraryStrategy, pairedEnd, genome, metadata);
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertThat(json).isEqualTo(expectedJson);
+    assertEquals(json,expectedJson);
   }
 
   @Test
@@ -225,8 +226,8 @@ public class SerializationTest {
 
     List<FileEntity> f = Arrays.asList(JsonUtils.fromJson(fileJson, FileEntity[].class));
 
-    assertThat(f.size()).isEqualTo(2);
-    assertThat(f.get(0).getFileName()).isEqualTo("dna3.bam");
+    assertEquals(f.size(),2);
+    assertEquals(f.get(0).getFileName(),"dna3.bam");
   }
 
   @SneakyThrows
@@ -240,16 +241,16 @@ public class SerializationTest {
     val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
 
     System.out.printf("*** Analysis object='%s'\n",analysis);
-    assertThat(analysis.getAnalysisType()).isEqualTo("sequencingRead");
-    assertThat(analysis.getFile().size()).isEqualTo(2);
-    Assertions.assertThat(analysis.getSample().get(0).getDonor().getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00");
+    assertEquals(analysis.getAnalysisType(),"sequencingRead");
+    assertEquals(analysis.getFile().size(),2);
+    Assertions.assertEquals(analysis.getSample().get(0).getDonor().getDonorSubmitterId(),"internal_donor_123456789-00");
 
     assertThat(analysis).isInstanceOf(SequencingReadAnalysis.class);
     val r = ((SequencingReadAnalysis) analysis).getExperiment();
 
-    Assertions.assertThat(r.getLibraryStrategy()).isEqualTo("WXS");
-    Assertions.assertThat(r.getInsertSize()).isEqualTo(900);
-    Assertions.assertThat(r.getAlignmentTool()).isEqualTo("MUSE variant call pipeline");
+    Assertions.assertEquals(r.getLibraryStrategy(),"WXS");
+    Assertions.assertEquals(r.getInsertSize(),900);
+    Assertions.assertEquals(r.getAlignmentTool(),"MUSE variant call pipeline");
   }
 
   @Test
@@ -257,14 +258,14 @@ public class SerializationTest {
     val json =readFile(FILEPATH + "variantCall.json");
     val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
     System.out.printf("*** Analysis object='%s'\n",analysis);
-    assertThat(analysis.getAnalysisType()).isEqualTo("variantCall");
+    assertEquals(analysis.getAnalysisType(),"variantCall");
 
     assertThat(analysis).isInstanceOf(VariantCallAnalysis.class);
     VariantCallAnalysis v = (VariantCallAnalysis) analysis;
     System.out.printf("VariantCall object='%s'\n", v);
     
-    assertThat(analysis.getFile().size()).isEqualTo(2);
-    Assertions.assertThat(analysis.getSample().get(0).getDonor().getDonorSubmitterId()).isEqualTo("internal_donor_123456789-00");
+    assertEquals(analysis.getFile().size(),2);
+    Assertions.assertEquals(analysis.getSample().get(0).getDonor().getDonorSubmitterId(),"internal_donor_123456789-00");
   }
 
 }

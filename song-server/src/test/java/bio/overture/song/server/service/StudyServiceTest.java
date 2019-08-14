@@ -30,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -52,11 +53,11 @@ public class StudyServiceTest {
     // check for data that we know exists in the database already
     val study = service.read(DEFAULT_STUDY_ID);
     Assertions.assertThat(study).isNotNull();
-    assertThat(study.getStudyId()).isEqualTo("ABC123");
-    assertThat(study.getName()).isEqualTo("X1-CA");
-    assertThat(study.getDescription()).isEqualTo("A fictional study");
-    assertThat(study.getOrganization()).isEqualTo("Sample Data Research Institute");
-    assertThat(getInfoName(study)).isEqualTo("study1");
+    assertEquals(study.getStudyId(),"ABC123");
+    assertEquals(study.getName(),"X1-CA");
+    assertEquals(study.getDescription(),"A fictional study");
+    assertEquals(study.getOrganization(),"Sample Data Research Institute");
+    assertEquals(getInfoName(study),"study1");
   }
 
   @Test

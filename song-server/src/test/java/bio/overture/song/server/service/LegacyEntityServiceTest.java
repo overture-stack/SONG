@@ -53,6 +53,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 import static org.mockito.Mockito.when;
@@ -108,7 +109,7 @@ public class LegacyEntityServiceTest {
         .map(converter::convertToLegacyDto)
         .findFirst()
         .get();
-    Assertions.assertThat(actualEntity).isEqualTo(expectedEntity);
+    Assertions.assertEquals(actualEntity,expectedEntity);
   }
 
   @Test

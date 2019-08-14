@@ -64,6 +64,7 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
@@ -174,7 +175,7 @@ public class ExportServiceTest {
     // Verify the input (expected) payload matches the output (actual) payload
     assertThat(exportedPayloadsForStudies).hasSize(1);
     val exportedPayloadForStudy = exportedPayloadsForStudies.get(0);
-    assertThat(exportedPayloadForStudy.getStudyId()).isEqualTo(studyId);
+    assertEquals(exportedPayloadForStudy.getStudyId(),studyId);
     assertThat(exportedPayloadForStudy.getPayloads()).hasSize(1);
     val actualPayloadNode = exportedPayloadForStudy.getPayloads().get(0);
     assertJsonEquals(expectedPayloadNode, actualPayloadNode, when(IGNORING_ARRAY_ORDER));
@@ -192,7 +193,7 @@ public class ExportServiceTest {
     val exportedPayloads = exportService.exportPayload(newArrayList(analysisId), includeAnalysisId);
     assertThat(exportedPayloads).hasSize(1);
     val exportedPayload = exportedPayloads.get(0);
-    assertThat(exportedPayload.getStudyId()).isEqualTo(studyId);
+    assertEquals(exportedPayload.getStudyId(),studyId);
 
     val analyses = exportedPayload.getPayloads().stream()
         .map(x -> fromJson(x, AbstractAnalysis.class))
@@ -351,18 +352,18 @@ public class ExportServiceTest {
     val payload = toJson(payloadJson);
     val uploadStatus = uploadService.upload(studyId, payload, false);
     val status1 = fromStatus(uploadStatus, STATUS);
-    assertThat(status1).isEqualTo(OK);
+    assertEquals(status1,OK);
     val uploadId = fromStatus(uploadStatus, UPLOAD_ID);
 
     // Check Status and check if validated
     val statusResponse = uploadService.securedRead(studyId,uploadId);
     val uploadState = resolveState(statusResponse.getState());
-    assertThat(uploadState).isEqualTo(UploadStates.VALIDATED);
+    assertEquals(uploadState,UploadStates.VALIDATED);
 
     // Save and check if successful
     val analysisResponse = uploadService.save(studyId, uploadId, true);
     val status2 = fromStatus(analysisResponse, STATUS);
-    assertThat(status2).isEqualTo(OK);
+    assertEquals(status2,OK);
     val analysisId = fromStatus(analysisResponse, ANALYSIS_ID);
 
     return analysisClass.cast(analysisService.securedDeepRead(studyId, analysisId));
@@ -400,18 +401,18 @@ public class ExportServiceTest {
   }
 
   private static void assertAnalysis(AbstractAnalysis actualAnalysis, AbstractAnalysis expectedAnalysis){
-    assertThat(actualAnalysis.getAnalysisType()).isEqualTo(expectedAnalysis.getAnalysisType());
+    assertEquals(actualAnalysis.getAnalysisType(),expectedAnalysis.getAnalysisType());
 
-    assertThat(actualAnalysis.getAnalysisState()).isEqualTo(expectedAnalysis.getAnalysisState());
-    assertThat(actualAnalysis.getInfo()).isEqualTo(expectedAnalysis.getInfo());
+    assertEquals(actualAnalysis.getAnalysisState(),expectedAnalysis.getAnalysisState());
+    assertEquals(actualAnalysis.getInfo(),expectedAnalysis.getInfo());
 
-    assertThat(actualAnalysis.getAnalysisId()).isEqualTo(expectedAnalysis.getAnalysisId());
+    assertEquals(actualAnalysis.getAnalysisId(),expectedAnalysis.getAnalysisId());
 
     // All of the actuals will have objectIds, sampleIds, specimenIds, donorIds, and analysisIds, however
     assertExperiment(actualAnalysis, expectedAnalysis);
     Assertions.assertThat(actualAnalysis.getFile()).containsAll(expectedAnalysis.getFile());
     Assertions.assertThat(actualAnalysis.getSample()).containsAll(expectedAnalysis.getSample());
-    assertThat(actualAnalysis.getStudy()).isEqualTo(expectedAnalysis.getStudy());
+    assertEquals(actualAnalysis.getStudy(),expectedAnalysis.getStudy());
 
     val actualFileObjectIds = collectObjectIds(actualAnalysis.getFile());
     val expectedFileObjectIds = collectObjectIds(expectedAnalysis.getFile());

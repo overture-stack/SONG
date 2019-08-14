@@ -26,6 +26,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 
 public class DeserializationTest {
@@ -58,7 +59,7 @@ public class DeserializationTest {
     Assertions.assertThat(sa1.getAligned()).isNull();
     Assertions.assertThat(sa1.getAlignmentTool()).isNull();
     Assertions.assertThat(sa1.getInsertSize()).isNull();
-    Assertions.assertThat(sa1.getLibraryStrategy()).isEqualTo("WXS");
+    Assertions.assertEquals(sa1.getLibraryStrategy(),"WXS");
     Assertions.assertThat(sa1.getPairedEnd()).isNull();
     Assertions.assertThat(sa1.getReferenceGenome()).isNull();
     assertThat(sa1.getInfo().path("random").isNull()).isTrue();
@@ -70,7 +71,7 @@ public class DeserializationTest {
     Assertions.assertThat(sa2.getAligned()).isNull();
     Assertions.assertThat(sa2.getAlignmentTool()).isNull();
     Assertions.assertThat(sa2.getInsertSize()).isNull();
-    Assertions.assertThat(sa2.getLibraryStrategy()).isEqualTo("WXS");
+    Assertions.assertEquals(sa2.getLibraryStrategy(),"WXS");
     Assertions.assertThat(sa2.getPairedEnd()).isTrue();
     Assertions.assertThat(sa2.getReferenceGenome()).isNull();
 

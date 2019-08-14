@@ -55,6 +55,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -125,7 +126,7 @@ public class InfoSearchTest {
         .end();
 
     val withInfoResponse = createWithInfo(DEFAULT_ANALYSIS_ID, info);
-    assertThat(withInfoResponse.getInfo()).isEqualTo(info);
+    assertEquals(withInfoResponse.getInfo(),info);
     assertThat(withInfoResponse.hasInfo()).isTrue();
 
     val withoutInfoResponse = createWithoutInfo(DEFAULT_ANALYSIS_ID);
@@ -153,7 +154,7 @@ public class InfoSearchTest {
     val result1 = response1.get(0);
     val result2 = response2.get(0);
     assertThat(result1.getAnalysisId()).isNotEqualTo(result2.getAnalysisId());
-    assertThat(result1.getInfo()).isEqualTo(result2.getInfo());
+    assertEquals(result1.getInfo(),result2.getInfo());
     val an1 = service.securedDeepRead(studyId1, result1.getAnalysisId());
     val an2 = service.securedDeepRead(studyId2, result2.getAnalysisId());
     assertAnalysisData(an1, an2);
@@ -162,10 +163,10 @@ public class InfoSearchTest {
   }
 
   private static void assertAnalysisData(AbstractAnalysis a1, AbstractAnalysis a2){
-    assertThat(a1.getAnalysisType()).isEqualTo(a2.getAnalysisType());
-    assertThat(a1.getAnalysisState()).isEqualTo(a2.getAnalysisState());
-    assertThat(a1.getFile().size()).isEqualTo(a2.getFile().size());
-    assertThat(a1.getInfoAsString()).isEqualTo(a2.getInfoAsString());
+    assertEquals(a1.getAnalysisType(),a2.getAnalysisType());
+    assertEquals(a1.getAnalysisState(),a2.getAnalysisState());
+    assertEquals(a1.getFile().size(),a2.getFile().size());
+    assertEquals(a1.getInfoAsString(),a2.getInfoAsString());
     val f2Map = a2.getFile().stream().collect(groupingBy(FileEntity::getFileName));
     for (val f1 : a1.getFile()){
       assertThat(f2Map).containsKey(f1.getFileName());
@@ -174,7 +175,7 @@ public class InfoSearchTest {
       val f2 = f2result.get(0);
       assertFileData(f1, f2);
     }
-    assertThat(a1.getSample().size()).isEqualTo(a2.getSample().size());
+    assertEquals(a1.getSample().size(),a2.getSample().size());
     val s2map = a2.getSample().stream().collect(groupingBy(Sample::getSampleSubmitterId));
     for (val s1 : a1.getSample()){
       assertThat(s2map).containsKey(s1.getSampleSubmitterId());
@@ -188,30 +189,30 @@ public class InfoSearchTest {
   }
 
   private static void assertDonorData(Donor d1, Donor d2){
-    assertThat(d1.getDonorGender()).isEqualTo(d2.getDonorGender());
-    assertThat(d1.getDonorSubmitterId()).isEqualTo(d2.getDonorSubmitterId());
-    assertThat(d1.getInfoAsString()).isEqualTo(d2.getInfoAsString());
+    assertEquals(d1.getDonorGender(),d2.getDonorGender());
+    assertEquals(d1.getDonorSubmitterId(),d2.getDonorSubmitterId());
+    assertEquals(d1.getInfoAsString(),d2.getInfoAsString());
   }
 
   private static void assertSpecimenData(Specimen s1, Specimen s2){
-    assertThat(s1.getSpecimenClass()).isEqualTo(s2.getSpecimenClass());
-    assertThat(s1.getSpecimenSubmitterId()).isEqualTo(s2.getSpecimenSubmitterId());
-    assertThat(s1.getSpecimenType()).isEqualTo(s2.getSpecimenType());
-    assertThat(s1.getInfoAsString()).isEqualTo(s2.getInfoAsString());
+    assertEquals(s1.getSpecimenClass(),s2.getSpecimenClass());
+    assertEquals(s1.getSpecimenSubmitterId(),s2.getSpecimenSubmitterId());
+    assertEquals(s1.getSpecimenType(),s2.getSpecimenType());
+    assertEquals(s1.getInfoAsString(),s2.getInfoAsString());
   }
 
   private static void assertSampleData(Sample s1, Sample s2){
-    assertThat(s1.getSampleSubmitterId()).isEqualTo(s2.getSampleSubmitterId());
-    assertThat(s1.getSampleType()).isEqualTo(s2.getSampleType());
-    assertThat(s1.getInfoAsString()).isEqualTo(s2.getInfoAsString());
+    assertEquals(s1.getSampleSubmitterId(),s2.getSampleSubmitterId());
+    assertEquals(s1.getSampleType(),s2.getSampleType());
+    assertEquals(s1.getInfoAsString(),s2.getInfoAsString());
   }
   private static void assertFileData(FileEntity f1, FileEntity f2){
-    assertThat(f1.getFileAccess()).isEqualTo(f2.getFileAccess());
-    assertThat(f1.getFileMd5sum()).isEqualTo(f2.getFileMd5sum());
-    assertThat(f1.getFileName()).isEqualTo(f2.getFileName());
-    assertThat(f1.getFileSize()).isEqualTo(f2.getFileSize());
-    assertThat(f1.getFileType()).isEqualTo(f2.getFileType());
-    assertThat(f1.getInfoAsString()).isEqualTo(f2.getInfoAsString());
+    assertEquals(f1.getFileAccess(),f2.getFileAccess());
+    assertEquals(f1.getFileMd5sum(),f2.getFileMd5sum());
+    assertEquals(f1.getFileName(),f2.getFileName());
+    assertEquals(f1.getFileSize(),f2.getFileSize());
+    assertEquals(f1.getFileType(),f2.getFileType());
+    assertEquals(f1.getInfoAsString(),f2.getInfoAsString());
   }
 
   @SneakyThrows
@@ -221,9 +222,9 @@ public class InfoSearchTest {
     val infoSearchResponse1 = actualResponseList1.get(0);
     Assertions.assertThat(this.analysisRespMap).containsKey(infoSearchResponse1.getAnalysisId());
     if (shouldHaveInfo){
-      assertThat(infoSearchResponse1).isEqualTo(this.analysisRespMap.get(infoSearchResponse1.getAnalysisId()));
+      assertEquals(infoSearchResponse1,this.analysisRespMap.get(infoSearchResponse1.getAnalysisId()));
     }
-    assertThat(infoSearchResponse1.hasInfo()).isEqualTo(shouldHaveInfo);
+    assertEquals(infoSearchResponse1.hasInfo(),shouldHaveInfo);
   }
 
   private InfoSearchResponse loadAndCreateResponse1(String study, String payloadString) throws Exception {
@@ -231,7 +232,7 @@ public class InfoSearchTest {
     log.info(format("Got uploadStatus='%s'",uploadStatus));
     val uploadId = fromStatus(uploadStatus,"uploadId");
     val upload = uploadService.securedRead(study, uploadId);
-    assertThat(upload.getState()).isEqualTo("VALIDATED");
+    assertEquals(upload.getState(),"VALIDATED");
     val resp = uploadService.save(study, uploadId, false);
     val analysisId = fromStatus(resp,"analysisId");
 

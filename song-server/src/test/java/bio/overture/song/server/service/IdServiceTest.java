@@ -42,6 +42,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -184,10 +185,10 @@ public class IdServiceTest {
     val idService = new IdService(idClient);
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
-    assertThat(id1).isEqualTo(SUBMITTER_ID_1);
+    assertEquals(id1,SUBMITTER_ID_1);
 
     val id2 = idService.resolveAnalysisId(SUBMITTER_ID_2,false);
-    assertThat(id2).isEqualTo(SUBMITTER_ID_2);
+    assertEquals(id2,SUBMITTER_ID_2);
     assertThat(id1).isNotEqualTo(id2);
 
   }
@@ -198,12 +199,12 @@ public class IdServiceTest {
     val idService = new IdService(idClient);
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
-    assertThat(id1).isEqualTo(SUBMITTER_ID_1);
+    assertEquals(id1,SUBMITTER_ID_1);
     assertThat(idClient.getAnalysisId(id1)).isEmpty();
 
     val id2 = idService.resolveAnalysisId(SUBMITTER_ID_1,true);
-    assertThat(id2).isEqualTo(SUBMITTER_ID_1);
-    assertThat(id1).isEqualTo(id2);
+    assertEquals(id2,SUBMITTER_ID_1);
+    assertEquals(id1,id2);
 
 
   }
@@ -215,7 +216,7 @@ public class IdServiceTest {
     val idService = new IdService(idClient);
 
     val id1 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_1,false);
-    assertThat(id1).isEqualTo(SUBMITTER_ID_1);
+    assertEquals(id1,SUBMITTER_ID_1);
     assertSongError(
         () -> idService.resolveAnalysisId(SUBMITTER_ID_1,false),
         ANALYSIS_ID_COLLISION,
@@ -236,7 +237,7 @@ public class IdServiceTest {
      */
     assertThat(idClient.getAnalysisId(SUBMITTER_ID_2)).isEmpty();
     val id2 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2,true);
-    assertThat(id2).isEqualTo(SUBMITTER_ID_2);
+    assertEquals(id2,SUBMITTER_ID_2);
     assertSongError(
         () -> idService.resolveAnalysisId(SUBMITTER_ID_2,false),
         ANALYSIS_ID_COLLISION,

@@ -29,6 +29,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.core.utils.RandomGenerator.randomList;
@@ -49,7 +50,7 @@ public class RandomGeneratorTest {
     val randomGenerator1 = createRandomGenerator("rand1-seed1", seed1);
     val randomGenerator2 = createRandomGenerator("rand2-seed1", seed1);
     val randomGenerator3 = createRandomGenerator("rand3-seed2", seed2);
-    assertThat(randomGenerator1.generateRandomInt()).isEqualTo(randomGenerator2.generateRandomInt());
+    assertEquals(randomGenerator1.generateRandomInt(),randomGenerator2.generateRandomInt());
 
     val randomInt = randomGenerator3.generateRandomInt();
     assertThat(randomGenerator1.generateRandomInt()).isNotEqualTo(randomInt);
@@ -60,7 +61,7 @@ public class RandomGeneratorTest {
   public void testRandomMd5(){
     val randomGenerator1 = createRandomGenerator("rand1-seed1", 1);
     val md5 = randomGenerator1.generateRandomMD5();
-    assertThat(md5).isEqualTo("953a2fb1afb52dc0ef6a95ec5cac8680");
+    assertEquals(md5,"953a2fb1afb52dc0ef6a95ec5cac8680");
     val randomGenerator2 = createRandomGenerator("rand1-seed1", 100);
     assertThat(randomGenerator2.generateRandomMD5()).isNotEqualTo(md5);
   }
@@ -73,7 +74,7 @@ public class RandomGeneratorTest {
     val randomGenerator2 = createRandomGenerator("rand2-seed1", seed1);
     val randomGenerator3 = createRandomGenerator("rand3-seed2", seed2);
     val numChars = 100;
-    assertThat(randomGenerator1.generateRandomAsciiString(numChars)).isEqualTo(randomGenerator2.generateRandomAsciiString(numChars));
+    assertEquals(randomGenerator1.generateRandomAsciiString(numChars),randomGenerator2.generateRandomAsciiString(numChars));
 
     val randomAsciiString = randomGenerator3.generateRandomAsciiString(numChars);
     assertThat(randomGenerator1.generateRandomAsciiString(numChars)).isNotEqualTo(randomAsciiString);
@@ -87,7 +88,7 @@ public class RandomGeneratorTest {
     val randomGenerator1 = createRandomGenerator("rand1-seed1", seed1);
     val randomGenerator2 = createRandomGenerator("rand2-seed1", seed1);
     val randomGenerator3 = createRandomGenerator("rand3-seed2", seed2);
-    assertThat(randomGenerator1.generateRandomUUID()).isEqualTo(randomGenerator2.generateRandomUUID());
+    assertEquals(randomGenerator1.generateRandomUUID(),randomGenerator2.generateRandomUUID());
 
     val randomUUID = randomGenerator3.generateRandomUUID();
     assertThat(randomGenerator1.generateRandomUUID()).isNotEqualTo(randomUUID);
@@ -261,8 +262,8 @@ public class RandomGeneratorTest {
       randomGenerator2.generateRandomInt();
       randomGenerator2.generateRandomAsciiString(6);
     }
-    assertThat(randomGenerator1.generateRandomInt()).isEqualTo(randomGenerator2.generateRandomInt());
-    assertThat(randomGenerator1.generateRandomUUIDAsString()).isEqualTo(randomGenerator2.generateRandomUUIDAsString());
+    assertEquals(randomGenerator1.generateRandomInt(),randomGenerator2.generateRandomInt());
+    assertEquals(randomGenerator1.generateRandomUUIDAsString(),randomGenerator2.generateRandomUUIDAsString());
     assertThat(randomGenerator1.generateRandomAsciiString(10))
         .isEqualTo(randomGenerator2.generateRandomAsciiString (10));
   }

@@ -40,6 +40,7 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
@@ -81,11 +82,11 @@ public class InterruptedDatabaseConnectionTest {
     // Unfortunately, it doesn't return anything when it hangs...
     val study = service.read("ABC123");
     assertThat(study).isNotNull();
-    assertThat(study.getStudyId()).isEqualTo("ABC123");
-    assertThat(study.getName()).isEqualTo("X1-CA");
-    assertThat(study.getDescription()).isEqualTo("A fictional study");
-    assertThat(study.getOrganization()).isEqualTo("Sample Data Research Institute");
-    assertThat(getInfoName(study)).isEqualTo("study1");
+    assertEquals(study.getStudyId(),"ABC123");
+    assertEquals(study.getName(),"X1-CA");
+    assertEquals(study.getDescription(),"A fictional study");
+    assertEquals(study.getOrganization(),"Sample Data Research Institute");
+    assertEquals(getInfoName(study),"study1");
   }
 
   private void assertDatabaseIsUnreachable() {

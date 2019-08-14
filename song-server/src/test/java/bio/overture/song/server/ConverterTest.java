@@ -32,6 +32,7 @@ import org.junit.Test;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -56,7 +57,7 @@ public class ConverterTest {
     val referenceFile = buildReferenceFile();
     val copiedFile = fileConverter.copyFile(referenceFile);
     assertThat(copiedFile == referenceFile).isFalse();
-    assertThat(copiedFile).isEqualTo(referenceFile);
+    assertEquals(copiedFile,referenceFile);
   }
 
   @Test
@@ -68,7 +69,7 @@ public class ConverterTest {
         referenceFile.getFileAccess(),
         referenceFile.getInfo());
     val outputFileUpdateRequest = fileConverter.fileEntityToFileUpdateRequest(referenceFile);
-    assertThat(outputFileUpdateRequest).isEqualTo(referenceUpdateRequest);
+    assertEquals(outputFileUpdateRequest,referenceUpdateRequest);
   }
 
   @Test
@@ -79,7 +80,7 @@ public class ConverterTest {
       val updatedFile = fileConverter.copyFile(referenceFile);
       fileConverter.updateEntityFromData(fileUpdateRequest, updatedFile);
       if (i == 0) {
-        assertThat(updatedFile).isEqualTo(referenceFile);
+        assertEquals(updatedFile,referenceFile);
       } else {
         assertConfigEqual(i, 0, FileData::getFileAccess, updatedFile, referenceFile);
         assertConfigEqual(i, 1, FileData::getFileMd5sum, updatedFile, referenceFile);
@@ -137,7 +138,7 @@ public class ConverterTest {
   }
 
   private static <T> void assertIsEqual(Function<T, ?> getterCallback, T left, T right ){
-    assertThat(getterCallback.apply(left)).isEqualTo(getterCallback.apply(right));
+    assertEquals(getterCallback.apply(left),getterCallback.apply(right));
   }
 
   private static void assertConfigEqual(int id, int parameterNumFrom0, Function<FileData, ?> getterCallback,
@@ -145,7 +146,7 @@ public class ConverterTest {
     if (isConfigEnabled(id, parameterNumFrom0)){
       assertThat(getterCallback.apply(updatedFile)).isNotEqualTo(getterCallback.apply(referenceFile));
     } else {
-      assertThat(getterCallback.apply(updatedFile)).isEqualTo(getterCallback.apply(referenceFile));
+      assertEquals(getterCallback.apply(updatedFile),getterCallback.apply(referenceFile));
     }
   }
 

@@ -33,6 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.fail;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
 import static bio.overture.song.server.utils.TestFiles.SEARCH_TEST_DIR;
@@ -105,8 +106,8 @@ public class QueryBuildingTests {
   public void testSearchTermKeyParsing(){
     val st = createSearchTerm("a.b.c", "k");
     assertThat(st.getNonLeafKeys()).isSubsetOf("a","b");
-    assertThat(st.getLeafKey()).isEqualTo("c");
-    assertThat(st.getValue()).isEqualTo("k");
+    assertEquals(st.getLeafKey(),"c");
+    assertEquals(st.getValue(),"k");
   }
 
   @Test
@@ -116,40 +117,40 @@ public class QueryBuildingTests {
     val st0 = stList.get(0);
     val st1 = stList.get(1);
     val st2 = stList.get(2);
-    assertThat(st0.getKey()).isEqualTo("a.x.y");
-    assertThat(st1.getKey()).isEqualTo("a.x.y");
-    assertThat(st2.getKey()).isEqualTo("a.x.y");
+    assertEquals(st0.getKey(),"a.x.y");
+    assertEquals(st1.getKey(),"a.x.y");
+    assertEquals(st2.getKey(),"a.x.y");
 
-    assertThat(st0.getValue()).isEqualTo("b");
-    assertThat(st1.getValue()).isEqualTo("c");
-    assertThat(st2.getValue()).isEqualTo("d");
+    assertEquals(st0.getValue(),"b");
+    assertEquals(st1.getValue(),"c");
+    assertEquals(st2.getValue(),"d");
   }
 
 
   @Test
   public void testSearchTermStringParsing(){
     val stOneSeparator= parseSearchTerm("a=b");
-    assertThat(stOneSeparator.getKey()).isEqualTo("a");
-    assertThat(stOneSeparator.getValue()).isEqualTo("b");
+    assertEquals(stOneSeparator.getKey(),"a");
+    assertEquals(stOneSeparator.getValue(),"b");
 
     val stManySeparators = parseSearchTerm("a=b=c");
-    assertThat(stManySeparators.getKey()).isEqualTo("a");
-    assertThat(stManySeparators.getValue()).isEqualTo("b=c");
+    assertEquals(stManySeparators.getKey(),"a");
+    assertEquals(stManySeparators.getValue(),"b=c");
 
     val stList = parseSearchTerms("a=b", "c.d.e=f", "h.i=r=t");
     assertThat(stList).hasSize(3);
 
     val st0 = stList.get(0);
-    assertThat(st0.getKey()).isEqualTo("a");
-    assertThat(st0.getValue()).isEqualTo("b");
+    assertEquals(st0.getKey(),"a");
+    assertEquals(st0.getValue(),"b");
 
     val st1 = stList.get(1);
-    assertThat(st1.getKey()).isEqualTo("c.d.e");
-    assertThat(st1.getValue()).isEqualTo("f");
+    assertEquals(st1.getKey(),"c.d.e");
+    assertEquals(st1.getValue(),"f");
 
     val st2 = stList.get(2);
-    assertThat(st2.getKey()).isEqualTo("h.i");
-    assertThat(st2.getValue()).isEqualTo("r=t");
+    assertEquals(st2.getKey(),"h.i");
+    assertEquals(st2.getValue(),"r=t");
   }
 
   private String getCurrentTestName(){
@@ -166,7 +167,7 @@ public class QueryBuildingTests {
 
   private void runTest(boolean includeInfoField, boolean isEmpty){
     val query = createQuery(STUDY_ID, includeInfoField, isEmpty);
-    assertThat(query).isEqualTo(getExpectedTestQuery());
+    assertEquals(query,getExpectedTestQuery());
   }
 
   private String createQuery(String studyId, boolean includeInfoField, boolean isEmpty){

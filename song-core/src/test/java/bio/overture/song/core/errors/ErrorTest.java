@@ -24,6 +24,7 @@ import bio.overture.song.core.utils.JsonUtils;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.utils.Debug.streamCallingStackTrace;
@@ -45,14 +46,14 @@ public class ErrorTest {
         .build();
 
     val actualError = JsonUtils.fromJson(expectedError.toJson(), SongError.class);
-    assertThat(actualError).isEqualTo(expectedError);
+    assertEquals(actualError,expectedError);
   }
 
   @Test
   public void testCorrectErrorId(){
     val expectedErrorId = "unknown.error";
     val actualErrorId = ServerErrors.UNKNOWN_ERROR.getErrorId();
-    assertThat(actualErrorId).isEqualTo(expectedErrorId);
+    assertEquals(actualErrorId,expectedErrorId);
   }
 
   @Test

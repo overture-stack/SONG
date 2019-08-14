@@ -44,6 +44,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
@@ -88,11 +89,11 @@ public class SpecimenServiceTest {
         // find existing specimen in the database
         val id = "SP1";
         val s = specimenService.securedRead(DEFAULT_STUDY_ID, id);
-        assertThat(s.getSpecimenId()).isEqualTo(id);
-        assertThat(s.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
-        assertThat(s.getSpecimenClass()).isEqualTo("Tumour");
-        assertThat(s.getSpecimenType()).isEqualTo("Recurrent tumour - solid tissue");
-        assertThat(getInfoName(s)).isEqualTo("specimen1");
+        assertEquals(s.getSpecimenId(),id);
+        assertEquals(s.getSpecimenSubmitterId(),"Tissue-Culture 284 Gamma 3");
+        assertEquals(s.getSpecimenClass(),"Tumour");
+        assertEquals(s.getSpecimenType(),"Recurrent tumour - solid tissue");
+        assertEquals(getInfoName(s),"specimen1");
     }
 
     @Test
@@ -132,12 +133,12 @@ public class SpecimenServiceTest {
 
 
         val specimen = specimenService.readWithSamples(specimenId);
-        assertThat(specimen.getSpecimenId()).isEqualTo(specimenId);
-        assertThat(specimen.getSpecimenSubmitterId()).isEqualTo(submitterId);
-        assertThat(specimen.getSpecimenClass()).isEqualTo(specimenClass);
-        assertThat(specimen.getSpecimenType()).isEqualTo(specimenType);
-        assertThat(specimen.getSamples().size()).isEqualTo(2);
-        assertThat(getInfoName(specimen)).isEqualTo("specimen1");
+        assertEquals(specimen.getSpecimenId(),specimenId);
+        assertEquals(specimen.getSpecimenSubmitterId(),submitterId);
+        assertEquals(specimen.getSpecimenClass(),specimenClass);
+        assertEquals(specimen.getSpecimenType(),specimenType);
+        assertEquals(specimen.getSamples().size(),2);
+        assertEquals(getInfoName(specimen),"specimen1");
 
         // Verify that we got the same samples as the sample service says we should.
         val actualSet = specimen.getSamples().stream()
@@ -146,7 +147,7 @@ public class SpecimenServiceTest {
         val expectedSet = newHashSet(sampleId1, sampleId2);
         Assertions.assertThat(actualSet).hasSameSizeAs(expectedSet);
         Assertions.assertThat(actualSet).containsAll(expectedSet);
-        specimen.getSamples().forEach(sample -> assertThat(sample).isEqualTo(getSample(sample.getSampleId())));
+        specimen.getSamples().forEach(sample -> assertEquals(sample,getSample(sample.getSampleId())));
     }
 
     private Sample getSample(String id) {
@@ -184,14 +185,14 @@ public class SpecimenServiceTest {
         val sampleId = sampleService.create(DEFAULT_STUDY_ID, sample1);
 
         assertThat(id).startsWith("SP");
-        Assertions.assertThat(status).isEqualTo(id);
+        Assertions.assertEquals(status,id);
 
         val check = specimenService.securedRead(DEFAULT_STUDY_ID, id);
         assertThat(s).isEqualToComparingFieldByField(check);
 
         val response = specimenService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
         assertThat(specimenService.isSpecimenExist(id)).isFalse();
-        Assertions.assertThat(response).isEqualTo("OK");
+        Assertions.assertEquals(response,"OK");
     }
 
     @Test
@@ -374,7 +375,7 @@ public class SpecimenServiceTest {
 
         // Delete by parent id
       val response = specimenService.deleteByParentId(donorId);
-      Assertions.assertThat(response).isEqualTo("OK");
+      Assertions.assertEquals(response,"OK");
       val emptySpecimenList2 = specimenService.readByParentId(donorId);
       Assertions.assertThat(emptySpecimenList2).isEmpty();
     }

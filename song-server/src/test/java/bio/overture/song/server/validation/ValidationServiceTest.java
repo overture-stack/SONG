@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.util.Splitters.PIPE;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -146,7 +147,7 @@ public class ValidationServiceTest {
   @Test
   public void testFileMd5sumValidation(){
     val md5 = randomGenerator.generateRandomMD5();
-    assertThat(md5.length()).isEqualTo(32);
+    assertEquals(md5.length(),32);
     for (val schemaType : DEFAULT_TEST_FILE_MAP.keySet()){
       runFileMd5sumValidationTest(md5+"1", schemaType, true); // invalidate >32 chars
       runFileMd5sumValidationTest(md5.substring(0,31), schemaType, true); // invalidate <32 chars

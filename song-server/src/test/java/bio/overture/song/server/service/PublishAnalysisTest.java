@@ -50,6 +50,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.mockito.Mockito.mock;
@@ -251,9 +252,9 @@ public class PublishAnalysisTest {
       service.securedUpdateState(testStudyId, testAnalysisId, UNPUBLISHED);
 
       // Test publish changes to published state
-      assertThat(service.readState(testAnalysisId)).isEqualTo(UNPUBLISHED);
+      assertEquals(service.readState(testAnalysisId),UNPUBLISHED);
       service.publish(testStudyId, testAnalysisId, ignoreUndefinedMd5 );
-      assertThat(service.readState(testAnalysisId)).isEqualTo(PUBLISHED);
+      assertEquals(service.readState(testAnalysisId),PUBLISHED);
     }
   }
 
@@ -266,7 +267,7 @@ public class PublishAnalysisTest {
    * {@link ServerErrors} is thrown, for each of the ignoreUndefinedMd5 arguments
    */
   private void assertPublishError(ServerError expectedServerError, Boolean ... ignoreUndefinedMd5Options){
-    assertThat(service.readState(testAnalysisId)).isEqualTo(UNPUBLISHED);
+    assertEquals(service.readState(testAnalysisId),UNPUBLISHED);
     val options = newHashSet(ignoreUndefinedMd5Options);
     assertThat(options.size()).isGreaterThan(0);
     for(val ignoreUndefinedMd5 : options){
@@ -274,7 +275,7 @@ public class PublishAnalysisTest {
           .assertSongError(() -> service.publish(testStudyId, testAnalysisId, ignoreUndefinedMd5 ),
           expectedServerError);
     }
-    assertThat(service.readState(testAnalysisId)).isEqualTo(UNPUBLISHED);
+    assertEquals(service.readState(testAnalysisId),UNPUBLISHED);
   }
 
   enum RangeType{

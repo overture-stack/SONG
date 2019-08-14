@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class SongErrorAssertions {
@@ -63,8 +64,8 @@ public class SongErrorAssertions {
     assertion.as(format("a %s should have been thrown", ServerException.class.getSimpleName())).isInstanceOf(ServerException.class);
 
     val songError = ((ServerException)thrown).getSongError();
-    assertThat(songError.getErrorId()).isEqualTo(expectedServerError.getErrorId());
-    assertThat(songError.getHttpStatusCode()).isEqualTo(expectedServerError.getHttpStatus().value());
+    assertEquals(songError.getErrorId(),expectedServerError.getErrorId());
+    assertEquals(songError.getHttpStatusCode(),expectedServerError.getHttpStatus().value());
   }
 
 }

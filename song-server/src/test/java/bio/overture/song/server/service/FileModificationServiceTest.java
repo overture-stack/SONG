@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE_REQUEST;
@@ -123,7 +124,7 @@ public class FileModificationServiceTest {
   public void testFileUpdateWithPublishedAnalysis(){
     analysisService.securedUpdateState(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID, PUBLISHED);
     val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
-    assertThat(resolveAnalysisState(originalAnalysis.getAnalysisState())).isEqualTo(PUBLISHED);
+    assertEquals(resolveAnalysisState(originalAnalysis.getAnalysisState()),PUBLISHED);
     val originalFile = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
 
     // No Change
@@ -131,9 +132,9 @@ public class FileModificationServiceTest {
     val noChangeResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
     assertThat(noChangeResponse.isUnpublishedAnalysis()).isFalse();
-    assertThat(noChangeResponse.getFileUpdateType()).isEqualTo(NO_UPDATE);
-    assertThat(noChangeResponse.getOriginalAnalysisState()).isEqualTo(PUBLISHED);
-    assertThat(noChangeResponse.getOriginalFile()).isEqualTo(originalFile);
+    assertEquals(noChangeResponse.getFileUpdateType(),NO_UPDATE);
+    assertEquals(noChangeResponse.getOriginalAnalysisState(),PUBLISHED);
+    assertEquals(noChangeResponse.getOriginalFile(),originalFile);
     assertThat(noChangeResponse.getMessage())
         .isEqualTo("Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'NO_UPDATE'");
 
@@ -149,9 +150,9 @@ public class FileModificationServiceTest {
     val metadataUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
     assertThat(metadataUpdateResponse.isUnpublishedAnalysis()).isFalse();
-    assertThat(metadataUpdateResponse.getFileUpdateType()).isEqualTo(METADATA_UPDATE);
-    assertThat(metadataUpdateResponse.getOriginalAnalysisState()).isEqualTo(PUBLISHED);
-    assertThat(metadataUpdateResponse.getOriginalFile()).isEqualTo(originalFile2);
+    assertEquals(metadataUpdateResponse.getFileUpdateType(),METADATA_UPDATE);
+    assertEquals(metadataUpdateResponse.getOriginalAnalysisState(),PUBLISHED);
+    assertEquals(metadataUpdateResponse.getOriginalFile(),originalFile2);
     assertThat(metadataUpdateResponse.getMessage())
         .isEqualTo("Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'METADATA_UPDATE'");
 
@@ -163,9 +164,9 @@ public class FileModificationServiceTest {
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
     assertThat(contentUpdateResponse.isUnpublishedAnalysis()).isTrue();
-    assertThat(contentUpdateResponse.getFileUpdateType()).isEqualTo(CONTENT_UPDATE);
-    assertThat(contentUpdateResponse.getOriginalAnalysisState()).isEqualTo(PUBLISHED);
-    assertThat(contentUpdateResponse.getOriginalFile()).isEqualTo(originalFile3);
+    assertEquals(contentUpdateResponse.getFileUpdateType(),CONTENT_UPDATE);
+    assertEquals(contentUpdateResponse.getOriginalAnalysisState(),PUBLISHED);
+    assertEquals(contentUpdateResponse.getOriginalFile(),originalFile3);
     assertThat(contentUpdateResponse.getMessage())
         .isEqualTo("[WARNING]: Changed analysis from 'PUBLISHED' to 'UNPUBLISHED'");
   }
@@ -174,7 +175,7 @@ public class FileModificationServiceTest {
   @Transactional
   public void testFileUpdateWithUnpublishedAnalysis(){
     val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
-    assertThat(resolveAnalysisState(originalAnalysis.getAnalysisState())).isEqualTo(UNPUBLISHED);
+    assertEquals(resolveAnalysisState(originalAnalysis.getAnalysisState()),UNPUBLISHED);
     val originalFile = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
 
     // No Change
@@ -182,9 +183,9 @@ public class FileModificationServiceTest {
     val noChangeResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
     assertThat(noChangeResponse.isUnpublishedAnalysis()).isFalse();
-    assertThat(noChangeResponse.getFileUpdateType()).isEqualTo(NO_UPDATE);
-    assertThat(noChangeResponse.getOriginalAnalysisState()).isEqualTo(UNPUBLISHED);
-    assertThat(noChangeResponse.getOriginalFile()).isEqualTo(originalFile);
+    assertEquals(noChangeResponse.getFileUpdateType(),NO_UPDATE);
+    assertEquals(noChangeResponse.getOriginalAnalysisState(),UNPUBLISHED);
+    assertEquals(noChangeResponse.getOriginalFile(),originalFile);
     assertThat(noChangeResponse.getMessage()).contains("Did not change analysisState since it is");
 
     // Metadata Update
@@ -199,9 +200,9 @@ public class FileModificationServiceTest {
     val metadataUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
     assertThat(metadataUpdateResponse.isUnpublishedAnalysis()).isFalse();
-    assertThat(metadataUpdateResponse.getFileUpdateType()).isEqualTo(METADATA_UPDATE);
-    assertThat(metadataUpdateResponse.getOriginalAnalysisState()).isEqualTo(UNPUBLISHED);
-    assertThat(metadataUpdateResponse.getOriginalFile()).isEqualTo(originalFile2);
+    assertEquals(metadataUpdateResponse.getFileUpdateType(),METADATA_UPDATE);
+    assertEquals(metadataUpdateResponse.getOriginalAnalysisState(),UNPUBLISHED);
+    assertEquals(metadataUpdateResponse.getOriginalFile(),originalFile2);
     assertThat(metadataUpdateResponse.getMessage()).contains("Did not change analysisState since it is");
 
     // Content Update
@@ -212,9 +213,9 @@ public class FileModificationServiceTest {
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
     assertThat(contentUpdateResponse.isUnpublishedAnalysis()).isFalse();
-    assertThat(contentUpdateResponse.getFileUpdateType()).isEqualTo(CONTENT_UPDATE);
-    assertThat(contentUpdateResponse.getOriginalAnalysisState()).isEqualTo(UNPUBLISHED);
-    assertThat(contentUpdateResponse.getOriginalFile()).isEqualTo(originalFile3);
+    assertEquals(contentUpdateResponse.getFileUpdateType(),CONTENT_UPDATE);
+    assertEquals(contentUpdateResponse.getOriginalAnalysisState(),UNPUBLISHED);
+    assertEquals(contentUpdateResponse.getOriginalFile(),originalFile3);
     assertThat(contentUpdateResponse.getMessage()).contains("Did not change analysisState since it is");
   }
 
@@ -280,70 +281,70 @@ public class FileModificationServiceTest {
     val u1 = FileUpdateRequest.builder()
         .fileAccess("controlled")
         .build();
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(METADATA_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),METADATA_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setInfo(object().with(
         randomGenerator.generateRandomUUIDAsString(),
         randomGenerator.generateRandomUUIDAsString()).end());
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(METADATA_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),METADATA_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setFileAccess("open");
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(METADATA_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),METADATA_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setFileAccess(null);
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(METADATA_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),METADATA_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setFileSize(19191L);
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(CONTENT_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setFileMd5sum(randomGenerator.generateRandomMD5());
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(CONTENT_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setInfo(null);
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(CONTENT_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setFileAccess(null);
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(CONTENT_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setFileMd5sum(uniqueMd5);
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(CONTENT_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setFileMd5sum(null);
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(CONTENT_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setFileSize(referenceFile.getFileSize());
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(NO_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),NO_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
     u1.setFileSize(null);
-    assertThat(fileModificationService.updateWithRequest(referenceFile, u1 )).isEqualTo(NO_UPDATE);
+    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),NO_UPDATE);
     assertThat(u1.getFileAccess()).isNull();
     assertThat(u1.getFileSize()).isNull();
     assertThat(u1.getFileMd5sum()).isNull();
     assertThat(u1.getInfo()).isNull();
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertThat(referenceFile).isEqualTo(goldenFile);
+    Assertions.assertEquals(referenceFile,goldenFile);
 
   }
   @Test
@@ -356,11 +357,11 @@ public class FileModificationServiceTest {
     val u1 = FileUpdateRequest.builder()
         .fileAccess("controlled")
         .build();
-    assertThat(resolveFileUpdateType(f1, u1)).isEqualTo(METADATA_UPDATE);
+    assertEquals(resolveFileUpdateType(f1, u1),METADATA_UPDATE);
 
     // update info field
     u1.setInfo(object().with("myInfoKey2", "myInfoValue2").end());
-    assertThat(resolveFileUpdateType(f1, u1)).isEqualTo(METADATA_UPDATE);
+    assertEquals(resolveFileUpdateType(f1, u1),METADATA_UPDATE);
 
     // update file size
     val u2 = FileUpdateRequest.builder()
@@ -368,28 +369,28 @@ public class FileModificationServiceTest {
         .build();
     u1.setFileSize(123456L);
     // test request u1 with metadata updates
-    assertThat(resolveFileUpdateType(f1, u1)).isEqualTo(CONTENT_UPDATE);
+    assertEquals(resolveFileUpdateType(f1, u1),CONTENT_UPDATE);
     // test request u2 without any metadata updates
-    assertThat(resolveFileUpdateType(f1, u2)).isEqualTo(CONTENT_UPDATE);
+    assertEquals(resolveFileUpdateType(f1, u2),CONTENT_UPDATE);
 
     // update file md5
     u2.setFileMd5sum(randomGenerator.generateRandomMD5());
     u1.setFileMd5sum(randomGenerator.generateRandomMD5());
     // test request u1 with metadata updates
-    assertThat(resolveFileUpdateType(f1, u1)).isEqualTo(CONTENT_UPDATE);
+    assertEquals(resolveFileUpdateType(f1, u1),CONTENT_UPDATE);
     // test request u2 without any metadata updates
-    assertThat(resolveFileUpdateType(f1, u2)).isEqualTo(CONTENT_UPDATE);
+    assertEquals(resolveFileUpdateType(f1, u2),CONTENT_UPDATE);
 
     // test nulls
     val u3 = FileUpdateRequest.builder().build();
-    assertThat(resolveFileUpdateType(f1, u3)).isEqualTo(NO_UPDATE);
+    assertEquals(resolveFileUpdateType(f1, u3),NO_UPDATE);
     u3.setFileMd5sum(f1.getFileMd5sum());
     u3.setFileSize(f1.getFileSize());
     u3.setFileAccess(f1.getFileAccess());
     u3.setInfo(f1.getInfo());
-    assertThat(resolveFileUpdateType(f1, u3)).isEqualTo(NO_UPDATE);
+    assertEquals(resolveFileUpdateType(f1, u3),NO_UPDATE);
 
-    Assertions.assertThat(f1).isEqualTo(golden);
+    Assertions.assertEquals(f1,golden);
   }
 
   private FileEntity buildReferenceFile(){

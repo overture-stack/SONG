@@ -44,6 +44,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpStatus.OK;
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
 import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
@@ -183,7 +184,7 @@ public class StorageServiceTest {
     setupStorageMockService(expectedResponse.getObjectId(),existingConfig);
     if (exists){
       val result = storageService.downloadObject(expectedResponse.getObjectId());
-      assertThat(result).isEqualTo(expectedResponse);
+      assertEquals(result,expectedResponse);
     } else {
       assertSongError(
           () -> storageService.downloadObject(expectedResponse.getObjectId()),
