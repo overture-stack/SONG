@@ -37,6 +37,8 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -65,7 +67,7 @@ public class SchemaValidationTests {
       assertTrue(propertiesSchema.has(ANALYSIS_ID));
       val analysisIdSchema = propertiesSchema.path(ANALYSIS_ID);
       assertTrue(analysisIdSchema.has(PATTERN));
-      assertThat(getTypes(analysisIdSchema)).contains(STRING);
+      assertThat(getTypes(analysisIdSchema), contains(STRING));
       assertEquals(analysisIdSchema.path(PATTERN).textValue(),"^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{1,34}[a-zA-Z0-9]{1}$");
     }
   }

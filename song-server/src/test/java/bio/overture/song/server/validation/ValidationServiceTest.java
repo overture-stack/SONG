@@ -36,6 +36,8 @@ import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -143,7 +145,7 @@ public class ValidationServiceTest {
       val errors = PIPE.splitToList(results.get());
       assertThat(errors, hasSize(2));
       for (val error : errors){
-        assertThat(error).contains("fileMd5sum: does not match the regex pattern");
+        assertThat(error, contains("fileMd5sum: does not match the regex pattern"));
       }
     }
 
@@ -222,7 +224,7 @@ public class ValidationServiceTest {
 
     if (shouldBeError){
       assertFalse(results.isEmpty());
-      assertThat(results.get()).contains("analysisId: does not match the regex pattern");
+      assertThat(results.get(), contains("analysisId: does not match the regex pattern"));
     } else {
       assertTrue(results).as("Expecting validation not to have an error".isEmpty());
     }
@@ -242,7 +244,7 @@ public class ValidationServiceTest {
 
     if (shouldBeError){
       assertFalse(results.isEmpty());
-      assertThat(results.get()).contains("fileMd5sum: does not match the regex pattern");
+      assertThat(results.get(), contains("fileMd5sum: does not match the regex pattern"));
     } else {
       assertTrue(results).as("Expecting validation not to have an error: %s", results.orElse(null).isEmpty());
     }

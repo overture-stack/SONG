@@ -37,6 +37,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -189,7 +191,7 @@ public class FileModificationServiceTest {
     assertEquals(noChangeResponse.getFileUpdateType(),NO_UPDATE);
     assertEquals(noChangeResponse.getOriginalAnalysisState(),UNPUBLISHED);
     assertEquals(noChangeResponse.getOriginalFile(),originalFile);
-    assertThat(noChangeResponse.getMessage()).contains("Did not change analysisState since it is");
+    assertThat(noChangeResponse.getMessage(), contains("Did not change analysisState since it is"));
 
     // Metadata Update
     val metadataUpdateRequest = FileUpdateRequest.builder()
@@ -206,7 +208,7 @@ public class FileModificationServiceTest {
     assertEquals(metadataUpdateResponse.getFileUpdateType(),METADATA_UPDATE);
     assertEquals(metadataUpdateResponse.getOriginalAnalysisState(),UNPUBLISHED);
     assertEquals(metadataUpdateResponse.getOriginalFile(),originalFile2);
-    assertThat(metadataUpdateResponse.getMessage()).contains("Did not change analysisState since it is");
+    assertThat(metadataUpdateResponse.getMessage(), contains("Did not change analysisState since it is"));
 
     // Content Update
     val contentUpdateRequest = FileUpdateRequest.builder()
@@ -219,7 +221,7 @@ public class FileModificationServiceTest {
     assertEquals(contentUpdateResponse.getFileUpdateType(),CONTENT_UPDATE);
     assertEquals(contentUpdateResponse.getOriginalAnalysisState(),UNPUBLISHED);
     assertEquals(contentUpdateResponse.getOriginalFile(),originalFile3);
-    assertThat(contentUpdateResponse.getMessage()).contains("Did not change analysisState since it is");
+    assertThat(contentUpdateResponse.getMessage(), contains("Did not change analysisState since it is"));
   }
 
   @Test

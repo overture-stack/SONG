@@ -30,6 +30,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -84,7 +86,7 @@ public class StudyServiceTest {
   @Test
   public void testFindAllStudies(){
     val studyIds = service.findAllStudies();
-    assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
+    assertThat(studyIds, contains(DEFAULT_STUDY_ID, "XYZ234"));
     val study = Study.builder()
         .studyId(randomGenerator.generateRandomUUIDAsString())
         .name( randomGenerator.generateRandomUUIDAsString())
@@ -94,7 +96,7 @@ public class StudyServiceTest {
 
     service.saveStudy(study);
     val studyIds2 = service.findAllStudies();
-    assertThat(studyIds2).contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId());
+    assertThat(studyIds2, contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId()));
   }
 
   @Test

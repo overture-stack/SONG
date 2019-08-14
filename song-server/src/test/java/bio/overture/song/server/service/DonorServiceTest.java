@@ -39,6 +39,8 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -234,7 +236,7 @@ public class DonorServiceTest {
     d2.setDonorId(id2);
 
     val actualDonorWithSpecimens = service.readByParentId(randomStudyId);
-    assertThat(actualDonorWithSpecimens).contains(d1, d2);
+    assertThat(actualDonorWithSpecimens, contains(d1, d2));
     val response = service.deleteByParentId(randomStudyId);
     assertEquals(response,"OK");
     val emptyDonorWithSpecimens = service.readByParentId(randomStudyId);
