@@ -50,7 +50,6 @@ import static bio.overture.song.core.model.enums.FileUpdateTypes.METADATA_UPDATE
 import static bio.overture.song.core.model.enums.FileUpdateTypes.NO_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.resolveFileUpdateType;
 import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.service.FileModificationService.doUnpublish;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
@@ -259,7 +258,7 @@ public class FileModificationServiceTest {
 
     for (val badRequest : badRequests){
       log.info("Processing bad request: {}", badRequest);
-      assertSongError(
+      SongErrorAssertions.assertSongErrorRunnable(
           () -> fileModificationService.checkFileUpdateRequestValidation(DEFAULT_FILE_ID, badRequest),
           INVALID_FILE_UPDATE_REQUEST, "Bad Request did not cause an error: %s" , badRequest);
 

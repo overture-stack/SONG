@@ -18,6 +18,7 @@
 package bio.overture.song.server.utils.securestudy;
 
 import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.StudyService;
 import lombok.Getter;
@@ -94,19 +95,19 @@ public abstract class AbstractSecureTester<C> {
     assertThat(studyService.isStudyExist(data.getNonExistingStudyId())).isFalse();
 
     // Test if study exists and id DNE
-    assertSongError( () -> biConsumer.accept(data.getExistingStudyId(), data.getNonExistingId()),
+    SongErrorAssertions.assertSongErrorRunnable( () -> biConsumer.accept(data.getExistingStudyId(), data.getNonExistingId()),
         idNotFoundError);
 
     // Test if study DNE (does not exist) but id exists
-    assertSongError( () -> biConsumer.accept(data.getNonExistingStudyId(), data.getExistingId()),
+    SongErrorAssertions.assertSongErrorRunnable( () -> biConsumer.accept(data.getNonExistingStudyId(), data.getExistingId()),
         STUDY_ID_DOES_NOT_EXIST);
 
     // Test if study DNE (does not exist) and id DNE
-    assertSongError( () -> biConsumer.accept(data.getNonExistingStudyId(), data.getNonExistingId()),
+    SongErrorAssertions.assertSongErrorRunnable( () -> biConsumer.accept(data.getNonExistingStudyId(), data.getNonExistingId()),
         STUDY_ID_DOES_NOT_EXIST);
 
     // Test if correct error thrown is both studyId and id exist but are unrelated
-    assertSongError( () -> biConsumer.accept(data.getUnrelatedExistingStudyId(), data.getExistingId()),
+    SongErrorAssertions.assertSongErrorRunnable( () -> biConsumer.accept(data.getUnrelatedExistingStudyId(), data.getExistingId()),
         ENTITY_NOT_RELATED_TO_STUDY);
 
     return data;

@@ -36,6 +36,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -62,7 +64,10 @@ public class UploadControllerTest {
   private static final List<String> PAYLOAD_PATHS = newArrayList("variantcall-valid.json", "sequencingread-valid.json");
   private static final String DEFAULT_STUDY_ID = "ABC123";
 
+
+  //This was done because the autowired mockMvc wasn't working properly, it was getting http 403 errors
   @Autowired
+  private WebApplicationContext webApplicationContext;
   private MockMvc mockMvc;
 
   @Autowired
@@ -77,6 +82,7 @@ public class UploadControllerTest {
 
   @Before
   public void beforeEachTest(){
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     this.randomGenerator = createRandomGenerator(getClass().getSimpleName());
     this.studyGenerator = createStudyGenerator(studyService, randomGenerator);
     studyService.checkStudyExist(DEFAULT_STUDY_ID);

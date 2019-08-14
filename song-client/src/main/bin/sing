@@ -35,10 +35,9 @@ fi
 
 if [[ "$_java" ]]; then
     version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-    if [[ "$version" > "1.8" ]]; then
-        :
-    else
-        echo Java 1.8 required for Sing. Current version is $version
+    regex="^1[1-9][\.]{0,1}"
+    if [[ ! $version =~ $regex ]]; then 
+        echo Java 11 required for Sing. Current version is $version
         exit 1
     fi
 fi
@@ -46,8 +45,8 @@ fi
 current_dir=$PWD
 fn=$0
 sing_home=$current_dir/`dirname $fn`/../
-#echo "SING_HOME = $sing_home"
-java \
+
+java --illegal-access=deny \
          -Dspring.config.location="$sing_home/conf/" \
          -jar $sing_home/lib/song-client.jar \
          $@

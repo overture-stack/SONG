@@ -1,4 +1,4 @@
-<h1 align="center">SONG</h1>
+<h1 align="center">Song</h1>
 
 <p align="center">Quickly and reliably track genome metadata scattered across multiple Cloud storage systems.</p>
 
@@ -11,9 +11,12 @@
 [![Documentation Status](http://readthedocs.org/projects/song-docs/badge/?version=develop)](https://song-docs.readthedocs.io/en/develop/introduction.html)
 [![Slack](http://slack.overture.bio/badge.svg)](http://slack.overture.bio)
 
-
 Project containing both the SONG microservice and CLI client. 
 Both are written using JAVA 8 and Spring Boot. 
+
+## Documentation
+
+Explore documentation with the Song [Read the Docs](https://song-docs.readthedocs.io/en/develop/introduction.html).
 
 ## Build
 

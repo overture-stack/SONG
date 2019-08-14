@@ -24,6 +24,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 import java.nio.file.Paths;
@@ -66,8 +68,9 @@ import static bio.overture.song.server.utils.ResourceFetcher.ResourceType.MAIN;
 @ActiveProfiles({ "test" })
 public class AnalysisTypeControllerTest {
 
+  //This was done because the autowired mockMvc wasn't working properly, it was getting http 403 errors
   @Autowired
-  private MockMvc mockMvc;
+  private WebApplicationContext webApplicationContext;
 
   @Autowired
   private Supplier<Schema> analysisTypeMetaSchemaSupplier;
@@ -78,11 +81,13 @@ public class AnalysisTypeControllerTest {
   @Autowired
   private AnalysisSchemaRepository analysisSchemaRepository;
 
+  private MockMvc mockMvc;
   private EndpointTester endpointTester;
   private RandomGenerator randomGenerator;
 
   @Before
   public void beforeTest(){
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     this.endpointTester = createEndpointTester(mockMvc, true);
     this.randomGenerator = createRandomGenerator(getClass().getCanonicalName());
   }
