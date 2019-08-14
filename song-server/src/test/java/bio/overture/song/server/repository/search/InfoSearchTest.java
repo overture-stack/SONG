@@ -55,6 +55,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -175,7 +176,7 @@ public class InfoSearchTest {
     assertEquals(a1.getInfoAsString(),a2.getInfoAsString());
     val f2Map = a2.getFile().stream().collect(groupingBy(FileEntity::getFileName));
     for (val f1 : a1.getFile()){
-      assertThat(f2Map).containsKey(f1.getFileName());
+      assertTrue(f2Map.containsKey(f1.getFileName()));
       val f2result = f2Map.get(f1.getFileName());
       assertThat(f2result, hasSize(1));
       val f2 = f2result.get(0);
@@ -184,7 +185,7 @@ public class InfoSearchTest {
     assertEquals(a1.getSample().size(),a2.getSample().size());
     val s2map = a2.getSample().stream().collect(groupingBy(Sample::getSampleSubmitterId));
     for (val s1 : a1.getSample()){
-      assertThat(s2map).containsKey(s1.getSampleSubmitterId());
+      assertTrue(s2map.containsKey(s1.getSampleSubmitterId()));
       val s2result = s2map.get(s1.getSampleSubmitterId());
       assertThat(s2result, hasSize(1));
       val s2 = s2result.get(0);
@@ -226,7 +227,7 @@ public class InfoSearchTest {
     val actualResponseList1 = responseSupplier.get();
     assertThat(actualResponseList1, hasSize(1));
     val infoSearchResponse1 = actualResponseList1.get(0);
-    assertThat(this.analysisRespMap).containsKey(infoSearchResponse1.getAnalysisId());
+    assertTrue(this.analysisRespMap.containsKey(infoSearchResponse1.getAnalysisId()));
     if (shouldHaveInfo){
       assertEquals(infoSearchResponse1,this.analysisRespMap.get(infoSearchResponse1.getAnalysisId()));
     }

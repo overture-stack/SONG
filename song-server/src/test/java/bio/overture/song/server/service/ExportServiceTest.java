@@ -64,6 +64,7 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -532,7 +533,7 @@ public class ExportServiceTest {
       val expectedAnalyses = expectedData.get(studyId);
       val actualAnalysisMap = groupUnique(actualData.get(studyId), AbstractAnalysis::getAnalysisId); //Assumed that all analyses in the list are unique
       for (val expectedAnalysis : expectedAnalyses){
-        assertThat(actualAnalysisMap).containsKey(expectedAnalysis.getAnalysisId());
+        assertTrue(actualAnalysisMap.containsKey(expectedAnalysis.getAnalysisId()));
         val actualAnalysis = actualAnalysisMap.get(expectedAnalysis.getAnalysisId());
         assertAnalysis(actualAnalysis, expectedAnalysis);
       }

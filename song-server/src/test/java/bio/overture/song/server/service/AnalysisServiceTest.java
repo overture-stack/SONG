@@ -563,7 +563,7 @@ public class AnalysisServiceTest {
     val analysis = service.securedDeepRead(study, actualAnalysisId);
     for (val file : analysis.getFile()){
       val filename = file.getFileName();
-      assertThat(expectedObjectIdMap).containsKey(filename);
+      assertTrue(expectedObjectIdMap.containsKey(filename));
       val expectedObjectId = expectedObjectIdMap.get(filename);
       val actualObjectId = file.getObjectId();
       val actualFileAnalysisId = file.getAnalysisId();
@@ -657,8 +657,8 @@ public class AnalysisServiceTest {
         .collect(groupingBy(AbstractAnalysis::getAnalysisState));
 
     assertThat(actualMap.keySet(), hasSize(1));
-    assertThat(expectedMap).containsKey(PUBLISHED.toString());
-    assertThat(actualMap).containsKey(PUBLISHED.toString());
+    assertTrue(expectedMap.containsKey(PUBLISHED.toString()));
+    assertTrue(actualMap.containsKey(PUBLISHED.toString()));
     assertThat(actualMap.get(PUBLISHED.toString())).hasSameSizeAs(expectedMap.get(PUBLISHED.toString()));
     assertThat(actualMap.get(PUBLISHED.toString())).hasSameElementsAs(expectedMap.get(PUBLISHED.toString()));
   }
