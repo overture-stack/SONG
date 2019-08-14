@@ -44,6 +44,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
@@ -191,7 +192,7 @@ public class SpecimenServiceTest {
         assertThat(s).isEqualToComparingFieldByField(check);
 
         val response = specimenService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
-        assertThat(specimenService.isSpecimenExist(id)).isFalse();
+        assertFalse(specimenService.isSpecimenExist(id));
         assertEquals(response,"OK");
     }
 
@@ -243,7 +244,7 @@ public class SpecimenServiceTest {
         assertThat(specimenService.isSpecimenExist(existingSpecimenId)).isTrue();
         specimenService.checkSpecimenExist(existingSpecimenId);
         val nonExistingSpecimenId = randomGenerator.generateRandomUUIDAsString();
-        assertThat(specimenService.isSpecimenExist(nonExistingSpecimenId)).isFalse();
+        assertFalse(specimenService.isSpecimenExist(nonExistingSpecimenId));
         specimenService.checkSpecimenExist(existingSpecimenId);
         specimenService.checkSpecimenDoesNotExist(nonExistingSpecimenId);
 
@@ -287,7 +288,7 @@ public class SpecimenServiceTest {
         specimen2.setSpecimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)));
         specimen2.setDonorId(donorId);
         specimen2.setSpecimenId(randomGenerator.generateRandomUUIDAsString());
-        assertThat(specimenService.isSpecimenExist(specimen2.getSpecimenId())).isFalse();
+        assertFalse(specimenService.isSpecimenExist(specimen2.getSpecimenId()));
         SongErrorAssertions
             .assertSongError(() -> specimenService.create(existingStudyId, specimen2), SPECIMEN_ID_IS_CORRUPTED);
     }
@@ -295,7 +296,7 @@ public class SpecimenServiceTest {
     @Test
     public void testReadSpecimenDNE(){
         val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
-        assertThat(specimenService.isSpecimenExist(randomSpecimenId)).isFalse();
+        assertFalse(specimenService.isSpecimenExist(randomSpecimenId));
         SongErrorAssertions
             .assertSongError(() -> specimenService.unsecuredRead(randomSpecimenId), SPECIMEN_DOES_NOT_EXIST);
         SongErrorAssertions
@@ -369,7 +370,7 @@ public class SpecimenServiceTest {
         // Assert that reading by a non-existent donorId returns something empty
 
         val randomDonorId = randomGenerator.generateRandomUUIDAsString();
-        assertThat(donorService.isDonorExist(randomDonorId)).isFalse();
+        assertFalse(donorService.isDonorExist(randomDonorId));
         val emptySpecimenList = specimenService.readByParentId(randomDonorId);
         assertTrue(emptySpecimenList.isEmpty());
 

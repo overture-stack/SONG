@@ -32,6 +32,7 @@ import org.junit.Test;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
@@ -57,7 +58,7 @@ public class ConverterTest {
   public void testFileCopy(){
     val referenceFile = buildReferenceFile();
     val copiedFile = fileConverter.copyFile(referenceFile);
-    assertThat(copiedFile == referenceFile).isFalse();
+    assertFalse(copiedFile == referenceFile);
     assertEquals(copiedFile,referenceFile);
   }
 
@@ -108,19 +109,19 @@ public class ConverterTest {
 
     val legacyDto = legacyEntityConverter.convertToLegacyDto(legacyEntity);
     assertThat(legacyDto).isEqualToComparingFieldByField(legacyEntity);
-    assertThat(isObjectsEqual(legacyDto, legacyEntity)).isFalse();
+    assertFalse(isObjectsEqual(legacyDto, legacyEntity));
 
     val legacyEntityCopy = legacyEntityConverter.convertToLegacyEntity(legacyEntity);
     assertThat(legacyEntityCopy).isEqualToComparingFieldByField(legacyEntity);
-    assertThat(isObjectsEqual(legacyEntityCopy, legacyEntity)).isFalse();
+    assertFalse(isObjectsEqual(legacyEntityCopy, legacyEntity));
 
     val legacyEntityCopy2 = legacyEntityConverter.convertToLegacyEntity(legacyDto);
     assertThat(legacyEntityCopy2).isEqualToComparingFieldByField(legacyDto);
-    assertThat(isObjectsEqual(legacyEntityCopy2, legacyDto)).isFalse();
+    assertFalse(isObjectsEqual(legacyEntityCopy2, legacyDto));
 
     val legacyDtoCopy = legacyEntityConverter.convertToLegacyDto(legacyDto);
     assertThat(legacyDtoCopy).isEqualToComparingFieldByField(legacyDto);
-    assertThat(isObjectsEqual(legacyDtoCopy, legacyDto)).isFalse();
+    assertFalse(isObjectsEqual(legacyDtoCopy, legacyDto));
   }
 
   private static FileEntity buildReferenceFile(){

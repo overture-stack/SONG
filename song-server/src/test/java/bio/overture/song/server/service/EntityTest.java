@@ -47,6 +47,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -1494,7 +1495,7 @@ public class EntityTest {
     assertEquals(s1.getAnalysisId(),"a1");
     assertEquals(s1.getInsertSize(),99999L);
     assertEquals(s1.getLibraryStrategy(),LIBRARY_STRATEGIES.get(0));
-    assertThat(s1.getPairedEnd()).isFalse();
+    assertFalse(s1.getPairedEnd());
     assertEquals(s1.getReferenceGenome(),"c1");
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }

@@ -39,6 +39,7 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
@@ -124,12 +125,12 @@ public class DonorServiceTest {
     assertThat(d).isEqualToComparingFieldByField(check);
 
     service.securedDelete("XYZ234", id);
-    assertThat(service.isDonorExist(id)).isFalse();
+    assertFalse(service.isDonorExist(id));
 
     val status2 = service.create(d);
     assertEquals(status2,id);
     service.securedDelete("XYZ234", newArrayList(id));
-    assertThat(service.isDonorExist(id)).isFalse();
+    assertFalse(service.isDonorExist(id));
   }
 
   @Test
@@ -189,7 +190,7 @@ public class DonorServiceTest {
   public void testSaveStudyDNE(){
     val studyId = DEFAULT_STUDY_ID;
     val randomStudyId = randomGenerator.generateRandomUUIDAsString();
-    assertThat(studyService.isStudyExist(randomStudyId)).isFalse();
+    assertFalse(studyService.isStudyExist(randomStudyId));
     val donorSubmitterId = randomGenerator.generateRandomUUIDAsString();
     val d = new DonorWithSpecimens();
     d.setDonorId("");
@@ -249,7 +250,7 @@ public class DonorServiceTest {
     val randomDonorSubmitterId = randomGenerator.generateRandomUUID().toString();
     val randomDonorGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
     val expectedId = idService.generateDonorId(randomDonorSubmitterId, DEFAULT_STUDY_ID);
-    assertThat(service.isDonorExist(expectedId)).isFalse();
+    assertFalse(service.isDonorExist(expectedId));
     SongErrorAssertions.assertSongErrorRunnable(() -> service.checkDonorExists(randomDonorId), DONOR_DOES_NOT_EXIST);
     val donorId = service.save(DEFAULT_STUDY_ID,
         Donor.builder()

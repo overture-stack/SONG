@@ -187,7 +187,7 @@ public class AnalysisServiceTest {
     val analysis = payloadGenerator.generateDefaultRandomPayload(VariantCallAnalysis.class);
     val randomAnalysisId = randomGenerator.generateRandomUUIDAsString();
     analysis.setAnalysisId(randomAnalysisId);
-    assertThat(service.isAnalysisExist(randomAnalysisId)).isFalse();
+    assertFalse(service.isAnalysisExist(randomAnalysisId));
     val actualAnalysisId = service.create(DEFAULT_STUDY_ID, analysis, false);
     assertEquals(actualAnalysisId,randomAnalysisId);
     assertThat(service.isAnalysisExist(randomAnalysisId)).isTrue();
@@ -387,7 +387,7 @@ public class AnalysisServiceTest {
     val experiment = a.getExperiment();
     assertEquals(experiment.getAnalysisId(),analysisId);
     assertEquals(experiment.getLibraryStrategy(),"WXS");
-    assertThat(experiment.getPairedEnd()).isFalse();
+    assertFalse(experiment.getPairedEnd());
     assertEquals(experiment.getInsertSize(),92736);
     assertThat(experiment.getAligned()).isTrue();
     assertEquals(experiment.getAlignmentTool(),"myCool Sequence ReadingTool");
@@ -576,7 +576,7 @@ public class AnalysisServiceTest {
   @Transactional
   public void testCreateAnalysisStudyDNE(){
     val nonExistentStudyId = randomGenerator.generateRandomUUID().toString();
-    assertThat(studyService.isStudyExist(nonExistentStudyId)).isFalse();
+    assertFalse(studyService.isStudyExist(nonExistentStudyId));
 
     val payload = payloadGenerator.generateDefaultRandomPayload(VariantCallAnalysis.class);
     payload.setAnalysisId(null);
@@ -598,12 +598,12 @@ public class AnalysisServiceTest {
     for (int i=1; i<=numAnalysis; i++){
       if (i%2 == 0){
         val sra = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
-        assertThat(sraMap.containsKey(sra.getAnalysisId())).isFalse();
+        assertFalse(sraMap.containsKey(sra.getAnalysisId()));
         sraMap.put(sra.getAnalysisId(), sra);
         expectedAnalyses.add(sra);
       } else {
         val vca = analysisGenerator.createDefaultRandomVariantCallAnalysis();
-        assertThat(sraMap.containsKey(vca.getAnalysisId())).isFalse();
+        assertFalse(sraMap.containsKey(vca.getAnalysisId()));
         vcaMap.put(vca.getAnalysisId(), vca);
         expectedAnalyses.add(vca);
       }
@@ -771,10 +771,10 @@ public class AnalysisServiceTest {
   public void testAnalysisExistence(){
     val existingAnalysisId  = DEFAULT_ANALYSIS_ID;
     val nonExistentAnalysisId = randomGenerator.generateRandomUUID().toString();
-    assertThat(service.isAnalysisExist(nonExistentAnalysisId)).isFalse();
+    assertFalse(service.isAnalysisExist(nonExistentAnalysisId));
     assertThat(service.isAnalysisExist(existingAnalysisId)).isTrue();
     assertThat(analysisRepository.existsById(existingAnalysisId)).isTrue();
-    assertThat(analysisRepository.existsById(nonExistentAnalysisId)).isFalse();
+    assertFalse(analysisRepository.existsById(nonExistentAnalysisId));
   }
 
   @Test
@@ -872,7 +872,7 @@ public class AnalysisServiceTest {
 
     // Find an analysisId that is unique and doesnt exist
     val id = idService.resolveAnalysisId("", false);
-    assertThat(service.isAnalysisExist(id)).isFalse();
+    assertFalse(service.isAnalysisExist(id));
 
     // Generate a payload using the analysisId
     val payload = payloadGenerator.generateDefaultRandomPayload(SequencingReadAnalysis.class);
@@ -890,7 +890,7 @@ public class AnalysisServiceTest {
     doThrow(new IllegalStateException("some error happened during the ")).when(analysisInfoServiceMock).create(id, payload.getInfoAsString());
     val originalAnalysisInfoService = ReflectionTestUtils.getField(service, ANALYSIS_INFO_SERVICE);
     ReflectionTestUtils.setField(service, ANALYSIS_INFO_SERVICE, analysisInfoServiceMock);
-    assertThat(service.isAnalysisExist(id)).isFalse();
+    assertFalse(service.isAnalysisExist(id));
 
 
     // Ensure the mock is used and that an error was actually thrown
@@ -898,7 +898,7 @@ public class AnalysisServiceTest {
     assertThat(throwable).as("An exception was not thrown").isInstanceOf(IllegalStateException.class);
 
     // Ensure everything was rolled back properly
-    assertThat(service.isAnalysisExist(id)).isFalse();
+    assertFalse(service.isAnalysisExist(id));
 
     // Ensure the id was not committed to the id server
     assertTrue(idClient.getAnalysisId(id).isEmpty());

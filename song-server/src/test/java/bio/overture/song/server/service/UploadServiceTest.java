@@ -53,6 +53,7 @@ import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
@@ -447,7 +448,7 @@ public class UploadServiceTest {
   @Test
   public void testUploadExistence(){
     val randomUploadId = randomGenerator.generateRandomUUIDAsString();
-    assertThat(uploadService.isUploadExist(randomUploadId)).isFalse();
+    assertFalse(uploadService.isUploadExist(randomUploadId));
 
     val payload = createPayloadWithDifferentAnalysisId();
     val jsonPayload = payload.getJsonPayload();
@@ -497,7 +498,7 @@ public class UploadServiceTest {
     // Assert that none of the sampleSubmmiterIds between payload1 and payload2 match
     val currentSampleSubmitterIds =  payload2.getSample().stream().map(Sample::getSampleSubmitterId).collect( toImmutableSet());
     val hasMatch = previousSampleSubmitterIds.stream().anyMatch(currentSampleSubmitterIds::contains);
-    assertThat(hasMatch).isFalse();
+    assertFalse(hasMatch);
 
     // Save payload 2
     val an2 = analysisService.create(studyId, payload2, false);

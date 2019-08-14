@@ -34,6 +34,7 @@ import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
@@ -122,7 +123,7 @@ public class FileServiceTest {
     assertThat(check).isEqualToComparingFieldByField(f);
 
     fileService.securedDelete(studyId, id);
-    assertThat(fileService.isFileExist(id)).isFalse();
+    assertFalse(fileService.isFileExist(id));
   }
 
   @Test
@@ -233,7 +234,7 @@ public class FileServiceTest {
     fileService.checkFileExists(file);
 
     val randomFile = createRandomFile(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
-    assertThat(fileService.isFileExist(randomFile.getObjectId())).isFalse();
+    assertFalse(fileService.isFileExist(randomFile.getObjectId()));
     SongErrorAssertions
         .assertSongErrorRunnable(() -> fileService.checkFileExists(randomFile.getObjectId()), FILE_NOT_FOUND);
     SongErrorAssertions.assertSongErrorRunnable(() -> fileService.checkFileExists(randomFile), FILE_NOT_FOUND);

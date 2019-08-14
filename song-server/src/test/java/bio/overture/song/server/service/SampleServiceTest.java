@@ -38,6 +38,7 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
@@ -105,7 +106,7 @@ public class SampleServiceTest {
     assertThat(check).isEqualToComparingFieldByField(s);
 
     sampleService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
-    assertThat(sampleService.isSampleExist(id)).isFalse();
+    assertFalse(sampleService.isSampleExist(id));
   }
 
   @Test
@@ -169,7 +170,7 @@ public class SampleServiceTest {
     sample2.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
     sample2.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
     sample2.setSampleId(randomGenerator.generateRandomUUIDAsString());
-    assertThat(sampleService.isSampleExist(sample2.getSampleId())).isFalse();
+    assertFalse(sampleService.isSampleExist(sample2.getSampleId()));
     SongErrorAssertions.assertSongError(() -> sampleService.create(existingStudyId, sample2), SAMPLE_ID_IS_CORRUPTED);
   }
 
@@ -179,7 +180,7 @@ public class SampleServiceTest {
     assertThat(sampleService.isSampleExist(existingSampleId)).isTrue();
     sampleService.checkSampleExists(existingSampleId);
     val nonExistingSampleId = randomGenerator.generateRandomUUIDAsString();
-    assertThat(sampleService.isSampleExist(nonExistingSampleId)).isFalse();
+    assertFalse(sampleService.isSampleExist(nonExistingSampleId));
     sampleService.checkSampleExists(existingSampleId);
     sampleService.checkSampleDoesNotExist(nonExistingSampleId);
 
@@ -192,7 +193,7 @@ public class SampleServiceTest {
   @Test
   public void testReadSampleDNE(){
     val randomSampleId = randomGenerator.generateRandomUUIDAsString();
-    assertThat(sampleService.isSampleExist(randomSampleId)).isFalse();
+    assertFalse(sampleService.isSampleExist(randomSampleId));
     SongErrorAssertions.assertSongError(() -> sampleService.unsecuredRead(randomSampleId), SAMPLE_DOES_NOT_EXIST);
   }
 
@@ -229,7 +230,7 @@ public class SampleServiceTest {
 
     // Assert that reading by a non-existent specimenId returns something empty
     val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
-    assertThat(specimenService.isSpecimenExist(randomSpecimenId)).isFalse();
+    assertFalse(specimenService.isSpecimenExist(randomSpecimenId));
     val emptySampleList = sampleService.readByParentId(randomSpecimenId);
     assertTrue(emptySampleList.isEmpty());
 

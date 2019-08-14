@@ -30,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
@@ -73,7 +74,7 @@ public class StudyServiceTest {
         .description(description)
         .organization(organization)
         .build();
-    assertThat(service.isStudyExist(studyId)).isFalse();
+    assertFalse(service.isStudyExist(studyId));
     service.saveStudy(study);
     val readStudy = service.read(studyId);
     assertThat(readStudy).isEqualToComparingFieldByFieldRecursively(study);
@@ -114,7 +115,7 @@ public class StudyServiceTest {
     val existentStudyId = DEFAULT_STUDY_ID;
     assertThat(service.isStudyExist(existentStudyId)).isTrue();
     val nonExistentStudyId = genStudyId();
-    assertThat(service.isStudyExist(nonExistentStudyId)).isFalse();
+    assertFalse(service.isStudyExist(nonExistentStudyId));
   }
 
   private String genStudyId(){
