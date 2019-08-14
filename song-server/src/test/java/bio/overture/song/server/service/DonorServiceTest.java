@@ -39,6 +39,7 @@ import javax.transaction.Transactional;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
@@ -110,7 +111,7 @@ public class DonorServiceTest {
     json.put("species", "human");
 
     DonorWithSpecimens d = JsonUtils.mapper().convertValue(json, DonorWithSpecimens.class);
-    Assertions.assertThat(d.getDonorId()).isNull();
+    Assertions.assertNull(d.getDonorId());
 
     val status = service.create(d);
     val id = d.getDonorId();

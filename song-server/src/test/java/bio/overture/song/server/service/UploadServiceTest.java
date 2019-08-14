@@ -53,6 +53,7 @@ import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.util.Lists.newArrayList;
@@ -139,13 +140,13 @@ public class UploadServiceTest {
     val analysisId1 = fromStatus(saveStatus1, "analysisId");
     val a1 =  analysisService.securedDeepRead(DEFAULT_STUDY, analysisId1);
     val sa1 = ((SequencingReadAnalysis) a1).getExperiment();
-    assertThat(sa1.getAligned()).isNull();
-    assertThat(sa1.getAlignmentTool()).isNull();
-    assertThat(sa1.getInsertSize()).isNull();
+    assertNull(sa1.getAligned());
+    assertNull(sa1.getAlignmentTool());
+    assertNull(sa1.getInsertSize());
     assertEquals(sa1.getLibraryStrategy(),"WXS");
-    assertThat(sa1.getPairedEnd()).isNull();
-    assertThat(sa1.getReferenceGenome()).isNull();
-    assertThat(sa1.getInfo().get("random")).isNull();
+    assertNull(sa1.getPairedEnd());
+    assertNull(sa1.getReferenceGenome());
+    assertNull(sa1.getInfo().get("random"));
 
     val filename2 = "documents/deserialization/sequencingread-deserialize2.json";
     val uploadId2 = uploadFromTestDir(DEFAULT_STUDY, filename2, false);
@@ -155,12 +156,12 @@ public class UploadServiceTest {
     val analysisId2 = fromStatus(saveStatus2, "analysisId");
     val a2 =  analysisService.securedDeepRead(DEFAULT_STUDY, analysisId2);
     val sa2 = ((SequencingReadAnalysis) a2).getExperiment();
-    assertThat(sa2.getAligned()).isNull();
-    assertThat(sa2.getAlignmentTool()).isNull();
-    assertThat(sa2.getInsertSize()).isNull();
+    assertNull(sa2.getAligned());
+    assertNull(sa2.getAlignmentTool());
+    assertNull(sa2.getInsertSize());
     assertEquals(sa2.getLibraryStrategy(),"WXS");
     assertThat(sa2.getPairedEnd()).isTrue();
-    assertThat(sa2.getReferenceGenome()).isNull();
+    assertNull(sa2.getReferenceGenome());
   }
 
   @Test

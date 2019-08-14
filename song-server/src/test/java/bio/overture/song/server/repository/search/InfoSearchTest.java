@@ -55,6 +55,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
@@ -131,7 +132,7 @@ public class InfoSearchTest {
     assertThat(withInfoResponse.hasInfo()).isTrue();
 
     val withoutInfoResponse = createWithoutInfo(DEFAULT_ANALYSIS_ID);
-    assertThat(withoutInfoResponse.getInfo()).isNull();
+    assertNull(withoutInfoResponse.getInfo());
     assertThat(withoutInfoResponse.hasInfo()).isFalse();
   }
 

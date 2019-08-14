@@ -581,7 +581,7 @@ public class AnalysisServiceTest {
     val payload = payloadGenerator.generateDefaultRandomPayload(VariantCallAnalysis.class);
     payload.setAnalysisId(null);
 
-    assertThat(payload.getAnalysisId()).isNull();
+    assertNull(payload.getAnalysisId());
     assertSongError(() -> service.create(nonExistentStudyId, payload, false), STUDY_ID_DOES_NOT_EXIST);
   }
 

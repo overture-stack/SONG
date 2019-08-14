@@ -30,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS;
@@ -153,7 +154,7 @@ public class InfoServiceTest {
     val donorId = genDonorId();
     infoService.create(donorId, null);
     assertThat(infoService.isInfoExist(donorId)).isTrue();
-    assertThat(infoService.readNullableInfo(donorId)).isNull();
+    assertNull(infoService.readNullableInfo(donorId));
 
     val donorId2 = genDonorId();
     val info = getDummyInfo("someKey", "2idj94");
@@ -163,7 +164,7 @@ public class InfoServiceTest {
 
     val nonExistingDonorId = randomGenerator.generateRandomUUIDAsString();
     assertThat(infoService.isInfoExist(nonExistingDonorId)).isFalse();
-    assertThat(infoService.readNullableInfo(nonExistingDonorId)).isNull();
+    assertNull(infoService.readNullableInfo(nonExistingDonorId));
   }
 
   private String genDonorId(){

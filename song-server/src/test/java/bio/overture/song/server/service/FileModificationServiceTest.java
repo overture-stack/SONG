@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
@@ -339,10 +340,10 @@ public class FileModificationServiceTest {
 
     u1.setFileSize(null);
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),NO_UPDATE);
-    assertThat(u1.getFileAccess()).isNull();
-    assertThat(u1.getFileSize()).isNull();
-    assertThat(u1.getFileMd5sum()).isNull();
-    assertThat(u1.getInfo()).isNull();
+    assertNull(u1.getFileAccess());
+    assertNull(u1.getFileSize());
+    assertNull(u1.getFileMd5sum());
+    assertNull(u1.getInfo());
     assertThat(referenceFile == goldenFile).isFalse();
     Assertions.assertEquals(referenceFile,goldenFile);
 
