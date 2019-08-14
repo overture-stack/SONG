@@ -231,13 +231,13 @@ public class SampleServiceTest {
     val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
     assertThat(specimenService.isSpecimenExist(randomSpecimenId)).isFalse();
     val emptySampleList = sampleService.readByParentId(randomSpecimenId);
-    assertThat(emptySampleList).isEmpty();
+    assertTrue(emptySampleList.isEmpty());
 
     // Delete by parent id
     val response = sampleService.deleteByParentId(specimenId);
     assertEquals(response,"OK");
     val emptySampleList2 = sampleService.readByParentId(specimenId);
-    assertThat(emptySampleList2).isEmpty();
+    assertTrue(emptySampleList2.isEmpty());
   }
 
   @Test

@@ -234,7 +234,7 @@ public class DonorServiceTest {
     val response = service.deleteByParentId(randomStudyId);
     assertEquals(response,"OK");
     val emptyDonorWithSpecimens = service.readByParentId(randomStudyId);
-    assertThat(emptyDonorWithSpecimens).isEmpty();
+    assertTrue(emptyDonorWithSpecimens.isEmpty());
   }
 
   @Test

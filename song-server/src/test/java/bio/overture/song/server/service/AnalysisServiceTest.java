@@ -236,7 +236,7 @@ public class AnalysisServiceTest {
     val analysisId = analysis.getAnalysisId();
 
     variantCallRepository.deleteById(analysisId);
-    assertThat(variantCallRepository.findById(analysisId)).isEmpty();
+    assertTrue(variantCallRepository.findById(analysisId).isEmpty());
     assertSongError(() -> service.securedDeepRead(analysis.getStudy(), analysisId), VARIANT_CALL_NOT_FOUND);
     assertSongError(() -> service.unsecuredDeepRead(analysisId), VARIANT_CALL_NOT_FOUND);
   }
@@ -249,7 +249,7 @@ public class AnalysisServiceTest {
     val analysisId = analysis.getAnalysisId();
 
     sequencingReadRepository.deleteById(analysisId);
-    assertThat(sequencingReadRepository.findById(analysisId)).isEmpty();
+    assertTrue(sequencingReadRepository.findById(analysisId).isEmpty());
     assertSongError(() -> service.securedDeepRead(analysis.getStudy(), analysisId), SEQUENCING_READ_NOT_FOUND);
     assertSongError(() -> service.unsecuredDeepRead(analysisId), SEQUENCING_READ_NOT_FOUND);
   }
@@ -667,7 +667,7 @@ public class AnalysisServiceTest {
   @Transactional
   public void testGetAnalysisEmptyStudy(){
     val studyId = studyGenerator.createRandomStudy();
-    assertThat(service.getAnalysis(studyId, PUBLISHED_ONLY)).isEmpty();
+    assertTrue(service.getAnalysis(studyId, PUBLISHED_ONLY).isEmpty());
   }
 
   @Test
@@ -675,7 +675,7 @@ public class AnalysisServiceTest {
   public void testIdSearchEmptyStudy(){
     val studyId = studyGenerator.createRandomStudy();
     val idSearchRequest = createIdSearchRequest(null, null, null, null);
-    assertThat(service.idSearch(studyId, idSearchRequest)).isEmpty();
+    assertTrue(service.idSearch(studyId, idSearchRequest).isEmpty());
   }
 
   @Test
@@ -700,14 +700,14 @@ public class AnalysisServiceTest {
     val analysisId1 = analysis1.getAnalysisId();
 
     fileRepository.deleteAllByAnalysisId(analysisId1);
-    assertThat(fileRepository.findAllByAnalysisId(analysisId1)).isEmpty();
+    assertTrue(fileRepository.findAllByAnalysisId(analysisId1).isEmpty());
     assertSongError(() -> service.unsecuredReadFiles(analysisId1), ANALYSIS_MISSING_FILES);
     assertSongError(() -> service.securedReadFiles(analysis1.getStudy(), analysisId1), ANALYSIS_MISSING_FILES);
 
     val analysis2 = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId2 = analysis2.getAnalysisId();
     fileRepository.deleteAllByAnalysisId(analysisId2);
-    assertThat(fileRepository.findAllByAnalysisId(analysisId2)).isEmpty();
+    assertTrue(fileRepository.findAllByAnalysisId(analysisId2).isEmpty());
     assertSongError(() -> service.unsecuredReadFiles(analysisId2), ANALYSIS_MISSING_FILES);
     assertSongError(() -> service.securedReadFiles(analysis2.getStudy(), analysisId2), ANALYSIS_MISSING_FILES);
   }
@@ -901,7 +901,7 @@ public class AnalysisServiceTest {
     assertThat(service.isAnalysisExist(id)).isFalse();
 
     // Ensure the id was not committed to the id server
-    assertThat(idClient.getAnalysisId(id)).isEmpty();
+    assertTrue(idClient.getAnalysisId(id).isEmpty());
 
     // Plug the original analysisInfoService back into service so other tests can function properly. This is a reset.
     ReflectionTestUtils.setField(service, ANALYSIS_INFO_SERVICE, originalAnalysisInfoService);

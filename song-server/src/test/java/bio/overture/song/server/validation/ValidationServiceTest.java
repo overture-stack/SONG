@@ -59,21 +59,21 @@ public class ValidationServiceTest {
   public void testValidateValidSequencingRead() {
     val payload=getJsonFile("sequencingRead.json").toString();
     val results=service.validate(payload,SEQ_READ);
-    assertThat(results).isEmpty();
+    assertTrue(results.isEmpty());
   }
 
   @Test
   public void testValidateValidSequencingReadWithArchive() {
     val payload=getJsonFile("sequencingReadWithArchive.json").toString();
     val results=service.validate(payload,SEQ_READ);
-    assertThat(results).isEmpty();
+    assertTrue(results.isEmpty());
   }
 
   @Test
   public void testValidateValidVariantCall() {
     val payload=getJsonFile("variantCall.json").toString();
     val results=service.validate(payload,VAR_CALL);
-    assertThat(results).isEmpty();
+    assertTrue(results.isEmpty());
   }
 
   @Test
@@ -194,7 +194,7 @@ public class ValidationServiceTest {
 
     node.put(fieldName, randomGenerator.generateRandomAsciiString(randomGenerator.generateRandomIntRange(1,4)));
     val goodResults = service.validate(payload.toString(), schemaType);
-    assertThat(goodResults).isEmpty();
+    assertTrue(goodResults.isEmpty());
   }
 
   private final RandomGenerator randomGenerator = createRandomGenerator(ValidationServiceTest.class.getSimpleName());
@@ -220,7 +220,7 @@ public class ValidationServiceTest {
       assertThat(results).isNotEmpty();
       assertThat(results.get()).contains("analysisId: does not match the regex pattern");
     } else {
-      assertThat(results).as("Expecting validation not to have an error").isEmpty();
+      assertTrue(results).as("Expecting validation not to have an error".isEmpty());
     }
   }
 
@@ -240,7 +240,7 @@ public class ValidationServiceTest {
       assertThat(results).isNotEmpty();
       assertThat(results.get()).contains("fileMd5sum: does not match the regex pattern");
     } else {
-      assertThat(results).as("Expecting validation not to have an error: %s", results.orElse(null)).isEmpty();
+      assertTrue(results).as("Expecting validation not to have an error: %s", results.orElse(null).isEmpty());
     }
   }
 

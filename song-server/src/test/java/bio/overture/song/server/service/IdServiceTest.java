@@ -154,7 +154,7 @@ public class IdServiceTest {
 
     val id1 = idService.resolveAnalysisId("",false);
     assertNotNull(id1);
-    assertThat(idClient.getAnalysisId(id1)).isEmpty();
+    assertTrue(idClient.getAnalysisId(id1).isEmpty());
 
     val id1Committed = idService.resolveAndCommitAnalysisId("",false);
     assertNotNull(id1Committed);
@@ -163,7 +163,7 @@ public class IdServiceTest {
     val id2 = idService.resolveAnalysisId("",false);
     assertNotNull(id2);
     assertNotEquals(id1,id2);
-    assertThat(idClient.getAnalysisId(id2)).isEmpty();
+    assertTrue(idClient.getAnalysisId(id2).isEmpty());
 
     val id2Committed = idService.resolveAndCommitAnalysisId("",false);
     assertNotNull(id2Committed);
@@ -173,7 +173,7 @@ public class IdServiceTest {
     val id3 = idService.resolveAnalysisId(null,false);
     assertNotNull(id3);
     assertNotEquals(id1,id3);
-    assertThat(idClient.getAnalysisId(id3)).isEmpty();
+    assertTrue(idClient.getAnalysisId(id3).isEmpty());
 
     val id3Committed = idService.resolveAndCommitAnalysisId(null,false);
     assertNotNull(id1);
@@ -202,7 +202,7 @@ public class IdServiceTest {
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
     assertEquals(id1,SUBMITTER_ID_1);
-    assertThat(idClient.getAnalysisId(id1)).isEmpty();
+    assertTrue(idClient.getAnalysisId(id1).isEmpty());
 
     val id2 = idService.resolveAnalysisId(SUBMITTER_ID_1,true);
     assertEquals(id2,SUBMITTER_ID_1);
@@ -237,7 +237,7 @@ public class IdServiceTest {
      * Test that if ignoreAnalysisIdCollisions is true and the analysisId does not exist, the
      * analysisId is still created. SUBMITTER_ID_2 should not exist for first call
      */
-    assertThat(idClient.getAnalysisId(SUBMITTER_ID_2)).isEmpty();
+    assertTrue(idClient.getAnalysisId(SUBMITTER_ID_2).isEmpty());
     val id2 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2,true);
     assertEquals(id2,SUBMITTER_ID_2);
     assertSongError(
