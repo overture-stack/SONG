@@ -19,26 +19,32 @@ package bio.overture.song.server.constants;
 
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.server.model.enums.InfoSearchResponseColumns;
 import bio.overture.song.server.model.enums.InfoTypes;
 import bio.overture.song.server.model.enums.UploadStates;
 import lombok.val;
 import org.junit.Test;
 
-import static bio.overture.song.core.model.enums.FileTypes.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
 import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
 import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.FileTypes.BAI;
+import static bio.overture.song.core.model.enums.FileTypes.BAM;
+import static bio.overture.song.core.model.enums.FileTypes.FAI;
+import static bio.overture.song.core.model.enums.FileTypes.FASTA;
+import static bio.overture.song.core.model.enums.FileTypes.FASTQ;
+import static bio.overture.song.core.model.enums.FileTypes.IDX;
+import static bio.overture.song.core.model.enums.FileTypes.TBI;
+import static bio.overture.song.core.model.enums.FileTypes.TGZ;
+import static bio.overture.song.core.model.enums.FileTypes.VCF;
+import static bio.overture.song.core.model.enums.FileTypes.XML;
+import static bio.overture.song.core.model.enums.FileTypes.resolveFileType;
+import static bio.overture.song.core.model.enums.FileTypes.values;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.INFO;
 import static bio.overture.song.server.model.enums.InfoTypes.ANALYSIS;
@@ -65,21 +71,21 @@ public class ConstantsTest {
     assertEquals(PUBLISHED.toString(),"PUBLISHED");
     assertEquals(UNPUBLISHED.toString(),"UNPUBLISHED");
     assertEquals(SUPPRESSED.toString(),"SUPPRESSED");
-    assertThat(AnalysisStates.values(), hasSize(3));
+    assertEquals(AnalysisStates.values().length, 3);
   }
 
   @Test
   public void testInfoSearchResponseColumns(){
     assertEquals(ANALYSIS_ID.toString(),"analysis_id");
     assertEquals(INFO.toString(),"info");
-    assertThat(InfoSearchResponseColumns.values(), hasSize(2));
+    assertEquals(InfoSearchResponseColumns.values().length, 2);
   }
 
   @Test
   public void testAccessTypes(){
     assertEquals(CONTROLLED.toString(),"controlled");
     assertEquals(OPEN.toString(),"open");
-    assertThat(AccessTypes.values(), hasSize(2));
+    assertEquals(AccessTypes.values().length, 2);
     assertEquals(resolveAccessType("open"),OPEN);
     assertEquals(resolveAccessType("controlled"),CONTROLLED);
     val thrown = catchThrowable(() -> resolveAccessType("somethingNotAccessType"));
@@ -100,7 +106,7 @@ public class ConstantsTest {
     assertEquals(TGZ.toString(),"TGZ");
 
     assertEquals(FASTA.getExtension(),"fasta");
-    assertThat(FAI.getExtension())  .isEqualTo("fai");
+    assertEquals(FAI.getExtension(),"fai");
     assertEquals(FASTQ.getExtension(),"fastq");
     assertEquals(BAM.getExtension(),"bam");
     assertEquals(BAI.getExtension(),"bai");
@@ -110,7 +116,7 @@ public class ConstantsTest {
     assertEquals(XML.getExtension(),"xml");
     assertEquals(TGZ.getExtension(),"tgz");
 
-    assertThat(FileTypes.values(), hasSize(10));
+    assertEquals(values().length, 10);
 
     assertEquals(resolveFileType("FASTA"),FASTA);
     assertEquals(resolveFileType("FAI"),FAI);
@@ -137,7 +143,7 @@ public class ConstantsTest {
     assertEquals(ANALYSIS.toString(),"Analysis");
     assertEquals(SEQUENCING_READ.toString(),"SequencingRead");
     assertEquals(VARIANT_CALL.toString(),"VariantCall");
-    assertThat(InfoTypes.values(), hasSize(8));
+    assertEquals(InfoTypes.values().length,8);
 
     assertEquals(resolveInfoType("Study"),STUDY);
     assertEquals(resolveInfoType("Donor"),DONOR);
@@ -160,7 +166,7 @@ public class ConstantsTest {
     assertEquals(UPLOADED.toString(),"UPLOADED");
     assertEquals(UPDATED.toString(),"UPDATED");
     assertEquals(SAVED.toString(),"SAVED");
-    assertThat(UploadStates.values(), hasSize(6));
+    assertEquals(UploadStates.values().length, 6);
 
     assertEquals(resolveState("CREATED"),CREATED);
     assertEquals(resolveState("VALIDATED"),VALIDATED);

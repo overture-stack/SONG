@@ -25,7 +25,6 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.FileRepository;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,17 +33,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
 import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertEquals;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE_REQUEST;
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
@@ -191,7 +189,7 @@ public class FileModificationServiceTest {
     assertEquals(noChangeResponse.getFileUpdateType(),NO_UPDATE);
     assertEquals(noChangeResponse.getOriginalAnalysisState(),UNPUBLISHED);
     assertEquals(noChangeResponse.getOriginalFile(),originalFile);
-    assertThat(noChangeResponse.getMessage(), contains("Did not change analysisState since it is"));
+    assertTrue(noChangeResponse.getMessage().contains("Did not change analysisState since it is"));
 
     // Metadata Update
     val metadataUpdateRequest = FileUpdateRequest.builder()
@@ -208,7 +206,7 @@ public class FileModificationServiceTest {
     assertEquals(metadataUpdateResponse.getFileUpdateType(),METADATA_UPDATE);
     assertEquals(metadataUpdateResponse.getOriginalAnalysisState(),UNPUBLISHED);
     assertEquals(metadataUpdateResponse.getOriginalFile(),originalFile2);
-    assertThat(metadataUpdateResponse.getMessage(), contains("Did not change analysisState since it is"));
+    assertTrue(metadataUpdateResponse.getMessage().contains("Did not change analysisState since it is"));
 
     // Content Update
     val contentUpdateRequest = FileUpdateRequest.builder()
@@ -221,7 +219,7 @@ public class FileModificationServiceTest {
     assertEquals(contentUpdateResponse.getFileUpdateType(),CONTENT_UPDATE);
     assertEquals(contentUpdateResponse.getOriginalAnalysisState(),UNPUBLISHED);
     assertEquals(contentUpdateResponse.getOriginalFile(),originalFile3);
-    assertThat(contentUpdateResponse.getMessage(), contains("Did not change analysisState since it is"));
+    assertTrue(contentUpdateResponse.getMessage().contains("Did not change analysisState since it is"));
   }
 
   @Test

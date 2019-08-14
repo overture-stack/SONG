@@ -41,7 +41,6 @@ import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,8 +49,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import javax.transaction.Transactional;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -64,11 +63,11 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -413,8 +412,8 @@ public class ExportServiceTest {
 
     // All of the actuals will have objectIds, sampleIds, specimenIds, donorIds, and analysisIds, however
     assertExperiment(actualAnalysis, expectedAnalysis);
-    assertThat(actualAnalysis.getFile()).containsAll(expectedAnalysis.getFile());
-    assertThat(actualAnalysis.getSample()).containsAll(expectedAnalysis.getSample());
+    assertTrue(actualAnalysis.getFile().containsAll(expectedAnalysis.getFile()));
+    assertTrue(actualAnalysis.getSample().containsAll(expectedAnalysis.getSample()));
     assertEquals(actualAnalysis.getStudy(),expectedAnalysis.getStudy());
 
     val actualFileObjectIds = collectObjectIds(actualAnalysis.getFile());

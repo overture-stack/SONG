@@ -36,15 +36,13 @@ import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.assertj.core.util.Lists.newArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.util.Splitters.PIPE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
@@ -65,21 +63,21 @@ public class ValidationServiceTest {
   public void testValidateValidSequencingRead() {
     val payload=getJsonFile("sequencingRead.json").toString();
     val results=service.validate(payload,SEQ_READ);
-    assertTrue(results.isEmpty());
+    assertFalse(results.isPresent());
   }
 
   @Test
   public void testValidateValidSequencingReadWithArchive() {
     val payload=getJsonFile("sequencingReadWithArchive.json").toString();
     val results=service.validate(payload,SEQ_READ);
-    assertTrue(results.isEmpty());
+    assertFalse(results.isPresent());
   }
 
   @Test
   public void testValidateValidVariantCall() {
     val payload=getJsonFile("variantCall.json").toString();
     val results=service.validate(payload,VAR_CALL);
-    assertTrue(results.isEmpty());
+    assertFalse(results.isPresent());
   }
 
   @Test
@@ -87,7 +85,7 @@ public class ValidationServiceTest {
     val payload=getJsonFile("variantCall.json");
     ((ObjectNode)payload).put("analysisType", (String)null);
     val results=service.validate(payload.toString(),VAR_CALL);
-    assertFalse(results.isEmpty());
+    assertTrue(results.isPresent());
     assertThat(results).hasValue("$.analysisType: does not have a value in the enumeration [variantCall]|$"
         + ".analysisType: null found, string expected");
   }
@@ -97,7 +95,7 @@ public class ValidationServiceTest {
     val payload=getJsonFile("sequencingRead.json");
     ((ObjectNode)payload).put("analysisType", (String)null);
     val results=service.validate(payload.toString(),SEQ_READ);
-    assertFalse(results.isEmpty());
+    assertTrue(results.isPresent());
     assertThat(results).hasValue("$.analysisType: does not have a value in the enumeration [sequencingRead]|$"
         + ".analysisType: null found, string expected");
   }
@@ -106,7 +104,7 @@ public class ValidationServiceTest {
   public void testUnknownAnalysisTypeValidation() {
     val payload=getJsonFile("sequencingRead.json");
     val results=service.validate(payload.toString(), "SOME_UNKNOWN_ANALYSIS_TYPE");
-    assertFalse(results.isEmpty());
+    assertTrue(results.isPresent());
     assertThat(results).hasValue("Unknown processing problem: Internal Error: could not find specified schema uploadSOME_UNKNOWN_ANALYSIS_TYPE");
   }
 
@@ -118,7 +116,7 @@ public class ValidationServiceTest {
         .replaceFirst("\\{", "")
         .replaceFirst("\"", "");
     val results=service.validate(payload, SEQ_READ);
-    assertFalse(results.isEmpty());
+    assertTrue(results.isPresent());
     assertTrue(results.get().contains("Invalid JSON document submitted:"));
   }
 
@@ -140,12 +138,12 @@ public class ValidationServiceTest {
 
       val results = service.validate(payload.toString(), schemaType);
 
-      assertFalse(results.isEmpty());
+      assertTrue(results.isPresent());
 
       val errors = PIPE.splitToList(results.get());
       assertThat(errors, hasSize(2));
       for (val error : errors){
-        assertThat(error, contains("fileMd5sum: does not match the regex pattern"));
+        assertTrue(error.contains("fileMd5sum: does not match the regex pattern"));
       }
     }
 
@@ -185,22 +183,22 @@ public class ValidationServiceTest {
     val node = nodeGetter.get();
     node.put(fieldName, "");
     val emptyResults = service.validate(payload.toString(), schemaType);
-    assertFalse(emptyResults.isEmpty());
+    assertTrue(emptyResults.isPresent());
     assertThat(emptyResults.get()).endsWith(format("%s: must be at least 1 characters long", fieldName));
 
     node.put(fieldName, (String)null);
     val nullResults = service.validate(payload.toString(), schemaType);
-    assertFalse(nullResults.isEmpty());
+    assertTrue(nullResults.isPresent());
     assertThat(nullResults.get()).endsWith(format("%s: null found, string expected", fieldName));
 
     node.remove(fieldName);
     val missingResults = service.validate(payload.toString(), schemaType);
-    assertFalse(missingResults.isEmpty());
+    assertTrue(missingResults.isPresent());
     assertThat(missingResults.get()).endsWith(format("%s: is missing but it is required", fieldName));
 
     node.put(fieldName, randomGenerator.generateRandomAsciiString(randomGenerator.generateRandomIntRange(1,4)));
     val goodResults = service.validate(payload.toString(), schemaType);
-    assertTrue(goodResults.isEmpty());
+    assertFalse(goodResults.isPresent());
   }
 
   private final RandomGenerator randomGenerator = createRandomGenerator(ValidationServiceTest.class.getSimpleName());
@@ -223,10 +221,10 @@ public class ValidationServiceTest {
     val results = service.validate(payload.toString(), schemaType);
 
     if (shouldBeError){
-      assertFalse(results.isEmpty());
-      assertThat(results.get(), contains("analysisId: does not match the regex pattern"));
+      assertTrue(results.isPresent());
+      assertTrue(results.get().contains("analysisId: does not match the regex pattern"));
     } else {
-      assertTrue(results).as("Expecting validation not to have an error".isEmpty());
+      assertFalse("Expecting validation not to have an error", results.isPresent());
     }
   }
 
@@ -243,10 +241,10 @@ public class ValidationServiceTest {
     val results = service.validate(payload.toString(), schemaType);
 
     if (shouldBeError){
-      assertFalse(results.isEmpty());
-      assertThat(results.get(), contains("fileMd5sum: does not match the regex pattern"));
+      assertTrue(results.isPresent());
+      assertTrue(results.get().contains("fileMd5sum: does not match the regex pattern"));
     } else {
-      assertTrue(results).as("Expecting validation not to have an error: %s", results.orElse(null).isEmpty());
+      assertFalse(format("Expecting validation not to have an error: %s", results.orElse(null)), results.isPresent());
     }
   }
 

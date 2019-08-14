@@ -28,7 +28,12 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.enums.AnalysisTypes;
-import bio.overture.song.server.repository.*;
+import bio.overture.song.server.repository.AnalysisRepository;
+import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.repository.SampleRepository;
+import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.repository.SequencingReadRepository;
+import bio.overture.song.server.repository.VariantCallRepository;
 import bio.overture.song.server.utils.generator.AnalysisGenerator;
 import bio.overture.song.server.utils.generator.PayloadGenerator;
 import bio.overture.song.server.utils.generator.StudyGenerator;
@@ -48,7 +53,6 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-import static org.junit.Assert.assertEquals;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -56,8 +60,38 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static bio.overture.song.core.exceptions.ServerErrors.*;
-import static bio.overture.song.core.model.enums.AnalysisStates.*;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.IntStream.range;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
+import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SEQUENCING_READ_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
+import static bio.overture.song.core.exceptions.ServerErrors.VARIANT_CALL_NOT_FOUND;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
@@ -65,20 +99,13 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static bio.overture.song.server.utils.TestFiles.*;
+import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
+import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
+import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.*;
-import static java.util.stream.IntStream.range;
-import static org.assertj.core.api.Assertions.*;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 
 @Slf4j
 @SpringBootTest
@@ -165,8 +192,9 @@ public class AnalysisServiceTest {
     assertEquals(created.getSample().size(),1);
     val sample = created.getSample().get(0);
     val experiment = ((SequencingReadAnalysis) created).getExperiment();
+
     assertNotNull(experiment);
-    assertThat(experiment.getAlignmentTool().equals("BigWrench"));
+    assertEquals(experiment.getAlignmentTool(),"BigWrench");
     val expectedMetadata = new Metadata();
     expectedMetadata.setInfo("marginOfError", "0.01%");
     assertEquals(experiment.getInfo(),expectedMetadata.getInfo());
@@ -208,7 +236,7 @@ public class AnalysisServiceTest {
     val experiment = ((VariantCallAnalysis) created).getExperiment();
     assertNotNull(experiment);
     assertEquals(experiment.getVariantCallingTool(),"silver bullet");
-    assertThat(experiment.getInfoAsString()).isEqualTo(
+    assertEquals(experiment.getInfoAsString(),
             JsonUtils.fromSingleQuoted("{\"extraInfo\":\"this is extra info\"}"));
     // test update
     val change="GoldenHammer";
@@ -237,7 +265,7 @@ public class AnalysisServiceTest {
     val analysisId = analysis.getAnalysisId();
 
     variantCallRepository.deleteById(analysisId);
-    assertTrue(variantCallRepository.findById(analysisId).isEmpty());
+    assertFalse(variantCallRepository.findById(analysisId).isPresent());
     assertSongError(() -> service.securedDeepRead(analysis.getStudy(), analysisId), VARIANT_CALL_NOT_FOUND);
     assertSongError(() -> service.unsecuredDeepRead(analysisId), VARIANT_CALL_NOT_FOUND);
   }
@@ -250,7 +278,7 @@ public class AnalysisServiceTest {
     val analysisId = analysis.getAnalysisId();
 
     sequencingReadRepository.deleteById(analysisId);
-    assertTrue(sequencingReadRepository.findById(analysisId).isEmpty());
+    assertFalse(sequencingReadRepository.findById(analysisId).isPresent());
     assertSongError(() -> service.securedDeepRead(analysis.getStudy(), analysisId), SEQUENCING_READ_NOT_FOUND);
     assertSongError(() -> service.unsecuredDeepRead(analysisId), SEQUENCING_READ_NOT_FOUND);
   }
@@ -279,7 +307,7 @@ public class AnalysisServiceTest {
     assertInfoKVPair(experiment, "extraExperimentInfo","some more data for a variantCall experiment ex01");
 
     //Asserting Sample
-    assertThat(a.getSample(), hasSize(2));
+    org.hamcrest.MatcherAssert.assertThat(a.getSample(), hasSize(2));
     val sample0 = a.getSample().stream()
             .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fs01"))
             .findAny()
@@ -341,7 +369,7 @@ public class AnalysisServiceTest {
     for (val file : a.getFile()){
       if (file.getFileName().equals(fileName0)){
         assertEquals(file.getFileName(),fileName0);
-        assertEquals(file.getFileSize(),376953);
+        assertEquals(file.getFileSize().longValue(),376953L);
         assertEquals(file.getFileMd5sum(),"652b2e2b7133229a89650de27ad7fc41");
         assertEquals(file.getFileAccess(),"controlled");
         assertEquals(file.getFileType(),"VCF");
@@ -349,7 +377,7 @@ public class AnalysisServiceTest {
         assertInfoKVPair(file, "extraFileInfo_1", "second data for variantCall file_fn1");
       } else if (file.getFileName().equals(fileName1)){
         assertEquals(file.getFileName(),fileName1);
-        assertEquals(file.getFileSize(),983820);
+        assertEquals(file.getFileSize().longValue(),983820L);
         assertEquals(file.getFileMd5sum(),"b8b743a499e461922accad58fdbf25d2");
         assertEquals(file.getFileAccess(),"open");
         assertEquals(file.getFileType(),"VCF");
@@ -357,7 +385,7 @@ public class AnalysisServiceTest {
 
       } else if (file.getFileName().equals(fileName2)){
         assertEquals(file.getFileName(),fileName2);
-        assertEquals(file.getFileSize(),4840);
+        assertEquals(file.getFileSize().longValue(),4840L);
         assertEquals(file.getFileMd5sum(),"2b80298c2f312df7db482105053f889b");
         assertEquals(file.getFileAccess(),"open");
         assertEquals(file.getFileType(),"IDX");
@@ -389,7 +417,7 @@ public class AnalysisServiceTest {
     assertEquals(experiment.getAnalysisId(),analysisId);
     assertEquals(experiment.getLibraryStrategy(),"WXS");
     assertFalse(experiment.getPairedEnd());
-    assertEquals(experiment.getInsertSize(),92736);
+    assertEquals(experiment.getInsertSize().longValue(),92736);
     assertTrue(experiment.getAligned());
     assertEquals(experiment.getAlignmentTool(),"myCool Sequence ReadingTool");
     assertEquals(experiment.getReferenceGenome(),"someSeq Genome");
@@ -461,7 +489,7 @@ public class AnalysisServiceTest {
       fileMap.put(file.getFileName(), file);
       if (file.getFileName().equals(fileName0)){
         assertEquals(file.getFileName(),fileName0);
-        assertEquals(file.getFileSize(),1212121);
+        assertEquals(file.getFileSize().longValue(),1212121L);
         assertEquals(file.getFileMd5sum(),"e2324667df8085eddfe95742047e153f");
         assertEquals(file.getFileAccess(),"controlled");
         assertEquals(file.getFileType(),"BAM");
@@ -469,7 +497,7 @@ public class AnalysisServiceTest {
         assertInfoKVPair(file, "extraFileInfo_1", "second data for sequencingRead file_fn1");
       } else if (file.getFileName().equals(fileName1)){
         assertEquals(file.getFileName(),fileName1);
-        assertEquals(file.getFileSize(),34343);
+        assertEquals(file.getFileSize().longValue(),34343L);
         assertEquals(file.getFileMd5sum(),"8b5379a29aac642d6fe1808826bd9e49");
         assertEquals(file.getFileAccess(),"open");
         assertEquals(file.getFileType(),"BAM");
@@ -477,7 +505,7 @@ public class AnalysisServiceTest {
 
       } else if (file.getFileName().equals(fileName2)){
         assertEquals(file.getFileName(),fileName2);
-        assertEquals(file.getFileSize(),4840);
+        assertEquals(file.getFileSize().longValue(),4840L);
         assertEquals(file.getFileMd5sum(),"61da923f32863a9c5fa3d2a0e19bdee3");
         assertEquals(file.getFileAccess(),"open");
         assertEquals(file.getFileType(),"BAI");
@@ -489,13 +517,13 @@ public class AnalysisServiceTest {
 
     // Test the readFiles method
     for (val file : service.unsecuredReadFiles(analysisId)){
-      assertThat(fileMap).containsKeys(file.getFileName());
+      assertTrue(fileMap.containsKey(file.getFileName()));
       assertEquals(file,fileMap.get(file.getFileName()));
     }
 
     // Test readSample method
     for (val compositeEntity: service.readSamples(analysisId)){
-      assertThat(sampleMap).containsKeys(compositeEntity.getSampleId());
+      assertTrue(sampleMap.containsKey(compositeEntity.getSampleId()));
       assertEquals(compositeEntity,sampleMap.get(compositeEntity.getSampleId()));
     }
 
@@ -525,10 +553,11 @@ public class AnalysisServiceTest {
     expectedFiles.add(fileService.securedRead(DEFAULT_STUDY_ID, "FI1"));
     expectedFiles.add(fileService.securedRead(DEFAULT_STUDY_ID, "FI2"));
 
-    assertThat(files).containsAll(expectedFiles);
-    assertThat(expectedFiles).containsAll(files);
+    assertTrue(files.containsAll(expectedFiles));
+    assertTrue(expectedFiles.contains(files));
     val files2 = service.securedReadFiles(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
-    assertThat(files2).containsOnlyElementsOf(files);
+    assertTrue(files2.containsAll(files));
+    assertTrue(files.containsAll(files2));
   }
 
   @Test
@@ -626,15 +655,16 @@ public class AnalysisServiceTest {
 
     assertThat(actualSRAs, hasSize(sraMap.keySet().size()));
     assertThat(actualVCAs, hasSize(vcaMap.keySet().size()));
-    assertThat(actualSRAs).containsAll(expectedSRAs);
-    assertThat(actualVCAs).containsAll(expectedVCAs);
+    assertTrue(actualSRAs.containsAll(expectedSRAs));
+    assertTrue(actualVCAs.containsAll(expectedVCAs));
 
     // Do a study-wide idSearch and verify the response effectively has the same
     // number of results as the getAnalysis method
     val searchedAnalyses = service.idSearch(studyId,
         createIdSearchRequest(null, null, null, null));
     assertEquals(searchedAnalyses.size(), expectedAnalyses.size());
-    assertThat(searchedAnalyses).containsOnlyElementsOf(expectedAnalyses);
+    assertTrue(searchedAnalyses.containsAll(expectedAnalyses));
+    assertTrue(expectedAnalyses.containsAll(searchedAnalyses));
   }
 
   @Test
@@ -661,7 +691,10 @@ public class AnalysisServiceTest {
     assertTrue(expectedMap.containsKey(PUBLISHED.toString()));
     assertTrue(actualMap.containsKey(PUBLISHED.toString()));
     assertEquals(actualMap.get(PUBLISHED.toString()).size(), expectedMap.get(PUBLISHED.toString()).size());
-    assertThat(actualMap.get(PUBLISHED.toString())).hasSameElementsAs(expectedMap.get(PUBLISHED.toString()));
+    val actualResult = actualMap.get(PUBLISHED.toString());
+    val expectedResult = expectedMap.get(PUBLISHED.toString());
+    assertTrue(actualResult.containsAll(expectedResult));
+    assertTrue(expectedResult.containsAll(actualResult));
   }
 
   @Test
@@ -902,7 +935,7 @@ public class AnalysisServiceTest {
     assertFalse(service.isAnalysisExist(id));
 
     // Ensure the id was not committed to the id server
-    assertTrue(idClient.getAnalysisId(id).isEmpty());
+    assertFalse(idClient.getAnalysisId(id).isPresent());
 
     // Plug the original analysisInfoService back into service so other tests can function properly. This is a reset.
     ReflectionTestUtils.setField(service, ANALYSIS_INFO_SERVICE, originalAnalysisInfoService);

@@ -27,8 +27,8 @@ import java.util.function.Supplier;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.Assert.assertEquals;
 
 public class SongErrorAssertions {
   private static final Object EMPTY_OBJECT = new Object();

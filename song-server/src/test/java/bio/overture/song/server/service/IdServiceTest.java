@@ -28,13 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -42,12 +35,20 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.OK;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
 
 @Slf4j
 public class IdServiceTest {
@@ -155,31 +156,31 @@ public class IdServiceTest {
 
     val id1 = idService.resolveAnalysisId("",false);
     assertNotNull(id1);
-    assertTrue(idClient.getAnalysisId(id1).isEmpty());
+    assertFalse(idClient.getAnalysisId(id1).isPresent());
 
     val id1Committed = idService.resolveAndCommitAnalysisId("",false);
     assertNotNull(id1Committed);
-    assertFalse(idClient.getAnalysisId(id1Committed).isEmpty());
+    assertTrue(idClient.getAnalysisId(id1Committed).isPresent());
 
     val id2 = idService.resolveAnalysisId("",false);
     assertNotNull(id2);
     assertNotEquals(id1,id2);
-    assertTrue(idClient.getAnalysisId(id2).isEmpty());
+    assertFalse(idClient.getAnalysisId(id2).isPresent());
 
     val id2Committed = idService.resolveAndCommitAnalysisId("",false);
     assertNotNull(id2Committed);
     assertNotEquals(id1,id2Committed);
-    assertFalse(idClient.getAnalysisId(id2Committed).isEmpty());
+    assertTrue(idClient.getAnalysisId(id2Committed).isPresent());
 
     val id3 = idService.resolveAnalysisId(null,false);
     assertNotNull(id3);
     assertNotEquals(id1,id3);
-    assertTrue(idClient.getAnalysisId(id3).isEmpty());
+    assertFalse(idClient.getAnalysisId(id3).isPresent());
 
     val id3Committed = idService.resolveAndCommitAnalysisId(null,false);
     assertNotNull(id1);
     assertNotEquals(id1,id3Committed);
-    assertFalse(idClient.getAnalysisId(id3Committed).isEmpty());
+    assertTrue(idClient.getAnalysisId(id3Committed).isPresent());
   }
 
   @Test
@@ -203,7 +204,7 @@ public class IdServiceTest {
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
     assertEquals(id1,SUBMITTER_ID_1);
-    assertTrue(idClient.getAnalysisId(id1).isEmpty());
+    assertFalse(idClient.getAnalysisId(id1).isPresent());
 
     val id2 = idService.resolveAnalysisId(SUBMITTER_ID_1,true);
     assertEquals(id2,SUBMITTER_ID_1);
@@ -238,7 +239,7 @@ public class IdServiceTest {
      * Test that if ignoreAnalysisIdCollisions is true and the analysisId does not exist, the
      * analysisId is still created. SUBMITTER_ID_2 should not exist for first call
      */
-    assertTrue(idClient.getAnalysisId(SUBMITTER_ID_2).isEmpty());
+    assertFalse(idClient.getAnalysisId(SUBMITTER_ID_2).isPresent());
     val id2 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2,true);
     assertEquals(id2,SUBMITTER_ID_2);
     assertSongError(

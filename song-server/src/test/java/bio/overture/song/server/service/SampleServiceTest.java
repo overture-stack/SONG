@@ -25,7 +25,6 @@ import bio.overture.song.server.model.enums.Constants;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,21 +32,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
 import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_ID_IS_CORRUPTED;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_SAMPLE_ID;
@@ -229,7 +228,7 @@ public class SampleServiceTest {
     // Read the samples by parent Id (specimenId)
     val actualSamples = sampleService.readByParentId(specimenId);
     assertThat(actualSamples, hasSize(numSamples));
-    assertThat(actualSamples.stream().map(Sample::getSampleId).collect(toSet())).containsAll(expectedSampleIds);
+    assertTrue(actualSamples.stream().map(Sample::getSampleId).collect(toSet()).containsAll(expectedSampleIds));
 
     // Assert that reading by a non-existent specimenId returns something empty
     val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();

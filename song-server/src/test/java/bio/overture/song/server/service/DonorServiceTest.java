@@ -26,7 +26,6 @@ import bio.overture.song.server.utils.securestudy.impl.SecureDonorTester;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,25 +33,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
 import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.Constants.DONOR_GENDER;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
@@ -293,7 +291,7 @@ public class DonorServiceTest {
     }
     val donors = service.readByParentId(studyId);
     assertThat(donors, hasSize(numDonors));
-    assertThat(donors.stream().map(Donor::getDonorId).collect(toSet())).containsAll(donorIdSet);
+    assertTrue(donors.stream().map(Donor::getDonorId).collect(toSet()).containsAll(donorIdSet));
   }
 
   @Test

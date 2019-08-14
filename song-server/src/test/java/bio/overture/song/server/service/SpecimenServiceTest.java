@@ -26,7 +26,6 @@ import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,27 +35,24 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import javax.transaction.Transactional;
 
+import javax.transaction.Transactional;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.Constants.DONOR_GENDER;
 import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
@@ -153,7 +149,7 @@ public class SpecimenServiceTest {
             .collect(toSet());
         val expectedSet = newHashSet(sampleId1, sampleId2);
         assertEquals(actualSet.size(), expectedSet.size());
-        assertThat(actualSet).containsAll(expectedSet);
+        assertTrue(actualSet.containsAll(expectedSet));
         specimen.getSamples().forEach(sample -> assertEquals(sample,getSample(sample.getSampleId())));
     }
 

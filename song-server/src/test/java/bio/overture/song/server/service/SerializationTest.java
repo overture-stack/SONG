@@ -26,7 +26,6 @@ import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.model.experiment.SequencingRead;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -37,9 +36,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SerializationTest {
 
@@ -251,7 +249,7 @@ public class SerializationTest {
     val r = ((SequencingReadAnalysis) analysis).getExperiment();
 
     assertEquals(r.getLibraryStrategy(),"WXS");
-    assertEquals(r.getInsertSize(),900);
+    assertEquals(r.getInsertSize().longValue(),900L);
     assertEquals(r.getAlignmentTool(),"MUSE variant call pipeline");
   }
 

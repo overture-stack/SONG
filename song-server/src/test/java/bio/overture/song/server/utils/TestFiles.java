@@ -32,6 +32,7 @@ import java.nio.file.Paths;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -88,7 +89,10 @@ public class TestFiles {
   }
 
   public static void assertInfoKVPair(@NonNull Metadata metadata, @NonNull String key, @NonNull Object expectedValue){
-      assertTrue(metadata.getInfo().has(key)).as("The input metadata does not have the key '%s'", key);
+      assertTrue(
+          format("The input metadata does not have the key '%s'", key),
+          metadata.getInfo().has(key)
+      );
       val actualValue  = metadata.getInfo().path(key).textValue();
       assertThat(actualValue)
           .as("Failed since field '%s' has actual=%s and expected=%s", key, actualValue, expectedValue)
