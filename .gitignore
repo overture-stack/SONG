@@ -12,6 +12,13 @@ org.eclipse.jdt.apt.core.prefs
 *.iml
 atlassian-ide-plugin.xml
 
+#Spring
+application.*.properties
+application.*.yml
+application-*.properties
+application-*.yml
+
+
 # VSCode
 .vscode
 

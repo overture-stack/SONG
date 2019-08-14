@@ -19,12 +19,13 @@ package bio.overture.song.core.utils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
-
-import java.io.InputStream;
+import org.everit.json.schema.Schema;
 
 import static java.lang.String.format;
+import static bio.overture.song.core.utils.JsonUtils.convertToJSONObject;
 
 public class JsonSchemaUtils extends JsonDocUtils {
 
@@ -57,10 +58,8 @@ public class JsonSchemaUtils extends JsonDocUtils {
   }
 
   @SneakyThrows
-  public static JsonSchema getJsonSchemaFromClasspath(String fileName) {
-    JsonSchemaFactory factory = new JsonSchemaFactory();
-    InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
-    JsonSchema schema = factory.getSchema(is);
-    return schema;
+  public static void validateWithSchema(@NonNull Schema schema, @NonNull JsonNode j){
+    val jsonObject = convertToJSONObject(j);
+    schema.validate(jsonObject);
   }
 }

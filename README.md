@@ -1,6 +1,8 @@
 <h1 align="center">Song</h1>
 
+
 <p align="center">Quickly and reliably track genome metadata scattered across multiple Cloud storage systems.</p>
+
 
 <p align="center"><a href="http://www.overture.bio/products/song" target="_blank"><img alt="General Availability" title="General Availability" src="http://www.overture.bio/img/progress-horizontal-GA.svg" width="320" /></a></p>
 

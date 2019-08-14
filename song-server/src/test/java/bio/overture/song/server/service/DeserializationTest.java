@@ -73,7 +73,6 @@ public class DeserializationTest {
     Assertions.assertThat(sa2.getLibraryStrategy()).isEqualTo("WXS");
     Assertions.assertThat(sa2.getPairedEnd()).isTrue();
     Assertions.assertThat(sa2.getReferenceGenome()).isNull();
-
   }
 
 }

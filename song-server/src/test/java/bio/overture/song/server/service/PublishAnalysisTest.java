@@ -36,14 +36,13 @@ import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-import javax.transaction.Transactional;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -360,7 +359,7 @@ public class PublishAnalysisTest {
   @Builder
   public static class StorageObjectGenerator {
 
-    private static final FileConverter FILE_CONVERTER = Mappers.getMapper(FileConverter.class);
+    private static final FileConverter FILE_CONVERTER = FileConverter.INSTANCE;
 
     @NonNull private final List<FileEntity> files;
     @NonNull private final RangeType existingRange;

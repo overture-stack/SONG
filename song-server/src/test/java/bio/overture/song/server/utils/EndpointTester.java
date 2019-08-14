@@ -18,19 +18,43 @@
 package bio.overture.song.server.utils;
 
 import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
+import bio.overture.song.server.utils.web.ResponseOption;
+import bio.overture.song.server.utils.web.WebResource;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.val;
+import org.icgc.dcc.common.core.util.Joiners;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collection;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
 import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
 
 @RequiredArgsConstructor
 public class EndpointTester {
 
+  private static final String SCHEMAS   = "schemas";
+  private static final String NAMES     = "names";
+  private static final String VERSIONS  = "versions";
+  private static final String META = "meta";
+  private static final String HIDE_SCHEMA= "hideSchema";
+
+  public static final Joiner AMPERSAND = Joiner.on("&");
+
   @NonNull private final MockMvc mockMvc;
+  private final boolean enableLogging;
 
   @SneakyThrows
   public void testPostError(@NonNull String endpointPath, @NonNull String payload,
@@ -43,8 +67,53 @@ public class EndpointTester {
       .andExpect(songErrorContent(expectedServerError));
   }
 
-  public static EndpointTester createEndpointTester(MockMvc mockMvc) {
-    return new EndpointTester(mockMvc);
+  public WebResource initWebRequest() {
+    val headers = new HttpHeaders();
+    headers.setContentType(APPLICATION_JSON);
+    headers.setAccept(ImmutableList.of(APPLICATION_JSON));
+    return new WebResource(mockMvc, "").logging().headers(headers);
+  }
+
+  // GET /schemas
+  public ResponseOption getSchemaGetRequestAnd(
+      Collection<String> names, Collection<Integer> versions,Boolean hideSchema,
+      Integer offset, Integer limit, Sort.Direction sortOrder, String ... sortVariables){
+    return initWebRequest()
+        .endpoint(SCHEMAS)
+        .optionalQueryParamCollection(NAMES, names)
+        .optionalQueryParamCollection(VERSIONS, versions)
+        .optionalQuerySingleParam(OFFSET, offset)
+        .optionalQuerySingleParam(HIDE_SCHEMA, hideSchema)
+        .optionalQuerySingleParam(LIMIT, limit)
+        .optionalQuerySingleParam(SORTORDER, sortOrder)
+        .optionalQueryParamArray(SORT, sortVariables)
+        .getAnd();
+  }
+
+  // POST /schemas
+  public ResponseOption registerAnalysisTypePostRequestAnd(@NonNull RegisterAnalysisTypeRequest request){
+    return initWebRequest()
+        .endpoint(SCHEMAS)
+        .body(request)
+        .postAnd();
+  }
+
+  // GET /schemas/<name>:<version>
+  public ResponseOption getAnalysisTypeVersionGetRequestAnd(@NonNull String analysisTypeIdString){
+    return initWebRequest()
+        .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString))
+        .getAnd();
+  }
+
+  // GET /schemas/meta
+  public ResponseOption getMetaSchemaGetRequestAnd(){
+    return initWebRequest()
+        .endpoint(Joiners.PATH.join(SCHEMAS, META))
+        .getAnd();
+  }
+
+  public static EndpointTester createEndpointTester(MockMvc mockMvc, boolean enableLogging) {
+    return new EndpointTester(mockMvc, enableLogging);
   }
 
 }

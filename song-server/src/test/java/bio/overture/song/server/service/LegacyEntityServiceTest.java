@@ -18,7 +18,6 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.converter.LegacyEntityConverter;
 import bio.overture.song.server.model.legacy.LegacyDto;
 import bio.overture.song.server.model.legacy.LegacyEntity;
@@ -66,6 +65,7 @@ import static bio.overture.song.server.service.LegacyEntityService.createLegacyE
 @RunWith(MockitoJUnitRunner.class)
 public class LegacyEntityServiceTest {
 
+  private static LegacyEntityConverter CONVERTER = LegacyEntityConverter.INSTANCE;
   private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 2000);
   private static List<LegacyEntity> LEGACY_ENTITY_DATA;
 
@@ -77,7 +77,6 @@ public class LegacyEntityServiceTest {
 
   private ParameterChecker parameterChecker;
 
-  private LegacyEntityConverter converter;
 
   private LegacyEntityService service;
 
@@ -105,7 +104,7 @@ public class LegacyEntityServiceTest {
     val actualEntity = service.getEntity(id);
     val expectedEntity = LEGACY_ENTITY_DATA.stream()
         .filter(x -> x.getId().equals(id))
-        .map(converter::convertToLegacyDto)
+        .map(CONVERTER::convertToLegacyDto)
         .findFirst()
         .get();
     Assertions.assertThat(actualEntity).isEqualTo(expectedEntity);
@@ -203,7 +202,7 @@ public class LegacyEntityServiceTest {
     val singleResultProbe = LegacyDto.builder()
         .id(id)
         .build();
-    setupRepositoryFindAll(converter.convertToLegacyEntity(singleResultProbe), DEFAULT_PAGEABLE, x -> true);
+    setupRepositoryFindAll(CONVERTER.convertToLegacyEntity(singleResultProbe), DEFAULT_PAGEABLE, x -> true);
     for (int p=0; p<numPermutations; p++){
       val params = createFilterParams(p);
       val fieldNames = params.get("fields");
@@ -222,7 +221,7 @@ public class LegacyEntityServiceTest {
   }
 
   private void runTest(MultiValueMap<String, String> params, LegacyDto searchProbe, Predicate<LegacyEntity> dbPredicate){
-    setupRepositoryFindAll(converter.convertToLegacyEntity(searchProbe), DEFAULT_PAGEABLE, dbPredicate);
+    setupRepositoryFindAll(CONVERTER.convertToLegacyEntity(searchProbe), DEFAULT_PAGEABLE, dbPredicate);
     val response = service.find(params,  searchProbe, DEFAULT_PAGEABLE);
     val actualDatas = stream(response.path("content"))
         .map(x -> convertValue(x, LegacyEntity.class))
@@ -278,8 +277,7 @@ public class LegacyEntityServiceTest {
 
   private void setupService(){
     parameterChecker = ParameterChecker.createParameterChecker(LegacyEntity.class, LegacyDto.class);
-    converter = new ConverterConfig().legacyEntityConverter();
-    service = createLegacyEntityService(repository, parameterChecker, converter);
+    service = createLegacyEntityService(repository, parameterChecker, CONVERTER);
   }
 
   private void setupRepositoryFindById(){

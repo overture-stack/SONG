@@ -32,7 +32,7 @@ public class StudyControllerTest {
     @Before
     public void beforeTest(){
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        this.endpointTester = createEndpointTester(mockMvc);
+        this.endpointTester = createEndpointTester(mockMvc, true);
     }
 
     @Test

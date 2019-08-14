@@ -16,10 +16,8 @@
  */
 package bio.overture.song.server.config;
 
-import bio.overture.song.server.security.StudyScopeStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -50,11 +48,6 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
     OAuth2MethodSecurityExpressionHandler handler = new OAuth2MethodSecurityExpressionHandler();
     handler.setApplicationContext(context);
     return handler;
-  }
-
-  @Bean
-  public StudyScopeStrategy studySecurity() {
-    return new StudyScopeStrategy();
   }
 
 }

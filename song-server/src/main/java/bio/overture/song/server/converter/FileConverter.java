@@ -19,20 +19,46 @@ package bio.overture.song.server.converter;
 
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.model.file.FileUpdateRequest;
+import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.entity.FileEntity;
+import lombok.val;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-@Mapper(nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+import static org.mapstruct.factory.Mappers.getMapper;
+
+@Mapper(config = ConverterConfig.class,
+    nullValueCheckStrategy = NullValueCheckStrategy.ON_IMPLICIT_CONVERSION,
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface FileConverter {
 
+  FileConverter INSTANCE = getMapper(FileConverter.class);
+
   FileUpdateRequest fileEntityToFileUpdateRequest(FileEntity file);
+
+  @Mapping(target = "fileType", ignore = true)
+  @Mapping(target = "objectId", ignore = true)
+  @Mapping(target = "studyId", ignore = true)
+  @Mapping(target = "analysisId", ignore = true)
+  @Mapping(target = "fileName", ignore = true)
   void updateEntityFromData(FileData fileData, @MappingTarget FileEntity file);
-  FileEntity copyFile(FileEntity file);
+
+  void updateFileEntity(FileEntity ref, @MappingTarget FileEntity fileToUpdate);
+
+  // NOTE: mapstruct cannot properly generate this method because it defaults to using the builder instead of the setters. Since the info field is not apart of the builder, it does not fully copy.
+  default FileEntity copyFile(FileEntity ref){
+    val copy = new FileEntity();
+    updateFileEntity(ref, copy);
+    return copy;
+
+  }
   List<FileEntity> copyFiles(List<FileEntity> files);
 
   default StorageObject toStorageObject(FileEntity file){

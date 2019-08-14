@@ -20,7 +20,6 @@ package bio.overture.song.server.exceptions;
 import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
-import com.fasterxml.jackson.core.JsonParseException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.catalina.connector.Request;
@@ -33,8 +32,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -47,7 +44,6 @@ import java.net.ConnectException;
 import java.util.Collection;
 import java.util.List;
 
-import static bio.overture.song.core.exceptions.ServerErrors.*;
 import static com.google.common.base.Throwables.getRootCause;
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static java.lang.String.format;
@@ -55,6 +51,12 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static org.icgc.dcc.common.core.util.Splitters.NEWLINE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static bio.overture.song.core.exceptions.ServerErrors.BAD_REPLY_FROM_GATEWAY;
+import static bio.overture.song.core.exceptions.ServerErrors.GATEWAY_IS_DOWN;
+import static bio.overture.song.core.exceptions.ServerErrors.GATEWAY_SERVICE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.GATEWAY_TIMED_OUT;
+import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -66,21 +68,21 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
   private static final String QUESTION_MARK = "?";
 
   static void report(Request request, Response response, Throwable t) {
-
     writeResponse(response, getJsonErrorMessage(request, t));
   }
 
   static String getJsonErrorMessage(Request request, Throwable t) {
+    log.error("Intercepting the exception {}: {}", t.getClass().getSimpleName(), t.getMessage());
     if (t.getCause() instanceof ConnectException) {
-      return errorResponse(request, t, GATEWAY_IS_DOWN);
+      return errorResponseBody(request, t, GATEWAY_IS_DOWN);
     } else if (t instanceof HttpStatusCodeException) {
       return getHttpErrorMessage(request, (HttpStatusCodeException) t);
     } else if (t.getCause() instanceof HttpMessageNotReadableException) {
-      return errorResponse(request, t, BAD_REPLY_FROM_GATEWAY);
+      return errorResponseBody(request, t, BAD_REPLY_FROM_GATEWAY);
     } else if (t.getCause() instanceof ServerException) {
       return getServerExceptionResponse(request, (ServerException) t).getBody();
     } else {
-      return errorResponse(request, t, UNKNOWN_ERROR);
+      return errorResponseBody(request, t, UNKNOWN_ERROR);
     }
   }
 
@@ -88,11 +90,11 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
     HttpStatusCodeException ex) {
     val code = ex.getStatusCode();
     if (code == HttpStatus.UNAUTHORIZED || code == HttpStatus.FORBIDDEN) {
-      return errorResponse(request, ex, UNAUTHORIZED_TOKEN);
+      return errorResponseBody(request, ex, UNAUTHORIZED_TOKEN);
     } else if (code == HttpStatus.NOT_FOUND) {
-      return errorResponse(request, ex, GATEWAY_SERVICE_NOT_FOUND);
+      return errorResponseBody(request, ex, GATEWAY_SERVICE_NOT_FOUND);
     } else if (code == HttpStatus.GATEWAY_TIMEOUT) {
-      return errorResponse(request, ex, GATEWAY_TIMED_OUT);
+      return errorResponseBody(request, ex, GATEWAY_TIMED_OUT);
     } else {
       return getHttpErrorResponse(request, ex);
     }
@@ -126,28 +128,38 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static String getHttpErrorResponse(HttpServletRequest request, HttpStatusCodeException ex) {
     val code = ex.getStatusCode();
-    return errorResponse(request, ex, code, code.name(), ex.getMessage());
+    return errorResponseBody(request, ex, code, code.name(), ex.getMessage());
   }
 
-  private static String errorResponse(HttpServletRequest request, Throwable ex, ServerErrors errors) {
-    return errorResponse(request, ex, errors.getHttpStatus(), errors.getErrorId(), ex.getMessage());
+  private static SongError songErrorResponse(HttpServletRequest request, Throwable ex, ServerErrors errors) {
+    return songErrorResponse(request, ex, errors.getHttpStatus(), errors.getErrorId(), ex.getMessage());
   }
 
-  private static String errorResponse(HttpServletRequest request,
-    Throwable ex, HttpStatus code, String err, String msg) {
+  private static String errorResponseBody(HttpServletRequest request, Throwable ex, ServerErrors errors) {
+    return errorResponseBody(request, ex, errors.getHttpStatus(), errors.getErrorId(), ex.getMessage());
+  }
+
+  private static SongError songErrorResponse(HttpServletRequest request,
+      Throwable ex, HttpStatus code, String err, String msg) {
     val rootCause = getRootCause(ex);
     val error = SongError.builder()
-      .requestUrl(generateRequestUrlWithParams(request))
-      .timestamp(System.currentTimeMillis())
-      .httpStatusCode(code.value())
-      .httpStatusName(code.name())
-      .errorId(err)
-      .message(msg)
-      .debugMessage(format("[ROOT_CAUSE] -> %s: %s", rootCause.getClass().getName(), rootCause.getMessage()))
-      .stackTrace(getFullStackTraceList(ex))
-      .build();
+        .requestUrl(generateRequestUrlWithParams(request))
+        .timestamp(System.currentTimeMillis())
+        .httpStatusCode(code.value())
+        .httpStatusName(code.name())
+        .errorId(err)
+        .message(msg)
+        .debugMessage(format("[ROOT_CAUSE] -> %s: %s", rootCause.getClass().getName(), rootCause.getMessage()))
+        .stackTrace(getFullStackTraceList(ex))
+        .build();
+    return error;
+  }
+
+  private static String errorResponseBody(HttpServletRequest request,
+    Throwable ex, HttpStatus code, String err, String msg) {
+    val error =  songErrorResponse(request, ex, code, err, msg);
     log.error(error.toPrettyJson());
-    return error.getResponseEntity().getBody();
+    return error.toPrettyJson();
   }
 
   private static List<String> getFullStackTraceList(Throwable t) {
