@@ -20,8 +20,6 @@ import bio.overture.song.core.utils.RandomGenerator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,16 +33,15 @@ import org.testcontainers.jdbc.ContainerDatabaseDriver;
 
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 
 @Slf4j
@@ -106,11 +103,11 @@ public class InterruptedDatabaseConnectionTest {
 
   private void testThatServiceReallyWorks(){
     val studyIds = service.findAllStudies();
-    assertThat(studyIds, contains(DEFAULT_STUDY_ID, "XYZ234"));
+    assertThat(studyIds, hasItems(DEFAULT_STUDY_ID, "XYZ234"));
     val studyId = createStudyGenerator(service, randomGenerator).createRandomStudy();
     val study = service.read(studyId);
     val studyIds2 = service.findAllStudies();
-    assertThat(studyIds2, contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId()));
+    assertThat(studyIds2, hasItems(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId()));
   }
 
   /**

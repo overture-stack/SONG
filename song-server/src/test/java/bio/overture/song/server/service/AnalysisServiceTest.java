@@ -194,7 +194,7 @@ public class AnalysisServiceTest {
     val experiment = ((SequencingReadAnalysis) created).getExperiment();
 
     assertNotNull(experiment);
-    assertEquals(experiment.getAlignmentTool(),"BigWrench");
+    assertEquals(experiment.getAlignmentTool(),"MUSE variant call pipeline");
     val expectedMetadata = new Metadata();
     expectedMetadata.setInfo("marginOfError", "0.01%");
     assertEquals(experiment.getInfo(),expectedMetadata.getInfo());
@@ -554,7 +554,7 @@ public class AnalysisServiceTest {
     expectedFiles.add(fileService.securedRead(DEFAULT_STUDY_ID, "FI2"));
 
     assertTrue(files.containsAll(expectedFiles));
-    assertTrue(expectedFiles.contains(files));
+    assertTrue(expectedFiles.containsAll(files));
     val files2 = service.securedReadFiles(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
     assertTrue(files2.containsAll(files));
     assertTrue(files.containsAll(files2));

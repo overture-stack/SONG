@@ -21,7 +21,6 @@ import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Study;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +28,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -80,13 +78,13 @@ public class StudyServiceTest {
     assertFalse(service.isStudyExist(studyId));
     service.saveStudy(study);
     val readStudy = service.read(studyId);
-    assertThat(readStudy).isEqualToComparingFieldByFieldRecursively(study);
+    assertEquals(readStudy, study);
   }
 
   @Test
   public void testFindAllStudies(){
     val studyIds = service.findAllStudies();
-    assertThat(studyIds, contains(DEFAULT_STUDY_ID, "XYZ234"));
+    assertThat(studyIds, hasItems(DEFAULT_STUDY_ID, "XYZ234"));
     val study = Study.builder()
         .studyId(randomGenerator.generateRandomUUIDAsString())
         .name( randomGenerator.generateRandomUUIDAsString())
@@ -96,7 +94,7 @@ public class StudyServiceTest {
 
     service.saveStudy(study);
     val studyIds2 = service.findAllStudies();
-    assertThat(studyIds2, contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId()));
+    assertThat(studyIds2, hasItems(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId()));
   }
 
   @Test

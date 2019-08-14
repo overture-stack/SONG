@@ -36,14 +36,12 @@ import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
@@ -67,7 +65,7 @@ public class SchemaValidationTests {
       assertTrue(propertiesSchema.has(ANALYSIS_ID));
       val analysisIdSchema = propertiesSchema.path(ANALYSIS_ID);
       assertTrue(analysisIdSchema.has(PATTERN));
-      assertThat(getTypes(analysisIdSchema), contains(STRING));
+      assertThat(getTypes(analysisIdSchema), hasItem(STRING));
       assertEquals(analysisIdSchema.path(PATTERN).textValue(),"^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{1,34}[a-zA-Z0-9]{1}$");
     }
   }
