@@ -362,7 +362,7 @@ public class UploadServiceTest {
     val jsonPayload = payload.getJsonPayload();
 
     // Create an analysisId in the IdService database
-    assertThat(idClient.getAnalysisId(expectedAnalysisId)).isNotPresent();
+    assertFalse(idClient.getAnalysisId(expectedAnalysisId).isPresent());
     idClient.createAnalysisId(expectedAnalysisId);
     assertTrue(idClient.getAnalysisId(expectedAnalysisId).isPresent());
 
@@ -389,11 +389,11 @@ public class UploadServiceTest {
 
 
     // Ensure the analysisId doesnt already exist in the IdService
-    assertThat(idClient.getAnalysisId(expectedAnalysisId)).isNotPresent();
+    assertFalse(idClient.getAnalysisId(expectedAnalysisId).isPresent());
 
     // Upload1 of jsonPayload
     val uploadId1 = upload(DEFAULT_STUDY, jsonPayload, false );
-    assertThat(idClient.getAnalysisId(expectedAnalysisId)).isNotPresent();
+    assertFalse(idClient.getAnalysisId(expectedAnalysisId).isPresent());
 
     // Save1 - saves the current jsonPayload...normal operation
     val response1 = uploadService.save(DEFAULT_STUDY,uploadId1, false);
