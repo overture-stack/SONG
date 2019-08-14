@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import static bio.overture.song.core.model.enums.FileTypes.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -82,7 +83,7 @@ public class ConstantsTest {
     assertEquals(resolveAccessType("open"),OPEN);
     assertEquals(resolveAccessType("controlled"),CONTROLLED);
     val thrown = catchThrowable(() -> resolveAccessType("somethingNotAccessType"));
-    assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
+    assertEquals(thrown.getClass(), IllegalStateException.class);
   }
 
   @Test
@@ -123,7 +124,7 @@ public class ConstantsTest {
     assertEquals(resolveFileType("TGZ"),TGZ);
 
     val thrown = catchThrowable(() -> resolveFileType("somethingThatsNotAFileType"));
-    assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
+    assertEquals(thrown.getClass(), IllegalStateException.class);
   }
 
   @Test
@@ -148,7 +149,7 @@ public class ConstantsTest {
     assertEquals(resolveInfoType("VariantCall"),VARIANT_CALL);
 
     val thrown = catchThrowable(() -> resolveInfoType("somethingThatsNotAnInfoType"));
-    assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
+    assertEquals(thrown.getClass(), IllegalStateException.class);
   }
 
   @Test
@@ -169,7 +170,7 @@ public class ConstantsTest {
     assertEquals(resolveState("SAVED"),SAVED);
 
     val thrown = catchThrowable(() -> resolveState("notAnUploadState"));
-    assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
+    assertEquals(thrown.getClass(), IllegalStateException.class);
   }
 
 }

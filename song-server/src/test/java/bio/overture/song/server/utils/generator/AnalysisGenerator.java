@@ -31,6 +31,7 @@ import lombok.val;
 import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
@@ -57,7 +58,7 @@ public class AnalysisGenerator {
     analysis.setAnalysisId(TestFiles.EMPTY_STRING);
     val analysisId = service.create(studyId, analysis, false);
     val out = analysisClass.cast(service.securedDeepRead(studyId, analysisId));
-    assertThat(analysis).isExactlyInstanceOf(analysisClass);
+    assertEquals(analysis.getClass(), analysisClass);
     return out;
   }
 
