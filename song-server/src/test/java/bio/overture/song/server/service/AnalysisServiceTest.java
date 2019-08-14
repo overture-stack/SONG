@@ -895,7 +895,7 @@ public class AnalysisServiceTest {
 
     // Ensure the mock is used and that an error was actually thrown
     val throwable = catchThrowable(() -> service.create(DEFAULT_STUDY_ID, payload, false));
-    assertThat(throwable).as("An exception was not thrown").isInstanceOf(IllegalStateException.class);
+    assertTrue(throwable instanceof IllegalStateException);
 
     // Ensure everything was rolled back properly
     assertFalse(service.isAnalysisExist(id));

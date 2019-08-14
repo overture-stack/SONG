@@ -47,6 +47,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -1658,7 +1659,7 @@ public class EntityTest {
     val erroredStates = newArrayList("published", "unpublished", "suppressed", "anything");
     for (val state : erroredStates){
       val thrown = catchThrowable(() -> resolveAnalysisState(state));
-      assertThat(thrown).isInstanceOf(IllegalStateException.class);
+      assertTrue(thrown instanceof IllegalStateException);
     }
   }
 

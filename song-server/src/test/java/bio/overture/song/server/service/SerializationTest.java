@@ -38,6 +38,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class SerializationTest {
@@ -246,7 +247,7 @@ public class SerializationTest {
     assertEquals(analysis.getFile().size(),2);
     assertEquals(analysis.getSample().get(0).getDonor().getDonorSubmitterId(),"internal_donor_123456789-00");
 
-    assertThat(analysis).isInstanceOf(SequencingReadAnalysis.class);
+    assertTrue(analysis instanceof SequencingReadAnalysis);
     val r = ((SequencingReadAnalysis) analysis).getExperiment();
 
     assertEquals(r.getLibraryStrategy(),"WXS");
@@ -261,7 +262,7 @@ public class SerializationTest {
     System.out.printf("*** Analysis object='%s'\n",analysis);
     assertEquals(analysis.getAnalysisType(),"variantCall");
 
-    assertThat(analysis).isInstanceOf(VariantCallAnalysis.class);
+    assertTrue(analysis instanceof VariantCallAnalysis);
     VariantCallAnalysis v = (VariantCallAnalysis) analysis;
     System.out.printf("VariantCall object='%s'\n", v);
     

@@ -24,6 +24,7 @@ import bio.overture.song.core.utils.JsonUtils;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
@@ -62,8 +63,8 @@ public class ErrorTest {
     val incorrectEnumName2 = "UNKNOWN-ERROR";
     val thrown1 = catchThrowable(() -> ServerErrors.extractErrorId(incorrectEnumName1) );
     val thrown2 = catchThrowable(() -> ServerErrors.extractErrorId(incorrectEnumName2) );
-    assertThat(thrown1).isInstanceOf(IllegalArgumentException.class);
-    assertThat(thrown2).isInstanceOf(IllegalArgumentException.class);
+    assertTrue(thrown1 instanceof IllegalArgumentException);
+    assertTrue(thrown2 instanceof IllegalArgumentException);
   }
 
 }
