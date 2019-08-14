@@ -47,6 +47,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -1653,9 +1654,9 @@ public class EntityTest {
 
   @Test
   public void testAnalysisStates(){
-    assertThat(resolveAnalysisState("PUBLISHED")).isEqualByComparingTo(PUBLISHED);
-    assertThat(resolveAnalysisState("UNPUBLISHED")).isEqualByComparingTo(UNPUBLISHED);
-    assertThat(resolveAnalysisState("SUPPRESSED")).isEqualByComparingTo(SUPPRESSED);
+    assertEquals(resolveAnalysisState("PUBLISHED"), PUBLISHED);
+    assertEquals(resolveAnalysisState("UNPUBLISHED"), UNPUBLISHED);
+    assertEquals(resolveAnalysisState("SUPPRESSED"), SUPPRESSED);
     val erroredStates = newArrayList("published", "unpublished", "suppressed", "anything");
     for (val state : erroredStates){
       val thrown = catchThrowable(() -> resolveAnalysisState(state));
