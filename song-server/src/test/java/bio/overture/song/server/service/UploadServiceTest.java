@@ -364,7 +364,7 @@ public class UploadServiceTest {
     // Create an analysisId in the IdService database
     assertThat(idClient.getAnalysisId(expectedAnalysisId)).isNotPresent();
     idClient.createAnalysisId(expectedAnalysisId);
-    assertThat(idClient.getAnalysisId(expectedAnalysisId)).isPresent();
+    assertTrue(idClient.getAnalysisId(expectedAnalysisId).isPresent());
 
     // Upload1 of jsonPayload
     val uploadId1 = upload(DEFAULT_STUDY,jsonPayload, false);
@@ -397,7 +397,7 @@ public class UploadServiceTest {
 
     // Save1 - saves the current jsonPayload...normal operation
     val response1 = uploadService.save(DEFAULT_STUDY,uploadId1, false);
-    assertThat(idClient.getAnalysisId(expectedAnalysisId)).isPresent();
+    assertTrue(idClient.getAnalysisId(expectedAnalysisId).isPresent());
     assertEquals(response1.getStatusCode(),OK);
 
     // Save2 - should detect that an analysis with the same analysisId was already save in the song database
