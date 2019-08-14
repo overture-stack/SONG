@@ -284,59 +284,59 @@ public class FileModificationServiceTest {
         .build();
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),METADATA_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setInfo(object().with(
         randomGenerator.generateRandomUUIDAsString(),
         randomGenerator.generateRandomUUIDAsString()).end());
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),METADATA_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setFileAccess("open");
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),METADATA_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setFileAccess(null);
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),METADATA_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setFileSize(19191L);
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setFileMd5sum(randomGenerator.generateRandomMD5());
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setInfo(null);
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setFileAccess(null);
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setFileMd5sum(uniqueMd5);
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setFileMd5sum(null);
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),CONTENT_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setFileSize(referenceFile.getFileSize());
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),NO_UPDATE);
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
     u1.setFileSize(null);
     assertEquals(fileModificationService.updateWithRequest(referenceFile, u1 ),NO_UPDATE);
@@ -345,7 +345,7 @@ public class FileModificationServiceTest {
     assertNull(u1.getFileMd5sum());
     assertNull(u1.getInfo());
     assertThat(referenceFile == goldenFile).isFalse();
-    Assertions.assertEquals(referenceFile,goldenFile);
+    assertEquals(referenceFile,goldenFile);
 
   }
   @Test
@@ -391,7 +391,7 @@ public class FileModificationServiceTest {
     u3.setInfo(f1.getInfo());
     assertEquals(resolveFileUpdateType(f1, u3),NO_UPDATE);
 
-    Assertions.assertEquals(f1,golden);
+    assertEquals(f1,golden);
   }
 
   private FileEntity buildReferenceFile(){

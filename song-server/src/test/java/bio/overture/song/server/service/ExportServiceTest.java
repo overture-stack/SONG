@@ -410,8 +410,8 @@ public class ExportServiceTest {
 
     // All of the actuals will have objectIds, sampleIds, specimenIds, donorIds, and analysisIds, however
     assertExperiment(actualAnalysis, expectedAnalysis);
-    Assertions.assertThat(actualAnalysis.getFile()).containsAll(expectedAnalysis.getFile());
-    Assertions.assertThat(actualAnalysis.getSample()).containsAll(expectedAnalysis.getSample());
+    assertThat(actualAnalysis.getFile()).containsAll(expectedAnalysis.getFile());
+    assertThat(actualAnalysis.getSample()).containsAll(expectedAnalysis.getSample());
     assertEquals(actualAnalysis.getStudy(),expectedAnalysis.getStudy());
 
     val actualFileObjectIds = collectObjectIds(actualAnalysis.getFile());
@@ -434,7 +434,7 @@ public class ExportServiceTest {
   private static void assertSequencingReadExperiment(AbstractAnalysis a, AbstractAnalysis e){
     val actual = SequencingReadAnalysis.class.cast(a);
     val expected = SequencingReadAnalysis.class.cast(e);
-    Assertions.assertThat(actual.getExperiment()).isEqualToComparingFieldByField(expected.getExperiment());
+    assertThat(actual.getExperiment()).isEqualToComparingFieldByField(expected.getExperiment());
   }
 
   private static void assertVariantCallExperiment(AbstractAnalysis a, AbstractAnalysis e){

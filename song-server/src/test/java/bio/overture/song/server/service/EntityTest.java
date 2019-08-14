@@ -172,12 +172,12 @@ public class EntityTest {
 
     // Test getters
 
-    Assertions.assertEquals(compositeEntity1.getSampleId(),"mySample1");
-    Assertions.assertEquals(compositeEntity1.getSampleType(),SAMPLE_TYPES.get(1));
-    Assertions.assertEquals(compositeEntity1.getSampleSubmitterId(),"mySubmitterSample1");
-    Assertions.assertEquals(compositeEntity1.getSpecimenId(),"mySpecimen1");
+    assertEquals(compositeEntity1.getSampleId(),"mySample1");
+    assertEquals(compositeEntity1.getSampleType(),SAMPLE_TYPES.get(1));
+    assertEquals(compositeEntity1.getSampleSubmitterId(),"mySubmitterSample1");
+    assertEquals(compositeEntity1.getSpecimenId(),"mySpecimen1");
     assertEquals(compositeEntity1.getSpecimen(),specimen1);
-    Assertions.assertEquals(compositeEntity1.getDonor(),donor1);
+    assertEquals(compositeEntity1.getDonor(),donor1);
     assertInfoKVPair(compositeEntity1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -300,12 +300,12 @@ public class EntityTest {
     assertEntitiesNotEqual(d1, d2);
 
     //Test getters
-    Assertions.assertEquals(d1.getDonorGender(),donor1.getDonorGender());
-    Assertions.assertEquals(d1.getDonorSubmitterId(),donor1.getDonorSubmitterId());
-    Assertions.assertEquals(d1.getDonorId(),donor1.getDonorId());
-    Assertions.assertEquals(d1.getStudyId(),donor1.getStudyId());
+    assertEquals(d1.getDonorGender(),donor1.getDonorGender());
+    assertEquals(d1.getDonorSubmitterId(),donor1.getDonorSubmitterId());
+    assertEquals(d1.getDonorId(),donor1.getDonorId());
+    assertEquals(d1.getStudyId(),donor1.getStudyId());
     assertThat(d1.getSpecimens()).containsExactlyInAnyOrder(specimenWithSample1, specimenWithSample2);
-    Assertions.assertNotEquals(d1.createDonor(),donor1);
+    assertNotEquals(d1.createDonor(),donor1);
     assertInfoKVPair(d1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -409,7 +409,7 @@ public class EntityTest {
     assertEquals(s1.getSpecimenSubmitterId(),specimen1.getSpecimenSubmitterId());
     assertEquals(s1.getSpecimenType(),specimen1.getSpecimenType());
     assertEquals(s1.getSpecimenId(),specimen1.getSpecimenId());
-    Assertions.assertThat(s1.getSamples()).containsExactlyInAnyOrder(sample11, sample12);
+    assertThat(s1.getSamples()).containsExactlyInAnyOrder(sample11, sample12);
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
 
     // Test addSample
@@ -585,11 +585,11 @@ public class EntityTest {
 
 
     //Test getters
-    Assertions.assertEquals(s1.getDescription(),study1.getDescription());
-    Assertions.assertEquals(s1.getName(),study1.getName());
-    Assertions.assertEquals(s1.getOrganization(),study1.getOrganization());
-    Assertions.assertEquals(s1.getStudyId(),study1.getStudyId());
-    Assertions.assertThat(s1.getStudy()).isNotSameAs(study1);
+    assertEquals(s1.getDescription(),study1.getDescription());
+    assertEquals(s1.getName(),study1.getName());
+    assertEquals(s1.getOrganization(),study1.getOrganization());
+    assertEquals(s1.getStudyId(),study1.getStudyId());
+    assertThat(s1.getStudy()).isNotSameAs(study1);
     assertThat(s1.getDonors()).containsExactlyInAnyOrder(d1);
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
 

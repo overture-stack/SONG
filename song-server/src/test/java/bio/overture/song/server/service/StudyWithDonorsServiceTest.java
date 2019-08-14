@@ -111,8 +111,8 @@ public class StudyWithDonorsServiceTest {
         .flatMap(x -> x.getSample().stream())
         .collect(toSet());
     val expectedSampleSubmitterIds = expectedSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
-    Assertions.assertThat(expectedSamples).hasSize(numAnalysis);
-    Assertions.assertThat(expectedSampleSubmitterIds).hasSize(numAnalysis);
+    assertThat(expectedSamples).hasSize(numAnalysis);
+    assertThat(expectedSampleSubmitterIds).hasSize(numAnalysis);
 
     // Run the target method to test, readWithChildren
     val studyWithDonors = studyWithDonorsService.readWithChildren(studyId);

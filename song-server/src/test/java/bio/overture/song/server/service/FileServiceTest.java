@@ -116,7 +116,7 @@ public class FileServiceTest {
     val status = fileService.create(analysisId,  studyId, f);
     val id = f.getObjectId();
 
-    Assertions.assertEquals(status,id);
+    assertEquals(status,id);
 
     FileEntity check = fileService.securedRead(studyId, id);
     assertThat(check).isEqualToComparingFieldByField(f);

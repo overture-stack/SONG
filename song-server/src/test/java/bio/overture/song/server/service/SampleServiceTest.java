@@ -99,7 +99,7 @@ public class SampleServiceTest {
     assertThat(sampleService.isSampleExist(id)).isTrue();
 
     assertThat(id).startsWith("SA");
-    Assertions.assertEquals(status,id);
+    assertEquals(status,id);
 
     Sample check = sampleService.securedRead(DEFAULT_STUDY_ID, id);
     assertThat(check).isEqualToComparingFieldByField(s);
@@ -224,20 +224,20 @@ public class SampleServiceTest {
 
     // Read the samples by parent Id (specimenId)
     val actualSamples = sampleService.readByParentId(specimenId);
-    Assertions.assertThat(actualSamples).hasSize(numSamples);
+    assertThat(actualSamples).hasSize(numSamples);
     assertThat(actualSamples.stream().map(Sample::getSampleId).collect(toSet())).containsAll(expectedSampleIds);
 
     // Assert that reading by a non-existent specimenId returns something empty
     val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
     assertThat(specimenService.isSpecimenExist(randomSpecimenId)).isFalse();
     val emptySampleList = sampleService.readByParentId(randomSpecimenId);
-    Assertions.assertThat(emptySampleList).isEmpty();
+    assertThat(emptySampleList).isEmpty();
 
     // Delete by parent id
     val response = sampleService.deleteByParentId(specimenId);
-    Assertions.assertEquals(response,"OK");
+    assertEquals(response,"OK");
     val emptySampleList2 = sampleService.readByParentId(specimenId);
-    Assertions.assertThat(emptySampleList2).isEmpty();
+    assertThat(emptySampleList2).isEmpty();
   }
 
   @Test

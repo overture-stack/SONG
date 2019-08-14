@@ -53,7 +53,7 @@ public class StudyServiceTest {
   public void testReadStudy() {
     // check for data that we know exists in the database already
     val study = service.read(DEFAULT_STUDY_ID);
-    Assertions.assertNotNull(study);
+    assertNotNull(study);
     assertEquals(study.getStudyId(),"ABC123");
     assertEquals(study.getName(),"X1-CA");
     assertEquals(study.getDescription(),"A fictional study");
@@ -76,13 +76,13 @@ public class StudyServiceTest {
     assertThat(service.isStudyExist(studyId)).isFalse();
     service.saveStudy(study);
     val readStudy = service.read(studyId);
-    Assertions.assertThat(readStudy).isEqualToComparingFieldByFieldRecursively(study);
+    assertThat(readStudy).isEqualToComparingFieldByFieldRecursively(study);
   }
 
   @Test
   public void testFindAllStudies(){
     val studyIds = service.findAllStudies();
-    Assertions.assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
+    assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
     val study = Study.builder()
         .studyId(randomGenerator.generateRandomUUIDAsString())
         .name( randomGenerator.generateRandomUUIDAsString())
@@ -92,7 +92,7 @@ public class StudyServiceTest {
 
     service.saveStudy(study);
     val studyIds2 = service.findAllStudies();
-    Assertions.assertThat(studyIds2).contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId());
+    assertThat(studyIds2).contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId());
   }
 
   @Test

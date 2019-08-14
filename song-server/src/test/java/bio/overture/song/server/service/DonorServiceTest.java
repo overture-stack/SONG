@@ -112,13 +112,13 @@ public class DonorServiceTest {
     json.put("species", "human");
 
     DonorWithSpecimens d = JsonUtils.mapper().convertValue(json, DonorWithSpecimens.class);
-    Assertions.assertNull(d.getDonorId());
+    assertNull(d.getDonorId());
 
     val status = service.create(d);
     val id = d.getDonorId();
 
-    Assertions.assertThat(id).startsWith("DO");
-    Assertions.assertEquals(status,id);
+    assertThat(id).startsWith("DO");
+    assertEquals(status,id);
 
     DonorWithSpecimens check = service.readWithSpecimens(id);
     assertThat(d).isEqualToComparingFieldByField(check);
@@ -127,7 +127,7 @@ public class DonorServiceTest {
     assertThat(service.isDonorExist(id)).isFalse();
 
     val status2 = service.create(d);
-    Assertions.assertEquals(status2,id);
+    assertEquals(status2,id);
     service.securedDelete("XYZ234", newArrayList(id));
     assertThat(service.isDonorExist(id)).isFalse();
   }
@@ -143,7 +143,7 @@ public class DonorServiceTest {
     d.setStudyId(studyId);
     d.setDonorGender("male");
     val id= service.create(d);
-    Assertions.assertEquals(id,d.getDonorId());
+    assertEquals(id,d.getDonorId());
 
 
     val d2 = new Donor();
@@ -154,7 +154,7 @@ public class DonorServiceTest {
     d2.setInfo(info);
 
     val response = service.update(d2);
-    Assertions.assertEquals(response,"OK");
+    assertEquals(response,"OK");
 
     val d3 = service.securedRead(studyId, id);
     assertThat(d3).isEqualToComparingFieldByField(d2);
@@ -180,7 +180,7 @@ public class DonorServiceTest {
     dUpdate.setDonorGender("female");
     val donorId2 = service.save(studyId, dUpdate);
     assertThat(service.isDonorExist(donorId2)).isTrue();
-    Assertions.assertEquals(donorId2,donorId);
+    assertEquals(donorId2,donorId);
     val updateDonor = service.securedRead(studyId, donorId2);
     assertEquals(updateDonor.getDonorGender(),"female");
   }
@@ -230,11 +230,11 @@ public class DonorServiceTest {
     d2.setDonorId(id2);
 
     val actualDonorWithSpecimens = service.readByParentId(randomStudyId);
-    Assertions.assertThat(actualDonorWithSpecimens).contains(d1, d2);
+    assertThat(actualDonorWithSpecimens).contains(d1, d2);
     val response = service.deleteByParentId(randomStudyId);
-    Assertions.assertEquals(response,"OK");
+    assertEquals(response,"OK");
     val emptyDonorWithSpecimens = service.readByParentId(randomStudyId);
-    Assertions.assertThat(emptyDonorWithSpecimens).isEmpty();
+    assertThat(emptyDonorWithSpecimens).isEmpty();
   }
 
   @Test
@@ -258,7 +258,7 @@ public class DonorServiceTest {
         .studyId(DEFAULT_STUDY_ID)
         .donorGender(randomDonorGender)
         .build());
-    Assertions.assertEquals(donorId,expectedId);
+    assertEquals(donorId,expectedId);
     assertThat(service.isDonorExist(donorId)).isTrue();
     service.checkDonorExists(donorId);
   }
@@ -286,7 +286,7 @@ public class DonorServiceTest {
       donorIdSet.add(donorId);
     }
     val donors = service.readByParentId(studyId);
-    Assertions.assertThat(donors).hasSize(numDonors);
+    assertThat(donors).hasSize(numDonors);
     assertThat(donors.stream().map(Donor::getDonorId).collect(toSet())).containsAll(donorIdSet);
   }
 
@@ -309,7 +309,7 @@ public class DonorServiceTest {
     donorWithSpecimens.setDonorGender(randomGender);
     donorWithSpecimens.setInfo("someKey", "someValue");
     val donorId = service.create(donorWithSpecimens);
-    Assertions.assertEquals(donorId,expectedId);
+    assertEquals(donorId,expectedId);
 
     donorWithSpecimens.setDonorId("DO123");
     SongErrorAssertions.assertSongError(() -> service.create(donorWithSpecimens), DONOR_ID_IS_CORRUPTED);

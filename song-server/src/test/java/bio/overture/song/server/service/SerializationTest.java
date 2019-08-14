@@ -68,12 +68,12 @@ public class SerializationTest {
     val metadata = JsonUtils.fromSingleQuoted("{'roses':'red','violets':'blue'}");
     val json = JsonUtils.fromSingleQuoted(single);
     val donor = JsonUtils.fromJson(json, DonorWithSpecimens.class);
-    Assertions.assertEquals(donor.getDonorId(),donorId);
-    Assertions.assertEquals(donor.getDonorSubmitterId(),submitter);
-    Assertions.assertEquals(donor.getStudyId(),study);
-    Assertions.assertEquals(donor.getDonorGender(),gender);
+    assertEquals(donor.getDonorId(),donorId);
+    assertEquals(donor.getDonorSubmitterId(),submitter);
+    assertEquals(donor.getStudyId(),study);
+    assertEquals(donor.getDonorGender(),gender);
     assertEquals(donor.getSpecimens(),Collections.emptyList());
-    Assertions.assertEquals(donor.getInfoAsString(),metadata);
+    assertEquals(donor.getInfoAsString(),metadata);
   }
 
   @Test
@@ -243,14 +243,14 @@ public class SerializationTest {
     System.out.printf("*** Analysis object='%s'\n",analysis);
     assertEquals(analysis.getAnalysisType(),"sequencingRead");
     assertEquals(analysis.getFile().size(),2);
-    Assertions.assertEquals(analysis.getSample().get(0).getDonor().getDonorSubmitterId(),"internal_donor_123456789-00");
+    assertEquals(analysis.getSample().get(0).getDonor().getDonorSubmitterId(),"internal_donor_123456789-00");
 
     assertThat(analysis).isInstanceOf(SequencingReadAnalysis.class);
     val r = ((SequencingReadAnalysis) analysis).getExperiment();
 
-    Assertions.assertEquals(r.getLibraryStrategy(),"WXS");
-    Assertions.assertEquals(r.getInsertSize(),900);
-    Assertions.assertEquals(r.getAlignmentTool(),"MUSE variant call pipeline");
+    assertEquals(r.getLibraryStrategy(),"WXS");
+    assertEquals(r.getInsertSize(),900);
+    assertEquals(r.getAlignmentTool(),"MUSE variant call pipeline");
   }
 
   @Test
@@ -265,7 +265,7 @@ public class SerializationTest {
     System.out.printf("VariantCall object='%s'\n", v);
     
     assertEquals(analysis.getFile().size(),2);
-    Assertions.assertEquals(analysis.getSample().get(0).getDonor().getDonorSubmitterId(),"internal_donor_123456789-00");
+    assertEquals(analysis.getSample().get(0).getDonor().getDonorSubmitterId(),"internal_donor_123456789-00");
   }
 
 }

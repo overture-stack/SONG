@@ -151,8 +151,8 @@ public class InfoSearchTest {
 
     val response1 = search(studyId1, true, term1, term2);
     val response2 = search(studyId2, true, term1, term2);
-    Assertions.assertThat(response1).hasSize(1);
-    Assertions.assertThat(response2).hasSize(1);
+    assertThat(response1).hasSize(1);
+    assertThat(response2).hasSize(1);
     val result1 = response1.get(0);
     val result2 = response2.get(0);
     assertNotEquals(result1.getAnalysisId(),result2.getAnalysisId());
@@ -220,9 +220,9 @@ public class InfoSearchTest {
   @SneakyThrows
   private void runBasicTermSearchTest(Supplier<List<InfoSearchResponse>> responseSupplier, boolean shouldHaveInfo){
     val actualResponseList1 = responseSupplier.get();
-    Assertions.assertThat(actualResponseList1).hasSize(1);
+    assertThat(actualResponseList1).hasSize(1);
     val infoSearchResponse1 = actualResponseList1.get(0);
-    Assertions.assertThat(this.analysisRespMap).containsKey(infoSearchResponse1.getAnalysisId());
+    assertThat(this.analysisRespMap).containsKey(infoSearchResponse1.getAnalysisId());
     if (shouldHaveInfo){
       assertEquals(infoSearchResponse1,this.analysisRespMap.get(infoSearchResponse1.getAnalysisId()));
     }

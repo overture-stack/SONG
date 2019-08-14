@@ -109,7 +109,7 @@ public class LegacyEntityServiceTest {
         .map(converter::convertToLegacyDto)
         .findFirst()
         .get();
-    Assertions.assertEquals(actualEntity,expectedEntity);
+    assertEquals(actualEntity,expectedEntity);
   }
 
   @Test
@@ -211,9 +211,9 @@ public class LegacyEntityServiceTest {
       val response = service.find(params,  singleResultProbe, DEFAULT_PAGEABLE);
       for (val node : response.path("content")){
         if (p==0){
-          Assertions.assertThat(node).hasSize(legacyEntityFieldNames.size());
+          assertThat(node).hasSize(legacyEntityFieldNames.size());
         } else {
-          Assertions.assertThat(node).hasSize(fieldNames.size());
+          assertThat(node).hasSize(fieldNames.size());
         }
         for (val fieldName : fieldNames){
           assertThat(node.has(fieldName));

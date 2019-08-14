@@ -56,25 +56,25 @@ public class DeserializationTest {
     val a1 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/sequencingread-deserialize1.json"),
         AbstractAnalysis.class);
     val sa1 = ((SequencingReadAnalysis) a1).getExperiment();
-    Assertions.assertNull(sa1.getAnalysisId());
-    Assertions.assertNull(sa1.getAligned());
-    Assertions.assertNull(sa1.getAlignmentTool());
-    Assertions.assertNull(sa1.getInsertSize());
-    Assertions.assertEquals(sa1.getLibraryStrategy(),"WXS");
-    Assertions.assertNull(sa1.getPairedEnd());
-    Assertions.assertNull(sa1.getReferenceGenome());
+    assertNull(sa1.getAnalysisId());
+    assertNull(sa1.getAligned());
+    assertNull(sa1.getAlignmentTool());
+    assertNull(sa1.getInsertSize());
+    assertEquals(sa1.getLibraryStrategy(),"WXS");
+    assertNull(sa1.getPairedEnd());
+    assertNull(sa1.getReferenceGenome());
     assertThat(sa1.getInfo().path("random").isNull()).isTrue();
 
     val a2 = fromJson(TestFiles.getJsonNodeFromClasspath("documents/deserialization/sequencingread-deserialize2.json"),
         AbstractAnalysis.class);
     val sa2 = ((SequencingReadAnalysis) a2).getExperiment();
-    Assertions.assertNull(sa2.getAnalysisId());
-    Assertions.assertNull(sa2.getAligned());
-    Assertions.assertNull(sa2.getAlignmentTool());
-    Assertions.assertNull(sa2.getInsertSize());
-    Assertions.assertEquals(sa2.getLibraryStrategy(),"WXS");
-    Assertions.assertThat(sa2.getPairedEnd()).isTrue();
-    Assertions.assertNull(sa2.getReferenceGenome());
+    assertNull(sa2.getAnalysisId());
+    assertNull(sa2.getAligned());
+    assertNull(sa2.getAlignmentTool());
+    assertNull(sa2.getInsertSize());
+    assertEquals(sa2.getLibraryStrategy(),"WXS");
+    assertThat(sa2.getPairedEnd()).isTrue();
+    assertNull(sa2.getReferenceGenome());
 
   }
 

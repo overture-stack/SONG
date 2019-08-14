@@ -145,8 +145,8 @@ public class SpecimenServiceTest {
             .map(Sample::getSampleId)
             .collect(toSet());
         val expectedSet = newHashSet(sampleId1, sampleId2);
-        Assertions.assertThat(actualSet).hasSameSizeAs(expectedSet);
-        Assertions.assertThat(actualSet).containsAll(expectedSet);
+        assertThat(actualSet).hasSameSizeAs(expectedSet);
+        assertThat(actualSet).containsAll(expectedSet);
         specimen.getSamples().forEach(sample -> assertEquals(sample,getSample(sample.getSampleId())));
     }
 
@@ -185,14 +185,14 @@ public class SpecimenServiceTest {
         val sampleId = sampleService.create(DEFAULT_STUDY_ID, sample1);
 
         assertThat(id).startsWith("SP");
-        Assertions.assertEquals(status,id);
+        assertEquals(status,id);
 
         val check = specimenService.securedRead(DEFAULT_STUDY_ID, id);
         assertThat(s).isEqualToComparingFieldByField(check);
 
         val response = specimenService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
         assertThat(specimenService.isSpecimenExist(id)).isFalse();
-        Assertions.assertEquals(response,"OK");
+        assertEquals(response,"OK");
     }
 
     @Test
@@ -234,7 +234,7 @@ public class SpecimenServiceTest {
         specimenService.update(s2);
 
         val s3 = specimenService.securedRead(DEFAULT_STUDY_ID, id);
-        Assertions.assertThat(s3).isEqualToComparingFieldByField(s2);
+        assertThat(s3).isEqualToComparingFieldByField(s2);
     }
 
     @Test
@@ -353,15 +353,15 @@ public class SpecimenServiceTest {
 
         // ReadByParentId (newly created donorId)
         val specimens = specimenService.readByParentId(donorId);
-        Assertions.assertThat(specimens).hasSize(numSpecimens);
+        assertThat(specimens).hasSize(numSpecimens);
         for(val specimen :  specimens){
             val actualSpecimenId = specimen.getSpecimenId();
             val actualSampleIds = specimen.getSamples().stream().map(Sample::getSampleId).collect(toSet());
             assertThat(expectedSpecimenIds).contains(actualSpecimenId);
-            Assertions.assertThat(actualSampleIds).hasSize(numSamplesPerSpecimen);
+            assertThat(actualSampleIds).hasSize(numSamplesPerSpecimen);
             val expectedSampleIds = expectedSampleIdMap.get(actualSpecimenId);
             assertThat(expectedSampleIds).hasSize(numSamplesPerSpecimen);
-            Assertions.assertThat(actualSampleIds).isSubsetOf(expectedSampleIds);
+            assertThat(actualSampleIds).isSubsetOf(expectedSampleIds);
             assertThat(expectedSampleIds).isSubsetOf(actualSampleIds);
         }
 
@@ -371,13 +371,13 @@ public class SpecimenServiceTest {
         val randomDonorId = randomGenerator.generateRandomUUIDAsString();
         assertThat(donorService.isDonorExist(randomDonorId)).isFalse();
         val emptySpecimenList = specimenService.readByParentId(randomDonorId);
-        Assertions.assertThat(emptySpecimenList).isEmpty();
+        assertThat(emptySpecimenList).isEmpty();
 
         // Delete by parent id
       val response = specimenService.deleteByParentId(donorId);
-      Assertions.assertEquals(response,"OK");
+      assertEquals(response,"OK");
       val emptySpecimenList2 = specimenService.readByParentId(donorId);
-      Assertions.assertThat(emptySpecimenList2).isEmpty();
+      assertThat(emptySpecimenList2).isEmpty();
     }
 
     @Test
