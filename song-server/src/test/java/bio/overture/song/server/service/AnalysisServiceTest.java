@@ -48,6 +48,7 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import static org.junit.Assert.assertEquals;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -632,7 +633,7 @@ public class AnalysisServiceTest {
     // number of results as the getAnalysis method
     val searchedAnalyses = service.idSearch(studyId,
         createIdSearchRequest(null, null, null, null));
-    assertThat(searchedAnalyses).hasSameSizeAs(expectedAnalyses);
+    assertEquals(searchedAnalyses.size(), expectedAnalyses.size());
     assertThat(searchedAnalyses).containsOnlyElementsOf(expectedAnalyses);
   }
 
@@ -659,7 +660,7 @@ public class AnalysisServiceTest {
     assertThat(actualMap.keySet(), hasSize(1));
     assertTrue(expectedMap.containsKey(PUBLISHED.toString()));
     assertTrue(actualMap.containsKey(PUBLISHED.toString()));
-    assertThat(actualMap.get(PUBLISHED.toString())).hasSameSizeAs(expectedMap.get(PUBLISHED.toString()));
+    assertEquals(actualMap.get(PUBLISHED.toString()).size(), expectedMap.get(PUBLISHED.toString()).size());
     assertThat(actualMap.get(PUBLISHED.toString())).hasSameElementsAs(expectedMap.get(PUBLISHED.toString()));
   }
 

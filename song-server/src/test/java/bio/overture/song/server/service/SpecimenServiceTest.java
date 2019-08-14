@@ -44,6 +44,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -151,7 +152,7 @@ public class SpecimenServiceTest {
             .map(Sample::getSampleId)
             .collect(toSet());
         val expectedSet = newHashSet(sampleId1, sampleId2);
-        assertThat(actualSet).hasSameSizeAs(expectedSet);
+        assertEquals(actualSet.size(), expectedSet.size());
         assertThat(actualSet).containsAll(expectedSet);
         specimen.getSamples().forEach(sample -> assertEquals(sample,getSample(sample.getSampleId())));
     }
