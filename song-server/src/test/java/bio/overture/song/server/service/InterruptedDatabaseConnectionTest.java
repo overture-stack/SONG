@@ -41,7 +41,7 @@ import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

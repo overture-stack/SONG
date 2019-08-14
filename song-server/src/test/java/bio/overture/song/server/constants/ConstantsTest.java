@@ -29,7 +29,7 @@ import org.junit.Test;
 import static bio.overture.song.core.model.enums.FileTypes.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
