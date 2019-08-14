@@ -47,6 +47,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
@@ -304,7 +305,7 @@ public class EntityTest {
     Assertions.assertEquals(d1.getDonorId(),donor1.getDonorId());
     Assertions.assertEquals(d1.getStudyId(),donor1.getStudyId());
     assertThat(d1.getSpecimens()).containsExactlyInAnyOrder(specimenWithSample1, specimenWithSample2);
-    Assertions.assertThat(d1.createDonor()).isNotEqualTo(donor1);
+    Assertions.assertNotEquals(d1.createDonor(),donor1);
     assertInfoKVPair(d1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -1666,8 +1667,8 @@ public class EntityTest {
   }
 
   private static void assertEntitiesNotEqual(Object actual, Object expected){
-    assertThat(actual).isNotEqualTo(expected);
-    assertThat(actual.hashCode()).isNotEqualTo(expected.hashCode());
+    assertNotEquals(actual,expected);
+    assertNotEquals(actual.hashCode(),expected.hashCode());
   }
 
 }

@@ -55,6 +55,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
@@ -153,7 +154,7 @@ public class InfoSearchTest {
     Assertions.assertThat(response2).hasSize(1);
     val result1 = response1.get(0);
     val result2 = response2.get(0);
-    assertThat(result1.getAnalysisId()).isNotEqualTo(result2.getAnalysisId());
+    assertNotEquals(result1.getAnalysisId(),result2.getAnalysisId());
     assertEquals(result1.getInfo(),result2.getInfo());
     val an1 = service.securedDeepRead(studyId1, result1.getAnalysisId());
     val an2 = service.securedDeepRead(studyId2, result2.getAnalysisId());

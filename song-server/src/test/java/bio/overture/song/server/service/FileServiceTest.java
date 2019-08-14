@@ -34,6 +34,7 @@ import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
@@ -136,7 +137,7 @@ public class FileServiceTest {
     assertThat(actualFile).isEqualToComparingFieldByFieldRecursively(randomFile);
 
     actualFile.setFileSize(1010101L);
-    assertThat(actualFile).isNotEqualTo(randomFile);
+    assertNotEquals(actualFile,randomFile);
 
     val updatedFileId = fileService.save(analysisId, studyId, actualFile);
     val updatedFile = fileService.securedRead(studyId, updatedFileId);
@@ -155,7 +156,7 @@ public class FileServiceTest {
     assertThat(actualFile).isEqualToComparingFieldByFieldRecursively(randomFile);
 
     actualFile.setFileSize(1010101L);
-    assertThat(actualFile).isNotEqualTo(randomFile);
+    assertNotEquals(actualFile,randomFile);
 
     val updatedFileId = fileService.save(analysisId, studyId, actualFile);
     val updatedFile = fileService.securedRead(studyId, updatedFileId);

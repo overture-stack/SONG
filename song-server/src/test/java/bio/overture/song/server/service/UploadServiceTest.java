@@ -53,6 +53,7 @@ import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
@@ -182,7 +183,7 @@ public class UploadServiceTest {
 
     val upload = uploadService.securedRead(DEFAULT_STUDY, uploadId);
 
-    assertThat(upload.getState()).isNotEqualTo("CREATED"); //Since validation done synchronously, validation cannot ever return with the CREATED state
+    assertNotEquals(upload.getState(),"CREATED"); //Since validation done synchronously, validation cannot ever return with the CREATED state
   }
 
   @SneakyThrows
@@ -222,7 +223,7 @@ public class UploadServiceTest {
     log.info(format("UploadStatus='%s'",uploadStatus));
 
     val json2 = json.replace("MUSE variant call pipeline","Muslix popcorn");
-    assertThat(json).isNotEqualTo(json2);
+    assertNotEquals(json,json2);
     val uploadStatus2 = uploadService.upload(DEFAULT_STUDY, json2, true);
     val uploadId2 =  fromStatus(uploadStatus,"uploadId");
     val status2 = fromStatus(uploadStatus2, "status");
@@ -255,7 +256,7 @@ public class UploadServiceTest {
     assertEquals(status,"ok");
 
     val json2 = json.replace("silver bullet","golden hammer");
-    assertThat(json).isNotEqualTo(json2);
+    assertNotEquals(json,json2);
     val uploadStatus2 = uploadService.upload(DEFAULT_STUDY, json2, false);
     val uploadId2 =  fromStatus(uploadStatus2,"uploadId");
     val status2 = fromStatus(uploadStatus2, "status");
@@ -505,12 +506,12 @@ public class UploadServiceTest {
     val a2 = analysisService.unsecuredDeepRead(an2);
     assertEquals(a1.getStudy(),studyId);
     assertEquals(a2.getStudy(),studyId);
-    assertThat(a1.getAnalysisId()).isNotEqualTo(a2.getAnalysisId());
+    assertNotEquals(a1.getAnalysisId(),a2.getAnalysisId());
     assertThat(a1.getSample()).hasSize(1);
     assertThat(a2.getSample()).hasSize(1);
     assertEquals(a1.getSample().get(0).getDonor().getDonorId(),a2.getSample().get(0).getDonor().getDonorId());
     assertEquals(a1.getSample().get(0).getSpecimen().getSpecimenId(),a2.getSample().get(0).getSpecimen().getSpecimenId());
-    assertThat(a1.getSample().get(0).getSampleId()).isNotEqualTo(a2.getSample().get(0).getSampleId());
+    assertNotEquals(a1.getSample().get(0).getSampleId(),a2.getSample().get(0).getSampleId());
   }
 
   @Test

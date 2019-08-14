@@ -42,6 +42,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.springframework.http.HttpStatus.OK;
@@ -160,22 +161,22 @@ public class IdServiceTest {
 
     val id2 = idService.resolveAnalysisId("",false);
     assertThat(id2).isNotNull();
-    assertThat(id1).isNotEqualTo(id2);
+    assertNotEquals(id1,id2);
     assertThat(idClient.getAnalysisId(id2)).isEmpty();
 
     val id2Committed = idService.resolveAndCommitAnalysisId("",false);
     assertThat(id2Committed).isNotNull();
-    assertThat(id1).isNotEqualTo(id2Committed);
+    assertNotEquals(id1,id2Committed);
     assertThat(idClient.getAnalysisId(id2Committed)).isNotEmpty();
 
     val id3 = idService.resolveAnalysisId(null,false);
     assertThat(id3).isNotNull();
-    assertThat(id1).isNotEqualTo(id3);
+    assertNotEquals(id1,id3);
     assertThat(idClient.getAnalysisId(id3)).isEmpty();
 
     val id3Committed = idService.resolveAndCommitAnalysisId(null,false);
     assertThat(id1).isNotNull();
-    assertThat(id1).isNotEqualTo(id3Committed);
+    assertNotEquals(id1,id3Committed);
     assertThat(idClient.getAnalysisId(id3Committed)).isNotEmpty();
   }
 
@@ -189,7 +190,7 @@ public class IdServiceTest {
 
     val id2 = idService.resolveAnalysisId(SUBMITTER_ID_2,false);
     assertEquals(id2,SUBMITTER_ID_2);
-    assertThat(id1).isNotEqualTo(id2);
+    assertNotEquals(id1,id2);
 
   }
 

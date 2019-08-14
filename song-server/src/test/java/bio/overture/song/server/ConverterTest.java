@@ -32,6 +32,7 @@ import org.junit.Test;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
@@ -49,7 +50,7 @@ public class ConverterTest {
 
   @BeforeClass
   public static void beforeClass(){
-    assertThat(UNIQUE_MD5_1).isNotEqualTo(UNIQUE_MD5_2);
+    assertNotEquals(UNIQUE_MD5_1,UNIQUE_MD5_2);
   }
 
   @Test
@@ -144,7 +145,7 @@ public class ConverterTest {
   private static void assertConfigEqual(int id, int parameterNumFrom0, Function<FileData, ?> getterCallback,
       FileEntity updatedFile, FileEntity referenceFile){
     if (isConfigEnabled(id, parameterNumFrom0)){
-      assertThat(getterCallback.apply(updatedFile)).isNotEqualTo(getterCallback.apply(referenceFile));
+      assertNotEquals(getterCallback.apply(updatedFile),getterCallback.apply(referenceFile));
     } else {
       assertEquals(getterCallback.apply(updatedFile),getterCallback.apply(referenceFile));
     }
