@@ -1,17 +1,12 @@
 package db.migration;
 
-import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
-import static bio.overture.song.server.utils.JsonSchemas.getSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.Schema;
@@ -19,6 +14,18 @@ import org.everit.json.schema.ValidationException;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static db.migration.V1_2__dynamic_schema_integration.NonNullObjectNodeBuilder.createNonNullObjectNode;
+import static java.util.Objects.isNull;
+import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
+import static bio.overture.song.server.utils.JsonSchemas.getSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
@@ -112,20 +119,14 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
     val variantCalls = jdbcTemplate.queryForList("SELECT * FROM variantcall");
     for (val vc : variantCalls) {
       val analysisId = vc.get("id").toString();
-
-      val analysisData =
-          OBJECT_MAPPER
-              .createObjectNode()
-              .set(
-                  "experiment",
-                  OBJECT_MAPPER
-                      .createObjectNode()
-                      .put(
-                          VARIANT_CALLING_TOOL,
-                          (String) vc.get(TableAttributeNames.VARIANT_CALLING_TOOL))
-                      .put(
-                          MATCHED_NORMAL_SAMPLE_SUBMITTER_ID,
-                          (String) vc.get(TableAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID)));
+      val experiment =
+          createNonNullObjectNode()
+              .putString(VARIANT_CALLING_TOOL, vc.get(TableAttributeNames.VARIANT_CALLING_TOOL))
+              .putString(
+                  MATCHED_NORMAL_SAMPLE_SUBMITTER_ID,
+                  vc.get(TableAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID))
+              .build();
+      val analysisData = OBJECT_MAPPER.createObjectNode().set("experiment", experiment);
       try {
         validateWithSchema(LEGACY_VARIANT_CALL_SCHEMA, analysisData);
       } catch (ValidationException e) {
@@ -145,31 +146,21 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
     val sequencingReads = jdbcTemplate.queryForList("SELECT * FROM sequencingread");
     for (val sr : sequencingReads) {
       val analysisId = sr.get("id").toString();
-      val analysisData =
-          OBJECT_MAPPER
-              .createObjectNode()
-              .set(
-                  "experiment",
-                  OBJECT_MAPPER
-                      .createObjectNode()
-                      .put(
-                          ModelAttributeNames.LIBRARY_STRATEGY,
-                          (String) sr.get(TableAttributeNames.LIBRARY_STRATEGY))
-                      .put(
-                          ModelAttributeNames.PAIRED_END,
-                          (Boolean) sr.get(TableAttributeNames.PAIRED_END))
-                      .put(
-                          ModelAttributeNames.INSERT_SIZE,
-                          (Long) sr.get(TableAttributeNames.INSERT_SIZE))
-                      .put(
-                          ModelAttributeNames.ALIGNED,
-                          (Boolean) sr.get(TableAttributeNames.ALIGNED))
-                      .put(
-                          ModelAttributeNames.ALIGNMENT_TOOL,
-                          (String) sr.get(TableAttributeNames.ALIGNMENT_TOOL))
-                      .put(
-                          ModelAttributeNames.REFERENCE_GENOME,
-                          (String) sr.get(TableAttributeNames.REFERENCE_GENOME)));
+      val experiment =
+          createNonNullObjectNode()
+              .putString(
+                  ModelAttributeNames.LIBRARY_STRATEGY,
+                  sr.get(TableAttributeNames.LIBRARY_STRATEGY))
+              .putBoolean(ModelAttributeNames.PAIRED_END, sr.get(TableAttributeNames.PAIRED_END))
+              .putLong(ModelAttributeNames.INSERT_SIZE, sr.get(TableAttributeNames.INSERT_SIZE))
+              .putBoolean(ModelAttributeNames.ALIGNED, sr.get(TableAttributeNames.ALIGNED))
+              .putString(
+                  ModelAttributeNames.ALIGNMENT_TOOL, sr.get(TableAttributeNames.ALIGNMENT_TOOL))
+              .putString(
+                  ModelAttributeNames.REFERENCE_GENOME,
+                  sr.get(TableAttributeNames.REFERENCE_GENOME))
+              .build();
+      val analysisData = OBJECT_MAPPER.createObjectNode().set("experiment", experiment);
       try {
         validateWithSchema(LEGACY_SEQUENCING_READ_SCHEMA, analysisData);
       } catch (ValidationException e) {
@@ -186,168 +177,55 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
 
   private void testUuidMigration(JdbcTemplate jdbcTemplate) {}
 
-  /*
-  private static final Path LEGACY_DIR = Paths.get("schemas/analysis/legacy");
-  private static final Schema LEGACY_VARIANT_CALL_SCHEMA = getLegacyVariantCallSchema();
-  private static final Schema LEGACY_SEQUENCING_READ_SCHEMA = getLegacySequencingReadSchema();
-  private static final ObjectMapper OBJECT_MAPPER = mapper();
+  @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+  public static class NonNullObjectNodeBuilder {
 
-  @Override
-  public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-    log.info(
-        "Flyway java migration: V1_2__dynamic_schema_integration******************************");
+    @NonNull private final ObjectNode root;
 
-
-    boolean runWithTest = false;
-
-    // Test data
-    if (runWithTest) {
-      createTestData(jdbcTemplate);
+    public NonNullObjectNodeBuilder putObject(String key) {
+      return createNonNullObjectNode(root.putObject(key));
     }
 
-    // Alter Analysis Table to accomedate analysis_schema relationship
-    jdbcTemplate.execute("ALTER TABLE Analysis ADD analysis_schema_id INTEGER");
-    jdbcTemplate.execute(
-        "ALTER TABLE Analysis ADD CONSTRAINT analysis_schema_id_fk "
-            + "FOREIGN KEY (analysis_schema_id) REFERENCES analysis_schema(id)");
-
-    // Create analysis_data table to store json data for an analysis
-    jdbcTemplate.execute(
-        "CREATE TABLE analysis_data (analysis_id VARCHAR(36) PRIMARY KEY, data jsonb NOT NULL, FOREIGN KEY (analysis_id) REFERENCES analysis(id))");
-
-    // Drop views for now, but will be recreated in the next migration
-    jdbcTemplate.execute("DROP VIEW idview");
-    jdbcTemplate.execute("DROP VIEW fullview");
-
-    // ******************************************************************************
-    // *  VariantCall Migration Step
-    // ******************************************************************************
-
-    // Register variantCall analyis schema
-    val variantCall = getJsonNodeFromClasspath(LEGACY_DIR.resolve("variantCall.json").toString());
-    jdbcTemplate.update(
-        "INSERT INTO analysis_schema (id, name, schema) VALUES (1, 'variantCall', ?)",
-        variantCall.toString());
-
-    // Update all variantCall analyses to point to variantCall analysis_schema
-    jdbcTemplate.execute("UPDATE Analysis SET analysis_schema_id = 1 WHERE type = 'variantCall'");
-
-    // Convert all stored variantCall data to json format and into the analysis_data table
-    migrateVariantCall(jdbcTemplate);
-
-    // Drop the variantCall table
-    jdbcTemplate.execute("DROP TABLE variantcall");
-
-    // ******************************************************************************
-    // *  SequencingRead Migration Step
-    // ******************************************************************************
-
-    // Register variantCall analyis schema
-    val sequencingRead =
-        getJsonNodeFromClasspath(LEGACY_DIR.resolve("sequencingRead.json").toString());
-
-    // Update all variantCall analyses to point to variantCall analysis_schema
-    jdbcTemplate.update(
-        "INSERT INTO analysis_schema (id, name, schema) VALUES (2,'sequencingRead', ?)",
-        sequencingRead.toString());
-
-    // Convert all stored variantCall data to json format and into the analysis_data table
-    jdbcTemplate.execute(
-        "UPDATE Analysis SET analysis_schema_id = 2 WHERE type = 'sequencingRead'");
-
-    // Drop the variantCall table
-    migrateSequencingRead(jdbcTemplate);
-    jdbcTemplate.execute("DROP TABLE sequencingread");
-
-    // Test queries to ensure all is good (if flag set to true)
-    if (runWithTest) {
-      testUuidMigration(jdbcTemplate);
-    }
-
-    log.info(
-        "****************************** Flyway java migration: V1_2__dynamic_schema_integration******************************complete");
-  }
-
-  private void createTestData(JdbcTemplate jdbcTemplate) {}
-
-  private void migrateVariantCall(JdbcTemplate jdbcTemplate) {
-    log.info("Starting VariantCall migration");
-    val variantCalls = jdbcTemplate.queryForList("SELECT * FROM variantcall");
-    for (val vc : variantCalls) {
-      val analysisId = vc.get("id").toString();
-
-      val analysisData =
-          OBJECT_MAPPER
-              .createObjectNode()
-              .set(
-                  "experiment",
-                  OBJECT_MAPPER
-                      .createObjectNode()
-                      .put(
-                          ModelAttributeNames.VARIANT_CALLING_TOOL,
-                          (String) vc.get(VARIANT_CALLING_TOOL))
-                      .put(
-                          ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID,
-                          (String) vc.get(MATCHED_NORMAL_SAMPLE_SUBMITTER_ID)));
-      try {
-        validateWithSchema(LEGACY_VARIANT_CALL_SCHEMA, analysisData);
-      } catch (ValidationException e) {
-        log.error("Variant Call Errors:   {}", Joiners.COMMA.join(e.getAllMessages()));
-        throw e;
+    public NonNullObjectNodeBuilder putString(String key, Object value) {
+      if (!isNull(value)) {
+        root.put(key, (String) value);
       }
-      jdbcTemplate.update(
-          "INSERT INTO analysis_data(analysis_id, data) VALUES (?,?)",
-          analysisId,
-          analysisData.toString());
+      return this;
     }
-    log.info("Finished VariantCall migration");
-  }
 
-  private void migrateSequencingRead(JdbcTemplate jdbcTemplate) {
-    log.info("Starting SequencingRead migration");
-    val sequencingReads = jdbcTemplate.queryForList("SELECT * FROM sequencingread");
-    for (val sr : sequencingReads) {
-      val analysisId = sr.get("id").toString();
-      val analysisData =
-          OBJECT_MAPPER
-              .createObjectNode()
-              .set(
-                  "experiment",
-                  OBJECT_MAPPER
-                      .createObjectNode()
-                      .put(
-                          ModelAttributeNames.LIBRARY_STRATEGY,
-                          (String) sr.get(TableAttributeNames.LIBRARY_STRATEGY))
-                      .put(
-                          ModelAttributeNames.PAIRED_END,
-                          (Boolean) sr.get(TableAttributeNames.PAIRED_END))
-                      .put(
-                          ModelAttributeNames.INSERT_SIZE,
-                          (Long) sr.get(TableAttributeNames.INSERT_SIZE))
-                      .put(
-                          ModelAttributeNames.ALIGNED,
-                          (Boolean) sr.get(TableAttributeNames.ALIGNED))
-                      .put(
-                          ModelAttributeNames.ALIGNMENT_TOOL,
-                          (String) sr.get(TableAttributeNames.ALIGNMENT_TOOL))
-                      .put(
-                          ModelAttributeNames.REFERENCE_GENOME,
-                          (String) sr.get(TableAttributeNames.REFERENCE_GENOME)));
-      try {
-        validateWithSchema(LEGACY_SEQUENCING_READ_SCHEMA, analysisData);
-      } catch (ValidationException e) {
-        log.error("SequncingRead validationErrors:   {}", Joiners.COMMA.join(e.getAllMessages()));
-        throw e;
+    public NonNullObjectNodeBuilder putInteger(String key, Object value) {
+      if (!isNull(value)) {
+        root.put(key, (Integer) value);
       }
-      jdbcTemplate.update(
-          "INSERT INTO analysis_data(analysis_id, data) VALUES (?,?)",
-          analysisId,
-          analysisData.toString());
+      return this;
     }
-    log.info("Finished SequencingRead migration");
+
+    public NonNullObjectNodeBuilder putLong(String key, Object value) {
+      if (!isNull(value)) {
+        root.put(key, (Long) value);
+      }
+      return this;
+    }
+
+    public NonNullObjectNodeBuilder putBoolean(String key, Object value) {
+      if (!isNull(value)) {
+        root.put(key, (Boolean) value);
+      }
+      return this;
+    }
+
+    public ObjectNode build() {
+      return root;
+    }
+
+    public static NonNullObjectNodeBuilder createNonNullObjectNode() {
+      return createNonNullObjectNode(OBJECT_MAPPER.createObjectNode());
+    }
+
+    public static NonNullObjectNodeBuilder createNonNullObjectNode(ObjectNode root) {
+      return new NonNullObjectNodeBuilder(root);
+    }
+
   }
 
-  private void testUuidMigration(JdbcTemplate jdbcTemplate) {}
-
-   */
 }
