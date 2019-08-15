@@ -17,9 +17,9 @@
 
 package bio.overture.song.server.model.enums;
 
-import static lombok.AccessLevel.PRIVATE;
-
 import lombok.NoArgsConstructor;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
 public class ModelAttributeNames {
@@ -47,6 +47,8 @@ public class ModelAttributeNames {
   public static final String UPDATED_AT = "updatedAt";
   public static final String ERRORS = "errors";
   public static final String PAYLOAD = "payload";
+  public static final String VARIANT_CALLING_TOOL = "variantCallingTool";
+  public static final String MATCHED_NORMAL_SAMPLE_SUBMITTER_ID = "matchedNormalSampleSubmitterId" ;
   public static final String ID = "id";
   public static final String VERSION = "version";
   public static final String NAME = "name";
