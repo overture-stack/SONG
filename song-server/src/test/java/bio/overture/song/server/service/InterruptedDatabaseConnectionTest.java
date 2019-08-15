@@ -20,8 +20,6 @@ import bio.overture.song.core.utils.RandomGenerator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +33,15 @@ import org.testcontainers.jdbc.ContainerDatabaseDriver;
 
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 
 @Slf4j
@@ -80,12 +81,12 @@ public class InterruptedDatabaseConnectionTest {
     // it gets data from postgres when the database is up.
     // Unfortunately, it doesn't return anything when it hangs...
     val study = service.read("ABC123");
-    assertThat(study).isNotNull();
-    assertThat(study.getStudyId()).isEqualTo("ABC123");
-    assertThat(study.getName()).isEqualTo("X1-CA");
-    assertThat(study.getDescription()).isEqualTo("A fictional study");
-    assertThat(study.getOrganization()).isEqualTo("Sample Data Research Institute");
-    assertThat(getInfoName(study)).isEqualTo("study1");
+    assertNotNull(study);
+    assertEquals(study.getStudyId(),"ABC123");
+    assertEquals(study.getName(),"X1-CA");
+    assertEquals(study.getDescription(),"A fictional study");
+    assertEquals(study.getOrganization(),"Sample Data Research Institute");
+    assertEquals(getInfoName(study),"study1");
   }
 
   private void assertDatabaseIsUnreachable() {
@@ -102,11 +103,11 @@ public class InterruptedDatabaseConnectionTest {
 
   private void testThatServiceReallyWorks(){
     val studyIds = service.findAllStudies();
-    assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
+    assertThat(studyIds, hasItems(DEFAULT_STUDY_ID, "XYZ234"));
     val studyId = createStudyGenerator(service, randomGenerator).createRandomStudy();
     val study = service.read(studyId);
     val studyIds2 = service.findAllStudies();
-    assertThat(studyIds2).contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId());
+    assertThat(studyIds2, hasItems(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId()));
   }
 
   /**

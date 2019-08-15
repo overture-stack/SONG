@@ -26,7 +26,6 @@ import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,19 +35,21 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import javax.transaction.Transactional;
 
+import javax.transaction.Transactional;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toSet;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.Constants.DONOR_GENDER;
 import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
@@ -79,8 +80,8 @@ public class SpecimenServiceTest {
 
     @Before
     public void beforeTest(){
-        assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
-        assertThat(donorService.isDonorExist(DEFAULT_DONOR_ID)).isTrue();
+        assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
+        assertTrue(donorService.isDonorExist(DEFAULT_DONOR_ID));
     }
 
     @Test
@@ -88,11 +89,11 @@ public class SpecimenServiceTest {
         // find existing specimen in the database
         val id = "SP1";
         val s = specimenService.securedRead(DEFAULT_STUDY_ID, id);
-        assertThat(s.getSpecimenId()).isEqualTo(id);
-        assertThat(s.getSpecimenSubmitterId()).isEqualTo("Tissue-Culture 284 Gamma 3");
-        assertThat(s.getSpecimenClass()).isEqualTo("Tumour");
-        assertThat(s.getSpecimenType()).isEqualTo("Recurrent tumour - solid tissue");
-        assertThat(getInfoName(s)).isEqualTo("specimen1");
+        assertEquals(s.getSpecimenId(),id);
+        assertEquals(s.getSpecimenSubmitterId(),"Tissue-Culture 284 Gamma 3");
+        assertEquals(s.getSpecimenClass(),"Tumour");
+        assertEquals(s.getSpecimenType(),"Recurrent tumour - solid tissue");
+        assertEquals(getInfoName(s),"specimen1");
     }
 
     @Test
@@ -132,21 +133,21 @@ public class SpecimenServiceTest {
 
 
         val specimen = specimenService.readWithSamples(specimenId);
-        assertThat(specimen.getSpecimenId()).isEqualTo(specimenId);
-        assertThat(specimen.getSpecimenSubmitterId()).isEqualTo(submitterId);
-        assertThat(specimen.getSpecimenClass()).isEqualTo(specimenClass);
-        assertThat(specimen.getSpecimenType()).isEqualTo(specimenType);
-        assertThat(specimen.getSamples().size()).isEqualTo(2);
-        assertThat(getInfoName(specimen)).isEqualTo("specimen1");
+        assertEquals(specimen.getSpecimenId(),specimenId);
+        assertEquals(specimen.getSpecimenSubmitterId(),submitterId);
+        assertEquals(specimen.getSpecimenClass(),specimenClass);
+        assertEquals(specimen.getSpecimenType(),specimenType);
+        assertEquals(specimen.getSamples().size(),2);
+        assertEquals(getInfoName(specimen),"specimen1");
 
         // Verify that we got the same samples as the sample service says we should.
         val actualSet = specimen.getSamples().stream()
             .map(Sample::getSampleId)
             .collect(toSet());
         val expectedSet = newHashSet(sampleId1, sampleId2);
-        Assertions.assertThat(actualSet).hasSameSizeAs(expectedSet);
-        Assertions.assertThat(actualSet).containsAll(expectedSet);
-        specimen.getSamples().forEach(sample -> assertThat(sample).isEqualTo(getSample(sample.getSampleId())));
+        assertEquals(actualSet.size(), expectedSet.size());
+        assertTrue(actualSet.containsAll(expectedSet));
+        specimen.getSamples().forEach(sample -> assertEquals(sample,getSample(sample.getSampleId())));
     }
 
     private Sample getSample(String id) {
@@ -169,7 +170,7 @@ public class SpecimenServiceTest {
 
         val status = specimenService.create(DEFAULT_STUDY_ID, s);
         val id = s.getSpecimenId();
-        assertThat(specimenService.isSpecimenExist(id)).isTrue();
+        assertTrue(specimenService.isSpecimenExist(id));
 
         // Issue #288 - unable to read specimen after deleting all its samples
         // This is neccessary since the BusinessKeyView does inner joins on donor, specimen and sample.
@@ -183,15 +184,15 @@ public class SpecimenServiceTest {
             .build();
         val sampleId = sampleService.create(DEFAULT_STUDY_ID, sample1);
 
-        assertThat(id).startsWith("SP");
-        Assertions.assertThat(status).isEqualTo(id);
+        assertTrue(id.startsWith("SP"));
+        assertEquals(status,id);
 
         val check = specimenService.securedRead(DEFAULT_STUDY_ID, id);
-        assertThat(s).isEqualToComparingFieldByField(check);
+        assertEquals(s,check);
 
         val response = specimenService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
-        assertThat(specimenService.isSpecimenExist(id)).isFalse();
-        Assertions.assertThat(response).isEqualTo("OK");
+        assertFalse(specimenService.isSpecimenExist(id));
+        assertEquals(response,"OK");
     }
 
     @Test
@@ -233,16 +234,16 @@ public class SpecimenServiceTest {
         specimenService.update(s2);
 
         val s3 = specimenService.securedRead(DEFAULT_STUDY_ID, id);
-        Assertions.assertThat(s3).isEqualToComparingFieldByField(s2);
+        assertEquals(s3,s2);
     }
 
     @Test
     public void testSpecimenExists(){
         val existingSpecimenId= DEFAULT_SPECIMEN_ID;
-        assertThat(specimenService.isSpecimenExist(existingSpecimenId)).isTrue();
+        assertTrue(specimenService.isSpecimenExist(existingSpecimenId));
         specimenService.checkSpecimenExist(existingSpecimenId);
         val nonExistingSpecimenId = randomGenerator.generateRandomUUIDAsString();
-        assertThat(specimenService.isSpecimenExist(nonExistingSpecimenId)).isFalse();
+        assertFalse(specimenService.isSpecimenExist(nonExistingSpecimenId));
         specimenService.checkSpecimenExist(existingSpecimenId);
         specimenService.checkSpecimenDoesNotExist(nonExistingSpecimenId);
 
@@ -271,7 +272,7 @@ public class SpecimenServiceTest {
 
         // Create a specimen
         val specimenId = specimenService.create(existingStudyId, specimen);
-        assertThat(specimenService.isSpecimenExist(specimenId)).isTrue();
+        assertTrue(specimenService.isSpecimenExist(specimenId));
 
         // Try to create the specimen again, and assert that the right exception is thrown
         SongErrorAssertions
@@ -286,7 +287,7 @@ public class SpecimenServiceTest {
         specimen2.setSpecimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)));
         specimen2.setDonorId(donorId);
         specimen2.setSpecimenId(randomGenerator.generateRandomUUIDAsString());
-        assertThat(specimenService.isSpecimenExist(specimen2.getSpecimenId())).isFalse();
+        assertFalse(specimenService.isSpecimenExist(specimen2.getSpecimenId()));
         SongErrorAssertions
             .assertSongError(() -> specimenService.create(existingStudyId, specimen2), SPECIMEN_ID_IS_CORRUPTED);
     }
@@ -294,7 +295,7 @@ public class SpecimenServiceTest {
     @Test
     public void testReadSpecimenDNE(){
         val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
-        assertThat(specimenService.isSpecimenExist(randomSpecimenId)).isFalse();
+        assertFalse(specimenService.isSpecimenExist(randomSpecimenId));
         SongErrorAssertions
             .assertSongError(() -> specimenService.unsecuredRead(randomSpecimenId), SPECIMEN_DOES_NOT_EXIST);
         SongErrorAssertions
@@ -352,31 +353,30 @@ public class SpecimenServiceTest {
 
         // ReadByParentId (newly created donorId)
         val specimens = specimenService.readByParentId(donorId);
-        Assertions.assertThat(specimens).hasSize(numSpecimens);
+        assertEquals(specimens.size(),numSpecimens);
         for(val specimen :  specimens){
             val actualSpecimenId = specimen.getSpecimenId();
             val actualSampleIds = specimen.getSamples().stream().map(Sample::getSampleId).collect(toSet());
-            assertThat(expectedSpecimenIds).contains(actualSpecimenId);
-            Assertions.assertThat(actualSampleIds).hasSize(numSamplesPerSpecimen);
+            assertTrue(expectedSpecimenIds.contains(actualSpecimenId));
+            assertEquals(actualSampleIds.size(),numSamplesPerSpecimen);
             val expectedSampleIds = expectedSampleIdMap.get(actualSpecimenId);
-            assertThat(expectedSampleIds).hasSize(numSamplesPerSpecimen);
-            Assertions.assertThat(actualSampleIds).isSubsetOf(expectedSampleIds);
-            assertThat(expectedSampleIds).isSubsetOf(actualSampleIds);
+            assertEquals(expectedSampleIds.size(),numSamplesPerSpecimen);
+            assertCollectionsMatchExactly(actualSampleIds,expectedSampleIds);
         }
 
 
         // Assert that reading by a non-existent donorId returns something empty
 
         val randomDonorId = randomGenerator.generateRandomUUIDAsString();
-        assertThat(donorService.isDonorExist(randomDonorId)).isFalse();
+        assertFalse(donorService.isDonorExist(randomDonorId));
         val emptySpecimenList = specimenService.readByParentId(randomDonorId);
-        Assertions.assertThat(emptySpecimenList).isEmpty();
+        assertTrue(emptySpecimenList.isEmpty());
 
         // Delete by parent id
       val response = specimenService.deleteByParentId(donorId);
-      Assertions.assertThat(response).isEqualTo("OK");
+      assertEquals(response,"OK");
       val emptySpecimenList2 = specimenService.readByParentId(donorId);
-      Assertions.assertThat(emptySpecimenList2).isEmpty();
+      assertTrue(emptySpecimenList2.isEmpty());
     }
 
     @Test

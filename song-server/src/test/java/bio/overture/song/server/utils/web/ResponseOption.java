@@ -6,9 +6,6 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
-import org.assertj.core.api.AssertionsForClassTypes;
-import org.assertj.core.api.ListAssert;
-import org.assertj.core.api.ObjectAssert;
 import org.icgc.dcc.common.core.util.stream.Streams;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +14,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -39,12 +38,9 @@ public class ResponseOption {
         .map(x -> internalExtractOneEntityFromResponse(x, entityClass));
   }
 
-  public <R> ListAssert<R> assertPageResultsOfType(Class<R> entityClass) {
-    return assertThat(extractPageResults(entityClass));
-  }
-
-  public <R> ObjectAssert<R> assertEntityOfType(Class<R> entityClass) {
-    return assertThat(extractOneEntity(entityClass));
+  public <R> ResponseOption assertOneEntityEquals(R expectedValue) {
+    assertEquals(extractOneEntity(expectedValue.getClass()), expectedValue);
+    return this;
   }
 
   public <R> List<R> extractPageResults(@NonNull Class<R> entityClass) {
@@ -61,13 +57,13 @@ public class ResponseOption {
 
   public ResponseOption assertServerError(ServerError serverError) {
     val songError = parseErrorResponse(response);
-    assertThat(songError.getErrorId()).isEqualTo(serverError.getErrorId());
+    assertEquals(songError.getErrorId(),serverError.getErrorId());
     return assertStatusCode(serverError.getHttpStatus());
 
   }
 
   public ResponseOption assertStatusCode(HttpStatus code) {
-    AssertionsForClassTypes.assertThat(response.getStatusCode()).isEqualTo(code);
+    assertEquals(response.getStatusCode(),code);
     return this;
   }
 
@@ -88,8 +84,8 @@ public class ResponseOption {
   }
 
   public ResponseOption assertHasBody() {
-    AssertionsForClassTypes.assertThat(response.hasBody()).isTrue();
-    AssertionsForClassTypes.assertThat(response.getBody()).isNotNull();
+    assertTrue(response.hasBody());
+    assertNotNull(response.getBody());
     return this;
   }
 
@@ -101,7 +97,7 @@ public class ResponseOption {
   private static <T> List<T> internalExtractPageResultSetFromResponse(
       ResponseEntity<String> r, Class<T> tClass) {
     val page = MAPPER.readTree(r.getBody());
-    assertThat(page).isNotNull();
+    assertNotNull(page);
     return Streams.stream(page.path("content").iterator())
         .map(x -> MAPPER.convertValue(x, tClass))
         .collect(toImmutableList());

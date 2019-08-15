@@ -28,7 +28,7 @@ import lombok.val;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static org.assertj.core.util.Lists.newArrayList;
+import static com.google.common.collect.Lists.newArrayList;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;

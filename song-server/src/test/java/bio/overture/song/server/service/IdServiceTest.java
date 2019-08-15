@@ -28,22 +28,26 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.OK;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
 
 @Slf4j
 public class IdServiceTest {
@@ -78,28 +82,23 @@ public class IdServiceTest {
     // Test NotFound case
     responseConfig(IdServiceResponseTypes.NOT_FOUND, analysisId, filename);
     log.info("sdf");
-    assertThat(catchThrowable(() -> idService.generateFileId(analysisId, filename)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Generating objectId should not yield missing value.");
+    assertExceptionThrownBy(IllegalStateException.class,
+        () -> idService.generateFileId(analysisId, filename));
 
     // Test Whitespace Case
     responseConfig(WHITESPACE_ONLY, analysisId, filename);
-    assertThat(catchThrowable(() -> idService.generateFileId(analysisId, filename)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("The generated id cannot be blank");
+    assertExceptionThrownBy(IllegalStateException.class,
+        () -> idService.generateFileId(analysisId, filename));
 
     // Test Empty Case
     responseConfig(EMPTY, analysisId, filename);
-    assertThat(catchThrowable(() -> idService.generateFileId(analysisId, filename)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("The generated id cannot be blank");
+    assertExceptionThrownBy(IllegalStateException.class,
+        () -> idService.generateFileId(analysisId, filename));
 
     // Test Malformed Case
     responseConfig(MALFORMED_UUID, analysisId, filename);
-    assertThat(catchThrowable(() -> idService.generateFileId(analysisId, filename)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageStartingWith("The generated id '")
-        .hasMessageEndingWith("' is not in UUID format");
+    assertExceptionThrownBy(IllegalStateException.class,
+        () -> idService.generateFileId(analysisId, filename));
   }
 
   enum IdServiceResponseTypes{
@@ -150,32 +149,32 @@ public class IdServiceTest {
     val idService = new IdService(idClient);
 
     val id1 = idService.resolveAnalysisId("",false);
-    assertThat(id1).isNotNull();
-    assertThat(idClient.getAnalysisId(id1)).isEmpty();
+    assertNotNull(id1);
+    assertFalse(idClient.getAnalysisId(id1).isPresent());
 
     val id1Committed = idService.resolveAndCommitAnalysisId("",false);
-    assertThat(id1Committed).isNotNull();
-    assertThat(idClient.getAnalysisId(id1Committed)).isNotEmpty();
+    assertNotNull(id1Committed);
+    assertTrue(idClient.getAnalysisId(id1Committed).isPresent());
 
     val id2 = idService.resolveAnalysisId("",false);
-    assertThat(id2).isNotNull();
-    assertThat(id1).isNotEqualTo(id2);
-    assertThat(idClient.getAnalysisId(id2)).isEmpty();
+    assertNotNull(id2);
+    assertNotEquals(id1,id2);
+    assertFalse(idClient.getAnalysisId(id2).isPresent());
 
     val id2Committed = idService.resolveAndCommitAnalysisId("",false);
-    assertThat(id2Committed).isNotNull();
-    assertThat(id1).isNotEqualTo(id2Committed);
-    assertThat(idClient.getAnalysisId(id2Committed)).isNotEmpty();
+    assertNotNull(id2Committed);
+    assertNotEquals(id1,id2Committed);
+    assertTrue(idClient.getAnalysisId(id2Committed).isPresent());
 
     val id3 = idService.resolveAnalysisId(null,false);
-    assertThat(id3).isNotNull();
-    assertThat(id1).isNotEqualTo(id3);
-    assertThat(idClient.getAnalysisId(id3)).isEmpty();
+    assertNotNull(id3);
+    assertNotEquals(id1,id3);
+    assertFalse(idClient.getAnalysisId(id3).isPresent());
 
     val id3Committed = idService.resolveAndCommitAnalysisId(null,false);
-    assertThat(id1).isNotNull();
-    assertThat(id1).isNotEqualTo(id3Committed);
-    assertThat(idClient.getAnalysisId(id3Committed)).isNotEmpty();
+    assertNotNull(id1);
+    assertNotEquals(id1,id3Committed);
+    assertTrue(idClient.getAnalysisId(id3Committed).isPresent());
   }
 
   @Test
@@ -184,11 +183,11 @@ public class IdServiceTest {
     val idService = new IdService(idClient);
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
-    assertThat(id1).isEqualTo(SUBMITTER_ID_1);
+    assertEquals(id1,SUBMITTER_ID_1);
 
     val id2 = idService.resolveAnalysisId(SUBMITTER_ID_2,false);
-    assertThat(id2).isEqualTo(SUBMITTER_ID_2);
-    assertThat(id1).isNotEqualTo(id2);
+    assertEquals(id2,SUBMITTER_ID_2);
+    assertNotEquals(id1,id2);
 
   }
 
@@ -198,12 +197,12 @@ public class IdServiceTest {
     val idService = new IdService(idClient);
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
-    assertThat(id1).isEqualTo(SUBMITTER_ID_1);
-    assertThat(idClient.getAnalysisId(id1)).isEmpty();
+    assertEquals(id1,SUBMITTER_ID_1);
+    assertFalse(idClient.getAnalysisId(id1).isPresent());
 
     val id2 = idService.resolveAnalysisId(SUBMITTER_ID_1,true);
-    assertThat(id2).isEqualTo(SUBMITTER_ID_1);
-    assertThat(id1).isEqualTo(id2);
+    assertEquals(id2,SUBMITTER_ID_1);
+    assertEquals(id1,id2);
 
 
   }
@@ -215,7 +214,7 @@ public class IdServiceTest {
     val idService = new IdService(idClient);
 
     val id1 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_1,false);
-    assertThat(id1).isEqualTo(SUBMITTER_ID_1);
+    assertEquals(id1,SUBMITTER_ID_1);
     assertSongError(
         () -> idService.resolveAnalysisId(SUBMITTER_ID_1,false),
         ANALYSIS_ID_COLLISION,
@@ -234,9 +233,9 @@ public class IdServiceTest {
      * Test that if ignoreAnalysisIdCollisions is true and the analysisId does not exist, the
      * analysisId is still created. SUBMITTER_ID_2 should not exist for first call
      */
-    assertThat(idClient.getAnalysisId(SUBMITTER_ID_2)).isEmpty();
+    assertFalse(idClient.getAnalysisId(SUBMITTER_ID_2).isPresent());
     val id2 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2,true);
-    assertThat(id2).isEqualTo(SUBMITTER_ID_2);
+    assertEquals(id2,SUBMITTER_ID_2);
     assertSongError(
         () -> idService.resolveAnalysisId(SUBMITTER_ID_2,false),
         ANALYSIS_ID_COLLISION,
