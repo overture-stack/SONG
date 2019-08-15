@@ -16,16 +16,13 @@
  */
 package bio.overture.song.core.utils;
 
-import static bio.overture.song.core.utils.JsonUtils.convertToJSONObject;
 import static java.lang.String.format;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.everit.json.schema.Schema;
 
 public class JsonSchemaUtils extends JsonDocUtils {
 
@@ -56,11 +53,5 @@ public class JsonSchemaUtils extends JsonDocUtils {
     JsonSchemaFactory factory = new JsonSchemaFactory();
     JsonSchema schema = factory.getSchema(node);
     return schema;
-  }
-
-  @SneakyThrows
-  public static void validateWithSchema(@NonNull Schema schema, @NonNull JsonNode j) {
-    val jsonObject = convertToJSONObject(j);
-    schema.validate(jsonObject);
   }
 }

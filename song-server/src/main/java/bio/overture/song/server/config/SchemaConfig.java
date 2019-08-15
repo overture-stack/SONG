@@ -1,8 +1,8 @@
 package bio.overture.song.server.config;
 
-import static bio.overture.song.core.utils.JsonUtils.convertToJSONObject;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.joining;

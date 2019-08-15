@@ -18,7 +18,7 @@ package bio.overture.song.server.service;
 
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.utils.JsonSchemaUtils.validateWithSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;

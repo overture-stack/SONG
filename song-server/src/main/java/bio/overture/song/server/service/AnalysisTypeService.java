@@ -5,10 +5,10 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.utils.JsonSchemaUtils.validateWithSchema;
 import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
 import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;

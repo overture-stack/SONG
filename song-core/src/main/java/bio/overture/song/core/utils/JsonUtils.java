@@ -38,12 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 /** Utility functions related to deal with JSON */
 public class JsonUtils {
@@ -107,14 +103,6 @@ public class JsonUtils {
   @SneakyThrows
   public static JsonNode toJsonNode(Map<String, Object> map) {
     return mapper.convertValue(map, JsonNode.class);
-  }
-
-  public static JSONObject convertToJSONObject(@NonNull String s) throws JSONException {
-    return new JSONObject(new JSONTokener(s));
-  }
-
-  public static JSONObject convertToJSONObject(@NonNull JsonNode j) throws JSONException {
-    return convertToJSONObject(toJson(j));
   }
 
   public static class SongPrettyPrinter extends DefaultPrettyPrinter {
