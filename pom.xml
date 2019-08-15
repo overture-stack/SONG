@@ -271,6 +271,20 @@
 
     <build>
         <defaultGoal>install</defaultGoal>
+		<plugins>
+			<plugin>
+				<groupId>com.coveo</groupId>
+				<artifactId>fmt-maven-plugin</artifactId>
+				<version>${plugin.fmt.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -391,6 +405,7 @@
         <testcontainers.version>1.10.6</testcontainers.version>
         <flyway.version>5.2.4</flyway.version>
         <everit.jsonschema.version>1.11.1</everit.jsonschema.version>
+		<plugin.fmt.version>2.9</plugin.fmt.version>
     </properties>
 
 </project>
