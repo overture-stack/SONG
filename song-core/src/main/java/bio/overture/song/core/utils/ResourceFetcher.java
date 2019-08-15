@@ -1,18 +1,23 @@
-package bio.overture.song.server.utils;
-
-import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.isDirectory;
+package bio.overture.song.core.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.val;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.isDirectory;
+import static java.nio.file.Files.newInputStream;
+import static java.nio.file.Files.readString;
+import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
 
 @Value
 @Builder
@@ -33,8 +38,20 @@ public class ResourceFetcher {
         path.toString());
   }
 
+  public Path getPath(@NonNull String filename){
+    return dataDir.resolve(filename);
+  }
+
+  public InputStream inputStream(@NonNull String filename) throws IOException {
+    return newInputStream(getPath(filename));
+  }
+
+  public String content(@NonNull String filename) throws IOException {
+    return readString(getPath(filename));
+  }
+
   public JsonNode readJsonNode(@NonNull String filename) {
-    return getJsonNodeFromClasspath(dataDir.resolve(filename).toString());
+    return getJsonNodeFromClasspath(getPath(filename).toString());
   }
 
   @RequiredArgsConstructor

@@ -1,18 +1,7 @@
 package bio.overture.song.server.config;
 
-import static bio.overture.song.core.utils.JsonUtils.convertToJSONObject;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.joining;
-
+import bio.overture.song.core.utils.ResourceFetcher;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -25,11 +14,35 @@ import org.json.JSONTokener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.function.Supplier;
+
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.joining;
+import static bio.overture.song.core.utils.JsonUtils.convertToJSONObject;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+
 @Configuration
 public class SchemaConfig {
 
   private static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
   private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
+//  private static final ResourceFetcher SCHEMA_FETCHER = ResourceFetcher.builder()
+//      .resourceType(MAIN)
+//      .dataDir(SCHEMA_PATH)
+//      .build();
+
+  private static final Path LEGACY_DIR = Paths.get("schemas/analysis/legacy");
+  private static final ResourceFetcher LEGACY_FETCHER = ResourceFetcher.builder()
+      .resourceType(MAIN)
+      .dataDir(LEGACY_DIR)
+      .build();
 
   @Bean
   public Schema analysisRegistrationSchema() throws IOException, JSONException {
@@ -72,6 +85,27 @@ public class SchemaConfig {
         .build()
         .load()
         .build();
+  }
+
+  @SneakyThrows
+  public static Schema getLegacyVariantCallSchema(){
+    LEGACY_FETCHER.check();
+    val filePath = LEGACY_FETCHER.getPath("variantCall.json");
+    val jsonObject = getSchemaJson(filePath);
+    return buildSchema(jsonObject);
+  }
+
+  @SneakyThrows
+  public static Schema getLegacySequencingReadSchema(){
+    LEGACY_FETCHER.check();
+    val filePath = LEGACY_FETCHER.getPath("sequencingRead.json");
+    val jsonObject = getSchemaJson(filePath);
+    return buildSchema(jsonObject);
+  }
+
+  private static JSONObject getSchemaJson(Path filePath) throws IOException, JSONException {
+    val content = getResourceContent(filePath.toString());
+    return new JSONObject(new JSONTokener(content));
   }
 
   private static JSONObject getSchemaJson(String jsonSchemaFilename)

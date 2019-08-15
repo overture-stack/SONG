@@ -17,14 +17,17 @@ import java.nio.file.Paths;
 import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
 import static bio.overture.song.core.utils.JsonSchemaUtils.validateWithSchema;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.server.config.SchemaConfig.getSchema;
+import static bio.overture.song.server.config.SchemaConfig.getLegacySequencingReadSchema;
+import static bio.overture.song.server.config.SchemaConfig.getLegacyVariantCallSchema;
+import static bio.overture.song.server.model.enums.TableAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
+import static bio.overture.song.server.model.enums.TableAttributeNames.VARIANT_CALLING_TOOL;
 
 @Slf4j
 public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
 
   private static final Path LEGACY_DIR = Paths.get("schemas/analysis/legacy");
-  private static final Schema LEGACY_VARIANT_CALL_SCHEMA = getSchema("legacy/variantCall.json");
-  private static final Schema LEGACY_SEQUENCING_READ_SCHEMA = getSchema("legacy/sequencingRead.json");
+  private static final Schema LEGACY_VARIANT_CALL_SCHEMA = getLegacyVariantCallSchema();
+  private static final Schema LEGACY_SEQUENCING_READ_SCHEMA = getLegacySequencingReadSchema();
   private static final ObjectMapper OBJECT_MAPPER = mapper();
 
 
@@ -110,8 +113,9 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
       val analysisData = OBJECT_MAPPER.createObjectNode()
           .set("experiment",
               OBJECT_MAPPER.createObjectNode()
-                  .put(ModelAttributeNames.VARIANT_CALLING_TOOL, (String)vc.get(TableAttributeNames.VARIANT_CALLING_TOOL))
-                  .put(ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID, (String)vc.get(TableAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID))
+                  .put(ModelAttributeNames.VARIANT_CALLING_TOOL, (String)vc.get(VARIANT_CALLING_TOOL))
+                  .put(ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID, (String)vc.get(
+                      MATCHED_NORMAL_SAMPLE_SUBMITTER_ID))
           );
       try {
         validateWithSchema(LEGACY_VARIANT_CALL_SCHEMA, analysisData);
