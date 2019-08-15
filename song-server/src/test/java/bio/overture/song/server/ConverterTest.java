@@ -42,8 +42,8 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 public class ConverterTest {
 
   private static final ConverterConfig CONVERTER_CONFIG = new ConverterConfig();
-  private LegacyEntityConverter legacyEntityConverter = CONVERTER_CONFIG.legacyEntityConverter();
-  private FileConverter fileConverter = CONVERTER_CONFIG.fileConverter();
+  private LegacyEntityConverter legacyEntityConverter = LegacyEntityConverter.INSTANCE;
+  private FileConverter fileConverter = FileConverter.INSTANCE;
   private static final int MAX_NUMBER_OF_REQUEST_PARAMS = 4;
   private static final RandomGenerator RANDOM_GENERATOR = createRandomGenerator(ConverterTest.class.getSimpleName());
   private static final String UNIQUE_MD5_1 = RANDOM_GENERATOR.generateRandomMD5();

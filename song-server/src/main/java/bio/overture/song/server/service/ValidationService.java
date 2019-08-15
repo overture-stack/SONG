@@ -30,8 +30,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,10 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static bio.overture.song.core.utils.JsonSchemaUtils.validateWithSchema;
 
 @Slf4j
 @Service
@@ -50,8 +56,12 @@ public class ValidationService {
   private static final String FILE_DATA_SCHEMA_ID = "fileData";
   private static final String STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID = "storageDownloadResponse";
 
+
   @Autowired
   private SchemaValidator validator;
+
+  @Autowired
+  private AnalysisTypeService analysisTypeService;
 
   @Autowired(required = false)
   private Long validationDelayMs = -1L;
@@ -62,6 +72,17 @@ public class ValidationService {
 
   @Autowired
   private final UploadRepository uploadRepository;
+
+  @SneakyThrows
+  public void validateAnalysisTypeSchema(@NonNull JsonNode analysisTypeSchema) {
+    val metaSchema = analysisTypeService.getAnalysisTypeMetaSchema();
+    try{
+      validateWithSchema(metaSchema, analysisTypeSchema);
+    } catch (ValidationException e){
+      throw buildServerException(getClass(), SCHEMA_VIOLATION,
+          COMMA.join(e.getAllMessages()));
+    }
+  }
 
   private String upperCaseFirstLetter(String s) {
     return s.substring(0, 1).toUpperCase() + s.substring(1);

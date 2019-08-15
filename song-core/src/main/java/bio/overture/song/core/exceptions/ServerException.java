@@ -20,6 +20,8 @@ package bio.overture.song.core.exceptions;
 import lombok.Getter;
 import lombok.val;
 
+import java.util.Optional;
+
 import static bio.overture.song.core.exceptions.SongError.createSongError;
 
 @Getter
@@ -45,6 +47,10 @@ public class ServerException extends RuntimeException {
   public static ServerException buildServerException(Class<?> clazz, ServerError serverError, String formattedMessage, Object...args ){
     val songError = createSongError(clazz, serverError, formattedMessage, args);
     return new ServerException(songError);
+  }
+
+  public static <T> T checkServerOptional(Optional<T> result, Class<?> clazz, ServerError serverError, String formattedMessage, Object...args){
+    return result.orElseThrow(() -> buildServerException(clazz, serverError, formattedMessage, args));
   }
 
   public static void checkServer(boolean expression, String context, ServerError serverError, String formattedMessage,

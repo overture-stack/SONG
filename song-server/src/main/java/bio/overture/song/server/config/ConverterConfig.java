@@ -17,23 +17,19 @@
 
 package bio.overture.song.server.config;
 
-import bio.overture.song.server.converter.FileConverter;
-import bio.overture.song.server.converter.LegacyEntityConverter;
-import org.mapstruct.factory.Mappers;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.mapstruct.CollectionMappingStrategy;
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.MapperConfig;
+import org.mapstruct.MappingInheritanceStrategy;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.ReportingPolicy;
 
-@Configuration
-public class ConverterConfig {
-
-  @Bean
-  public LegacyEntityConverter legacyEntityConverter(){
-    return Mappers.getMapper(LegacyEntityConverter.class);
-  }
-
-  @Bean
-  public FileConverter fileConverter(){
-    return Mappers.getMapper(FileConverter.class);
-  }
-
-}
+@MapperConfig(
+    componentModel = "spring",
+    unmappedTargetPolicy = ReportingPolicy.ERROR,
+    injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+    nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
+    collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+    mappingInheritanceStrategy =  MappingInheritanceStrategy.AUTO_INHERIT_ALL_FROM_CONFIG
+)
+public class ConverterConfig { }

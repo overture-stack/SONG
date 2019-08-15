@@ -28,7 +28,6 @@ import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -80,7 +79,7 @@ public class FileModificationServiceTest {
   FileRepository fileRepository;
 
   private String uniqueMd5;
-  private static final FileConverter FILE_CONVERTER = Mappers.getMapper(FileConverter.class);
+  private static final FileConverter FILE_CONVERTER = FileConverter.INSTANCE;
   private final RandomGenerator randomGenerator = createRandomGenerator(FileModificationServiceTest.class.getSimpleName());
 
   @Before
@@ -274,7 +273,7 @@ public class FileModificationServiceTest {
   @Test
   @Transactional
   public void testUpdateWithRequests(){
-    val converter = Mappers.getMapper(FileConverter.class);
+    val converter = FILE_CONVERTER;
     val referenceFile = buildReferenceFile();
     val objectId = fileService.save(DEFAULT_ANALYSIS_ID, DEFAULT_STUDY_ID, referenceFile);
     referenceFile.setObjectId(objectId);

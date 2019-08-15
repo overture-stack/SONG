@@ -32,18 +32,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
-import static com.google.common.collect.Lists.newArrayList;
-import static org.icgc.dcc.common.core.util.Joiners.DOT;
 
 /**
  * Utility functions related to deal with JSON
@@ -109,6 +110,13 @@ public class JsonUtils {
     return mapper.convertValue(map, JsonNode.class);
   }
 
+  public static JSONObject convertToJSONObject(@NonNull String s) throws JSONException {
+    return new JSONObject(new JSONTokener(s));
+  }
+
+  public static JSONObject convertToJSONObject(@NonNull JsonNode j) throws JSONException {
+    return convertToJSONObject(toJson(j));
+  }
 
   public static class SongPrettyPrinter extends DefaultPrettyPrinter{
     public static final SongPrettyPrinter instance = new SongPrettyPrinter(4);
