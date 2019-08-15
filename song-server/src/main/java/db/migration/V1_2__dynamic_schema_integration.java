@@ -1,9 +1,20 @@
 package db.migration;
 
+import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static db.migration.V1_2__dynamic_schema_integration.NonNullObjectNodeBuilder.createNonNullObjectNode;
+import static java.util.Objects.isNull;
+
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -15,27 +26,15 @@ import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static db.migration.V1_2__dynamic_schema_integration.NonNullObjectNodeBuilder.createNonNullObjectNode;
-import static java.util.Objects.isNull;
-import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
-import static bio.overture.song.server.utils.JsonSchemas.getSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-
 @Slf4j
 public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
 
   private static final Path LEGACY_DIR = Paths.get("schemas/analysis/legacy");
   private static final ObjectMapper OBJECT_MAPPER = mapper();
   private static final Schema LEGACY_VARIANT_CALL_SCHEMA =
-      getSchema(LEGACY_DIR, "variantCall.json");
+      buildSchema(LEGACY_DIR, "variantCall.json");
   private static final Schema LEGACY_SEQUENCING_READ_SCHEMA =
-      getSchema(LEGACY_DIR, "sequencingRead.json");
+      buildSchema(LEGACY_DIR, "sequencingRead.json");
 
   @Override
   public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
@@ -225,7 +224,5 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
     public static NonNullObjectNodeBuilder createNonNullObjectNode(ObjectNode root) {
       return new NonNullObjectNodeBuilder(root);
     }
-
   }
-
 }

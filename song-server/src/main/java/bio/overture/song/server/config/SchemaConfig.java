@@ -1,29 +1,20 @@
 package bio.overture.song.server.config;
 
 import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.joining;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.Resources.getResourceContent;
 
-import bio.overture.song.core.utils.ResourceFetcher;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaClient;
 import org.everit.json.schema.loader.SchemaLoader;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,27 +23,19 @@ public class SchemaConfig {
 
   private static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
   private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
-  //  private static final ResourceFetcher SCHEMA_FETCHER = ResourceFetcher.builder()
-  //      .resourceType(MAIN)
-  //      .dataDir(SCHEMA_PATH)
-  //      .build();
-
-  private static final Path LEGACY_DIR = Paths.get("schemas/analysis/legacy");
-  private static final ResourceFetcher LEGACY_FETCHER =
-      ResourceFetcher.builder().resourceType(MAIN).dataDir(LEGACY_DIR).build();
 
   @Bean
-  public Schema analysisRegistrationSchema() throws IOException, JSONException {
-    return getSchema("analysisRegistration.json");
+  public Schema analysisRegistrationSchema() {
+    return buildSchema(SCHEMA_PATH, "analysisRegistration.json");
   }
 
   @Bean
-  public JsonNode definitionsSchema() throws IOException, JSONException {
+  public JsonNode definitionsSchema() throws IOException {
     return getSchemaAsJson("definitions.json");
   }
 
   @Bean
-  public String analysisBasePayloadSchemaContent() throws IOException, JSONException {
+  public String analysisBasePayloadSchemaContent() throws IOException {
     val schemaRelativePath = SCHEMA_PATH.resolve("analysisPayload.json").toString();
     return getResourceContent(schemaRelativePath);
   }
@@ -66,7 +49,7 @@ public class SchemaConfig {
     return () -> ANALYSIS_TYPE_META_SCHEMA;
   }
 
-  private static JsonNode getSchemaAsJson(String schemaFilename) throws IOException, JSONException {
+  private static JsonNode getSchemaAsJson(String schemaFilename) throws IOException {
     val schemaRelativePath = SCHEMA_PATH.resolve(schemaFilename);
     return readTree(getResourceContent(schemaRelativePath.toString()));
   }
@@ -82,61 +65,5 @@ public class SchemaConfig {
         .build()
         .load()
         .build();
-  }
-
-  @SneakyThrows
-  public static Schema getLegacyVariantCallSchema() {
-    LEGACY_FETCHER.check();
-    val filePath = LEGACY_FETCHER.getPath("variantCall.json");
-    val jsonObject = getSchemaJson(filePath);
-    return buildSchema(jsonObject);
-  }
-
-  @SneakyThrows
-  public static Schema getLegacySequencingReadSchema() {
-    LEGACY_FETCHER.check();
-    val filePath = LEGACY_FETCHER.getPath("sequencingRead.json");
-    val jsonObject = getSchemaJson(filePath);
-    return buildSchema(jsonObject);
-  }
-
-  private static JSONObject getSchemaJson(Path filePath) throws IOException, JSONException {
-    val content = getResourceContent(filePath.toString());
-    return new JSONObject(new JSONTokener(content));
-  }
-
-  private static JSONObject getSchemaJson(String jsonSchemaFilename)
-      throws IOException, JSONException {
-    val schemaRelativePath = SCHEMA_PATH.resolve(jsonSchemaFilename).toString();
-    val content = getResourceContent(schemaRelativePath);
-    return new JSONObject(new JSONTokener(content));
-  }
-
-  @SneakyThrows
-  public static Schema getSchema(String jsonSchemaFilename) {
-    return buildSchema(getSchemaJson(jsonSchemaFilename));
-  }
-
-  private static Schema buildSchema(@NonNull JSONObject jsonSchema)
-      throws IOException, JSONException {
-    return SchemaLoader.builder()
-        .schemaClient(SchemaClient.classPathAwareClient())
-        .resolutionScope("classpath://" + SCHEMA_PATH.toString() + "/")
-        .schemaJson(jsonSchema)
-        .draftV7Support()
-        .build()
-        .load()
-        .build();
-  }
-
-  private static String getResourceContent(String resourceFilename) throws IOException {
-    try (val inputStream =
-        Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceFilename)) {
-      if (isNull(inputStream)) {
-        throw new IOException(
-            format("The classpath resource '%s' does not exist", resourceFilename));
-      }
-      return new BufferedReader(new InputStreamReader(inputStream)).lines().collect(joining("\n"));
-    }
   }
 }

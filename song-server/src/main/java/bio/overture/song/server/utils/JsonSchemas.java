@@ -17,7 +17,7 @@ import org.everit.json.schema.loader.SchemaLoader;
 public class JsonSchemas {
 
   @SneakyThrows
-  public static Schema getSchema(@NonNull Path schemaDir, @NonNull String filePathname) {
+  public static Schema buildSchema(@NonNull Path schemaDir, @NonNull String filePathname) {
     val jsonObject = convertToJSONObject(schemaDir.resolve(filePathname));
     return SchemaLoader.builder()
         .schemaClient(SchemaClient.classPathAwareClient())
