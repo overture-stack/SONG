@@ -182,7 +182,7 @@ public class UploadServiceTest {
     assertNotEquals(
         upload.getState(),
         "CREATED"); // Since validation done synchronously, validation cannot ever return with the
-                    // CREATED state
+    // CREATED state
   }
 
   @SneakyThrows

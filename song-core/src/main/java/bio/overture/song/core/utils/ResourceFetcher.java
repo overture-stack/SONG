@@ -1,23 +1,22 @@
 package bio.overture.song.core.utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import lombok.val;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
+import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.newInputStream;
 import static java.nio.file.Files.readString;
-import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.val;
 
 @Value
 @Builder
@@ -38,7 +37,7 @@ public class ResourceFetcher {
         path.toString());
   }
 
-  public Path getPath(@NonNull String filename){
+  public Path getPath(@NonNull String filename) {
     return dataDir.resolve(filename);
   }
 

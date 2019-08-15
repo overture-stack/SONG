@@ -6,7 +6,8 @@ fresh-db: start-db
 	@docker-compose exec db psql -U postgres postgres -c 'drop database song;'
 	@docker-compose exec db psql -U postgres postgres -c 'create database song;'
 
-run-flyway-migration: package-server
+run-flyway-migration: 
+	@mvn package -DskipTests
 	@cd song-server && mvn flyway:migrate  -Dflyway.url=jdbc:postgresql://localhost:8082/song?stringtype=unspecified -Dflyway.user=postgres -Dflyway.password=password -Dflyway.locations=classpath:db/migration
 
 login-psql:
