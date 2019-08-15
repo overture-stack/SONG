@@ -11,7 +11,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
@@ -29,43 +33,77 @@ public class PageableResolverTest {
   @Test
   public void integerResolver_validIntegers_success() {
     val p1 = createPageable("1", null, null, null);
-    assertThat(p1.getOffset()).isEqualTo(1);
+    assertEquals(p1.getOffset(),1);
 
     val p2 = createPageable(null, "9", null, null);
-    assertThat(p2.getPageSize()).isEqualTo(9);
+    assertEquals(p2.getPageSize(),9);
   }
 
   @Test
   public void sortResolver_validSorting_success(){
-    val s1 = createPageable(null, null, "desc", "version").getSort();
-    assertThat(s1.stream()).containsExactly(Sort.Order.desc("id"));
+    val s1 = createPageable(null, null, "desc", "version")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s1.size(), 1);
+    assertTrue(s1.contains(Sort.Order.desc("id")));
 
-    val s2 = createPageable(null, null, "asc", "version").getSort();
-    assertThat(s2.stream()).containsExactly(Sort.Order.asc("id"));
+    val s2 = createPageable(null, null, "asc", "version")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s2.size(), 1);
+    assertTrue(s2.contains(Sort.Order.asc("id")));
 
-    val s3 = createPageable(null, null, "desc", "name").getSort();
-    assertThat(s3.stream()).containsExactly(Sort.Order.desc("name"));
+    val s3 = createPageable(null, null, "desc", "name")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s3.size(), 1);
+    assertTrue(s3.contains(Sort.Order.desc("name")));
 
-    val s4 = createPageable(null, null, "asc", "name").getSort();
-    assertThat(s4.stream()).containsExactly(Sort.Order.asc("name"));
+    val s4 = createPageable(null, null, "asc", "name")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s4.size(), 1);
+    assertTrue(s4.contains(Sort.Order.asc("name")));
 
-    val s5 = createPageable(null, null, "asc", "name,version").getSort();
-    assertThat(s5.stream()).containsExactlyInAnyOrder(Sort.Order.asc("name"), Sort.Order.asc("id"));
+    val s5 = createPageable(null, null, "asc", "name,version")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s5, newArrayList( Sort.Order.asc("name"), Sort.Order.asc("id") ));
 
-    val s6 = createPageable(null, null, "asc", "version,name").getSort();
-    assertThat(s6.stream()).containsExactlyInAnyOrder(Sort.Order.asc("name"), Sort.Order.asc("id"));
+    val s6 = createPageable(null, null, "asc", "version,name")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s6, newArrayList(Sort.Order.asc("id"), Sort.Order.asc("name")));
 
-    val s7 = createPageable(null, null, "desc", "name,version").getSort();
-    assertThat(s7.stream()).containsExactlyInAnyOrder(Sort.Order.desc("name"), Sort.Order.desc("id"));
+    val s7 = createPageable(null, null, "desc", "name,version")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s7, newArrayList(Sort.Order.desc("name"), Sort.Order.desc("id")));
 
-    val s8 = createPageable(null, null, "desc", "version,name").getSort();
-    assertThat(s8.stream()).containsExactlyInAnyOrder(Sort.Order.desc("name"), Sort.Order.desc("id"));
+    val s8 = createPageable(null, null, "desc", "version,name")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s8, newArrayList(Sort.Order.desc("id"), Sort.Order.desc("name")));
 
-    val s9 = createPageable(null, null, "DESC", "version,name").getSort();
-    assertThat(s9.stream()).containsExactlyInAnyOrder(Sort.Order.desc("name"), Sort.Order.desc("id"));
+    val s9 = createPageable(null, null, "DESC", "version,name")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s9, newArrayList(Sort.Order.desc("id"), Sort.Order.desc("name")));
 
-    val s10 = createPageable(null, null, "ASC", "version,name").getSort();
-    assertThat(s10.stream()).containsExactlyInAnyOrder(Sort.Order.asc("name"), Sort.Order.asc("id"));
+    val s10 = createPageable(null, null, "ASC", "version,name")
+        .getSort()
+        .stream()
+        .collect(toImmutableList());
+    assertEquals(s10, newArrayList(Sort.Order.asc("id"), Sort.Order.asc("name")));
   }
 
   @Test
@@ -124,9 +162,9 @@ public class PageableResolverTest {
   }
 
   private static void assertEqualTo(TestData testData, Pageable pageable){
-    assertThat(pageable.getPageSize()).isEqualTo(testData.getPageSize());
-    assertThat(pageable.getOffset()).isEqualTo((long)testData.getOffset());
-    assertThat(pageable.getSort()).isEqualTo(testData.getSort());
+    assertEquals(pageable.getPageSize(), (int) testData.getPageSize());
+    assertEquals(pageable.getOffset(),(long)testData.getOffset());
+    assertEquals(pageable.getSort(),testData.getSort());
   }
 
   @SneakyThrows
@@ -134,8 +172,8 @@ public class PageableResolverTest {
     val resolver = new AnalysisTypePageableResolver();
     val mockNativeRequest = createMockNativeRequest(offset, limit, sortVariables, sortOrder);
     val out = resolver.resolveArgument(null, null, mockNativeRequest, null );
-    assertThat(out).isNotNull();
-    assertThat(out).isInstanceOf(AnalysisTypePageableResolver.AnalysisTypePageable.class);
+    assertNotNull(out);
+    assertTrue(out instanceof AnalysisTypePageableResolver.AnalysisTypePageable);
     return (AnalysisTypePageableResolver.AnalysisTypePageable)out;
   }
 
