@@ -28,7 +28,6 @@ import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,13 +41,10 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.util.Collection;
 
 import static java.util.stream.Collectors.toSet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
@@ -96,7 +92,7 @@ public class StudyWithDonorsServiceTest {
         .flatMap(x -> x.getSample().stream())
         .map(CompositeEntity::getDonor)
         .collect(toSet());
-    assertThat(expectedDonors, hasSize(numAnalysis));
+    assertEquals(expectedDonors.size(),numAnalysis);
     assertEquals(expectedDonors.stream().map(Donor::getDonorSubmitterId).distinct().count(),numAnalysis);
     assertEquals(expectedDonors.stream().filter(x -> x.getStudyId().equals(studyId)).count(),numAnalysis);
 
@@ -105,7 +101,7 @@ public class StudyWithDonorsServiceTest {
         .flatMap(x -> x.getSample().stream())
         .map(CompositeEntity::getSpecimen)
         .collect(toSet());
-    assertThat(expectedSpecimens, hasSize(numAnalysis));
+    assertEquals(expectedSpecimens.size(),numAnalysis);
     assertEquals(expectedSpecimens.stream().map(Specimen::getSpecimenSubmitterId).distinct().count(),numAnalysis);
 
     // Extract expected samples and verify
@@ -113,8 +109,8 @@ public class StudyWithDonorsServiceTest {
         .flatMap(x -> x.getSample().stream())
         .collect(toSet());
     val expectedSampleSubmitterIds = expectedSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
-    assertThat(expectedSamples, hasSize(numAnalysis));
-    assertThat(expectedSampleSubmitterIds, hasSize(numAnalysis));
+    assertEquals(expectedSamples.size(),numAnalysis);
+    assertEquals(expectedSampleSubmitterIds.size(),numAnalysis);
 
     // Run the target method to test, readWithChildren
     val studyWithDonors = studyWithDonorsService.readWithChildren(studyId);
@@ -141,13 +137,13 @@ public class StudyWithDonorsServiceTest {
     val actualSampleSubmitterIds = actualSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
 
     // Verify expected donors and actual donors match
-    assertSetsMatch(expectedDonors, actualDonors);
+    assertCollectionsMatchExactly(expectedDonors, actualDonors);
 
     // Verify expected specimens and actual specimens match
-    assertSetsMatch(expectedSpecimens, actualSpecimens);
+    assertCollectionsMatchExactly(expectedSpecimens, actualSpecimens);
 
     // Verify expected sampleSubmitterIds and actual sampleSubmitterIds match
-    assertSetsMatch(expectedSampleSubmitterIds, actualSampleSubmitterIds);
+    assertCollectionsMatchExactly(expectedSampleSubmitterIds, actualSampleSubmitterIds);
   }
 
 }

@@ -42,9 +42,6 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toSet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -52,6 +49,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EX
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.Constants.DONOR_GENDER;
 import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
@@ -186,11 +184,11 @@ public class SpecimenServiceTest {
             .build();
         val sampleId = sampleService.create(DEFAULT_STUDY_ID, sample1);
 
-        assertThat(id).startsWith("SP");
+        assertTrue(id.startsWith("SP"));
         assertEquals(status,id);
 
         val check = specimenService.securedRead(DEFAULT_STUDY_ID, id);
-        assertThat(s).isEqualToComparingFieldByField(check);
+        assertEquals(s,check);
 
         val response = specimenService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
         assertFalse(specimenService.isSpecimenExist(id));
@@ -236,7 +234,7 @@ public class SpecimenServiceTest {
         specimenService.update(s2);
 
         val s3 = specimenService.securedRead(DEFAULT_STUDY_ID, id);
-        assertThat(s3).isEqualToComparingFieldByField(s2);
+        assertEquals(s3,s2);
     }
 
     @Test
@@ -355,16 +353,15 @@ public class SpecimenServiceTest {
 
         // ReadByParentId (newly created donorId)
         val specimens = specimenService.readByParentId(donorId);
-        assertThat(specimens, hasSize(numSpecimens));
+        assertEquals(specimens.size(),numSpecimens);
         for(val specimen :  specimens){
             val actualSpecimenId = specimen.getSpecimenId();
             val actualSampleIds = specimen.getSamples().stream().map(Sample::getSampleId).collect(toSet());
             assertTrue(expectedSpecimenIds.contains(actualSpecimenId));
-            assertThat(actualSampleIds, hasSize(numSamplesPerSpecimen));
+            assertEquals(actualSampleIds.size(),numSamplesPerSpecimen);
             val expectedSampleIds = expectedSampleIdMap.get(actualSpecimenId);
-            assertThat(expectedSampleIds, hasSize(numSamplesPerSpecimen));
-            assertThat(actualSampleIds).isSubsetOf(expectedSampleIds);
-            assertThat(expectedSampleIds).isSubsetOf(actualSampleIds);
+            assertEquals(expectedSampleIds.size(),numSamplesPerSpecimen);
+            assertCollectionsMatchExactly(actualSampleIds,expectedSampleIds);
         }
 
 

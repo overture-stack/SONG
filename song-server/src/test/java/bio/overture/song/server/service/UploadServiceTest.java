@@ -43,25 +43,22 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import javax.transaction.Transactional;
 
+import javax.transaction.Transactional;
 import java.nio.file.Files;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.stream;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertEquals;
-import static org.assertj.core.util.Lists.newArrayList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.OK;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
 import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
@@ -485,10 +482,10 @@ public class UploadServiceTest {
 
     // Export the previously uploaded payload using the analysis id
     val exportedPayloads = exportService.exportPayload(newArrayList(an1), false);
-    assertThat(exportedPayloads, hasSize(1));
+    assertEquals(exportedPayloads.size(),1);
     val exportedPayload = exportedPayloads.get(0);
     assertEquals(exportedPayload.getStudyId(),studyId);
-    assertThat(exportedPayload.getPayloads(), hasSize(1));
+    assertEquals(exportedPayload.getPayloads().size(),1);
     val jsonPayload = exportedPayload.getPayloads().get(0);
 
     // Create payload 2
@@ -512,8 +509,8 @@ public class UploadServiceTest {
     assertEquals(a1.getStudy(),studyId);
     assertEquals(a2.getStudy(),studyId);
     assertNotEquals(a1.getAnalysisId(),a2.getAnalysisId());
-    assertThat(a1.getSample(), hasSize(1));
-    assertThat(a2.getSample(), hasSize(1));
+    assertEquals(a1.getSample().size(),1);
+    assertEquals(a2.getSample().size(),1);
     assertEquals(a1.getSample().get(0).getDonor().getDonorId(),a2.getSample().get(0).getDonor().getDonorId());
     assertEquals(a1.getSample().get(0).getSpecimen().getSpecimenId(),a2.getSample().get(0).getSpecimen().getSpecimenId());
     assertNotEquals(a1.getSample().get(0).getSampleId(),a2.getSample().get(0).getSampleId());
@@ -573,7 +570,7 @@ public class UploadServiceTest {
     val status2 = fromStatus(response2, "status");
     val state2 = uploadService.securedRead(existingStudyId, uploadId2);
     sleep(3000);
-    assertThat(status2).startsWith("WARNING:");
+    assertTrue(status2.startsWith("WARNING:"));
     assertEquals(resolveState(state2.getState()),VALIDATED);
   }
 

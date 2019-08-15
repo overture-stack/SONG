@@ -67,16 +67,13 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.range;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
@@ -92,7 +89,9 @@ import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.testing.SongErrorAssertions.catchThrowable;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -100,7 +99,6 @@ import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ
 import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
-import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
 import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
@@ -307,7 +305,7 @@ public class AnalysisServiceTest {
     assertInfoKVPair(experiment, "extraExperimentInfo","some more data for a variantCall experiment ex01");
 
     //Asserting Sample
-    org.hamcrest.MatcherAssert.assertThat(a.getSample(), hasSize(2));
+    assertEquals(a.getSample().size(),2);
     val sample0 = a.getSample().stream()
             .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fs01"))
             .findAny()
@@ -351,7 +349,7 @@ public class AnalysisServiceTest {
     assertEquals(sample1.getSpecimenId(),specimen01.getSpecimenId());
     assertInfoKVPair(specimen01, "extraSpecimenInfo", "some more data for a variantCall specimen_fs02");
 
-    assertThat(a.getFile(), hasSize(3));
+    assertEquals(a.getFile().size(),3);
     val file0 = a.getFile().get(0);
     val file1 = a.getFile().get(1);
     val file2 = a.getFile().get(2);
@@ -426,7 +424,7 @@ public class AnalysisServiceTest {
     val sampleMap = Maps.<String, CompositeEntity>newHashMap();
 
     //Asserting Sample
-    assertThat(a.getSample(), hasSize(2));
+    assertEquals(a.getSample().size(),2);
     val sample0 = a.getSample().stream()
             .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fr01"))
             .findFirst().get();
@@ -469,7 +467,7 @@ public class AnalysisServiceTest {
     assertEquals(sample1.getSpecimenId(),specimen01.getSpecimenId());
     assertInfoKVPair(specimen01, "extraSpecimenInfo", "some more data for a sequencingRead specimen_fr02");
 
-    assertThat(a.getFile(), hasSize(3));
+    assertEquals(a.getFile().size(),3);
     val file0 = a.getFile().get(0);
     val file1 = a.getFile().get(1);
     val file2 = a.getFile().get(2);
@@ -638,12 +636,12 @@ public class AnalysisServiceTest {
         expectedAnalyses.add(vca);
       }
     }
-    assertThat(expectedAnalyses, hasSize(numAnalysis));
+    assertEquals(expectedAnalyses.size(),numAnalysis);
     assertEquals(sraMap.keySet().size() + vcaMap.keySet().size(),numAnalysis);
     val expectedVCAs = newHashSet(vcaMap.values());
     val expectedSRAs = newHashSet(sraMap.values());
-    assertThat(expectedSRAs, hasSize(sraMap.keySet().size()));
-    assertThat(expectedVCAs, hasSize(vcaMap.keySet().size()));
+    assertEquals(expectedSRAs.size(),sraMap.keySet().size());
+    assertEquals(expectedVCAs.size(),vcaMap.keySet().size());
 
     val actualAnalyses = service.getAnalysis(studyId, ALL_STATES);
     val actualSRAs = actualAnalyses.stream()
@@ -653,8 +651,8 @@ public class AnalysisServiceTest {
         .filter(x -> AnalysisTypes.resolveAnalysisType(x.getAnalysisType()) == VARIANT_CALL)
         .collect(toSet());
 
-    assertThat(actualSRAs, hasSize(sraMap.keySet().size()));
-    assertThat(actualVCAs, hasSize(vcaMap.keySet().size()));
+    assertEquals(actualSRAs.size(),sraMap.keySet().size());
+    assertEquals(actualVCAs.size(),vcaMap.keySet().size());
     assertTrue(actualSRAs.containsAll(expectedSRAs));
     assertTrue(actualVCAs.containsAll(expectedVCAs));
 
@@ -687,7 +685,7 @@ public class AnalysisServiceTest {
     val actualMap = service.getAnalysis(studyId, PUBLISHED_ONLY).stream()
         .collect(groupingBy(AbstractAnalysis::getAnalysisState));
 
-    assertThat(actualMap.keySet(), hasSize(1));
+    assertEquals(actualMap.keySet().size(),1);
     assertTrue(expectedMap.containsKey(PUBLISHED.toString()));
     assertTrue(actualMap.containsKey(PUBLISHED.toString()));
     assertEquals(actualMap.get(PUBLISHED.toString()).size(), expectedMap.get(PUBLISHED.toString()).size());
@@ -888,8 +886,8 @@ public class AnalysisServiceTest {
     val actualAnalysisIds1 = actualAnalyses1.stream().map(AbstractAnalysis::getAnalysisId).collect(toImmutableSet());
     val actualAnalysisIds2 = actualAnalyses2.stream().map(AbstractAnalysis::getAnalysisId).collect(toImmutableSet());
 
-    assertSetsMatch(actualAnalysisIds1, expectedAnalysisIds);
-    assertSetsMatch(actualAnalysisIds2, expectedAnalysisIds);
+    assertCollectionsMatchExactly(actualAnalysisIds1, expectedAnalysisIds);
+    assertCollectionsMatchExactly(actualAnalysisIds2, expectedAnalysisIds);
 
     actualAnalyses1.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())) );
     actualAnalyses2.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())) );
@@ -992,7 +990,7 @@ public class AnalysisServiceTest {
         .filter(x -> finalStates.contains(x.getAnalysisState()))
         .map(AbstractAnalysis::getAnalysisId)
         .collect(toImmutableSet());
-    assertSetsMatch(actual, expected);
+    assertCollectionsMatchExactly(actual, expected);
   }
 
   private AbstractAnalysis createSRAnalysisWithState(AnalysisGenerator generator, AnalysisStates state){
@@ -1007,7 +1005,7 @@ public class AnalysisServiceTest {
     val analysisId = analysis.getAnalysisId();
 
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(analysisId);
-    assertThat(sampleSetRepository.findAllBySampleSetPK_AnalysisId(analysisId), hasSize(0));
+    assertEquals(sampleSetRepository.findAllBySampleSetPK_AnalysisId(analysisId).size(),0);
     analysis.getSample().stream()
         .map(Sample::getSampleId)
         .forEach(sampleRepository::deleteById);
@@ -1027,11 +1025,11 @@ public class AnalysisServiceTest {
 
     val leftFiles = newHashSet(l.getFile());
     val rightFiles = newHashSet(r.getFile());
-    assertSetsMatch(leftFiles, rightFiles);
+    assertCollectionsMatchExactly(leftFiles, rightFiles);
 
     val leftSamples = newHashSet(l.getSample());
     val rightSamples = newHashSet(r.getSample());
-    assertSetsMatch(leftSamples, rightSamples);
+    assertCollectionsMatchExactly(leftSamples, rightSamples);
 
     assertEquals(l.getInfo(),r.getInfo());
     if (l instanceof SequencingReadAnalysis && r instanceof SequencingReadAnalysis){

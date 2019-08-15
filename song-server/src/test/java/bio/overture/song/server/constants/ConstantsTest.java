@@ -22,10 +22,8 @@ import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.model.enums.InfoSearchResponseColumns;
 import bio.overture.song.server.model.enums.InfoTypes;
 import bio.overture.song.server.model.enums.UploadStates;
-import lombok.val;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
 import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
@@ -45,6 +43,7 @@ import static bio.overture.song.core.model.enums.FileTypes.VCF;
 import static bio.overture.song.core.model.enums.FileTypes.XML;
 import static bio.overture.song.core.model.enums.FileTypes.resolveFileType;
 import static bio.overture.song.core.model.enums.FileTypes.values;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.INFO;
 import static bio.overture.song.server.model.enums.InfoTypes.ANALYSIS;
@@ -88,8 +87,8 @@ public class ConstantsTest {
     assertEquals(AccessTypes.values().length, 2);
     assertEquals(resolveAccessType("open"),OPEN);
     assertEquals(resolveAccessType("controlled"),CONTROLLED);
-    val thrown = catchThrowable(() -> resolveAccessType("somethingNotAccessType"));
-    assertEquals(thrown.getClass(), IllegalStateException.class);
+
+    assertExceptionThrownBy(IllegalStateException.class, () -> resolveAccessType("somethingNotAccessType") );
   }
 
   @Test
@@ -129,8 +128,7 @@ public class ConstantsTest {
     assertEquals(resolveFileType("XML"),XML);
     assertEquals(resolveFileType("TGZ"),TGZ);
 
-    val thrown = catchThrowable(() -> resolveFileType("somethingThatsNotAFileType"));
-    assertEquals(thrown.getClass(), IllegalStateException.class);
+    assertExceptionThrownBy(IllegalStateException.class, () -> resolveFileType("somethingThatsNotAFileType"));
   }
 
   @Test
@@ -154,8 +152,7 @@ public class ConstantsTest {
     assertEquals(resolveInfoType("SequencingRead"),SEQUENCING_READ);
     assertEquals(resolveInfoType("VariantCall"),VARIANT_CALL);
 
-    val thrown = catchThrowable(() -> resolveInfoType("somethingThatsNotAnInfoType"));
-    assertEquals(thrown.getClass(), IllegalStateException.class);
+    assertExceptionThrownBy(IllegalStateException.class, () -> resolveInfoType("somethingThatsNotAnInfoType"));
   }
 
   @Test
@@ -175,8 +172,7 @@ public class ConstantsTest {
     assertEquals(resolveState("UPDATED"),UPDATED);
     assertEquals(resolveState("SAVED"),SAVED);
 
-    val thrown = catchThrowable(() -> resolveState("notAnUploadState"));
-    assertEquals(thrown.getClass(), IllegalStateException.class);
+    assertExceptionThrownBy(IllegalStateException.class, () -> resolveState("notAnUploadState"));
   }
 
 }

@@ -36,8 +36,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.util.Lists.newArrayList;
+import static com.google.common.collect.Lists.newArrayList;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -138,8 +137,8 @@ public class FileModificationServiceTest {
     assertEquals(noChangeResponse.getFileUpdateType(),NO_UPDATE);
     assertEquals(noChangeResponse.getOriginalAnalysisState(),PUBLISHED);
     assertEquals(noChangeResponse.getOriginalFile(),originalFile);
-    assertThat(noChangeResponse.getMessage())
-        .isEqualTo("Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'NO_UPDATE'");
+    assertEquals(noChangeResponse.getMessage(),
+        "Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'NO_UPDATE'");
 
     // Metadata Update
     val metadataUpdateRequest = FileUpdateRequest.builder()
@@ -156,8 +155,8 @@ public class FileModificationServiceTest {
     assertEquals(metadataUpdateResponse.getFileUpdateType(),METADATA_UPDATE);
     assertEquals(metadataUpdateResponse.getOriginalAnalysisState(),PUBLISHED);
     assertEquals(metadataUpdateResponse.getOriginalFile(),originalFile2);
-    assertThat(metadataUpdateResponse.getMessage())
-        .isEqualTo("Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'METADATA_UPDATE'");
+    assertEquals(metadataUpdateResponse.getMessage(),
+        "Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'METADATA_UPDATE'");
 
     // Content Update
     val contentUpdateRequest = FileUpdateRequest.builder()
@@ -170,8 +169,8 @@ public class FileModificationServiceTest {
     assertEquals(contentUpdateResponse.getFileUpdateType(),CONTENT_UPDATE);
     assertEquals(contentUpdateResponse.getOriginalAnalysisState(),PUBLISHED);
     assertEquals(contentUpdateResponse.getOriginalFile(),originalFile3);
-    assertThat(contentUpdateResponse.getMessage())
-        .isEqualTo("[WARNING]: Changed analysis from 'PUBLISHED' to 'UNPUBLISHED'");
+    assertEquals(contentUpdateResponse.getMessage()
+        ,"[WARNING]: Changed analysis from 'PUBLISHED' to 'UNPUBLISHED'");
   }
 
   @Test

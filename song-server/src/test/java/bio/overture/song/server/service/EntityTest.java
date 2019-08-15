@@ -45,19 +45,18 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.server.model.enums.Constants.LIBRARY_STRATEGY;
 import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
 import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
@@ -307,7 +306,7 @@ public class EntityTest {
     assertEquals(d1.getDonorSubmitterId(),donor1.getDonorSubmitterId());
     assertEquals(d1.getDonorId(),donor1.getDonorId());
     assertEquals(d1.getStudyId(),donor1.getStudyId());
-    assertThat(d1.getSpecimens()).containsExactlyInAnyOrder(specimenWithSample1, specimenWithSample2);
+    assertThat(d1.getSpecimens(), containsInAnyOrder(specimenWithSample1, specimenWithSample2));
     assertNotEquals(d1.createDonor(),donor1);
     assertInfoKVPair(d1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
@@ -412,7 +411,7 @@ public class EntityTest {
     assertEquals(s1.getSpecimenSubmitterId(),specimen1.getSpecimenSubmitterId());
     assertEquals(s1.getSpecimenType(),specimen1.getSpecimenType());
     assertEquals(s1.getSpecimenId(),specimen1.getSpecimenId());
-    assertThat(s1.getSamples()).containsExactlyInAnyOrder(sample11, sample12);
+    assertThat(s1.getSamples(), containsInAnyOrder(sample11, sample12));
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
 
     // Test addSample
@@ -592,8 +591,8 @@ public class EntityTest {
     assertEquals(s1.getName(),study1.getName());
     assertEquals(s1.getOrganization(),study1.getOrganization());
     assertEquals(s1.getStudyId(),study1.getStudyId());
-    assertThat(s1.getStudy()).isNotSameAs(study1);
-    assertThat(s1.getDonors()).containsExactlyInAnyOrder(d1);
+    assertNotEquals(s1.getStudy(),study1);
+    assertThat(s1.getDonors(), containsInAnyOrder(d1));
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
 
     // Assert addDonor
@@ -716,8 +715,7 @@ public class EntityTest {
 
     metadata2.addInfo(metadata1.getInfoAsString());
     assertTrue(metadata2.getInfo().has("key1"));
-    assertThat(metadata2.getInfo().path("key1").textValue())
-        .isEqualTo("f5c9381090a53c54358feb2ba5b7a3d7");
+    assertEquals(metadata2.getInfo().path("key1").textValue(),"f5c9381090a53c54358feb2ba5b7a3d7");
 
     metadata2.setInfo("something that is not json");
     assertTrue(metadata2.getInfo().has("info"));
@@ -772,12 +770,12 @@ public class EntityTest {
     assertEquals(u1.getUploadId(),"uploadId1");
 
     u1.setErrors("error1|error2|error3");
-    assertThat(u1.getErrors()).containsExactlyInAnyOrder("error1", "error2", "error3");
-    assertThat(u1.getErrors(), hasSize(3));
+    assertThat(u1.getErrors(), containsInAnyOrder("error1", "error2", "error3"));
+    assertEquals(u1.getErrors().size(),3);
 
     u1.addErrors(newArrayList("error4", "error5"));
-    assertThat(u1.getErrors()).containsExactlyInAnyOrder("error1", "error2", "error3", "error4", "error5");
-    assertThat(u1.getErrors(), hasSize(5));
+    assertThat(u1.getErrors(), containsInAnyOrder("error1", "error2", "error3", "error4", "error5"));
+    assertEquals(u1.getErrors().size(),5);
   }
 
   @Test
@@ -1656,14 +1654,13 @@ public class EntityTest {
     assertEquals(resolveAnalysisState("SUPPRESSED"), SUPPRESSED);
     val erroredStates = newArrayList("published", "unpublished", "suppressed", "anything");
     for (val state : erroredStates){
-      val thrown = catchThrowable(() -> resolveAnalysisState(state));
-      assertTrue(thrown instanceof IllegalStateException);
+      assertExceptionThrownBy(IllegalStateException.class, () -> resolveAnalysisState(state));
     }
   }
 
   private static void assertEntitiesEqual(Object actual, Object expected, boolean checkFieldByField){
     if (checkFieldByField){
-      assertThat(actual).isEqualToComparingFieldByField(expected);
+      assertEquals(actual,expected);
     }
     assertEquals(actual,expected);
     assertEquals(actual.hashCode(),expected.hashCode());

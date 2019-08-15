@@ -33,7 +33,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.assertj.core.util.Sets.newHashSet;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
 
 @Slf4j

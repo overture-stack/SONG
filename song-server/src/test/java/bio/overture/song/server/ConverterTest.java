@@ -31,11 +31,11 @@ import org.junit.Test;
 
 import java.util.function.Function;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertEquals;
-import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 
@@ -108,19 +108,27 @@ public class ConverterTest {
         .build();
 
     val legacyDto = legacyEntityConverter.convertToLegacyDto(legacyEntity);
-    assertThat(legacyDto).isEqualToComparingFieldByField(legacyEntity);
     assertFalse(isObjectsEqual(legacyDto, legacyEntity));
+    assertEquals(legacyEntity.getAccess(), legacyDto.getAccess());
+    assertEquals(legacyEntity.getFileName(), legacyDto.getFileName());
+    assertEquals(legacyEntity.getGnosId(), legacyDto.getGnosId());
+    assertEquals(legacyEntity.getId(), legacyDto.getId());
+    assertEquals(legacyEntity.getProjectCode(), legacyDto.getProjectCode());
 
     val legacyEntityCopy = legacyEntityConverter.convertToLegacyEntity(legacyEntity);
-    assertThat(legacyEntityCopy).isEqualToComparingFieldByField(legacyEntity);
+    assertEquals(legacyEntityCopy,legacyEntity);
     assertFalse(isObjectsEqual(legacyEntityCopy, legacyEntity));
 
     val legacyEntityCopy2 = legacyEntityConverter.convertToLegacyEntity(legacyDto);
-    assertThat(legacyEntityCopy2).isEqualToComparingFieldByField(legacyDto);
     assertFalse(isObjectsEqual(legacyEntityCopy2, legacyDto));
+    assertEquals(legacyEntityCopy2.getAccess(), legacyDto.getAccess());
+    assertEquals(legacyEntityCopy2.getFileName(), legacyDto.getFileName());
+    assertEquals(legacyEntityCopy2.getGnosId(), legacyDto.getGnosId());
+    assertEquals(legacyEntityCopy2.getId(), legacyDto.getId());
+    assertEquals(legacyEntityCopy2.getProjectCode(), legacyDto.getProjectCode());
 
     val legacyDtoCopy = legacyEntityConverter.convertToLegacyDto(legacyDto);
-    assertThat(legacyDtoCopy).isEqualToComparingFieldByField(legacyDto);
+    assertEquals(legacyDtoCopy,legacyDto);
     assertFalse(isObjectsEqual(legacyDtoCopy, legacyDto));
   }
 
@@ -161,7 +169,7 @@ public class ConverterTest {
   }
 
   private static FileUpdateRequest generateFileUpdateRequest(int id){
-    assertThat(id).isLessThan(getNumberOfPermutations());
+    assertTrue(id < getNumberOfPermutations());
     val builder  =FileUpdateRequest.builder();
     if (isConfigEnabled(id, 0)){
       builder.fileAccess("controlled");

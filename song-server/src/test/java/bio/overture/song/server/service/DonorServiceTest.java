@@ -38,10 +38,8 @@ import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -97,8 +95,16 @@ public class DonorServiceTest {
 
     // Just check that each specimen object that we get is the same as the one we get from the
     // specimen service. Let the specimen service tests verify that the contents are right.
-    d.getSpecimens().forEach(specimen -> assertThat(specimen.equals(getMatchingSpecimen(specimen))));
+    d.getSpecimens().forEach(specimen -> assertEqualSpecimen(specimen, getMatchingSpecimen(specimen)));
+  }
 
+  private static void assertEqualSpecimen(Specimen s1, Specimen s2){
+    assertEquals(s1.getDonorId(), s2.getDonorId());
+    assertEquals(s1.getSpecimenClass(), s2.getSpecimenClass());
+    assertEquals(s1.getSpecimenId(), s2.getSpecimenId());
+    assertEquals(s1.getSpecimenSubmitterId(), s2.getSpecimenSubmitterId());
+    assertEquals(s1.getSpecimenType(), s2.getSpecimenType());
+    assertEquals(s1.getInfoAsString(), s2.getInfoAsString());
   }
 
   Specimen getMatchingSpecimen(Specimen specimen) {
@@ -121,11 +127,11 @@ public class DonorServiceTest {
     val status = service.create(d);
     val id = d.getDonorId();
 
-    assertThat(id).startsWith("DO");
+    assertTrue(id.startsWith("DO"));
     assertEquals(status,id);
 
     DonorWithSpecimens check = service.readWithSpecimens(id);
-    assertThat(d).isEqualToComparingFieldByField(check);
+    assertEquals(d,check);
 
     service.securedDelete("XYZ234", id);
     assertFalse(service.isDonorExist(id));
@@ -161,7 +167,7 @@ public class DonorServiceTest {
     assertEquals(response,"OK");
 
     val d3 = service.securedRead(studyId, id);
-    assertThat(d3).isEqualToComparingFieldByField(d2);
+    assertEquals(d3,d2);
   }
 
   @Test
@@ -290,7 +296,7 @@ public class DonorServiceTest {
       donorIdSet.add(donorId);
     }
     val donors = service.readByParentId(studyId);
-    assertThat(donors, hasSize(numDonors));
+    assertEquals(donors.size(),numDonors);
     assertTrue(donors.stream().map(Donor::getDonorId).collect(toSet()).containsAll(donorIdSet));
   }
 

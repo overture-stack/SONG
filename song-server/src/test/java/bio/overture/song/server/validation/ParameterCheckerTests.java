@@ -32,15 +32,14 @@ import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILTER_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_QUERY_PARAMETER;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.ParameterChecker.createParameterChecker;
-import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
 
 public class ParameterCheckerTests {
 
@@ -54,7 +53,7 @@ public class ParameterCheckerTests {
   @Test
   public void testFieldNameExtraction(){
     val actualFieldNames = parameterChecker.getFieldNamesFor(REGISTERED_TYPE);
-    assertSetsMatch(actualFieldNames, expectedFieldNames);
+    assertCollectionsMatchExactly(actualFieldNames, expectedFieldNames);
     assertSongError(() -> parameterChecker.getFieldNamesFor(UNREGISTERED_TYPE),
         ServerErrors.UNREGISTERED_TYPE);
   }

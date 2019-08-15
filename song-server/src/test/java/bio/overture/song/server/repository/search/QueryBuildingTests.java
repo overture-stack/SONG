@@ -17,6 +17,7 @@
 
 package bio.overture.song.server.repository.search;
 
+import bio.overture.song.core.testing.SongErrorAssertions;
 import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -32,18 +33,16 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.assertj.core.api.Assertions.fail;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
-import static bio.overture.song.server.utils.TestFiles.SEARCH_TEST_DIR;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static bio.overture.song.server.repository.search.SearchQueryBuilder.createSearchQueryBuilder;
 import static bio.overture.song.server.repository.search.SearchTerm.createMultiSearchTerms;
 import static bio.overture.song.server.repository.search.SearchTerm.createSearchTerm;
 import static bio.overture.song.server.repository.search.SearchTerm.parseSearchTerm;
 import static bio.overture.song.server.repository.search.SearchTerm.parseSearchTerms;
+import static bio.overture.song.server.utils.TestFiles.SEARCH_TEST_DIR;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
 @Slf4j
@@ -107,7 +106,7 @@ public class QueryBuildingTests {
   @Test
   public void testSearchTermKeyParsing(){
     val st = createSearchTerm("a.b.c", "k");
-    assertThat(st.getNonLeafKeys()).isSubsetOf("a","b");
+    SongErrorAssertions.assertSubsetOf(st.getNonLeafKeys(), newHashSet("a", "b"));
     assertEquals(st.getLeafKey(),"c");
     assertEquals(st.getValue(),"k");
   }
@@ -115,7 +114,7 @@ public class QueryBuildingTests {
   @Test
   public void testMultiSearchTerms(){
     val stList = createMultiSearchTerms("a.x.y", Lists.newArrayList("b", "c", "d"));
-    assertThat(stList, hasSize(3));
+    assertEquals(stList.size(),3);
     val st0 = stList.get(0);
     val st1 = stList.get(1);
     val st2 = stList.get(2);
@@ -140,7 +139,7 @@ public class QueryBuildingTests {
     assertEquals(stManySeparators.getValue(),"b=c");
 
     val stList = parseSearchTerms("a=b", "c.d.e=f", "h.i=r=t");
-    assertThat(stList, hasSize(3));
+    assertEquals(stList.size(),3);
 
     val st0 = stList.get(0);
     assertEquals(st0.getKey(),"a");

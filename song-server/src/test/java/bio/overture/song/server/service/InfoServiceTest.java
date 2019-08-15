@@ -29,15 +29,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertEquals;
-import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_NOT_FOUND;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 
 @Slf4j

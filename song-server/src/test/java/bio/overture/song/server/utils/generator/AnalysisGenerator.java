@@ -30,7 +30,6 @@ import lombok.val;
 
 import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;

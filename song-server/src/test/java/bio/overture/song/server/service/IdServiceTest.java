@@ -34,8 +34,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -43,6 +41,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.OK;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
@@ -83,28 +82,23 @@ public class IdServiceTest {
     // Test NotFound case
     responseConfig(IdServiceResponseTypes.NOT_FOUND, analysisId, filename);
     log.info("sdf");
-    assertThat(catchThrowable(() -> idService.generateFileId(analysisId, filename)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Generating objectId should not yield missing value.");
+    assertExceptionThrownBy(IllegalStateException.class,
+        () -> idService.generateFileId(analysisId, filename));
 
     // Test Whitespace Case
     responseConfig(WHITESPACE_ONLY, analysisId, filename);
-    assertThat(catchThrowable(() -> idService.generateFileId(analysisId, filename)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("The generated id cannot be blank");
+    assertExceptionThrownBy(IllegalStateException.class,
+        () -> idService.generateFileId(analysisId, filename));
 
     // Test Empty Case
     responseConfig(EMPTY, analysisId, filename);
-    assertThat(catchThrowable(() -> idService.generateFileId(analysisId, filename)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("The generated id cannot be blank");
+    assertExceptionThrownBy(IllegalStateException.class,
+        () -> idService.generateFileId(analysisId, filename));
 
     // Test Malformed Case
     responseConfig(MALFORMED_UUID, analysisId, filename);
-    assertThat(catchThrowable(() -> idService.generateFileId(analysisId, filename)))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessageStartingWith("The generated id '")
-        .hasMessageEndingWith("' is not in UUID format");
+    assertExceptionThrownBy(IllegalStateException.class,
+        () -> idService.generateFileId(analysisId, filename));
   }
 
   enum IdServiceResponseTypes{

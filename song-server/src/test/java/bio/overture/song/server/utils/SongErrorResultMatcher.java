@@ -24,7 +24,6 @@ import lombok.val;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 

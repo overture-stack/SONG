@@ -19,17 +19,16 @@ package bio.overture.song.core.errors;
 
 import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.exceptions.SongError;
-import lombok.val;
 import bio.overture.song.core.utils.JsonUtils;
+import lombok.val;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static bio.overture.song.core.utils.Debug.streamCallingStackTrace;
+import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static bio.overture.song.core.exceptions.ServerErrors.extractErrorId;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
+import static bio.overture.song.core.utils.Debug.streamCallingStackTrace;
 
 public class ErrorTest {
 
@@ -61,10 +60,10 @@ public class ErrorTest {
   public void testIncorrectErrorId(){
     val incorrectEnumName1 = "Unknown_Error";
     val incorrectEnumName2 = "UNKNOWN-ERROR";
-    val thrown1 = catchThrowable(() -> ServerErrors.extractErrorId(incorrectEnumName1) );
-    val thrown2 = catchThrowable(() -> ServerErrors.extractErrorId(incorrectEnumName2) );
-    assertTrue(thrown1 instanceof IllegalArgumentException);
-    assertTrue(thrown2 instanceof IllegalArgumentException);
+    assertExceptionThrownBy(IllegalArgumentException.class,
+        () -> extractErrorId(incorrectEnumName1) );
+    assertExceptionThrownBy(IllegalArgumentException.class,
+        () -> extractErrorId(incorrectEnumName2) );
   }
 
 }

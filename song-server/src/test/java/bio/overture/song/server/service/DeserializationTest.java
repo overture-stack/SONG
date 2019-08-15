@@ -22,13 +22,11 @@ import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import bio.overture.song.server.utils.TestFiles;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 
 public class DeserializationTest {

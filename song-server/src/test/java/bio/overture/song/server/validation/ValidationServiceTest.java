@@ -34,11 +34,8 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.util.Lists.newArrayList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.icgc.dcc.common.core.util.Splitters.PIPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -86,8 +83,7 @@ public class ValidationServiceTest {
     ((ObjectNode)payload).put("analysisType", (String)null);
     val results=service.validate(payload.toString(),VAR_CALL);
     assertTrue(results.isPresent());
-    assertThat(results).hasValue("$.analysisType: does not have a value in the enumeration [variantCall]|$"
-        + ".analysisType: null found, string expected");
+    assertTrue(results.get().contains("$.analysisType: does not have a value in the enumeration [variantCall]|$.analysisType: null found, string expected"));
   }
 
   @Test
@@ -96,8 +92,9 @@ public class ValidationServiceTest {
     ((ObjectNode)payload).put("analysisType", (String)null);
     val results=service.validate(payload.toString(),SEQ_READ);
     assertTrue(results.isPresent());
-    assertThat(results).hasValue("$.analysisType: does not have a value in the enumeration [sequencingRead]|$"
-        + ".analysisType: null found, string expected");
+    assertTrue(results.get()
+        .contains("$.analysisType: does not have a value in the enumeration [sequencingRead]|$"
+        + ".analysisType: null found, string expected"));
   }
 
   @Test
@@ -105,7 +102,7 @@ public class ValidationServiceTest {
     val payload=getJsonFile("sequencingRead.json");
     val results=service.validate(payload.toString(), "SOME_UNKNOWN_ANALYSIS_TYPE");
     assertTrue(results.isPresent());
-    assertThat(results).hasValue("Unknown processing problem: Internal Error: could not find specified schema uploadSOME_UNKNOWN_ANALYSIS_TYPE");
+    assertTrue(results.get().contains("Unknown processing problem: Internal Error: could not find specified schema uploadSOME_UNKNOWN_ANALYSIS_TYPE"));
   }
 
   @Test
@@ -132,7 +129,7 @@ public class ValidationServiceTest {
 
       val payload = getJsonFile(testFileName);
       val fileNodes = newArrayList(payload.path("file"));
-      assertThat(fileNodes.size()).isGreaterThan(1);
+      assertTrue(fileNodes.size() > 1);
       val fileNode0 = ((ObjectNode)fileNodes.get(0)).put("fileMd5sum", "q123"); // less than 32 and non-hex number
       val fileNode1 = ((ObjectNode)fileNodes.get(1)).put("fileMd5sum", "q0123456789012345678901234567890123456789"); //more than 32 and non-hex number
 
@@ -141,7 +138,7 @@ public class ValidationServiceTest {
       assertTrue(results.isPresent());
 
       val errors = PIPE.splitToList(results.get());
-      assertThat(errors, hasSize(2));
+      assertEquals(2, errors.size());
       for (val error : errors){
         assertTrue(error.contains("fileMd5sum: does not match the regex pattern"));
       }
@@ -184,17 +181,17 @@ public class ValidationServiceTest {
     node.put(fieldName, "");
     val emptyResults = service.validate(payload.toString(), schemaType);
     assertTrue(emptyResults.isPresent());
-    assertThat(emptyResults.get()).endsWith(format("%s: must be at least 1 characters long", fieldName));
+    assertTrue(emptyResults.get().endsWith(format("%s: must be at least 1 characters long", fieldName)));
 
     node.put(fieldName, (String)null);
     val nullResults = service.validate(payload.toString(), schemaType);
     assertTrue(nullResults.isPresent());
-    assertThat(nullResults.get()).endsWith(format("%s: null found, string expected", fieldName));
+    assertTrue(nullResults.get().endsWith(format("%s: null found, string expected", fieldName)));
 
     node.remove(fieldName);
     val missingResults = service.validate(payload.toString(), schemaType);
     assertTrue(missingResults.isPresent());
-    assertThat(missingResults.get()).endsWith(format("%s: is missing but it is required", fieldName));
+    assertTrue(missingResults.get().endsWith(format("%s: is missing but it is required", fieldName)));
 
     node.put(fieldName, randomGenerator.generateRandomAsciiString(randomGenerator.generateRandomIntRange(1,4)));
     val goodResults = service.validate(payload.toString(), schemaType);

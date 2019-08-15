@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -210,7 +209,7 @@ public class SerializationTest {
     val sequencingRead2 = JsonUtils.fromJson(json, SequencingRead.class);
 
 
-    assertThat(sequencingRead1).isEqualToComparingFieldByField(sequencingRead2);
+    assertEquals(sequencingRead1,sequencingRead2);
 
   }
 

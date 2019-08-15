@@ -37,9 +37,6 @@ import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toSet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -101,11 +98,11 @@ public class SampleServiceTest {
     val id = s.getSampleId();
     assertTrue(sampleService.isSampleExist(id));
 
-    assertThat(id).startsWith("SA");
+    assertTrue(id.startsWith("SA"));
     assertEquals(status,id);
 
     Sample check = sampleService.securedRead(DEFAULT_STUDY_ID, id);
-    assertThat(check).isEqualToComparingFieldByField(s);
+    assertEquals(check,s);
 
     sampleService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
     assertFalse(sampleService.isSampleExist(id));
@@ -137,7 +134,7 @@ public class SampleServiceTest {
     sampleService.update(s2);
 
     val s3 = sampleService.securedRead(DEFAULT_STUDY_ID,id);
-    assertThat(s3).isEqualToComparingFieldByField(s2);
+    assertEquals(s3,s2);
   }
 
   @Test
@@ -227,7 +224,7 @@ public class SampleServiceTest {
 
     // Read the samples by parent Id (specimenId)
     val actualSamples = sampleService.readByParentId(specimenId);
-    assertThat(actualSamples, hasSize(numSamples));
+    assertEquals(actualSamples.size(),numSamples);
     assertTrue(actualSamples.stream().map(Sample::getSampleId).collect(toSet()).containsAll(expectedSampleIds));
 
     // Assert that reading by a non-existent specimenId returns something empty

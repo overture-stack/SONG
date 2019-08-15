@@ -22,13 +22,17 @@ import bio.overture.song.core.exceptions.ServerException;
 import lombok.NonNull;
 import lombok.val;
 
+import java.util.Collection;
 import java.util.function.Supplier;
 
+import static com.google.common.collect.Sets.difference;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class SongErrorAssertions {
   private static final Object EMPTY_OBJECT = new Object();
@@ -57,15 +61,51 @@ public class SongErrorAssertions {
       @NonNull ServerError expectedServerError, String formattedFailMessage, Object...objects){
     val thrown = catchThrowable(supplier::get);
 
-    val assertion = assertThat(thrown);
+    String message = null;
+    assertNotNull("An exception was not thrown",thrown);
     if (!isNull(formattedFailMessage)){
-      assertion.describedAs(format(formattedFailMessage, objects));
+      message = format(formattedFailMessage, objects);
+    } else {
+      message= format("Expected exception of type '%s' but instead got '%s'",
+          ServerException.class.getSimpleName(), thrown.getClass().getSimpleName());
+
     }
-    assertion.as(format("a %s should have been thrown", ServerException.class.getSimpleName())).isInstanceOf(ServerException.class);
+    assertEquals(message, ServerException.class, thrown.getClass());
 
     val songError = ((ServerException)thrown).getSongError();
     assertEquals(songError.getErrorId(),expectedServerError.getErrorId());
     assertEquals(songError.getHttpStatusCode(),expectedServerError.getHttpStatus().value());
   }
 
+  public static <T> void assertSubsetOf(@NonNull Collection<T> candidateSubset,
+      @NonNull Collection<T> superset){
+    assertTrue(difference(newHashSet(candidateSubset), newHashSet(superset)).isEmpty());
+  }
+
+  public static <T> void assertCollectionsMatchExactly(@NonNull Collection<T> left, @NonNull Collection<T> right){
+    assertSubsetOf(left,right);
+    assertSubsetOf(right,left);
+  }
+
+  public static Throwable catchThrowable(@NonNull Runnable runnable) {
+    try {
+      runnable.run();
+    } catch (Throwable throwable) {
+      return throwable;
+    }
+    return null;
+  }
+
+  public static <E extends Throwable> void assertExceptionThrownBy(@NonNull Class<E> exceptionClass,
+      @NonNull Runnable runnable){
+    assertExceptionThrownBy(null, exceptionClass, runnable);
+  }
+
+  public static <E extends Throwable> void assertExceptionThrownBy(String failMessage, @NonNull Class<E> exceptionClass,
+      @NonNull Runnable runnable){
+    val t = catchThrowable(runnable);
+    val finalFailMessage = isBlank(failMessage) ? format("Expected exception of type '%s' but instead got '%s'", exceptionClass.getSimpleName(), t.getClass().getSimpleName()) : failMessage;
+    assertNotNull(finalFailMessage,t);
+    assertEquals(finalFailMessage, exceptionClass, t.getClass());
+  }
 }

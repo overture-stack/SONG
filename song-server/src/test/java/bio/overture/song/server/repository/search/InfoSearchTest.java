@@ -33,7 +33,6 @@ import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.icgc.dcc.common.core.json.JsonNodeBuilders;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,16 +53,12 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertEquals;
 import static org.icgc.dcc.common.core.util.Joiners.PATH;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.entity.InfoPK.createInfoPK;
@@ -71,9 +66,9 @@ import static bio.overture.song.server.repository.search.InfoSearchRequest.creat
 import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithInfo;
 import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithoutInfo;
 import static bio.overture.song.server.repository.search.SearchTerm.parseSearchTerms;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
@@ -156,8 +151,8 @@ public class InfoSearchTest {
 
     val response1 = search(studyId1, true, term1, term2);
     val response2 = search(studyId2, true, term1, term2);
-    assertThat(response1, hasSize(1));
-    assertThat(response2, hasSize(1));
+    assertEquals(response1.size(),1);
+    assertEquals(response2.size(),1);
     val result1 = response1.get(0);
     val result2 = response2.get(0);
     assertNotEquals(result1.getAnalysisId(),result2.getAnalysisId());
@@ -178,7 +173,7 @@ public class InfoSearchTest {
     for (val f1 : a1.getFile()){
       assertTrue(f2Map.containsKey(f1.getFileName()));
       val f2result = f2Map.get(f1.getFileName());
-      assertThat(f2result, hasSize(1));
+      assertEquals(f2result.size(),1);
       val f2 = f2result.get(0);
       assertFileData(f1, f2);
     }
@@ -187,7 +182,7 @@ public class InfoSearchTest {
     for (val s1 : a1.getSample()){
       assertTrue(s2map.containsKey(s1.getSampleSubmitterId()));
       val s2result = s2map.get(s1.getSampleSubmitterId());
-      assertThat(s2result, hasSize(1));
+      assertEquals(s2result.size(),1);
       val s2 = s2result.get(0);
       assertSampleData(s1, s2);
       assertDonorData(s1.getDonor(), s2.getDonor());
@@ -225,7 +220,7 @@ public class InfoSearchTest {
   @SneakyThrows
   private void runBasicTermSearchTest(Supplier<List<InfoSearchResponse>> responseSupplier, boolean shouldHaveInfo){
     val actualResponseList1 = responseSupplier.get();
-    assertThat(actualResponseList1, hasSize(1));
+    assertEquals(actualResponseList1.size(),1);
     val infoSearchResponse1 = actualResponseList1.get(0);
     assertTrue(this.analysisRespMap.containsKey(infoSearchResponse1.getAnalysisId()));
     if (shouldHaveInfo){

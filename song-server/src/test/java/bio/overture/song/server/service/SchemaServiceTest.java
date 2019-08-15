@@ -31,8 +31,9 @@ import java.util.Map;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
 import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
@@ -52,7 +53,7 @@ public class SchemaServiceTest {
   @Test
   public void testListSchemaIds(){
     val schemaIds = schemaService.listSchemaIds().getSchemaIds();
-    assertThat(schemaIds).containsExactlyInAnyOrder(SEQUENCING_READ_TYPE, VARIANT_CALL_TYPE);
+    assertThat(schemaIds, containsInAnyOrder(SEQUENCING_READ_TYPE, VARIANT_CALL_TYPE));
   }
 
   @Test
