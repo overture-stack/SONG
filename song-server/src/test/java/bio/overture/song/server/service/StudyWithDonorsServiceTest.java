@@ -16,6 +16,13 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.entity.Donor;
@@ -26,6 +33,7 @@ import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.google.common.collect.Maps;
+import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -38,30 +46,18 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import java.util.Collection;
-
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class})
+@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("test")
 public class StudyWithDonorsServiceTest {
 
-  @Autowired
-  private StudyWithDonorsService studyWithDonorsService;
+  @Autowired private StudyWithDonorsService studyWithDonorsService;
 
-  @Autowired
-  private StudyService studyService;
+  @Autowired private StudyService studyService;
 
-  @Autowired
-  private AnalysisService analysisService;
+  @Autowired private AnalysisService analysisService;
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(StudyWithDonorsServiceTest.class.getSimpleName());
@@ -69,12 +65,12 @@ public class StudyWithDonorsServiceTest {
   private StudyGenerator studyGenerator;
 
   @Before
-  public void init(){
+  public void init() {
     studyGenerator = createStudyGenerator(studyService, randomGenerator);
   }
 
   @Test
-  public void testReadWithChildren(){
+  public void testReadWithChildren() {
     // Create random isolated study
     val studyId = studyGenerator.createRandomStudy();
 
@@ -82,59 +78,67 @@ public class StudyWithDonorsServiceTest {
     val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
     val numAnalysis = 11;
     val analysisMap = Maps.<String, SequencingReadAnalysis>newHashMap();
-    for (int i=0; i<numAnalysis; i++){
+    for (int i = 0; i < numAnalysis; i++) {
       val sequencingReadAnalysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
       analysisMap.put(sequencingReadAnalysis.getAnalysisId(), sequencingReadAnalysis);
     }
 
     // Extract expected donors and verify
-    val expectedDonors = analysisMap.values().stream()
-        .flatMap(x -> x.getSample().stream())
-        .map(CompositeEntity::getDonor)
-        .collect(toSet());
-    assertEquals(expectedDonors.size(),numAnalysis);
-    assertEquals(expectedDonors.stream().map(Donor::getDonorSubmitterId).distinct().count(),numAnalysis);
-    assertEquals(expectedDonors.stream().filter(x -> x.getStudyId().equals(studyId)).count(),numAnalysis);
+    val expectedDonors =
+        analysisMap.values().stream()
+            .flatMap(x -> x.getSample().stream())
+            .map(CompositeEntity::getDonor)
+            .collect(toSet());
+    assertEquals(expectedDonors.size(), numAnalysis);
+    assertEquals(
+        expectedDonors.stream().map(Donor::getDonorSubmitterId).distinct().count(), numAnalysis);
+    assertEquals(
+        expectedDonors.stream().filter(x -> x.getStudyId().equals(studyId)).count(), numAnalysis);
 
     // Extract expected specimens and verify
-    val expectedSpecimens = analysisMap.values().stream()
-        .flatMap(x -> x.getSample().stream())
-        .map(CompositeEntity::getSpecimen)
-        .collect(toSet());
-    assertEquals(expectedSpecimens.size(),numAnalysis);
-    assertEquals(expectedSpecimens.stream().map(Specimen::getSpecimenSubmitterId).distinct().count(),numAnalysis);
+    val expectedSpecimens =
+        analysisMap.values().stream()
+            .flatMap(x -> x.getSample().stream())
+            .map(CompositeEntity::getSpecimen)
+            .collect(toSet());
+    assertEquals(expectedSpecimens.size(), numAnalysis);
+    assertEquals(
+        expectedSpecimens.stream().map(Specimen::getSpecimenSubmitterId).distinct().count(),
+        numAnalysis);
 
     // Extract expected samples and verify
-    val expectedSamples = analysisMap.values().stream()
-        .flatMap(x -> x.getSample().stream())
-        .collect(toSet());
-    val expectedSampleSubmitterIds = expectedSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
-    assertEquals(expectedSamples.size(),numAnalysis);
-    assertEquals(expectedSampleSubmitterIds.size(),numAnalysis);
+    val expectedSamples =
+        analysisMap.values().stream().flatMap(x -> x.getSample().stream()).collect(toSet());
+    val expectedSampleSubmitterIds =
+        expectedSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
+    assertEquals(expectedSamples.size(), numAnalysis);
+    assertEquals(expectedSampleSubmitterIds.size(), numAnalysis);
 
     // Run the target method to test, readWithChildren
     val studyWithDonors = studyWithDonorsService.readWithChildren(studyId);
 
     // Extract actual donors
-    val actualDonors = studyWithDonors.getDonors().stream()
-        .map(DonorWithSpecimens::createDonor)
-        .collect(toSet());
+    val actualDonors =
+        studyWithDonors.getDonors().stream().map(DonorWithSpecimens::createDonor).collect(toSet());
 
     // Extract actual specimens
-    val actualSpecimens = studyWithDonors.getDonors().stream()
-        .map(DonorWithSpecimens::getSpecimens)
-        .flatMap(Collection::stream)
-        .map(SpecimenWithSamples::getSpecimen)
-        .collect(toSet());
+    val actualSpecimens =
+        studyWithDonors.getDonors().stream()
+            .map(DonorWithSpecimens::getSpecimens)
+            .flatMap(Collection::stream)
+            .map(SpecimenWithSamples::getSpecimen)
+            .collect(toSet());
 
     // Extract actual samples
-    val actualSamples = studyWithDonors.getDonors().stream()
-        .map(DonorWithSpecimens::getSpecimens)
-        .flatMap(Collection::stream)
-        .map(SpecimenWithSamples::getSamples)
-        .flatMap(Collection::stream)
-        .collect(toSet());
-    val actualSampleSubmitterIds = actualSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
+    val actualSamples =
+        studyWithDonors.getDonors().stream()
+            .map(DonorWithSpecimens::getSpecimens)
+            .flatMap(Collection::stream)
+            .map(SpecimenWithSamples::getSamples)
+            .flatMap(Collection::stream)
+            .collect(toSet());
+    val actualSampleSubmitterIds =
+        actualSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
 
     // Verify expected donors and actual donors match
     assertCollectionsMatchExactly(expectedDonors, actualDonors);
@@ -145,5 +149,4 @@ public class StudyWithDonorsServiceTest {
     // Verify expected sampleSubmitterIds and actual sampleSubmitterIds match
     assertCollectionsMatchExactly(expectedSampleSubmitterIds, actualSampleSubmitterIds);
   }
-
 }

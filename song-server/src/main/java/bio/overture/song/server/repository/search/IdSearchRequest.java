@@ -43,25 +43,26 @@ public class IdSearchRequest {
         getGlobPattern(donorId),
         getGlobPattern(sampleId),
         getGlobPattern(specimenId),
-        getGlobPattern(objectId)
-    );
+        getGlobPattern(objectId));
   }
 
-  public String getDonorId(){
+  public String getDonorId() {
     return getGlobPattern(this.donorId);
   }
-  public String getSampleId(){
+
+  public String getSampleId() {
     return getGlobPattern(this.sampleId);
   }
-  public String getSpecimenId(){
+
+  public String getSpecimenId() {
     return getGlobPattern(this.specimenId);
   }
-  public String getObjectId(){
+
+  public String getObjectId() {
     return getGlobPattern(this.objectId);
   }
 
-  private static String getGlobPattern(String opt){
-    return opt == null ?  WILD_CARD : opt;
+  private static String getGlobPattern(String opt) {
+    return opt == null ? WILD_CARD : opt;
   }
-
 }

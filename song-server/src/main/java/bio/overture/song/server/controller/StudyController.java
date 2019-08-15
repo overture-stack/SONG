@@ -22,8 +22,14 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import bio.overture.song.server.model.entity.Study;
+import bio.overture.song.server.model.entity.composites.StudyWithDonors;
+import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.service.StudyWithDonorsService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,41 +41,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import bio.overture.song.server.model.entity.Study;
-import bio.overture.song.server.model.entity.composites.StudyWithDonors;
-import bio.overture.song.server.service.StudyService;
-import bio.overture.song.server.service.StudyWithDonorsService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping(path = "/studies")
 @RequiredArgsConstructor
 @Api(tags = "Study", description = "Create and read studies")
 public class StudyController {
 
-  /**
-   * Dependencies
-   */
-  @Autowired
-  private final StudyService studyService;
+  /** Dependencies */
+  @Autowired private final StudyService studyService;
 
-  @Autowired
-  private final StudyWithDonorsService studyWithDonorsService;
+  @Autowired private final StudyWithDonorsService studyWithDonorsService;
 
-  @ApiOperation(value = "GetStudy",
-      notes = "Retrieves information for a study. If the study does not exist, an empty array is returned")
+  @ApiOperation(
+      value = "GetStudy",
+      notes =
+          "Retrieves information for a study. If the study does not exist, an empty array is returned")
   @GetMapping("/{studyId}")
-  public Study getStudy(
-      @PathVariable("studyId") String studyId) {
+  public Study getStudy(@PathVariable("studyId") String studyId) {
     return studyService.read(studyId);
   }
 
-  @ApiOperation(value = "GetEntireStudy", notes = "Retrieves all donor, specimen and sample data for a study")
+  @ApiOperation(
+      value = "GetEntireStudy",
+      notes = "Retrieves all donor, specimen and sample data for a study")
   @GetMapping("/{studyId}/all")
-  public StudyWithDonors getEntireStudy(
-      @PathVariable("studyId") String studyId) {
+  public StudyWithDonors getEntireStudy(@PathVariable("studyId") String studyId) {
     return studyWithDonorsService.readWithChildren(studyId);
   }
 
@@ -80,16 +76,22 @@ public class StudyController {
   }
 
   @ApiOperation(value = "CreateStudy", notes = "Creates a new study")
-  @PostMapping(value = "/{studyId}/", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(
+      value = "/{studyId}/",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @ResponseBody
-  public String saveStudy(@PathVariable("studyId") String studyId,
+  public String saveStudy(
+      @PathVariable("studyId") String studyId,
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @RequestBody Study study) {
-    checkServer(studyId.equals(study.getStudyId()), getClass(), STUDY_ID_MISMATCH,
+    checkServer(
+        studyId.equals(study.getStudyId()),
+        getClass(),
+        STUDY_ID_MISMATCH,
         "The studyId in the URL '%s' should match the studyId '%s' in the payload",
-        studyId, study.getStudyId());
+        studyId,
+        study.getStudyId());
     return studyService.saveStudy(study);
   }
-
 }

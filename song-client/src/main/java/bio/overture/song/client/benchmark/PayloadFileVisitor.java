@@ -17,13 +17,12 @@
 
 package bio.overture.song.client.benchmark;
 
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+
 import bio.overture.song.client.benchmark.model.UploadData;
 import com.google.common.collect.Lists;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
@@ -31,10 +30,10 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Set;
-
-import static java.util.Objects.isNull;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RequiredArgsConstructor
 public class PayloadFileVisitor extends SimpleFileVisitor<Path> {
@@ -43,14 +42,13 @@ public class PayloadFileVisitor extends SimpleFileVisitor<Path> {
   @NonNull private final Set<String> excludeStudies;
   @NonNull private final Set<String> includeStudies;
 
-
-  /**
-   * State
-   */
+  /** State */
   private String studyId;
+
   @Getter private List<UploadData> datas = Lists.newArrayList();
 
-  @Override public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+  @Override
+  public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
     if (dir.equals(rootDir)) {
       return FileVisitResult.CONTINUE;
     }
@@ -58,7 +56,7 @@ public class PayloadFileVisitor extends SimpleFileVisitor<Path> {
     return resolveVisitResult(studyId);
   }
 
-  private FileVisitResult resolveVisitResult(String studyId){
+  private FileVisitResult resolveVisitResult(String studyId) {
     if (excludeStudies.isEmpty() || !excludeStudies.contains(studyId)) {
       if (includeStudies.isEmpty() || includeStudies.contains(studyId)) {
         return FileVisitResult.CONTINUE;
@@ -67,14 +65,12 @@ public class PayloadFileVisitor extends SimpleFileVisitor<Path> {
     return FileVisitResult.SKIP_SUBTREE;
   }
 
-  @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+  @Override
+  public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 
     if (!isNull(studyId)) {
       if (file.getFileName().toString().endsWith(".json")) {
-        val uploadFile = UploadData.builder()
-            .file(file)
-            .studyId(studyId)
-            .build();
+        val uploadFile = UploadData.builder().file(file).studyId(studyId).build();
         datas.add(uploadFile);
       }
     }
@@ -82,13 +78,10 @@ public class PayloadFileVisitor extends SimpleFileVisitor<Path> {
   }
 
   public List<UploadData> getDataForStudy(@NonNull String studyId) {
-    return datas.stream()
-        .filter(x -> x.getStudyId().equals(studyId))
-        .collect(toImmutableList());
+    return datas.stream().filter(x -> x.getStudyId().equals(studyId)).collect(toImmutableList());
   }
 
-  public Set<String> getStudies(){
+  public Set<String> getStudies() {
     return datas.stream().map(UploadData::getStudyId).collect(toImmutableSet());
   }
-
 }

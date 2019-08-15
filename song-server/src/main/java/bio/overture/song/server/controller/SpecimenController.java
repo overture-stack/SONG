@@ -16,11 +16,14 @@
  */
 package bio.overture.song.server.controller;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.service.SpecimenService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,44 +35,39 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
 @Api(tags = "Specimen", description = "Create,read and delete specimens")
 public class SpecimenController {
 
-  /**
-   * Dependencies
-   */
-  @Autowired
-  private final SpecimenService specimenService;
+  /** Dependencies */
+  @Autowired private final SpecimenService specimenService;
 
   @ApiOperation(value = "ReadSpecimen", notes = "Retrieves specimen data for a specimenId")
   @GetMapping(value = "/specimens/{id}")
   @ResponseBody
-  public Specimen read(
-      @PathVariable("studyId") String studyId,
-      @PathVariable("id") String id) {
+  public Specimen read(@PathVariable("studyId") String studyId, @PathVariable("id") String id) {
     return specimenService.securedRead(studyId, id);
   }
 
   /**
-   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is implemented
+   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is
+   * implemented
    */
-//  @PutMapping(value = "/specimens/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-//  @ResponseBody
-//  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-//  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
-//                       @RequestBody Specimen specimen) {
-//    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
-//    return specimenService.update(specimen);
-//  }
+  //  @PutMapping(value = "/specimens/{id}", consumes = { APPLICATION_JSON_VALUE,
+  // APPLICATION_JSON_UTF8_VALUE })
+  //  @ResponseBody
+  //  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  //  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
+  //                       @RequestBody Specimen specimen) {
+  //    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
+  //    return specimenService.update(specimen);
+  //  }
 
-  @ApiOperation(value = "DeleteSpecimens", notes = "Deletes specimen data and all dependent samples for specimenIds")
+  @ApiOperation(
+      value = "DeleteSpecimens",
+      notes = "Deletes specimen data and all dependent samples for specimenIds")
   @DeleteMapping(value = "/specimens/{ids}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -77,8 +75,7 @@ public class SpecimenController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("ids") @ApiParam(value = "Comma separated list of specimenIds", required = true)
-      List<String> ids) {
+          List<String> ids) {
     return specimenService.securedDelete(studyId, ids);
   }
-
 }

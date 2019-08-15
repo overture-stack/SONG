@@ -17,6 +17,9 @@
 
 package bio.overture.song.server.config;
 
+import static springfox.documentation.builders.PathSelectors.any;
+import static springfox.documentation.builders.RequestHandlerSelectors.basePackage;
+
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,9 +30,6 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import static springfox.documentation.builders.PathSelectors.any;
-import static springfox.documentation.builders.RequestHandlerSelectors.basePackage;
 
 @EnableSwagger2
 @Configuration
@@ -69,12 +69,12 @@ public class SwaggerConfig {
   private ApiInfo apiInfo() {
     return new ApiInfoBuilder()
         .title("Song API")
-        .description("Song API reference for developers. SONG is an open source system for validating and "
-            + "tracking metadata about raw data submissions, assigning "
-            + "identifiers to entities of interest, and managing the state "
-            + "of the raw data with regards to publication and access")
+        .description(
+            "Song API reference for developers. SONG is an open source system for validating and "
+                + "tracking metadata about raw data submissions, assigning "
+                + "identifiers to entities of interest, and managing the state "
+                + "of the raw data with regards to publication and access")
         .version(serverVersion)
         .build();
   }
-
 }

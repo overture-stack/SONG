@@ -17,10 +17,15 @@
 
 package bio.overture.song.server.controller;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.service.UploadService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +41,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 @Slf4j
 @RestController
 @RequestMapping(path = "/upload")
@@ -49,41 +48,45 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Api(tags = "Upload", description = "Validate, monitor and save json metadata")
 public class UploadController {
 
-  /**
-   * Dependencies
-   */
-  @Autowired
-  private final UploadService uploadService;
+  /** Dependencies */
+  @Autowired private final UploadService uploadService;
 
   @ApiOperation(value = "SyncUpload", notes = "Synchronously uploads a json payload")
-  @PostMapping(value = "/{studyId}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(
+      value = "/{studyId}",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> syncUpload(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
-      @RequestBody @Valid String json_payload ) {
+      @RequestBody @Valid String json_payload) {
     return uploadService.upload(studyId, json_payload, false);
   }
 
   @ApiOperation(value = "AsyncUpload", notes = "Asynchronously uploads a json payload")
-  @PostMapping(value = "/{studyId}/async", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(
+      value = "/{studyId}/async",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> asyncUpload(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
-      @RequestBody @Valid String json_payload ) {
+      @RequestBody @Valid String json_payload) {
     return uploadService.upload(studyId, json_payload, true);
   }
 
   @ApiOperation(value = "GetUploadStatus", notes = "Checks the status of an upload")
   @GetMapping(value = "/{studyId}/status/{uploadId}")
-  public @ResponseBody
-  Upload status(@PathVariable("studyId") String studyId, @PathVariable("uploadId") String uploadId) {
+  public @ResponseBody Upload status(
+      @PathVariable("studyId") String studyId, @PathVariable("uploadId") String uploadId) {
     return uploadService.securedRead(studyId, uploadId);
   }
 
-  @ApiOperation(value = "SaveUpload", notes = "Saves an upload specified by an uploadId. Also, optionally ignores "
-      + "analysisId collisions")
+  @ApiOperation(
+      value = "SaveUpload",
+      notes =
+          "Saves an upload specified by an uploadId. Also, optionally ignores "
+              + "analysisId collisions")
   @PostMapping(value = "/{studyId}/save/{uploadId}")
   @ResponseBody
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -91,8 +94,8 @@ public class UploadController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("uploadId") String uploadId,
-      @RequestParam(value = "ignoreAnalysisIdCollisions", defaultValue = "false") boolean ignoreAnalysisIdCollisions ) {
+      @RequestParam(value = "ignoreAnalysisIdCollisions", defaultValue = "false")
+          boolean ignoreAnalysisIdCollisions) {
     return uploadService.save(studyId, uploadId, ignoreAnalysisIdCollisions);
   }
-
 }

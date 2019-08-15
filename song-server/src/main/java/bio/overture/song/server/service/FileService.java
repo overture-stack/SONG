@@ -16,46 +16,40 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.converter.FileConverter;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.FileRepository;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.Responses.OK;
 
+import bio.overture.song.server.converter.FileConverter;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.repository.AnalysisRepository;
+import bio.overture.song.server.repository.FileRepository;
+import java.util.List;
+import java.util.Optional;
+import javax.transaction.Transactional;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 @Service
 @NoArgsConstructor
 public class FileService {
 
-  @Autowired
-  AnalysisRepository analysisRepository;
+  @Autowired AnalysisRepository analysisRepository;
 
-  @Autowired
-  FileRepository repository;
+  @Autowired FileRepository repository;
 
-  @Autowired
-  FileInfoService infoService;
-  @Autowired
-  IdService idService;
-  @Autowired
-  StudyService studyService;
-  @Autowired
-  FileConverter fileConverter;
+  @Autowired FileInfoService infoService;
+  @Autowired IdService idService;
+  @Autowired StudyService studyService;
+  @Autowired FileConverter fileConverter;
 
-  public String create(@NonNull String analysisId, @NonNull String studyId, @NonNull FileEntity file) {
+  public String create(
+      @NonNull String analysisId, @NonNull String studyId, @NonNull FileEntity file) {
     studyService.checkStudyExist(studyId);
 
     val id = idService.generateFileId(analysisId, file.getFileName());
@@ -68,26 +62,30 @@ public class FileService {
     return id;
   }
 
-  public void checkFileAndStudyRelated(@NonNull String studyId, @NonNull String id){
+  public void checkFileAndStudyRelated(@NonNull String studyId, @NonNull String id) {
     val numFiles = repository.countAllByStudyIdAndObjectId(studyId, id);
-    if (numFiles < 1){
+    if (numFiles < 1) {
       studyService.checkStudyExist(studyId);
       val file = unsecuredRead(id);
-      throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
+      throw buildServerException(
+          getClass(),
+          ENTITY_NOT_RELATED_TO_STUDY,
           "The objectId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
-          id, studyId, file.getObjectId() );
+          id,
+          studyId,
+          file.getObjectId());
     }
   }
 
-  public boolean isFileExist(@NonNull String id){
+  public boolean isFileExist(@NonNull String id) {
     return repository.existsById(id);
   }
 
-  public void checkFileExists(String id){
+  public void checkFileExists(String id) {
     fileNotFoundCheck(isFileExist(id), id);
   }
 
-  public void checkFileExists(@NonNull FileEntity file){
+  public void checkFileExists(@NonNull FileEntity file) {
     checkFileExists(file.getObjectId());
   }
 
@@ -96,7 +94,7 @@ public class FileService {
     return unsecuredRead(id);
   }
 
-  public void unsafeUpdate(FileEntity file){
+  public void unsafeUpdate(FileEntity file) {
     repository.save(file);
     infoService.update(file.getObjectId(), file.getInfoAsString());
   }
@@ -113,14 +111,14 @@ public class FileService {
     return internalDelete(id);
   }
 
-  public Optional<String> findByBusinessKey(@NonNull String analysisId, @NonNull String fileName){
-    return repository.findAllByAnalysisIdAndFileName(analysisId, fileName)
-        .stream()
+  public Optional<String> findByBusinessKey(@NonNull String analysisId, @NonNull String fileName) {
+    return repository.findAllByAnalysisIdAndFileName(analysisId, fileName).stream()
         .map(FileEntity::getObjectId)
         .findFirst();
   }
 
-  public String save(@NonNull String analysisId, @NonNull String studyId, @NonNull FileEntity file) {
+  public String save(
+      @NonNull String analysisId, @NonNull String studyId, @NonNull FileEntity file) {
     studyService.checkStudyExist(studyId);
     val result = findByBusinessKey(analysisId, file.getFileName());
     String fileId;
@@ -149,10 +147,12 @@ public class FileService {
     return OK;
   }
 
-  private static void fileNotFoundCheck(boolean expression, @NonNull String id){
-    checkServer(expression, FileService.class, FILE_NOT_FOUND,
-        "The File with objectId '%s' does not exist", id);
+  private static void fileNotFoundCheck(boolean expression, @NonNull String id) {
+    checkServer(
+        expression,
+        FileService.class,
+        FILE_NOT_FOUND,
+        "The File with objectId '%s' does not exist",
+        id);
   }
-
-
 }

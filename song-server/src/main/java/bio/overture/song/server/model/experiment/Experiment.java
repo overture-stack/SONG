@@ -17,7 +17,6 @@
 
 package bio.overture.song.server.model.experiment;
 
-
 import bio.overture.song.server.model.Metadata;
 
 public abstract class Experiment extends Metadata {}

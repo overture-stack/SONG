@@ -18,13 +18,12 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.entity.FullView;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FullViewRepository extends JpaRepository<FullView, String> {
 
   List<FullView> findAllByAnalysisIdIn(List<String> analysisIds);
-  List<FullView> findAllByStudyIdAndAnalysisStateIn(String studyId, List<String> analysisStates);
 
+  List<FullView> findAllByStudyIdAndAnalysisStateIn(String studyId, List<String> analysisStates);
 }

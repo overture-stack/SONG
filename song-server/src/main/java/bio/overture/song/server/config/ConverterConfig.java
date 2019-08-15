@@ -30,6 +30,5 @@ import org.mapstruct.ReportingPolicy;
     injectionStrategy = InjectionStrategy.CONSTRUCTOR,
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
     collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
-    mappingInheritanceStrategy =  MappingInheritanceStrategy.AUTO_INHERIT_ALL_FROM_CONFIG
-)
-public class ConverterConfig { }
+    mappingInheritanceStrategy = MappingInheritanceStrategy.AUTO_INHERIT_ALL_FROM_CONFIG)
+public class ConverterConfig {}

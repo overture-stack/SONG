@@ -31,11 +31,9 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class StorageConfig {
 
-  @Autowired
-  private RetryTemplate retryTemplate;
+  @Autowired private RetryTemplate retryTemplate;
 
-  @Autowired
-  private ValidationService validationService;
+  @Autowired private ValidationService validationService;
 
   @Value("${score.url}")
   private String storageUrl;
@@ -44,14 +42,13 @@ public class StorageConfig {
   private String scoreAuthorizationHeader;
 
   @Bean
-  public StorageService storageService(){
+  public StorageService storageService() {
     return StorageService.builder()
-            .restTemplate(new RestTemplate())
-            .retryTemplate(retryTemplate)
-            .storageUrl(storageUrl)
-            .validationService(validationService)
-            .scoreAuthorizationHeader(scoreAuthorizationHeader)
-            .build();
+        .restTemplate(new RestTemplate())
+        .retryTemplate(retryTemplate)
+        .storageUrl(storageUrl)
+        .validationService(validationService)
+        .scoreAuthorizationHeader(scoreAuthorizationHeader)
+        .build();
   }
-
 }

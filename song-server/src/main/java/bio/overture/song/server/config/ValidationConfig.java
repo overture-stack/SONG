@@ -16,6 +16,10 @@
  */
 package bio.overture.song.server.config;
 
+import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
+import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
+import static bio.overture.song.server.utils.ParameterChecker.createParameterChecker;
+
 import bio.overture.song.core.utils.JsonDocUtils;
 import bio.overture.song.core.utils.JsonSchemaUtils;
 import bio.overture.song.server.model.entity.IdView;
@@ -26,6 +30,8 @@ import bio.overture.song.server.validation.SchemaValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.networknt.schema.JsonSchema;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -35,23 +41,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
-import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
-import static bio.overture.song.server.utils.ParameterChecker.createParameterChecker;
-
 @Slf4j
 @Configuration
 @Data
 public class ValidationConfig {
 
   private static String[] schemaList = {
-      "schemas/sequencingRead.json",
-      "schemas/variantCall.json",
-      "schemas/fileUpdateRequest.json",
-      "schemas/storageDownloadResponse.json"
+    "schemas/sequencingRead.json",
+    "schemas/variantCall.json",
+    "schemas/fileUpdateRequest.json",
+    "schemas/storageDownloadResponse.json"
   };
 
   @Value("${validation.delayMs:500}")
@@ -63,18 +62,14 @@ public class ValidationConfig {
   }
 
   @Bean
-  public ParameterChecker parameterChecker(){
+  public ParameterChecker parameterChecker() {
     return createParameterChecker(
-        LegacyEntity.class,
-        IdSearchRequest.class,
-        IdView.class,
-        IdView.IdViewProjection.class
-    );
+        LegacyEntity.class, IdSearchRequest.class, IdView.class, IdView.IdViewProjection.class);
   }
 
   @Bean
   @Profile("async-test")
-  public Long validationDelayMs(){
+  public Long validationDelayMs() {
     return getValidationDelay();
   }
 
@@ -95,11 +90,10 @@ public class ValidationConfig {
   }
 
   @Bean
-  public Map<String, String> jsonSchemaMap(){
+  public Map<String, String> jsonSchemaMap() {
     return ImmutableMap.<String, String>builder()
-        .put(SEQUENCING_READ_TYPE, "schemas/sequencingRead.json" )
-        .put(VARIANT_CALL_TYPE, "schemas/variantCall.json" )
+        .put(SEQUENCING_READ_TYPE, "schemas/sequencingRead.json")
+        .put(VARIANT_CALL_TYPE, "schemas/variantCall.json")
         .build();
   }
-
 }

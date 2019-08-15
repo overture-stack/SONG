@@ -1,19 +1,6 @@
 package bio.overture.song.server.utils.web;
 
-import bio.overture.song.core.exceptions.ServerError;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.Value;
-import lombok.val;
-import org.icgc.dcc.common.core.util.stream.Streams;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
@@ -23,7 +10,19 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+
+import bio.overture.song.core.exceptions.ServerError;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.Value;
+import lombok.val;
+import org.icgc.dcc.common.core.util.stream.Streams;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @Value
 public class ResponseOption {
@@ -57,13 +56,12 @@ public class ResponseOption {
 
   public ResponseOption assertServerError(ServerError serverError) {
     val songError = parseErrorResponse(response);
-    assertEquals(songError.getErrorId(),serverError.getErrorId());
+    assertEquals(songError.getErrorId(), serverError.getErrorId());
     return assertStatusCode(serverError.getHttpStatus());
-
   }
 
   public ResponseOption assertStatusCode(HttpStatus code) {
-    assertEquals(response.getStatusCode(),code);
+    assertEquals(response.getStatusCode(), code);
     return this;
   }
 
@@ -116,5 +114,4 @@ public class ResponseOption {
         .map(x -> MAPPER.convertValue(x, tClass))
         .collect(toImmutableSet());
   }
-
 }

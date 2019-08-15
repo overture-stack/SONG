@@ -17,21 +17,20 @@
 
 package bio.overture.song.client.benchmark.rest;
 
-import bio.overture.song.core.utils.JsonUtils;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.val;
-import org.springframework.http.HttpStatus;
-
-import java.util.stream.Collectors;
-
+import static bio.overture.song.client.benchmark.rest.StudyClient.StudyEndpoint.createStudyEndpoint;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
-import static bio.overture.song.client.benchmark.rest.StudyClient.StudyEndpoint.createStudyEndpoint;
+
+import bio.overture.song.core.utils.JsonUtils;
+import java.util.stream.Collectors;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor(access = PRIVATE)
 public class StudyClient {
@@ -41,36 +40,40 @@ public class StudyClient {
   private final EntityRestClient restClient;
 
   @SneakyThrows
-  public boolean isStudyExist(@NonNull String studyId){
+  public boolean isStudyExist(@NonNull String studyId) {
     val response = restClient.get(accessToken, endpoint.getStudy(studyId));
-    if (response.getStatusCode() == HttpStatus.NOT_FOUND){
+    if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
       return false;
     } else {
       val node = JsonUtils.readTree(response.getBody());
-      if (!node.isArray() || !node.hasNonNull(0)){
+      if (!node.isArray() || !node.hasNonNull(0)) {
         return false;
       }
       return stream(node.elements()).collect(Collectors.toList()).size() > 0;
     }
   }
 
-  public void saveStudy(@NonNull String id,
-      @NonNull String name, @NonNull String org, @NonNull String desc  ){
-    val json = JsonUtils.toJson(
-        object()
-            .with("studyId", id)
-            .with("name", name)
-            .with("organization", org)
-            .with("description", desc)
-            .end());
+  public void saveStudy(
+      @NonNull String id, @NonNull String name, @NonNull String org, @NonNull String desc) {
+    val json =
+        JsonUtils.toJson(
+            object()
+                .with("studyId", id)
+                .with("name", name)
+                .with("organization", org)
+                .with("description", desc)
+                .end());
 
     val response = restClient.postAuth(accessToken, endpoint.saveStudy(id), json);
-    checkState(!response.getStatusCode().is4xxClientError() && !response.getStatusCode()
-        .is5xxServerError(), "An error occured");
+    checkState(
+        !response.getStatusCode().is4xxClientError()
+            && !response.getStatusCode().is5xxServerError(),
+        "An error occured");
   }
 
-  public static StudyClient createStudyClient(@NonNull String accessToken, @NonNull String serverUrl){
-    return new StudyClient(accessToken,createStudyEndpoint(serverUrl), new EntityRestClient());
+  public static StudyClient createStudyClient(
+      @NonNull String accessToken, @NonNull String serverUrl) {
+    return new StudyClient(accessToken, createStudyEndpoint(serverUrl), new EntityRestClient());
   }
 
   @RequiredArgsConstructor
@@ -78,17 +81,16 @@ public class StudyClient {
 
     @NonNull private final String serverUrl;
 
-    private String getStudy(String studyId){
-      return format("%s/studies/%s",serverUrl,studyId);
+    private String getStudy(String studyId) {
+      return format("%s/studies/%s", serverUrl, studyId);
     }
 
-    private String saveStudy(String studyId){
-      return format("%s/studies/%s/",serverUrl,studyId);
+    private String saveStudy(String studyId) {
+      return format("%s/studies/%s/", serverUrl, studyId);
     }
 
     public static StudyEndpoint createStudyEndpoint(String serverUrl) {
       return new StudyEndpoint(serverUrl);
     }
-
   }
 }

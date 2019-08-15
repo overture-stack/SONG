@@ -17,12 +17,11 @@
 
 package bio.overture.song.server.model.dto.schema;
 
+import java.util.Set;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
 import lombok.Value;
-
-import java.util.Set;
 
 @Value
 @Builder

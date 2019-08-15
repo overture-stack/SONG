@@ -16,18 +16,16 @@
  */
 package bio.overture.song.client.cli;
 
-import lombok.Data;
-import lombok.NonNull;
-import org.fusesource.jansi.AnsiConsole;
-
 import static java.lang.String.format;
 import static org.fusesource.jansi.Ansi.Color.GREEN;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
 
-/**
- * This class holds status results for commands that have run.
- */
+import lombok.Data;
+import lombok.NonNull;
+import org.fusesource.jansi.AnsiConsole;
+
+/** This class holds status results for commands that have run. */
 @Data
 public class Status {
 
@@ -77,24 +75,14 @@ public class Status {
   }
 
   public void reportErrors() {
-    if (! "".equals(errors)){
-      AnsiConsole.err().println(
-          ansi()
-              .eraseLine()
-              .fg(RED)
-              .a(errors)
-              .reset());
+    if (!"".equals(errors)) {
+      AnsiConsole.err().println(ansi().eraseLine().fg(RED).a(errors).reset());
     }
   }
 
   public void reportOutput() {
-    if (! "".equals(outputs)){
-      AnsiConsole.out().println(
-          ansi()
-              .eraseLine()
-              .fg(GREEN)
-              .a(outputs)
-              .reset());
+    if (!"".equals(outputs)) {
+      AnsiConsole.out().println(ansi().eraseLine().fg(GREEN).a(outputs).reset());
     }
   }
 
@@ -102,5 +90,4 @@ public class Status {
     reportOutput();
     reportErrors();
   }
-
 }

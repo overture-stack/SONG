@@ -34,14 +34,13 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
    * Refer:
    * http://stackoverflow.com/questions/29328124/no-bean-resolver-registered-in-the-context-to-resolve-access-to-bean
    *
-   * The following lines are a workaround suggested here:
+   * <p>The following lines are a workaround suggested here:
    * https://github.com/spring-projects/spring-security-oauth/issues/730
    *
-   * Apparently a bug in Spring's OAuth2 stuff - BeanResolver is not being set in the Application Context, so attempting
-   * to evaluate a bean lookup @beanName blows up
+   * <p>Apparently a bug in Spring's OAuth2 stuff - BeanResolver is not being set in the Application
+   * Context, so attempting to evaluate a bean lookup @beanName blows up
    */
-  @Autowired
-  private ApplicationContext context;
+  @Autowired private ApplicationContext context;
 
   @Override
   protected MethodSecurityExpressionHandler createExpressionHandler() {
@@ -49,5 +48,4 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
     handler.setApplicationContext(context);
     return handler;
   }
-
 }

@@ -30,5 +30,4 @@ public class CachingRemoteTokenServices extends RemoteTokenServices {
       throws AuthenticationException, InvalidTokenException {
     return super.loadAuthentication(accessToken);
   }
-
 }

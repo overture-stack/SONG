@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@Profile({"default","dev"})
+@Profile({"default", "dev"})
 @Component
 @Slf4j
 public class NoopSender implements Sender {
@@ -30,5 +30,4 @@ public class NoopSender implements Sender {
   public void send(String payload) {
     log.info("sending payload='{}' to no topic as kafka support is disabled", payload);
   }
-
 }

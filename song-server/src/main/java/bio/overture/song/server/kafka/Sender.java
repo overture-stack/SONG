@@ -20,5 +20,4 @@ package bio.overture.song.server.kafka;
 public interface Sender {
 
   void send(String payload);
-
 }

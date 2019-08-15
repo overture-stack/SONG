@@ -19,49 +19,49 @@ package bio.overture.song.server.model.entity.composites;
 
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import lombok.val;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Value
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class SpecimenWithSamples extends Specimen {
 
-    private List<Sample> samples = new ArrayList<>();
+  private List<Sample> samples = new ArrayList<>();
 
-    public void setSpecimen(Specimen s) {
-        setSpecimenId(s.getSpecimenId());
-        setDonorId(s.getDonorId());
-        setSpecimenSubmitterId(s.getSpecimenSubmitterId());
-        setSpecimenClass(s.getSpecimenClass());
-        setSpecimenType(s.getSpecimenType());
+  public void setSpecimen(Specimen s) {
+    setSpecimenId(s.getSpecimenId());
+    setDonorId(s.getDonorId());
+    setSpecimenSubmitterId(s.getSpecimenSubmitterId());
+    setSpecimenClass(s.getSpecimenClass());
+    setSpecimenType(s.getSpecimenType());
 
-        addInfo(s.getInfoAsString());
-    }
+    addInfo(s.getInfoAsString());
+  }
 
-    public Specimen getSpecimen() {
-        val s = Specimen.builder()
+  public Specimen getSpecimen() {
+    val s =
+        Specimen.builder()
             .specimenId(getSpecimenId())
             .specimenSubmitterId(getSpecimenSubmitterId())
             .donorId(getDonorId())
             .specimenClass(getSpecimenClass())
             .specimenType(getSpecimenType())
             .build();
-        s.setInfo(getInfoAsString());
-        return s;
-    }
+    s.setInfo(getInfoAsString());
+    return s;
+  }
 
-    public void addSample(Sample s) {
-        samples.add(s);
-    }
+  public void addSample(Sample s) {
+    samples.add(s);
+  }
 
-    public void setSamples(List<Sample> s) {
-        samples.clear();
-        samples.addAll(s);
-    }
+  public void setSamples(List<Sample> s) {
+    samples.clear();
+    samples.addAll(s);
+  }
 }

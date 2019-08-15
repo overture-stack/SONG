@@ -27,8 +27,7 @@ public enum InfoSearchResponseColumns {
 
   @NonNull private final String text;
 
-  public String toString(){
+  public String toString() {
     return text;
   }
-
 }

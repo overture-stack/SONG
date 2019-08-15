@@ -20,10 +20,9 @@ import bio.overture.song.client.command.Command;
 import bio.overture.song.client.command.ErrorCommand;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.val;
-
-import java.util.Map;
 
 @AllArgsConstructor
 class CommandParser {
@@ -31,10 +30,13 @@ class CommandParser {
   JCommander jc;
   Map<String, Command> commands;
 
-  /***
-   * Parses the command line options, and returns a Command object capable of running those options.
-   * 
-   * Returns an ErrorCommand object containing a usage message if there was an error in the command line arguments.
+  /**
+   * * Parses the command line options, and returns a Command object capable of running those
+   * options.
+   *
+   * <p>Returns an ErrorCommand object containing a usage message if there was an error in the
+   * command line arguments.
+   *
    * @param args
    * @return A Command object for the given command line arguments.
    */
@@ -62,5 +64,4 @@ class CommandParser {
     s.append(msg);
     return new ErrorCommand(s.toString());
   }
-
 }

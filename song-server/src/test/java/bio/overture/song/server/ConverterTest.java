@@ -17,6 +17,14 @@
 
 package bio.overture.song.server;
 
+import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.model.file.FileUpdateRequest;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -25,19 +33,10 @@ import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.converter.LegacyEntityConverter;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.legacy.LegacyEntity;
+import java.util.function.Function;
 import lombok.val;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.function.Function;
-
-import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 
 public class ConverterTest {
 
@@ -45,44 +44,46 @@ public class ConverterTest {
   private LegacyEntityConverter legacyEntityConverter = LegacyEntityConverter.INSTANCE;
   private FileConverter fileConverter = FileConverter.INSTANCE;
   private static final int MAX_NUMBER_OF_REQUEST_PARAMS = 4;
-  private static final RandomGenerator RANDOM_GENERATOR = createRandomGenerator(ConverterTest.class.getSimpleName());
+  private static final RandomGenerator RANDOM_GENERATOR =
+      createRandomGenerator(ConverterTest.class.getSimpleName());
   private static final String UNIQUE_MD5_1 = RANDOM_GENERATOR.generateRandomMD5();
   private static final String UNIQUE_MD5_2 = RANDOM_GENERATOR.generateRandomMD5();
 
   @BeforeClass
-  public static void beforeClass(){
-    assertNotEquals(UNIQUE_MD5_1,UNIQUE_MD5_2);
+  public static void beforeClass() {
+    assertNotEquals(UNIQUE_MD5_1, UNIQUE_MD5_2);
   }
 
   @Test
-  public void testFileCopy(){
+  public void testFileCopy() {
     val referenceFile = buildReferenceFile();
     val copiedFile = fileConverter.copyFile(referenceFile);
     assertFalse(copiedFile == referenceFile);
-    assertEquals(copiedFile,referenceFile);
+    assertEquals(copiedFile, referenceFile);
   }
 
   @Test
-  public void testEntityToUpdateRequestConversion(){
+  public void testEntityToUpdateRequestConversion() {
     val referenceFile = buildReferenceFile();
-    val referenceUpdateRequest = createFileUpdateRequest(
-        referenceFile.getFileSize(),
-        referenceFile.getFileMd5sum(),
-        referenceFile.getFileAccess(),
-        referenceFile.getInfo());
+    val referenceUpdateRequest =
+        createFileUpdateRequest(
+            referenceFile.getFileSize(),
+            referenceFile.getFileMd5sum(),
+            referenceFile.getFileAccess(),
+            referenceFile.getInfo());
     val outputFileUpdateRequest = fileConverter.fileEntityToFileUpdateRequest(referenceFile);
-    assertEquals(outputFileUpdateRequest,referenceUpdateRequest);
+    assertEquals(outputFileUpdateRequest, referenceUpdateRequest);
   }
 
   @Test
-  public void testFileUpdate(){
+  public void testFileUpdate() {
     val referenceFile = buildReferenceFile();
-    for(int i=0; i< getNumberOfPermutations(); i++){
+    for (int i = 0; i < getNumberOfPermutations(); i++) {
       val fileUpdateRequest = generateFileUpdateRequest(i);
       val updatedFile = fileConverter.copyFile(referenceFile);
       fileConverter.updateEntityFromData(fileUpdateRequest, updatedFile);
       if (i == 0) {
-        assertEquals(updatedFile,referenceFile);
+        assertEquals(updatedFile, referenceFile);
       } else {
         assertConfigEqual(i, 0, FileData::getFileAccess, updatedFile, referenceFile);
         assertConfigEqual(i, 1, FileData::getFileMd5sum, updatedFile, referenceFile);
@@ -98,14 +99,15 @@ public class ConverterTest {
   }
 
   @Test
-  public void testLegacyEntityConversion(){
-    val legacyEntity = LegacyEntity.builder()
-        .access("controlled")
-        .fileName("fn1")
-        .gnosId("an1")
-        .id("fi1")
-        .projectCode("ABC123")
-        .build();
+  public void testLegacyEntityConversion() {
+    val legacyEntity =
+        LegacyEntity.builder()
+            .access("controlled")
+            .fileName("fn1")
+            .gnosId("an1")
+            .id("fi1")
+            .projectCode("ABC123")
+            .build();
 
     val legacyDto = legacyEntityConverter.convertToLegacyDto(legacyEntity);
     assertFalse(isObjectsEqual(legacyDto, legacyEntity));
@@ -116,7 +118,7 @@ public class ConverterTest {
     assertEquals(legacyEntity.getProjectCode(), legacyDto.getProjectCode());
 
     val legacyEntityCopy = legacyEntityConverter.convertToLegacyEntity(legacyEntity);
-    assertEquals(legacyEntityCopy,legacyEntity);
+    assertEquals(legacyEntityCopy, legacyEntity);
     assertFalse(isObjectsEqual(legacyEntityCopy, legacyEntity));
 
     val legacyEntityCopy2 = legacyEntityConverter.convertToLegacyEntity(legacyDto);
@@ -128,72 +130,74 @@ public class ConverterTest {
     assertEquals(legacyEntityCopy2.getProjectCode(), legacyDto.getProjectCode());
 
     val legacyDtoCopy = legacyEntityConverter.convertToLegacyDto(legacyDto);
-    assertEquals(legacyDtoCopy,legacyDto);
+    assertEquals(legacyDtoCopy, legacyDto);
     assertFalse(isObjectsEqual(legacyDtoCopy, legacyDto));
   }
 
-  private static FileEntity buildReferenceFile(){
-    val referenceFile = FileEntity.builder()
-        .analysisId("AN1")
-        .objectId("FI1")
-        .studyId("ABC123")
-        .fileName("myFilename.bam")
-        .fileAccess("open")
-        .fileMd5sum(UNIQUE_MD5_1)
-        .fileSize(777777L)
-        .fileType("BAM")
-        .build();
+  private static FileEntity buildReferenceFile() {
+    val referenceFile =
+        FileEntity.builder()
+            .analysisId("AN1")
+            .objectId("FI1")
+            .studyId("ABC123")
+            .fileName("myFilename.bam")
+            .fileAccess("open")
+            .fileMd5sum(UNIQUE_MD5_1)
+            .fileSize(777777L)
+            .fileType("BAM")
+            .build();
     referenceFile.setInfo(object().with("myInfoKey1", "myInfoValue1").end());
     return referenceFile;
   }
 
-  private static <T> void assertIsEqual(Function<T, ?> getterCallback, T left, T right ){
-    assertEquals(getterCallback.apply(left),getterCallback.apply(right));
+  private static <T> void assertIsEqual(Function<T, ?> getterCallback, T left, T right) {
+    assertEquals(getterCallback.apply(left), getterCallback.apply(right));
   }
 
-  private static void assertConfigEqual(int id, int parameterNumFrom0, Function<FileData, ?> getterCallback,
-      FileEntity updatedFile, FileEntity referenceFile){
-    if (isConfigEnabled(id, parameterNumFrom0)){
-      assertNotEquals(getterCallback.apply(updatedFile),getterCallback.apply(referenceFile));
+  private static void assertConfigEqual(
+      int id,
+      int parameterNumFrom0,
+      Function<FileData, ?> getterCallback,
+      FileEntity updatedFile,
+      FileEntity referenceFile) {
+    if (isConfigEnabled(id, parameterNumFrom0)) {
+      assertNotEquals(getterCallback.apply(updatedFile), getterCallback.apply(referenceFile));
     } else {
-      assertEquals(getterCallback.apply(updatedFile),getterCallback.apply(referenceFile));
+      assertEquals(getterCallback.apply(updatedFile), getterCallback.apply(referenceFile));
     }
   }
 
-  private static int getNumberOfPermutations(){
+  private static int getNumberOfPermutations() {
     return 1 << MAX_NUMBER_OF_REQUEST_PARAMS;
   }
 
-  private static boolean isConfigEnabled(int id, int parameterNumFrom0){
-    return (id & (1<<parameterNumFrom0)) > 0;
+  private static boolean isConfigEnabled(int id, int parameterNumFrom0) {
+    return (id & (1 << parameterNumFrom0)) > 0;
   }
 
-  private static FileUpdateRequest generateFileUpdateRequest(int id){
+  private static FileUpdateRequest generateFileUpdateRequest(int id) {
     assertTrue(id < getNumberOfPermutations());
-    val builder  =FileUpdateRequest.builder();
-    if (isConfigEnabled(id, 0)){
+    val builder = FileUpdateRequest.builder();
+    if (isConfigEnabled(id, 0)) {
       builder.fileAccess("controlled");
     }
 
-    if (isConfigEnabled(id, 1)){
+    if (isConfigEnabled(id, 1)) {
       builder.fileMd5sum(UNIQUE_MD5_2);
     }
 
-    if (isConfigEnabled(id, 2)){
+    if (isConfigEnabled(id, 2)) {
       builder.fileSize(999999L);
     }
 
     if (isConfigEnabled(id, 3)) {
-      builder.info(object()
-          .with( "myInfoKey2", "myInfoValue2" )
-          .end());
+      builder.info(object().with("myInfoKey2", "myInfoValue2").end());
     }
 
     return builder.build();
   }
 
-  private static boolean isObjectsEqual(Object o1, Object o2){
+  private static boolean isObjectsEqual(Object o1, Object o2) {
     return o1 == o2;
   }
-
 }

@@ -26,11 +26,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class StudyWithDonorsService {
 
-  @Autowired
-  private StudyService studyService;
+  @Autowired private StudyService studyService;
 
-  @Autowired
-  private DonorService donorService;
+  @Autowired private DonorService donorService;
 
   @SneakyThrows
   public StudyWithDonors readWithChildren(String studyId) {
@@ -41,5 +39,4 @@ public class StudyWithDonorsService {
     study.setDonors(donorService.readByParentId(studyId));
     return study;
   }
-
 }

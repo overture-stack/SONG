@@ -17,12 +17,12 @@
 
 package bio.overture.song.server.model;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import bio.overture.song.core.model.file.FileContent;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 @Value
 @Builder
@@ -32,8 +32,7 @@ public class StorageObject implements FileContent {
   private final String fileMd5sum;
   @NonNull private final Long fileSize;
 
-  public boolean isMd5Defined(){
+  public boolean isMd5Defined() {
     return !isNullOrEmpty(fileMd5sum);
   }
-
 }

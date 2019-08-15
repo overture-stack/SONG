@@ -17,6 +17,8 @@
 
 package bio.overture.song.server.service;
 
+import static java.util.Objects.isNull;
+
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import lombok.AllArgsConstructor;
@@ -25,32 +27,27 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static java.util.Objects.isNull;
-
 @Service
 @AllArgsConstructor
 @Slf4j
 public class CompositeEntityService {
 
-  @Autowired
-  private final SampleService sampleService;
+  @Autowired private final SampleService sampleService;
 
-  @Autowired
-  private final SpecimenService specimenService;
+  @Autowired private final SpecimenService specimenService;
 
-  @Autowired
-  private final DonorService donorService;
+  @Autowired private final DonorService donorService;
 
-  private static Sample buildPersistentSample(CompositeEntity s){
+  private static Sample buildPersistentSample(CompositeEntity s) {
     val out = new Sample();
     out.setWithSample(s);
     return out;
   }
 
   /**
-   * The mutable CompositeEntity is really bad practice and needs to be refactored.
-   * Having any sort of mutation of method arguments makes testing very
-   * difficult and allows for bugs to creep in easier.
+   * The mutable CompositeEntity is really bad practice and needs to be refactored. Having any sort
+   * of mutation of method arguments makes testing very difficult and allows for bugs to creep in
+   * easier.
    */
   public String save(String studyId, CompositeEntity s) {
     String id = sampleService.findByBusinessKey(studyId, s.getSampleSubmitterId());
@@ -90,5 +87,4 @@ public class CompositeEntityService {
     sample.setDonor(donorService.unsecuredRead(sample.getSpecimen().getDonorId()));
     return sample;
   }
-
 }

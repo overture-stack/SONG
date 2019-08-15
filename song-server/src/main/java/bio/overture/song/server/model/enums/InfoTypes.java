@@ -17,11 +17,11 @@
 
 package bio.overture.song.server.model.enums;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum InfoTypes {
@@ -40,16 +40,17 @@ public enum InfoTypes {
     this.text = name();
   }
 
-  public String toString(){
+  public String toString() {
     return text;
   }
 
-  public static InfoTypes resolveInfoType(@NonNull String infoTypeValue){
+  public static InfoTypes resolveInfoType(@NonNull String infoTypeValue) {
     return stream(values())
         .filter(x -> x.toString().equals(infoTypeValue))
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException(format("The info type '%s' cannot be resolved",
-            infoTypeValue)));
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    format("The info type '%s' cannot be resolved", infoTypeValue)));
   }
-
 }

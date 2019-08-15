@@ -16,6 +16,10 @@
  */
 package bio.overture.song.server.retry;
 
+import static lombok.AccessLevel.PRIVATE;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
+
+import java.net.ConnectException;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,11 +32,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.net.ConnectException;
-
-import static lombok.AccessLevel.PRIVATE;
-import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
-
 @Slf4j
 @NoArgsConstructor
 @AllArgsConstructor
@@ -42,23 +41,27 @@ public class DefaultRetryListener extends RetryListenerSupport {
   ClientRetryListener clientRetryListener;
 
   @Override
-  public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
+  public <T, E extends Throwable> void onError(
+      RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
     if (clientRetryListener != null) {
       clientRetryListener.onError(context, callback, throwable);
       if (!clientRetryListener.isRetry()) {
-        log.debug("The ClientRetryListener requested to disable retries. Skipping the default retry processing...");
+        log.debug(
+            "The ClientRetryListener requested to disable retries. Skipping the default retry processing...");
         return;
       }
     }
 
     if (isClientException(throwable)) {
-      log.debug("HTTP client related exception detected. Do nothing. The downstream will do the further processing.");
+      log.debug(
+          "HTTP client related exception detected. Do nothing. The downstream will do the further processing.");
       return;
     }
 
     if (!(isConnectionTimeout(throwable) || isServiceUnavailable(throwable))) {
-      log.info("Detected a connection exception, but it's not the connection timeoutMs or 503 Service Unavailabe. "
-          + "Do not retry.");
+      log.info(
+          "Detected a connection exception, but it's not the connection timeoutMs or 503 Service Unavailabe. "
+              + "Do not retry.");
       context.setExhaustedOnly();
     }
   }
@@ -98,5 +101,4 @@ public class DefaultRetryListener extends RetryListenerSupport {
 
     return false;
   }
-
 }

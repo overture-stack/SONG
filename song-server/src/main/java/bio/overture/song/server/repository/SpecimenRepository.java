@@ -17,12 +17,10 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.entity.Specimen;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SpecimenRepository extends JpaRepository<Specimen, String> {
 
   List<Specimen> findAllByDonorId(String donorId);
-
 }

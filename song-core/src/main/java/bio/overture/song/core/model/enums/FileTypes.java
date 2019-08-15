@@ -17,39 +17,40 @@
 
 package bio.overture.song.core.model.enums;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.icgc.dcc.common.core.util.stream.Streams;
-
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 public enum FileTypes {
+  FASTA("fasta"),
+  FAI("fai"),
+  FASTQ("fastq"),
+  BAM("bam"),
+  BAI("bai"),
+  VCF("vcf"),
+  TBI("tbi"),
+  IDX("idx"),
+  XML("xml"),
+  TGZ("tgz");
 
- FASTA("fasta"),
- FAI("fai"),
- FASTQ("fastq"),
- BAM("bam"),
- BAI("bai"),
- VCF("vcf"),
- TBI("tbi"),
- IDX("idx"),
- XML("xml"),
- TGZ("tgz");
+  @Getter private final String extension;
 
- @Getter private final String extension;
+  public static FileTypes resolveFileType(@NonNull String fileType) {
+    return stream(values())
+        .filter(x -> x.toString().equals(fileType))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    format("The file type '%s' cannot be resolved", fileType)));
+  }
 
- public static FileTypes resolveFileType(@NonNull String fileType){
-  return stream(values())
-      .filter(x -> x.toString().equals(fileType))
-      .findFirst()
-      .orElseThrow(() -> new IllegalStateException(format("The file type '%s' cannot be resolved", fileType)));
- }
-
- @Override public String toString() {
-   return this.name();
- }
-
+  @Override
+  public String toString() {
+    return this.name();
+  }
 }

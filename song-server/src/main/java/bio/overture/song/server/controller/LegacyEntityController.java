@@ -17,6 +17,8 @@
 
 package bio.overture.song.server.controller;
 
+import static org.springframework.http.ResponseEntity.ok;
+
 import bio.overture.song.server.model.legacy.Legacy;
 import bio.overture.song.server.model.legacy.LegacyDto;
 import bio.overture.song.server.service.LegacyEntityService;
@@ -39,19 +41,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.http.ResponseEntity.ok;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/entities")
 @Api(tags = "Legacy Entity", description = "Legacy support for dcc-metadata")
 public class LegacyEntityController {
 
-  /**
-   * Dependencies
-   */
-  @Autowired
-  private final LegacyEntityService legacyEntityService;
+  /** Dependencies */
+  @Autowired private final LegacyEntityService legacyEntityService;
 
   @ApiOperation(value = "ReadLegacyEntity", notes = "Read entity data for a legacy entity id")
   @GetMapping(value = "/{id}")
@@ -61,10 +58,16 @@ public class LegacyEntityController {
   }
 
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
-          value = "Results page you want to retrieve (0..N)"),
-      @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
-          value = "Number of records per page.")
+    @ApiImplicitParam(
+        name = "page",
+        dataType = "integer",
+        paramType = "query",
+        value = "Results page you want to retrieve (0..N)"),
+    @ApiImplicitParam(
+        name = "size",
+        dataType = "integer",
+        paramType = "query",
+        value = "Number of records per page.")
   })
   @ApiOperation(value = "FindLegacyEntities", notes = "Page through LegacyEntity data")
   @ResponseBody
@@ -75,5 +78,4 @@ public class LegacyEntityController {
       @PageableDefault(sort = "id") Pageable pageable) {
     return ok(legacyEntityService.find(fields, probe, pageable));
   }
-
 }

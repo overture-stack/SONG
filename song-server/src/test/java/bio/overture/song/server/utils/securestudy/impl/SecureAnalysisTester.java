@@ -17,61 +17,61 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static java.lang.String.format;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.enums.AnalysisTypes;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
+import java.util.function.BiConsumer;
 import lombok.NonNull;
 import lombok.val;
 
-import java.util.function.BiConsumer;
-
-import static java.lang.String.format;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-
 /**
- * Utility test class that tests study security associated with analysis entities. Ensures that
- * the analysisService method throws the correct error if it is called for an analysis
- * that is unrelated to the supplied studyId.
+ * Utility test class that tests study security associated with analysis entities. Ensures that the
+ * analysisService method throws the correct error if it is called for an analysis that is unrelated
+ * to the supplied studyId.
  */
 public class SecureAnalysisTester extends AbstractSecureTester<AnalysisTypes> {
 
   @NonNull private final AnalysisService analysisService;
 
-  private SecureAnalysisTester(RandomGenerator randomGenerator,
-      StudyService studyService,
-      AnalysisService analysisService) {
+  private SecureAnalysisTester(
+      RandomGenerator randomGenerator, StudyService studyService, AnalysisService analysisService) {
     super(randomGenerator, studyService, ANALYSIS_ID_NOT_FOUND);
     this.analysisService = analysisService;
   }
 
-  @Override protected boolean isIdExist(String id){
+  @Override
+  protected boolean isIdExist(String id) {
     return analysisService.isAnalysisExist(id);
   }
 
-  @Override protected String createId(String existingStudyId, AnalysisTypes analysisType){
-    val analysisGenerator = createAnalysisGenerator(existingStudyId, analysisService, getRandomGenerator());
+  @Override
+  protected String createId(String existingStudyId, AnalysisTypes analysisType) {
+    val analysisGenerator =
+        createAnalysisGenerator(existingStudyId, analysisService, getRandomGenerator());
 
-    if (analysisType == AnalysisTypes.SEQUENCING_READ){
+    if (analysisType == AnalysisTypes.SEQUENCING_READ) {
       return analysisGenerator.createDefaultRandomSequencingReadAnalysis().getAnalysisId();
-    } else if (analysisType == AnalysisTypes.VARIANT_CALL){
+    } else if (analysisType == AnalysisTypes.VARIANT_CALL) {
       return analysisGenerator.createDefaultRandomVariantCallAnalysis().getAnalysisId();
     } else {
-      throw new IllegalStateException(format("The analysisType '%s' cannot be generated", analysisType));
+      throw new IllegalStateException(
+          format("The analysisType '%s' cannot be generated", analysisType));
     }
   }
 
-  public static SecureAnalysisTester createSecureAnalysisTester(RandomGenerator randomGenerator,
-      StudyService studyService,
-      AnalysisService analysisService) {
+  public static SecureAnalysisTester createSecureAnalysisTester(
+      RandomGenerator randomGenerator, StudyService studyService, AnalysisService analysisService) {
     return new SecureAnalysisTester(randomGenerator, studyService, analysisService);
   }
 
-  public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer){
+  public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer) {
     return runSecureTest(biConsumer, getRandomGenerator().randomEnum(AnalysisTypes.class));
   }
-
 }

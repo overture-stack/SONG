@@ -39,23 +39,25 @@ public class IdConfig {
   private boolean realIds;
   private boolean persistInMemory = false;
   private int maxRetries = DEFAULT_MAX_RETRIES;
-  private float multiplier =  DEFAULT_MULTIPLIER;
+  private float multiplier = DEFAULT_MULTIPLIER;
   private int initialBackoffSeconds = DEFAULT_INITIAL_BACKOFF_SECONDS;
 
   @Bean
   public IdClient createIdClient() {
-    val idClientConfig = WebClientConfig.builder()
-        .serviceUrl(idUrl)
-        .authToken(authToken)
-        .release("")
-        .maxRetries(maxRetries)
-        .retryMultiplier(multiplier)
-        .waitBeforeRetrySeconds(initialBackoffSeconds)
-        .build();
+    val idClientConfig =
+        WebClientConfig.builder()
+            .serviceUrl(idUrl)
+            .authToken(authToken)
+            .release("")
+            .maxRetries(maxRetries)
+            .retryMultiplier(multiplier)
+            .waitBeforeRetrySeconds(initialBackoffSeconds)
+            .build();
 
-    // [SONG-167]: Temporarily removed cacheId client due to bug in DCC-ID-12: https://github.com/icgc-dcc/dcc-id/issues/12
+    // [SONG-167]: Temporarily removed cacheId client due to bug in DCC-ID-12:
+    // https://github.com/icgc-dcc/dcc-id/issues/12
     return realIds ? new HttpIdClient(idClientConfig) : new HashIdClient(persistInMemory);
-//    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new HashIdClient(persistInMemory);
+    //    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new
+    // HashIdClient(persistInMemory);
   }
-
 }

@@ -20,17 +20,16 @@ import bio.overture.song.server.model.Metadata;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = TableNames.STUDY)
@@ -39,7 +38,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Study extends Metadata {
 
@@ -55,5 +54,4 @@ public class Study extends Metadata {
 
   @Column(name = TableAttributeNames.DESCRIPTION, nullable = true)
   private String description;
-
 }

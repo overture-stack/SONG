@@ -17,6 +17,11 @@
 
 package bio.overture.song.server.model.analysis;
 
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
+import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
+import static bio.overture.song.server.model.enums.Constants.validate;
+
 import bio.overture.song.server.model.Metadata;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
@@ -25,21 +30,15 @@ import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import lombok.ToString;
-
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-import java.util.List;
-
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
-import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
-import static bio.overture.song.server.model.enums.Constants.validate;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
 
 @MappedSuperclass
 @Data
@@ -47,47 +46,43 @@ import static bio.overture.song.server.model.enums.Constants.validate;
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonTypeInfo(
-        use=JsonTypeInfo.Id.NAME,
-        include=JsonTypeInfo.As.EXTERNAL_PROPERTY,
-        property="analysisType"
-)
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+    property = "analysisType")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value=SequencingReadAnalysis.class, name=SEQUENCING_READ_TYPE),
-        @JsonSubTypes.Type(value=VariantCallAnalysis.class, name=VARIANT_CALL_TYPE)
+  @JsonSubTypes.Type(value = SequencingReadAnalysis.class, name = SEQUENCING_READ_TYPE),
+  @JsonSubTypes.Type(value = VariantCallAnalysis.class, name = VARIANT_CALL_TYPE)
 })
 public abstract class AbstractAnalysis extends Metadata {
 
-    @Id
-    @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
-    private String analysisId;
+  @Id
+  @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
+  private String analysisId;
 
-    @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
-    private String study;
+  @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
+  private String study;
 
-    @Column(name = TableAttributeNames.STATE, nullable = false)
-    private String analysisState = UNPUBLISHED.name();
+  @Column(name = TableAttributeNames.STATE, nullable = false)
+  private String analysisState = UNPUBLISHED.name();
 
-    @Transient
-    private List<CompositeEntity> sample;
+  @Transient private List<CompositeEntity> sample;
 
-    @Transient
-    private List<FileEntity> file;
+  @Transient private List<FileEntity> file;
 
-    @Column(name = TableAttributeNames.TYPE, nullable = false)
-    abstract public String getAnalysisType();
+  @Column(name = TableAttributeNames.TYPE, nullable = false)
+  public abstract String getAnalysisType();
 
-    public void setAnalysisState(String state) {
-        validate(Constants.ANALYSIS_STATE, state);
-        this.analysisState=state;
-    }
+  public void setAnalysisState(String state) {
+    validate(Constants.ANALYSIS_STATE, state);
+    this.analysisState = state;
+  }
 
-    public void setWith(@NonNull AbstractAnalysis a){
-      setAnalysisId(a.getAnalysisId());
-      setAnalysisState(a.getAnalysisState());
-      setFile(a.getFile());
-      setStudy(a.getStudy());
-      setSample(a.getSample());
-      setInfo(a.getInfo());
-    }
+  public void setWith(@NonNull AbstractAnalysis a) {
+    setAnalysisId(a.getAnalysisId());
+    setAnalysisState(a.getAnalysisState());
+    setFile(a.getFile());
+    setStudy(a.getStudy());
+    setSample(a.getSample());
+    setInfo(a.getInfo());
+  }
 }
-

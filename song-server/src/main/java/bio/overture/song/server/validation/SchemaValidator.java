@@ -16,27 +16,24 @@
  */
 package bio.overture.song.server.validation;
 
+import static java.lang.Thread.sleep;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
+import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
-
-import static java.lang.Thread.sleep;
-
 /**
- * Potentially extract a Validator interface if we want to pursue a Strategy pattern of multiple validation rules or
- * something
- *
+ * Potentially extract a Validator interface if we want to pursue a Strategy pattern of multiple
+ * validation rules or something
  */
 @Slf4j
 public class SchemaValidator {
 
-  @Autowired
-  private Map<String, JsonSchema> schemaCache;
+  @Autowired private Map<String, JsonSchema> schemaCache;
 
   @Autowired(required = false)
   private Long validationDelayMs = -1L;
@@ -54,17 +51,18 @@ public class SchemaValidator {
       return response;
     } else {
       // log to database
-      throw new IllegalArgumentException("Internal Error: could not find specified schema " + schemaId);
+      throw new IllegalArgumentException(
+          "Internal Error: could not find specified schema " + schemaId);
     }
   }
 
   /**
-   * Creates an artificial delay for testing purposes.
-   * The validationDelayMs should be controlled through the Spring "test" profile
+   * Creates an artificial delay for testing purposes. The validationDelayMs should be controlled
+   * through the Spring "test" profile
    */
   @SneakyThrows
-  private void debugDelay(){
-    if (validationDelayMs > -1L){
+  private void debugDelay() {
+    if (validationDelayMs > -1L) {
       log.info("Sleeping for {} ms", validationDelayMs);
       sleep(validationDelayMs);
     }

@@ -19,39 +19,34 @@ package bio.overture.song.client.command;
 import bio.overture.song.client.cli.Status;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import lombok.Data;
 import lombok.val;
 
-import java.io.IOException;
-
-/**
- * Abstract parent class for Command objects.
- */
+/** Abstract parent class for Command objects. */
 @Data
 public abstract class Command {
 
   private Status status = new Status();
 
-  /***
-   * Convenience method for children to save error message
-   * 
+  /**
+   * * Convenience method for children to save error message
+   *
    * @param format See String.format
    * @param args
-   * 
-   * Formats a string and adds it to the output for the command
+   *     <p>Formats a string and adds it to the output for the command
    */
   public Status err(String format, Object... args) {
     status.err(format, args);
     return status;
   }
 
-  /***
-   * Convenience method for child classes to save output message
-   * 
+  /**
+   * * Convenience method for child classes to save output message
+   *
    * @param format See String.format
    * @param args
-   * 
-   * Formats a string and adds it to the error message for the command
+   *     <p>Formats a string and adds it to the error message for the command
    */
   public void output(String format, Object... args) {
     status.output(format, args);
@@ -65,9 +60,7 @@ public abstract class Command {
     status.report();
   }
 
-  /***
-   * Require all of our children to define a "run" method.
-   */
+  /** * Require all of our children to define a "run" method. */
   public abstract void run() throws IOException;
 
   public JsonNode getJson() throws IOException {
@@ -77,5 +70,4 @@ public abstract class Command {
 
     return json;
   }
-
 }

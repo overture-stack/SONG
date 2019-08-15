@@ -16,11 +16,10 @@
  */
 package bio.overture.song.client.model;
 
-import lombok.Data;
-import lombok.NonNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.Data;
+import lombok.NonNull;
 
 @Data
 public class Manifest {
@@ -44,16 +43,13 @@ public class Manifest {
 
   @Override
   public String toString() {
-    return analysisId +
-        TWO_TABS +
-        NEWLINE +
-        entries.stream()
-            .map(e -> e.toString() + NEWLINE)
-            .reduce(EMPTY, (a, b) -> a + b);
+    return analysisId
+        + TWO_TABS
+        + NEWLINE
+        + entries.stream().map(e -> e.toString() + NEWLINE).reduce(EMPTY, (a, b) -> a + b);
   }
 
   public void addAll(@NonNull Collection<? extends ManifestEntry> collect) {
     entries.addAll(collect);
   }
-
 }

@@ -30,5 +30,4 @@ public class Stat {
   private final long totalSize;
   private final float totalTimeMs;
   private final float speed;
-
 }

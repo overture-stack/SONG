@@ -18,22 +18,20 @@ package bio.overture.song.client.cli;
 
 import bio.overture.song.client.command.Command;
 import com.beust.jcommander.JCommander;
-import lombok.val;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.val;
 
-/**
- * A class to build CommandParsers
- */
+/** A class to build CommandParsers */
 public class CommandParserBuilder {
 
   private Map<String, Command> commands = new HashMap<String, Command>();
   private JCommander.Builder builder;
   private String programName;
 
-  /***
-   * Create a new builder class for a CommandParser
+  /**
+   * * Create a new builder class for a CommandParser
+   *
    * @param programName The name to use to identify the main program in the help text.
    * @param options A JCommander annotated class identifying the options for the main program.
    */
@@ -42,19 +40,21 @@ public class CommandParserBuilder {
     this.builder = JCommander.newBuilder().addObject(options);
   }
 
-  /***
-   * Register a command to recognized by our command parser
-   * 
+  /**
+   * * Register a command to recognized by our command parser
+   *
    * @param commandName The command name, as it should appear on the command line
-   * @param command A Command class with JCommander annotations to identify all it's valid command line options.
+   * @param command A Command class with JCommander annotations to identify all it's valid command
+   *     line options.
    */
   public void register(String commandName, Command command) {
     commands.put(commandName, command);
     builder.addCommand(commandName, command);
   }
 
-  /***
-   * Build our CommandParser for the Commands we have registered.
+  /**
+   * * Build our CommandParser for the Commands we have registered.
+   *
    * @return A CommandParser object that can parse the registered objects
    */
   public CommandParser build() {
@@ -62,5 +62,4 @@ public class CommandParserBuilder {
     jCommander.setProgramName(programName);
     return new CommandParser(jCommander, new HashMap<>(commands));
   }
-
 }

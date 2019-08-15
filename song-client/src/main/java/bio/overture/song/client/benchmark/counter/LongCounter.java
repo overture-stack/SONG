@@ -19,7 +19,7 @@ package bio.overture.song.client.benchmark.counter;
 
 import lombok.val;
 
-public class LongCounter implements Counter<Long>{
+public class LongCounter implements Counter<Long> {
 
   private final long init;
 
@@ -70,5 +70,4 @@ public class LongCounter implements Counter<Long>{
   public static LongCounter createLongCounter(long init) {
     return new LongCounter(init);
   }
-
 }

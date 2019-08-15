@@ -17,6 +17,8 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
+import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.enums.Constants;
@@ -28,14 +30,13 @@ import com.google.common.collect.Lists;
 import lombok.NonNull;
 import lombok.val;
 
-import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
-
-public class SecureSampleTester extends AbstractSecureTester<String>{
+public class SecureSampleTester extends AbstractSecureTester<String> {
 
   private final SpecimenService specimenService;
   private final SampleService sampleService;
 
-  private SecureSampleTester(RandomGenerator randomGenerator,
+  private SecureSampleTester(
+      RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull SpecimenService specimenService,
       @NonNull SampleService sampleService) {
@@ -44,25 +45,29 @@ public class SecureSampleTester extends AbstractSecureTester<String>{
     this.sampleService = sampleService;
   }
 
-  @Override protected boolean isIdExist(String id) {
+  @Override
+  protected boolean isIdExist(String id) {
     return sampleService.isSampleExist(id);
   }
 
-  @Override protected String createId(String existingStudyId, String specimenId) {
+  @Override
+  protected String createId(String existingStudyId, String specimenId) {
     specimenService.checkSpecimenExist(specimenId);
-    val sample = Sample.builder()
-        .sampleSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
-        .sampleType(getRandomGenerator().randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)))
-        .specimenId(specimenId)
-        .build();
+    val sample =
+        Sample.builder()
+            .sampleSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
+            .sampleType(
+                getRandomGenerator().randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)))
+            .specimenId(specimenId)
+            .build();
     return sampleService.create(existingStudyId, sample);
   }
 
-  public static SecureSampleTester createSecureSampleTester(RandomGenerator randomGenerator,
+  public static SecureSampleTester createSecureSampleTester(
+      RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull SpecimenService specimenService,
       @NonNull SampleService sampleService) {
     return new SecureSampleTester(randomGenerator, studyService, specimenService, sampleService);
   }
-
 }

@@ -26,14 +26,13 @@ import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 
 public class RetryTokenServices extends RemoteTokenServices {
 
-  @Autowired
-  private RetryTemplate retryTemplate;
+  @Autowired private RetryTemplate retryTemplate;
 
   @Override
   @Cacheable("tokens")
-  public OAuth2Authentication loadAuthentication(String accessToken) throws AuthenticationException,
-    InvalidTokenException {
-    return retryTemplate.execute(context -> RetryTokenServices.super.loadAuthentication(accessToken));
+  public OAuth2Authentication loadAuthentication(String accessToken)
+      throws AuthenticationException, InvalidTokenException {
+    return retryTemplate.execute(
+        context -> RetryTokenServices.super.loadAuthentication(accessToken));
   }
-
 }

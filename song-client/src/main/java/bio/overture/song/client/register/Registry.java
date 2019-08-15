@@ -16,19 +16,18 @@
  */
 package bio.overture.song.client.register;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
+
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.config.Config;
 import bio.overture.song.core.model.file.FileData;
+import java.util.List;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
-
-import java.util.List;
-
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
 
 @Component
 public class Registry {
@@ -60,8 +59,8 @@ public class Registry {
     return restClient.postAuth(accessToken, url, json);
   }
 
-  /***
-   * Returns the state of the registration on the server (JSON)
+  /**
+   * * Returns the state of the registration on the server (JSON)
    *
    * @param uploadId
    * @return The state of the upload
@@ -92,89 +91,87 @@ public class Registry {
 
   /**
    * Returns true if the SONG server is running, otherwise false.
+   *
    * @return boolean
    */
-  public boolean isAlive(){
+  public boolean isAlive() {
     val url = endpoint.isAlive();
     try {
       return parseBoolean(restClient.get(url).getOutputs());
-    } catch (Throwable e){
+    } catch (Throwable e) {
       return false;
     }
   }
 
   /**
-   * TODO: [DCC-5641] the ResponseEntity from AnalysisController is not returned, since RestTemplate.put is a void method.
-   * need to find RestTemplate implementation that returns a response
+   * TODO: [DCC-5641] the ResponseEntity from AnalysisController is not returned, since
+   * RestTemplate.put is a void method. need to find RestTemplate implementation that returns a
+   * response
    */
-  public Status publish(String studyId, String analysisId, boolean ignoreUndefinedMd5 ){
+  public Status publish(String studyId, String analysisId, boolean ignoreUndefinedMd5) {
     checkServerAlive();
     val url = endpoint.publish(studyId, analysisId, ignoreUndefinedMd5);
     return restClient.putAuth(accessToken, url);
   }
 
-  public Status unpublish(String studyId, String analysisId){
+  public Status unpublish(String studyId, String analysisId) {
     checkServerAlive();
     val url = endpoint.unpublish(studyId, analysisId);
     return restClient.putAuth(accessToken, url);
   }
 
-  public Status exportStudy(@NonNull String studyId, boolean includeAnalysisId){
+  public Status exportStudy(@NonNull String studyId, boolean includeAnalysisId) {
     checkServerAlive();
     val url = endpoint.exportStudy(studyId, includeAnalysisId);
     return restClient.get(url);
   }
 
-  public Status exportAnalyses(@NonNull List<String> analysisIds, boolean includeAnalysisId){
+  public Status exportAnalyses(@NonNull List<String> analysisIds, boolean includeAnalysisId) {
     checkServerAlive();
     val url = endpoint.exportAnalysisIds(analysisIds, includeAnalysisId);
     return restClient.get(url);
   }
 
-  public Status suppress(String studyId, String analysisId ){
+  public Status suppress(String studyId, String analysisId) {
     checkServerAlive();
     val url = endpoint.suppress(studyId, analysisId);
     return restClient.putAuth(accessToken, url);
   }
 
-  public Status updateFile(String studyId, String objectId, FileData fileUpdateRequest){
+  public Status updateFile(String studyId, String objectId, FileData fileUpdateRequest) {
     checkServerAlive();
     val url = endpoint.updateFile(studyId, objectId);
     return restClient.putAuthObject(accessToken, url, fileUpdateRequest);
   }
 
-  public Status idSearch(String studyId,
-      String sampleId,
-      String specimenId,
-      String donorId,
-      String fileId){
+  public Status idSearch(
+      String studyId, String sampleId, String specimenId, String donorId, String fileId) {
     checkServerAlive();
-    val url = endpoint.idSearch(studyId,sampleId,specimenId,donorId,fileId);
+    val url = endpoint.idSearch(studyId, sampleId, specimenId, donorId, fileId);
     return restClient.get(accessToken, url);
   }
 
-  public Status infoSearch(String studyId, boolean includeInfo, Iterable<String> searchTerms){
+  public Status infoSearch(String studyId, boolean includeInfo, Iterable<String> searchTerms) {
     checkServerAlive();
-    val url = endpoint.infoSearch(studyId,includeInfo, searchTerms);
+    val url = endpoint.infoSearch(studyId, includeInfo, searchTerms);
     return restClient.get(accessToken, url);
   }
 
-  public Status getSchema(String schemaId){
+  public Status getSchema(String schemaId) {
     checkServerAlive();
     val url = endpoint.getSchema(schemaId);
     return restClient.get(url);
   }
 
-  public Status listSchemas(){
+  public Status listSchemas() {
     checkServerAlive();
     val url = endpoint.listSchemas();
     return restClient.get(url);
   }
 
-  public void checkServerAlive(){
-    if (!isAlive()){
+  public void checkServerAlive() {
+    if (!isAlive()) {
       throw new RestClientException(format("The song server '%s' is not reachable", serverUrl));
     }
   }
-
 }

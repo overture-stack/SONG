@@ -17,11 +17,10 @@
 
 package bio.overture.song.client.benchmark.model;
 
-import lombok.Builder;
-import lombok.Data;
-
 import java.nio.file.Path;
 import java.util.List;
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder
@@ -35,5 +34,4 @@ public class UploadData {
   private String uploadState;
   private List<String> uploadErrors;
   private long fileSize = -1;
-
 }

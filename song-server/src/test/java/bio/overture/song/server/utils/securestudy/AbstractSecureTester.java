@@ -17,22 +17,21 @@
 
 package bio.overture.song.server.utils.securestudy;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.StudyService;
+import java.util.function.BiConsumer;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.util.function.BiConsumer;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Getter
 @RequiredArgsConstructor
@@ -44,15 +43,15 @@ public abstract class AbstractSecureTester<C> {
 
   /**
    * Reliably generates existing, nonExisting, and unRelated ids for study and entities.
+   *
    * @return
    */
-  public SecureTestData generateData(C context){
+  public SecureTestData generateData(C context) {
     val studyGenerator = createStudyGenerator(studyService, randomGenerator);
 
     val existingStudyId = studyGenerator.createRandomStudy();
     val unrelatedExistingStudyId = studyGenerator.createRandomStudy();
     val nonExistingStudyId = studyGenerator.generateNonExistingStudyId();
-
 
     val nonExistingId = randomGenerator.generateRandomUUIDAsString();
     assertFalse(isIdExist(nonExistingId));
@@ -69,23 +68,27 @@ public abstract class AbstractSecureTester<C> {
   }
 
   /**
-   * Generates data for an input {@code context} and then runs a secure study test for the
-   * input {@code biConsumer} which represents the secured service method under test
-   * @param biConsumer with the first parameter being the {@code studyId} and the second being the entity's {@code id}
+   * Generates data for an input {@code context} and then runs a secure study test for the input
+   * {@code biConsumer} which represents the secured service method under test
+   *
+   * @param biConsumer with the first parameter being the {@code studyId} and the second being the
+   *     entity's {@code id}
    */
-  public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, C context){
+  public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, C context) {
     // Create data
     val data = generateData(context);
     return runSecureTest(biConsumer, data);
   }
 
   /**
-   * Runs a secure study test for the input {@code biConsumer} which represents the secured service method under test,
-   * using the input {@code data}
-   * @param biConsumer with the first parameter being the {@code studyId} and the second being the entity's {@code id}
+   * Runs a secure study test for the input {@code biConsumer} which represents the secured service
+   * method under test, using the input {@code data}
+   *
+   * @param biConsumer with the first parameter being the {@code studyId} and the second being the
+   *     entity's {@code id}
    * @param data is the input stimulus
    */
-  public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, SecureTestData data){
+  public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, SecureTestData data) {
 
     // Check data is correct
     assertTrue(isIdExist(data.getExistingId()));
@@ -95,19 +98,23 @@ public abstract class AbstractSecureTester<C> {
     assertFalse(studyService.isStudyExist(data.getNonExistingStudyId()));
 
     // Test if study exists and id DNE
-    SongErrorAssertions.assertSongErrorRunnable( () -> biConsumer.accept(data.getExistingStudyId(), data.getNonExistingId()),
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> biConsumer.accept(data.getExistingStudyId(), data.getNonExistingId()),
         idNotFoundError);
 
     // Test if study DNE (does not exist) but id exists
-    SongErrorAssertions.assertSongErrorRunnable( () -> biConsumer.accept(data.getNonExistingStudyId(), data.getExistingId()),
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> biConsumer.accept(data.getNonExistingStudyId(), data.getExistingId()),
         STUDY_ID_DOES_NOT_EXIST);
 
     // Test if study DNE (does not exist) and id DNE
-    SongErrorAssertions.assertSongErrorRunnable( () -> biConsumer.accept(data.getNonExistingStudyId(), data.getNonExistingId()),
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> biConsumer.accept(data.getNonExistingStudyId(), data.getNonExistingId()),
         STUDY_ID_DOES_NOT_EXIST);
 
     // Test if correct error thrown is both studyId and id exist but are unrelated
-    SongErrorAssertions.assertSongErrorRunnable( () -> biConsumer.accept(data.getUnrelatedExistingStudyId(), data.getExistingId()),
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> biConsumer.accept(data.getUnrelatedExistingStudyId(), data.getExistingId()),
         ENTITY_NOT_RELATED_TO_STUDY);
 
     return data;

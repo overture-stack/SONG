@@ -17,6 +17,18 @@
 
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Joiners.PATH;
+
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.StudyService;
@@ -25,6 +37,8 @@ import bio.overture.song.server.utils.TestFiles;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Before;
@@ -39,49 +53,32 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.List;
-import java.util.stream.Stream;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.PATH;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(secure = false)
-@ActiveProfiles({ "test" })
+@ActiveProfiles({"test"})
 public class UploadControllerTest {
 
   private static final String UPLOAD_TEST_DIR = "documents";
-  private static final List<String> PAYLOAD_PATHS = newArrayList("variantcall-valid.json", "sequencingread-valid.json");
+  private static final List<String> PAYLOAD_PATHS =
+      newArrayList("variantcall-valid.json", "sequencingread-valid.json");
   private static final String DEFAULT_STUDY_ID = "ABC123";
 
-
-  //This was done because the autowired mockMvc wasn't working properly, it was getting http 403 errors
-  @Autowired
-  private WebApplicationContext webApplicationContext;
+  // This was done because the autowired mockMvc wasn't working properly, it was getting http 403
+  // errors
+  @Autowired private WebApplicationContext webApplicationContext;
   private MockMvc mockMvc;
 
-  @Autowired
-  private StudyService studyService;
+  @Autowired private StudyService studyService;
 
-  /**
-   * State
-   */
+  /** State */
   private RandomGenerator randomGenerator;
+
   private StudyGenerator studyGenerator;
   private EndpointTester endpointTester;
 
   @Before
-  public void beforeEachTest(){
+  public void beforeEachTest() {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     this.randomGenerator = createRandomGenerator(getClass().getSimpleName());
     this.studyGenerator = createStudyGenerator(studyService, randomGenerator);
@@ -94,26 +91,32 @@ public class UploadControllerTest {
     val nonExistingStudy = studyGenerator.generateNonExistingStudyId();
     streamPayloadNodes()
         .peek(x -> updateStudyInPayload(x, nonExistingStudy))
-        .forEach(x -> runEndpointSongErrorTest(format("/upload/%s/", DEFAULT_STUDY_ID), x, STUDY_ID_MISMATCH));
+        .forEach(
+            x ->
+                runEndpointSongErrorTest(
+                    format("/upload/%s/", DEFAULT_STUDY_ID), x, STUDY_ID_MISMATCH));
   }
 
   @Test
-  public void missingStudyInPayloadTest(){
+  public void missingStudyInPayloadTest() {
     streamPayloadNodes()
-        .peek(x -> ((ObjectNode)x).remove(STUDY))
-        .forEach(x -> runEndpointSongErrorTest(format("/upload/%s/", DEFAULT_STUDY_ID), x, STUDY_ID_MISSING) );
+        .peek(x -> ((ObjectNode) x).remove(STUDY))
+        .forEach(
+            x ->
+                runEndpointSongErrorTest(
+                    format("/upload/%s/", DEFAULT_STUDY_ID), x, STUDY_ID_MISSING));
   }
 
   @SneakyThrows
-  private void runEndpointSongErrorTest(String endpointPath, JsonNode payload, ServerError expectedServerError){
+  private void runEndpointSongErrorTest(
+      String endpointPath, JsonNode payload, ServerError expectedServerError) {
     val payloadString = toJson(payload);
     endpointTester.testPostError(endpointPath, payloadString, expectedServerError);
   }
 
-  private static Stream<JsonNode> streamPayloadNodes(){
+  private static Stream<JsonNode> streamPayloadNodes() {
     return PAYLOAD_PATHS.stream()
         .map(x -> PATH.join(UPLOAD_TEST_DIR, x))
         .map(TestFiles::getJsonNodeFromClasspath);
   }
-
 }

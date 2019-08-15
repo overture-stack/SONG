@@ -16,14 +16,13 @@
  */
 package bio.overture.song.core.utils;
 
-import lombok.NoArgsConstructor;
-
-import java.util.Map;
-import java.util.Properties;
-
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Maps.fromProperties;
 import static lombok.AccessLevel.PRIVATE;
+
+import java.util.Map;
+import java.util.Properties;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class VersionUtils {
@@ -36,9 +35,8 @@ public final class VersionUtils {
     return SCM_INFO;
   }
 
-  private static final String VERSION = firstNonNull(
-      VersionUtils.class.getPackage().getImplementationVersion(),
-      LOCAL_VERSION);
+  private static final String VERSION =
+      firstNonNull(VersionUtils.class.getPackage().getImplementationVersion(), LOCAL_VERSION);
 
   public static String getVersion() {
     return VERSION;
@@ -66,5 +64,4 @@ public final class VersionUtils {
 
     return fromProperties(properties);
   }
-
 }

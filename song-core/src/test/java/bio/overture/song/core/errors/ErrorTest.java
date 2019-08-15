@@ -17,53 +17,56 @@
 
 package bio.overture.song.core.errors;
 
+import static bio.overture.song.core.exceptions.ServerErrors.extractErrorId;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
+import static bio.overture.song.core.utils.Debug.streamCallingStackTrace;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.http.HttpStatus.CONFLICT;
+
 import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.utils.JsonUtils;
 import lombok.val;
 import org.junit.Test;
 
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static bio.overture.song.core.exceptions.ServerErrors.extractErrorId;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
-import static bio.overture.song.core.utils.Debug.streamCallingStackTrace;
-
 public class ErrorTest {
 
   @Test
-  public void testSongErrorJsonParsing(){
-    val expectedError  = SongError.builder()
-        .debugMessage("d1")
-        .errorId("something.else")
-        .httpStatusName(CONFLICT.name())
-        .httpStatusCode(CONFLICT.value())
-        .message("this message")
-        .requestUrl("some url")
-        .stackTrace(streamCallingStackTrace().map(StackTraceElement::toString).collect(toImmutableList()))
-        .timestamp(System.currentTimeMillis())
-        .build();
+  public void testSongErrorJsonParsing() {
+    val expectedError =
+        SongError.builder()
+            .debugMessage("d1")
+            .errorId("something.else")
+            .httpStatusName(CONFLICT.name())
+            .httpStatusCode(CONFLICT.value())
+            .message("this message")
+            .requestUrl("some url")
+            .stackTrace(
+                streamCallingStackTrace()
+                    .map(StackTraceElement::toString)
+                    .collect(toImmutableList()))
+            .timestamp(System.currentTimeMillis())
+            .build();
 
     val actualError = JsonUtils.fromJson(expectedError.toJson(), SongError.class);
-    assertEquals(actualError,expectedError);
+    assertEquals(actualError, expectedError);
   }
 
   @Test
-  public void testCorrectErrorId(){
+  public void testCorrectErrorId() {
     val expectedErrorId = "unknown.error";
     val actualErrorId = ServerErrors.UNKNOWN_ERROR.getErrorId();
-    assertEquals(actualErrorId,expectedErrorId);
+    assertEquals(actualErrorId, expectedErrorId);
   }
 
   @Test
-  public void testIncorrectErrorId(){
+  public void testIncorrectErrorId() {
     val incorrectEnumName1 = "Unknown_Error";
     val incorrectEnumName2 = "UNKNOWN-ERROR";
-    assertExceptionThrownBy(IllegalArgumentException.class,
-        () -> extractErrorId(incorrectEnumName1) );
-    assertExceptionThrownBy(IllegalArgumentException.class,
-        () -> extractErrorId(incorrectEnumName2) );
+    assertExceptionThrownBy(
+        IllegalArgumentException.class, () -> extractErrorId(incorrectEnumName1));
+    assertExceptionThrownBy(
+        IllegalArgumentException.class, () -> extractErrorId(incorrectEnumName2));
   }
-
 }

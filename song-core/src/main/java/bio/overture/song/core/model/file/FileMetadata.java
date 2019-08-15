@@ -22,6 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 public interface FileMetadata {
 
   String getFileAccess();
-  JsonNode getInfo();
 
+  JsonNode getInfo();
 }

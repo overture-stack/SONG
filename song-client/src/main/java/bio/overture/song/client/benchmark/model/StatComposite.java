@@ -29,5 +29,4 @@ public class StatComposite {
   @NonNull private final Stat uploadStat;
   @NonNull private final Stat statusStat;
   @NonNull private final Stat saveStat;
-
 }

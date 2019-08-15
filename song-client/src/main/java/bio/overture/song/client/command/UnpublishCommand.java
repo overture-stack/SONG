@@ -20,24 +20,21 @@ import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Unpublish an analysis by id" )
+@Parameters(separators = "=", commandDescription = "Unpublish an analysis by id")
 public class UnpublishCommand extends Command {
 
-  @Parameter(names = { "-a", "--analysis-id" })
+  @Parameter(names = {"-a", "--analysis-id"})
   private String analysisId;
 
-  @NonNull
-  private Registry registry;
+  @NonNull private Registry registry;
 
-  @NonNull
-  private Config config;
+  @NonNull private Config config;
 
   @Override
   public void run() throws IOException {
@@ -48,5 +45,4 @@ public class UnpublishCommand extends Command {
     val status = registry.unpublish(config.getStudyId(), analysisId);
     save(status);
   }
-
 }

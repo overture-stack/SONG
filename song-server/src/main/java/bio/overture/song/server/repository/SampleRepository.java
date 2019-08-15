@@ -17,12 +17,10 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.entity.Sample;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SampleRepository extends JpaRepository<Sample, String> {
 
-   List<Sample> findAllBySpecimenId(String specimenId);
-
+  List<Sample> findAllBySpecimenId(String specimenId);
 }

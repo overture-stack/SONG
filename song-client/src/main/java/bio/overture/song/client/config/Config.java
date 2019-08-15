@@ -16,18 +16,16 @@
  */
 package bio.overture.song.client.config;
 
+import static java.lang.Boolean.parseBoolean;
+import static lombok.AccessLevel.NONE;
+
 import lombok.Data;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import static java.lang.Boolean.parseBoolean;
-import static lombok.AccessLevel.NONE;
-
-/**
- * 
- */
+/** */
 @ConfigurationProperties(prefix = "client")
 @Component
 @Data
@@ -35,10 +33,13 @@ public class Config {
 
   @Value("client.serverUrl")
   private String serverUrl;
+
   @Value("client.studyId")
   private String studyId;
+
   @Value("client.programName")
   private String programName;
+
   @Value("client.accessToken")
   private String accessToken;
 
@@ -46,7 +47,7 @@ public class Config {
   @Value("client.debug")
   private String debug;
 
-  public boolean isDebug(){
+  public boolean isDebug() {
     return parseBoolean(debug);
   }
 }

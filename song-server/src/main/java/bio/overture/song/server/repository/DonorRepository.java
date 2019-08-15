@@ -17,16 +17,14 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.entity.Donor;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DonorRepository extends JpaRepository<Donor, String> {
 
   List<Donor> findAllByStudyId(String studyId);
+
   List<Donor> findAllByStudyIdAndDonorSubmitterId(String studyId, String submitterId);
+
   long countAllByStudyIdAndDonorId(String studyId, String donorId);
-
-
 }
-

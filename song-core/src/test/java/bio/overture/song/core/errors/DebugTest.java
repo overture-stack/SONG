@@ -17,25 +17,23 @@
 
 package bio.overture.song.core.errors;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.Test;
-
+import static bio.overture.song.core.utils.Debug.getCallingStackTrace;
 import static java.lang.Thread.currentThread;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.utils.Debug.getCallingStackTrace;
+
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Test;
 
 @Slf4j
 public class DebugTest {
 
   @Test
-  public void testCallingStackTrace(){
+  public void testCallingStackTrace() {
     val expectedSt = stream(currentThread().getStackTrace()).skip(2).collect(toImmutableList());
     val actualSt = getCallingStackTrace();
     assertTrue(actualSt.containsAll(expectedSt));
   }
-
-
 }

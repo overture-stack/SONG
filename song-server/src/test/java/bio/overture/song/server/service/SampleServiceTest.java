@@ -16,30 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.enums.Constants;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.transaction.Transactional;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_ID_IS_CORRUPTED;
@@ -51,23 +27,44 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_SPECIMEN_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.securestudy.impl.SecureSampleTester.createSecureSampleTester;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.model.entity.Specimen;
+import bio.overture.song.server.model.enums.Constants;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import javax.transaction.Transactional;
+import lombok.val;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public class SampleServiceTest {
 
-  @Autowired
-  SampleService sampleService;
-  @Autowired
-  StudyService studyService;
-  @Autowired
-  SpecimenService specimenService;
+  @Autowired SampleService sampleService;
+  @Autowired StudyService studyService;
+  @Autowired SpecimenService specimenService;
 
-  private final RandomGenerator randomGenerator = createRandomGenerator(SampleServiceTest.class.getSimpleName());
+  private final RandomGenerator randomGenerator =
+      createRandomGenerator(SampleServiceTest.class.getSimpleName());
 
   @Before
-  public void beforeTest(){
+  public void beforeTest() {
     assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
     assertTrue(specimenService.isSpecimenExist(DEFAULT_SPECIMEN_ID));
   }
@@ -75,23 +72,24 @@ public class SampleServiceTest {
   @Test
   public void testReadSample() {
     val id = "SA1";
-    val sample = sampleService.securedRead(DEFAULT_STUDY_ID,id);
-    assertEquals(sample.getSampleId(),id);
-    assertEquals(sample.getSampleSubmitterId(),"T285-G7-A5");
-    assertEquals(sample.getSampleType(),"DNA");
-    assertEquals(getInfoName(sample),"sample1");
+    val sample = sampleService.securedRead(DEFAULT_STUDY_ID, id);
+    assertEquals(sample.getSampleId(), id);
+    assertEquals(sample.getSampleSubmitterId(), "T285-G7-A5");
+    assertEquals(sample.getSampleType(), "DNA");
+    assertEquals(getInfoName(sample), "sample1");
   }
 
   @Test
   public void testCreateAndDeleteSample() {
     val specimenId = "SP2";
     val metadata = JsonUtils.fromSingleQuoted("{'ageCategory': 3, 'species': 'human'}");
-    val s = Sample.builder()
-        .sampleId("")
-        .sampleSubmitterId( "101-IP-A")
-        .specimenId(specimenId)
-        .sampleType("Amplified DNA")
-        .build();
+    val s =
+        Sample.builder()
+            .sampleId("")
+            .sampleSubmitterId("101-IP-A")
+            .specimenId(specimenId)
+            .sampleType("Amplified DNA")
+            .build();
     s.setInfo(metadata);
 
     val status = sampleService.create(DEFAULT_STUDY_ID, s);
@@ -99,10 +97,10 @@ public class SampleServiceTest {
     assertTrue(sampleService.isSampleExist(id));
 
     assertTrue(id.startsWith("SA"));
-    assertEquals(status,id);
+    assertEquals(status, id);
 
     Sample check = sampleService.securedRead(DEFAULT_STUDY_ID, id);
-    assertEquals(check,s);
+    assertEquals(check, s);
 
     sampleService.securedDelete(DEFAULT_STUDY_ID, newArrayList(id));
     assertFalse(sampleService.isSampleExist(id));
@@ -112,40 +110,43 @@ public class SampleServiceTest {
   public void testUpdateSample() {
 
     val specimenId = "SP2";
-    val s = Sample.builder()
-        .sampleId("")
-        .specimenId(specimenId)
-        .sampleSubmitterId("102-CBP-A")
-        .sampleType("RNA")
-        .build();
+    val s =
+        Sample.builder()
+            .sampleId("")
+            .specimenId(specimenId)
+            .sampleSubmitterId("102-CBP-A")
+            .sampleType("RNA")
+            .build();
 
     sampleService.create(DEFAULT_STUDY_ID, s);
 
     val id = s.getSampleId();
 
     val metadata = JsonUtils.fromSingleQuoted("{'species': 'Canadian Beaver'}");
-    val s2 = Sample.builder()
-        .sampleId(id)
-        .sampleSubmitterId("Sample 102")
-        .specimenId(s.getSpecimenId())
-        .sampleType( "FFPE RNA")
-        .build();
+    val s2 =
+        Sample.builder()
+            .sampleId(id)
+            .sampleSubmitterId("Sample 102")
+            .specimenId(s.getSpecimenId())
+            .sampleType("FFPE RNA")
+            .build();
     s2.setInfo(metadata);
     sampleService.update(s2);
 
-    val s3 = sampleService.securedRead(DEFAULT_STUDY_ID,id);
-    assertEquals(s3,s2);
+    val s3 = sampleService.securedRead(DEFAULT_STUDY_ID, id);
+    assertEquals(s3, s2);
   }
 
   @Test
-  public void testCreateStudyDNE(){
+  public void testCreateStudyDNE() {
     val randomStudyId = randomGenerator.generateRandomUUIDAsString();
     val sample = new Sample();
-    SongErrorAssertions.assertSongError(() -> sampleService.create(randomStudyId, sample), STUDY_ID_DOES_NOT_EXIST);
+    SongErrorAssertions.assertSongError(
+        () -> sampleService.create(randomStudyId, sample), STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
-  public void testCreateCorruptedAndAlreadyExists(){
+  public void testCreateCorruptedAndAlreadyExists() {
     val specimenId = DEFAULT_SPECIMEN_ID;
     val existingStudyId = DEFAULT_STUDY_ID;
 
@@ -159,10 +160,13 @@ public class SampleServiceTest {
     assertTrue(sampleService.isSampleExist(sampleId));
 
     // Try to create the sample again, and assert that the right exception is thrown
-    SongErrorAssertions.assertSongError(() -> sampleService.create(existingStudyId, sample), SAMPLE_ALREADY_EXISTS);
+    SongErrorAssertions.assertSongError(
+        () -> sampleService.create(existingStudyId, sample), SAMPLE_ALREADY_EXISTS);
 
-    // 'Accidentally' set the sampleId to something not generated by the idService, and try to create. Should
-    // detected the corrupted id field, indicating user might have accidentally set the id, thinking it would be
+    // 'Accidentally' set the sampleId to something not generated by the idService, and try to
+    // create. Should
+    // detected the corrupted id field, indicating user might have accidentally set the id, thinking
+    // it would be
     // persisted
     val sample2 = new Sample();
     sample2.setSpecimenId(specimenId);
@@ -170,12 +174,13 @@ public class SampleServiceTest {
     sample2.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
     sample2.setSampleId(randomGenerator.generateRandomUUIDAsString());
     assertFalse(sampleService.isSampleExist(sample2.getSampleId()));
-    SongErrorAssertions.assertSongError(() -> sampleService.create(existingStudyId, sample2), SAMPLE_ID_IS_CORRUPTED);
+    SongErrorAssertions.assertSongError(
+        () -> sampleService.create(existingStudyId, sample2), SAMPLE_ID_IS_CORRUPTED);
   }
 
   @Test
-  public void testSampleExists(){
-    val existingSampleId= DEFAULT_SAMPLE_ID;
+  public void testSampleExists() {
+    val existingSampleId = DEFAULT_SAMPLE_ID;
     assertTrue(sampleService.isSampleExist(existingSampleId));
     sampleService.checkSampleExists(existingSampleId);
     val nonExistingSampleId = randomGenerator.generateRandomUUIDAsString();
@@ -183,27 +188,30 @@ public class SampleServiceTest {
     sampleService.checkSampleExists(existingSampleId);
     sampleService.checkSampleDoesNotExist(nonExistingSampleId);
 
-    SongErrorAssertions
-        .assertSongErrorRunnable(() -> sampleService.checkSampleExists(nonExistingSampleId), SAMPLE_DOES_NOT_EXIST);
-    SongErrorAssertions
-        .assertSongErrorRunnable(() -> sampleService.checkSampleDoesNotExist(existingSampleId), SAMPLE_ALREADY_EXISTS);
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> sampleService.checkSampleExists(nonExistingSampleId), SAMPLE_DOES_NOT_EXIST);
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> sampleService.checkSampleDoesNotExist(existingSampleId), SAMPLE_ALREADY_EXISTS);
   }
 
   @Test
-  public void testReadSampleDNE(){
+  public void testReadSampleDNE() {
     val randomSampleId = randomGenerator.generateRandomUUIDAsString();
     assertFalse(sampleService.isSampleExist(randomSampleId));
-    SongErrorAssertions.assertSongError(() -> sampleService.unsecuredRead(randomSampleId), SAMPLE_DOES_NOT_EXIST);
+    SongErrorAssertions.assertSongError(
+        () -> sampleService.unsecuredRead(randomSampleId), SAMPLE_DOES_NOT_EXIST);
   }
 
   @Test
-  public void testReadAndDeleteByParentId(){
+  public void testReadAndDeleteByParentId() {
     val studyId = DEFAULT_STUDY_ID;
     val donorId = DEFAULT_DONOR_ID;
     val specimen = new Specimen();
     specimen.setDonorId(donorId);
-    specimen.setSpecimenClass(randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_CLASS)));
-    specimen.setSpecimenType(randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_TYPE)));
+    specimen.setSpecimenClass(
+        randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_CLASS)));
+    specimen.setSpecimenType(
+        randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_TYPE)));
     specimen.setSpecimenSubmitterId(randomGenerator.generateRandomUUIDAsString());
 
     // Create specimen
@@ -213,10 +221,11 @@ public class SampleServiceTest {
     // Create samples
     val numSamples = 5;
     val expectedSampleIds = Sets.<String>newHashSet();
-    for (int i =0; i< numSamples; i++){
+    for (int i = 0; i < numSamples; i++) {
       val sample = new Sample();
       sample.setSpecimenId(specimenId);
-      sample.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
+      sample.setSampleType(
+          randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
       sample.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
       val sampleId = sampleService.create(studyId, sample);
       expectedSampleIds.add(sampleId);
@@ -224,8 +233,12 @@ public class SampleServiceTest {
 
     // Read the samples by parent Id (specimenId)
     val actualSamples = sampleService.readByParentId(specimenId);
-    assertEquals(actualSamples.size(),numSamples);
-    assertTrue(actualSamples.stream().map(Sample::getSampleId).collect(toSet()).containsAll(expectedSampleIds));
+    assertEquals(actualSamples.size(), numSamples);
+    assertTrue(
+        actualSamples.stream()
+            .map(Sample::getSampleId)
+            .collect(toSet())
+            .containsAll(expectedSampleIds));
 
     // Assert that reading by a non-existent specimenId returns something empty
     val randomSpecimenId = randomGenerator.generateRandomUUIDAsString();
@@ -235,34 +248,34 @@ public class SampleServiceTest {
 
     // Delete by parent id
     val response = sampleService.deleteByParentId(specimenId);
-    assertEquals(response,"OK");
+    assertEquals(response, "OK");
     val emptySampleList2 = sampleService.readByParentId(specimenId);
     assertTrue(emptySampleList2.isEmpty());
   }
 
   @Test
   @Transactional
-  public void testCheckSampleUnrelatedToStudy(){
+  public void testCheckSampleUnrelatedToStudy() {
     val existingSpecimenId = DEFAULT_SPECIMEN_ID;
-    val secureSampleTester = createSecureSampleTester(randomGenerator,studyService, specimenService, sampleService);
+    val secureSampleTester =
+        createSecureSampleTester(randomGenerator, studyService, specimenService, sampleService);
 
-    secureSampleTester.runSecureTest((studyId, id) -> sampleService.checkSampleRelatedToStudy(studyId, id),
+    secureSampleTester.runSecureTest(
+        (studyId, id) -> sampleService.checkSampleRelatedToStudy(studyId, id), existingSpecimenId);
+
+    secureSampleTester.runSecureTest(
+        (studyId, id) -> sampleService.securedRead(studyId, id), existingSpecimenId);
+
+    secureSampleTester.runSecureTest(
+        (studyId, id) -> sampleService.securedDelete(studyId, id), existingSpecimenId);
+
+    secureSampleTester.runSecureTest(
+        (studyId, id) -> sampleService.securedDelete(studyId, newArrayList(id)),
         existingSpecimenId);
-
-    secureSampleTester.runSecureTest((studyId, id) -> sampleService.securedRead(studyId, id),
-        existingSpecimenId);
-
-    secureSampleTester.runSecureTest((studyId, id) -> sampleService.securedDelete(studyId, id),
-        existingSpecimenId);
-
-    secureSampleTester.runSecureTest((studyId, id) -> sampleService.securedDelete(studyId, newArrayList(id)),
-        existingSpecimenId);
-
   }
 
-
   @Test
-  public void testUpdateSpecimenDNE(){
+  public void testUpdateSpecimenDNE() {
     val randomSampleId = randomGenerator.generateRandomUUIDAsString();
     val sample = new Sample();
     sample.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
@@ -271,5 +284,4 @@ public class SampleServiceTest {
     sample.setSpecimenId(DEFAULT_SPECIMEN_ID);
     SongErrorAssertions.assertSongError(() -> sampleService.update(sample), SAMPLE_DOES_NOT_EXIST);
   }
-
 }

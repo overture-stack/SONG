@@ -25,23 +25,23 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.val;
 
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 @Data
 @ToString(callSuper = true)
 public class CompositeEntity extends Sample {
-    private Specimen specimen;
-    private Donor donor;
+  private Specimen specimen;
+  private Donor donor;
 
-    // TODO: Check out Lombok @Builder annotations
-    public static CompositeEntity create(Sample sample) {
-        val s = new CompositeEntity();
+  // TODO: Check out Lombok @Builder annotations
+  public static CompositeEntity create(Sample sample) {
+    val s = new CompositeEntity();
 
-        s.setSampleId(sample.getSampleId());
-        s.setSampleSubmitterId(sample.getSampleSubmitterId());
-        s.setSampleType(sample.getSampleType());
-        s.setInfo(sample.getInfoAsString());
-        s.setSpecimenId(sample.getSpecimenId());
+    s.setSampleId(sample.getSampleId());
+    s.setSampleSubmitterId(sample.getSampleSubmitterId());
+    s.setSampleType(sample.getSampleType());
+    s.setInfo(sample.getInfoAsString());
+    s.setSpecimenId(sample.getSpecimenId());
 
-        return s;
-    }
+    return s;
+  }
 }

@@ -19,17 +19,16 @@ package bio.overture.song.server.model.experiment;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = TableNames.VARIANTCALL)
@@ -38,7 +37,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class VariantCall extends Experiment {
 
@@ -51,5 +50,4 @@ public class VariantCall extends Experiment {
 
   @Column(name = TableAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID, nullable = false)
   private String matchedNormalSampleSubmitterId;
-
 }

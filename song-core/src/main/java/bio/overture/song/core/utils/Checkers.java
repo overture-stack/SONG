@@ -17,18 +17,17 @@
 
 package bio.overture.song.core.utils;
 
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static lombok.AccessLevel.PRIVATE;
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
 @NoArgsConstructor(access = PRIVATE)
 public class Checkers {
 
-  public static void checkNotBlank(@NonNull String input ){
+  public static void checkNotBlank(@NonNull String input) {
     checkArgument(isNotBlank(input), "The input '%s' cannot be blank", input);
   }
-
 }

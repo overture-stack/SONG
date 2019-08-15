@@ -17,6 +17,9 @@
 
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static org.junit.Assert.assertEquals;
+
 import bio.overture.song.core.exceptions.ServerError;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -24,25 +27,22 @@ import lombok.val;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-import static org.junit.Assert.assertEquals;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-
 @RequiredArgsConstructor
 public class SongErrorResultMatcher implements ResultMatcher {
 
   @NonNull private final ServerError expectedServerError;
 
-  @Override public void match(MvcResult mvcResult) throws Exception {
+  @Override
+  public void match(MvcResult mvcResult) throws Exception {
     val expectedHttpStatus = expectedServerError.getHttpStatus();
     val body = mvcResult.getResponse().getContentAsString();
     val songError = parseErrorResponse(expectedHttpStatus, body);
-    assertEquals(songError.getErrorId(),expectedServerError.getErrorId());
-    assertEquals(songError.getHttpStatusName(),expectedHttpStatus.name());
-    assertEquals(songError.getHttpStatusCode(),expectedHttpStatus.value());
+    assertEquals(songError.getErrorId(), expectedServerError.getErrorId());
+    assertEquals(songError.getHttpStatusName(), expectedHttpStatus.name());
+    assertEquals(songError.getHttpStatusCode(), expectedHttpStatus.value());
   }
 
-  public static SongErrorResultMatcher songErrorContent(ServerError expectedServerError){
+  public static SongErrorResultMatcher songErrorContent(ServerError expectedServerError) {
     return new SongErrorResultMatcher(expectedServerError);
   }
-
 }

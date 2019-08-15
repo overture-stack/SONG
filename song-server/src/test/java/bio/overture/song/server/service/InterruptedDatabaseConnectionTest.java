@@ -16,7 +16,18 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
+import static bio.overture.song.server.utils.TestFiles.getInfoName;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.utils.RandomGenerator;
+import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -31,19 +42,6 @@ import org.springframework.transaction.CannotCreateTransactionException;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.jdbc.ContainerDatabaseDriver;
 
-import java.util.Map;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
-import static bio.overture.song.server.utils.TestFiles.getInfoName;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-
-
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -52,10 +50,10 @@ public class InterruptedDatabaseConnectionTest {
 
   private static final String JDBC_URL_CONTAINER_CACHE_FIELD_NAME = "jdbcUrlContainerCache";
 
-  @Autowired
-  private StudyService service;
+  @Autowired private StudyService service;
 
-  private final RandomGenerator randomGenerator = createRandomGenerator(StudyServiceTest.class.getSimpleName());
+  private final RandomGenerator randomGenerator =
+      createRandomGenerator(StudyServiceTest.class.getSimpleName());
 
   @Value("${spring.datasource.url}")
   private String dataSourceUrl;
@@ -68,7 +66,7 @@ public class InterruptedDatabaseConnectionTest {
   public void testInterruptDBConnection() {
     testThatServiceWorks();
     val dataSourceContainer = getDataSourceContainer();
-    //simulate a db outage
+    // simulate a db outage
     stopDB(dataSourceContainer);
     assertDatabaseIsUnreachable();
     resumeDB(dataSourceContainer);
@@ -82,11 +80,11 @@ public class InterruptedDatabaseConnectionTest {
     // Unfortunately, it doesn't return anything when it hangs...
     val study = service.read("ABC123");
     assertNotNull(study);
-    assertEquals(study.getStudyId(),"ABC123");
-    assertEquals(study.getName(),"X1-CA");
-    assertEquals(study.getDescription(),"A fictional study");
-    assertEquals(study.getOrganization(),"Sample Data Research Institute");
-    assertEquals(getInfoName(study),"study1");
+    assertEquals(study.getStudyId(), "ABC123");
+    assertEquals(study.getName(), "X1-CA");
+    assertEquals(study.getDescription(), "A fictional study");
+    assertEquals(study.getOrganization(), "Sample Data Research Institute");
+    assertEquals(getInfoName(study), "study1");
   }
 
   private void assertDatabaseIsUnreachable() {
@@ -98,10 +96,11 @@ public class InterruptedDatabaseConnectionTest {
     } catch (CannotCreateTransactionException e) {
       exceptionCaught = true;
     }
-    assertTrue("No exception caught while connecting to db while supposed to be down", exceptionCaught);
+    assertTrue(
+        "No exception caught while connecting to db while supposed to be down", exceptionCaught);
   }
 
-  private void testThatServiceReallyWorks(){
+  private void testThatServiceReallyWorks() {
     val studyIds = service.findAllStudies();
     assertThat(studyIds, hasItems(DEFAULT_STUDY_ID, "XYZ234"));
     val studyId = createStudyGenerator(service, randomGenerator).createRandomStudy();
@@ -111,27 +110,35 @@ public class InterruptedDatabaseConnectionTest {
   }
 
   /**
-   * Returns a reference to the current db docker container (this assumes we are using testcontainers jdbc driver)
+   * Returns a reference to the current db docker container (this assumes we are using
+   * testcontainers jdbc driver)
+   *
    * @throws Exception in case getting the container failed
    */
   @SuppressWarnings("unchecked")
   @SneakyThrows
   private JdbcDatabaseContainer getDataSourceContainer() {
-    // here we had to use reflection to get access to the cached containers used by testcontainers library
+    // here we had to use reflection to get access to the cached containers used by testcontainers
+    // library
     // since we don't have a reference when containers are created using data source urls.
-    val containersMapField = ContainerDatabaseDriver.class.getDeclaredField(JDBC_URL_CONTAINER_CACHE_FIELD_NAME);
+    val containersMapField =
+        ContainerDatabaseDriver.class.getDeclaredField(JDBC_URL_CONTAINER_CACHE_FIELD_NAME);
     containersMapField.setAccessible(true);
     val containersCache = (Map<String, JdbcDatabaseContainer>) containersMapField.get(null);
     val container = containersCache.get(dataSourceUrl);
     if (container == null) {
-      throw new RuntimeException("no container found, check the data source url and that testcontainers is running");
+      throw new RuntimeException(
+          "no container found, check the data source url and that testcontainers is running");
     }
     return container;
   }
 
   @SneakyThrows
   private void stopDB(JdbcDatabaseContainer dataSourceContainer) {
-    val pauseCmd = dataSourceContainer.getDockerClient().pauseContainerCmd(dataSourceContainer.getContainerId());
+    val pauseCmd =
+        dataSourceContainer
+            .getDockerClient()
+            .pauseContainerCmd(dataSourceContainer.getContainerId());
     pauseCmd.exec();
     // without this the test can be flaky and hangs
     Thread.sleep(2000);
@@ -139,11 +146,13 @@ public class InterruptedDatabaseConnectionTest {
 
   @SneakyThrows
   private void resumeDB(JdbcDatabaseContainer dataSourceContainer) {
-    //resume db container
-    val unpauseContainerCmd = dataSourceContainer.getDockerClient().unpauseContainerCmd(dataSourceContainer.getContainerId());
+    // resume db container
+    val unpauseContainerCmd =
+        dataSourceContainer
+            .getDockerClient()
+            .unpauseContainerCmd(dataSourceContainer.getContainerId());
     unpauseContainerCmd.exec();
     // give it some time
     Thread.sleep(2000);
   }
-
 }

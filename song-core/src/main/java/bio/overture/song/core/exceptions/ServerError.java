@@ -24,5 +24,4 @@ public interface ServerError {
   String getErrorId();
 
   HttpStatus getHttpStatus();
-
 }

@@ -17,15 +17,16 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.entity.FileEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FileRepository extends JpaRepository<FileEntity, String> {
 
   List<FileEntity> findAllByAnalysisIdAndFileName(String analysisId, String fileName);
-  List<FileEntity> findAllByAnalysisId(String analysisId);
-  void deleteAllByAnalysisId(String analysisId);
-  long countAllByStudyIdAndObjectId(String studyId, String objectId);
 
+  List<FileEntity> findAllByAnalysisId(String analysisId);
+
+  void deleteAllByAnalysisId(String analysisId);
+
+  long countAllByStudyIdAndObjectId(String studyId, String objectId);
 }

@@ -17,13 +17,13 @@
 
 package bio.overture.song.client.benchmark.monitor;
 
+import static java.lang.String.format;
+
 import bio.overture.song.client.benchmark.model.Stat;
 import bio.overture.song.client.benchmark.model.StatComposite;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Value;
-
-import static java.lang.String.format;
 
 @Value
 public class StudyMonitor {
@@ -33,19 +33,19 @@ public class StudyMonitor {
   @NonNull private final CounterMonitor statusMonitor;
   @NonNull private final CounterMonitor saveMonitor;
 
-  public Stat getUploadStat(){
-    return getStat( uploadMonitor);
+  public Stat getUploadStat() {
+    return getStat(uploadMonitor);
   }
 
-  public Stat getStatusStat(){
-    return getStat( statusMonitor);
+  public Stat getStatusStat() {
+    return getStat(statusMonitor);
   }
 
-  public Stat getSaveStat(){
-    return getStat( saveMonitor);
+  public Stat getSaveStat() {
+    return getStat(saveMonitor);
   }
 
-  private Stat getStat(CounterMonitor cm){
+  private Stat getStat(CounterMonitor cm) {
     return Stat.builder()
         .numFiles(cm.getCount())
         .totalSize(-1)
@@ -55,7 +55,7 @@ public class StudyMonitor {
         .build();
   }
 
-  public StatComposite getStatComposite(){
+  public StatComposite getStatComposite() {
     return StatComposite.builder()
         .saveStat(getSaveStat())
         .uploadStat(getUploadStat())
@@ -67,9 +67,8 @@ public class StudyMonitor {
   public static StudyMonitor createStudyMonitor(@NonNull String studyId) {
     return new StudyMonitor(
         studyId,
-        CounterMonitor.createCounterMonitor(format("%s-upload", studyId ), 100),
-        CounterMonitor.createCounterMonitor(format("%s-status", studyId ), 100),
-        CounterMonitor.createCounterMonitor(format("%s-save", studyId ), 100));
+        CounterMonitor.createCounterMonitor(format("%s-upload", studyId), 100),
+        CounterMonitor.createCounterMonitor(format("%s-status", studyId), 100),
+        CounterMonitor.createCounterMonitor(format("%s-save", studyId), 100));
   }
-
 }

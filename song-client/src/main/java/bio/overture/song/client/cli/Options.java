@@ -18,12 +18,12 @@ package bio.overture.song.client.cli;
 
 import com.beust.jcommander.Parameter;
 
-/**
- * This class holds all of the JCommander options for the main program.
- */
+/** This class holds all of the JCommander options for the main program. */
 public class Options {
 
-  @Parameter(names = { "--help", "-h", "-?" }, description = "Show this help screen", help = true)
+  @Parameter(
+      names = {"--help", "-h", "-?"},
+      description = "Show this help screen",
+      help = true)
   private boolean help;
-
 }

@@ -21,35 +21,39 @@ import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Get the status of an upload from it's upload id.")
+@Parameters(
+    separators = "=",
+    commandDescription = "Get the status of an upload from it's upload id.")
 public class StatusCommand extends Command {
 
-  @Parameter(names = { "-u", "--upload-id" }, required = false)
+  @Parameter(
+      names = {"-u", "--upload-id"},
+      required = false)
   private String uploadId;
 
-  @Parameter(names = { "-p", "--ping" }, required = false, description = "Pings the server to see if its connected")
+  @Parameter(
+      names = {"-p", "--ping"},
+      required = false,
+      description = "Pings the server to see if its connected")
   private boolean ping;
 
-  @NonNull
-  private Registry registry;
+  @NonNull private Registry registry;
 
-  @NonNull
-  private Config config;
+  @NonNull private Config config;
 
   @Override
   public void run() throws IOException {
-    if (ping){
+    if (ping) {
       val status = new Status();
       status.output(Boolean.toString(registry.isAlive()));
       save(status);
-    }  else {
+    } else {
       if (uploadId == null) {
         uploadId = getJson().at("/uploadId").asText("");
       }
@@ -57,5 +61,4 @@ public class StatusCommand extends Command {
       save(status);
     }
   }
-
 }

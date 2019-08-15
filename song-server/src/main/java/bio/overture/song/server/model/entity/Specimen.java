@@ -17,25 +17,24 @@
 
 package bio.overture.song.server.model.entity;
 
+import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
+import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
+import static bio.overture.song.server.model.enums.Constants.validate;
+
 import bio.overture.song.server.model.Metadata;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
-import static bio.overture.song.server.model.enums.Constants.validate;
 
 @Entity
 @Table(name = TableNames.SPECIMEN)
@@ -48,8 +47,7 @@ import static bio.overture.song.server.model.enums.Constants.validate;
 public class Specimen extends Metadata {
 
   @Id
-  @Column(name = TableAttributeNames.ID,
-      updatable = false, unique = true, nullable = false)
+  @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
   private String specimenId;
 
   @Column(name = TableAttributeNames.DONOR_ID, nullable = false)
@@ -64,7 +62,11 @@ public class Specimen extends Metadata {
   @Column(name = TableAttributeNames.TYPE, nullable = false)
   private String specimenType;
 
-  public Specimen(String specimenId, String donorId, String specimenSubmitterId, String specimenClass,
+  public Specimen(
+      String specimenId,
+      String donorId,
+      String specimenSubmitterId,
+      String specimenClass,
       String specimenType) {
     this.specimenId = specimenId;
     this.donorId = donorId;
@@ -83,7 +85,7 @@ public class Specimen extends Metadata {
     specimenType = type;
   }
 
-  public void setWithSpecimen(@NonNull Specimen specimenUpdate){
+  public void setWithSpecimen(@NonNull Specimen specimenUpdate) {
     setSpecimenSubmitterId(specimenUpdate.getSpecimenSubmitterId());
     setDonorId(specimenUpdate.getDonorId());
     setSpecimenClass(specimenUpdate.getSpecimenClass());
@@ -91,5 +93,4 @@ public class Specimen extends Metadata {
     setSpecimenId(specimenUpdate.getSpecimenId());
     setInfo(specimenUpdate.getInfo());
   }
-
 }

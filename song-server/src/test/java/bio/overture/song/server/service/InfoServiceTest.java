@@ -16,6 +16,15 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS;
+import static bio.overture.song.core.exceptions.ServerErrors.INFO_NOT_FOUND;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -29,24 +38,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS;
-import static bio.overture.song.core.exceptions.ServerErrors.INFO_NOT_FOUND;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public class InfoServiceTest {
-  @Autowired
-  DonorInfoService infoService;
+  @Autowired DonorInfoService infoService;
 
-  private final RandomGenerator randomGenerator = createRandomGenerator(InfoServiceTest.class.getSimpleName());
+  private final RandomGenerator randomGenerator =
+      createRandomGenerator(InfoServiceTest.class.getSimpleName());
 
   @Test
   @SneakyThrows
@@ -62,21 +62,21 @@ public class InfoServiceTest {
     val info1 = infoService.readInfo(id);
     assertTrue(info1.isPresent());
     val json2 = JsonUtils.readTree(info1.get());
-    assertEquals(json,json2);
+    assertEquals(json, json2);
 
     json.put("species", "human");
-    val new_info= JsonUtils.nodeToJSON(json);
+    val new_info = JsonUtils.nodeToJSON(json);
 
     infoService.update(id, new_info);
     val info2 = infoService.readInfo(id);
     assertTrue(info2.isPresent());
     val json3 = JsonUtils.readTree(info2.get());
 
-    assertEquals(json3,json);
+    assertEquals(json3, json);
   }
 
   @Test
-  public void testInfoExists(){
+  public void testInfoExists() {
     val donorId = genDonorId();
     assertFalse(infoService.isInfoExist(donorId));
     infoService.create(donorId, getDummyInfo("someKey", "1234"));
@@ -90,13 +90,13 @@ public class InfoServiceTest {
   }
 
   @Test
-  public void testCreate(){
+  public void testCreate() {
     val donorId = genDonorId();
     val expectedData = getDummyInfo("someKey", "234433rff");
     infoService.create(donorId, expectedData);
     val actualData = infoService.readInfo(donorId);
     assertTrue(actualData.isPresent());
-    assertEquals(actualData.get(),expectedData);
+    assertEquals(actualData.get(), expectedData);
 
     // Also check creation of null info fields
     val nonExistentDonorId2 = genDonorId();
@@ -105,30 +105,35 @@ public class InfoServiceTest {
   }
 
   @Test
-  public void testCreateError(){
+  public void testCreateError() {
     val donorId = genDonorId();
     infoService.create(donorId, getDummyInfo("someKey", "234433rff"));
-    val dd  = getDummyInfo("someKey", "999999993333333333");
-    SongErrorAssertions.assertSongErrorRunnable(() -> infoService.create(donorId, dd), INFO_ALREADY_EXISTS);
-    SongErrorAssertions.assertSongErrorRunnable(() -> infoService.create(donorId, null), INFO_ALREADY_EXISTS);
+    val dd = getDummyInfo("someKey", "999999993333333333");
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> infoService.create(donorId, dd), INFO_ALREADY_EXISTS);
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> infoService.create(donorId, null), INFO_ALREADY_EXISTS);
   }
 
   @Test
-  public void testReadInfoError(){
+  public void testReadInfoError() {
     val nonExistentDonorId = genDonorId();
-    SongErrorAssertions.assertSongError(() -> infoService.readInfo(nonExistentDonorId), INFO_NOT_FOUND);
+    SongErrorAssertions.assertSongError(
+        () -> infoService.readInfo(nonExistentDonorId), INFO_NOT_FOUND);
   }
 
   @Test
-  public void testUpdateError(){
+  public void testUpdateError() {
     val nonExistentDonorId = genDonorId();
-    SongErrorAssertions
-        .assertSongErrorRunnable(() -> infoService.update(nonExistentDonorId, getDummyInfo("someKey", "239dk")), INFO_NOT_FOUND);
-    SongErrorAssertions.assertSongErrorRunnable(() -> infoService.update(nonExistentDonorId, null), INFO_NOT_FOUND);
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> infoService.update(nonExistentDonorId, getDummyInfo("someKey", "239dk")),
+        INFO_NOT_FOUND);
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> infoService.update(nonExistentDonorId, null), INFO_NOT_FOUND);
   }
 
   @Test
-  public void testDelete(){
+  public void testDelete() {
     val donorId = genDonorId();
     infoService.create(donorId, getDummyInfo("someKey", "234433rff"));
     assertTrue(infoService.isInfoExist(donorId));
@@ -144,13 +149,14 @@ public class InfoServiceTest {
   }
 
   @Test
-  public void testDeleteError(){
+  public void testDeleteError() {
     val nonExistentDonorId = genDonorId();
-    SongErrorAssertions.assertSongErrorRunnable(() -> infoService.delete(nonExistentDonorId), INFO_NOT_FOUND);
+    SongErrorAssertions.assertSongErrorRunnable(
+        () -> infoService.delete(nonExistentDonorId), INFO_NOT_FOUND);
   }
 
   @Test
-  public void testReadNullableInfo(){
+  public void testReadNullableInfo() {
     val donorId = genDonorId();
     infoService.create(donorId, null);
     assertTrue(infoService.isInfoExist(donorId));
@@ -160,22 +166,19 @@ public class InfoServiceTest {
     val info = getDummyInfo("someKey", "2idj94");
     infoService.create(donorId2, info);
     assertTrue(infoService.isInfoExist(donorId2));
-    assertEquals(infoService.readNullableInfo(donorId2),info);
+    assertEquals(infoService.readNullableInfo(donorId2), info);
 
     val nonExistingDonorId = randomGenerator.generateRandomUUIDAsString();
     assertFalse(infoService.isInfoExist(nonExistingDonorId));
     assertNull(infoService.readNullableInfo(nonExistingDonorId));
   }
 
-  private String genDonorId(){
+  private String genDonorId() {
     return randomGenerator.generateRandomAsciiString(25);
   }
 
-  private static String getDummyInfo(String key, String value){
-    val out = object()
-        .with(key, value)
-        .end();
+  private static String getDummyInfo(String key, String value) {
+    val out = object().with(key, value).end();
     return out.toString();
   }
-
 }

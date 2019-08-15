@@ -17,13 +17,12 @@
 
 package bio.overture.song.client.benchmark;
 
+import java.nio.file.Path;
+import java.util.Set;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
 import lombok.Value;
-
-import java.nio.file.Path;
-import java.util.Set;
 
 @Value
 @Builder
@@ -36,5 +35,4 @@ public class BenchmarkConfig {
   private final boolean ignoreIdCollisions;
   @NonNull @Singular Set<String> excludeStudies;
   @NonNull @Singular Set<String> includeStudies;
-
 }

@@ -17,11 +17,16 @@
 
 package bio.overture.song.server.utils;
 
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
+
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.UploadService;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -30,12 +35,6 @@ import lombok.val;
 import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Set;
-
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
-
 @Slf4j
 @RequiredArgsConstructor
 public class BatchUploader {
@@ -43,12 +42,13 @@ public class BatchUploader {
   @NonNull private final StudyService studyService;
   @NonNull private final UploadService uploadService;
 
-  public void process(@NonNull BatchUpload batchUpload){
+  public void process(@NonNull BatchUpload batchUpload) {
     val studyId = batchUpload.getStudyId();
     initStudy(studyId);
     uploadBatch(batchUpload, false);
     val numErrored = pollStatus(batchUpload);
-    checkState(numErrored == 0,
+    checkState(
+        numErrored == 0,
         "There were errors with the uploads: \n%s",
         NEWLINE.join(batchUpload.getUploadMap().values()));
     saveBatch(batchUpload, false);
@@ -57,31 +57,30 @@ public class BatchUploader {
     log.info("done");
   }
 
-  private void uploadBatch(BatchUpload batchUpload, boolean isAsync){
+  private void uploadBatch(BatchUpload batchUpload, boolean isAsync) {
     val studyId = batchUpload.getStudyId();
-    for (val payload: batchUpload.getPayloads()){
-      val uploadResponse = uploadService.upload(studyId, payload, isAsync );
+    for (val payload : batchUpload.getPayloads()) {
+      val uploadResponse = uploadService.upload(studyId, payload, isAsync);
       val uploadId = fromStatus(uploadResponse, "uploadId");
       val upload = uploadService.securedRead(studyId, uploadId);
       batchUpload.addUpload(upload);
     }
   }
 
-  private int pollStatus(BatchUpload batchUpload){
+  private int pollStatus(BatchUpload batchUpload) {
     Set<String> validated = newHashSet();
     Set<String> validationError = newHashSet();
     val total = batchUpload.getUploadMap().keySet().size();
 
-
-    while(validated.size() + validationError.size() < total ){
-      for (val upload : batchUpload.getUploadMap().values()){
+    while (validated.size() + validationError.size() < total) {
+      for (val upload : batchUpload.getUploadMap().values()) {
         val uploadId = upload.getUploadId();
-        if (!validated.contains(uploadId) && !validationError.contains(uploadId)){
+        if (!validated.contains(uploadId) && !validationError.contains(uploadId)) {
           val newUpload = uploadService.securedRead(batchUpload.getStudyId(), uploadId);
           batchUpload.updateUpload(newUpload);
-          if (UploadStates.resolveState(newUpload.getState()) == UploadStates.VALIDATION_ERROR){
+          if (UploadStates.resolveState(newUpload.getState()) == UploadStates.VALIDATION_ERROR) {
             validationError.add(newUpload.getUploadId());
-          } else if (UploadStates.resolveState(newUpload.getState()) == UploadStates.VALIDATED){
+          } else if (UploadStates.resolveState(newUpload.getState()) == UploadStates.VALIDATED) {
             validated.add(newUpload.getUploadId());
           }
         }
@@ -90,30 +89,26 @@ public class BatchUploader {
     return validationError.size();
   }
 
-  private void saveBatch(BatchUpload batchUpload, boolean ignoreAnalysisIdCollisions){
+  private void saveBatch(BatchUpload batchUpload, boolean ignoreAnalysisIdCollisions) {
     val studyId = batchUpload.getStudyId();
-    for (val upload : batchUpload.getValidatedUploads()){
-      val saveResponse = uploadService.save(studyId, upload.getUploadId(), ignoreAnalysisIdCollisions );
+    for (val upload : batchUpload.getValidatedUploads()) {
+      val saveResponse =
+          uploadService.save(studyId, upload.getUploadId(), ignoreAnalysisIdCollisions);
       val analysisId = fromStatus(saveResponse, "analysisId");
       upload.setAnalysisId(analysisId);
     }
   }
 
   @SneakyThrows
-  private static String fromStatus( ResponseEntity<String> response, String key) {
-    val value = JsonUtils.readTree(response.getBody()).at("/"+key).asText("");
+  private static String fromStatus(ResponseEntity<String> response, String key) {
+    val value = JsonUtils.readTree(response.getBody()).at("/" + key).asText("");
     return value;
   }
 
-  private void initStudy(String studyId){
-    if (!studyService.isStudyExist(studyId)){
-      studyService.saveStudy(Study.builder()
-          .studyId(studyId)
-          .name("")
-          .organization("")
-          .description("")
-          .build());
+  private void initStudy(String studyId) {
+    if (!studyService.isStudyExist(studyId)) {
+      studyService.saveStudy(
+          Study.builder().studyId(studyId).name("").organization("").description("").build());
     }
   }
-
 }

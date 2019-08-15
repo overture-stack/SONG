@@ -16,6 +16,18 @@
  */
 package bio.overture.song.server.controller.analysisType;
 
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.AnalysisTypeService;
@@ -24,6 +36,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,21 +54,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Set;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
-
 @RestController
 @RequestMapping(path = "/schemas")
 @Api(tags = "Schema", description = "Get schemas used for uploads")
@@ -68,24 +67,30 @@ public class AnalysisTypeController {
   }
 
   @GetMapping("/{analysisTypeId}")
-  @ApiOperation(value = "GetAnalysisTypeVersion",
-      notes = "Retrieves a specific version of a schema for an analysisType" )
+  @ApiOperation(
+      value = "GetAnalysisTypeVersion",
+      notes = "Retrieves a specific version of a schema for an analysisType")
   public AnalysisType getAnalysisTypeVersion(
-      @ApiParam(value = "Compound analysisType id in the form {name}:{version}", type = "string", required = false)
-      @PathVariable(value = "analysisTypeId", required = true) String analysisTypeIdString){
+      @ApiParam(
+              value = "Compound analysisType id in the form {name}:{version}",
+              type = "string",
+              required = false)
+          @PathVariable(value = "analysisTypeId", required = true)
+          String analysisTypeIdString) {
     return analysisTypeService.getAnalysisType(analysisTypeIdString);
   }
 
   @SneakyThrows
   @GetMapping("/meta")
-  @ApiOperation(value = "GetMetaSchema",
-      notes = "Retrieves the meta-schema used to validate AnalysisType schemas" )
-  public String getAnalysisTypeMetaSchema(){
+  @ApiOperation(
+      value = "GetMetaSchema",
+      notes = "Retrieves the meta-schema used to validate AnalysisType schemas")
+  public String getAnalysisTypeMetaSchema() {
     return toPrettyJson(readTree(analysisTypeService.getAnalysisTypeMetaSchema().toString()));
   }
 
   @PreAuthorize("@systemSecurity.authorize(authentication)")
-  @PostMapping(consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
+  @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ApiOperation(value = "RegisterAnalysisType", notes = "Registers an analysisType schema")
   public @ResponseBody AnalysisType register(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
@@ -94,47 +99,57 @@ public class AnalysisTypeController {
   }
 
   @ApiImplicitParams({
-      @ApiImplicitParam(
-          name = OFFSET,
-          required = false,
-          dataType = "integer",
-          paramType = "query",
-          defaultValue = ""+DEFAULT_OFFSET,
-          value = "Index of first result to retrieve"),
-      @ApiImplicitParam(
-          name = LIMIT,
-          required = false,
-          dataType = "integer",
-          paramType = "query",
-          defaultValue = ""+DEFAULT_LIMIT,
-          value = "Number of results to retrieve"),
-      @ApiImplicitParam(
-          name = SORT,
-          required = false,
-          dataType = "string",
-          paramType = "query",
-          value = "Comma separated fields to sort on"),
-      @ApiImplicitParam(
-          name = SORTORDER,
-          required = false,
-          dataType = "string",
-          paramType = "query",
-          value = "Sorting order: ASC|DESC. Default order: DESC")
+    @ApiImplicitParam(
+        name = OFFSET,
+        required = false,
+        dataType = "integer",
+        paramType = "query",
+        defaultValue = "" + DEFAULT_OFFSET,
+        value = "Index of first result to retrieve"),
+    @ApiImplicitParam(
+        name = LIMIT,
+        required = false,
+        dataType = "integer",
+        paramType = "query",
+        defaultValue = "" + DEFAULT_LIMIT,
+        value = "Number of results to retrieve"),
+    @ApiImplicitParam(
+        name = SORT,
+        required = false,
+        dataType = "string",
+        paramType = "query",
+        value = "Comma separated fields to sort on"),
+    @ApiImplicitParam(
+        name = SORTORDER,
+        required = false,
+        dataType = "string",
+        paramType = "query",
+        value = "Sorting order: ASC|DESC. Default order: DESC")
   })
-  @ApiOperation(value = "ListAnalysisTypes",
-      notes = "Retrieves a list of registered analysisTypes" )
+  @ApiOperation(value = "ListAnalysisTypes", notes = "Retrieves a list of registered analysisTypes")
   @GetMapping
   public Page<AnalysisType> listAnalysisTypes(
-      @ApiParam(value = "Comma separated list of names", required = false, example = "name1,name4,name100", type = "string")
-      @RequestParam(value = "names", required = false) List<String> names,
-
-      @ApiParam(value = "Comma separated list of versions", required = false, example = "4,5,9", type = "string")
-      @RequestParam(value = "versions", required = false) Set<Integer> versions,
-
-      @ApiParam(value = "Hide the schema field from the response",type = "boolean", required = false)
-      @RequestParam(value = "hideSchema", required = false, defaultValue = "false") boolean hideSchema,
-      Pageable pageable){
+      @ApiParam(
+              value = "Comma separated list of names",
+              required = false,
+              example = "name1,name4,name100",
+              type = "string")
+          @RequestParam(value = "names", required = false)
+          List<String> names,
+      @ApiParam(
+              value = "Comma separated list of versions",
+              required = false,
+              example = "4,5,9",
+              type = "string")
+          @RequestParam(value = "versions", required = false)
+          Set<Integer> versions,
+      @ApiParam(
+              value = "Hide the schema field from the response",
+              type = "boolean",
+              required = false)
+          @RequestParam(value = "hideSchema", required = false, defaultValue = "false")
+          boolean hideSchema,
+      Pageable pageable) {
     return analysisTypeService.listAnalysisTypes(names, versions, pageable, hideSchema);
   }
-
 }
