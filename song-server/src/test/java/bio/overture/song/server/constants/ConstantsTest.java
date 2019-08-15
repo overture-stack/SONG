@@ -19,22 +19,31 @@ package bio.overture.song.server.constants;
 
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.server.model.enums.InfoSearchResponseColumns;
 import bio.overture.song.server.model.enums.InfoTypes;
 import bio.overture.song.server.model.enums.UploadStates;
-import lombok.val;
 import org.junit.Test;
 
-import static bio.overture.song.core.model.enums.FileTypes.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
 import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
 import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.FileTypes.BAI;
+import static bio.overture.song.core.model.enums.FileTypes.BAM;
+import static bio.overture.song.core.model.enums.FileTypes.FAI;
+import static bio.overture.song.core.model.enums.FileTypes.FASTA;
+import static bio.overture.song.core.model.enums.FileTypes.FASTQ;
+import static bio.overture.song.core.model.enums.FileTypes.IDX;
+import static bio.overture.song.core.model.enums.FileTypes.TBI;
+import static bio.overture.song.core.model.enums.FileTypes.TGZ;
+import static bio.overture.song.core.model.enums.FileTypes.VCF;
+import static bio.overture.song.core.model.enums.FileTypes.XML;
+import static bio.overture.song.core.model.enums.FileTypes.resolveFileType;
+import static bio.overture.song.core.model.enums.FileTypes.values;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.INFO;
 import static bio.overture.song.server.model.enums.InfoTypes.ANALYSIS;
@@ -58,115 +67,112 @@ public class ConstantsTest {
 
   @Test
   public void testAnalysisStates(){
-    assertThat(PUBLISHED.toString()).isEqualTo("PUBLISHED");
-    assertThat(UNPUBLISHED.toString()).isEqualTo("UNPUBLISHED");
-    assertThat(SUPPRESSED.toString()).isEqualTo("SUPPRESSED");
-    assertThat(AnalysisStates.values()).hasSize(3);
+    assertEquals(PUBLISHED.toString(),"PUBLISHED");
+    assertEquals(UNPUBLISHED.toString(),"UNPUBLISHED");
+    assertEquals(SUPPRESSED.toString(),"SUPPRESSED");
+    assertEquals(AnalysisStates.values().length, 3);
   }
 
   @Test
   public void testInfoSearchResponseColumns(){
-    assertThat(ANALYSIS_ID.toString()).isEqualTo("analysis_id");
-    assertThat(INFO.toString()).isEqualTo("info");
-    assertThat(InfoSearchResponseColumns.values()).hasSize(2);
+    assertEquals(ANALYSIS_ID.toString(),"analysis_id");
+    assertEquals(INFO.toString(),"info");
+    assertEquals(InfoSearchResponseColumns.values().length, 2);
   }
 
   @Test
   public void testAccessTypes(){
-    assertThat(CONTROLLED.toString()).isEqualTo("controlled");
-    assertThat(OPEN.toString()).isEqualTo("open");
-    assertThat(AccessTypes.values()).hasSize(2);
-    assertThat(resolveAccessType("open")).isEqualTo(OPEN);
-    assertThat(resolveAccessType("controlled")).isEqualTo(CONTROLLED);
-    val thrown = catchThrowable(() -> resolveAccessType("somethingNotAccessType"));
-    assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
+    assertEquals(CONTROLLED.toString(),"controlled");
+    assertEquals(OPEN.toString(),"open");
+    assertEquals(AccessTypes.values().length, 2);
+    assertEquals(resolveAccessType("open"),OPEN);
+    assertEquals(resolveAccessType("controlled"),CONTROLLED);
+
+    assertExceptionThrownBy(IllegalStateException.class, () -> resolveAccessType("somethingNotAccessType") );
   }
 
   @Test
   public void testFileTypes(){
-    assertThat(FASTA.toString()).isEqualTo("FASTA");
-    assertThat(FAI.toString()).isEqualTo("FAI");
-    assertThat(FASTQ.toString()).isEqualTo("FASTQ");
-    assertThat(BAM.toString()).isEqualTo("BAM");
-    assertThat(BAI.toString()).isEqualTo("BAI");
-    assertThat(VCF.toString()).isEqualTo("VCF");
-    assertThat(TBI.toString()).isEqualTo("TBI");
-    assertThat(IDX.toString()).isEqualTo("IDX");
-    assertThat(XML.toString()).isEqualTo("XML");
-    assertThat(TGZ.toString()).isEqualTo("TGZ");
+    assertEquals(FASTA.toString(),"FASTA");
+    assertEquals(FAI.toString(),"FAI");
+    assertEquals(FASTQ.toString(),"FASTQ");
+    assertEquals(BAM.toString(),"BAM");
+    assertEquals(BAI.toString(),"BAI");
+    assertEquals(VCF.toString(),"VCF");
+    assertEquals(TBI.toString(),"TBI");
+    assertEquals(IDX.toString(),"IDX");
+    assertEquals(XML.toString(),"XML");
+    assertEquals(TGZ.toString(),"TGZ");
 
-    assertThat(FASTA.getExtension()).isEqualTo("fasta");
-    assertThat(FAI.getExtension())  .isEqualTo("fai");
-    assertThat(FASTQ.getExtension()).isEqualTo("fastq");
-    assertThat(BAM.getExtension()).isEqualTo("bam");
-    assertThat(BAI.getExtension()).isEqualTo("bai");
-    assertThat(VCF.getExtension()).isEqualTo("vcf");
-    assertThat(TBI.getExtension()).isEqualTo("tbi");
-    assertThat(IDX.getExtension()).isEqualTo("idx");
-    assertThat(XML.getExtension()).isEqualTo("xml");
-    assertThat(TGZ.getExtension()).isEqualTo("tgz");
+    assertEquals(FASTA.getExtension(),"fasta");
+    assertEquals(FAI.getExtension(),"fai");
+    assertEquals(FASTQ.getExtension(),"fastq");
+    assertEquals(BAM.getExtension(),"bam");
+    assertEquals(BAI.getExtension(),"bai");
+    assertEquals(VCF.getExtension(),"vcf");
+    assertEquals(TBI.getExtension(),"tbi");
+    assertEquals(IDX.getExtension(),"idx");
+    assertEquals(XML.getExtension(),"xml");
+    assertEquals(TGZ.getExtension(),"tgz");
 
-    assertThat(FileTypes.values()).hasSize(10);
+    assertEquals(values().length, 10);
 
-    assertThat(resolveFileType("FASTA")).isEqualTo(FASTA);
-    assertThat(resolveFileType("FAI")).isEqualTo(FAI);
-    assertThat(resolveFileType("FASTQ")).isEqualTo(FASTQ);
-    assertThat(resolveFileType("BAM")).isEqualTo(BAM);
-    assertThat(resolveFileType("BAI")).isEqualTo(BAI);
-    assertThat(resolveFileType("VCF")).isEqualTo(VCF);
-    assertThat(resolveFileType("TBI")).isEqualTo(TBI);
-    assertThat(resolveFileType("IDX")).isEqualTo(IDX);
-    assertThat(resolveFileType("XML")).isEqualTo(XML);
-    assertThat(resolveFileType("TGZ")).isEqualTo(TGZ);
+    assertEquals(resolveFileType("FASTA"),FASTA);
+    assertEquals(resolveFileType("FAI"),FAI);
+    assertEquals(resolveFileType("FASTQ"),FASTQ);
+    assertEquals(resolveFileType("BAM"),BAM);
+    assertEquals(resolveFileType("BAI"),BAI);
+    assertEquals(resolveFileType("VCF"),VCF);
+    assertEquals(resolveFileType("TBI"),TBI);
+    assertEquals(resolveFileType("IDX"),IDX);
+    assertEquals(resolveFileType("XML"),XML);
+    assertEquals(resolveFileType("TGZ"),TGZ);
 
-    val thrown = catchThrowable(() -> resolveFileType("somethingThatsNotAFileType"));
-    assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
+    assertExceptionThrownBy(IllegalStateException.class, () -> resolveFileType("somethingThatsNotAFileType"));
   }
 
   @Test
   public void testInfoTypes(){
-    assertThat(STUDY.toString()).isEqualTo("Study");
-    assertThat(DONOR.toString()).isEqualTo("Donor");
-    assertThat(SPECIMEN.toString()).isEqualTo("Specimen");
-    assertThat(SAMPLE.toString()).isEqualTo("Sample");
-    assertThat(FILE.toString()).isEqualTo("File");
-    assertThat(ANALYSIS.toString()).isEqualTo("Analysis");
-    assertThat(SEQUENCING_READ.toString()).isEqualTo("SequencingRead");
-    assertThat(VARIANT_CALL.toString()).isEqualTo("VariantCall");
-    assertThat(InfoTypes.values()).hasSize(8);
+    assertEquals(STUDY.toString(),"Study");
+    assertEquals(DONOR.toString(),"Donor");
+    assertEquals(SPECIMEN.toString(),"Specimen");
+    assertEquals(SAMPLE.toString(),"Sample");
+    assertEquals(FILE.toString(),"File");
+    assertEquals(ANALYSIS.toString(),"Analysis");
+    assertEquals(SEQUENCING_READ.toString(),"SequencingRead");
+    assertEquals(VARIANT_CALL.toString(),"VariantCall");
+    assertEquals(InfoTypes.values().length,8);
 
-    assertThat(resolveInfoType("Study")).isEqualTo(STUDY);
-    assertThat(resolveInfoType("Donor")).isEqualTo(DONOR);
-    assertThat(resolveInfoType("Specimen")).isEqualTo(SPECIMEN);
-    assertThat(resolveInfoType("Sample")).isEqualTo(SAMPLE);
-    assertThat(resolveInfoType("File")).isEqualTo(FILE);
-    assertThat(resolveInfoType("Analysis")).isEqualTo(ANALYSIS);
-    assertThat(resolveInfoType("SequencingRead")).isEqualTo(SEQUENCING_READ);
-    assertThat(resolveInfoType("VariantCall")).isEqualTo(VARIANT_CALL);
+    assertEquals(resolveInfoType("Study"),STUDY);
+    assertEquals(resolveInfoType("Donor"),DONOR);
+    assertEquals(resolveInfoType("Specimen"),SPECIMEN);
+    assertEquals(resolveInfoType("Sample"),SAMPLE);
+    assertEquals(resolveInfoType("File"),FILE);
+    assertEquals(resolveInfoType("Analysis"),ANALYSIS);
+    assertEquals(resolveInfoType("SequencingRead"),SEQUENCING_READ);
+    assertEquals(resolveInfoType("VariantCall"),VARIANT_CALL);
 
-    val thrown = catchThrowable(() -> resolveInfoType("somethingThatsNotAnInfoType"));
-    assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
+    assertExceptionThrownBy(IllegalStateException.class, () -> resolveInfoType("somethingThatsNotAnInfoType"));
   }
 
   @Test
   public void testUploadStates(){
-    assertThat(CREATED.toString()).isEqualTo("CREATED");
-    assertThat(VALIDATED.toString()).isEqualTo("VALIDATED");
-    assertThat(VALIDATION_ERROR.toString()).isEqualTo("VALIDATION_ERROR");
-    assertThat(UPLOADED.toString()).isEqualTo("UPLOADED");
-    assertThat(UPDATED.toString()).isEqualTo("UPDATED");
-    assertThat(SAVED.toString()).isEqualTo("SAVED");
-    assertThat(UploadStates.values()).hasSize(6);
+    assertEquals(CREATED.toString(),"CREATED");
+    assertEquals(VALIDATED.toString(),"VALIDATED");
+    assertEquals(VALIDATION_ERROR.toString(),"VALIDATION_ERROR");
+    assertEquals(UPLOADED.toString(),"UPLOADED");
+    assertEquals(UPDATED.toString(),"UPDATED");
+    assertEquals(SAVED.toString(),"SAVED");
+    assertEquals(UploadStates.values().length, 6);
 
-    assertThat(resolveState("CREATED")).isEqualTo(CREATED);
-    assertThat(resolveState("VALIDATED")).isEqualTo(VALIDATED);
-    assertThat(resolveState("VALIDATION_ERROR")).isEqualTo(VALIDATION_ERROR);
-    assertThat(resolveState("UPLOADED")).isEqualTo(UPLOADED);
-    assertThat(resolveState("UPDATED")).isEqualTo(UPDATED);
-    assertThat(resolveState("SAVED")).isEqualTo(SAVED);
+    assertEquals(resolveState("CREATED"),CREATED);
+    assertEquals(resolveState("VALIDATED"),VALIDATED);
+    assertEquals(resolveState("VALIDATION_ERROR"),VALIDATION_ERROR);
+    assertEquals(resolveState("UPLOADED"),UPLOADED);
+    assertEquals(resolveState("UPDATED"),UPDATED);
+    assertEquals(resolveState("SAVED"),SAVED);
 
-    val thrown = catchThrowable(() -> resolveState("notAnUploadState"));
-    assertThat(thrown).isExactlyInstanceOf(IllegalStateException.class);
+    assertExceptionThrownBy(IllegalStateException.class, () -> resolveState("notAnUploadState"));
   }
 
 }

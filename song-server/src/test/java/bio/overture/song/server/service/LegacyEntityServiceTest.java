@@ -27,7 +27,6 @@ import bio.overture.song.server.utils.TestFiles;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -49,11 +48,15 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Math.pow;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.lessThan;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILTER_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_QUERY_PARAMETER;
@@ -107,7 +110,7 @@ public class LegacyEntityServiceTest {
         .map(CONVERTER::convertToLegacyDto)
         .findFirst()
         .get();
-    Assertions.assertThat(actualEntity).isEqualTo(expectedEntity);
+    assertEquals(actualEntity,expectedEntity);
   }
 
   @Test
@@ -209,12 +212,12 @@ public class LegacyEntityServiceTest {
       val response = service.find(params,  singleResultProbe, DEFAULT_PAGEABLE);
       for (val node : response.path("content")){
         if (p==0){
-          Assertions.assertThat(node).hasSize(legacyEntityFieldNames.size());
+          assertEquals(node.size(), legacyEntityFieldNames.size());
         } else {
-          Assertions.assertThat(node).hasSize(fieldNames.size());
+          assertEquals(node.size(), fieldNames.size());
         }
         for (val fieldName : fieldNames){
-          assertThat(node.has(fieldName));
+          assertTrue(node.has(fieldName));
         }
       }
     }
@@ -227,7 +230,8 @@ public class LegacyEntityServiceTest {
         .map(x -> convertValue(x, LegacyEntity.class))
         .collect(toImmutableList());
     val expectedDatas = LEGACY_ENTITY_DATA.stream().filter(dbPredicate).collect(toImmutableList());
-    assertThat(expectedDatas).containsExactlyElementsOf(actualDatas);
+    assertTrue(expectedDatas.containsAll(actualDatas));
+    assertTrue(actualDatas.containsAll(expectedDatas));
   }
 
   private MultiValueMap<String, String> createParams(String queryField, String queryValue, String...filteredFields ){
@@ -245,7 +249,7 @@ public class LegacyEntityServiceTest {
 
   private MultiValueMap<String, String> createFilterParams(int permutationNumber){
     int size = legacyEntityFieldNames.size();
-    assertThat(permutationNumber).isLessThan((int)Math.pow(2, size));
+    assertThat(permutationNumber, lessThan((int) pow(2,size)));
     int pos = 0;
     val filteredFields = Lists.<String>newArrayList();
     for (val fieldName : legacyEntityFieldNames){

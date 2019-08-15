@@ -22,7 +22,6 @@ import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,21 +29,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
 import javax.transaction.Transactional;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
 import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @Slf4j
 @SpringBootTest
@@ -64,7 +67,7 @@ public class FileServiceTest {
 
   @Before
   public void beforeTest(){
-    assertThat(studyService.isStudyExist(DEFAULT_STUDY_ID)).isTrue();
+    assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
   }
 
   @Test
@@ -89,7 +92,7 @@ public class FileServiceTest {
         .fileAccess(OPEN.toString())
         .build();
     expected.setInfo("name", "file1");
-    assertThat(file).isEqualToComparingFieldByField(expected);
+    assertEquals(file,expected);
   }
 
   @Test
@@ -114,13 +117,13 @@ public class FileServiceTest {
     val status = fileService.create(analysisId,  studyId, f);
     val id = f.getObjectId();
 
-    Assertions.assertThat(status).isEqualTo(id);
+    assertEquals(status,id);
 
     FileEntity check = fileService.securedRead(studyId, id);
-    assertThat(check).isEqualToComparingFieldByField(f);
+    assertEquals(check,f);
 
     fileService.securedDelete(studyId, id);
-    assertThat(fileService.isFileExist(id)).isFalse();
+    assertFalse(fileService.isFileExist(id));
   }
 
   @Test
@@ -132,14 +135,14 @@ public class FileServiceTest {
     val randomFile = createRandomFile(studyId, analysisId);
     val fileId = fileService.save(analysisId, studyId, randomFile);
     val actualFile = fileService.securedRead(studyId, fileId);
-    assertThat(actualFile).isEqualToComparingFieldByFieldRecursively(randomFile);
+    assertEquals(actualFile,randomFile);
 
     actualFile.setFileSize(1010101L);
-    assertThat(actualFile).isNotEqualTo(randomFile);
+    assertNotEquals(actualFile,randomFile);
 
     val updatedFileId = fileService.save(analysisId, studyId, actualFile);
     val updatedFile = fileService.securedRead(studyId, updatedFileId);
-    assertThat(updatedFile).isEqualToComparingFieldByFieldRecursively(actualFile);
+    assertEquals(updatedFile,actualFile);
   }
 
   @Test
@@ -151,19 +154,19 @@ public class FileServiceTest {
     val randomFile = createRandomFileWithType(studyId, analysisId, "TGZ", ".tgz");
     val fileId = fileService.save(analysisId, studyId, randomFile);
     val actualFile = fileService.securedRead(studyId, fileId);
-    assertThat(actualFile).isEqualToComparingFieldByFieldRecursively(randomFile);
+    assertEquals(actualFile,randomFile);
 
     actualFile.setFileSize(1010101L);
-    assertThat(actualFile).isNotEqualTo(randomFile);
+    assertNotEquals(actualFile,randomFile);
 
     val updatedFileId = fileService.save(analysisId, studyId, actualFile);
     val updatedFile = fileService.securedRead(studyId, updatedFileId);
-    assertThat(updatedFile).isEqualToComparingFieldByFieldRecursively(actualFile);
+    assertEquals(updatedFile, actualFile);
   }
 
   @Test
   public void testCreateFileUnknownType(){
-    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(
+    assertExceptionThrownBy(IllegalStateException.class,
       () -> FileEntity.builder()
         .fileAccess("controlled")
         .fileMd5sum(randomGenerator.generateRandomMD5())
@@ -218,20 +221,20 @@ public class FileServiceTest {
     fileService.unsafeUpdate(s2);
 
     val s3 = fileService.securedRead(study, id2);
-    assertThat(s3).isEqualToComparingFieldByField(s2);
+    assertEquals(s3,s2);
   }
 
   @Test
   public void testFileExists(){
     val existingFileId= DEFAULT_FILE_ID;
-    assertThat(fileService.isFileExist(existingFileId)).isTrue();
+    assertTrue(fileService.isFileExist(existingFileId));
     fileService.checkFileExists(existingFileId);
     val file = new FileEntity();
     file.setObjectId(existingFileId);
     fileService.checkFileExists(file);
 
     val randomFile = createRandomFile(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID);
-    assertThat(fileService.isFileExist(randomFile.getObjectId())).isFalse();
+    assertFalse(fileService.isFileExist(randomFile.getObjectId()));
     SongErrorAssertions
         .assertSongErrorRunnable(() -> fileService.checkFileExists(randomFile.getObjectId()), FILE_NOT_FOUND);
     SongErrorAssertions.assertSongErrorRunnable(() -> fileService.checkFileExists(randomFile), FILE_NOT_FOUND);

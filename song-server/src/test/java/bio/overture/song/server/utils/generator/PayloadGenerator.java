@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 import static lombok.AccessLevel.PRIVATE;
-import static org.assertj.core.api.Assertions.fail;
+import static org.junit.Assert.fail;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;

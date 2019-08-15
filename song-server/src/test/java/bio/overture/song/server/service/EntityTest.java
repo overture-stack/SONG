@@ -37,7 +37,6 @@ import bio.overture.song.server.model.experiment.VariantCall;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
@@ -46,13 +45,18 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.server.model.enums.Constants.LIBRARY_STRATEGY;
 import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
 import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
@@ -170,12 +174,12 @@ public class EntityTest {
 
     // Test getters
 
-    Assertions.assertThat(compositeEntity1.getSampleId()).isEqualTo("mySample1");
-    Assertions.assertThat(compositeEntity1.getSampleType()).isEqualTo(SAMPLE_TYPES.get(1));
-    Assertions.assertThat(compositeEntity1.getSampleSubmitterId()).isEqualTo("mySubmitterSample1");
-    Assertions.assertThat(compositeEntity1.getSpecimenId()).isEqualTo("mySpecimen1");
-    assertThat(compositeEntity1.getSpecimen()).isEqualTo(specimen1);
-    Assertions.assertThat(compositeEntity1.getDonor()).isEqualTo(donor1);
+    assertEquals(compositeEntity1.getSampleId(),"mySample1");
+    assertEquals(compositeEntity1.getSampleType(),SAMPLE_TYPES.get(1));
+    assertEquals(compositeEntity1.getSampleSubmitterId(),"mySubmitterSample1");
+    assertEquals(compositeEntity1.getSpecimenId(),"mySpecimen1");
+    assertEquals(compositeEntity1.getSpecimen(),specimen1);
+    assertEquals(compositeEntity1.getDonor(),donor1);
     assertInfoKVPair(compositeEntity1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -298,12 +302,12 @@ public class EntityTest {
     assertEntitiesNotEqual(d1, d2);
 
     //Test getters
-    Assertions.assertThat(d1.getDonorGender()).isEqualTo(donor1.getDonorGender());
-    Assertions.assertThat(d1.getDonorSubmitterId()).isEqualTo(donor1.getDonorSubmitterId());
-    Assertions.assertThat(d1.getDonorId()).isEqualTo(donor1.getDonorId());
-    Assertions.assertThat(d1.getStudyId()).isEqualTo(donor1.getStudyId());
-    assertThat(d1.getSpecimens()).containsExactlyInAnyOrder(specimenWithSample1, specimenWithSample2);
-    Assertions.assertThat(d1.createDonor()).isNotEqualTo(donor1);
+    assertEquals(d1.getDonorGender(),donor1.getDonorGender());
+    assertEquals(d1.getDonorSubmitterId(),donor1.getDonorSubmitterId());
+    assertEquals(d1.getDonorId(),donor1.getDonorId());
+    assertEquals(d1.getStudyId(),donor1.getStudyId());
+    assertThat(d1.getSpecimens(), containsInAnyOrder(specimenWithSample1, specimenWithSample2));
+    assertNotEquals(d1.createDonor(),donor1);
     assertInfoKVPair(d1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -402,12 +406,12 @@ public class EntityTest {
     assertEntitiesNotEqual(s1,s2);
 
     //Test getters
-    assertThat(s1.getDonorId()).isEqualTo(specimen1.getDonorId());
-    assertThat(s1.getSpecimenClass()).isEqualTo(specimen1.getSpecimenClass());
-    assertThat(s1.getSpecimenSubmitterId()).isEqualTo(specimen1.getSpecimenSubmitterId());
-    assertThat(s1.getSpecimenType()).isEqualTo(specimen1.getSpecimenType());
-    assertThat(s1.getSpecimenId()).isEqualTo(specimen1.getSpecimenId());
-    Assertions.assertThat(s1.getSamples()).containsExactlyInAnyOrder(sample11, sample12);
+    assertEquals(s1.getDonorId(),specimen1.getDonorId());
+    assertEquals(s1.getSpecimenClass(),specimen1.getSpecimenClass());
+    assertEquals(s1.getSpecimenSubmitterId(),specimen1.getSpecimenSubmitterId());
+    assertEquals(s1.getSpecimenType(),specimen1.getSpecimenType());
+    assertEquals(s1.getSpecimenId(),specimen1.getSpecimenId());
+    assertThat(s1.getSamples(), containsInAnyOrder(sample11, sample12));
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
 
     // Test addSample
@@ -427,7 +431,7 @@ public class EntityTest {
     sRight.setSpecimenType(specimen1.getSpecimenType());
     sampleGroup2.forEach(sRight::addSample);
 
-    assertThat(sLeft).isEqualTo(sRight);
+    assertEquals(sLeft,sRight);
   }
 
   @Test
@@ -583,12 +587,12 @@ public class EntityTest {
 
 
     //Test getters
-    Assertions.assertThat(s1.getDescription()).isEqualTo(study1.getDescription());
-    Assertions.assertThat(s1.getName()).isEqualTo(study1.getName());
-    Assertions.assertThat(s1.getOrganization()).isEqualTo(study1.getOrganization());
-    Assertions.assertThat(s1.getStudyId()).isEqualTo(study1.getStudyId());
-    Assertions.assertThat(s1.getStudy()).isNotSameAs(study1);
-    assertThat(s1.getDonors()).containsExactlyInAnyOrder(d1);
+    assertEquals(s1.getDescription(),study1.getDescription());
+    assertEquals(s1.getName(),study1.getName());
+    assertEquals(s1.getOrganization(),study1.getOrganization());
+    assertEquals(s1.getStudyId(),study1.getStudyId());
+    assertNotEquals(s1.getStudy(),study1);
+    assertThat(s1.getDonors(), containsInAnyOrder(d1));
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
 
     // Assert addDonor
@@ -600,7 +604,7 @@ public class EntityTest {
     sRight.setStudy(study1);
     sRight.addDonor(d1);
     sRight.addDonor(d2);
-    assertThat(sLeft).isEqualTo(sRight);
+    assertEquals(sLeft,sRight);
 
   }
 
@@ -647,13 +651,13 @@ public class EntityTest {
     assertEntitiesNotEqual(file1, file1_same);
 
     // Test getters
-    assertThat(file1.getAnalysisId()).isEqualTo("a1");
-    assertThat(file1.getFileAccess()).isEqualTo(CONTROLLED.toString());
-    assertThat(file1.getFileMd5sum()).isEqualTo("b1");
-    assertThat(file1.getFileName()).isEqualTo("c1");
-    assertThat(file1.getFileType()).isEqualTo(FILE_TYPES.get(0));
-    assertThat(file1.getObjectId()).isEqualTo("d1");
-    assertThat(file1.getStudyId()).isEqualTo("e1");
+    assertEquals(file1.getAnalysisId(),"a1");
+    assertEquals(file1.getFileAccess(),CONTROLLED.toString());
+    assertEquals(file1.getFileMd5sum(),"b1");
+    assertEquals(file1.getFileName(),"c1");
+    assertEquals(file1.getFileType(),FILE_TYPES.get(0));
+    assertEquals(file1.getObjectId(),"d1");
+    assertEquals(file1.getStudyId(),"e1");
     assertInfoKVPair(file1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
 
   }
@@ -687,10 +691,10 @@ public class EntityTest {
     assertEntitiesNotEqual(sample1, sample1_same);
 
     // Test getters
-    assertThat(sample1.getSampleId()).isEqualTo("a1");
-    assertThat(sample1.getSampleSubmitterId()).isEqualTo("b1");
-    assertThat(sample1.getSampleType()).isEqualTo(SAMPLE_TYPES.get(0));
-    assertThat(sample1.getSpecimenId()).isEqualTo("c1");
+    assertEquals(sample1.getSampleId(),"a1");
+    assertEquals(sample1.getSampleSubmitterId(),"b1");
+    assertEquals(sample1.getSampleType(),SAMPLE_TYPES.get(0));
+    assertEquals(sample1.getSpecimenId(),"c1");
     assertInfoKVPair(sample1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -710,13 +714,12 @@ public class EntityTest {
     assertEntitiesNotEqual(metadata1, metadata2);
 
     metadata2.addInfo(metadata1.getInfoAsString());
-    assertThat(metadata2.getInfo().has("key1")).isTrue();
-    assertThat(metadata2.getInfo().path("key1").textValue())
-        .isEqualTo("f5c9381090a53c54358feb2ba5b7a3d7");
+    assertTrue(metadata2.getInfo().has("key1"));
+    assertEquals(metadata2.getInfo().path("key1").textValue(),"f5c9381090a53c54358feb2ba5b7a3d7");
 
     metadata2.setInfo("something that is not json");
-    assertThat(metadata2.getInfo().has("info")).isTrue();
-    assertThat(metadata2.getInfo().path("info").textValue()).isEqualTo("something that is not json");
+    assertTrue(metadata2.getInfo().has("info"));
+    assertEquals(metadata2.getInfo().path("info").textValue(),"something that is not json");
   }
 
   @Test
@@ -757,22 +760,22 @@ public class EntityTest {
     assertEntitiesNotEqual(u1,u2);
 
     //Test getters
-    assertThat(u1.getAnalysisId()).isEqualTo("an1");
-    assertThat(u1.getCreatedAt()).isEqualTo(LocalDateTime.MAX);
-    assertThat(u1.getErrors()).isEqualTo(newArrayList("error1"));
-    assertThat(u1.getPayload()).isEqualTo("payload1");
-    assertThat(u1.getState()).isEqualTo(UploadStates.CREATED.getText());
-    assertThat(u1.getStudyId()).isEqualTo(DEFAULT_STUDY_ID);
-    assertThat(u1.getUpdatedAt()).isEqualTo(LocalDateTime.MIN);
-    assertThat(u1.getUploadId()).isEqualTo("uploadId1");
+    assertEquals(u1.getAnalysisId(),"an1");
+    assertEquals(u1.getCreatedAt(),LocalDateTime.MAX);
+    assertEquals(u1.getErrors(),newArrayList("error1"));
+    assertEquals(u1.getPayload(),"payload1");
+    assertEquals(u1.getState(),UploadStates.CREATED.getText());
+    assertEquals(u1.getStudyId(),DEFAULT_STUDY_ID);
+    assertEquals(u1.getUpdatedAt(),LocalDateTime.MIN);
+    assertEquals(u1.getUploadId(),"uploadId1");
 
     u1.setErrors("error1|error2|error3");
-    assertThat(u1.getErrors()).containsExactlyInAnyOrder("error1", "error2", "error3");
-    assertThat(u1.getErrors()).hasSize(3);
+    assertThat(u1.getErrors(), containsInAnyOrder("error1", "error2", "error3"));
+    assertEquals(u1.getErrors().size(),3);
 
     u1.addErrors(newArrayList("error4", "error5"));
-    assertThat(u1.getErrors()).containsExactlyInAnyOrder("error1", "error2", "error3", "error4", "error5");
-    assertThat(u1.getErrors()).hasSize(5);
+    assertThat(u1.getErrors(), containsInAnyOrder("error1", "error2", "error3", "error4", "error5"));
+    assertEquals(u1.getErrors().size(),5);
   }
 
   @Test
@@ -805,11 +808,11 @@ public class EntityTest {
     assertEntitiesNotEqual(e1, e2);
 
     // Test getters
-    assertThat(e1.getAccess()).isEqualTo("open");
-    assertThat(e1.getFileName()).isEqualTo("f1");
-    assertThat(e1.getGnosId()).isEqualTo("g1");
-    assertThat(e1.getId()).isEqualTo("i1");
-    assertThat(e1.getProjectCode()).isEqualTo("p1");
+    assertEquals(e1.getAccess(),"open");
+    assertEquals(e1.getFileName(),"f1");
+    assertEquals(e1.getGnosId(),"g1");
+    assertEquals(e1.getId(),"i1");
+    assertEquals(e1.getProjectCode(),"p1");
   }
 
   @Test
@@ -1487,13 +1490,13 @@ public class EntityTest {
     assertEntitiesNotEqual(s1,s1_same);
 
     // Test getters
-    assertThat(s1.getAligned()).isTrue();
-    assertThat(s1.getAlignmentTool()).isEqualTo("b1");
-    assertThat(s1.getAnalysisId()).isEqualTo("a1");
-    assertThat(s1.getInsertSize()).isEqualTo(99999L);
-    assertThat(s1.getLibraryStrategy()).isEqualTo(LIBRARY_STRATEGIES.get(0));
-    assertThat(s1.getPairedEnd()).isFalse();
-    assertThat(s1.getReferenceGenome()).isEqualTo("c1");
+    assertTrue(s1.getAligned());
+    assertEquals(s1.getAlignmentTool(),"b1");
+    assertEquals(s1.getAnalysisId(),"a1");
+    assertEquals(s1.getInsertSize().longValue(), 99999L);
+    assertEquals(s1.getLibraryStrategy(),LIBRARY_STRATEGIES.get(0));
+    assertFalse(s1.getPairedEnd());
+    assertEquals(s1.getReferenceGenome(),"c1");
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -1524,9 +1527,9 @@ public class EntityTest {
     assertEntitiesNotEqual(v1,v1_same);
 
     /// Test getters
-    assertThat(v1.getAnalysisId()).isEqualTo("a1");
-    assertThat(v1.getMatchedNormalSampleSubmitterId()).isEqualTo("b1");
-    assertThat(v1.getVariantCallingTool()).isEqualTo("c1");
+    assertEquals(v1.getAnalysisId(),"a1");
+    assertEquals(v1.getMatchedNormalSampleSubmitterId(),"b1");
+    assertEquals(v1.getVariantCallingTool(),"c1");
     assertInfoKVPair(v1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -1559,10 +1562,10 @@ public class EntityTest {
     assertEntitiesNotEqual(donor1, donor1_same);
 
     // Test getters
-    assertThat(donor1.getStudyId()).isEqualTo("study1");
-    assertThat(donor1.getDonorGender()).isEqualTo("male");
-    assertThat(donor1.getDonorSubmitterId()).isEqualTo("myDonorSubmitter1");
-    assertThat(donor1.getDonorId()).isEqualTo("myDonor1");
+    assertEquals(donor1.getStudyId(),"study1");
+    assertEquals(donor1.getDonorGender(),"male");
+    assertEquals(donor1.getDonorSubmitterId(),"myDonorSubmitter1");
+    assertEquals(donor1.getDonorId(),"myDonor1");
     assertInfoKVPair(donor1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -1596,10 +1599,10 @@ public class EntityTest {
     assertEntitiesNotEqual(study1, study1_same);
 
     // Test getters
-    assertThat(study1.getDescription()).isEqualTo("a");
-    assertThat(study1.getName()).isEqualTo("b");
-    assertThat(study1.getOrganization()).isEqualTo("c");
-    assertThat(study1.getStudyId()).isEqualTo("d");
+    assertEquals(study1.getDescription(),"a");
+    assertEquals(study1.getName(),"b");
+    assertEquals(study1.getOrganization(),"c");
+    assertEquals(study1.getStudyId(),"d");
     assertInfoKVPair(study1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
@@ -1636,37 +1639,36 @@ public class EntityTest {
     assertEntitiesNotEqual(s1, s1_same);
 
     // Test getters
-    assertThat(s1.getSpecimenType()).isEqualTo(SPECIMEN_TYPES.get(0));
-    assertThat(s1.getSpecimenClass()).isEqualTo(SPECIMEN_CLASSES.get(0));
-    assertThat(s1.getSpecimenSubmitterId()).isEqualTo("c1");
-    assertThat(s1.getSpecimenId()).isEqualTo("b1");
-    assertThat(s1.getDonorId()).isEqualTo("a1");
+    assertEquals(s1.getSpecimenType(),SPECIMEN_TYPES.get(0));
+    assertEquals(s1.getSpecimenClass(),SPECIMEN_CLASSES.get(0));
+    assertEquals(s1.getSpecimenSubmitterId(),"c1");
+    assertEquals(s1.getSpecimenId(),"b1");
+    assertEquals(s1.getDonorId(),"a1");
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
   @Test
   public void testAnalysisStates(){
-    assertThat(resolveAnalysisState("PUBLISHED")).isEqualByComparingTo(PUBLISHED);
-    assertThat(resolveAnalysisState("UNPUBLISHED")).isEqualByComparingTo(UNPUBLISHED);
-    assertThat(resolveAnalysisState("SUPPRESSED")).isEqualByComparingTo(SUPPRESSED);
+    assertEquals(resolveAnalysisState("PUBLISHED"), PUBLISHED);
+    assertEquals(resolveAnalysisState("UNPUBLISHED"), UNPUBLISHED);
+    assertEquals(resolveAnalysisState("SUPPRESSED"), SUPPRESSED);
     val erroredStates = newArrayList("published", "unpublished", "suppressed", "anything");
     for (val state : erroredStates){
-      val thrown = catchThrowable(() -> resolveAnalysisState(state));
-      assertThat(thrown).isInstanceOf(IllegalStateException.class);
+      assertExceptionThrownBy(IllegalStateException.class, () -> resolveAnalysisState(state));
     }
   }
 
   private static void assertEntitiesEqual(Object actual, Object expected, boolean checkFieldByField){
     if (checkFieldByField){
-      assertThat(actual).isEqualToComparingFieldByField(expected);
+      assertEquals(actual,expected);
     }
-    assertThat(actual).isEqualTo(expected);
-    assertThat(actual.hashCode()).isEqualTo(expected.hashCode());
+    assertEquals(actual,expected);
+    assertEquals(actual.hashCode(),expected.hashCode());
   }
 
   private static void assertEntitiesNotEqual(Object actual, Object expected){
-    assertThat(actual).isNotEqualTo(expected);
-    assertThat(actual.hashCode()).isNotEqualTo(expected.hashCode());
+    assertNotEquals(actual,expected);
+    assertNotEquals(actual.hashCode(),expected.hashCode());
   }
 
 }

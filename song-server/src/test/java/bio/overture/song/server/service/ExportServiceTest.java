@@ -41,7 +41,6 @@ import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,8 +49,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import javax.transaction.Transactional;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -63,8 +62,10 @@ import static java.util.stream.IntStream.range;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -74,7 +75,6 @@ import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static bio.overture.song.server.model.enums.UploadStates.resolveState;
 import static bio.overture.song.server.utils.TestFiles.DEFAULT_EMPTY_VALUE;
-import static bio.overture.song.server.utils.TestFiles.assertSetsMatch;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
@@ -172,10 +172,10 @@ public class ExportServiceTest {
     val exportedPayloadsForStudies = exportService.exportPayload(newArrayList(analysisId), false);
 
     // Verify the input (expected) payload matches the output (actual) payload
-    assertThat(exportedPayloadsForStudies).hasSize(1);
+    assertEquals(exportedPayloadsForStudies.size(),1);
     val exportedPayloadForStudy = exportedPayloadsForStudies.get(0);
-    assertThat(exportedPayloadForStudy.getStudyId()).isEqualTo(studyId);
-    assertThat(exportedPayloadForStudy.getPayloads()).hasSize(1);
+    assertEquals(exportedPayloadForStudy.getStudyId(),studyId);
+    assertEquals(exportedPayloadForStudy.getPayloads().size(),1);
     val actualPayloadNode = exportedPayloadForStudy.getPayloads().get(0);
     assertJsonEquals(expectedPayloadNode, actualPayloadNode, when(IGNORING_ARRAY_ORDER));
   }
@@ -190,14 +190,14 @@ public class ExportServiceTest {
     massageAnalysisInplace(expectedAnalysis, includeAnalysisId, DEFAULT_INCLUDE_OTHER_IDS);
 
     val exportedPayloads = exportService.exportPayload(newArrayList(analysisId), includeAnalysisId);
-    assertThat(exportedPayloads).hasSize(1);
+    assertEquals(exportedPayloads.size(),1);
     val exportedPayload = exportedPayloads.get(0);
-    assertThat(exportedPayload.getStudyId()).isEqualTo(studyId);
+    assertEquals(exportedPayload.getStudyId(),studyId);
 
     val analyses = exportedPayload.getPayloads().stream()
         .map(x -> fromJson(x, AbstractAnalysis.class))
         .collect(toImmutableList());
-    assertThat(analyses).hasSize(1);
+    assertEquals(analyses.size(),1);
     val actualAnalysis = analyses.get(0);
     assertAnalysis(actualAnalysis, expectedAnalysis);
   }
@@ -219,7 +219,7 @@ public class ExportServiceTest {
         .map(s -> exportService.exportPayloadsForStudy(s, includeAnalysisId))
         .flatMap(Collection::stream)
         .collect(toImmutableList());
-    assertThat(actualStudyModeExportedPayloads).hasSize(numStudies);
+    assertEquals(actualStudyModeExportedPayloads.size(),numStudies);
     val actualStudyModeData = Maps.<String, List<? extends AbstractAnalysis>>newHashMap();
     for (val exportedPayload : actualStudyModeExportedPayloads){
       val studyId = exportedPayload.getStudyId();
@@ -237,7 +237,7 @@ public class ExportServiceTest {
             .collect(toImmutableList());
     val actualAnalysisModeExportedPayloads =
         exportService.exportPayload(expectedAnalysisIds, includeAnalysisId);
-    assertThat(actualAnalysisModeExportedPayloads).hasSize(numStudies);
+    assertEquals(actualAnalysisModeExportedPayloads.size(),numStudies);
     val actualAnalysisModeData = Maps.<String, List<? extends AbstractAnalysis>>newHashMap();
     for (val exportedPayload : actualAnalysisModeExportedPayloads){
       val studyId = exportedPayload.getStudyId();
@@ -309,25 +309,25 @@ public class ExportServiceTest {
           AbstractAnalysis randomAnalysis = analyses.get(randomAnalysisPos);
           reducedData.put(studyId, randomAnalysis);
         });
-    assertThat(reducedData.keySet()).hasSize(numStudies);
-    assertThat(reducedData.values()).hasSize(numStudies);
+    assertEquals(reducedData.keySet().size(),numStudies);
+    assertEquals(reducedData.values().size(),numStudies);
 
     // Create a list of analysisIds that covers all the previously generated studies
     val requestedAnalysisIds = reducedData.values().stream()
         .map(AbstractAnalysis::getAnalysisId)
         .collect(toImmutableList());
-    assertThat(requestedAnalysisIds).hasSize(numStudies);
+    assertEquals(requestedAnalysisIds.size(),numStudies);
 
     // Export the analysis for the requested analysisIds
     val exportedPayloads =  exportService.exportPayload(requestedAnalysisIds, includeAnalysisId);
 
     // There should be an ExportedPayload object for each study
-    assertThat(exportedPayloads).hasSize(numStudies);
+    assertEquals(exportedPayloads.size(),numStudies);
 
     for (val exportedPayload : exportedPayloads){
       // There should be only 1 analysis for each study. Refer to the comment with REDUCTION_TAG.
       val studyId = exportedPayload.getStudyId();
-      assertThat(exportedPayload.getPayloads()).hasSize(1);
+      assertEquals(exportedPayload.getPayloads().size(),1);
       val payload = exportedPayload.getPayloads().get(0);
       val expectedAnalysis = reducedData.get(studyId);
 
@@ -351,18 +351,18 @@ public class ExportServiceTest {
     val payload = toJson(payloadJson);
     val uploadStatus = uploadService.upload(studyId, payload, false);
     val status1 = fromStatus(uploadStatus, STATUS);
-    assertThat(status1).isEqualTo(OK);
+    assertEquals(status1,OK);
     val uploadId = fromStatus(uploadStatus, UPLOAD_ID);
 
     // Check Status and check if validated
     val statusResponse = uploadService.securedRead(studyId,uploadId);
     val uploadState = resolveState(statusResponse.getState());
-    assertThat(uploadState).isEqualTo(UploadStates.VALIDATED);
+    assertEquals(uploadState,UploadStates.VALIDATED);
 
     // Save and check if successful
     val analysisResponse = uploadService.save(studyId, uploadId, true);
     val status2 = fromStatus(analysisResponse, STATUS);
-    assertThat(status2).isEqualTo(OK);
+    assertEquals(status2,OK);
     val analysisId = fromStatus(analysisResponse, ANALYSIS_ID);
 
     return analysisClass.cast(analysisService.securedDeepRead(studyId, analysisId));
@@ -400,22 +400,22 @@ public class ExportServiceTest {
   }
 
   private static void assertAnalysis(AbstractAnalysis actualAnalysis, AbstractAnalysis expectedAnalysis){
-    assertThat(actualAnalysis.getAnalysisType()).isEqualTo(expectedAnalysis.getAnalysisType());
+    assertEquals(actualAnalysis.getAnalysisType(),expectedAnalysis.getAnalysisType());
 
-    assertThat(actualAnalysis.getAnalysisState()).isEqualTo(expectedAnalysis.getAnalysisState());
-    assertThat(actualAnalysis.getInfo()).isEqualTo(expectedAnalysis.getInfo());
+    assertEquals(actualAnalysis.getAnalysisState(),expectedAnalysis.getAnalysisState());
+    assertEquals(actualAnalysis.getInfo(),expectedAnalysis.getInfo());
 
-    assertThat(actualAnalysis.getAnalysisId()).isEqualTo(expectedAnalysis.getAnalysisId());
+    assertEquals(actualAnalysis.getAnalysisId(),expectedAnalysis.getAnalysisId());
 
     // All of the actuals will have objectIds, sampleIds, specimenIds, donorIds, and analysisIds, however
     assertExperiment(actualAnalysis, expectedAnalysis);
-    Assertions.assertThat(actualAnalysis.getFile()).containsAll(expectedAnalysis.getFile());
-    Assertions.assertThat(actualAnalysis.getSample()).containsAll(expectedAnalysis.getSample());
-    assertThat(actualAnalysis.getStudy()).isEqualTo(expectedAnalysis.getStudy());
+    assertTrue(actualAnalysis.getFile().containsAll(expectedAnalysis.getFile()));
+    assertTrue(actualAnalysis.getSample().containsAll(expectedAnalysis.getSample()));
+    assertEquals(actualAnalysis.getStudy(),expectedAnalysis.getStudy());
 
     val actualFileObjectIds = collectObjectIds(actualAnalysis.getFile());
     val expectedFileObjectIds = collectObjectIds(expectedAnalysis.getFile());
-    assertSetsMatch(actualFileObjectIds, expectedFileObjectIds);
+    assertCollectionsMatchExactly(actualFileObjectIds, expectedFileObjectIds);
 
     assertSubmitterIds(actualAnalysis, expectedAnalysis);
   }
@@ -433,27 +433,27 @@ public class ExportServiceTest {
   private static void assertSequencingReadExperiment(AbstractAnalysis a, AbstractAnalysis e){
     val actual = SequencingReadAnalysis.class.cast(a);
     val expected = SequencingReadAnalysis.class.cast(e);
-    Assertions.assertThat(actual.getExperiment()).isEqualToComparingFieldByField(expected.getExperiment());
+    assertEquals(actual.getExperiment(),expected.getExperiment());
   }
 
   private static void assertVariantCallExperiment(AbstractAnalysis a, AbstractAnalysis e){
     val actual = VariantCallAnalysis.class.cast(a);
     val expected = VariantCallAnalysis.class.cast(e);
-    assertThat(actual.getExperiment()).isEqualToComparingFieldByField(expected.getExperiment());
+    assertEquals(actual.getExperiment(),expected.getExperiment());
   }
 
   private static void assertSubmitterIds(AbstractAnalysis actualAnalysis, AbstractAnalysis expectedAnalysis){
     val actualSampleIds = collectSampleSubmitterIds(actualAnalysis.getSample());
     val expectedSampleIds = collectSampleSubmitterIds(expectedAnalysis.getSample());
-    assertSetsMatch(actualSampleIds, expectedSampleIds);
+    assertCollectionsMatchExactly(actualSampleIds, expectedSampleIds);
 
     val actualSpecimenIds = collectSpecimenSubmitterIds(actualAnalysis.getSample());
     val expectedSpecimenIds = collectSpecimenSubmitterIds(expectedAnalysis.getSample());
-    assertSetsMatch(actualSpecimenIds, expectedSpecimenIds);
+    assertCollectionsMatchExactly(actualSpecimenIds, expectedSpecimenIds);
 
     val actualDonorIds = collectDonorSubmitterIds(actualAnalysis.getSample());
     val expectedDonorIds = collectDonorSubmitterIds(expectedAnalysis.getSample());
-    assertSetsMatch(actualDonorIds, expectedDonorIds);
+    assertCollectionsMatchExactly(actualDonorIds, expectedDonorIds);
   }
 
   private static Set<String> collectObjectIds(List<FileEntity> files){
@@ -519,17 +519,17 @@ public class ExportServiceTest {
   }
 
   private static void assertCorrectConfig(int numStudies, int numAnalysesPerStudy){
-    assertThat(numStudies).isLessThan(numAnalysesPerStudy);
-    assertThat(numStudies).isGreaterThan(0);
+    assertTrue(numStudies < numAnalysesPerStudy);
+    assertTrue(numStudies > 0);
   }
 
   private static void assertMatchingData(Map<String, List<? extends AbstractAnalysis>> actualData, Map<String, List<? extends AbstractAnalysis>> expectedData){
-    assertSetsMatch(expectedData.keySet(), actualData.keySet());
+    assertCollectionsMatchExactly(expectedData.keySet(), actualData.keySet());
     for (val studyId : expectedData.keySet()){
       val expectedAnalyses = expectedData.get(studyId);
       val actualAnalysisMap = groupUnique(actualData.get(studyId), AbstractAnalysis::getAnalysisId); //Assumed that all analyses in the list are unique
       for (val expectedAnalysis : expectedAnalyses){
-        assertThat(actualAnalysisMap).containsKey(expectedAnalysis.getAnalysisId());
+        assertTrue(actualAnalysisMap.containsKey(expectedAnalysis.getAnalysisId()));
         val actualAnalysis = actualAnalysisMap.get(expectedAnalysis.getAnalysisId());
         assertAnalysis(actualAnalysis, expectedAnalysis);
       }

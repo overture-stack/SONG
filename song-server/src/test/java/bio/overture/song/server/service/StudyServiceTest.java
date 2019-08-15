@@ -21,7 +21,6 @@ import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Study;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -51,12 +55,12 @@ public class StudyServiceTest {
   public void testReadStudy() {
     // check for data that we know exists in the database already
     val study = service.read(DEFAULT_STUDY_ID);
-    Assertions.assertThat(study).isNotNull();
-    assertThat(study.getStudyId()).isEqualTo("ABC123");
-    assertThat(study.getName()).isEqualTo("X1-CA");
-    assertThat(study.getDescription()).isEqualTo("A fictional study");
-    assertThat(study.getOrganization()).isEqualTo("Sample Data Research Institute");
-    assertThat(getInfoName(study)).isEqualTo("study1");
+    assertNotNull(study);
+    assertEquals(study.getStudyId(),"ABC123");
+    assertEquals(study.getName(),"X1-CA");
+    assertEquals(study.getDescription(),"A fictional study");
+    assertEquals(study.getOrganization(),"Sample Data Research Institute");
+    assertEquals(getInfoName(study),"study1");
   }
 
   @Test
@@ -71,16 +75,16 @@ public class StudyServiceTest {
         .description(description)
         .organization(organization)
         .build();
-    assertThat(service.isStudyExist(studyId)).isFalse();
+    assertFalse(service.isStudyExist(studyId));
     service.saveStudy(study);
     val readStudy = service.read(studyId);
-    Assertions.assertThat(readStudy).isEqualToComparingFieldByFieldRecursively(study);
+    assertEquals(readStudy, study);
   }
 
   @Test
   public void testFindAllStudies(){
     val studyIds = service.findAllStudies();
-    Assertions.assertThat(studyIds).contains(DEFAULT_STUDY_ID, "XYZ234");
+    assertThat(studyIds, hasItems(DEFAULT_STUDY_ID, "XYZ234"));
     val study = Study.builder()
         .studyId(randomGenerator.generateRandomUUIDAsString())
         .name( randomGenerator.generateRandomUUIDAsString())
@@ -90,13 +94,13 @@ public class StudyServiceTest {
 
     service.saveStudy(study);
     val studyIds2 = service.findAllStudies();
-    Assertions.assertThat(studyIds2).contains(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId());
+    assertThat(studyIds2, hasItems(DEFAULT_STUDY_ID, "XYZ234", study.getStudyId()));
   }
 
   @Test
   public void testDuplicateSaveStudyError(){
     val existentStudyId = DEFAULT_STUDY_ID;
-    assertThat(service.isStudyExist(existentStudyId)).isTrue();
+    assertTrue(service.isStudyExist(existentStudyId));
     val study = service.read(existentStudyId);
     SongErrorAssertions.assertSongError(() -> service.saveStudy(study), STUDY_ALREADY_EXISTS);
   }
@@ -110,9 +114,9 @@ public class StudyServiceTest {
   @Test
   public void testStudyCheck(){
     val existentStudyId = DEFAULT_STUDY_ID;
-    assertThat(service.isStudyExist(existentStudyId)).isTrue();
+    assertTrue(service.isStudyExist(existentStudyId));
     val nonExistentStudyId = genStudyId();
-    assertThat(service.isStudyExist(nonExistentStudyId)).isFalse();
+    assertFalse(service.isStudyExist(nonExistentStudyId));
   }
 
   private String genStudyId(){

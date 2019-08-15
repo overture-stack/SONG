@@ -25,9 +25,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @Slf4j
 public class SpringAppTest extends AbstractClientMainTest{
@@ -43,7 +44,7 @@ public class SpringAppTest extends AbstractClientMainTest{
   @Ignore
   public void testUpload(){
     val jsonPath = Paths.get("../src/test/resources/fixtures/sequencingRead.json");
-    assertThat(jsonPath).exists();
+    assertTrue(Files.exists(jsonPath));
     executeMain("upload", "-f", jsonPath.toString());
     log.info("sdf");
   }

@@ -31,8 +31,11 @@ import org.junit.Test;
 
 import java.util.function.Function;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 
@@ -48,15 +51,15 @@ public class ConverterTest {
 
   @BeforeClass
   public static void beforeClass(){
-    assertThat(UNIQUE_MD5_1).isNotEqualTo(UNIQUE_MD5_2);
+    assertNotEquals(UNIQUE_MD5_1,UNIQUE_MD5_2);
   }
 
   @Test
   public void testFileCopy(){
     val referenceFile = buildReferenceFile();
     val copiedFile = fileConverter.copyFile(referenceFile);
-    assertThat(copiedFile == referenceFile).isFalse();
-    assertThat(copiedFile).isEqualTo(referenceFile);
+    assertFalse(copiedFile == referenceFile);
+    assertEquals(copiedFile,referenceFile);
   }
 
   @Test
@@ -68,7 +71,7 @@ public class ConverterTest {
         referenceFile.getFileAccess(),
         referenceFile.getInfo());
     val outputFileUpdateRequest = fileConverter.fileEntityToFileUpdateRequest(referenceFile);
-    assertThat(outputFileUpdateRequest).isEqualTo(referenceUpdateRequest);
+    assertEquals(outputFileUpdateRequest,referenceUpdateRequest);
   }
 
   @Test
@@ -79,7 +82,7 @@ public class ConverterTest {
       val updatedFile = fileConverter.copyFile(referenceFile);
       fileConverter.updateEntityFromData(fileUpdateRequest, updatedFile);
       if (i == 0) {
-        assertThat(updatedFile).isEqualTo(referenceFile);
+        assertEquals(updatedFile,referenceFile);
       } else {
         assertConfigEqual(i, 0, FileData::getFileAccess, updatedFile, referenceFile);
         assertConfigEqual(i, 1, FileData::getFileMd5sum, updatedFile, referenceFile);
@@ -105,20 +108,28 @@ public class ConverterTest {
         .build();
 
     val legacyDto = legacyEntityConverter.convertToLegacyDto(legacyEntity);
-    assertThat(legacyDto).isEqualToComparingFieldByField(legacyEntity);
-    assertThat(isObjectsEqual(legacyDto, legacyEntity)).isFalse();
+    assertFalse(isObjectsEqual(legacyDto, legacyEntity));
+    assertEquals(legacyEntity.getAccess(), legacyDto.getAccess());
+    assertEquals(legacyEntity.getFileName(), legacyDto.getFileName());
+    assertEquals(legacyEntity.getGnosId(), legacyDto.getGnosId());
+    assertEquals(legacyEntity.getId(), legacyDto.getId());
+    assertEquals(legacyEntity.getProjectCode(), legacyDto.getProjectCode());
 
     val legacyEntityCopy = legacyEntityConverter.convertToLegacyEntity(legacyEntity);
-    assertThat(legacyEntityCopy).isEqualToComparingFieldByField(legacyEntity);
-    assertThat(isObjectsEqual(legacyEntityCopy, legacyEntity)).isFalse();
+    assertEquals(legacyEntityCopy,legacyEntity);
+    assertFalse(isObjectsEqual(legacyEntityCopy, legacyEntity));
 
     val legacyEntityCopy2 = legacyEntityConverter.convertToLegacyEntity(legacyDto);
-    assertThat(legacyEntityCopy2).isEqualToComparingFieldByField(legacyDto);
-    assertThat(isObjectsEqual(legacyEntityCopy2, legacyDto)).isFalse();
+    assertFalse(isObjectsEqual(legacyEntityCopy2, legacyDto));
+    assertEquals(legacyEntityCopy2.getAccess(), legacyDto.getAccess());
+    assertEquals(legacyEntityCopy2.getFileName(), legacyDto.getFileName());
+    assertEquals(legacyEntityCopy2.getGnosId(), legacyDto.getGnosId());
+    assertEquals(legacyEntityCopy2.getId(), legacyDto.getId());
+    assertEquals(legacyEntityCopy2.getProjectCode(), legacyDto.getProjectCode());
 
     val legacyDtoCopy = legacyEntityConverter.convertToLegacyDto(legacyDto);
-    assertThat(legacyDtoCopy).isEqualToComparingFieldByField(legacyDto);
-    assertThat(isObjectsEqual(legacyDtoCopy, legacyDto)).isFalse();
+    assertEquals(legacyDtoCopy,legacyDto);
+    assertFalse(isObjectsEqual(legacyDtoCopy, legacyDto));
   }
 
   private static FileEntity buildReferenceFile(){
@@ -137,15 +148,15 @@ public class ConverterTest {
   }
 
   private static <T> void assertIsEqual(Function<T, ?> getterCallback, T left, T right ){
-    assertThat(getterCallback.apply(left)).isEqualTo(getterCallback.apply(right));
+    assertEquals(getterCallback.apply(left),getterCallback.apply(right));
   }
 
   private static void assertConfigEqual(int id, int parameterNumFrom0, Function<FileData, ?> getterCallback,
       FileEntity updatedFile, FileEntity referenceFile){
     if (isConfigEnabled(id, parameterNumFrom0)){
-      assertThat(getterCallback.apply(updatedFile)).isNotEqualTo(getterCallback.apply(referenceFile));
+      assertNotEquals(getterCallback.apply(updatedFile),getterCallback.apply(referenceFile));
     } else {
-      assertThat(getterCallback.apply(updatedFile)).isEqualTo(getterCallback.apply(referenceFile));
+      assertEquals(getterCallback.apply(updatedFile),getterCallback.apply(referenceFile));
     }
   }
 
@@ -158,7 +169,7 @@ public class ConverterTest {
   }
 
   private static FileUpdateRequest generateFileUpdateRequest(int id){
-    assertThat(id).isLessThan(getNumberOfPermutations());
+    assertTrue(id < getNumberOfPermutations());
     val builder  =FileUpdateRequest.builder();
     if (isConfigEnabled(id, 0)){
       builder.fileAccess("controlled");

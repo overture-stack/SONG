@@ -48,9 +48,10 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
@@ -107,7 +108,7 @@ public class PublishAnalysisTest {
   public void beforeTest(){
     this.randomGenerator = createRandomGenerator(PublishAnalysisTest.class.getSimpleName());
     val newStudyId = createStudyGenerator(studyService, randomGenerator).createRandomStudy();
-    assertThat(studyService.isStudyExist(newStudyId)).isTrue();
+    assertTrue(studyService.isStudyExist(newStudyId));
     val analysisGenerator = createAnalysisGenerator(newStudyId, service, randomGenerator);
 
     this.testAnalysis = analysisGenerator.createDefaultRandomAnalysis(randomGenerator.randomEnum(AnalysisTypes.class));
@@ -121,8 +122,8 @@ public class PublishAnalysisTest {
             .collect(toList()));
 
     this.testFiles = generateFiles(MAX_FILES, testAnalysis );
-    assertThat(testFiles).hasSize(MAX_FILES);
-    assertThat(MIN_SIZE).isLessThan(MAX_FILES);
+    assertEquals(testFiles.size(), MAX_FILES);
+    assertTrue(MIN_SIZE < MAX_FILES);
 
   }
 
@@ -244,15 +245,15 @@ public class PublishAnalysisTest {
    */
   private void assertPublish(Boolean ... ignoreUndefinedMd5Options){
     val options = newHashSet(ignoreUndefinedMd5Options);
-    assertThat(options.size()).isGreaterThan(0);
+    assertTrue(options.size() > 0);
     for(val ignoreUndefinedMd5: options){
       //change state to unpublished
       service.securedUpdateState(testStudyId, testAnalysisId, UNPUBLISHED);
 
       // Test publish changes to published state
-      assertThat(service.readState(testAnalysisId)).isEqualTo(UNPUBLISHED);
+      assertEquals(service.readState(testAnalysisId),UNPUBLISHED);
       service.publish(testStudyId, testAnalysisId, ignoreUndefinedMd5 );
-      assertThat(service.readState(testAnalysisId)).isEqualTo(PUBLISHED);
+      assertEquals(service.readState(testAnalysisId),PUBLISHED);
     }
   }
 
@@ -265,15 +266,15 @@ public class PublishAnalysisTest {
    * {@link ServerErrors} is thrown, for each of the ignoreUndefinedMd5 arguments
    */
   private void assertPublishError(ServerError expectedServerError, Boolean ... ignoreUndefinedMd5Options){
-    assertThat(service.readState(testAnalysisId)).isEqualTo(UNPUBLISHED);
+    assertEquals(service.readState(testAnalysisId),UNPUBLISHED);
     val options = newHashSet(ignoreUndefinedMd5Options);
-    assertThat(options.size()).isGreaterThan(0);
+    assertTrue(options.size() > 0);
     for(val ignoreUndefinedMd5 : options){
       SongErrorAssertions
           .assertSongError(() -> service.publish(testStudyId, testAnalysisId, ignoreUndefinedMd5 ),
           expectedServerError);
     }
-    assertThat(service.readState(testAnalysisId)).isEqualTo(UNPUBLISHED);
+    assertEquals(service.readState(testAnalysisId),UNPUBLISHED);
   }
 
   enum RangeType{
@@ -422,7 +423,7 @@ public class PublishAnalysisTest {
     }
 
     private List<FileEntity> getSome(List<FileEntity> input){
-      assertThat(input.size()).isGreaterThanOrEqualTo(2);
+      assertTrue(input.size() >= 2);
       val size = input.size()/2;
       return randomGenerator.randomSublist(input, size);
     }

@@ -28,10 +28,10 @@ import lombok.val;
 
 import java.util.function.BiConsumer;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Getter
@@ -55,7 +55,7 @@ public abstract class AbstractSecureTester<C> {
 
 
     val nonExistingId = randomGenerator.generateRandomUUIDAsString();
-    assertThat(isIdExist(nonExistingId)).isFalse();
+    assertFalse(isIdExist(nonExistingId));
 
     val existingId = createId(existingStudyId, context);
 
@@ -88,11 +88,11 @@ public abstract class AbstractSecureTester<C> {
   public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer, SecureTestData data){
 
     // Check data is correct
-    assertThat(isIdExist(data.getExistingId())).isTrue();
-    assertThat(isIdExist(data.getNonExistingId())).isFalse();
-    assertThat(studyService.isStudyExist(data.getExistingStudyId())).isTrue();
-    assertThat(studyService.isStudyExist(data.getUnrelatedExistingStudyId())).isTrue();
-    assertThat(studyService.isStudyExist(data.getNonExistingStudyId())).isFalse();
+    assertTrue(isIdExist(data.getExistingId()));
+    assertFalse(isIdExist(data.getNonExistingId()));
+    assertTrue(studyService.isStudyExist(data.getExistingStudyId()));
+    assertTrue(studyService.isStudyExist(data.getUnrelatedExistingStudyId()));
+    assertFalse(studyService.isStudyExist(data.getNonExistingStudyId()));
 
     // Test if study exists and id DNE
     SongErrorAssertions.assertSongErrorRunnable( () -> biConsumer.accept(data.getExistingStudyId(), data.getNonExistingId()),
