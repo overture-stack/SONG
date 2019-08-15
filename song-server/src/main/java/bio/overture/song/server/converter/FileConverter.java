@@ -17,11 +17,14 @@
 
 package bio.overture.song.server.converter;
 
+import static org.mapstruct.factory.Mappers.getMapper;
+
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.model.file.FileUpdateRequest;
 import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.entity.FileEntity;
+import java.util.List;
 import lombok.val;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -29,14 +32,10 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import java.util.List;
-
-import static org.mapstruct.factory.Mappers.getMapper;
-
-@Mapper(config = ConverterConfig.class,
+@Mapper(
+    config = ConverterConfig.class,
     nullValueCheckStrategy = NullValueCheckStrategy.ON_IMPLICIT_CONVERSION,
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
-)
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface FileConverter {
 
   FileConverter INSTANCE = getMapper(FileConverter.class);
@@ -52,21 +51,22 @@ public interface FileConverter {
 
   void updateFileEntity(FileEntity ref, @MappingTarget FileEntity fileToUpdate);
 
-  // NOTE: mapstruct cannot properly generate this method because it defaults to using the builder instead of the setters. Since the info field is not apart of the builder, it does not fully copy.
-  default FileEntity copyFile(FileEntity ref){
+  // NOTE: mapstruct cannot properly generate this method because it defaults to using the builder
+  // instead of the setters. Since the info field is not apart of the builder, it does not fully
+  // copy.
+  default FileEntity copyFile(FileEntity ref) {
     val copy = new FileEntity();
     updateFileEntity(ref, copy);
     return copy;
-
   }
+
   List<FileEntity> copyFiles(List<FileEntity> files);
 
-  default StorageObject toStorageObject(FileEntity file){
+  default StorageObject toStorageObject(FileEntity file) {
     return StorageObject.builder()
         .objectId(file.getObjectId())
         .fileSize(file.getFileSize())
         .fileMd5sum(file.getFileMd5sum())
         .build();
   }
-
 }

@@ -20,36 +20,36 @@ import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Save an uploaded analysis by it's upload id, and get the permanent analysis id")
+@Parameters(
+    separators = "=",
+    commandDescription =
+        "Save an uploaded analysis by it's upload id, and get the permanent analysis id")
 public class SaveCommand extends Command {
 
-  @Parameter(names = { "-u", "--upload-id" })
+  @Parameter(names = {"-u", "--upload-id"})
   private String uploadId;
 
-  @Parameter(names = { "-i", "--ignore-id-collisions" },
+  @Parameter(
+      names = {"-i", "--ignore-id-collisions"},
       description = "Ignores analysisId collisions with ids from the IdService")
   boolean ignoreAnalysisIdCollisions = false;
 
-  @NonNull
-  private Registry registry;
+  @NonNull private Registry registry;
 
-  @NonNull
-  private Config config;
+  @NonNull private Config config;
 
   @Override
-  public void run() throws IOException{
+  public void run() throws IOException {
     if (uploadId == null) {
       uploadId = getJson().at("/uploadId").asText("");
     }
     val status = registry.save(config.getStudyId(), uploadId, ignoreAnalysisIdCollisions);
     save(status);
   }
-
 }

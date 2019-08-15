@@ -18,12 +18,10 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.experiment.VariantCall;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VariantCallRepository extends JpaRepository<VariantCall, String> {
 
   List<VariantCall> findAllByAnalysisIdIn(List<String> analysisIds);
-
 }

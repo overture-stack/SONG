@@ -19,45 +19,44 @@ package bio.overture.song.server.model.entity.composites;
 
 import bio.overture.song.server.model.entity.Donor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import lombok.val;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Value
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 public class DonorWithSpecimens extends Donor {
-    private List<SpecimenWithSamples> specimens = new ArrayList<>();
+  private List<SpecimenWithSamples> specimens = new ArrayList<>();
 
-    @JsonIgnore
-    public void setDonor(Donor d) {
-        this.setDonorId(d.getDonorId());
-        this.setDonorSubmitterId(d.getDonorSubmitterId());
-        this.setStudyId(d.getStudyId());
-        this.setDonorGender(d.getDonorGender());
-        this.setDonorSubmitterId(d.getDonorSubmitterId());
-        this.addInfo(d.getInfoAsString());
-    }
+  @JsonIgnore
+  public void setDonor(Donor d) {
+    this.setDonorId(d.getDonorId());
+    this.setDonorSubmitterId(d.getDonorSubmitterId());
+    this.setStudyId(d.getStudyId());
+    this.setDonorGender(d.getDonorGender());
+    this.setDonorSubmitterId(d.getDonorSubmitterId());
+    this.addInfo(d.getInfoAsString());
+  }
 
-    @JsonIgnore
-    public Donor createDonor() {
-        val donor = Donor.builder()
+  @JsonIgnore
+  public Donor createDonor() {
+    val donor =
+        Donor.builder()
             .donorId(getDonorId())
             .donorSubmitterId(getDonorSubmitterId())
             .donorGender(getDonorGender())
             .studyId(getStudyId())
             .build();
-        donor.setInfo(getInfoAsString());
-        return donor;
-    }
+    donor.setInfo(getInfoAsString());
+    return donor;
+  }
 
-    public void setSpecimens(List<SpecimenWithSamples> s) {
-        specimens.clear();
-        specimens.addAll(s);
-    }
-
+  public void setSpecimens(List<SpecimenWithSamples> s) {
+    specimens.clear();
+    specimens.addAll(s);
+  }
 }

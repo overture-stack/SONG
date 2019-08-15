@@ -16,25 +16,24 @@
  */
 package bio.overture.song.server.retry;
 
+import static java.lang.Boolean.TRUE;
+import static lombok.AccessLevel.PRIVATE;
+
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import lombok.NoArgsConstructor;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-
-import java.util.Map;
-
-import static java.lang.Boolean.TRUE;
-import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class RetryPolicies {
 
   /**
    * Returns a map with exceptions that should be retried by the Spring Retry Framework.
-   * 
+   *
    * <ul>
-   * <li><b>ResourceAccessException</b> - to retry Connection Timeout</li>
-   * <li><b>HttpServerErrorException</b> - to retry 503 Service Unavailable</li>
+   *   <li><b>ResourceAccessException</b> - to retry Connection Timeout
+   *   <li><b>HttpServerErrorException</b> - to retry 503 Service Unavailable
    * </ul>
    */
   public static Map<Class<? extends Throwable>, Boolean> getRetryableExceptions() {
@@ -42,5 +41,4 @@ public final class RetryPolicies {
         ResourceAccessException.class, TRUE,
         HttpServerErrorException.class, TRUE);
   }
-
 }

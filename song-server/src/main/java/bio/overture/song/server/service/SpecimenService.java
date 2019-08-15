@@ -16,22 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.model.entity.BusinessKeyView;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
-import bio.overture.song.server.repository.BusinessKeyRepository;
-import bio.overture.song.server.repository.SpecimenRepository;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
@@ -39,32 +23,44 @@ import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORR
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.Responses.OK;
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+import bio.overture.song.server.model.entity.BusinessKeyView;
+import bio.overture.song.server.model.entity.Specimen;
+import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
+import bio.overture.song.server.repository.BusinessKeyRepository;
+import bio.overture.song.server.repository.SpecimenRepository;
+import java.util.ArrayList;
+import java.util.List;
+import javax.transaction.Transactional;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class SpecimenService {
 
-  @Autowired
-  private final IdService idService;
-  @Autowired
-  private final SampleService sampleService;
-  @Autowired
-  private final SpecimenInfoService infoService;
-  @Autowired
-  private final SpecimenRepository repository;
-  @Autowired
-  private final StudyService studyService;
-  @Autowired
-  private final BusinessKeyRepository businessKeyRepository;
+  @Autowired private final IdService idService;
+  @Autowired private final SampleService sampleService;
+  @Autowired private final SpecimenInfoService infoService;
+  @Autowired private final SpecimenRepository repository;
+  @Autowired private final StudyService studyService;
+  @Autowired private final BusinessKeyRepository businessKeyRepository;
 
-  private String createSpecimenId(String studyId, Specimen specimen){
+  private String createSpecimenId(String studyId, Specimen specimen) {
     studyService.checkStudyExist(studyId);
     val inputSpecimenId = specimen.getSpecimenId();
     val id = idService.generateSpecimenId(specimen.getSpecimenSubmitterId(), studyId);
-    checkServer(isNullOrEmpty(inputSpecimenId) || id.equals(inputSpecimenId), getClass(),
+    checkServer(
+        isNullOrEmpty(inputSpecimenId) || id.equals(inputSpecimenId),
+        getClass(),
         SPECIMEN_ID_IS_CORRUPTED,
         "The input specimenId '%s' is corrupted because it does not match the idServices specimenId '%s'",
-        inputSpecimenId, id);
+        inputSpecimenId,
+        id);
     checkSpecimenDoesNotExist(id);
     return id;
   }
@@ -78,28 +74,38 @@ public class SpecimenService {
   }
 
   public Specimen securedRead(@NonNull String studyId, String id) {
-    checkSpecimenRelatedToStudy(studyId,id);
+    checkSpecimenRelatedToStudy(studyId, id);
     return unsecuredRead(id);
   }
 
   public Specimen unsecuredRead(@NonNull String id) {
     val specimenResult = repository.findById(id);
-    checkServer(specimenResult.isPresent(), getClass(), SPECIMEN_DOES_NOT_EXIST,
-        "The specimen for specimenId '%s' could not be read because it does not exist", id);
+    checkServer(
+        specimenResult.isPresent(),
+        getClass(),
+        SPECIMEN_DOES_NOT_EXIST,
+        "The specimen for specimenId '%s' could not be read because it does not exist",
+        id);
     val specimen = specimenResult.get();
     specimen.setInfo(infoService.readNullableInfo(id));
     return specimen;
   }
 
-  public void checkSpecimenRelatedToStudy(@NonNull String studyId, @NonNull String id){
+  public void checkSpecimenRelatedToStudy(@NonNull String studyId, @NonNull String id) {
     val numSpecimens = businessKeyRepository.countAllByStudyIdAndSpecimenId(studyId, id);
-    if (numSpecimens < 1){
+    if (numSpecimens < 1) {
       studyService.checkStudyExist(studyId);
       val specimen = unsecuredRead(id);
-      val actualStudyId = businessKeyRepository.findBySpecimenId(id).map(BusinessKeyView::getStudyId).orElse(null);
-      throw buildServerException(getClass(), ENTITY_NOT_RELATED_TO_STUDY,
+      val actualStudyId =
+          businessKeyRepository.findBySpecimenId(id).map(BusinessKeyView::getStudyId).orElse(null);
+      throw buildServerException(
+          getClass(),
+          ENTITY_NOT_RELATED_TO_STUDY,
           "The specimenId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s' and donorId '%s'",
-          id, studyId, actualStudyId, specimen.getDonorId());
+          id,
+          studyId,
+          actualStudyId,
+          specimen.getDonorId());
     }
   }
 
@@ -127,22 +133,30 @@ public class SpecimenService {
     return OK;
   }
 
-  public boolean isSpecimenExist(@NonNull String id){
+  public boolean isSpecimenExist(@NonNull String id) {
     return repository.existsById(id);
   }
 
-  public void checkSpecimenExist(String id){
-    checkServer(isSpecimenExist(id), getClass(), SPECIMEN_DOES_NOT_EXIST,
-        "The specimen with specimenId '%s' does not exist", id);
+  public void checkSpecimenExist(String id) {
+    checkServer(
+        isSpecimenExist(id),
+        getClass(),
+        SPECIMEN_DOES_NOT_EXIST,
+        "The specimen with specimenId '%s' does not exist",
+        id);
   }
 
-  public void checkSpecimenDoesNotExist(String id){
-    checkServer(!isSpecimenExist(id), getClass(), SPECIMEN_ALREADY_EXISTS,
-        "The specimen with specimenId '%s' already exists", id);
+  public void checkSpecimenDoesNotExist(String id) {
+    checkServer(
+        !isSpecimenExist(id),
+        getClass(),
+        SPECIMEN_ALREADY_EXISTS,
+        "The specimen with specimenId '%s' already exists",
+        id);
   }
 
   @Transactional
-  public String securedDelete(@NonNull  String studyId, String id) {
+  public String securedDelete(@NonNull String studyId, String id) {
     checkSpecimenRelatedToStudy(studyId, id);
     return unsecuredDelete(id);
   }
@@ -184,6 +198,4 @@ public class SpecimenService {
         .findFirst()
         .orElse(null);
   }
-
-
 }

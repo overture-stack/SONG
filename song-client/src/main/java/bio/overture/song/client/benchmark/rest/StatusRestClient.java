@@ -19,14 +19,13 @@ package bio.overture.song.client.benchmark.rest;
 
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.errors.ServerResponseErrorHandler;
+import java.util.function.Function;
 import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.function.Function;
-
-public class StatusRestClient extends AbstractRestClient<Status>{
+public class StatusRestClient extends AbstractRestClient<Status> {
 
   private final RestTemplate restTemplate;
 
@@ -46,7 +45,7 @@ public class StatusRestClient extends AbstractRestClient<Status>{
         status.output(response.getBody().toString());
       }
     } else {
-      status.err("[%s]: %s",response.getStatusCode().value(),response.toString());
+      status.err("[%s]: %s", response.getStatusCode().value(), response.toString());
     }
     return status;
   }

@@ -16,23 +16,22 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.cli.Status;
-import bio.overture.song.client.register.Registry;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-
-import java.io.IOException;
-import java.util.Objects;
-
 import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
 import static bio.overture.song.client.command.rules.ParamTerm.createParamTerm;
 import static bio.overture.song.client.command.rules.RuleProcessor.createRuleProcessor;
 
+import bio.overture.song.client.cli.Status;
+import bio.overture.song.client.register.Registry;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import java.io.IOException;
+import java.util.Objects;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Retrieve schema information" )
+@Parameters(separators = "=", commandDescription = "Retrieve schema information")
 public class SchemaCommand extends Command {
 
   private static final String SCHEMA_ID_MODE = "SCHEMA_ID_MODE";
@@ -43,21 +42,24 @@ public class SchemaCommand extends Command {
   private static final String L_SWITCH = "-l";
   private static final String LIST_SWITCH = "--list";
 
-  @Parameter(names = { S_SWITCH, SCHEMA_ID_SWITCH }, required = false)
+  @Parameter(
+      names = {S_SWITCH, SCHEMA_ID_SWITCH},
+      required = false)
   private String schemaId;
 
-  @Parameter(names = { L_SWITCH, LIST_SWITCH }, required = false)
+  @Parameter(
+      names = {L_SWITCH, LIST_SWITCH},
+      required = false)
   private boolean listMode = false;
 
-  @NonNull
-  private Registry registry;
+  @NonNull private Registry registry;
 
   @Override
   public void run() throws IOException {
     val status = checkRules();
-    if ( !status.hasErrors()){
+    if (!status.hasErrors()) {
       Status apiStatus;
-      if (listMode){
+      if (listMode) {
         apiStatus = registry.listSchemas();
       } else {
         apiStatus = registry.getSchema(schemaId);
@@ -76,5 +78,4 @@ public class SchemaCommand extends Command {
     val ruleProcessor = createRuleProcessor(schemaIdModeRule, listModeRule);
     return ruleProcessor.check();
   }
-
 }

@@ -17,20 +17,20 @@
 
 package bio.overture.song.server.converter;
 
+import static org.mapstruct.factory.Mappers.getMapper;
+
 import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.model.legacy.Legacy;
 import bio.overture.song.server.model.legacy.LegacyDto;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import org.mapstruct.Mapper;
 
-import static org.mapstruct.factory.Mappers.getMapper;
-
 @Mapper(config = ConverterConfig.class)
 public interface LegacyEntityConverter {
 
-    LegacyEntityConverter INSTANCE = getMapper(LegacyEntityConverter.class);
+  LegacyEntityConverter INSTANCE = getMapper(LegacyEntityConverter.class);
 
-    LegacyDto convertToLegacyDto(Legacy legacy);
-    LegacyEntity convertToLegacyEntity(Legacy legacy);
+  LegacyDto convertToLegacyDto(Legacy legacy);
 
+  LegacyEntity convertToLegacyEntity(Legacy legacy);
 }

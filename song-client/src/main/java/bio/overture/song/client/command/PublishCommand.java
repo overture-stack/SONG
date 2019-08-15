@@ -20,27 +20,28 @@ import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Publish an analysis id" )
+@Parameters(separators = "=", commandDescription = "Publish an analysis id")
 public class PublishCommand extends Command {
 
-  @Parameter(names = { "-a", "--analysis-id" }, required = false)
+  @Parameter(
+      names = {"-a", "--analysis-id"},
+      required = false)
   private String analysisId;
 
-  @Parameter(names = { "-i", "--ignore-undefined-md5"}, required = false)
-  private boolean ignoreUndefinedMd5= false;
+  @Parameter(
+      names = {"-i", "--ignore-undefined-md5"},
+      required = false)
+  private boolean ignoreUndefinedMd5 = false;
 
-  @NonNull
-  private Registry registry;
+  @NonNull private Registry registry;
 
-  @NonNull
-  private Config config;
+  @NonNull private Config config;
 
   @Override
   public void run() throws IOException {
@@ -51,5 +52,4 @@ public class PublishCommand extends Command {
     val status = registry.publish(config.getStudyId(), analysisId, ignoreUndefinedMd5);
     save(status);
   }
-
 }

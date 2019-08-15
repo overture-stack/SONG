@@ -16,6 +16,13 @@
  */
 package bio.overture.song.client.benchmark.rest;
 
+import static java.util.Objects.isNull;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+
+import java.util.function.Function;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.http.HttpEntity;
@@ -23,18 +30,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.function.Function;
-
-import static java.util.Objects.isNull;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-
 public abstract class AbstractRestClient<R> {
 
   public R get(@NonNull String url) {
-    return _get(buildJsonContentHttpHeader(),url);
+    return _get(buildJsonContentHttpHeader(), url);
   }
 
   public R get(@NonNull String accessToken, String url) {
@@ -62,7 +61,7 @@ public abstract class AbstractRestClient<R> {
   }
 
   public R put(String url) {
-    return put(url,"");
+    return put(url, "");
   }
 
   public R putAuth(@NonNull String accessToken, String url, String json) {
@@ -70,11 +69,11 @@ public abstract class AbstractRestClient<R> {
   }
 
   public R putAuth(@NonNull String accessToken, String url) {
-    return putAuth(accessToken, url,"");
+    return putAuth(accessToken, url, "");
   }
 
-  protected abstract <T> R tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction);
-
+  protected abstract <T> R tryRequest(
+      Function<RestTemplate, ResponseEntity<T>> restTemplateFunction);
 
   private R _get(@NonNull HttpHeaders httpHeaders, @NonNull String url) {
     val entity = new HttpEntity<String>(null, httpHeaders);
@@ -86,32 +85,31 @@ public abstract class AbstractRestClient<R> {
     return tryRequest(x -> x.exchange(url, PUT, entity, String.class));
   }
 
-  protected R _post(@NonNull HttpHeaders httpHeaders, @NonNull String url, String json){
+  protected R _post(@NonNull HttpHeaders httpHeaders, @NonNull String url, String json) {
     val entity = new HttpEntity<String>(json, httpHeaders);
     return tryRequest(x -> x.postForEntity(url, entity, String.class));
   }
 
-  private static HttpHeaders buildJsonContentHttpHeader(){
+  private static HttpHeaders buildJsonContentHttpHeader() {
     return buildHttpHeader(null, true);
   }
 
-  private static HttpHeaders buildAuthHttpHeader(String accessToken ){
+  private static HttpHeaders buildAuthHttpHeader(String accessToken) {
     return buildHttpHeader(accessToken, false);
   }
 
-  private static HttpHeaders buildAuthJsonContentHttpHeader(String accessToken ){
+  private static HttpHeaders buildAuthJsonContentHttpHeader(String accessToken) {
     return buildHttpHeader(accessToken, true);
   }
 
-  private static HttpHeaders buildHttpHeader(String accessToken, boolean isJsonContent ){
+  private static HttpHeaders buildHttpHeader(String accessToken, boolean isJsonContent) {
     val headers = new HttpHeaders();
-    if (!isNull(accessToken)){
-      headers.set(AUTHORIZATION, "Bearer "+accessToken);
+    if (!isNull(accessToken)) {
+      headers.set(AUTHORIZATION, "Bearer " + accessToken);
     }
-    if (isJsonContent){
+    if (isJsonContent) {
       headers.setContentType(APPLICATION_JSON_UTF8);
     }
     return headers;
   }
-
 }

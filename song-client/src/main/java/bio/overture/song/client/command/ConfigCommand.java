@@ -18,34 +18,28 @@ package bio.overture.song.client.command;
 
 import bio.overture.song.client.config.Config;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @Parameters(commandDescription = "Show the current configuration settings")
 public class ConfigCommand extends Command {
 
-  @NonNull
-  private Config config;
+  @NonNull private Config config;
 
   @Override
   public void run() throws IOException {
     output("Current configuration:\n");
 
-    @NonNull
-    val url = config.getServerUrl();
+    @NonNull val url = config.getServerUrl();
     output("URL: %s\n", url);
 
-    @NonNull
-    val id = config.getStudyId();
+    @NonNull val id = config.getStudyId();
     output("Study ID: %s\n", id);
 
-    @NonNull
-    val debugEnabled = config.isDebug();
+    @NonNull val debugEnabled = config.isDebug();
     output("Debug Enabled: %s\n", debugEnabled);
   }
-
 }

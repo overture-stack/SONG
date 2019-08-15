@@ -18,6 +18,8 @@
 package bio.overture.song.server.config;
 
 import bio.overture.song.server.kafka.impl.KafkaSender;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.val;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -29,18 +31,15 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Profile("kafka")
 @Configuration
 public class KafkaConfig {
 
   @Value("${spring.kafka.bootstrap-servers}")
   private String bootstrapServers;
+
   @Value("${spring.kafka.template.default-topic}")
   private String defaultTopic;
-
 
   @Bean
   public Map<String, Object> producerConfigs() {
@@ -68,5 +67,4 @@ public class KafkaConfig {
   public KafkaSender sender() {
     return new KafkaSender();
   }
-
 }

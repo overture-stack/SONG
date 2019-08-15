@@ -28,5 +28,4 @@ public class ManifestEntry {
   public String toString() {
     return fileId + "\t" + fileName + "\t" + md5sum;
   }
-
 }

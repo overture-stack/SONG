@@ -39,9 +39,11 @@ public class FileUpdateRequest implements FileData {
   private String fileAccess;
   private JsonNode info;
 
-  public static FileUpdateRequest createFileUpdateRequest(@NonNull Long fileSize,
-      @NonNull String fileMd5sum, @NonNull String fileAccess, @NonNull JsonNode info) {
+  public static FileUpdateRequest createFileUpdateRequest(
+      @NonNull Long fileSize,
+      @NonNull String fileMd5sum,
+      @NonNull String fileAccess,
+      @NonNull JsonNode info) {
     return new FileUpdateRequest(fileSize, fileMd5sum, fileAccess, info);
   }
-
 }

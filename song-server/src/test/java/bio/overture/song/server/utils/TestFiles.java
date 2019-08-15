@@ -17,26 +17,25 @@
 
 package bio.overture.song.server.utils;
 
-import bio.overture.song.server.model.Metadata;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.icgc.dcc.common.core.util.Joiners;
-
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
+
+import bio.overture.song.server.model.Metadata;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.icgc.dcc.common.core.util.Joiners;
 
 @Slf4j
 public class TestFiles {
@@ -51,13 +50,12 @@ public class TestFiles {
     return toJson(getJsonNodeFromClasspath(name));
   }
 
-  private static URL getTestResourceUrl(){
+  private static URL getTestResourceUrl() {
     return TestFiles.class.getClassLoader().getResource("./");
   }
 
-  public static Path getTestResourceFilePath(String filename){
-    return Paths.get(
-        Joiners.PATH.join(getTestResourceUrl().getPath(), filename));
+  public static Path getTestResourceFilePath(String filename) {
+    return Paths.get(Joiners.PATH.join(getTestResourceUrl().getPath(), filename));
   }
 
   @SneakyThrows
@@ -67,11 +65,11 @@ public class TestFiles {
     return readTree(is1);
   }
 
-  public static boolean isTestFileExist(String filename){
+  public static boolean isTestFileExist(String filename) {
     return getTestResourceFilePath(filename).toFile().exists();
   }
 
-  public static String getInfoName(Metadata metadata){
+  public static String getInfoName(Metadata metadata) {
     val info = metadata.getInfo();
     assertTrue(info.has(NAME));
     return metadata.getInfo().get(NAME).textValue();
@@ -82,16 +80,16 @@ public class TestFiles {
     return metadata.getInfo().path(key).textValue();
   }
 
-  public static void assertInfoKVPair(@NonNull Metadata metadata, @NonNull String key, @NonNull Object expectedValue){
-      assertTrue(
-          format("The input metadata does not have the key '%s'", key),
-          metadata.getInfo().has(key)
-      );
-      val actualValue  = metadata.getInfo().path(key).textValue();
-      assertEquals(
-          format("Failed since field '%s' has actual=%s and expected=%s",
-              key, actualValue, expectedValue),
-          actualValue, expectedValue);
+  public static void assertInfoKVPair(
+      @NonNull Metadata metadata, @NonNull String key, @NonNull Object expectedValue) {
+    assertTrue(
+        format("The input metadata does not have the key '%s'", key), metadata.getInfo().has(key));
+    val actualValue = metadata.getInfo().path(key).textValue();
+    assertEquals(
+        format(
+            "Failed since field '%s' has actual=%s and expected=%s",
+            key, actualValue, expectedValue),
+        actualValue,
+        expectedValue);
   }
-
 }

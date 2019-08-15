@@ -32,5 +32,4 @@ public class HealthController {
   public boolean isAlive() {
     return true;
   }
-
 }

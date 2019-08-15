@@ -20,6 +20,6 @@ package bio.overture.song.core.model.file;
 public interface FileContent {
 
   String getFileMd5sum();
-  Long getFileSize();
 
+  Long getFileSize();
 }

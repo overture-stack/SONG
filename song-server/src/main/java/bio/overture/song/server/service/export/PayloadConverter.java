@@ -17,18 +17,17 @@
 
 package bio.overture.song.server.service.export;
 
+import static bio.overture.song.server.service.export.PayloadParser.checkField;
+import static bio.overture.song.server.service.export.PayloadParser.readPath;
+import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.util.List;
-
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
-import static bio.overture.song.server.service.export.PayloadParser.checkField;
-import static bio.overture.song.server.service.export.PayloadParser.readPath;
 
 @RequiredArgsConstructor
 public class PayloadConverter {
@@ -39,12 +38,12 @@ public class PayloadConverter {
   private static final String SAMPLE_ID = "sampleId";
   private static final String SPECIMEN_ID = "specimenId";
   private static final String DONOR_ID = "donorId";
-  private static final String ANALYSIS_STATE= "analysisState";
+  private static final String ANALYSIS_STATE = "analysisState";
 
   private final boolean includeAnalysisId;
 
-  public JsonNode convert(PayloadParser parser){
-    if(!includeAnalysisId){
+  public JsonNode convert(PayloadParser parser) {
+    if (!includeAnalysisId) {
       removeAnalysisId(parser);
     }
 
@@ -63,7 +62,7 @@ public class PayloadConverter {
     return new PayloadConverter(includeAnalysisId);
   }
 
-  private static void removeEmptyInfoFields(PayloadParser parser){
+  private static void removeEmptyInfoFields(PayloadParser parser) {
     val list = Lists.<JsonNode>newArrayList();
     list.add(parser.getRootNode());
     list.add(parser.getExperimentNode());
@@ -74,54 +73,55 @@ public class PayloadConverter {
     removeInfoIfEmpty(list);
   }
 
-  private static void removeAnalysisId(PayloadParser parser){
+  private static void removeAnalysisId(PayloadParser parser) {
     removePath(parser.getRootNode(), ANALYSIS_ID);
   }
 
-  private static void removeAnalysisState(PayloadParser parser){
+  private static void removeAnalysisState(PayloadParser parser) {
     removePath(parser.getRootNode(), ANALYSIS_STATE);
   }
 
-  private static void removeExperimentFields(PayloadParser parser){
+  private static void removeExperimentFields(PayloadParser parser) {
     removePath(parser.getExperimentNode(), ANALYSIS_ID);
   }
 
-
-  private static void removeFilesFields(PayloadParser parser){
-    parser.getFileNodes()
+  private static void removeFilesFields(PayloadParser parser) {
+    parser
+        .getFileNodes()
         .forEach(fileNode -> removePath(fileNode, ANALYSIS_ID, STUDY_ID, OBJECT_ID));
   }
 
-  private static void removeSamplesFields(PayloadParser parser){
-    parser.getSampleNodes()
-        .forEach(sampleNode -> removePath(sampleNode, SAMPLE_ID, SPECIMEN_ID));
+  private static void removeSamplesFields(PayloadParser parser) {
+    parser.getSampleNodes().forEach(sampleNode -> removePath(sampleNode, SAMPLE_ID, SPECIMEN_ID));
   }
 
-  private static void removeSpecimenFields(PayloadParser parser){
-    parser.getSpecimenNodes()
+  private static void removeSpecimenFields(PayloadParser parser) {
+    parser
+        .getSpecimenNodes()
         .forEach(specimenNode -> removePath(specimenNode, DONOR_ID, SPECIMEN_ID));
   }
 
-  private static void removeDonorFields(PayloadParser parser){
-    parser.getDonorNodes()
-        .forEach(donorNode -> removePath(donorNode, DONOR_ID, STUDY_ID) );
+  private static void removeDonorFields(PayloadParser parser) {
+    parser.getDonorNodes().forEach(donorNode -> removePath(donorNode, DONOR_ID, STUDY_ID));
   }
 
-  private static JsonNode removePath(JsonNode j, String ... fieldNames){
-    stream(fieldNames).forEach(x -> {
-      checkField(j, x);
-      ((ObjectNode)j).remove(x);
-    });
+  private static JsonNode removePath(JsonNode j, String... fieldNames) {
+    stream(fieldNames)
+        .forEach(
+            x -> {
+              checkField(j, x);
+              ((ObjectNode) j).remove(x);
+            });
     return j;
   }
 
-  private static void removeInfoIfEmpty(List<JsonNode> nodes){
-    nodes.forEach(j -> {
-      JsonNode infoPath = readPath(j, INFO);
-      if (infoPath.isNull() || Iterators.size(infoPath.fieldNames()) == 0){
-        ((ObjectNode)j).remove(INFO);
-      }
-    });
+  private static void removeInfoIfEmpty(List<JsonNode> nodes) {
+    nodes.forEach(
+        j -> {
+          JsonNode infoPath = readPath(j, INFO);
+          if (infoPath.isNull() || Iterators.size(infoPath.fieldNames()) == 0) {
+            ((ObjectNode) j).remove(INFO);
+          }
+        });
   }
-
 }

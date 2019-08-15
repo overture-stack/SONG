@@ -17,18 +17,17 @@
 
 package bio.overture.song.client.command.rules;
 
-import bio.overture.song.client.cli.Status;
-import com.google.common.collect.Maps;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-
-import java.util.Map;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+
+import bio.overture.song.client.cli.Status;
+import com.google.common.collect.Maps;
+import java.util.Map;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RequiredArgsConstructor
 public class RuleProcessor {
@@ -36,7 +35,8 @@ public class RuleProcessor {
   @NonNull private final Map<String, ModeRule> modeRuleMap;
 
   public Status check() {
-    val definedModeRules = modeRuleMap.values().stream().filter(ModeRule::isModeDefined).collect(toImmutableList());
+    val definedModeRules =
+        modeRuleMap.values().stream().filter(ModeRule::isModeDefined).collect(toImmutableList());
     val status = new Status();
 
     if (definedModeRules.size() > 1) {
@@ -47,24 +47,26 @@ public class RuleProcessor {
         if (count > 0) {
           sb.append(" and ");
         }
-        sb.append(format("the mode '%s' (%s)",
-            modeRule.getModeName(),
-            modeRule.getDefinedTerms()
-                .stream()
-                .map(ParamTerm::getShortLongSymbol)
-                .collect(joining(" , "))));
+        sb.append(
+            format(
+                "the mode '%s' (%s)",
+                modeRule.getModeName(),
+                modeRule.getDefinedTerms().stream()
+                    .map(ParamTerm::getShortLongSymbol)
+                    .collect(joining(" , "))));
         count++;
       }
       sb.append(" cannot be used together\n");
       status.err(sb.toString());
-    } else if(definedModeRules.size() == 0){
+    } else if (definedModeRules.size() == 0) {
       val sb = new StringBuilder();
       sb.append("No modes defined. Please define one of:\n");
-      for (val modeRule : modeRuleMap.values()){
+      for (val modeRule : modeRuleMap.values()) {
         val modeName = modeRule.getModeName();
-        val orOfSwitches = modeRule.getParamTerms().stream()
-            .map(ParamTerm::getShortLongSymbol)
-            .collect(joining(" | "));
+        val orOfSwitches =
+            modeRule.getParamTerms().stream()
+                .map(ParamTerm::getShortLongSymbol)
+                .collect(joining(" | "));
         sb.append(format("\t[%s]: (%s)\n", modeName, orOfSwitches));
       }
       status.err(sb.toString());
@@ -77,8 +79,10 @@ public class RuleProcessor {
     val map = Maps.<String, ModeRule>newHashMap();
     for (val modeRule : modeRules) {
       val searchMode = modeRule.getModeName();
-      checkArgument(!map.containsKey(searchMode),
-          "the map already contains the search mode '%s'", searchMode);
+      checkArgument(
+          !map.containsKey(searchMode),
+          "the map already contains the search mode '%s'",
+          searchMode);
       map.put(searchMode, modeRule);
     }
     return new RuleProcessor(map);

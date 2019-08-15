@@ -17,4 +17,4 @@
 
 package bio.overture.song.core.model.file;
 
-public interface FileData extends  FileContent, FileMetadata { }
+public interface FileData extends FileContent, FileMetadata {}

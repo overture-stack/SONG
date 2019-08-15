@@ -18,21 +18,18 @@
 package bio.overture.song.server.config;
 
 import bio.overture.song.server.repository.search.SearchRepository;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RepositoryConfig {
 
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
   @Bean
-  public SearchRepository searchRepository(){
+  public SearchRepository searchRepository() {
     return new SearchRepository(entityManager);
   }
-
 }

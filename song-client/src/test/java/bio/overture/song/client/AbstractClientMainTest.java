@@ -17,16 +17,14 @@
 
 package bio.overture.song.client;
 
+import java.util.function.Consumer;
 import lombok.Getter;
 import org.junit.Rule;
 import org.springframework.boot.test.rule.OutputCapture;
 
-import java.util.function.Consumer;
-
 public class AbstractClientMainTest {
 
-  @Rule
-  public OutputCapture capture = new OutputCapture();
+  @Rule public OutputCapture capture = new OutputCapture();
   public ExitCodeCapture exitCodeCapture = new ExitCodeCapture();
 
   protected void executeMain(String... args) {
@@ -44,14 +42,11 @@ public class AbstractClientMainTest {
 
   private static class ExitCodeCapture implements Consumer<Integer> {
 
-    @Getter
-    private Integer exitCode;
+    @Getter private Integer exitCode;
 
     @Override
     public void accept(Integer exitCode) {
       this.exitCode = exitCode;
     }
-
   }
-
 }

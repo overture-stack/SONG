@@ -19,13 +19,12 @@ package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.SampleSet;
 import bio.overture.song.server.model.SampleSetPK;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
-public interface SampleSetRepository extends JpaRepository<SampleSet, SampleSetPK>{
+public interface SampleSetRepository extends JpaRepository<SampleSet, SampleSetPK> {
 
   void deleteAllBySampleSetPK_AnalysisId(String analysisId);
-  List<SampleSet> findAllBySampleSetPK_AnalysisId(String analysisId);
 
+  List<SampleSet> findAllBySampleSetPK_AnalysisId(String analysisId);
 }

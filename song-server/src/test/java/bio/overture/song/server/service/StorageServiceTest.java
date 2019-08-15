@@ -17,6 +17,21 @@
 
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
+import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.OK;
+
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.StorageObject;
@@ -38,21 +53,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.OK;
-import static bio.overture.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
-import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -61,22 +61,21 @@ public class StorageServiceTest {
 
   private static final String DEFAULT_ACCESS_TOKEN = "anyToken";
 
-  @Autowired
-  private RetryTemplate retryTemplate;
+  @Autowired private RetryTemplate retryTemplate;
 
-  @Autowired
-  private ValidationService validationService;
+  @Autowired private ValidationService validationService;
 
   private StorageService storageService;
-  private final RandomGenerator randomGenerator = createRandomGenerator(StorageServiceTest.class.getSimpleName());
+  private final RandomGenerator randomGenerator =
+      createRandomGenerator(StorageServiceTest.class.getSimpleName());
 
-  @Rule
-  public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
+  @Rule public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 
   @Before
-  public void beforeTest(){
+  public void beforeTest() {
     val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
-    this.storageService = StorageService.builder()
+    this.storageService =
+        StorageService.builder()
             .restTemplate(new RestTemplate())
             .retryTemplate(retryTemplate)
             .storageUrl(testStorageUrl)
@@ -86,62 +85,65 @@ public class StorageServiceTest {
   }
 
   @Test
-  public void testObjectExistence(){
-    val expectedStorageObject =  StorageObject.builder()
-        .objectId(randomGenerator.generateRandomUUIDAsString())
-        .fileMd5sum(randomGenerator.generateRandomMD5())
-        .fileSize((long)randomGenerator.generateRandomIntRange(1,100000))
-        .build();
+  public void testObjectExistence() {
+    val expectedStorageObject =
+        StorageObject.builder()
+            .objectId(randomGenerator.generateRandomUUIDAsString())
+            .fileMd5sum(randomGenerator.generateRandomMD5())
+            .fileSize((long) randomGenerator.generateRandomIntRange(1, 100000))
+            .build();
     val storageResponse = toNode(convertToObjectSpec(expectedStorageObject));
 
     // Test nonexisting
-    val nonExistingConfig = StorageBehaviourConfig.builder()
-        .objectExists(false)
-        .expectedStorageResponse(storageResponse)
-        .build();
+    val nonExistingConfig =
+        StorageBehaviourConfig.builder()
+            .objectExists(false)
+            .expectedStorageResponse(storageResponse)
+            .build();
     setupStorageMockService(expectedStorageObject.getObjectId(), nonExistingConfig);
     val result = storageService.isObjectExist(expectedStorageObject.getObjectId());
     assertFalse(result);
 
     // Test existing
-    val existingConfig = StorageBehaviourConfig.builder()
-        .objectExists(true)
-        .expectedStorageResponse(storageResponse)
-        .build();
+    val existingConfig =
+        StorageBehaviourConfig.builder()
+            .objectExists(true)
+            .expectedStorageResponse(storageResponse)
+            .build();
     setupStorageMockService(expectedStorageObject.getObjectId(), existingConfig);
     val result2 = storageService.isObjectExist(expectedStorageObject.getObjectId());
     assertTrue(result2);
   }
 
   @Test
-  public void testNonExistingDownloadStorageObject_noMd5(){
+  public void testNonExistingDownloadStorageObject_noMd5() {
     runDownloadStorageObjectTest(false, false);
   }
 
   @Test
-  public void testNonExistingDownloadStorageObject_withMd5(){
+  public void testNonExistingDownloadStorageObject_withMd5() {
     runDownloadStorageObjectTest(false, true);
   }
 
   @Test
-  public void testExistingDownloadStorageObject_noMd5(){
+  public void testExistingDownloadStorageObject_noMd5() {
     runDownloadStorageObjectTest(true, false);
   }
 
   @Test
-  public void testExistingDownloadStorageObject_withMd5(){
+  public void testExistingDownloadStorageObject_withMd5() {
     runDownloadStorageObjectTest(true, true);
   }
 
   @Test
-  public void testInvalidStorageDownloadResponse_invalidMd5Length(){
-    runInvalidStorageDownloadResponse(randomGenerator.generateRandomMD5()+3, 10000);
+  public void testInvalidStorageDownloadResponse_invalidMd5Length() {
+    runInvalidStorageDownloadResponse(randomGenerator.generateRandomMD5() + 3, 10000);
   }
 
   @Test
-  public void testInvalidStorageDownloadResponse_invalidMd5Characters(){
-    runInvalidStorageDownloadResponse(randomGenerator.generateRandomMD5().replaceFirst(".", "q"),
-        10000);
+  public void testInvalidStorageDownloadResponse_invalidMd5Characters() {
+    runInvalidStorageDownloadResponse(
+        randomGenerator.generateRandomMD5().replaceFirst(".", "q"), 10000);
   }
 
   @Test
@@ -154,38 +156,42 @@ public class StorageServiceTest {
     runInvalidStorageDownloadResponse(randomGenerator.generateRandomMD5(), -1L);
   }
 
-  private void runInvalidStorageDownloadResponse(String expectedMd5, long expectedSize){
-    val expectedResponse =  StorageObject.builder()
-        .objectId(randomGenerator.generateRandomUUIDAsString())
-        .fileMd5sum(expectedMd5)
-        .fileSize(expectedSize)
-        .build();
+  private void runInvalidStorageDownloadResponse(String expectedMd5, long expectedSize) {
+    val expectedResponse =
+        StorageObject.builder()
+            .objectId(randomGenerator.generateRandomUUIDAsString())
+            .fileMd5sum(expectedMd5)
+            .fileSize(expectedSize)
+            .build();
     val storageResponse = toNode(convertToObjectSpec(expectedResponse));
-    val existingConfig = StorageBehaviourConfig.builder()
-        .objectExists(true)
-        .expectedStorageResponse(storageResponse)
-        .build();
-    setupStorageMockService(expectedResponse.getObjectId(),existingConfig);
+    val existingConfig =
+        StorageBehaviourConfig.builder()
+            .objectExists(true)
+            .expectedStorageResponse(storageResponse)
+            .build();
+    setupStorageMockService(expectedResponse.getObjectId(), existingConfig);
     assertSongError(
         () -> storageService.downloadObject(expectedResponse.getObjectId()),
         INVALID_STORAGE_DOWNLOAD_RESPONSE);
   }
 
-  private void runDownloadStorageObjectTest(boolean exists, boolean md5Defined){
-    val expectedResponse =  StorageObject.builder()
-        .objectId(randomGenerator.generateRandomUUIDAsString())
-        .fileMd5sum(md5Defined ? randomGenerator.generateRandomMD5() : null)
-        .fileSize((long)randomGenerator.generateRandomIntRange(1,100000))
-        .build();
+  private void runDownloadStorageObjectTest(boolean exists, boolean md5Defined) {
+    val expectedResponse =
+        StorageObject.builder()
+            .objectId(randomGenerator.generateRandomUUIDAsString())
+            .fileMd5sum(md5Defined ? randomGenerator.generateRandomMD5() : null)
+            .fileSize((long) randomGenerator.generateRandomIntRange(1, 100000))
+            .build();
     val storageResponse = toNode(convertToObjectSpec(expectedResponse));
-    val existingConfig = StorageBehaviourConfig.builder()
-        .objectExists(exists)
-        .expectedStorageResponse(storageResponse)
-        .build();
-    setupStorageMockService(expectedResponse.getObjectId(),existingConfig);
-    if (exists){
+    val existingConfig =
+        StorageBehaviourConfig.builder()
+            .objectExists(exists)
+            .expectedStorageResponse(storageResponse)
+            .build();
+    setupStorageMockService(expectedResponse.getObjectId(), existingConfig);
+    if (exists) {
       val result = storageService.downloadObject(expectedResponse.getObjectId());
-      assertEquals(result,expectedResponse);
+      assertEquals(result, expectedResponse);
     } else {
       assertSongError(
           () -> storageService.downloadObject(expectedResponse.getObjectId()),
@@ -193,20 +199,24 @@ public class StorageServiceTest {
     }
   }
 
-  private void setupStorageMockService(String objectId, StorageBehaviourConfig config){
+  private void setupStorageMockService(String objectId, StorageBehaviourConfig config) {
     wireMockRule.resetAll();
-    wireMockRule.stubFor(get(urlMatching(format("/upload/%s", objectId)))
-        .willReturn(aResponse()
-            .withStatus(OK.value())
-            .withBody(Boolean.toString(config.isObjectExists()))));
+    wireMockRule.stubFor(
+        get(urlMatching(format("/upload/%s", objectId)))
+            .willReturn(
+                aResponse()
+                    .withStatus(OK.value())
+                    .withBody(Boolean.toString(config.isObjectExists()))));
 
-    wireMockRule.stubFor(get(urlMatching(format("/download/%s\\?offset=0&length=-1&exclude-urls=true", objectId)))
-        .willReturn(aResponse()
-            .withStatus(OK.value())
-            .withBody(toJson(config.getExpectedStorageResponse()))));
+    wireMockRule.stubFor(
+        get(urlMatching(format("/download/%s\\?offset=0&length=-1&exclude-urls=true", objectId)))
+            .willReturn(
+                aResponse()
+                    .withStatus(OK.value())
+                    .withBody(toJson(config.getExpectedStorageResponse()))));
   }
 
-  private static ObjectSpecification convertToObjectSpec(StorageObject storageObject){
+  private static ObjectSpecification convertToObjectSpec(StorageObject storageObject) {
     return ObjectSpecification.builder()
         .objectId(storageObject.getObjectId())
         .objectMd5(storageObject.getFileMd5sum())
@@ -214,7 +224,7 @@ public class StorageServiceTest {
         .build();
   }
 
-  private static JsonNode toNode(Object o){
+  private static JsonNode toNode(Object o) {
     return JsonUtils.mapper().valueToTree(o);
   }
 
@@ -227,10 +237,9 @@ public class StorageServiceTest {
 
   @Value
   @Builder
-  public static class ObjectSpecification{
+  public static class ObjectSpecification {
     @NonNull private final String objectId;
     private final String objectMd5;
     @NonNull private final Long objectSize;
   }
-
 }

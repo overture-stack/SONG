@@ -17,6 +17,16 @@
 
 package bio.overture.song.server.utils.generator;
 
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
+import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.resolveDefaultPayloadFilename;
+import static java.lang.String.format;
+import static lombok.AccessLevel.PRIVATE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
@@ -28,16 +38,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import static java.lang.String.format;
-import static lombok.AccessLevel.PRIVATE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
-import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.resolveDefaultPayloadFilename;
-
 @RequiredArgsConstructor(access = PRIVATE)
 public class AnalysisGenerator {
 
@@ -47,10 +47,11 @@ public class AnalysisGenerator {
   @NonNull private final RandomGenerator randomGenerator;
 
   /**
-   * Create a random analysis by specifying the output analysis class type and the payload fixture to load and
-   * persist to db
+   * Create a random analysis by specifying the output analysis class type and the payload fixture
+   * to load and persist to db
    */
-  public <T extends AbstractAnalysis> T createRandomAnalysis(Class<T> analysisClass, String payloadFilename){
+  public <T extends AbstractAnalysis> T createRandomAnalysis(
+      Class<T> analysisClass, String payloadFilename) {
     val analysis = payloadGenerator.generateRandomPayload(analysisClass, payloadFilename);
     // Set analysisId to empty to ensure a randomly generated analysisId, and therefore
     // randomly generated objectId (fileIds)
@@ -61,10 +62,10 @@ public class AnalysisGenerator {
     return out;
   }
 
-  public String generateNonExistingAnalysisId(){
+  public String generateNonExistingAnalysisId() {
     boolean idExists = true;
     String id = null;
-    while(idExists){
+    while (idExists) {
       id = randomGenerator.generateRandomUUIDAsString();
       idExists = service.isAnalysisExist(id);
     }
@@ -72,42 +73,42 @@ public class AnalysisGenerator {
     return id;
   }
 
-  public <T extends AbstractAnalysis> T createDefaultRandomAnalysis(AnalysisTypes analysisType){
-    if (analysisType == SEQUENCING_READ){
-      return (T)createDefaultRandomAnalysis(SequencingReadAnalysis.class);
-    } else if (analysisType == VARIANT_CALL){
-      return (T)createDefaultRandomAnalysis(VariantCallAnalysis.class);
+  public <T extends AbstractAnalysis> T createDefaultRandomAnalysis(AnalysisTypes analysisType) {
+    if (analysisType == SEQUENCING_READ) {
+      return (T) createDefaultRandomAnalysis(SequencingReadAnalysis.class);
+    } else if (analysisType == VARIANT_CALL) {
+      return (T) createDefaultRandomAnalysis(VariantCallAnalysis.class);
     } else {
-      throw new IllegalStateException(format("the analysis type '%s' cannot be processed", analysisType.toString()));
+      throw new IllegalStateException(
+          format("the analysis type '%s' cannot be processed", analysisType.toString()));
     }
   }
   /**
-   * Creates a default random analysis object in the repository, by loading the default fixture based on the input
-   * analysis
-   * class type
+   * Creates a default random analysis object in the repository, by loading the default fixture
+   * based on the input analysis class type
    */
-  public <T extends AbstractAnalysis> T createDefaultRandomAnalysis(Class<T> analysisClass){
+  public <T extends AbstractAnalysis> T createDefaultRandomAnalysis(Class<T> analysisClass) {
     val payloadFilename = resolveDefaultPayloadFilename(analysisClass);
     return createRandomAnalysis(analysisClass, payloadFilename);
   }
 
-  public SequencingReadAnalysis createDefaultRandomSequencingReadAnalysis(){
+  public SequencingReadAnalysis createDefaultRandomSequencingReadAnalysis() {
     return createDefaultRandomAnalysis(SequencingReadAnalysis.class);
   }
 
-  public VariantCallAnalysis createDefaultRandomVariantCallAnalysis(){
+  public VariantCallAnalysis createDefaultRandomVariantCallAnalysis() {
     return createDefaultRandomAnalysis(VariantCallAnalysis.class);
   }
 
-  public static AnalysisGenerator createAnalysisGenerator(String studyId, AnalysisService service, RandomGenerator
-      randomGenerator) {
-    return new AnalysisGenerator(studyId, service, createPayloadGenerator(randomGenerator), randomGenerator);
+  public static AnalysisGenerator createAnalysisGenerator(
+      String studyId, AnalysisService service, RandomGenerator randomGenerator) {
+    return new AnalysisGenerator(
+        studyId, service, createPayloadGenerator(randomGenerator), randomGenerator);
   }
 
-  public static AnalysisGenerator createAnalysisGenerator(String studyId, AnalysisService service, String
-      randomGeneratorName) {
+  public static AnalysisGenerator createAnalysisGenerator(
+      String studyId, AnalysisService service, String randomGeneratorName) {
     val randomGenerator = createRandomGenerator(randomGeneratorName);
     return createAnalysisGenerator(studyId, service, randomGenerator);
   }
-
 }

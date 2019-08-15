@@ -17,14 +17,12 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.Upload;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
-public interface UploadRepository extends JpaRepository<Upload, String>{
+public interface UploadRepository extends JpaRepository<Upload, String> {
 
   List<Upload> findAllByStudyIdAndAnalysisId(String studyId, String analysisId);
+
   long countAllByStudyIdAndUploadId(String studyId, String uploadId);
-
-
 }

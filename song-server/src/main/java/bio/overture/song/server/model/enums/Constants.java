@@ -17,7 +17,6 @@
 package bio.overture.song.server.model.enums;
 
 import bio.overture.song.core.model.enums.AnalysisStates;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,24 +29,52 @@ public class Constants {
   public static final Collection<String> ANALYSIS_STATE = list(AnalysisStates.toStringArray());
   public static final Collection<String> DONOR_GENDER = list("male", "female", "unspecified");
   public static final Collection<String> LIBRARY_STRATEGY =
-      list("WGS", "WXS", "RNA-Seq", "ChIP-Seq", "miRNA-Seq", "Bisulfite-Seq", "Validation", "Amplicon", "Other");
+      list(
+          "WGS",
+          "WXS",
+          "RNA-Seq",
+          "ChIP-Seq",
+          "miRNA-Seq",
+          "Bisulfite-Seq",
+          "Validation",
+          "Amplicon",
+          "Other");
   public static final Collection<String> SAMPLE_TYPE =
       list("DNA", "FFPE DNA", "Amplified DNA", "RNA", "Total RNA", "FFPE RNA");
   public static final Collection<String> SPECIMEN_CLASS =
       list("Normal", "Tumour", "Adjacent normal");
 
-  public static final Collection<String> SPECIMEN_TYPE = list("Normal - solid tissue", "Normal - blood derived",
-      "Normal - bone marrow", "Normal - tissue adjacent to primary", "Normal - buccal cell",
-      "Normal - EBV immortalized", "Normal - lymph node", "Normal - other", "Primary tumour - solid tissue",
-      "Primary tumour",
-      "Primary tumour - blood derived (peripheral blood)", "Primary tumour - blood derived (bone marrow)",
-      "Primary tumour - additional new primary", "Primary tumour - other", "Recurrent tumour - solid tissue",
-      "Recurrent tumour - blood derived (peripheral blood)", "Recurrent tumour - blood derived (bone marrow)",
-      "Recurrent tumour - other", "Metastatic tumour - NOS", "Metastatic tumour - lymph node",
-      "Metastatic tumour - metastasis local to lymph node", "Metastatic tumour - metastasis to distant location",
-      "Metastatic tumour - additional metastatic", "Xenograft - derived from primary tumour",
-      "Xenograft - derived from tumour cell line", "Cell line - derived from tumour", "Primary tumour - lymph node",
-      "Metastatic tumour - other", "Cell line - derived from xenograft tumour");
+  public static final Collection<String> SPECIMEN_TYPE =
+      list(
+          "Normal - solid tissue",
+          "Normal - blood derived",
+          "Normal - bone marrow",
+          "Normal - tissue adjacent to primary",
+          "Normal - buccal cell",
+          "Normal - EBV immortalized",
+          "Normal - lymph node",
+          "Normal - other",
+          "Primary tumour - solid tissue",
+          "Primary tumour",
+          "Primary tumour - blood derived (peripheral blood)",
+          "Primary tumour - blood derived (bone marrow)",
+          "Primary tumour - additional new primary",
+          "Primary tumour - other",
+          "Recurrent tumour - solid tissue",
+          "Recurrent tumour - blood derived (peripheral blood)",
+          "Recurrent tumour - blood derived (bone marrow)",
+          "Recurrent tumour - other",
+          "Metastatic tumour - NOS",
+          "Metastatic tumour - lymph node",
+          "Metastatic tumour - metastasis local to lymph node",
+          "Metastatic tumour - metastasis to distant location",
+          "Metastatic tumour - additional metastatic",
+          "Xenograft - derived from primary tumour",
+          "Xenograft - derived from tumour cell line",
+          "Cell line - derived from tumour",
+          "Primary tumour - lymph node",
+          "Metastatic tumour - other",
+          "Cell line - derived from xenograft tumour");
 
   public static Collection<String> list(String... s) {
     return Collections.unmodifiableCollection(Arrays.asList(s));
@@ -59,5 +86,4 @@ public class Constants {
     }
     throw new IllegalArgumentException(s);
   }
-
 }

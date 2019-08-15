@@ -17,6 +17,8 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
+import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
@@ -26,54 +28,55 @@ import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
 import com.google.common.collect.Lists;
+import java.util.function.BiConsumer;
 import lombok.NonNull;
 import lombok.val;
-
-import java.util.function.BiConsumer;
-
-import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 
 public class SecureDonorTester extends AbstractSecureTester {
 
   private final DonorService donorService;
 
-  private SecureDonorTester(RandomGenerator randomGenerator,
+  private SecureDonorTester(
+      RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull DonorService donorService) {
     super(randomGenerator, studyService, DONOR_DOES_NOT_EXIST);
     this.donorService = donorService;
   }
 
-  @Override protected boolean isIdExist(String id) {
+  @Override
+  protected boolean isIdExist(String id) {
     return donorService.isDonorExist(id);
   }
 
   @Override
   protected String createId(String existingStudyId, Object context) {
     getStudyService().checkStudyExist(existingStudyId);
-    val donor = Donor.builder()
-        .donorGender(getRandomGenerator().randomElement(Lists.newArrayList(Constants.DONOR_GENDER)))
-        .studyId(existingStudyId)
-        .donorSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
-        .build();
+    val donor =
+        Donor.builder()
+            .donorGender(
+                getRandomGenerator().randomElement(Lists.newArrayList(Constants.DONOR_GENDER)))
+            .studyId(existingStudyId)
+            .donorSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
+            .build();
 
     val donorCreateRequest = new DonorWithSpecimens();
     donorCreateRequest.setDonor(donor);
     return donorService.create(donorCreateRequest);
   }
 
-  public SecureTestData generateData(){
+  public SecureTestData generateData() {
     return generateData(new Object());
   }
 
-  public SecureTestData runSecureAnalysisTest(BiConsumer<String, String> biConsumer){
-      return runSecureTest(biConsumer, new Object() );
+  public SecureTestData runSecureAnalysisTest(BiConsumer<String, String> biConsumer) {
+    return runSecureTest(biConsumer, new Object());
   }
 
-  public static SecureDonorTester createSecureDonorTester(RandomGenerator randomGenerator,
+  public static SecureDonorTester createSecureDonorTester(
+      RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull DonorService donorService) {
     return new SecureDonorTester(randomGenerator, studyService, donorService);
   }
-
 }

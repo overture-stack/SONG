@@ -17,14 +17,13 @@
 
 package bio.overture.song.core.exceptions;
 
-import lombok.NonNull;
-import org.springframework.http.HttpStatus;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.springframework.http.HttpStatus.*;
 
-public enum ServerErrors implements ServerError {
+import lombok.NonNull;
+import org.springframework.http.HttpStatus;
 
+public enum ServerErrors implements ServerError {
   STUDY_ID_DOES_NOT_EXIST(NOT_FOUND),
   DONOR_DOES_NOT_EXIST(NOT_FOUND),
   SPECIMEN_DOES_NOT_EXIST(NOT_FOUND),
@@ -50,11 +49,11 @@ public enum ServerErrors implements ServerError {
   SAMPLE_ID_IS_CORRUPTED(INTERNAL_SERVER_ERROR),
   SPECIMEN_ID_IS_CORRUPTED(INTERNAL_SERVER_ERROR),
   PAYLOAD_PARSING(UNPROCESSABLE_ENTITY),
-  UPLOAD_ID_NOT_FOUND(NOT_FOUND ),
-  FILE_NOT_FOUND(NOT_FOUND ),
-  LEGACY_ENTITY_NOT_FOUND(NOT_FOUND ),
+  UPLOAD_ID_NOT_FOUND(NOT_FOUND),
+  FILE_NOT_FOUND(NOT_FOUND),
+  LEGACY_ENTITY_NOT_FOUND(NOT_FOUND),
   SUPPRESSED_STATE_TRANSITION(BAD_REQUEST),
-  INFO_NOT_FOUND(NOT_FOUND ),
+  INFO_NOT_FOUND(NOT_FOUND),
   INVALID_FILE_UPDATE_REQUEST(BAD_REQUEST),
   ILLEGAL_FILE_UPDATE_REQUEST(BAD_REQUEST),
   UPLOAD_ID_NOT_VALIDATED(CONFLICT),
@@ -100,7 +99,8 @@ public enum ServerErrors implements ServerError {
   STUDY_ID_MISMATCH(CONFLICT),
   STUDY_ID_MISSING(BAD_REQUEST),
   SCHEMA_VIOLATION(BAD_REQUEST),
-  STORAGE_OBJECT_NOT_FOUND(NOT_FOUND), //Used STORAGE instead of SCORE to not tie it to a specific implementation
+  STORAGE_OBJECT_NOT_FOUND(
+      NOT_FOUND), // Used STORAGE instead of SCORE to not tie it to a specific implementation
   UNKNOWN_ERROR(INTERNAL_SERVER_ERROR);
 
   private static final String ERROR_ID_SEPARATOR = ".";
@@ -110,7 +110,7 @@ public enum ServerErrors implements ServerError {
   private final String errorId;
   private final HttpStatus httpStatus;
 
-  ServerErrors(@NonNull HttpStatus httpStatus){
+  ServerErrors(@NonNull HttpStatus httpStatus) {
     this.httpStatus = httpStatus;
     this.errorId = extractErrorId(this.name());
   }
@@ -123,10 +123,9 @@ public enum ServerErrors implements ServerError {
     return httpStatus;
   }
 
-  public static String extractErrorId(@NonNull String errorId){
-    checkArgument(errorId.matches(REGEX),
-        "The errorId [%s] must follow the regex: %s", errorId, REGEX);
+  public static String extractErrorId(@NonNull String errorId) {
+    checkArgument(
+        errorId.matches(REGEX), "The errorId [%s] must follow the regex: %s", errorId, REGEX);
     return errorId.toLowerCase().replaceAll(ENUM_NAME_SEPARATOR, ERROR_ID_SEPARATOR);
   }
-
 }

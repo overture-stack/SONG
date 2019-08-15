@@ -17,6 +17,10 @@
 
 package bio.overture.song.client;
 
+import static org.junit.Assert.assertTrue;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -25,28 +29,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import static org.junit.Assert.assertTrue;
-
 @Slf4j
-public class SpringAppTest extends AbstractClientMainTest{
+public class SpringAppTest extends AbstractClientMainTest {
 
-  @Rule
-  public TemporaryFolder tmp = new TemporaryFolder();
+  @Rule public TemporaryFolder tmp = new TemporaryFolder();
 
-  /**
-   * Placeholder test for debuging the client
-   */
+  /** Placeholder test for debuging the client */
   @Test
   @SneakyThrows
   @Ignore
-  public void testUpload(){
+  public void testUpload() {
     val jsonPath = Paths.get("../src/test/resources/fixtures/sequencingRead.json");
     assertTrue(Files.exists(jsonPath));
     executeMain("upload", "-f", jsonPath.toString());
     log.info("sdf");
   }
-
 }

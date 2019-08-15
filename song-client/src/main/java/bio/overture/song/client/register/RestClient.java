@@ -16,8 +16,16 @@
  */
 package bio.overture.song.client.register;
 
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static java.util.Objects.isNull;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.errors.ServerResponseErrorHandler;
+import java.util.function.Function;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.http.HttpEntity;
@@ -26,15 +34,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.function.Function;
-
-import static java.util.Objects.isNull;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
 
 @Component
 public class RestClient {
@@ -47,7 +46,7 @@ public class RestClient {
   }
 
   public Status get(@NonNull String url) {
-    return _get(buildJsonContentHttpHeader(),url);
+    return _get(buildJsonContentHttpHeader(), url);
   }
 
   public Status get(@NonNull String accessToken, String url) {
@@ -70,8 +69,7 @@ public class RestClient {
     return post(url, "");
   }
 
-
-  public Status putObject(String url,  Object o) {
+  public Status putObject(String url, Object o) {
     return put(url, toJson(o));
   }
 
@@ -80,10 +78,10 @@ public class RestClient {
   }
 
   public Status put(String url) {
-    return put(url,"");
+    return put(url, "");
   }
 
-  public Status putAuthObject(@NonNull String accessToken,  String url,  Object o) {
+  public Status putAuthObject(@NonNull String accessToken, String url, Object o) {
     return putAuth(accessToken, url, toJson(o));
   }
 
@@ -92,10 +90,10 @@ public class RestClient {
   }
 
   public Status putAuth(@NonNull String accessToken, String url) {
-    return putAuth(accessToken, url,"");
+    return putAuth(accessToken, url, "");
   }
 
-  private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction){
+  private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction) {
     Status status = new Status();
     val response = restTemplateFunction.apply(restTemplate);
     if (response.getStatusCode() == HttpStatus.OK) {
@@ -105,11 +103,10 @@ public class RestClient {
         status.output(response.getBody().toString());
       }
     } else {
-      status.err("[%s]: %s",response.getStatusCode().value(),response.toString());
+      status.err("[%s]: %s", response.getStatusCode().value(), response.toString());
     }
     return status;
   }
-
 
   private Status _get(@NonNull HttpHeaders httpHeaders, @NonNull String url) {
     val entity = new HttpEntity<String>(null, httpHeaders);
@@ -121,32 +118,31 @@ public class RestClient {
     return tryRequest(x -> x.exchange(url, PUT, entity, String.class));
   }
 
-  private Status _post(@NonNull HttpHeaders httpHeaders, @NonNull String url, String json){
+  private Status _post(@NonNull HttpHeaders httpHeaders, @NonNull String url, String json) {
     val entity = new HttpEntity<String>(json, httpHeaders);
     return tryRequest(x -> x.postForEntity(url, entity, String.class));
   }
 
-  private static HttpHeaders buildJsonContentHttpHeader(){
+  private static HttpHeaders buildJsonContentHttpHeader() {
     return buildHttpHeader(null, true);
   }
 
-  private static HttpHeaders buildAuthHttpHeader(String accessToken ){
+  private static HttpHeaders buildAuthHttpHeader(String accessToken) {
     return buildHttpHeader(accessToken, false);
   }
 
-  private static HttpHeaders buildAuthJsonContentHttpHeader(String accessToken ){
+  private static HttpHeaders buildAuthJsonContentHttpHeader(String accessToken) {
     return buildHttpHeader(accessToken, true);
   }
 
-  private static HttpHeaders buildHttpHeader(String accessToken, boolean isJsonContent ){
+  private static HttpHeaders buildHttpHeader(String accessToken, boolean isJsonContent) {
     val headers = new HttpHeaders();
-    if (!isNull(accessToken)){
-      headers.set(AUTHORIZATION, "Bearer "+accessToken);
+    if (!isNull(accessToken)) {
+      headers.set(AUTHORIZATION, "Bearer " + accessToken);
     }
-    if (isJsonContent){
+    if (isJsonContent) {
       headers.setContentType(APPLICATION_JSON_UTF8);
     }
     return headers;
   }
-
 }

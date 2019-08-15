@@ -20,10 +20,9 @@ package bio.overture.song.core.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.List;
 import lombok.NonNull;
 import lombok.Value;
-
-import java.util.List;
 
 @Value
 @JsonPropertyOrder({"studyId", "payloads"})
@@ -35,6 +34,4 @@ public class ExportedPayload {
   public static ExportedPayload createExportedPayload(String studyId, List<JsonNode> payloads) {
     return new ExportedPayload(studyId, payloads);
   }
-
 }
-

@@ -16,10 +16,10 @@
  */
 package bio.overture.song.client.json;
 
+import static java.lang.String.format;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.val;
-
-import static java.lang.String.format;
 
 public class JsonObject {
 
@@ -36,5 +36,4 @@ public class JsonObject {
     }
     return jsonString.asText();
   }
-
 }

@@ -19,13 +19,12 @@ package bio.overture.song.server.model.analysis;
 
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = TableNames.ANALYSIS)
@@ -42,5 +41,4 @@ public class Analysis extends AbstractAnalysis {
     super.setWith(a);
     setAnalysisType(a.getAnalysisType());
   }
-
 }

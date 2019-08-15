@@ -17,21 +17,8 @@
 
 package bio.overture.song.server.utils;
 
-import bio.overture.song.server.model.Upload;
-import bio.overture.song.server.model.enums.UploadStates;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import lombok.val;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
@@ -40,112 +27,128 @@ import static lombok.AccessLevel.PRIVATE;
 import static lombok.Lombok.sneakyThrow;
 import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
+
+import bio.overture.song.server.model.Upload;
+import bio.overture.song.server.model.enums.UploadStates;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.val;
 
 @Value
 @RequiredArgsConstructor(access = PRIVATE)
 public class BatchUpload {
 
-  /**
-   * Config
-   */
+  /** Config */
   @NonNull private final String studyId;
+
   @NonNull private final List<String> payloads;
 
-  /**
-   * State
-   */
-
+  /** State */
   @NonNull private final Map<String, Upload> uploadMap = newHashMap();
 
-  private List<Upload> filter(Predicate<UploadStates> ... predicates){
+  private List<Upload> filter(Predicate<UploadStates>... predicates) {
     return uploadMap.values().stream()
         .filter(x -> decide(x, predicates))
         .collect(toImmutableList());
   }
 
-  private static boolean decide(Upload upload, Predicate<UploadStates>...predicates){
+  private static boolean decide(Upload upload, Predicate<UploadStates>... predicates) {
     val u = UploadStates.resolveState(upload.getState());
     boolean result = true;
-    for (val predicate : predicates){
+    for (val predicate : predicates) {
       result |= predicate.test(u);
     }
     return result;
   }
 
-  public List<Upload> getValidatedUploads(){
+  public List<Upload> getValidatedUploads() {
     return filter(state -> state == UploadStates.VALIDATED);
   }
 
-  public List<Upload> getErroredUploads(){
+  public List<Upload> getErroredUploads() {
     return filter(state -> state == UploadStates.VALIDATION_ERROR);
   }
 
-  public List<Upload> getSavedUplouds(){
+  public List<Upload> getSavedUplouds() {
     return filter(state -> state == UploadStates.SAVED);
   }
 
-  public List<Upload> getPendingUploads(){
-    return filter(state -> state != UploadStates.VALIDATION_ERROR,
+  public List<Upload> getPendingUploads() {
+    return filter(
+        state -> state != UploadStates.VALIDATION_ERROR,
         state -> state != UploadStates.VALIDATED,
         state -> state != UploadStates.SAVED);
   }
 
-  public boolean isDone(){
+  public boolean isDone() {
     return getPendingUploads().isEmpty();
   }
 
-  public void addUpload(@NonNull Upload upload){
-    checkArgument(!uploadMap.containsKey(upload.getUploadId()),
-        "The upload '%s' was already added", upload.getUploadId());
+  public void addUpload(@NonNull Upload upload) {
+    checkArgument(
+        !uploadMap.containsKey(upload.getUploadId()),
+        "The upload '%s' was already added",
+        upload.getUploadId());
     uploadMap.put(upload.getUploadId(), upload);
   }
 
-  public void updateUpload(@NonNull Upload upload){
-    checkArgument(uploadMap.containsKey(upload.getUploadId()),
-        "The upload '%s' does not exist in this batch", upload.getUploadId());
+  public void updateUpload(@NonNull Upload upload) {
+    checkArgument(
+        uploadMap.containsKey(upload.getUploadId()),
+        "The upload '%s' does not exist in this batch",
+        upload.getUploadId());
     uploadMap.put(upload.getUploadId(), upload);
   }
 
-  public Upload getUpload(@NonNull String uploadId){
-    checkArgument(uploadMap.containsKey(uploadId),
-        "The uploadId '%s' does not exist", uploadId);
+  public Upload getUpload(@NonNull String uploadId) {
+    checkArgument(uploadMap.containsKey(uploadId), "The uploadId '%s' does not exist", uploadId);
     return uploadMap.get(uploadId);
   }
 
-
-  public static BatchUpload createBatchUpload(String studyId, List<String> filePaths){
+  public static BatchUpload createBatchUpload(String studyId, List<String> filePaths) {
     checkState(!filePaths.isEmpty(), "There must be atleast one filepath");
     return new BatchUpload(studyId, filePaths);
   }
 
-  public static BatchUpload createBatchUploadFromPathNames(String studyId, List<String> filePathNames){
+  public static BatchUpload createBatchUploadFromPathNames(
+      String studyId, List<String> filePathNames) {
     val filePaths = filePathNames.stream().map(x -> Paths.get(x)).collect(toImmutableList());
     return createBatchUploadFromPaths(studyId, filePaths);
-
   }
-  public static BatchUpload createBatchUploadFromPaths(String studyId, List<Path> filePaths){
-    val badFileNames = filePaths.stream()
-        .map(Path::toFile)
-        .filter(f -> !f.exists() || !f.isFile())
-        .map(File::getName)
-        .collect(toImmutableList());
 
-    checkState(badFileNames.size() == 0, "Some files could not be processed: \n%s",
+  public static BatchUpload createBatchUploadFromPaths(String studyId, List<Path> filePaths) {
+    val badFileNames =
+        filePaths.stream()
+            .map(Path::toFile)
+            .filter(f -> !f.exists() || !f.isFile())
+            .map(File::getName)
+            .collect(toImmutableList());
+
+    checkState(
+        badFileNames.size() == 0,
+        "Some files could not be processed: \n%s",
         NEWLINE.join(badFileNames));
 
-    val payloads = filePaths.stream()
-        .map(f -> {
-          try{
-            return toJson(readTree(newInputStream(f)));
-          } catch(IOException e){
-            throw sneakyThrow(e);
-          }
-        })
-        .collect(toImmutableList());
+    val payloads =
+        filePaths.stream()
+            .map(
+                f -> {
+                  try {
+                    return toJson(readTree(newInputStream(f)));
+                  } catch (IOException e) {
+                    throw sneakyThrow(e);
+                  }
+                })
+            .collect(toImmutableList());
 
     return createBatchUpload(studyId, payloads);
   }
-
 }

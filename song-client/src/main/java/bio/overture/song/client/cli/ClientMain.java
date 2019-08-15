@@ -16,25 +16,24 @@
  */
 package bio.overture.song.client.cli;
 
+import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
+import static bio.overture.song.core.exceptions.SongError.createSongError;
+
 import bio.overture.song.client.command.*;
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.ErrorStatusHeader;
 import bio.overture.song.client.register.Registry;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
+import java.io.IOException;
+import java.net.HttpRetryException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
-
-import java.io.IOException;
-import java.net.HttpRetryException;
-
-import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
-import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
-import static bio.overture.song.core.exceptions.SongError.createSongError;
 
 @Component
 @Slf4j
@@ -72,41 +71,42 @@ public class ClientMain implements CommandLineRunner {
   @Override
   public void run(String... args) {
     val command = dispatcher.parse(args);
-    try{
+    try {
       command.run();
-    } catch(RestClientException e){
+    } catch (RestClientException e) {
       val isAlive = registry.isAlive();
       SongError songError;
-      if(isAlive){
+      if (isAlive) {
         val cause = e.getCause();
-        if (cause instanceof  HttpRetryException){
-          val httpRetryException = (HttpRetryException)cause;
-          if (httpRetryException.responseCode() == UNAUTHORIZED_TOKEN.getHttpStatus().value()){
-            songError = createSongError(UNAUTHORIZED_TOKEN,"Invalid token");
+        if (cause instanceof HttpRetryException) {
+          val httpRetryException = (HttpRetryException) cause;
+          if (httpRetryException.responseCode() == UNAUTHORIZED_TOKEN.getHttpStatus().value()) {
+            songError = createSongError(UNAUTHORIZED_TOKEN, "Invalid token");
           } else {
-            songError = createSongError(UNKNOWN_ERROR,
-                "Unknown error with ResponseCode [%s] -- Reason: %s, Message: %s",
-                httpRetryException.responseCode(),
-                httpRetryException.getReason(),
-                httpRetryException.getMessage());
+            songError =
+                createSongError(
+                    UNKNOWN_ERROR,
+                    "Unknown error with ResponseCode [%s] -- Reason: %s, Message: %s",
+                    httpRetryException.responseCode(),
+                    httpRetryException.getReason(),
+                    httpRetryException.getMessage());
           }
         } else {
-          songError = createSongError(UNKNOWN_ERROR,
-              "Unknown error: %s", e.getMessage());
+          songError = createSongError(UNKNOWN_ERROR, "Unknown error: %s", e.getMessage());
         }
         command.err(errorStatusHeader.getSongClientErrorOutput(songError));
       } else {
-        command.err(errorStatusHeader.createMessage("The SONG server may not be running on '%s'", config.getServerUrl()));
+        command.err(
+            errorStatusHeader.createMessage(
+                "The SONG server may not be running on '%s'", config.getServerUrl()));
       }
     } catch (ServerException ex) {
       val songError = ex.getSongError();
       command.err(errorStatusHeader.getSongServerErrorOutput(songError));
     } catch (IOException e) {
-      command.err("IO Error: %s",e.getMessage());
-    } finally{
+      command.err("IO Error: %s", e.getMessage());
+    } finally {
       command.report();
     }
-
   }
-
 }

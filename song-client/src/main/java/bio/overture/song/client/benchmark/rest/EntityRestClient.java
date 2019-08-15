@@ -17,16 +17,15 @@
 
 package bio.overture.song.client.benchmark.rest;
 
+import static org.springframework.http.ResponseEntity.status;
+
 import bio.overture.song.client.errors.ServerResponseErrorHandler;
+import java.util.function.Function;
 import lombok.val;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.function.Function;
-
-import static org.springframework.http.ResponseEntity.status;
-
-public class EntityRestClient extends AbstractRestClient<ResponseEntity<String>>{
+public class EntityRestClient extends AbstractRestClient<ResponseEntity<String>> {
 
   private final RestTemplate restTemplate;
 
@@ -41,5 +40,4 @@ public class EntityRestClient extends AbstractRestClient<ResponseEntity<String>>
     val response = restTemplateFunction.apply(restTemplate);
     return status(response.getStatusCode()).body(response.getBody().toString());
   }
-
 }

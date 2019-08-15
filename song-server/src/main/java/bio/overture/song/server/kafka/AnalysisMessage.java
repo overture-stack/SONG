@@ -17,13 +17,13 @@
 
 package bio.overture.song.server.kafka;
 
+import static bio.overture.song.core.utils.Checkers.checkNotBlank;
+import static lombok.AccessLevel.PRIVATE;
+
 import bio.overture.song.core.model.enums.AnalysisStates;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-
-import static lombok.AccessLevel.PRIVATE;
-import static bio.overture.song.core.utils.Checkers.checkNotBlank;
 
 @Value
 @RequiredArgsConstructor(access = PRIVATE)
@@ -33,10 +33,9 @@ public class AnalysisMessage {
   @NonNull private final String state;
   @NonNull private final String songServerId;
 
-  public static AnalysisMessage createAnalysisMessage(String analysisId, String studyId,
-      AnalysisStates analysisStates, String songServerId){
+  public static AnalysisMessage createAnalysisMessage(
+      String analysisId, String studyId, AnalysisStates analysisStates, String songServerId) {
     checkNotBlank(analysisId);
     return new AnalysisMessage(analysisId, studyId, analysisStates.toString(), songServerId);
   }
-
 }

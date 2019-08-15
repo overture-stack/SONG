@@ -20,14 +20,13 @@ package bio.overture.song.client.benchmark.monitor;
 import bio.overture.song.client.benchmark.counter.Counter;
 import bio.overture.song.client.benchmark.counter.LongCounter;
 import com.google.common.base.Stopwatch;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.slf4j.Logger;
-
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 @Slf4j
 public class CounterMonitor implements Counter<Long> {
@@ -44,13 +43,13 @@ public class CounterMonitor implements Counter<Long> {
 
   private final long countInterval;
 
-  @Getter
-  private boolean isRunning = false;
+  @Getter private boolean isRunning = false;
 
   private long previousCount;
   private float previousTime;
 
-  public CounterMonitor(String name, Counter<Long> counter, Stopwatch watch, Logger logger, long countInterval) {
+  public CounterMonitor(
+      String name, Counter<Long> counter, Stopwatch watch, Logger logger, long countInterval) {
     this.name = name;
     this.counter = counter;
     this.watch = watch;
@@ -74,20 +73,20 @@ public class CounterMonitor implements Counter<Long> {
   }
 
   public void start() {
-    if (!isRunning()){
+    if (!isRunning()) {
       setRunningState(true);
       watch.start();
     }
   }
 
   public void stop() {
-    if (isRunning()){
+    if (isRunning()) {
       watch.stop();
       setRunningState(false);
     }
   }
 
-  public <R> R callIncr(@NonNull Supplier<R> function){
+  public <R> R callIncr(@NonNull Supplier<R> function) {
     start();
     val out = function.get();
     stop();
@@ -95,7 +94,7 @@ public class CounterMonitor implements Counter<Long> {
     return out;
   }
 
-  public void runIncr(@NonNull Runnable runnable){
+  public void runIncr(@NonNull Runnable runnable) {
     start();
     runnable.run();
     stop();
@@ -123,7 +122,7 @@ public class CounterMonitor implements Counter<Long> {
       val currentCount = counter.getCount();
       val currentIntervalCount = currentCount - previousCount;
       if (currentIntervalCount >= countInterval) {
-        val totalTime =  getElapsedTimeSeconds();
+        val totalTime = getElapsedTimeSeconds();
         val intervalElapsedTime = totalTime - previousTime;
         val instRate = getInstRate();
         val avgRate = getAvgRate();
@@ -144,17 +143,17 @@ public class CounterMonitor implements Counter<Long> {
 
   public float getAvgRate() {
     val time = getElapsedTimeSeconds();
-    return (float)counter.getCount()/time;
+    return (float) counter.getCount() / time;
   }
 
-  public long getInstCount(){
-    return counter.getCount()-previousCount;
+  public long getInstCount() {
+    return counter.getCount() - previousCount;
   }
 
   public float getInstRate() {
     val currentIntervalCount = getInstCount();
     val intervalElapsedTime = getElapsedTimeSeconds() - previousTime;
-    return intervalElapsedTime == 0 ? 0 : (float)currentIntervalCount / intervalElapsedTime;
+    return intervalElapsedTime == 0 ? 0 : (float) currentIntervalCount / intervalElapsedTime;
   }
 
   @Override
@@ -210,8 +209,13 @@ public class CounterMonitor implements Counter<Long> {
     return post;
   }
 
-  public static CounterMonitor createCounterMonitor(String name, Logger logger, long intervalCount, long initCount) {
-    return new CounterMonitor(name, LongCounter.createLongCounter(initCount), Stopwatch.createUnstarted(), logger,
+  public static CounterMonitor createCounterMonitor(
+      String name, Logger logger, long intervalCount, long initCount) {
+    return new CounterMonitor(
+        name,
+        LongCounter.createLongCounter(initCount),
+        Stopwatch.createUnstarted(),
+        logger,
         intervalCount);
   }
 
@@ -219,12 +223,12 @@ public class CounterMonitor implements Counter<Long> {
     return createCounterMonitor(name, logger, intervalCount, DEFAULT_INITAL_COUNT);
   }
 
-  public static CounterMonitor createCounterMonitor(String name, long intervalCount, long initCount) {
+  public static CounterMonitor createCounterMonitor(
+      String name, long intervalCount, long initCount) {
     return createCounterMonitor(name, log, intervalCount, initCount);
   }
 
   public static CounterMonitor createCounterMonitor(String name, int intervalCount) {
     return createCounterMonitor(name, log, intervalCount, DEFAULT_INITAL_COUNT);
   }
-
 }

@@ -16,24 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.server.model.entity.Info;
-import bio.overture.song.server.model.entity.InfoPK;
-import bio.overture.song.server.model.enums.InfoTypes;
-import bio.overture.song.server.repository.InfoRepository;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.INFO_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
@@ -42,6 +24,23 @@ import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.server.model.entity.Info.createInfo;
 import static bio.overture.song.server.model.entity.InfoPK.createInfoPK;
 import static bio.overture.song.server.model.enums.InfoTypes.SEQUENCING_READ;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.server.model.entity.Info;
+import bio.overture.song.server.model.entity.InfoPK;
+import bio.overture.song.server.model.enums.InfoTypes;
+import bio.overture.song.server.repository.InfoRepository;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -51,47 +50,56 @@ abstract class InfoService {
   private final InfoRepository infoRepository;
 
   public Optional<String> readInfo(@NonNull String id) {
-    checkInfoExists(id); //TODO: optimize by returning Info entity, so that only 1 db read is done instead of 2.
+    checkInfoExists(
+        id); // TODO: optimize by returning Info entity, so that only 1 db read is done instead of
+             // 2.
     return unsafeRead(id);
   }
 
-  public Map<String, String> getInfoMap(@NonNull Set<String> ids){
-    return findInfo(ids)
-        .stream()
+  public Map<String, String> getInfoMap(@NonNull Set<String> ids) {
+    return findInfo(ids).stream()
         .collect(toMap(x -> x.getInfoPK().getId(), x -> toJson(toJsonNode(x.getInfo()))));
   }
 
-  private Optional<String> unsafeRead(String id){
-    return infoRepository.findById(buildPK(id))
+  private Optional<String> unsafeRead(String id) {
+    return infoRepository
+        .findById(buildPK(id))
         .map(Info::getInfo)
         .map(JsonUtils::toJsonNode)
         .map(JsonUtils::toJson);
   }
+
   public String readNullableInfo(String id) {
-    return unsafeRead(id)
-        .orElse(null);
+    return unsafeRead(id).orElse(null);
   }
 
-  private InfoPK buildPK(String id){
+  private InfoPK buildPK(String id) {
     return createInfoPK(id, type.toString());
   }
 
-  public void checkInfoExists(@NonNull String id){
-    checkServer(isInfoExist(id), getClass(), INFO_NOT_FOUND,
-        "The Info record for id='%s' and type='%s' was not found", id, type.toString());
+  public void checkInfoExists(@NonNull String id) {
+    checkServer(
+        isInfoExist(id),
+        getClass(),
+        INFO_NOT_FOUND,
+        "The Info record for id='%s' and type='%s' was not found",
+        id,
+        type.toString());
   }
 
-  /**
-   * Using readType method since readInfo can return null
-   */
-  public boolean isInfoExist(@NonNull String id){
+  /** Using readType method since readInfo can return null */
+  public boolean isInfoExist(@NonNull String id) {
     return infoRepository.existsById(buildPK(id));
   }
 
-  public void create( @NonNull String id,  String info) {
-    checkServer(!isInfoExist(id),getClass(), INFO_ALREADY_EXISTS,
-    "Could not create Info record for id='%s' and type='%s' because it already exists",
-    id, type.toString());
+  public void create(@NonNull String id, String info) {
+    checkServer(
+        !isInfoExist(id),
+        getClass(),
+        INFO_ALREADY_EXISTS,
+        "Could not create Info record for id='%s' and type='%s' because it already exists",
+        id,
+        type.toString());
     val infoObj = createInfo(buildPK(id), info);
     infoRepository.save(infoObj);
   }
@@ -107,13 +115,10 @@ abstract class InfoService {
     infoRepository.deleteById(buildPK(id));
   }
 
-  private List<Info> findInfo(@NonNull Set<String> ids){
-    val searchRequest = ids.stream()
-        .map(this::buildPK)
-        .collect(toList());
+  private List<Info> findInfo(@NonNull Set<String> ids) {
+    val searchRequest = ids.stream().map(this::buildPK).collect(toList());
     return infoRepository.findAllByInfoPKIn(searchRequest);
   }
-
 }
 
 @Service
@@ -179,4 +184,3 @@ class SequencingReadInfoService extends InfoService {
     super(SEQUENCING_READ, repo);
   }
 }
-

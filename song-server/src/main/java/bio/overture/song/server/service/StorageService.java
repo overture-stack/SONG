@@ -17,18 +17,6 @@
 
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.model.StorageObject;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.retry.support.RetryTemplate;
-import org.springframework.web.client.RestTemplate;
-
-import java.net.URL;
-
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
 import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
@@ -39,20 +27,30 @@ import static org.icgc.dcc.common.core.util.Joiners.SLASH;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 
+import bio.overture.song.server.model.StorageObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.net.URL;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.client.RestTemplate;
+
 @Slf4j
 @RequiredArgsConstructor
 @Builder
 public class StorageService {
 
   private static final String UPLOAD = "upload";
-  private static final String DOWNLOAD= "download";
+  private static final String DOWNLOAD = "download";
   private static final String OBJECT_MD5 = "objectMd5";
-  private static final String OBJECT_SIZE= "objectSize";
+  private static final String OBJECT_SIZE = "objectSize";
 
-  /**
-   * Dependencies
-   */
+  /** Dependencies */
   @NonNull private final RestTemplate restTemplate;
+
   @NonNull private final RetryTemplate retryTemplate;
   @NonNull private final String storageUrl;
   @NonNull private final ValidationService validationService;
@@ -64,26 +62,33 @@ public class StorageService {
   }
 
   @SneakyThrows
-  public StorageObject downloadObject(@NonNull String objectId){
+  public StorageObject downloadObject(@NonNull String objectId) {
     val objectExists = isObjectExist(objectId);
-    checkServer(objectExists,getClass(), STORAGE_OBJECT_NOT_FOUND,
-        "The object with objectId '%s' does not exist in the storage server", objectId);
+    checkServer(
+        objectExists,
+        getClass(),
+        STORAGE_OBJECT_NOT_FOUND,
+        "The object with objectId '%s' does not exist in the storage server",
+        objectId);
     return convertStorageDownloadResponse(objectId, getStorageDownloadResponse(objectId));
   }
 
-  private JsonNode getStorageDownloadResponse(String objectId){
+  private JsonNode getStorageDownloadResponse(String objectId) {
     val objectSpecification = doGetJson(scoreAuthorizationHeader, getDownloadObjectUrl(objectId));
     val validationError = validationService.validateStorageDownloadResponse(objectSpecification);
-    if (validationError.isPresent()){
-      throw buildServerException(getClass(),
+    if (validationError.isPresent()) {
+      throw buildServerException(
+          getClass(),
           INVALID_STORAGE_DOWNLOAD_RESPONSE,
           "The validation of the storage download response for objectId '%s' failed with the following errors: %s",
-          objectId, validationError.get());
+          objectId,
+          validationError.get());
     }
     return objectSpecification;
   }
 
-  private StorageObject convertStorageDownloadResponse(String objectId, JsonNode storageDownloadResponse){
+  private StorageObject convertStorageDownloadResponse(
+      String objectId, JsonNode storageDownloadResponse) {
     return StorageObject.builder()
         .fileMd5sum(parseObjectMd5(storageDownloadResponse))
         .fileSize(parseObjectSize(storageDownloadResponse))
@@ -92,44 +97,45 @@ public class StorageService {
   }
 
   @SneakyThrows
-  private String doGetString(String accessToken, String urlString){
+  private String doGetString(String accessToken, String urlString) {
     val url = new URL(urlString);
-    ResponseEntity<String> response = retryTemplate.execute(retryContext -> {
-      val httpHeaders = new HttpHeaders();
-      httpHeaders.set(AUTHORIZATION, accessToken);
-      val req = new HttpEntity<>(httpHeaders);
-      return restTemplate.exchange(url.toURI(), GET, req, String.class);
-    });
+    ResponseEntity<String> response =
+        retryTemplate.execute(
+            retryContext -> {
+              val httpHeaders = new HttpHeaders();
+              httpHeaders.set(AUTHORIZATION, accessToken);
+              val req = new HttpEntity<>(httpHeaders);
+              return restTemplate.exchange(url.toURI(), GET, req, String.class);
+            });
     return response.getBody();
   }
 
-  private Boolean doGetBoolean(String accessToken, String url){
+  private Boolean doGetBoolean(String accessToken, String url) {
     return parseBoolean(doGetString(accessToken, url));
   }
 
   @SneakyThrows
-  private JsonNode doGetJson(String accessToken, String url){
+  private JsonNode doGetJson(String accessToken, String url) {
     return readTree(doGetString(accessToken, url));
   }
 
-  private static String parseObjectMd5(JsonNode objectSpecification){
+  private static String parseObjectMd5(JsonNode objectSpecification) {
     return objectSpecification.path(OBJECT_MD5).textValue();
   }
 
-  private static Long parseObjectSize(JsonNode objectSpecification){
+  private static Long parseObjectSize(JsonNode objectSpecification) {
     return objectSpecification.path(OBJECT_SIZE).asLong();
   }
 
-  private String getObjectExistsUrl(String objectId){
+  private String getObjectExistsUrl(String objectId) {
     return joinUrl(storageUrl, UPLOAD, objectId);
   }
 
-  private String getDownloadObjectUrl(String objectId){
-    return joinUrl(storageUrl, DOWNLOAD, objectId)+"?offset=0&length=-1&exclude-urls=true";
+  private String getDownloadObjectUrl(String objectId) {
+    return joinUrl(storageUrl, DOWNLOAD, objectId) + "?offset=0&length=-1&exclude-urls=true";
   }
 
-  private static String joinUrl(String ... path){
+  private static String joinUrl(String... path) {
     return SLASH.join(path);
   }
-
 }

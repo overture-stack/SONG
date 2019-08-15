@@ -16,28 +16,26 @@
  */
 package bio.overture.song.client.register;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-
-import java.util.List;
-
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import java.util.List;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RequiredArgsConstructor
 public class Endpoint {
 
   private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
 
-  @NonNull
-  private String serverUrl;
+  @NonNull private String serverUrl;
 
   public String upload(String studyId, boolean isAsyncValidation) {
-    if (isAsyncValidation){
+    if (isAsyncValidation) {
       return format("%s/upload/%s/async", serverUrl, studyId);
     } else {
       return format("%s/upload/%s", serverUrl, studyId);
@@ -45,7 +43,9 @@ public class Endpoint {
   }
 
   public String saveById(String studyId, String uploadId, boolean ignoreAnalysisIdCollisions) {
-    return format("%s/upload/%s/save/%s?ignoreAnalysisIdCollisions=%s", serverUrl, studyId, uploadId, ignoreAnalysisIdCollisions);
+    return format(
+        "%s/upload/%s/save/%s?ignoreAnalysisIdCollisions=%s",
+        serverUrl, studyId, uploadId, ignoreAnalysisIdCollisions);
   }
 
   public String status(String studyId, String uploadId) {
@@ -65,68 +65,66 @@ public class Endpoint {
   }
 
   public String publish(String studyId, String analysisId, boolean ignoreUndefinedMd5) {
-    return format("%s/studies/%s/analysis/publish/%s?ignoreUndefinedMd5=%s",
+    return format(
+        "%s/studies/%s/analysis/publish/%s?ignoreUndefinedMd5=%s",
         serverUrl, studyId, analysisId, ignoreUndefinedMd5);
   }
 
   public String unpublish(String studyId, String analysisId) {
-    return format("%s/studies/%s/analysis/unpublish/%s",
-            serverUrl, studyId, analysisId);
+    return format("%s/studies/%s/analysis/unpublish/%s", serverUrl, studyId, analysisId);
   }
 
-  public String updateFile(String studyId, String objectId){
+  public String updateFile(String studyId, String objectId) {
     return format("%s/studies/%s/files/%s", serverUrl, studyId, objectId);
   }
 
   public String exportAnalysisIds(List<String> analysisIds, boolean includeAnalysisId) {
-    return format("%s/export/analysis/%s?includeAnalysisId=%s",
-        serverUrl,COMMA.join(analysisIds),includeAnalysisId);
+    return format(
+        "%s/export/analysis/%s?includeAnalysisId=%s",
+        serverUrl, COMMA.join(analysisIds), includeAnalysisId);
   }
 
   public String exportStudy(String studyId, boolean includeAnalysisId) {
-    return format("%s/export/studies/%s?includeAnalysisId=%s",
-        serverUrl, studyId, includeAnalysisId);
+    return format(
+        "%s/export/studies/%s?includeAnalysisId=%s", serverUrl, studyId, includeAnalysisId);
   }
 
   public String suppress(String studyId, String analysisId) {
     return format("%s/studies/%s/analysis/suppress/%s", serverUrl, studyId, analysisId);
   }
 
-  public String idSearch(@NonNull String studyId,
-      String sampleId,
-      String specimenId,
-      String donorId,
-      String fileId){
+  public String idSearch(
+      @NonNull String studyId, String sampleId, String specimenId, String donorId, String fileId) {
     val list = Lists.<String>newArrayList();
-    if (!isNull(sampleId)){
-      list.add("sampleId="+sampleId);
+    if (!isNull(sampleId)) {
+      list.add("sampleId=" + sampleId);
     }
-    if (!isNull(specimenId)){
-      list.add("specimenId="+specimenId);
+    if (!isNull(specimenId)) {
+      list.add("specimenId=" + specimenId);
     }
-    if (!isNull(donorId)){
-      list.add("donorId="+donorId);
+    if (!isNull(donorId)) {
+      list.add("donorId=" + donorId);
     }
-    if (!isNull(fileId)){
-      list.add("fileId="+fileId);
+    if (!isNull(fileId)) {
+      list.add("fileId=" + fileId);
     }
     val params = AMPERSAND_JOINER.join(list);
     return format("%s/studies/%s/analysis/search/id?%s", serverUrl, studyId, params);
   }
 
-  public String infoSearch(@NonNull String studyId,
-      final boolean includeInfo, @NonNull Iterable<String> searchTerms){
+  public String infoSearch(
+      @NonNull String studyId, final boolean includeInfo, @NonNull Iterable<String> searchTerms) {
     val params = AMPERSAND_JOINER.join(searchTerms);
-    return format("%s/studies/%s/analysis/search/info?includeInfo=%s&%s", serverUrl, studyId, includeInfo, params);
+    return format(
+        "%s/studies/%s/analysis/search/info?includeInfo=%s&%s",
+        serverUrl, studyId, includeInfo, params);
   }
 
-
-  public String getSchema(@NonNull String schemaId){
+  public String getSchema(@NonNull String schemaId) {
     return format("%s/schema/%s", serverUrl, schemaId);
   }
 
-  public String listSchemas(){
+  public String listSchemas() {
     return format("%s/schema/list", serverUrl);
   }
-
 }

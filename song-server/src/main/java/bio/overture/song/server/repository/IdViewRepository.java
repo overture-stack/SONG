@@ -20,6 +20,4 @@ package bio.overture.song.server.repository;
 import bio.overture.song.server.model.entity.IdView;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface IdViewRepository extends JpaRepository<IdView, String> {
-
-}
+public interface IdViewRepository extends JpaRepository<IdView, String> {}

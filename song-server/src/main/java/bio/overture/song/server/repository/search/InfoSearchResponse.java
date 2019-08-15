@@ -17,13 +17,13 @@
 
 package bio.overture.song.server.repository.search;
 
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NonNull;
 import lombok.Value;
-
-import static java.util.Objects.isNull;
 
 @Value
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -33,7 +33,7 @@ public class InfoSearchResponse {
   private final JsonNode info;
 
   @JsonIgnore
-  public boolean hasInfo(){
+  public boolean hasInfo() {
     return !isNull(info);
   }
 
@@ -44,6 +44,4 @@ public class InfoSearchResponse {
   public static InfoSearchResponse createWithInfo(String analysisId, JsonNode info) {
     return new InfoSearchResponse(analysisId, info);
   }
-
-
 }

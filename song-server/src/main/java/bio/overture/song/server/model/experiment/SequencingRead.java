@@ -17,25 +17,24 @@
 
 package bio.overture.song.server.model.experiment;
 
+import static bio.overture.song.server.model.enums.Constants.LIBRARY_STRATEGY;
+import static bio.overture.song.server.model.enums.Constants.validate;
+
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import static bio.overture.song.server.model.enums.Constants.LIBRARY_STRATEGY;
-import static bio.overture.song.server.model.enums.Constants.validate;
 
 @Entity
 @Table(name = TableNames.SEQUENCINGREAD)
@@ -44,17 +43,17 @@ import static bio.overture.song.server.model.enums.Constants.validate;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonPropertyOrder({
-    ModelAttributeNames.ANALYSIS_ID,
-    ModelAttributeNames.ALIGNED,
-    ModelAttributeNames.ALIGNMENT_TOOL,
-    ModelAttributeNames.INSERT_SIZE,
-    ModelAttributeNames.LIBRARY_STRATEGY,
-    ModelAttributeNames.PAIRED_END,
-    ModelAttributeNames.REFERENCE_GENOME,
-    ModelAttributeNames.INFO
+  ModelAttributeNames.ANALYSIS_ID,
+  ModelAttributeNames.ALIGNED,
+  ModelAttributeNames.ALIGNMENT_TOOL,
+  ModelAttributeNames.INSERT_SIZE,
+  ModelAttributeNames.LIBRARY_STRATEGY,
+  ModelAttributeNames.PAIRED_END,
+  ModelAttributeNames.REFERENCE_GENOME,
+  ModelAttributeNames.INFO
 })
 public class SequencingRead extends Experiment {
 
@@ -84,5 +83,4 @@ public class SequencingRead extends Experiment {
     validate(LIBRARY_STRATEGY, strategy);
     libraryStrategy = strategy;
   }
-
 }

@@ -16,11 +16,14 @@
  */
 package bio.overture.song.server.controller;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.service.SampleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,42 +35,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
 @Api(tags = "Sample", description = "Create,read and delete samples")
 public class SampleController {
 
-  /**
-   * Dependencies
-   */
-  @Autowired
-  private final SampleService sampleService;
+  /** Dependencies */
+  @Autowired private final SampleService sampleService;
 
   @ApiOperation(value = "ReadSample", notes = "Retrieves sample data for a sampleId")
   @GetMapping(value = "/samples/{id}")
   @ResponseBody
-  public Sample read(
-      @PathVariable("studyId") String studyId,
-      @PathVariable("id") String id) {
+  public Sample read(@PathVariable("studyId") String studyId, @PathVariable("id") String id) {
     return sampleService.securedRead(studyId, id);
   }
 
   /**
-   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is implemented
+   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is
+   * implemented
    */
-//  @PutMapping(value = "/samples/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-//  @ResponseBody
-//  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-//  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
-//                       @RequestBody Sample sample) {
-//    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
-//    return sampleService.update(sample);
-//  }
+  //  @PutMapping(value = "/samples/{id}", consumes = { APPLICATION_JSON_VALUE,
+  // APPLICATION_JSON_UTF8_VALUE })
+  //  @ResponseBody
+  //  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  //  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
+  //                       @RequestBody Sample sample) {
+  //    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
+  //    return sampleService.update(sample);
+  //  }
 
   @ApiOperation(value = "DeleteSamples", notes = "Deletes sample data for sampleIds")
   @DeleteMapping(value = "/samples/{ids}")
@@ -80,5 +76,4 @@ public class SampleController {
           List<String> ids) {
     return sampleService.securedDelete(studyId, ids);
   }
-
 }

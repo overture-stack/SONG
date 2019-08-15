@@ -1,19 +1,18 @@
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.isDirectory;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.val;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.isDirectory;
-import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
 
 @Value
 @Builder
@@ -22,13 +21,14 @@ public class ResourceFetcher {
   @NonNull private final ResourceType resourceType;
   @NonNull private final Path dataDir;
 
-  private Path getResourceDir(){
-    return Paths.get("src/"+resourceType.toString()+"/resources");
+  private Path getResourceDir() {
+    return Paths.get("src/" + resourceType.toString() + "/resources");
   }
 
-  public void check(){
+  public void check() {
     val path = getResourceDir().resolve(dataDir);
-    checkArgument(exists(path) && isDirectory(path),
+    checkArgument(
+        exists(path) && isDirectory(path),
         "The test directory '%s' does not exist",
         path.toString());
   }
@@ -38,15 +38,14 @@ public class ResourceFetcher {
   }
 
   @RequiredArgsConstructor
-  public enum ResourceType{
+  public enum ResourceType {
     TEST("test"),
     MAIN("main");
 
     private final String label;
 
-    public String toString(){
+    public String toString() {
       return label;
     }
   }
-
 }

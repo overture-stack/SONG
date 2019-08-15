@@ -16,14 +16,13 @@
  */
 package bio.overture.song.server.validation;
 
-import com.networknt.schema.ValidationMessage;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-import java.util.Set;
-
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.joining;
+
+import com.networknt.schema.ValidationMessage;
+import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor
@@ -32,17 +31,14 @@ public class ValidationResponse {
   private Set<ValidationMessage> messages;
 
   public String getValidationErrors() {
-    return messages.stream()
-        .map(ValidationMessage::getMessage)
-        .collect(joining("|"));
+    return messages.stream().map(ValidationMessage::getMessage).collect(joining("|"));
   }
 
-  public boolean isValid(){
+  public boolean isValid() {
     return isNull(messages) || messages.isEmpty();
   }
 
-  public void merge(ValidationResponse validationResponse){
+  public void merge(ValidationResponse validationResponse) {
     this.messages.addAll(validationResponse.getMessages());
   }
-
 }

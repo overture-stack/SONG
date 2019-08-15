@@ -17,24 +17,24 @@
 
 package bio.overture.song.core.model.enums;
 
-import lombok.NonNull;
-import org.icgc.dcc.common.core.util.stream.Streams;
-
-import java.util.Collection;
-import java.util.Set;
-
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+
+import java.util.Collection;
+import java.util.Set;
+import lombok.NonNull;
+import org.icgc.dcc.common.core.util.stream.Streams;
 
 public enum AnalysisStates {
   PUBLISHED,
   UNPUBLISHED,
   SUPPRESSED;
 
-  private static final Set<String> SET = Streams.stream(values()).map(AnalysisStates::toString).collect(toImmutableSet());
+  private static final Set<String> SET =
+      Streams.stream(values()).map(AnalysisStates::toString).collect(toImmutableSet());
 
-  public String toString(){
+  public String toString() {
     return this.name();
   }
 
@@ -43,19 +43,17 @@ public enum AnalysisStates {
         .filter(x -> x.toString().equals(analysisState))
         .findFirst()
         .orElseThrow(
-            () -> new IllegalStateException(format("The analysis state '%s' cannot be resolved", analysisState)));
+            () ->
+                new IllegalStateException(
+                    format("The analysis state '%s' cannot be resolved", analysisState)));
   }
 
-  public static String[] toStringArray(){
-    return stream(values())
-        .map(Enum::name)
-        .toArray(String[]::new);
+  public static String[] toStringArray() {
+    return stream(values()).map(Enum::name).toArray(String[]::new);
   }
 
-  public static Set<String> findIncorrectAnalysisStates(@NonNull Collection<String> analysisStates){
-    return analysisStates.stream()
-        .filter(x -> !SET.contains(x))
-        .collect(toImmutableSet());
+  public static Set<String> findIncorrectAnalysisStates(
+      @NonNull Collection<String> analysisStates) {
+    return analysisStates.stream().filter(x -> !SET.contains(x)).collect(toImmutableSet());
   }
-
 }

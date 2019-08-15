@@ -17,57 +17,59 @@
 
 package bio.overture.song.core.model.enums;
 
-import lombok.val;
+import static java.util.Objects.isNull;
+
 import bio.overture.song.core.model.file.FileContent;
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.model.file.FileMetadata;
-
 import java.util.function.Function;
-
-import static java.util.Objects.isNull;
+import lombok.val;
 
 public enum FileUpdateTypes {
   NO_UPDATE,
   CONTENT_UPDATE,
   METADATA_UPDATE;
 
-  public static FileUpdateTypes resolveFileUpdateType(FileData originalFile, FileData fileUpdateData){
-    if (isChangedContent(originalFile, fileUpdateData)){
+  public static FileUpdateTypes resolveFileUpdateType(
+      FileData originalFile, FileData fileUpdateData) {
+    if (isChangedContent(originalFile, fileUpdateData)) {
       return CONTENT_UPDATE;
-    } else if(isChangedMetadata(originalFile, fileUpdateData)){
+    } else if (isChangedMetadata(originalFile, fileUpdateData)) {
       return METADATA_UPDATE;
     } else {
       return NO_UPDATE;
     }
   }
 
-  private static <T> boolean isUnchanged(Function<T, ?> getterFunction, T originalFile, T fileUpdateData ){
+  private static <T> boolean isUnchanged(
+      Function<T, ?> getterFunction, T originalFile, T fileUpdateData) {
     val value = getterFunction.apply(fileUpdateData);
     return isNull(value) || getterFunction.apply(originalFile).equals(value);
   }
 
-  private static boolean isUnchangedMd5(FileContent originalFile, FileContent fileUpdataData){
+  private static boolean isUnchangedMd5(FileContent originalFile, FileContent fileUpdataData) {
     return isUnchanged(FileContent::getFileMd5sum, originalFile, fileUpdataData);
   }
 
-  private static boolean isUnchangedSize(FileContent originalFile, FileContent fileUpdataData){
+  private static boolean isUnchangedSize(FileContent originalFile, FileContent fileUpdataData) {
     return isUnchanged(FileContent::getFileSize, originalFile, fileUpdataData);
   }
 
-  private static boolean isUnchangedAccess(FileMetadata originalFile, FileMetadata fileUpdataData){
+  private static boolean isUnchangedAccess(FileMetadata originalFile, FileMetadata fileUpdataData) {
     return isUnchanged(FileMetadata::getFileAccess, originalFile, fileUpdataData);
   }
 
-  private static boolean isUnchangedInfo(FileMetadata originalFile, FileMetadata fileUpdataData){
+  private static boolean isUnchangedInfo(FileMetadata originalFile, FileMetadata fileUpdataData) {
     return isUnchanged(FileMetadata::getInfo, originalFile, fileUpdataData);
   }
 
-  private static boolean isChangedContent(FileContent originalFile, FileContent fileUpdataData){
-    return !(isUnchangedMd5(originalFile, fileUpdataData) && isUnchangedSize(originalFile, fileUpdataData));
+  private static boolean isChangedContent(FileContent originalFile, FileContent fileUpdataData) {
+    return !(isUnchangedMd5(originalFile, fileUpdataData)
+        && isUnchangedSize(originalFile, fileUpdataData));
   }
 
-  private static boolean isChangedMetadata(FileMetadata originalFile, FileMetadata fileUpdateData){
-    return !(isUnchangedAccess(originalFile, fileUpdateData) && isUnchangedInfo(originalFile, fileUpdateData));
+  private static boolean isChangedMetadata(FileMetadata originalFile, FileMetadata fileUpdateData) {
+    return !(isUnchangedAccess(originalFile, fileUpdateData)
+        && isUnchangedInfo(originalFile, fileUpdateData));
   }
-
 }

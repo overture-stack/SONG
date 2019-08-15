@@ -17,26 +17,25 @@
 
 package bio.overture.song.server.model.entity;
 
+import static bio.overture.song.server.model.enums.Constants.DONOR_GENDER;
+import static bio.overture.song.server.model.enums.Constants.validate;
+import static bio.overture.song.server.model.enums.TableNames.DONOR;
+
 import bio.overture.song.server.model.Metadata;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import static bio.overture.song.server.model.enums.Constants.DONOR_GENDER;
-import static bio.overture.song.server.model.enums.Constants.validate;
-import static bio.overture.song.server.model.enums.TableNames.DONOR;
 
 @Entity
 @Table(name = DONOR)
@@ -46,12 +45,12 @@ import static bio.overture.song.server.model.enums.TableNames.DONOR;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonPropertyOrder({
-    ModelAttributeNames.DONOR_ID,
-    ModelAttributeNames.DONOR_SUBMITTER_ID,
-    ModelAttributeNames.STUDY_ID,
-    ModelAttributeNames.DONOR_GENDER,
-    ModelAttributeNames.SPECIMENS,
-    ModelAttributeNames.INFO
+  ModelAttributeNames.DONOR_ID,
+  ModelAttributeNames.DONOR_SUBMITTER_ID,
+  ModelAttributeNames.STUDY_ID,
+  ModelAttributeNames.DONOR_GENDER,
+  ModelAttributeNames.SPECIMENS,
+  ModelAttributeNames.INFO
 })
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public class Donor extends Metadata {
@@ -69,8 +68,10 @@ public class Donor extends Metadata {
   @Column(name = TableAttributeNames.GENDER, nullable = true)
   private String donorGender;
 
-  //NOTE: Since the donorGender field is validated upon setting it, using Lomboks default Builder when
-  //  the @AllArgsConstructor is used will by pass the validation since the Builder uses the All Arg Constructor.
+  // NOTE: Since the donorGender field is validated upon setting it, using Lomboks default Builder
+  // when
+  //  the @AllArgsConstructor is used will by pass the validation since the Builder uses the All Arg
+  // Constructor.
   // By using the setter inside the constructor, the building of a Donor will always be validated
   public Donor(String donorId, String studyId, String donorSubmitterId, String donorGender) {
     this.donorId = donorId;
@@ -84,11 +85,10 @@ public class Donor extends Metadata {
     this.donorGender = gender;
   }
 
-  public void setWithDonor(@NonNull Donor donorUpdate){
+  public void setWithDonor(@NonNull Donor donorUpdate) {
     setDonorSubmitterId(donorUpdate.getDonorSubmitterId());
     setDonorGender(donorUpdate.getDonorGender());
     setDonorId(donorUpdate.getDonorId());
     setInfo(donorUpdate.getInfo());
   }
-
 }

@@ -94,8 +94,7 @@ public class ManifestCommand extends Command {
 
     val m = createManifest(analysisId, status.getOutputs());
     val missingFiles =
-        m.getEntries()
-            .stream()
+        m.getEntries().stream()
             .map(ManifestEntry::getFileName)
             .map(Paths::get)
             .filter(x -> !Files.exists(x))

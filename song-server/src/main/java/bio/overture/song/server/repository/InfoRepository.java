@@ -18,12 +18,10 @@ package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.entity.Info;
 import bio.overture.song.server.model.entity.InfoPK;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
-public interface InfoRepository extends JpaRepository<Info, InfoPK>{
+public interface InfoRepository extends JpaRepository<Info, InfoPK> {
 
   List<Info> findAllByInfoPKIn(List<InfoPK> infoPKS);
-
 }

@@ -34,5 +34,4 @@ public class FileUpdateResponse {
   private boolean unpublishedAnalysis;
   private String message;
   private File originalFile;
-
 }

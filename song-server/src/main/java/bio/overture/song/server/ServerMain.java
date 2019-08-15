@@ -17,21 +17,14 @@
 package bio.overture.song.server;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
-/**
- * Application entry point.
- */
-
-
+/** Application entry point. */
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
-
 public class ServerMain {
 
   public static void main(String... args) {
     SpringApplication.run(ServerMain.class, args);
   }
-
 }

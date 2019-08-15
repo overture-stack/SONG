@@ -17,6 +17,12 @@
 
 package bio.overture.song.server.utils.generator;
 
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static lombok.AccessLevel.PRIVATE;
+import static org.junit.Assert.fail;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.AbstractAnalysis;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
@@ -28,40 +34,38 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import static lombok.AccessLevel.PRIVATE;
-import static org.junit.Assert.fail;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-
 @RequiredArgsConstructor(access = PRIVATE)
 public class PayloadGenerator {
 
   @NonNull private final RandomGenerator randomGenerator;
 
   /**
-   * Generates a random analysis by using a template payload json, and then
-   * randomizing the business keys, which are the sampleSubmitterId, donorSubmitterId, and specimenSubmitterId.
-   * It also sets the ana
+   * Generates a random analysis by using a template payload json, and then randomizing the business
+   * keys, which are the sampleSubmitterId, donorSubmitterId, and specimenSubmitterId. It also sets
+   * the ana
    */
-  public <T extends AbstractAnalysis> T generateRandomPayload(Class<T> analysisClass, String payloadFilename){
+  public <T extends AbstractAnalysis> T generateRandomPayload(
+      Class<T> analysisClass, String payloadFilename) {
     val json = TestFiles.getJsonStringFromClasspath(payloadFilename);
     val analysis = fromJson(json, analysisClass);
     analysis.setAnalysisId(TestFiles.EMPTY_STRING);
-    analysis.getSample().forEach(x -> {
-      x.setSampleSubmitterId(randomGenerator.generateRandomUUID().toString());
-      x.getSpecimen().setSpecimenSubmitterId(randomGenerator.generateRandomUUID().toString());
-      x.getDonor().setDonorSubmitterId(randomGenerator.generateRandomUUID().toString());
-    });
+    analysis
+        .getSample()
+        .forEach(
+            x -> {
+              x.setSampleSubmitterId(randomGenerator.generateRandomUUID().toString());
+              x.getSpecimen()
+                  .setSpecimenSubmitterId(randomGenerator.generateRandomUUID().toString());
+              x.getDonor().setDonorSubmitterId(randomGenerator.generateRandomUUID().toString());
+            });
     return analysis;
   }
 
-  /**
-   * Based on the input analysis class type, the correct payload fixture filename is returned.
-   */
-  public static <T extends AbstractAnalysis> String resolveDefaultPayloadFilename(Class<T> analysisClass){
+  /** Based on the input analysis class type, the correct payload fixture filename is returned. */
+  public static <T extends AbstractAnalysis> String resolveDefaultPayloadFilename(
+      Class<T> analysisClass) {
     String payloadFilename = null;
-    if (analysisClass.equals(SequencingReadAnalysis.class)){
+    if (analysisClass.equals(SequencingReadAnalysis.class)) {
       payloadFilename = "documents/sequencingread-valid.json";
     } else if (analysisClass.equals(VariantCallAnalysis.class)) {
       payloadFilename = "documents/variantcall-valid.json";
@@ -72,10 +76,11 @@ public class PayloadGenerator {
   }
 
   /**
-   * Loads at default fixture depending on the input analysis class type, and returns it as an analysis object
-   * of the correct type. The returned analysis is not persisted in the repository nor is it complete
+   * Loads at default fixture depending on the input analysis class type, and returns it as an
+   * analysis object of the correct type. The returned analysis is not persisted in the repository
+   * nor is it complete
    */
-  public <T extends AbstractAnalysis> T generateDefaultRandomPayload(Class<T> analysisClass ){
+  public <T extends AbstractAnalysis> T generateDefaultRandomPayload(Class<T> analysisClass) {
     val payloadFilename = PayloadGenerator.resolveDefaultPayloadFilename(analysisClass);
     return generateRandomPayload(analysisClass, payloadFilename);
   }
@@ -88,8 +93,7 @@ public class PayloadGenerator {
     return new PayloadGenerator(createRandomGenerator(randomGeneratorName));
   }
 
-  public static void updateStudyInPayload(JsonNode payload, String studyId){
-    ((ObjectNode)payload).put(STUDY, studyId);
+  public static void updateStudyInPayload(JsonNode payload, String studyId) {
+    ((ObjectNode) payload).put(STUDY, studyId);
   }
-
 }

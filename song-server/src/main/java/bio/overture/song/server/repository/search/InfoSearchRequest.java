@@ -17,15 +17,14 @@
 
 package bio.overture.song.server.repository.search;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Data;
 import lombok.val;
-
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -37,19 +36,20 @@ public class InfoSearchRequest {
   private List<SearchTerm> searchTerms;
 
   @JsonIgnore
-  public boolean hasSearchTerms(){
+  public boolean hasSearchTerms() {
     return searchTerms.size() > 0;
   }
 
-  public static InfoSearchRequest createInfoSearchRequest(boolean includeInfo, SearchTerm ... searchTerms){
+  public static InfoSearchRequest createInfoSearchRequest(
+      boolean includeInfo, SearchTerm... searchTerms) {
     return createInfoSearchRequest(includeInfo, newArrayList(searchTerms));
   }
 
-  public static InfoSearchRequest createInfoSearchRequest(boolean includeInfo, List<SearchTerm> searchTerms){
+  public static InfoSearchRequest createInfoSearchRequest(
+      boolean includeInfo, List<SearchTerm> searchTerms) {
     val r = new InfoSearchRequest();
     r.setSearchTerms(searchTerms);
     r.setIncludeInfo(includeInfo);
     return r;
   }
-
 }

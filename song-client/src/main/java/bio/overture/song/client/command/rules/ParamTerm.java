@@ -17,12 +17,11 @@
 
 package bio.overture.song.client.command.rules;
 
-import lombok.NonNull;
-import lombok.Value;
+import static java.lang.String.format;
 
 import java.util.function.Function;
-
-import static java.lang.String.format;
+import lombok.NonNull;
+import lombok.Value;
 
 @Value
 public class ParamTerm<T> {
@@ -40,9 +39,8 @@ public class ParamTerm<T> {
     return format("'%s/%s'", shortSwitch, longSwitch);
   }
 
-  public static <T> ParamTerm<T> createParamTerm(String shortSwitch,
-      String longSwitch, T value, Function<T, Boolean> isDefinedFunction) {
+  public static <T> ParamTerm<T> createParamTerm(
+      String shortSwitch, String longSwitch, T value, Function<T, Boolean> isDefinedFunction) {
     return new ParamTerm<T>(shortSwitch, longSwitch, value, isDefinedFunction);
   }
-
 }

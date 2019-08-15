@@ -17,6 +17,8 @@
 
 package bio.overture.song.server.model.entity;
 
+import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
+
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.model.file.File;
@@ -25,20 +27,17 @@ import bio.overture.song.server.model.Metadata;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.io.Serializable;
-
-import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 
 @Entity
 @Table(name = TableNames.FILE)
@@ -75,8 +74,15 @@ public class FileEntity extends Metadata implements Serializable, FileData, File
   @Column(name = TableAttributeNames.ACCESS, nullable = false)
   private String fileAccess;
 
-  public FileEntity(String objectId, String studyId, String analysisId, String fileName, Long fileSize,
-      String fileType, String fileMd5sum, String fileAccess) {
+  public FileEntity(
+      String objectId,
+      String studyId,
+      String analysisId,
+      String fileName,
+      Long fileSize,
+      String fileType,
+      String fileMd5sum,
+      String fileAccess) {
     this.objectId = objectId;
     this.studyId = studyId;
     this.analysisId = analysisId;
@@ -88,19 +94,18 @@ public class FileEntity extends Metadata implements Serializable, FileData, File
   }
 
   public void setFileType(FileTypes type) {
-    this.fileType =  type.toString();
+    this.fileType = type.toString();
   }
 
   public void setFileType(String type) {
     setFileType(FileTypes.resolveFileType(type));
   }
 
-  public void setFileAccess(@NonNull AccessTypes access){
+  public void setFileAccess(@NonNull AccessTypes access) {
     this.fileAccess = access.toString();
   }
 
-  public void setFileAccess(@NonNull String access){
+  public void setFileAccess(@NonNull String access) {
     setFileAccess(resolveAccessType(access));
   }
-
 }

@@ -16,6 +16,9 @@
  */
 package bio.overture.song.core.utils;
 
+import static bio.overture.song.core.utils.JsonUtils.convertToJSONObject;
+import static java.lang.String.format;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
@@ -24,9 +27,6 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.everit.json.schema.Schema;
 
-import static java.lang.String.format;
-import static bio.overture.song.core.utils.JsonUtils.convertToJSONObject;
-
 public class JsonSchemaUtils extends JsonDocUtils {
 
   @SneakyThrows
@@ -34,7 +34,8 @@ public class JsonSchemaUtils extends JsonDocUtils {
     // JSON Schema id field intended to contain a URI
     val rootNode = schemaRoot.path("id");
     if (rootNode.isMissingNode()) {
-      throw new IllegalArgumentException("Invalid JSON Schema found: schema missing mandatory id field");
+      throw new IllegalArgumentException(
+          "Invalid JSON Schema found: schema missing mandatory id field");
     } else {
       return extractFromSchemaId(rootNode.asText());
     }
@@ -58,7 +59,7 @@ public class JsonSchemaUtils extends JsonDocUtils {
   }
 
   @SneakyThrows
-  public static void validateWithSchema(@NonNull Schema schema, @NonNull JsonNode j){
+  public static void validateWithSchema(@NonNull Schema schema, @NonNull JsonNode j) {
     val jsonObject = convertToJSONObject(j);
     schema.validate(jsonObject);
   }

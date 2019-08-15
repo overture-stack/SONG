@@ -18,16 +18,15 @@
 package bio.overture.song.server.model.entity;
 
 import bio.overture.song.server.model.enums.TableNames;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Immutable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Immutable
@@ -60,5 +59,4 @@ public class BusinessKeyView {
 
   @Column(name = SAMPLE_SUBMITTER_ID)
   private String sampleSubmitterId;
-
 }

@@ -17,6 +17,13 @@
 
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.exceptions.ServerErrors.LEGACY_ENTITY_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.converter.LegacyEntityConverter;
 import bio.overture.song.server.model.legacy.LegacyDto;
@@ -25,6 +32,9 @@ import bio.overture.song.server.repository.LegacyEntityRepository;
 import bio.overture.song.server.utils.ParameterChecker;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.bohnman.squiggly.Squiggly;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,17 +42,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static bio.overture.song.core.exceptions.ServerErrors.LEGACY_ENTITY_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
 
 @Service
 public class LegacyEntityService {
@@ -53,10 +52,9 @@ public class LegacyEntityService {
   private static final Set<String> NON_LEGACY_ENTITY_PARAMS = newHashSet(FIELDS, PAGE, SIZE);
   private static final String SQUIGGLY_ALL_FILTER = "**";
 
-  /**
-   * Dependencies
-   */
+  /** Dependencies */
   private final LegacyEntityRepository legacyEntityRepository;
+
   private final ParameterChecker parameterChecker;
   private final LegacyEntityConverter legacyEntityConverter;
 
@@ -64,47 +62,53 @@ public class LegacyEntityService {
   public LegacyEntityService(
       @NonNull LegacyEntityRepository legacyEntityRepository,
       @NonNull ParameterChecker parameterChecker,
-      @NonNull LegacyEntityConverter legacyEntityConverter){
+      @NonNull LegacyEntityConverter legacyEntityConverter) {
     this.legacyEntityRepository = legacyEntityRepository;
     this.parameterChecker = parameterChecker;
     this.legacyEntityConverter = legacyEntityConverter;
   }
 
-  public LegacyDto getEntity( String id) {
+  public LegacyDto getEntity(String id) {
     val result = legacyEntityRepository.findById(id);
-    checkServer(result.isPresent(), getClass(), LEGACY_ENTITY_NOT_FOUND,
-        "The LegacyEntity with id '%s' does not exist", id);
+    checkServer(
+        result.isPresent(),
+        getClass(),
+        LEGACY_ENTITY_NOT_FOUND,
+        "The LegacyEntity with id '%s' does not exist",
+        id);
     return legacyEntityConverter.convertToLegacyDto(result.get());
   }
 
-  public JsonNode find( MultiValueMap<String, String> params, LegacyDto probe, Pageable pageable) {
-    val queryParameters =  extractQueryParameters(params);
+  public JsonNode find(MultiValueMap<String, String> params, LegacyDto probe, Pageable pageable) {
+    val queryParameters = extractQueryParameters(params);
     val filterParameters = extractFilterParameters(params);
 
     parameterChecker.checkQueryParameters(LegacyEntity.class, queryParameters);
     parameterChecker.checkFilterParameters(LegacyEntity.class, filterParameters);
 
-    val results = legacyEntityRepository.findAll(Example.of(legacyEntityConverter.convertToLegacyEntity(probe)), pageable);
+    val results =
+        legacyEntityRepository.findAll(
+            Example.of(legacyEntityConverter.convertToLegacyEntity(probe)), pageable);
     val filter = buildLegacyEntityPageFilter(filterParameters);
     val mapper = Squiggly.init(JsonUtils.mapper(), filter);
     return mapper.valueToTree(results);
   }
 
-  private Set<String> extractQueryParameters(MultiValueMap<String, String> multiValueMap){
+  private Set<String> extractQueryParameters(MultiValueMap<String, String> multiValueMap) {
     return multiValueMap.keySet().stream()
         .filter(k -> !NON_LEGACY_ENTITY_PARAMS.contains(k))
         .collect(toImmutableSet());
   }
 
-  private String buildLegacyEntityPageFilter(Set<String> filteredFieldNames){
+  private String buildLegacyEntityPageFilter(Set<String> filteredFieldNames) {
     String filter = SQUIGGLY_ALL_FILTER;
-    if (!filteredFieldNames.isEmpty()){
+    if (!filteredFieldNames.isEmpty()) {
       filter = format("%s,content[%s]", SQUIGGLY_ALL_FILTER, COMMA.join(filteredFieldNames));
     }
     return filter;
   }
 
-  private Set<String> extractFilterParameters(MultiValueMap<String, String> params){
+  private Set<String> extractFilterParameters(MultiValueMap<String, String> params) {
     return params.entrySet().stream()
         .filter(x -> x.getKey().equals(FIELDS))
         .map(Map.Entry::getValue)
@@ -119,5 +123,4 @@ public class LegacyEntityService {
       @NonNull LegacyEntityConverter legacyEntityConverter) {
     return new LegacyEntityService(legacyEntityRepository, parameterChecker, legacyEntityConverter);
   }
-
 }

@@ -16,18 +16,14 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.utils.RandomGenerator;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.icgc.dcc.id.client.http.HttpIdClient;
-import org.icgc.dcc.id.client.util.HashIdClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
+import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -40,14 +36,18 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.OK;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
+
+import bio.overture.song.core.utils.RandomGenerator;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.icgc.dcc.id.client.http.HttpIdClient;
+import org.icgc.dcc.id.client.util.HashIdClient;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 @Slf4j
 public class IdServiceTest {
@@ -55,25 +55,23 @@ public class IdServiceTest {
   private static final String SUBMITTER_ID_1 = "AN8899";
   private static final String SUBMITTER_ID_2 = "AN112233";
 
-  @Rule
-  public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
+  @Rule public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 
   private RandomGenerator randomGenerator;
   private IdService idService;
 
   @Before
-  public void beforeTest(){
-    val idServiceUrl = "http://localhost:"+wireMockRule.port();
+  public void beforeTest() {
+    val idServiceUrl = "http://localhost:" + wireMockRule.port();
     val idClient = new HttpIdClient(idServiceUrl, "", "");
     idService = new IdService(idClient);
     randomGenerator = createRandomGenerator(this.getClass().getSimpleName());
   }
 
   @Test
-  public void testObjectId(){
+  public void testObjectId() {
     val analysisId = "AN1";
     val filename = "myfile.bam";
-
 
     // Test Normal Case
     responseConfig(NORMAL, analysisId, filename);
@@ -82,26 +80,26 @@ public class IdServiceTest {
     // Test NotFound case
     responseConfig(IdServiceResponseTypes.NOT_FOUND, analysisId, filename);
     log.info("sdf");
-    assertExceptionThrownBy(IllegalStateException.class,
-        () -> idService.generateFileId(analysisId, filename));
+    assertExceptionThrownBy(
+        IllegalStateException.class, () -> idService.generateFileId(analysisId, filename));
 
     // Test Whitespace Case
     responseConfig(WHITESPACE_ONLY, analysisId, filename);
-    assertExceptionThrownBy(IllegalStateException.class,
-        () -> idService.generateFileId(analysisId, filename));
+    assertExceptionThrownBy(
+        IllegalStateException.class, () -> idService.generateFileId(analysisId, filename));
 
     // Test Empty Case
     responseConfig(EMPTY, analysisId, filename);
-    assertExceptionThrownBy(IllegalStateException.class,
-        () -> idService.generateFileId(analysisId, filename));
+    assertExceptionThrownBy(
+        IllegalStateException.class, () -> idService.generateFileId(analysisId, filename));
 
     // Test Malformed Case
     responseConfig(MALFORMED_UUID, analysisId, filename);
-    assertExceptionThrownBy(IllegalStateException.class,
-        () -> idService.generateFileId(analysisId, filename));
+    assertExceptionThrownBy(
+        IllegalStateException.class, () -> idService.generateFileId(analysisId, filename));
   }
 
-  enum IdServiceResponseTypes{
+  enum IdServiceResponseTypes {
     NORMAL,
     MALFORMED_UUID,
     NOT_FOUND,
@@ -109,121 +107,117 @@ public class IdServiceTest {
     WHITESPACE_ONLY;
   }
 
-  public String resolveResponse(IdServiceResponseTypes type){
-    switch (type){
-    case NORMAL:
-      return randomGenerator.generateRandomUUIDAsString();
-    case NOT_FOUND:
-      return null;
-    case EMPTY:
-      return "";
-    case MALFORMED_UUID:
-      return randomGenerator.generateRandomAsciiString(10);
-    case WHITESPACE_ONLY:
-      return "   ";
-    default:
-      throw new IllegalStateException(format("The type '%s' is not supported", type.name()));
+  public String resolveResponse(IdServiceResponseTypes type) {
+    switch (type) {
+      case NORMAL:
+        return randomGenerator.generateRandomUUIDAsString();
+      case NOT_FOUND:
+        return null;
+      case EMPTY:
+        return "";
+      case MALFORMED_UUID:
+        return randomGenerator.generateRandomAsciiString(10);
+      case WHITESPACE_ONLY:
+        return "   ";
+      default:
+        throw new IllegalStateException(format("The type '%s' is not supported", type.name()));
     }
   }
-  private void responseConfig(IdServiceResponseTypes type, String analysisId, String filename){
+
+  private void responseConfig(IdServiceResponseTypes type, String analysisId, String filename) {
     wireMockRule.resetAll();
     ResponseDefinitionBuilder response;
-    if (type != IdServiceResponseTypes.NOT_FOUND){
-      response = aResponse()
-          .withStatus(OK.value());
+    if (type != IdServiceResponseTypes.NOT_FOUND) {
+      response = aResponse().withStatus(OK.value());
       val body = resolveResponse(type);
-      if (!isNull(body)){
+      if (!isNull(body)) {
         response.withBody(resolveResponse(type));
       }
     } else {
-      response = aResponse()
-          .withStatus(HttpStatus.NOT_FOUND.value());
+      response = aResponse().withStatus(HttpStatus.NOT_FOUND.value());
     }
-    wireMockRule.stubFor(get(urlMatching(format("/object/id\\?analysisId=%s&fileName=%s",analysisId, filename )))
-        .willReturn(response));
+    wireMockRule.stubFor(
+        get(urlMatching(format("/object/id\\?analysisId=%s&fileName=%s", analysisId, filename)))
+            .willReturn(response));
   }
 
   @Test
-  public void testUndefinedAnalysisId(){
+  public void testUndefinedAnalysisId() {
     val idClient = new HashIdClient(true);
     val idService = new IdService(idClient);
 
-    val id1 = idService.resolveAnalysisId("",false);
+    val id1 = idService.resolveAnalysisId("", false);
     assertNotNull(id1);
     assertFalse(idClient.getAnalysisId(id1).isPresent());
 
-    val id1Committed = idService.resolveAndCommitAnalysisId("",false);
+    val id1Committed = idService.resolveAndCommitAnalysisId("", false);
     assertNotNull(id1Committed);
     assertTrue(idClient.getAnalysisId(id1Committed).isPresent());
 
-    val id2 = idService.resolveAnalysisId("",false);
+    val id2 = idService.resolveAnalysisId("", false);
     assertNotNull(id2);
-    assertNotEquals(id1,id2);
+    assertNotEquals(id1, id2);
     assertFalse(idClient.getAnalysisId(id2).isPresent());
 
-    val id2Committed = idService.resolveAndCommitAnalysisId("",false);
+    val id2Committed = idService.resolveAndCommitAnalysisId("", false);
     assertNotNull(id2Committed);
-    assertNotEquals(id1,id2Committed);
+    assertNotEquals(id1, id2Committed);
     assertTrue(idClient.getAnalysisId(id2Committed).isPresent());
 
-    val id3 = idService.resolveAnalysisId(null,false);
+    val id3 = idService.resolveAnalysisId(null, false);
     assertNotNull(id3);
-    assertNotEquals(id1,id3);
+    assertNotEquals(id1, id3);
     assertFalse(idClient.getAnalysisId(id3).isPresent());
 
-    val id3Committed = idService.resolveAndCommitAnalysisId(null,false);
+    val id3Committed = idService.resolveAndCommitAnalysisId(null, false);
     assertNotNull(id1);
-    assertNotEquals(id1,id3Committed);
+    assertNotEquals(id1, id3Committed);
     assertTrue(idClient.getAnalysisId(id3Committed).isPresent());
   }
 
   @Test
-  public void testAnalysisIdNormal(){
+  public void testAnalysisIdNormal() {
     val idClient = new HashIdClient(true);
     val idService = new IdService(idClient);
 
-    val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
-    assertEquals(id1,SUBMITTER_ID_1);
+    val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1, false);
+    assertEquals(id1, SUBMITTER_ID_1);
 
-    val id2 = idService.resolveAnalysisId(SUBMITTER_ID_2,false);
-    assertEquals(id2,SUBMITTER_ID_2);
-    assertNotEquals(id1,id2);
-
+    val id2 = idService.resolveAnalysisId(SUBMITTER_ID_2, false);
+    assertEquals(id2, SUBMITTER_ID_2);
+    assertNotEquals(id1, id2);
   }
 
   @Test
-  public void testIgnoreAnalysisIdCollision(){
+  public void testIgnoreAnalysisIdCollision() {
     val idClient = new HashIdClient(true);
     val idService = new IdService(idClient);
 
-    val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1,false);
-    assertEquals(id1,SUBMITTER_ID_1);
+    val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1, false);
+    assertEquals(id1, SUBMITTER_ID_1);
     assertFalse(idClient.getAnalysisId(id1).isPresent());
 
-    val id2 = idService.resolveAnalysisId(SUBMITTER_ID_1,true);
-    assertEquals(id2,SUBMITTER_ID_1);
-    assertEquals(id1,id2);
-
-
+    val id2 = idService.resolveAnalysisId(SUBMITTER_ID_1, true);
+    assertEquals(id2, SUBMITTER_ID_1);
+    assertEquals(id1, id2);
   }
 
-
   @Test
-  public void testAnalysisIdCollision(){
+  public void testAnalysisIdCollision() {
     val idClient = new HashIdClient(true);
     val idService = new IdService(idClient);
 
-    val id1 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_1,false);
-    assertEquals(id1,SUBMITTER_ID_1);
+    val id1 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_1, false);
+    assertEquals(id1, SUBMITTER_ID_1);
     assertSongError(
-        () -> idService.resolveAnalysisId(SUBMITTER_ID_1,false),
+        () -> idService.resolveAnalysisId(SUBMITTER_ID_1, false),
         ANALYSIS_ID_COLLISION,
         "No exception was thrown, but should have been thrown "
             + "since ignoreAnalysisIdCollisions=false and"
-        + " the same id was attempted to be created");
+            + " the same id was attempted to be created");
 
     assertSongError(
-        () -> idService.resolveAndCommitAnalysisId(SUBMITTER_ID_1,false),
+        () -> idService.resolveAndCommitAnalysisId(SUBMITTER_ID_1, false),
         ANALYSIS_ID_COLLISION,
         "No exception was thrown, but should have been thrown "
             + "since ignoreAnalysisIdCollisions=false and"
@@ -234,20 +228,19 @@ public class IdServiceTest {
      * analysisId is still created. SUBMITTER_ID_2 should not exist for first call
      */
     assertFalse(idClient.getAnalysisId(SUBMITTER_ID_2).isPresent());
-    val id2 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2,true);
-    assertEquals(id2,SUBMITTER_ID_2);
+    val id2 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2, true);
+    assertEquals(id2, SUBMITTER_ID_2);
     assertSongError(
-        () -> idService.resolveAnalysisId(SUBMITTER_ID_2,false),
+        () -> idService.resolveAnalysisId(SUBMITTER_ID_2, false),
         ANALYSIS_ID_COLLISION,
         "No exception was thrown, but should have been thrown "
             + "since ignoreAnalysisIdCollisions=false and"
             + " the same id was attempted to be created");
     assertSongError(
-        () -> idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2,false),
+        () -> idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2, false),
         ANALYSIS_ID_COLLISION,
         "No exception was thrown, but should have been thrown "
             + "since ignoreAnalysisIdCollisions=false and"
             + " the same id was attempted to be created");
   }
-
 }

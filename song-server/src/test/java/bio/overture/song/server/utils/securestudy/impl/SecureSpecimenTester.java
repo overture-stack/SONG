@@ -17,6 +17,8 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
+import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.enums.Constants;
@@ -28,14 +30,13 @@ import com.google.common.collect.Lists;
 import lombok.NonNull;
 import lombok.val;
 
-import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
-
 public class SecureSpecimenTester extends AbstractSecureTester<String> {
 
   private final DonorService donorService;
   private final SpecimenService specimenService;
 
-  private SecureSpecimenTester(RandomGenerator randomGenerator,
+  private SecureSpecimenTester(
+      RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull DonorService donorService,
       @NonNull SpecimenService specimenService) {
@@ -44,26 +45,31 @@ public class SecureSpecimenTester extends AbstractSecureTester<String> {
     this.specimenService = specimenService;
   }
 
-  @Override protected boolean isIdExist(String id) {
+  @Override
+  protected boolean isIdExist(String id) {
     return specimenService.isSpecimenExist(id);
   }
 
-  @Override protected String createId(String existingStudyId, String donorId) {
+  @Override
+  protected String createId(String existingStudyId, String donorId) {
     donorService.checkDonorExists(donorId);
-    val specimen = Specimen.builder()
-        .donorId(donorId)
-        .specimenSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
-        .specimenType(getRandomGenerator().randomElement(Lists.newArrayList(Constants.SPECIMEN_TYPE)))
-        .specimenClass(getRandomGenerator().randomElement(Lists.newArrayList(Constants.SPECIMEN_CLASS)))
-        .build();
+    val specimen =
+        Specimen.builder()
+            .donorId(donorId)
+            .specimenSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
+            .specimenType(
+                getRandomGenerator().randomElement(Lists.newArrayList(Constants.SPECIMEN_TYPE)))
+            .specimenClass(
+                getRandomGenerator().randomElement(Lists.newArrayList(Constants.SPECIMEN_CLASS)))
+            .build();
     return specimenService.create(existingStudyId, specimen);
   }
 
-  public static SecureSpecimenTester createSecureSpecimenTester(RandomGenerator randomGenerator,
+  public static SecureSpecimenTester createSecureSpecimenTester(
+      RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull DonorService donorService,
       @NonNull SpecimenService specimenService) {
     return new SecureSpecimenTester(randomGenerator, studyService, donorService, specimenService);
   }
-
 }

@@ -16,6 +16,9 @@
  */
 package bio.overture.song.server.config;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.springframework.retry.backoff.ExponentialBackOffPolicy.DEFAULT_MULTIPLIER;
+
 import bio.overture.song.server.retry.ClientRetryListener;
 import bio.overture.song.server.retry.DefaultRetryListener;
 import bio.overture.song.server.retry.RetryPolicies;
@@ -31,9 +34,6 @@ import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.springframework.retry.backoff.ExponentialBackOffPolicy.DEFAULT_MULTIPLIER;
-
 @Configuration
 public class RetryConfig {
 
@@ -42,8 +42,10 @@ public class RetryConfig {
 
   @Value("${auth.connection.maxRetries}")
   private int maxRetries = DEFAULT_MAX_RETRIES;
+
   @Value("${auth.connection.initialBackoff}")
   private long initialBackoff = DEFAULT_INITIAL_BACKOFF_INTERVAL;
+
   @Value("${auth.connection.multiplier}")
   private double multiplier = DEFAULT_MULTIPLIER;
 
@@ -52,7 +54,8 @@ public class RetryConfig {
     val result = new RetryTemplate();
     result.setBackOffPolicy(defineBackOffPolicy());
 
-    result.setRetryPolicy(new SimpleRetryPolicy(maxRetries, RetryPolicies.getRetryableExceptions(), true));
+    result.setRetryPolicy(
+        new SimpleRetryPolicy(maxRetries, RetryPolicies.getRetryableExceptions(), true));
     result.registerListener(new DefaultRetryListener(clientRetryListener()));
     return result;
   }
@@ -62,14 +65,13 @@ public class RetryConfig {
     return new ClientRetryListener() {
 
       @Override
-      public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback,
-                                                   Throwable throwable) {
+      public <T, E extends Throwable> void onError(
+          RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
         if (throwable instanceof InvalidTokenException) {
           this.retry = false;
         }
       }
     };
-
   }
 
   private BackOffPolicy defineBackOffPolicy() {
@@ -79,5 +81,4 @@ public class RetryConfig {
 
     return backOffPolicy;
   }
-
 }

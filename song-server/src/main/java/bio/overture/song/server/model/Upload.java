@@ -16,6 +16,9 @@
  */
 package bio.overture.song.server.model;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Objects.isNull;
+
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
@@ -24,6 +27,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.google.common.base.Joiner;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -32,17 +42,6 @@ import lombok.val;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Objects.isNull;
-
 @Entity
 @Table(name = TableNames.UPLOAD)
 @Data
@@ -50,14 +49,14 @@ import static java.util.Objects.isNull;
 @RequiredArgsConstructor
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({
-    ModelAttributeNames.ANALYSIS_ID,
-    ModelAttributeNames.UPLOAD_ID,
-    ModelAttributeNames.STUDY_ID,
-    ModelAttributeNames.STATE,
-    ModelAttributeNames.CREATED_AT,
-    ModelAttributeNames.UPDATED_AT,
-    ModelAttributeNames.ERRORS,
-    ModelAttributeNames.PAYLOAD
+  ModelAttributeNames.ANALYSIS_ID,
+  ModelAttributeNames.UPLOAD_ID,
+  ModelAttributeNames.STUDY_ID,
+  ModelAttributeNames.STATE,
+  ModelAttributeNames.CREATED_AT,
+  ModelAttributeNames.UPDATED_AT,
+  ModelAttributeNames.ERRORS,
+  ModelAttributeNames.PAYLOAD
 })
 public class Upload {
 
@@ -84,15 +83,22 @@ public class Upload {
   private String payload;
 
   @CreationTimestamp
-  @Column(name = TableAttributeNames.CREATED_AT, updatable= false, nullable = false)
+  @Column(name = TableAttributeNames.CREATED_AT, updatable = false, nullable = false)
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
   @Column(name = TableAttributeNames.UPDATED_AT, nullable = false)
   private LocalDateTime updatedAt;
 
-  public Upload(String uploadId, String analysisId, String studyId, String state, String errors, String payload,
-      LocalDateTime createdAt, LocalDateTime updatedAt) {
+  public Upload(
+      String uploadId,
+      String analysisId,
+      String studyId,
+      String state,
+      String errors,
+      String payload,
+      LocalDateTime createdAt,
+      LocalDateTime updatedAt) {
     this.uploadId = uploadId;
     this.analysisId = analysisId;
     this.studyId = studyId;
@@ -103,11 +109,11 @@ public class Upload {
     this.updatedAt = updatedAt;
   }
 
-  public void setState(@NonNull UploadStates state){
+  public void setState(@NonNull UploadStates state) {
     this.state = state.getText();
   }
 
-  public void setState(@NonNull String state){
+  public void setState(@NonNull String state) {
     setState(UploadStates.resolveState(state));
   }
 
@@ -123,8 +129,8 @@ public class Upload {
     }
   }
 
-  public List<String> getErrors(){
-    if(isNull(errors)){
+  public List<String> getErrors() {
+    if (isNull(errors)) {
       return newArrayList();
     } else {
       return newArrayList(errors.split(INPUT_ERROR_DELIM));
@@ -136,5 +142,4 @@ public class Upload {
     e.addAll(errors);
     this.errors = Joiner.on(OUTPUT_ERROR_DELIM).join(e);
   }
-
 }

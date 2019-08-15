@@ -17,13 +17,13 @@
 
 package bio.overture.song.server.utils.generator;
 
+import static lombok.AccessLevel.PRIVATE;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import static lombok.AccessLevel.PRIVATE;
 
 @RequiredArgsConstructor(access = PRIVATE)
 public class StudyGenerator {
@@ -31,18 +31,14 @@ public class StudyGenerator {
   private final StudyService studyService;
   private final RandomGenerator randomGenerator;
 
-  public String createRandomStudy(){
+  public String createRandomStudy() {
     val studyId = generateNonExistingStudyId();
-    studyService.saveStudy(Study.builder()
-        .studyId(studyId)
-        .name("")
-        .description("")
-        .organization("")
-        .build());
+    studyService.saveStudy(
+        Study.builder().studyId(studyId).name("").description("").organization("").build());
     return studyId;
   }
 
-  public String generateNonExistingStudyId(){
+  public String generateNonExistingStudyId() {
     boolean studyExists;
     String studyId;
     do {
@@ -52,8 +48,8 @@ public class StudyGenerator {
     return studyId;
   }
 
-  public static StudyGenerator createStudyGenerator(StudyService studyService, RandomGenerator randomGenerator) {
+  public static StudyGenerator createStudyGenerator(
+      StudyService studyService, RandomGenerator randomGenerator) {
     return new StudyGenerator(studyService, randomGenerator);
   }
-
 }

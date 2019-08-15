@@ -50,5 +50,4 @@ public class TokenServiceConfig {
   public AccessTokenConverter accessTokenConverter() {
     return new DefaultAccessTokenConverter();
   }
-
 }

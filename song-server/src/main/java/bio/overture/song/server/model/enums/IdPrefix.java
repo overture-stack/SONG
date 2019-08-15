@@ -34,5 +34,4 @@ public enum IdPrefix {
   public String toString() {
     return this.value;
   }
-
 }

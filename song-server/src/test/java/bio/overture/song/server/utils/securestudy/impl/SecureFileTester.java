@@ -17,6 +17,9 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
+import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
+import static java.lang.String.format;
+
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -27,20 +30,17 @@ import bio.overture.song.server.service.FileService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
+import java.util.function.BiConsumer;
 import lombok.NonNull;
 import lombok.val;
-
-import java.util.function.BiConsumer;
-
-import static java.lang.String.format;
-import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 
 public class SecureFileTester extends AbstractSecureTester {
 
   private final FileService fileService;
   private final AnalysisService analysisService;
 
-  private SecureFileTester(RandomGenerator randomGenerator,
+  private SecureFileTester(
+      RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull FileService fileService,
       @NonNull AnalysisService analysisService) {
@@ -49,28 +49,35 @@ public class SecureFileTester extends AbstractSecureTester {
     this.analysisService = analysisService;
   }
 
-  @Override protected boolean isIdExist(String id) {
+  @Override
+  protected boolean isIdExist(String id) {
     return fileService.isFileExist(id);
   }
 
-  @Override protected String createId(String existingStudyId, Object context) {
-    val analysisTester = SecureAnalysisTester
-        .createSecureAnalysisTester(getRandomGenerator(), getStudyService(), analysisService);
-    val analysisData = analysisTester.generateData(getRandomGenerator().randomEnum(AnalysisTypes.class));
+  @Override
+  protected String createId(String existingStudyId, Object context) {
+    val analysisTester =
+        SecureAnalysisTester.createSecureAnalysisTester(
+            getRandomGenerator(), getStudyService(), analysisService);
+    val analysisData =
+        analysisTester.generateData(getRandomGenerator().randomEnum(AnalysisTypes.class));
     analysisService.checkAnalysisExists(analysisData.getExistingId());
     val existingAnalysisId = analysisData.getExistingId();
 
     val type = getRandomGenerator().randomEnum(FileTypes.class).toString();
-    val file = FileEntity.builder()
-        .fileAccess(getRandomGenerator().randomEnum(AccessTypes.class).toString())
-        .fileMd5sum(getRandomGenerator().generateRandomMD5())
-        .fileType(type)
-        .fileSize((long)getRandomGenerator().generateRandomIntRange(1000, 1000000))
-        .analysisId(existingAnalysisId)
-        .studyId(existingStudyId)
-        .fileName(format("someFileName.%s.%s",
-            getRandomGenerator().generateRandomAsciiString(30), type.toLowerCase()))
-        .build();
+    val file =
+        FileEntity.builder()
+            .fileAccess(getRandomGenerator().randomEnum(AccessTypes.class).toString())
+            .fileMd5sum(getRandomGenerator().generateRandomMD5())
+            .fileType(type)
+            .fileSize((long) getRandomGenerator().generateRandomIntRange(1000, 1000000))
+            .analysisId(existingAnalysisId)
+            .studyId(existingStudyId)
+            .fileName(
+                format(
+                    "someFileName.%s.%s",
+                    getRandomGenerator().generateRandomAsciiString(30), type.toLowerCase()))
+            .build();
     return fileService.create(existingAnalysisId, existingStudyId, file);
   }
 
@@ -78,11 +85,11 @@ public class SecureFileTester extends AbstractSecureTester {
     return runSecureTest(biConsumer, new Object());
   }
 
-  public static SecureFileTester createSecureFileTester(RandomGenerator randomGenerator,
+  public static SecureFileTester createSecureFileTester(
+      RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull FileService fileService,
       @NonNull AnalysisService analysisService) {
     return new SecureFileTester(randomGenerator, studyService, fileService, analysisService);
   }
-
 }

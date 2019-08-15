@@ -34,8 +34,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 @EnableResourceServer
 public class SecurityConfig extends ResourceServerConfigurerAdapter {
 
-  @Autowired
-  private SwaggerConfig swaggerConfig;
+  @Autowired private SwaggerConfig swaggerConfig;
 
   @Value("${auth.server.suffix}")
   private String scopeSuffix;
@@ -46,17 +45,25 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
   @Override
   @SneakyThrows
   public void configure(HttpSecurity http) {
-    http
-        .authorizeRequests()
-        .antMatchers("/health").permitAll()
-        .antMatchers("/isAlive").permitAll()
-        .antMatchers("/studies/**").permitAll()
-        .antMatchers("/upload/**").permitAll()
-        .antMatchers("/entities/**").permitAll()
-        .antMatchers("/export/**").permitAll()
-        .antMatchers("/schemas/**").permitAll()
-        .antMatchers(swaggerConfig.getAlternateSwaggerUrl()).permitAll()
-        .antMatchers("/swagger**", "/swagger-resources/**", "/v2/api**", "/webjars/**").permitAll()
+    http.authorizeRequests()
+        .antMatchers("/health")
+        .permitAll()
+        .antMatchers("/isAlive")
+        .permitAll()
+        .antMatchers("/studies/**")
+        .permitAll()
+        .antMatchers("/upload/**")
+        .permitAll()
+        .antMatchers("/entities/**")
+        .permitAll()
+        .antMatchers("/export/**")
+        .permitAll()
+        .antMatchers("/schemas/**")
+        .permitAll()
+        .antMatchers(swaggerConfig.getAlternateSwaggerUrl())
+        .permitAll()
+        .antMatchers("/swagger**", "/swagger-resources/**", "/v2/api**", "/webjars/**")
+        .permitAll()
         .and()
         .authorizeRequests()
         .anyRequest()
@@ -64,11 +71,7 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
   }
 
   @Bean
-  public ScopeValidator scopeResolver(){
-    return ScopeValidator.builder()
-        .scopePrefix(scopePrefix)
-        .scopeSuffix(scopeSuffix)
-        .build();
+  public ScopeValidator scopeResolver() {
+    return ScopeValidator.builder().scopePrefix(scopePrefix).scopeSuffix(scopeSuffix).build();
   }
-
 }

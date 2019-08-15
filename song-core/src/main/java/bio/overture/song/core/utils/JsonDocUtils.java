@@ -27,8 +27,8 @@ import lombok.val;
 
 public class JsonDocUtils {
 
-  private static ObjectMapper buildObjectMapper(){
-   return new ObjectMapper()
+  private static ObjectMapper buildObjectMapper() {
+    return new ObjectMapper()
         .registerModule(new ParameterNamesModule())
         .registerModule(new Jdk8Module())
         .registerModule(new JavaTimeModule());

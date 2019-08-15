@@ -20,16 +20,15 @@ package bio.overture.song.server.model.legacy;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Immutable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = TableNames.FILE)
@@ -42,24 +41,43 @@ import javax.persistence.Table;
 public class LegacyEntity implements Legacy {
 
   @Id
-  @Column(name = TableAttributeNames.ID, unique = true, nullable = false,
-      insertable = false, updatable = false)
+  @Column(
+      name = TableAttributeNames.ID,
+      unique = true,
+      nullable = false,
+      insertable = false,
+      updatable = false)
   private String id;
 
-  @Column(name = TableAttributeNames.ANALYSIS_ID, unique = false, nullable = false,
-      insertable = false, updatable = false)
+  @Column(
+      name = TableAttributeNames.ANALYSIS_ID,
+      unique = false,
+      nullable = false,
+      insertable = false,
+      updatable = false)
   private String gnosId;
 
-  @Column(name = TableAttributeNames.NAME, unique = false, nullable = false,
-      insertable = false, updatable = false)
+  @Column(
+      name = TableAttributeNames.NAME,
+      unique = false,
+      nullable = false,
+      insertable = false,
+      updatable = false)
   private String fileName;
 
-  @Column(name = TableAttributeNames.STUDY_ID, unique = false, nullable = false,
-      insertable = false, updatable = false)
+  @Column(
+      name = TableAttributeNames.STUDY_ID,
+      unique = false,
+      nullable = false,
+      insertable = false,
+      updatable = false)
   private String projectCode;
 
-  @Column(name = TableAttributeNames.ACCESS, unique = false, nullable = false,
-      insertable = false, updatable = false)
+  @Column(
+      name = TableAttributeNames.ACCESS,
+      unique = false,
+      nullable = false,
+      insertable = false,
+      updatable = false)
   private String access;
-
 }

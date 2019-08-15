@@ -16,12 +16,24 @@
  */
 package bio.overture.song.server.utils;
 
+import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Strings.padEnd;
+import static com.google.common.base.Strings.repeat;
+import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static org.icgc.dcc.common.core.util.Joiners.WHITESPACE;
+
 import bio.overture.song.core.utils.VersionUtils;
 import bio.overture.song.server.config.ValidationConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -31,26 +43,11 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Strings.padEnd;
-import static com.google.common.base.Strings.repeat;
-import static java.lang.management.ManagementFactory.getRuntimeMXBean;
-import static org.icgc.dcc.common.core.util.Joiners.WHITESPACE;
-
 @Slf4j
 @Component
 public class ServerBanner {
 
-  /**
-   * Dependencies.
-   */
+  /** Dependencies. */
   private final StandardEnvironment env;
 
   @Autowired
@@ -86,7 +83,7 @@ public class ServerBanner {
   private static void log(StandardEnvironment env) {
     log.info("{}:", env);
     for (val source : env.getPropertySources()) {
-      if (source instanceof SystemEnvironmentPropertySource){
+      if (source instanceof SystemEnvironmentPropertySource) {
         // Skip because this will cause issues with terminal display or is useless
         continue;
       }
@@ -94,7 +91,8 @@ public class ServerBanner {
       log.info("         {}:", source.getName());
       if (source instanceof EnumerablePropertySource) {
         val enumerable = (EnumerablePropertySource<?>) source;
-        for (val propertyName : Sets.newTreeSet(ImmutableSet.copyOf(enumerable.getPropertyNames()))) {
+        for (val propertyName :
+            Sets.newTreeSet(ImmutableSet.copyOf(enumerable.getPropertyNames()))) {
           log.info("            - {}: {}", propertyName, enumerable.getProperty(propertyName));
         }
       }
@@ -102,8 +100,9 @@ public class ServerBanner {
   }
 
   private static Map<String, Object> convert(Object values) {
-    return MAPPER.configure(FAIL_ON_EMPTY_BEANS, false).convertValue(values,
-        new TypeReference<Map<String, Object>>() {});
+    return MAPPER
+        .configure(FAIL_ON_EMPTY_BEANS, false)
+        .convertValue(values, new TypeReference<Map<String, Object>>() {});
   }
 
   private static String line() {
@@ -119,7 +118,8 @@ public class ServerBanner {
   }
 
   private String getJarName() {
-    return new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath()).getName();
+    return new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+        .getName();
   }
 
   private static String getVersion() {
@@ -133,6 +133,4 @@ public class ServerBanner {
   private static Package getPackage() {
     return ValidationConfig.class.getPackage();
   }
-
 }
-

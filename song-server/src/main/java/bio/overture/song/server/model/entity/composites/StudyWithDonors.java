@@ -19,49 +19,48 @@ package bio.overture.song.server.model.entity.composites;
 
 import bio.overture.song.server.model.entity.Study;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.val;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Data
 public class StudyWithDonors extends Study {
 
-    List<DonorWithSpecimens> donors=new ArrayList<>();
+  List<DonorWithSpecimens> donors = new ArrayList<>();
 
-    @JsonIgnore
-    public Study getStudy() {
-        val s= Study.builder()
+  @JsonIgnore
+  public Study getStudy() {
+    val s =
+        Study.builder()
             .studyId(getStudyId())
             .name(getName())
             .description(getDescription())
             .organization(getOrganization())
             .build();
-        s.setInfo(getInfoAsString());
-        return s;
-    }
+    s.setInfo(getInfoAsString());
+    return s;
+  }
 
-    @JsonIgnore
-    public void setStudy(Study s) {
-        setStudyId(s.getStudyId());
-        setName(s.getName());
-        setOrganization(s.getOrganization());
-        setDescription(s.getDescription());
-        setInfo(s.getInfoAsString());
-    }
+  @JsonIgnore
+  public void setStudy(Study s) {
+    setStudyId(s.getStudyId());
+    setName(s.getName());
+    setOrganization(s.getOrganization());
+    setDescription(s.getDescription());
+    setInfo(s.getInfoAsString());
+  }
 
-    public void addDonor(DonorWithSpecimens d) {
-        donors.add(d);
-    }
+  public void addDonor(DonorWithSpecimens d) {
+    donors.add(d);
+  }
 
-    public void setDonors(List<DonorWithSpecimens> donors) {
-        this.donors.clear();
-        this.donors.addAll(donors);
-    }
-
+  public void setDonors(List<DonorWithSpecimens> donors) {
+    this.donors.clear();
+    this.donors.addAll(donors);
+  }
 }

@@ -16,11 +16,14 @@
  */
 package bio.overture.song.server.controller;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.service.DonorService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,43 +35,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
 @Api(tags = "Donor", description = "Create, read and delete donors")
 public class DonorController {
 
-  /**
-   * Dependencies
-   */
-  @Autowired
-  private final DonorService donorService;
+  /** Dependencies */
+  @Autowired private final DonorService donorService;
 
   @ApiOperation(value = "ReadDonor", notes = "Retrieves donor data for a donorId")
   @GetMapping(value = "/donors/{id}")
   @ResponseBody
-  public Donor read(
-      @PathVariable("studyId") String studyId,
-      @PathVariable("id") String id) {
+  public Donor read(@PathVariable("studyId") String studyId, @PathVariable("id") String id) {
     return donorService.securedRead(studyId, id);
   }
 
   /**
-   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is implemented
+   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is
+   * implemented
    */
-//  @PutMapping(value = "/donors/{id}", consumes = { APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE })
-//  @ResponseBody
-//  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-//  public String update(@PathVariable("study") String studyId, @PathVariable("id") String id, @RequestBody Donor donor) {
-//    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
-//    return donorService.update(donor);
-//  }
+  //  @PutMapping(value = "/donors/{id}", consumes = { APPLICATION_JSON_VALUE,
+  // APPLICATION_JSON_UTF8_VALUE })
+  //  @ResponseBody
+  //  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  //  public String update(@PathVariable("study") String studyId, @PathVariable("id") String id,
+  // @RequestBody Donor donor) {
+  //    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
+  //    return donorService.update(donor);
+  //  }
 
-  @ApiOperation(value = "DeleteDonors",
+  @ApiOperation(
+      value = "DeleteDonors",
       notes = "Deletes donor data and all dependent specimens and samples for donorIds")
   @DeleteMapping(value = "/donors/{ids}")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -79,5 +77,4 @@ public class DonorController {
           List<String> ids) {
     return donorService.securedDelete(studyId, ids);
   }
-
 }

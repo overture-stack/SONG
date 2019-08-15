@@ -17,11 +17,11 @@
 
 package bio.overture.song.core.model.enums;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum AccessTypes {
@@ -30,15 +30,17 @@ public enum AccessTypes {
 
   @NonNull private final String text;
 
-  public static AccessTypes resolveAccessType(@NonNull String accessType){
+  public static AccessTypes resolveAccessType(@NonNull String accessType) {
     return stream(values())
         .filter(x -> x.toString().equals(accessType))
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException(format("The access type '%s' cannot be resolved", accessType)));
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    format("The access type '%s' cannot be resolved", accessType)));
   }
 
-  public String toString(){
+  public String toString() {
     return text;
   }
-
 }

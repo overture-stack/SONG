@@ -17,12 +17,21 @@
 
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
+import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.ResponseOption;
 import bio.overture.song.server.utils.web.WebResource;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -32,24 +41,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collection;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
-import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
-
 @RequiredArgsConstructor
 public class EndpointTester {
 
-  private static final String SCHEMAS   = "schemas";
-  private static final String NAMES     = "names";
-  private static final String VERSIONS  = "versions";
+  private static final String SCHEMAS = "schemas";
+  private static final String NAMES = "names";
+  private static final String VERSIONS = "versions";
   private static final String META = "meta";
-  private static final String HIDE_SCHEMA= "hideSchema";
+  private static final String HIDE_SCHEMA = "hideSchema";
 
   public static final Joiner AMPERSAND = Joiner.on("&");
 
@@ -57,14 +56,17 @@ public class EndpointTester {
   private final boolean enableLogging;
 
   @SneakyThrows
-  public void testPostError(@NonNull String endpointPath, @NonNull String payload,
-      @NonNull ServerError expectedServerError){
-    this.mockMvc.perform(
-        post(endpointPath)
-            .contentType(APPLICATION_JSON)
-            .accept(APPLICATION_JSON)
-            .content(payload))
-      .andExpect(songErrorContent(expectedServerError));
+  public void testPostError(
+      @NonNull String endpointPath,
+      @NonNull String payload,
+      @NonNull ServerError expectedServerError) {
+    this.mockMvc
+        .perform(
+            post(endpointPath)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .content(payload))
+        .andExpect(songErrorContent(expectedServerError));
   }
 
   public WebResource initWebRequest() {
@@ -76,8 +78,13 @@ public class EndpointTester {
 
   // GET /schemas
   public ResponseOption getSchemaGetRequestAnd(
-      Collection<String> names, Collection<Integer> versions,Boolean hideSchema,
-      Integer offset, Integer limit, Sort.Direction sortOrder, String ... sortVariables){
+      Collection<String> names,
+      Collection<Integer> versions,
+      Boolean hideSchema,
+      Integer offset,
+      Integer limit,
+      Sort.Direction sortOrder,
+      String... sortVariables) {
     return initWebRequest()
         .endpoint(SCHEMAS)
         .optionalQueryParamCollection(NAMES, names)
@@ -91,29 +98,22 @@ public class EndpointTester {
   }
 
   // POST /schemas
-  public ResponseOption registerAnalysisTypePostRequestAnd(@NonNull RegisterAnalysisTypeRequest request){
-    return initWebRequest()
-        .endpoint(SCHEMAS)
-        .body(request)
-        .postAnd();
+  public ResponseOption registerAnalysisTypePostRequestAnd(
+      @NonNull RegisterAnalysisTypeRequest request) {
+    return initWebRequest().endpoint(SCHEMAS).body(request).postAnd();
   }
 
   // GET /schemas/<name>:<version>
-  public ResponseOption getAnalysisTypeVersionGetRequestAnd(@NonNull String analysisTypeIdString){
-    return initWebRequest()
-        .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString))
-        .getAnd();
+  public ResponseOption getAnalysisTypeVersionGetRequestAnd(@NonNull String analysisTypeIdString) {
+    return initWebRequest().endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString)).getAnd();
   }
 
   // GET /schemas/meta
-  public ResponseOption getMetaSchemaGetRequestAnd(){
-    return initWebRequest()
-        .endpoint(Joiners.PATH.join(SCHEMAS, META))
-        .getAnd();
+  public ResponseOption getMetaSchemaGetRequestAnd() {
+    return initWebRequest().endpoint(Joiners.PATH.join(SCHEMAS, META)).getAnd();
   }
 
   public static EndpointTester createEndpointTester(MockMvc mockMvc, boolean enableLogging) {
     return new EndpointTester(mockMvc, enableLogging);
   }
-
 }

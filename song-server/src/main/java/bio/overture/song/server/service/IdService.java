@@ -16,7 +16,16 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
+
 import bio.overture.song.server.model.enums.IdPrefix;
+import java.util.UUID;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -24,25 +33,12 @@ import org.icgc.dcc.id.client.core.IdClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
-import static org.apache.logging.log4j.util.Strings.isNotBlank;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-
 @Service
 @RequiredArgsConstructor
 public class IdService {
 
-  /**
-   * Dependencies.
-   */
-  @Autowired
-  private final IdClient idClient;
+  /** Dependencies. */
+  @Autowired private final IdClient idClient;
 
   public String generateDonorId(@NonNull String submittedDonorId, @NonNull String study) {
     return idClient.createDonorId(submittedDonorId, study);
@@ -56,11 +52,11 @@ public class IdService {
     return idClient.createSampleId(submittedSampleId, study);
   }
 
-  private void checkGeneratedId(String id){
+  private void checkGeneratedId(String id) {
     checkState(isNotBlank(id), "The generated id cannot be blank");
     try {
       UUID.fromString(id);
-    } catch (IllegalArgumentException e){
+    } catch (IllegalArgumentException e) {
       throw new IllegalStateException(format("The generated id '%s' is not in UUID format", id));
     }
   }
@@ -81,67 +77,74 @@ public class IdService {
   }
 
   /**
-   * Resolves the analysisId by returning a potential id.
-   * An analysisId can only be resolved if it doesn't already exist.
-   * If the user wants to use a custom submitted analysisId but the analysisId already
-   * exists (a collision), the ignoreAnalysisIdCollisions parameter must be set to true.
-   * If it is not, a ServerError is thrown.
-   * The following analysisId state stable summarizes the intended functionality:
+   * Resolves the analysisId by returning a potential id. An analysisId can only be resolved if it
+   * doesn't already exist. If the user wants to use a custom submitted analysisId but the
+   * analysisId already exists (a collision), the ignoreAnalysisIdCollisions parameter must be set
+   * to true. If it is not, a ServerError is thrown. The following analysisId state stable
+   * summarizes the intended functionality:
+   * +---------+--------+-------------------+----------------------------------------------------+ |
+   * DEFINED | EXISTS | IGNORE_COLLISIONS | OUTPUT |
+   * +---------+--------+-------------------+----------------------------------------------------+ |
+   * 0 | x | x | return an uncommitted random unique analysisId | | | | | | | 1 | 0 | x | return an
+   * uncommitted user submitted analysisId | | | | | | | 1 | 1 | 0 | collision detected, throw
+   * server error | | | | | | | 1 | 1 | 1 | reuse the submitted analysisId |
    * +---------+--------+-------------------+----------------------------------------------------+
-   * | DEFINED | EXISTS | IGNORE_COLLISIONS |            OUTPUT                                  |
-   * +---------+--------+-------------------+----------------------------------------------------+
-   * |    0    |   x    |        x          | return an uncommitted random unique analysisId      |
-   * |         |        |                   |                                                    |
-   * |    1    |   0    |        x          | return an uncommitted user submitted analysisId    |
-   * |         |        |                   |                                                    |
-   * |    1    |   1    |        0          | collision detected, throw server error             |
-   * |         |        |                   |                                                    |
-   * |    1    |   1    |        1          | reuse the submitted analysisId                     |
-   * +---------+--------+-------------------+----------------------------------------------------+
+   *
    * @param analysisId can be null/empty
    * @param ignoreAnalysisIdCollisions
    * @return
    */
-  public String resolveAnalysisId(String analysisId, final boolean ignoreAnalysisIdCollisions){
+  public String resolveAnalysisId(String analysisId, final boolean ignoreAnalysisIdCollisions) {
     if (isNullOrEmpty(analysisId)) {
       return idClient.generateUniqueAnalysisId();
-    }else {
+    } else {
       val opt = idClient.getAnalysisId(analysisId); // IdServer also validates analysisId format
       val doesIdExist = opt.isPresent();
-      checkServer(!doesIdExist || ignoreAnalysisIdCollisions, this.getClass(), ANALYSIS_ID_COLLISION,
+      checkServer(
+          !doesIdExist || ignoreAnalysisIdCollisions,
+          this.getClass(),
+          ANALYSIS_ID_COLLISION,
           "Collision detected for analysisId '%s'. To ignore collisions, rerun with "
-              + "ignoreAnalysisIdCollisions = true" , analysisId);
+              + "ignoreAnalysisIdCollisions = true",
+          analysisId);
       return analysisId;
     }
   }
 
-  public String resolveAndCommitAnalysisId(String analysisId, final boolean ignoreAnalysisIdCollisions){
+  public String resolveAndCommitAnalysisId(
+      String analysisId, final boolean ignoreAnalysisIdCollisions) {
     val id = resolveAnalysisId(analysisId, ignoreAnalysisIdCollisions);
     createAnalysisId(id);
     return id;
   }
 
-  public void createAnalysisId(@NonNull String analysisId){
-    checkServer(isNotBlank(analysisId), getClass(),
-        ANALYSIS_ID_NOT_CREATED, "Cannot create a blank analysisId");
+  public void createAnalysisId(@NonNull String analysisId) {
+    checkServer(
+        isNotBlank(analysisId),
+        getClass(),
+        ANALYSIS_ID_NOT_CREATED,
+        "Cannot create a blank analysisId");
     idClient.createAnalysisId(analysisId);
   }
 
-  public String resolveAnalysisId2(String analysisId, final boolean ignoreAnalysisIdCollisions){
+  public String resolveAnalysisId2(String analysisId, final boolean ignoreAnalysisIdCollisions) {
     if (isNullOrEmpty(analysisId)) {
       return idClient.createRandomAnalysisId();
-    }else {
+    } else {
       val opt = idClient.getAnalysisId(analysisId); // IdServer also validates analysisId format
       val doesIdExist = opt.isPresent();
-      if (doesIdExist){
-        checkServer(ignoreAnalysisIdCollisions, this.getClass(), ANALYSIS_ID_COLLISION,
+      if (doesIdExist) {
+        checkServer(
+            ignoreAnalysisIdCollisions,
+            this.getClass(),
+            ANALYSIS_ID_COLLISION,
             "Collision detected for analysisId '%s'. To ignore collisions, rerun with "
-                + "ignoreAnalysisIdCollisions = true" , analysisId);
+                + "ignoreAnalysisIdCollisions = true",
+            analysisId);
         return opt.get();
-      }else {
+      } else {
         return idClient.createAnalysisId(analysisId);
       }
     }
   }
-
 }

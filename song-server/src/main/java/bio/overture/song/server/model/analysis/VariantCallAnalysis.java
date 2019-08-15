@@ -17,6 +17,8 @@
 
 package bio.overture.song.server.model.analysis;
 
+import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
+
 import bio.overture.song.server.model.experiment.VariantCall;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,22 +29,19 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
-
 @Data
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VariantCallAnalysis extends AbstractAnalysis {
 
-    VariantCall experiment;
+  VariantCall experiment;
 
-    @JsonGetter
-    public String getAnalysisType() {
-        return VARIANT_CALL_TYPE;
-    }
-
+  @JsonGetter
+  public String getAnalysisType() {
+    return VARIANT_CALL_TYPE;
+  }
 }
