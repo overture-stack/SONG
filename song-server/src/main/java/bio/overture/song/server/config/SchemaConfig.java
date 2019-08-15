@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SchemaConfig {
 
-  private static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
+  public static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
   private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
 
   @Bean

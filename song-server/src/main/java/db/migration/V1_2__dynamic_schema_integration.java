@@ -2,6 +2,7 @@ package db.migration;
 
 import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.server.config.SchemaConfig.SCHEMA_PATH;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
@@ -13,8 +14,6 @@ import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +28,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @Slf4j
 public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
 
-  private static final Path LEGACY_DIR = Paths.get("schemas/analysis/legacy");
+  private static final String SEQUENCING_READ_LEGACY_R_PATH = "legacy/sequencingRead.json";
+  private static final String VARIANT_CALL_LEGACY_R_PATH = "legacy/variantCall.json";
   private static final ObjectMapper OBJECT_MAPPER = mapper();
   private static final Schema LEGACY_VARIANT_CALL_SCHEMA =
-      buildSchema(LEGACY_DIR, "variantCall.json");
+      buildSchema(SCHEMA_PATH, VARIANT_CALL_LEGACY_R_PATH);
   private static final Schema LEGACY_SEQUENCING_READ_SCHEMA =
-      buildSchema(LEGACY_DIR, "sequencingRead.json");
+      buildSchema(SCHEMA_PATH, SEQUENCING_READ_LEGACY_R_PATH);
 
   @Override
   public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
@@ -67,7 +67,8 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
     // ******************************************************************************
 
     // Register variantCall analyis schema
-    val variantCall = getJsonNodeFromClasspath(LEGACY_DIR.resolve("variantCall.json").toString());
+    val variantCall =
+        getJsonNodeFromClasspath(SCHEMA_PATH.resolve(VARIANT_CALL_LEGACY_R_PATH).toString());
     jdbcTemplate.update(
         "INSERT INTO analysis_schema (id, name, schema) VALUES (1, 'variantCall', ?)",
         variantCall.toString());
@@ -85,9 +86,9 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
     // *  SequencingRead Migration Step
     // ******************************************************************************
 
-    // Register variantCall analyis schema
+    // Register sequencingRead analyis schema
     val sequencingRead =
-        getJsonNodeFromClasspath(LEGACY_DIR.resolve("sequencingRead.json").toString());
+        getJsonNodeFromClasspath(SCHEMA_PATH.resolve(SEQUENCING_READ_LEGACY_R_PATH).toString());
 
     // Update all variantCall analyses to point to variantCall analysis_schema
     jdbcTemplate.update(
