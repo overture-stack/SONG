@@ -16,18 +16,6 @@
  */
 package bio.overture.song.server.controller.analysisType;
 
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.AnalysisTypeService;
@@ -36,8 +24,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import java.util.List;
-import java.util.Set;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +40,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Set;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
+
 @RestController
 @RequestMapping(path = "/schemas")
 @Api(tags = "Schema", description = "Get schemas used for uploads")
@@ -66,6 +67,7 @@ public class AnalysisTypeController {
     this.analysisTypeService = analysisTypeService;
   }
 
+  //TODO: have a userDefinedOnly=true/false switch that will return the unrendered version
   @GetMapping("/{analysisTypeId}")
   @ApiOperation(
       value = "GetAnalysisTypeVersion",
@@ -76,8 +78,15 @@ public class AnalysisTypeController {
               type = "string",
               required = false)
           @PathVariable(value = "analysisTypeId", required = true)
-          String analysisTypeIdString) {
-    return analysisTypeService.getAnalysisType(analysisTypeIdString);
+          String analysisTypeIdString,
+      @ApiParam(
+          value = "Only retrieve the unrendered schema that was initially registered",
+          type = "boolean",
+          defaultValue = "false",
+          required = false)
+      @RequestParam(value = "unrenderedOnly", required = false, defaultValue = "false")
+          boolean unrenderedOnly ) {
+    return analysisTypeService.getAnalysisType(analysisTypeIdString, unrenderedOnly);
   }
 
   @SneakyThrows
@@ -149,7 +158,14 @@ public class AnalysisTypeController {
               required = false)
           @RequestParam(value = "hideSchema", required = false, defaultValue = "false")
           boolean hideSchema,
+      @ApiParam(
+          value = "Only retrieve the unrendered schema that was initially registered",
+          type = "boolean",
+          defaultValue = "false",
+          required = false)
+      @RequestParam(value = "unrenderedOnly", required = false, defaultValue = "false")
+          boolean unrenderedOnly,
       Pageable pageable) {
-    return analysisTypeService.listAnalysisTypes(names, versions, pageable, hideSchema);
+    return analysisTypeService.listAnalysisTypes(names, versions, pageable, hideSchema, unrenderedOnly);
   }
 }

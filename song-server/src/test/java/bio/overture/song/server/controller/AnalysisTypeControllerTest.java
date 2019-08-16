@@ -1,19 +1,39 @@
 package bio.overture.song.server.controller;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.core.utils.RandomGenerator.randomList;
-import static bio.overture.song.core.utils.RandomGenerator.randomStream;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
-import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
-import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
-import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.core.utils.ResourceFetcher;
+import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
+import bio.overture.song.server.service.AnalysisTypeService;
+import bio.overture.song.server.utils.EndpointTester;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import net.javacrumbs.jsonunit.core.Configuration;
+import org.everit.json.schema.Schema;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import javax.transaction.Transactional;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.function.Supplier;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
@@ -28,37 +48,20 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.core.utils.ResourceFetcher;
-import bio.overture.song.server.model.dto.AnalysisType;
-import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import bio.overture.song.server.service.AnalysisTypeService;
-import bio.overture.song.server.utils.EndpointTester;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.function.Supplier;
-import javax.transaction.Transactional;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.everit.json.schema.Schema;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.RandomGenerator.randomList;
+import static bio.overture.song.core.utils.RandomGenerator.randomStream;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
+import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
+import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -141,6 +144,18 @@ public class AnalysisTypeControllerTest {
         });
   }
 
+  @Test
+  public void schemaRendering_allPermutations_success(){
+    val expectedUnrenderedJson  = FETCHER.readJsonNode("unrendered-schema.json");
+    val expectedRenderedJson  = FETCHER.readJsonNode("rendered-schema.json");
+    assertNull(analysisTypeService.resolveSchemaJsonView(expectedUnrenderedJson, true, true));
+    assertEquals(analysisTypeService.resolveSchemaJsonView(expectedUnrenderedJson, true, false), expectedUnrenderedJson);
+    assertNull(analysisTypeService.resolveSchemaJsonView(expectedUnrenderedJson, false, true));
+    assertJsonEquals(expectedRenderedJson, analysisTypeService.resolveSchemaJsonView(expectedUnrenderedJson, false, false), Configuration
+        .empty().withOptions(IGNORING_ARRAY_ORDER));
+  }
+
+
   /**
    * Happy Path: Test successful initial registration of an analysisType as well as an update,
    * resulting in 2 versions
@@ -153,21 +168,22 @@ public class AnalysisTypeControllerTest {
     val nonExistingName2 = generateUniqueName();
     assertNotEquals(nonExistingName1, nonExistingName2);
 
-    val createSchema1 =
-        mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
-    val createSchema2 =
-        mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
+    val createSchema1 = generateRandomRegistrationPayload(randomGenerator);
+    val createSchema2 = generateRandomRegistrationPayload(randomGenerator);
     val createRequest1 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName1).schema(createSchema1).build();
     val createRequest2 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName2).schema(createSchema2).build();
 
+    val expectedCreateSchema1 = analysisTypeService.resolveSchemaJsonView(createSchema1, false, false);
+    val expectedCreateSchema2 = analysisTypeService.resolveSchemaJsonView(createSchema2, false, false);
+
     // Build the expected AnalysisType using the AnalysisTypeService and also verify proper format
-    val expectedAnalysisType1 = buildAnalysisType(nonExistingName1, 1, createSchema1);
+    val expectedAnalysisType1 = buildAnalysisType(nonExistingName1, 1, expectedCreateSchema1);
     assertEquals(resolveAnalysisTypeId(nonExistingName1, 1), nonExistingName1 + ":1");
     assertEquals(expectedAnalysisType1.getId(), resolveAnalysisTypeId(nonExistingName1, 1));
 
-    val expectedAnalysisType2 = buildAnalysisType(nonExistingName2, 1, createSchema2);
+    val expectedAnalysisType2 = buildAnalysisType(nonExistingName2, 1, expectedCreateSchema2);
     assertEquals(resolveAnalysisTypeId(nonExistingName2, 1), nonExistingName2 + ":1");
     assertEquals(expectedAnalysisType2.getId(), resolveAnalysisTypeId(nonExistingName2, 1));
 
@@ -181,22 +197,23 @@ public class AnalysisTypeControllerTest {
         .assertOneEntityEquals(expectedAnalysisType2);
 
     // Update the schema for the same analysisTypeName
-    val updateSchema1 =
-        mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
+    val updateSchema1 = generateRandomRegistrationPayload(randomGenerator);
     val updateRequest1 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName1).schema(updateSchema1).build();
-    val expectedAnalysisTypeUpdate1 = buildAnalysisType(nonExistingName1, 2, updateSchema1);
+    val expectedUpdateSchema1 = analysisTypeService.resolveSchemaJsonView(updateSchema1,false, false);
+    val expectedAnalysisTypeUpdate1 = buildAnalysisType(nonExistingName1, 2, expectedUpdateSchema1);
+
 
     // Assert the schema and name were properly registered
     endpointTester
         .registerAnalysisTypePostRequestAnd(updateRequest1)
         .assertOneEntityEquals(expectedAnalysisTypeUpdate1);
 
-    val updateSchema2 =
-        mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
+    val updateSchema2 = generateRandomRegistrationPayload(randomGenerator);
     val updateRequest2 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName2).schema(updateSchema2).build();
-    val expectedAnalysisTypeUpdate2 = buildAnalysisType(nonExistingName2, 2, updateSchema2);
+    val expectedUpdateSchema2 = analysisTypeService.resolveSchemaJsonView(updateSchema2,false, false);
+    val expectedAnalysisTypeUpdate2 = buildAnalysisType(nonExistingName2, 2, expectedUpdateSchema2);
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -614,12 +631,21 @@ public class AnalysisTypeControllerTest {
         .map(
             i -> {
               val name = names.get(i % repeats);
-              val schema =
-                  mapper()
-                      .createObjectNode()
-                      .put("$id", randomGenerator.generateRandomUUIDAsString());
+              val schema = generateRandomRegistrationPayload(randomGenerator);
               return analysisTypeService.register(name, schema);
             })
         .collect(toImmutableList());
+  }
+
+  private static final ResourceFetcher FETCHER = ResourceFetcher.builder()
+      .resourceType(ResourceFetcher.ResourceType.TEST)
+      .dataDir(Paths.get("documents/validation/dynamic-analysis-type"))
+      .build();
+
+  private static JsonNode generateRandomRegistrationPayload(RandomGenerator r){
+    val json = (ObjectNode)FETCHER.readJsonNode("template.test.schema.json");
+    val propertiesNode = (ObjectNode)json.path("properties");
+    propertiesNode.put("id", r.generateRandomUUIDAsString());
+    return json;
   }
 }

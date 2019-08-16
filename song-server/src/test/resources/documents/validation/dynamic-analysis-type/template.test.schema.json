@@ -1,0 +1,16 @@
+{
+  "required"  : ["experiment", "firstName"],
+  "properties" : {
+    "experiment" : {
+      "type" : "object",
+      "properties" : {
+        "exp_name" : {
+          "type" : "string"
+        }
+      }
+    },
+    "firstName" : {
+      "type" : "string"
+    }
+  }
+}

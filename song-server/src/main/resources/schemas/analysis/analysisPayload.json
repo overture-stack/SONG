@@ -167,7 +167,7 @@
 			}
 		}
 	},
-	"required": [ "study", "analysisType","experiment","sample","file"],
+	"required": [ "study", "analysisType","sample","file"],
 	"properties": {
 		"study" : {
 			"type": "string",
