@@ -1,6 +1,5 @@
 <h1 align="center">Song</h1>
 
-
 <p align="center">Quickly and reliably track genome metadata scattered across multiple Cloud storage systems.</p>
 
 
