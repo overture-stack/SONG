@@ -17,12 +17,21 @@
 
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
+import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.ResponseOption;
 import bio.overture.song.server.utils.web.WebResource;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -31,16 +40,6 @@ import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Collection;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
-import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
 
 @RequiredArgsConstructor
 public class EndpointTester {
@@ -52,7 +51,7 @@ public class EndpointTester {
   private static final String HIDE_SCHEMA = "hideSchema";
 
   public static final Joiner AMPERSAND = Joiner.on("&");
-  private static final String UNRENDERED_ONLY = "unrenderedOnly" ;
+  private static final String UNRENDERED_ONLY = "unrenderedOnly";
 
   @NonNull private final MockMvc mockMvc;
   private final boolean enableLogging;
@@ -86,8 +85,8 @@ public class EndpointTester {
       Integer limit,
       Sort.Direction sortOrder,
       String... sortVariables) {
-    return getSchemaGetRequestAnd(names, versions, hideSchema,
-        false, offset, limit, sortOrder, sortVariables);
+    return getSchemaGetRequestAnd(
+        names, versions, hideSchema, false, offset, limit, sortOrder, sortVariables);
   }
 
   // GET /schemas
@@ -125,7 +124,8 @@ public class EndpointTester {
   }
 
   // GET /schemas/<name>:<version>?unrenderedOnly=?
-  public ResponseOption getAnalysisTypeVersionGetRequestAnd(@NonNull String analysisTypeIdString, boolean unrenderedOnly) {
+  public ResponseOption getAnalysisTypeVersionGetRequestAnd(
+      @NonNull String analysisTypeIdString, boolean unrenderedOnly) {
     return initWebRequest()
         .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString))
         .optionalQuerySingleParam(UNRENDERED_ONLY, unrenderedOnly)
