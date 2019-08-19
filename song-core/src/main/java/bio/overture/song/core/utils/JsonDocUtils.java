@@ -25,6 +25,9 @@ import com.google.common.base.Strings;
 import lombok.SneakyThrows;
 import lombok.val;
 
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.isNull;
+
 public class JsonDocUtils {
 
   private static ObjectMapper buildObjectMapper() {
@@ -38,6 +41,7 @@ public class JsonDocUtils {
   public static JsonNode getJsonNodeFromClasspath(String fileName) {
     val mapper = buildObjectMapper();
     val is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+    checkState(!isNull(is), "The file '%s' was not found", fileName);
     return mapper.readTree(is);
   }
 

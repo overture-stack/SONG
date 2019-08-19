@@ -3,14 +3,19 @@
     "$id": "analysis-type-meta-schema",
     "title": "Meta-schema for validating AnalysisType schemas",
     "type": ["object", "boolean"],
-    "required": ["properties"],
+    "required": ["properties", "type"],
     "properties": {
         "type" : {
-            "type" : "string"
+            "type" : "string",
+            "const": "object"
+        },
+        "definitions" : {
+          "type" : "object"
         },
         "properties" : {
             "type": "object",
             "required": ["experiment"],
+            "additionalProperties": true,
             "properties": {
                 "study" : {
                     "not" : {}

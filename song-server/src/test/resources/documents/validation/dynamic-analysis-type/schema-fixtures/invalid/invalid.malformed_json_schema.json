@@ -1,0 +1,41 @@
+{
+  "type" : "object",
+  "required" : ["experiment", "tool", "sandpaper-number"],
+  "properties" : {
+    "experiment" : {
+      "type" : "object",
+      "required" : ["model", "year"],
+      "properties": {
+        "something" : {
+          "type" : {
+            "wrong" : true,
+            "sizee" : 666
+          }
+        },
+        "model" : {
+          "type" : "string"
+        },
+        "year" : {
+          "type": "integer",
+          "minimum": 1990
+        },
+        "serial" : {
+          "type" : "string",
+          "minLength": 12
+        },
+        "heavy" : {
+          "type" : "boolean"
+        }
+      }
+    },
+    "tool" : {
+      "type" : "string"
+    },
+    "sandpaper-description" : {
+      "type": "string"
+    },
+    "sandpaper-number" : {
+      "type": "integer"
+    }
+  }
+}

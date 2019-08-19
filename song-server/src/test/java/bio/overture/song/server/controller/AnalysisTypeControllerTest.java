@@ -1,5 +1,6 @@
 package bio.overture.song.server.controller;
 
+import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.AnalysisType;
@@ -49,8 +50,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -514,6 +517,54 @@ public class AnalysisTypeControllerTest {
     assertTrue(actualNoAnalysisTypes.isEmpty());
   }
 
+  private void runInvalidRegisterTest(String filename, String expectedMessage, ServerError expectedServerError){
+    val nonExistingName = generateUniqueName();
+    val inputInvalidSchema = FETCHER.readJsonNode(Paths.get("schema-fixtures/invalid").resolve(filename).toString());
+    val registerRequest = RegisterAnalysisTypeRequest.builder()
+        .name(nonExistingName)
+        .schema(inputInvalidSchema)
+        .build();
+    val songErrorResponse = endpointTester.registerAnalysisTypePostRequestAnd(registerRequest)
+        .assertServerError(expectedServerError)
+        .getResponse();
+    val songError = parseErrorResponse(songErrorResponse);
+    val actualMessage = songError.getMessage();
+    assertEquals(actualMessage, expectedMessage);
+  }
+
+  @Test
+  public void register_extraFields_schemaViolation(){
+    runInvalidRegisterTest("invalid.extra_fields.json",
+        "[AnalysisTypeService::schema.violation] - #: extraneous key [$id] is not permitted,#: expected type: Boolean, found: JSONObject",
+        SCHEMA_VIOLATION);
+  }
+
+  @Test
+  public void register_malformedJsonSchema_malformedJsonSchema(){
+    runInvalidRegisterTest("invalid.malformed_json_schema.json", "[AnalysisTypeService::malformed.json.schema] - #/properties/experiment/properties/something/type: expected type is one of JsonArray or String, found: JsonObject", MALFORMED_JSON_SCHEMA);
+  }
+
+  @Test
+  public void register_missSpeltType_schemaViolation(){
+    runInvalidRegisterTest("invalid.miss_spelt_type.json", "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#/type: ", SCHEMA_VIOLATION);
+  }
+
+  @Test
+  public void register_missingExperiment_schemaViolation(){
+    runInvalidRegisterTest("invalid.missing_experiment.json", "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#: extraneous key [$id] is not permitted,#/required: expected at least one array item to match 'contains' schema", SCHEMA_VIOLATION);
+  }
+
+  @Test
+  public void register_misspeltExperiment_schemaViolation(){
+    runInvalidRegisterTest("invalid.misspelt_experiment.json", "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#: extraneous key [$id] is not permitted,#/properties: required key [experiment] not found", SCHEMA_VIOLATION);
+  }
+
+  @Test
+  public void register_missingType_schemaViolation(){
+    runInvalidRegisterTest("invalid.missing_type.json", "[AnalysisTypeService::schema.violation] - #: required key [type] not found,#: expected type: Boolean, found: JSONObject", SCHEMA_VIOLATION);
+  }
+
+
   /** Happy Path: test filtering the listing endpoint by multiple versions only */
   @Test
   @Transactional
@@ -643,9 +694,14 @@ public class AnalysisTypeControllerTest {
       .build();
 
   private static JsonNode generateRandomRegistrationPayload(RandomGenerator r){
-    val json = (ObjectNode)FETCHER.readJsonNode("template.test.schema.json");
+    val json = (ObjectNode)FETCHER.readJsonNode("schema-fixtures/valid.json");
     val propertiesNode = (ObjectNode)json.path("properties");
-    propertiesNode.put("id", r.generateRandomUUIDAsString());
+    val experimentNode = (ObjectNode)propertiesNode.path("experiment");
+    experimentNode.put("title", r.generateRandomUUIDAsString());
+//    propertiesNode.put("$comment", r.generateRandomUUIDAsString());
+//    val idNode = propertiesNode.putObject("id");
+//    idNode.put("type", "string");
+//    idNode.put("const", r.generateRandomUUIDAsString());
     return json;
   }
 }

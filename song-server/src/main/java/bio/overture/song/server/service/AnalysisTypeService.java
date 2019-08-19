@@ -13,6 +13,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.Schema;
+import org.everit.json.schema.SchemaException;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,11 +31,11 @@ import java.util.regex.Pattern;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
-import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.compile;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
@@ -135,17 +136,6 @@ public class AnalysisTypeService {
     return rendered;
   }
 
-  public JsonNode renderPayloadJsonSchema(@NonNull String name, Integer version) throws IOException {
-    val analysisType = isNull(version) ? getLatestAnalysisType(name) :
-        getAnalysisType(createAnalysisTypeId(name, version), false);
-    return renderPayloadJsonSchema(analysisType.getSchema());
-  }
-
-  private Schema getPayloadSchema (@NonNull String name, Integer version) throws IOException {
-    val rendered = renderPayloadJsonSchema(name, version);
-    return buildSchema(rendered);
-  }
-
   @Transactional
   public AnalysisType register(
       @NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
@@ -179,8 +169,11 @@ public class AnalysisTypeService {
     val metaSchema = getAnalysisTypeMetaSchema();
     try {
       validateWithSchema(metaSchema, analysisTypeSchema);
+      buildSchema(analysisTypeSchema);
     } catch (ValidationException e) {
       throw buildServerException(getClass(), SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
+    } catch (SchemaException e){
+      throw buildServerException(getClass(), MALFORMED_JSON_SCHEMA, e.getMessage());
     }
   }
 
