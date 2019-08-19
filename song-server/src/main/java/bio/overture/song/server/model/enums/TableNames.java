@@ -39,4 +39,5 @@ public class TableNames {
   public static final String ID_VIEW = "Idview";
   public static final String FULL_VIEW = "Fullview";
   public static final String ANALYSIS_SCHEMA = "analysis_schema";
+  public static final String ANALYSIS_DATA = "analysis_data";
 }

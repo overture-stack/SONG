@@ -174,7 +174,16 @@
 			"minLength": 1
 		},
 		"analysisType": {
-			"type": "string"
+			"type": "object",
+			"required": ["name"],
+			"properties": {
+				"name" : {
+					"type": "string"
+				},
+				"version" : {
+					"type": "integer",
+				}
+			}
 		},
 		"sample": {
 			"type": "array",

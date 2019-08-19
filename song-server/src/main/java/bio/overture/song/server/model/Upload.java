@@ -16,9 +16,6 @@
  */
 package bio.overture.song.server.model;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Objects.isNull;
-
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
@@ -27,13 +24,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.google.common.base.Joiner;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -41,6 +31,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Objects.isNull;
 
 @Entity
 @Table(name = TableNames.UPLOAD)

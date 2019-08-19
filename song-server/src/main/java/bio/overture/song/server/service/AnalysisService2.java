@@ -106,7 +106,7 @@ import static bio.overture.song.server.repository.search.SearchTerm.createMultiS
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AnalysisService {
+public class AnalysisService2 {
 
   private static final Joiner SPACED_COMMA = Joiner.on(" , ");
   private static final Set<String> DEFAULT_ANALYSIS_STATES = ImmutableSet.of(PUBLISHED.toString());
@@ -241,7 +241,7 @@ public class AnalysisService {
       val analysisTypeResults = analysisTypeEntry.getValue();
       val analysesForType =
           processAnalysisForType(
-              analysisTypeResults, analysisType, AnalysisService::instantiateAnalysis);
+              analysisTypeResults, analysisType, AnalysisService2::instantiateAnalysis);
       val partitions = partition(analysesForType, BATCH_SIZE);
 
       for (val analysesForPartition : partitions) {
@@ -625,7 +625,7 @@ public class AnalysisService {
   private void validateAnalysisExistence(boolean isAnalysisExist, String id) {
     checkServer(
         isAnalysisExist,
-        AnalysisService.class,
+        AnalysisService2.class,
         ANALYSIS_ID_NOT_FOUND,
         "The analysisId '%s' was not found",
         id);
@@ -645,7 +645,7 @@ public class AnalysisService {
       out = new VariantCallAnalysis();
     } else {
       throw buildServerException(
-          AnalysisService.class,
+          AnalysisService2.class,
           UNKNOWN_ERROR,
           "unknown analysisType: %s",
           analysis.getAnalysisType());
@@ -710,7 +710,7 @@ public class AnalysisService {
 
     checkServer(
         mismatchingFileSizes.isEmpty(),
-        AnalysisService.class,
+        AnalysisService2.class,
         MISMATCHING_STORAGE_OBJECT_SIZES,
         "The following file objectIds have mismatching object sizes in the storage server: [%s]. "
             + "The analysisId '%s' cannot be published until they all match.",
@@ -774,7 +774,7 @@ public class AnalysisService {
     val noMd5Errors =
         mismatchingFileMd5sums.isEmpty() && (ignoreUndefinedMd5 || undefinedMd5ObjectIds.isEmpty());
     checkServer(
-        noMd5Errors, AnalysisService.class, MISMATCHING_STORAGE_OBJECT_CHECKSUMS, sb.toString());
+        noMd5Errors, AnalysisService2.class, MISMATCHING_STORAGE_OBJECT_CHECKSUMS, sb.toString());
   }
 
   private static boolean isMd5Mismatch(FileEntity file, StorageObject storageObject) {
@@ -795,7 +795,7 @@ public class AnalysisService {
       val errorSet = findIncorrectAnalysisStates(analysisStates);
       checkServer(
           errorSet.isEmpty(),
-          AnalysisService.class,
+          AnalysisService2.class,
           MALFORMED_PARAMETER,
           "The following are not AnalysisStates: '%s'",
           Joiner.on("', '").join(errorSet));
