@@ -113,7 +113,7 @@ public class UploadService2 {
 
     try {
       payload = readTree(payloadString);
-      val analysisId = payload.get(ANALYSIS_ID).asText();
+      val analysisId = payload.path(ANALYSIS_ID).textValue();
       checkStudyInPayload(studyIdFromUrlPath, payloadString);
       List<String> ids;
 

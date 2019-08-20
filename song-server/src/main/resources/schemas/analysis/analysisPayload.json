@@ -167,23 +167,14 @@
 			}
 		}
 	},
-	"required": [ "study", "analysisType","sample","file"],
+	"required": [ "study", "analysisTypeId", "sample","file"],
 	"properties": {
 		"study" : {
 			"type": "string",
 			"minLength": 1
 		},
-		"analysisType": {
-			"type": "object",
-			"required": ["name"],
-			"properties": {
-				"name" : {
-					"type": "string"
-				},
-				"version" : {
-					"type": "integer",
-				}
-			}
+		"analysisTypeId": {
+			"type": "string"
 		},
 		"sample": {
 			"type": "array",
