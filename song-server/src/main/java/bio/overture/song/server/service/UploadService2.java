@@ -18,7 +18,7 @@ package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.Upload;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.enums.IdPrefix;
 import bio.overture.song.server.model.enums.UploadStates;
@@ -157,6 +157,7 @@ public class UploadService2 {
     return ok(status.toString());
   }
 
+
   @Transactional
   public ResponseEntity<String> save(
       @NonNull String studyId, @NonNull String uploadId, final boolean ignoreAnalysisIdCollisions) {
@@ -171,8 +172,12 @@ public class UploadService2 {
         uploadId,
         uploadState.getText(),
         VALIDATED.getText());
+    // split out schema defined fields
+    // convert to analysis with info fields
+    // convert to analsysi_data without info fields and analysis fields
     val json = upload.getPayload();
-    val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
+    val analysis = JsonUtils.fromJson(json, Analysis.class);
+    // val data extract, non-info
     val analysisId = analysisService.create(studyId, analysis, ignoreAnalysisIdCollisions);
     checkServer(
         !isNull(analysisId),

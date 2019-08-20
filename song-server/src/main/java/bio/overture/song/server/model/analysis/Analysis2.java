@@ -86,8 +86,9 @@ public class Analysis2 extends Metadata {
   @Transient
   private List<FileEntity> file;
 
+  //TODO: refactor this class. analysisTypeId can fall out of sync with analysisSchema. this field is only here because this class is both a payload and analysis, but the 2 have now diverged.
   @Transient
-  public AnalysisTypeId analysisType;
+  public String analysisTypeId;
 
   public void setAnalysisState(String state) {
     this.analysisState = resolveAnalysisState(state).toString();
@@ -100,6 +101,6 @@ public class Analysis2 extends Metadata {
     setStudy(a.getStudy());
     setSample(a.getSample());
     setInfo(a.getInfo());
-    setAnalysisType(a.getAnalysisType());
+    setAnalysisTypeId(a.getAnalysisTypeId());
   }
 }

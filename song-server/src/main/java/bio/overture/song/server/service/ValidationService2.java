@@ -42,10 +42,9 @@ import java.util.Optional;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
-import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
+import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
+import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromAnalysis;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
@@ -85,31 +84,25 @@ public class ValidationService2 {
     update(uploadId, errors.orElse(null));
   }
 
+  // To be called at upload level
+  // validateAnalysisTypeName is defined
+  // extract name
+  // optionally extract version
+  // get analysisType
+
   public Optional<String> validate(@NonNull JsonNode payload) {
     String errors = null;
-
     try {
-      if (!payload.has(ANALYSIS_TYPE)) {
-        return Optional.of(format("Missing the '%s' field", ANALYSIS_TYPE));
+      val analysisTypeIdResult = extractAnalysisTypeIdFromAnalysis(payload);
+      if(!analysisTypeIdResult.isPresent()){
+        errors = format("Missing the '%s' field", ANALYSIS_TYPE_ID);
+      } else {
+        val analysisTypeId = parseAnalysisTypeId(analysisTypeIdResult.get());
+        val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false );
+        log.info(format("Found Analysis type: name=%s  version=%s", analysisType.getName(), analysisType.getVersion() ));
+        val schema = buildSchema(analysisType.getSchema());
+        validateWithSchema(schema, payload);
       }
-      val analysisTypeNode = payload.path(ANALYSIS_TYPE);
-      if (!analysisTypeNode.has(NAME)) {
-        return Optional.of(format("Missing the '%s' field at the %s node", NAME, ANALYSIS_TYPE));
-      }
-      val analysisTypeName = analysisTypeNode.get(NAME).asText();
-      val analysisTypeVersion = Optional.ofNullable(analysisTypeNode.get(VERSION).asText());
-
-      // Resolve the analysisType
-      val analysisType = analysisTypeVersion
-          .map(x -> resolveAnalysisTypeId(analysisTypeName, x))
-          .map(x -> analysisTypeService.getAnalysisType(x, false))
-          .orElseGet(() -> analysisTypeService.getLatestAnalysisType(analysisTypeName));
-
-      log.info(format("Analysis type: name=%s  version=%s", analysisType.getName(),
-          analysisType.getVersion()+(analysisTypeVersion.isPresent() ? "": " (latest)") ));
-      val schema = buildSchema(analysisType.getSchema());
-      validateWithSchema(schema, payload);
-
     } catch (ServerException e) {
       log.error(e.getSongError().toPrettyJson());
       errors = e.getSongError().getMessage();
@@ -121,6 +114,7 @@ public class ValidationService2 {
       errors = format("Unknown processing problem: %s", e.getMessage());
     }
     return Optional.ofNullable(errors);
+
   }
 
   public void update(@NonNull String uploadId, String errorMessages) {

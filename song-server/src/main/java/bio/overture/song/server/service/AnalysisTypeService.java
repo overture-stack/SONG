@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.compile;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
@@ -76,6 +77,16 @@ public class AnalysisTypeService {
     return analysisTypeMetaSchema;
   }
 
+  public AnalysisType getAnalysisType(@NonNull String name, @Nullable String versionString, boolean unrenderedOnly){
+    validateAnalysisTypeName(name);
+    if (!isNull(versionString)){
+      val version = parseVersion(versionString);
+      return getAnalysisType(createAnalysisTypeId(name, version), unrenderedOnly);
+    }
+    return getLatestAnalysisType(name, unrenderedOnly);
+  }
+
+
   public AnalysisType getAnalysisType(
       @NonNull String analysisTypeIdAsString, boolean unrenderedOnly) {
     // Parse out the name and version
@@ -83,10 +94,10 @@ public class AnalysisTypeService {
     return getAnalysisType(analysisTypeId, unrenderedOnly);
   }
 
-  public AnalysisType getLatestAnalysisType(@NonNull String analysisTypeName) {
+  public AnalysisType getLatestAnalysisType(@NonNull String analysisTypeName, boolean unrenderedOnly) {
     val analysisTypeId =
         createAnalysisTypeId(analysisTypeName, getLatestVersionNumber(analysisTypeName));
-    return getAnalysisType(analysisTypeId, false);
+    return getAnalysisType(analysisTypeId, unrenderedOnly);
   }
 
   @SneakyThrows
@@ -232,7 +243,7 @@ public class AnalysisTypeService {
         matcher.matches(),
         AnalysisTypeService.class,
         MALFORMED_PARAMETER,
-        "The id '%s' does not match the regex '%s'",
+        "The analysisTypeId '%s' does not match the regex '%s'",
         id,
         ANALYSIS_TYPE_ID_PATTERN.pattern());
     val name = matcher.group(1);
@@ -246,6 +257,17 @@ public class AnalysisTypeService {
         analysisSchema.getName(),
         analysisSchema.getVersion(),
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema));
+  }
+
+  private Integer parseVersion(String versionString){
+    Integer version = null;
+    try{
+      version = parseInt(versionString);
+    } catch (NumberFormatException e){
+      throw buildServerException(getClass(), MALFORMED_PARAMETER, "The input version string '%s' cannot be parsed to an Integer", versionString);
+    }
+    checkServer(version > 0, getClass(), MALFORMED_PARAMETER, "The version '%s' must be > 0");
+    return version;
   }
 
   private static void validateAnalysisTypeName(@NonNull String analysisTypeName) {

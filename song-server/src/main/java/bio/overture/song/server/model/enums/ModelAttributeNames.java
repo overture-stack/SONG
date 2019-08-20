@@ -59,4 +59,5 @@ public class ModelAttributeNames {
   public static final String ANALYSIS_DATA = "analysisData";
   public static final String ANALYSIS = "analysis";
   public static final String ANALYSES = "analyses";
+  public static final String ANALYSIS_TYPE_ID = "analysisTypeId";
 }
