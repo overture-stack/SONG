@@ -16,6 +16,50 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.Upload;
+import bio.overture.song.server.model.analysis.AbstractAnalysis;
+import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
+import bio.overture.song.server.model.analysis.VariantCallAnalysis;
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.model.enums.AnalysisTypes;
+import bio.overture.song.server.service.export.ExportService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.icgc.dcc.id.client.core.IdClient;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import javax.transaction.Transactional;
+import java.nio.file.Files;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static java.lang.Thread.sleep;
+import static java.util.Arrays.stream;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.OK;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
 import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
@@ -38,49 +82,6 @@ import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspat
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureUploadTester.createSecureUploadTester;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static java.lang.Thread.sleep;
-import static java.util.Arrays.stream;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.OK;
-
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.Upload;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
-import bio.overture.song.server.model.analysis.VariantCallAnalysis;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.enums.AnalysisTypes;
-import bio.overture.song.server.service.export.ExportService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.nio.file.Files;
-import java.util.Map;
-import javax.transaction.Transactional;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.icgc.dcc.id.client.core.IdClient;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 @Slf4j
 @SpringBootTest
@@ -103,6 +104,7 @@ public class UploadServiceTest {
   }
 
   @Autowired UploadService uploadService;
+  @Autowired UploadService2 uploadService2;
 
   @Autowired AnalysisService analysisService;
 
@@ -195,9 +197,9 @@ public class UploadServiceTest {
   public void testSyncUpload() {
     val fileName = "sequencingRead.json";
     val json = readFile(fileName);
-    val uploadStatus = uploadService.upload(DEFAULT_STUDY, json, false);
+    val uploadStatus = uploadService2.upload(DEFAULT_STUDY, json, false);
     val uploadId = fromStatus(uploadStatus, "uploadId");
-    val upload = uploadService.securedRead(DEFAULT_STUDY, uploadId);
+    val upload = uploadService2.securedRead(DEFAULT_STUDY, uploadId);
     assertEquals(upload.getState(), "VALIDATED");
   }
 
@@ -248,7 +250,7 @@ public class UploadServiceTest {
   public void testSyncUpdate() {
     val fileName = "variantCallWithSubmitterId.json";
     val json = readFile(fileName);
-    val uploadStatus = uploadService.upload(DEFAULT_STUDY, json, false);
+    val uploadStatus = uploadService2.upload(DEFAULT_STUDY, json, false);
     log.info(format("UploadStatus='%s'", uploadStatus));
     val uploadId = fromStatus(uploadStatus, "uploadId");
     val status = fromStatus(uploadStatus, "status");
@@ -256,17 +258,17 @@ public class UploadServiceTest {
 
     val json2 = json.replace("silver bullet", "golden hammer");
     assertNotEquals(json, json2);
-    val uploadStatus2 = uploadService.upload(DEFAULT_STUDY, json2, false);
+    val uploadStatus2 = uploadService2.upload(DEFAULT_STUDY, json2, false);
     val uploadId2 = fromStatus(uploadStatus2, "uploadId");
     val status2 = fromStatus(uploadStatus2, "status");
     assertEquals(status2, "WARNING: replaced content for analysisId 'VariantCall-X24Alpha'");
 
-    val upload = uploadService.securedRead(DEFAULT_STUDY, uploadId2);
+    val upload = uploadService2.securedRead(DEFAULT_STUDY, uploadId2);
     assertEquals(upload.getPayload(), json2);
     assertEquals(upload.getState(), "VALIDATED");
 
     // test save
-    val response = uploadService.save(DEFAULT_STUDY, uploadId, false);
+    val response = uploadService2.save(DEFAULT_STUDY, uploadId, false);
     assertEquals(response.getStatusCode(), OK);
   }
 

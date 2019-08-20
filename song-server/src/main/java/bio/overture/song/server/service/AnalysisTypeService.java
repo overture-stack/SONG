@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -33,8 +34,10 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.compile;
+import static org.assertj.core.util.Streams.stream;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
@@ -86,6 +89,12 @@ public class AnalysisTypeService {
     return getLatestAnalysisType(name, unrenderedOnly);
   }
 
+  @SneakyThrows
+  public Set<String> getBasePayloadFieldNames(){
+    val propertiesFieldNamesIterator = readTree(analysisPayloadBaseContent).path("properties").fieldNames();
+    return stream(propertiesFieldNamesIterator)
+        .collect(toImmutableSet());
+  }
 
   public AnalysisType getAnalysisType(
       @NonNull String analysisTypeIdAsString, boolean unrenderedOnly) {

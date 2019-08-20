@@ -19,9 +19,15 @@ package bio.overture.song.server.service;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.enums.IdPrefix;
 import bio.overture.song.server.model.enums.UploadStates;
+import bio.overture.song.server.repository.AnalysisDataRepository;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import bio.overture.song.server.repository.UploadRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,11 +44,13 @@ import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.assertj.core.util.Streams.stream;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.http.ResponseEntity.ok;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
@@ -50,11 +58,13 @@ import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
+import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
@@ -62,6 +72,9 @@ import static bio.overture.song.server.model.enums.UploadStates.CREATED;
 import static bio.overture.song.server.model.enums.UploadStates.SAVED;
 import static bio.overture.song.server.model.enums.UploadStates.UPDATED;
 import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
+import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
+import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromAnalysis;
 
 @RequiredArgsConstructor
 @Service
@@ -157,7 +170,68 @@ public class UploadService2 {
     return ok(status.toString());
   }
 
+  @Autowired
+  private AnalysisSchemaRepository analysisSchemaRepository;
+  @Autowired
+  private AnalysisDataRepository analysisDataRepository;
 
+  private AnalysisTypeId processAnalysisTypeId(JsonNode validatedPayload){
+    val result = extractAnalysisTypeIdFromAnalysis(validatedPayload);
+    checkServer(result.isPresent(), getClass(), UNKNOWN_ERROR,
+        "This error should not have occurred since the payload was already validated");
+    return parseAnalysisTypeId(result.get());
+  }
+
+  private AnalysisSchema resolveAnalysisSchema(AnalysisTypeId analysisTypeId){
+    val analysisSchemaResult = analysisSchemaRepository.findByNameAndVersion(analysisTypeId.getName(), analysisTypeId.getVersion());
+    checkServer(analysisSchemaResult.isPresent(), getClass(), UNKNOWN_ERROR,
+        "This error should not have occurred since the payload was already validated, meaning the analysisType exists" );
+    return analysisSchemaResult.get();
+  }
+
+  private boolean isNodeAnalysisData(Set<String> baseFields, JsonNode node){
+    return !baseFields.contains(node.textValue());
+
+  }
+  private JsonNode extractAnalysisData(JsonNode validatePayload){
+    val output = mapper().createObjectNode();
+    val basePayloadFieldNames = analysisTypeService.getBasePayloadFieldNames();
+    stream(validatePayload.fieldNames())
+        .filter(x -> !basePayloadFieldNames.contains(x))
+        .forEach(x -> {
+          val path = validatePayload.path(x);
+          output.set(x, path);
+        });
+    return output;
+  }
+
+  private Analysis2 resolveAnalysis(JsonNode validatedPayload){
+    // Already exist
+    val analysisTypeId = processAnalysisTypeId(validatedPayload);
+    val analysisSchema = resolveAnalysisSchema(analysisTypeId);
+
+    // Extract analysis
+    val analysis = JsonUtils.fromJson(validatedPayload, Analysis2.class);
+
+    // Create analysisData
+    val analysisDataJson = extractAnalysisData(validatedPayload);
+    val analysisData = AnalysisData.builder()
+        .data(analysisDataJson)
+        .build();
+
+    // Associate
+    analysis.setAnalysisData(analysisData);
+    analysisData.setAnalysis(analysis);
+
+    analysis.setAnalysisSchema(analysisSchema);
+    analysisSchema.getAnalyses().add(analysis);
+
+    analysis.setAnalysisTypeId(resolveAnalysisTypeId(analysisTypeId));
+    return analysis;
+  }
+
+
+  @SneakyThrows
   @Transactional
   public ResponseEntity<String> save(
       @NonNull String studyId, @NonNull String uploadId, final boolean ignoreAnalysisIdCollisions) {
@@ -176,6 +250,7 @@ public class UploadService2 {
     // convert to analysis with info fields
     // convert to analsysi_data without info fields and analysis fields
     val json = upload.getPayload();
+    val analysis2 = resolveAnalysis(readTree(json));
     val analysis = JsonUtils.fromJson(json, Analysis.class);
     // val data extract, non-info
     val analysisId = analysisService.create(studyId, analysis, ignoreAnalysisIdCollisions);

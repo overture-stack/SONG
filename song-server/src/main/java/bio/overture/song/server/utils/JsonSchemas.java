@@ -1,10 +1,6 @@
 package bio.overture.song.server.utils;
 
-import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
-import static lombok.AccessLevel.PRIVATE;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import java.nio.file.Path;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -12,6 +8,11 @@ import lombok.val;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaClient;
 import org.everit.json.schema.loader.SchemaLoader;
+
+import java.nio.file.Path;
+
+import static lombok.AccessLevel.PRIVATE;
+import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
 
 @NoArgsConstructor(access = PRIVATE)
 public class JsonSchemas {
