@@ -22,7 +22,6 @@ import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.service.AnalysisService;
-import bio.overture.song.server.service.AnalysisService2;
 import bio.overture.song.server.service.FileService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
