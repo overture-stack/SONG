@@ -1,27 +1,5 @@
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
-import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
-import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-import static com.google.common.base.Preconditions.checkState;
-import static java.lang.Integer.parseInt;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static java.util.regex.Pattern.compile;
-import static org.assertj.core.util.Streams.stream;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-
 import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.AnalysisType;
@@ -30,12 +8,6 @@ import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +21,31 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+
+import static com.google.common.base.Preconditions.checkState;
+import static java.lang.Integer.parseInt;
+import static java.lang.String.format;
+import static java.util.regex.Pattern.compile;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
+import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
+import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 @Service
@@ -80,33 +77,9 @@ public class AnalysisTypeService {
   }
 
   public AnalysisType getAnalysisType(
-      @NonNull String name, @Nullable String versionString, boolean unrenderedOnly) {
-    validateAnalysisTypeName(name);
-    if (!isNull(versionString)) {
-      val version = parseVersion(versionString);
-      return getAnalysisType(createAnalysisTypeId(name, version), unrenderedOnly);
-    }
-    return getLatestAnalysisType(name, unrenderedOnly);
-  }
-
-  @SneakyThrows
-  public Set<String> getBasePayloadFieldNames() {
-    val propertiesFieldNamesIterator =
-        readTree(analysisPayloadBaseContent).path("properties").fieldNames();
-    return stream(propertiesFieldNamesIterator).collect(toImmutableSet());
-  }
-
-  public AnalysisType getAnalysisType(
       @NonNull String analysisTypeIdAsString, boolean unrenderedOnly) {
     // Parse out the name and version
     val analysisTypeId = parseAnalysisTypeId(analysisTypeIdAsString);
-    return getAnalysisType(analysisTypeId, unrenderedOnly);
-  }
-
-  public AnalysisType getLatestAnalysisType(
-      @NonNull String analysisTypeName, boolean unrenderedOnly) {
-    val analysisTypeId =
-        createAnalysisTypeId(analysisTypeName, getLatestVersionNumber(analysisTypeName));
     return getAnalysisType(analysisTypeId, unrenderedOnly);
   }
 
@@ -271,21 +244,6 @@ public class AnalysisTypeService {
         analysisSchema.getName(),
         analysisSchema.getVersion(),
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema));
-  }
-
-  private Integer parseVersion(String versionString) {
-    Integer version = null;
-    try {
-      version = parseInt(versionString);
-    } catch (NumberFormatException e) {
-      throw buildServerException(
-          getClass(),
-          MALFORMED_PARAMETER,
-          "The input version string '%s' cannot be parsed to an Integer",
-          versionString);
-    }
-    checkServer(version > 0, getClass(), MALFORMED_PARAMETER, "The version '%s' must be > 0");
-    return version;
   }
 
   private static void validateAnalysisTypeName(@NonNull String analysisTypeName) {
