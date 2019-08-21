@@ -40,14 +40,14 @@ import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
+import bio.overture.song.server.model.analysis.Analysis2;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Info;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.repository.InfoRepository;
-import bio.overture.song.server.service.AnalysisService;
+import bio.overture.song.server.service.AnalysisService2;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.UploadService;
 import bio.overture.song.server.utils.TestFiles;
@@ -88,7 +88,7 @@ public class InfoSearchTest {
           "testData_7.json",
           "testData_8.json");
 
-  @Autowired private AnalysisService service;
+  @Autowired private AnalysisService2 service;
   @Autowired private UploadService uploadService;
   @Autowired private InfoRepository infoRepository;
   @Autowired private StudyService studyService;
@@ -161,11 +161,11 @@ public class InfoSearchTest {
     assert (true);
   }
 
-  private static void assertAnalysisData(AbstractAnalysis a1, AbstractAnalysis a2) {
-    assertEquals(a1.getAnalysisType(), a2.getAnalysisType());
+  private static void assertAnalysisData(Analysis2 a1, Analysis2 a2) {
+    assertEquals(a1.getAnalysisSchema(), a2.getAnalysisSchema());
     assertEquals(a1.getAnalysisState(), a2.getAnalysisState());
     assertEquals(a1.getFile().size(), a2.getFile().size());
-    assertEquals(a1.getInfoAsString(), a2.getInfoAsString());
+    assertEquals(a1.getAnalysisData(), a2.getAnalysisData());
     val f2Map = a2.getFile().stream().collect(groupingBy(FileEntity::getFileName));
     for (val f1 : a1.getFile()) {
       assertTrue(f2Map.containsKey(f1.getFileName()));

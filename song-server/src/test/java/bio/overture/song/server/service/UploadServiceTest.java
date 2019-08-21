@@ -100,7 +100,7 @@ public class UploadServiceTest {
     DEFAULT_TEST_FILE_MAP.put(VAR_CALL, "variantCall.json");
   }
 
-  @Autowired UploadService2 uploadService;
+  @Autowired UploadService uploadService;
 
   @Autowired AnalysisService2 analysisService;
 

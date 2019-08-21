@@ -22,7 +22,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import bio.overture.song.server.model.Upload;
-import bio.overture.song.server.service.UploadService2;
+import bio.overture.song.server.service.UploadService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UploadController {
 
   /** Dependencies */
-  @Autowired private final UploadService2 uploadService;
+  @Autowired private final UploadService uploadService;
 
   @ApiOperation(value = "SyncUpload", notes = "Synchronously uploads a json payload")
   @PostMapping(

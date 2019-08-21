@@ -48,30 +48,39 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 @ActiveProfiles("test")
 public class ValidationServiceTest {
 
+  private static final Map<String, String> DEFAULT_TEST_FILE_MAP = Maps.newHashMap();
   private static final String SEQ_READ = "SequencingRead";
   private static final String VAR_CALL = "VariantCall";
   private static final String STUDY = "study";
+
+  static {
+    DEFAULT_TEST_FILE_MAP.put(SEQ_READ, "sequencingRead.json");
+    DEFAULT_TEST_FILE_MAP.put(VAR_CALL, "variantCall.json");
+  }
+
+  private final RandomGenerator randomGenerator =
+      createRandomGenerator(ValidationServiceTest.class.getSimpleName());
 
   @Autowired private ValidationService service;
 
   @Test
   public void testValidateValidSequencingRead() {
-    val payload = getJsonFile("sequencingRead.json").toString();
-    val results = service.validate(payload, SEQ_READ);
+    val payload = getJsonFile("sequencingRead.json");
+    val results = service.validate(payload);
     assertFalse(results.isPresent());
   }
 
   @Test
   public void testValidateValidSequencingReadWithArchive() {
-    val payload = getJsonFile("sequencingReadWithArchive.json").toString();
-    val results = service.validate(payload, SEQ_READ);
+    val payload = getJsonFile("sequencingReadWithArchive.json");
+    val results = service.validate(payload);
     assertFalse(results.isPresent());
   }
 
   @Test
   public void testValidateValidVariantCall() {
-    val payload = getJsonFile("variantCall.json").toString();
-    val results = service.validate(payload, VAR_CALL);
+    val payload = getJsonFile("variantCall.json");
+    val results = service.validate(payload);
     assertFalse(results.isPresent());
   }
 
@@ -79,7 +88,7 @@ public class ValidationServiceTest {
   public void testValidateVariantCallMissingAnalysisType() {
     val payload = getJsonFile("variantCall.json");
     ((ObjectNode) payload).put("analysisType", (String) null);
-    val results = service.validate(payload.toString(), VAR_CALL);
+    val results = service.validate(payload);
     assertTrue(results.isPresent());
     assertTrue(
         results
@@ -92,7 +101,7 @@ public class ValidationServiceTest {
   public void testValidateSequencingReadMissingAnalysisType() {
     val payload = getJsonFile("sequencingRead.json");
     ((ObjectNode) payload).put("analysisType", (String) null);
-    val results = service.validate(payload.toString(), SEQ_READ);
+    val results = service.validate(payload);
     assertTrue(results.isPresent());
     assertTrue(
         results
@@ -105,7 +114,7 @@ public class ValidationServiceTest {
   @Test
   public void testUnknownAnalysisTypeValidation() {
     val payload = getJsonFile("sequencingRead.json");
-    val results = service.validate(payload.toString(), "SOME_UNKNOWN_ANALYSIS_TYPE");
+    val results = service.validate(payload);
     assertTrue(results.isPresent());
     assertTrue(
         results
@@ -115,26 +124,12 @@ public class ValidationServiceTest {
   }
 
   @Test
-  public void testJsonParseError() {
-    // Load json, and corrupt it
-    val payload =
-        getJsonFile("sequencingRead.json")
-            .toString()
-            .replaceFirst("\\{", "")
-            .replaceFirst("\"", "");
-    val results = service.validate(payload, SEQ_READ);
-    assertTrue(results.isPresent());
-    assertTrue(results.get().contains("Invalid JSON document submitted:"));
-  }
-
-  @Test
   public void testFileMd5Validation() {
     val testMap = Maps.<String, String>newHashMap();
     testMap.put(SEQ_READ, "sequencingRead.json");
     testMap.put(VAR_CALL, "variantCall.json");
 
     for (val testDataEntry : testMap.entrySet()) {
-      val schemaType = testDataEntry.getKey();
       val testFileName = testDataEntry.getValue();
 
       val payload = getJsonFile(testFileName);
@@ -149,7 +144,7 @@ public class ValidationServiceTest {
                   "fileMd5sum",
                   "q0123456789012345678901234567890123456789"); // more than 32 and non-hex number
 
-      val results = service.validate(payload.toString(), schemaType);
+      val results = service.validate(payload);
 
       assertTrue(results.isPresent());
 
@@ -213,18 +208,18 @@ public class ValidationServiceTest {
       ObjectNode payload, Supplier<ObjectNode> nodeGetter, String fieldName, String schemaType) {
     val node = nodeGetter.get();
     node.put(fieldName, "");
-    val emptyResults = service.validate(payload.toString(), schemaType);
+    val emptyResults = service.validate(payload);
     assertTrue(emptyResults.isPresent());
     assertTrue(
         emptyResults.get().endsWith(format("%s: must be at least 1 characters long", fieldName)));
 
     node.put(fieldName, (String) null);
-    val nullResults = service.validate(payload.toString(), schemaType);
+    val nullResults = service.validate(payload);
     assertTrue(nullResults.isPresent());
     assertTrue(nullResults.get().endsWith(format("%s: null found, string expected", fieldName)));
 
     node.remove(fieldName);
-    val missingResults = service.validate(payload.toString(), schemaType);
+    val missingResults = service.validate(payload);
     assertTrue(missingResults.isPresent());
     assertTrue(
         missingResults.get().endsWith(format("%s: is missing but it is required", fieldName)));
@@ -232,18 +227,8 @@ public class ValidationServiceTest {
     node.put(
         fieldName,
         randomGenerator.generateRandomAsciiString(randomGenerator.generateRandomIntRange(1, 4)));
-    val goodResults = service.validate(payload.toString(), schemaType);
+    val goodResults = service.validate(payload);
     assertFalse(goodResults.isPresent());
-  }
-
-  private final RandomGenerator randomGenerator =
-      createRandomGenerator(ValidationServiceTest.class.getSimpleName());
-
-  private static final Map<String, String> DEFAULT_TEST_FILE_MAP = Maps.newHashMap();
-
-  static {
-    DEFAULT_TEST_FILE_MAP.put(SEQ_READ, "sequencingRead.json");
-    DEFAULT_TEST_FILE_MAP.put(VAR_CALL, "variantCall.json");
   }
 
   private ObjectNode toObjectNode(String schemaType) {
@@ -256,7 +241,7 @@ public class ValidationServiceTest {
     val payload = toObjectNode(schemaType);
     payload.put("analysisId", analysisId);
 
-    val results = service.validate(payload.toString(), schemaType);
+    val results = service.validate(payload);
 
     if (shouldBeError) {
       assertTrue(results.isPresent());
@@ -276,7 +261,7 @@ public class ValidationServiceTest {
       ((ObjectNode) fileNode).put("fileMd5sum", md5);
     }
 
-    val results = service.validate(payload.toString(), schemaType);
+    val results = service.validate(payload);
 
     if (shouldBeError) {
       assertTrue(results.isPresent());
