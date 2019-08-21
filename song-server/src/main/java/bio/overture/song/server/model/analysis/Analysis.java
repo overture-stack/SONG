@@ -17,19 +17,27 @@
 
 package bio.overture.song.server.model.analysis;
 
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.ToString;
+import lombok.val;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -40,16 +48,14 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.ToString;
-import lombok.val;
-import org.codehaus.jackson.annotate.JsonIgnore;
+import java.util.List;
+import java.util.Map;
+
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toMap;
+import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 
 @Data
 @Entity
@@ -57,6 +63,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = TableNames.ANALYSIS)
+@JsonInclude(value = JsonInclude.Include.NON_ABSENT)
 public class Analysis {
 
   @Id
@@ -68,6 +75,11 @@ public class Analysis {
 
   @Column(name = TableAttributeNames.STATE, nullable = false)
   private String analysisState = UNPUBLISHED.name();
+
+  //TODO: need to remove this, and replace anything that needs this with Payload object
+  public String getAnalysisTypeId(){
+    return resolveAnalysisTypeId(analysisSchema);
+  }
 
   @NotNull
   @JsonIgnore
@@ -85,6 +97,12 @@ public class Analysis {
   @Transient private List<CompositeEntity> sample;
 
   @Transient private List<FileEntity> file;
+
+  @SneakyThrows
+  @JsonAnyGetter
+  public Map<String, Object> getData() {
+    return toMap(JsonUtils.toJson(analysisData.getData()));
+  }
 
   public void setAnalysisState(String state) {
     this.analysisState = resolveAnalysisState(state).toString();
