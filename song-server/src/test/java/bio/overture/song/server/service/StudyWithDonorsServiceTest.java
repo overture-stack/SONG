@@ -16,13 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.Analysis2;
 import bio.overture.song.server.model.entity.Donor;
@@ -33,7 +26,6 @@ import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.google.common.collect.Maps;
-import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -45,6 +37,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import java.util.Collection;
+
+import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
 @SpringBootTest

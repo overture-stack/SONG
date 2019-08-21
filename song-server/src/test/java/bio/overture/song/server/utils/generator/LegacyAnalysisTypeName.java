@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
+
 @Getter
 @RequiredArgsConstructor
 public enum LegacyAnalysisTypeName {

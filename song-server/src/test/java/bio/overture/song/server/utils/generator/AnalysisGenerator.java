@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.Analysis2;
 import bio.overture.song.server.service.AnalysisService;
+import bio.overture.song.server.service.AnalysisService2;
 import bio.overture.song.server.utils.TestFiles;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

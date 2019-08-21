@@ -6,6 +6,8 @@ import bio.overture.song.server.model.analysis.Analysis2;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.val;
 
+import static org.junit.Assert.assertTrue;
+
 public class TestAnalysis {
 
   public static JsonNode extractNode(Analysis2 a, String... fieldNames) {
