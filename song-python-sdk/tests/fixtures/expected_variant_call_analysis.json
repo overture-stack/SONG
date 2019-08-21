@@ -10,7 +10,7 @@
     "analysisId": "an1",
     "study": "Study1",
     "analysisState": "UNPUBLISHED",
-    "analysisType" : "variantCall",
+    "analysisTypeId" : "variantCall:1",
     "sample": [
         {
             "sampleId": "sa1",
