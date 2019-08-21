@@ -32,6 +32,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
@@ -224,7 +225,8 @@ public class AnalysisTypeService {
     return resolveAnalysisTypeId(analysisType.getName(), analysisType.getVersion());
   }
 
-  public static AnalysisTypeId parseAnalysisTypeId(@NonNull String id) {
+  public static AnalysisTypeId parseAnalysisTypeId(String id) {
+    checkServer(!isBlank(id), AnalysisTypeService.class, MALFORMED_PARAMETER, "The analysisTypeId must not be blank");
     val matcher = ANALYSIS_TYPE_ID_PATTERN.matcher(id);
     checkServer(
         matcher.matches(),
