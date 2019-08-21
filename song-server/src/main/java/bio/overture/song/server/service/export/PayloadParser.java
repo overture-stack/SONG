@@ -17,17 +17,18 @@
 
 package bio.overture.song.server.service.export;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static lombok.AccessLevel.PRIVATE;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.val;
+
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static lombok.AccessLevel.PRIVATE;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
 @Value
 @RequiredArgsConstructor(access = PRIVATE)
@@ -39,7 +40,6 @@ public class PayloadParser {
   private static final String DONOR = "donor";
 
   @NonNull private final JsonNode rootNode;
-  @NonNull private final JsonNode experimentNode;
   @NonNull private final List<JsonNode> sampleNodes;
   @NonNull private final List<JsonNode> fileNodes;
 
@@ -61,10 +61,9 @@ public class PayloadParser {
   }
 
   public static PayloadParser createPayloadParser(JsonNode rootNode) {
-    val experimentNode = getExperimentNode(rootNode);
     val fileNodes = getFileNodes(rootNode);
     val sampleNodes = getSampleNodes(rootNode);
-    return new PayloadParser(rootNode, experimentNode, sampleNodes, fileNodes);
+    return new PayloadParser(rootNode, sampleNodes, fileNodes);
   }
 
   public static void checkField(JsonNode j, String fieldName) {
@@ -88,7 +87,4 @@ public class PayloadParser {
     return readPath(sampleNode, DONOR);
   }
 
-  private static JsonNode getExperimentNode(JsonNode rootNode) {
-    return readPath(rootNode, EXPERIMENT);
-  }
 }

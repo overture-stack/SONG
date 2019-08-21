@@ -17,17 +17,18 @@
 
 package bio.overture.song.server.service.export;
 
-import static bio.overture.song.server.service.export.PayloadParser.checkField;
-import static bio.overture.song.server.service.export.PayloadParser.readPath;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+
+import java.util.List;
+
+import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+import static bio.overture.song.server.service.export.PayloadParser.checkField;
+import static bio.overture.song.server.service.export.PayloadParser.readPath;
 
 @RequiredArgsConstructor
 public class PayloadConverter {
@@ -48,7 +49,6 @@ public class PayloadConverter {
     }
 
     removeAnalysisState(parser);
-    removeExperimentFields(parser);
     removeSamplesFields(parser);
     removeDonorFields(parser);
     removeSpecimenFields(parser);
@@ -65,7 +65,6 @@ public class PayloadConverter {
   private static void removeEmptyInfoFields(PayloadParser parser) {
     val list = Lists.<JsonNode>newArrayList();
     list.add(parser.getRootNode());
-    list.add(parser.getExperimentNode());
     list.addAll(parser.getDonorNodes());
     list.addAll(parser.getSampleNodes());
     list.addAll(parser.getFileNodes());
@@ -79,10 +78,6 @@ public class PayloadConverter {
 
   private static void removeAnalysisState(PayloadParser parser) {
     removePath(parser.getRootNode(), ANALYSIS_STATE);
-  }
-
-  private static void removeExperimentFields(PayloadParser parser) {
-    removePath(parser.getExperimentNode(), ANALYSIS_ID);
   }
 
   private static void removeFilesFields(PayloadParser parser) {
