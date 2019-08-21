@@ -96,7 +96,7 @@ public class AnalysisService {
   @Value("${song.id}")
   private String songServerId;
 
-  @Autowired private final AnalysisRepository repository2;
+  @Autowired private final AnalysisRepository repository;
   @Autowired private final FileInfoService fileInfoService;
   @Autowired private final IdService idService;
   @Autowired private final CompositeEntityService compositeEntityService;
@@ -199,7 +199,7 @@ public class AnalysisService {
       @NonNull String studyId, @NonNull Set<String> analysisStates) {
     studyService.checkStudyExist(studyId);
     val finalStates = resolveSelectedAnalysisStates(analysisStates);
-    return repository2.findAll(
+    return repository.findAll(
         new AnalysisSpecificationBuilder(true, true)
             .buildByStudyAndAnalysisStates(studyId, finalStates));
   }
@@ -250,7 +250,7 @@ public class AnalysisService {
   }
 
   public boolean isAnalysisExist(@NonNull String id) {
-    return repository2.existsById(id);
+    return repository.existsById(id);
   }
 
   public void checkAnalysisExists(String id) {
@@ -258,7 +258,7 @@ public class AnalysisService {
   }
 
   public void checkAnalysisAndStudyRelated(@NonNull String studyId, @NonNull String id) {
-    val numAnalyses = repository2.countAllByStudyAndAnalysisId(studyId, id);
+    val numAnalyses = repository.countAllByStudyAndAnalysisId(studyId, id);
     if (numAnalyses < 1) {
       studyService.checkStudyExist(studyId);
       val analysis = shallowRead(id);
@@ -381,7 +381,7 @@ public class AnalysisService {
 
   public AnalysisStates readState(@NonNull String id) {
     checkAnalysisExists(id);
-    return repository2
+    return repository
         .findById(id)
         .map(Analysis::getAnalysisState)
         .map(AnalysisStates::resolveAnalysisState)
@@ -439,7 +439,7 @@ public class AnalysisService {
     analysis.setAnalysisState(state);
     val analysisUpdateRequest = new Analysis();
     analysisUpdateRequest.setWith(analysis);
-    repository2.save(analysisUpdateRequest);
+    repository.save(analysisUpdateRequest);
     sendAnalysisMessage(
         createAnalysisMessage(id, analysis.getStudy(), analysisState, songServerId));
   }
@@ -460,7 +460,7 @@ public class AnalysisService {
   /** Reads an analysis WITHOUT any files, samples or info */
   private Analysis shallowRead(String id) {
     val analysisResult =
-        repository2.findOne(new AnalysisSpecificationBuilder(true, true).buildById(id));
+        repository.findOne(new AnalysisSpecificationBuilder(true, true).buildById(id));
 
     validateAnalysisExistence(analysisResult.isPresent(), id);
     return analysisResult.get();
