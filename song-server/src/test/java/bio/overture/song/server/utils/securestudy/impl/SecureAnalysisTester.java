@@ -19,12 +19,11 @@ package bio.overture.song.server.utils.securestudy.impl;
 
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static java.lang.String.format;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.enums.AnalysisTypes;
-import bio.overture.song.server.service.AnalysisService;
+import bio.overture.song.server.service.AnalysisService2;
 import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
 import java.util.function.BiConsumer;
@@ -36,12 +35,14 @@ import lombok.val;
  * analysisService method throws the correct error if it is called for an analysis that is unrelated
  * to the supplied studyId.
  */
-public class SecureAnalysisTester extends AbstractSecureTester<AnalysisTypes> {
+public class SecureAnalysisTester extends AbstractSecureTester<LegacyAnalysisTypeName> {
 
-  @NonNull private final AnalysisService analysisService;
+  @NonNull private final AnalysisService2 analysisService;
 
   private SecureAnalysisTester(
-      RandomGenerator randomGenerator, StudyService studyService, AnalysisService analysisService) {
+      RandomGenerator randomGenerator,
+      StudyService studyService,
+      AnalysisService2 analysisService) {
     super(randomGenerator, studyService, ANALYSIS_ID_NOT_FOUND);
     this.analysisService = analysisService;
   }
@@ -52,26 +53,20 @@ public class SecureAnalysisTester extends AbstractSecureTester<AnalysisTypes> {
   }
 
   @Override
-  protected String createId(String existingStudyId, AnalysisTypes analysisType) {
+  protected String createId(String existingStudyId, LegacyAnalysisTypeName legacyAnalysisTypeName) {
     val analysisGenerator =
         createAnalysisGenerator(existingStudyId, analysisService, getRandomGenerator());
-
-    if (analysisType == AnalysisTypes.SEQUENCING_READ) {
-      return analysisGenerator.createDefaultRandomSequencingReadAnalysis().getAnalysisId();
-    } else if (analysisType == AnalysisTypes.VARIANT_CALL) {
-      return analysisGenerator.createDefaultRandomVariantCallAnalysis().getAnalysisId();
-    } else {
-      throw new IllegalStateException(
-          format("The analysisType '%s' cannot be generated", analysisType));
-    }
+    return analysisGenerator.createDefaultRandomAnalysis(legacyAnalysisTypeName).getAnalysisId();
   }
 
   public static SecureAnalysisTester createSecureAnalysisTester(
-      RandomGenerator randomGenerator, StudyService studyService, AnalysisService analysisService) {
+      RandomGenerator randomGenerator,
+      StudyService studyService,
+      AnalysisService2 analysisService) {
     return new SecureAnalysisTester(randomGenerator, studyService, analysisService);
   }
 
   public SecureTestData runSecureTest(BiConsumer<String, String> biConsumer) {
-    return runSecureTest(biConsumer, getRandomGenerator().randomEnum(AnalysisTypes.class));
+    return runSecureTest(biConsumer, getRandomGenerator().randomEnum(LegacyAnalysisTypeName.class));
   }
 }

@@ -19,6 +19,4 @@ package bio.overture.song.server.repository;
 import bio.overture.song.server.model.analysis.Analysis2;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface Analysis2Repository extends JpaRepository<Analysis2, String> {
-
-}
+public interface Analysis2Repository extends JpaRepository<Analysis2, String> {}

@@ -16,17 +16,53 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
+import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
+import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
+import static bio.overture.song.server.model.enums.UploadStates.resolveState;
+import static bio.overture.song.server.utils.TestAnalysis.extractBoolean;
+import static bio.overture.song.server.utils.TestAnalysis.extractNode;
+import static bio.overture.song.server.utils.TestAnalysis.extractString;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.securestudy.impl.SecureUploadTester.createSecureUploadTester;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static java.lang.Thread.sleep;
+import static java.util.Arrays.stream;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.OK;
+
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.Upload;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
-import bio.overture.song.server.model.analysis.VariantCallAnalysis;
+import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.enums.AnalysisTypes;
-import bio.overture.song.server.service.export.ExportService;
+import bio.overture.song.server.service.export.ExportService2;
+import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.nio.file.Files;
+import java.util.Map;
+import javax.transaction.Transactional;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -43,45 +79,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-
-import javax.transaction.Transactional;
-import java.nio.file.Files;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static java.lang.Thread.sleep;
-import static java.util.Arrays.stream;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.OK;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
-import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
-import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
-import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
-import static bio.overture.song.server.model.enums.UploadStates.resolveState;
-import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
-import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static bio.overture.song.server.utils.securestudy.impl.SecureUploadTester.createSecureUploadTester;
 
 @Slf4j
 @SpringBootTest
@@ -103,12 +100,11 @@ public class UploadServiceTest {
     DEFAULT_TEST_FILE_MAP.put(VAR_CALL, "variantCall.json");
   }
 
-  @Autowired UploadService uploadService;
-  @Autowired UploadService2 uploadService2;
+  @Autowired UploadService2 uploadService;
 
-  @Autowired AnalysisService analysisService;
+  @Autowired AnalysisService2 analysisService;
 
-  @Autowired ExportService exportService;
+  @Autowired ExportService2 exportService;
 
   @Autowired StudyService studyService;
 
@@ -136,14 +132,14 @@ public class UploadServiceTest {
     assertEquals(analysisStatus1, "ok");
     val analysisId1 = fromStatus(saveStatus1, "analysisId");
     val a1 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId1);
-    val sa1 = ((SequencingReadAnalysis) a1).getExperiment();
-    assertNull(sa1.getAligned());
-    assertNull(sa1.getAlignmentTool());
-    assertNull(sa1.getInsertSize());
-    assertEquals(sa1.getLibraryStrategy(), "WXS");
-    assertNull(sa1.getPairedEnd());
-    assertNull(sa1.getReferenceGenome());
-    assertNull(sa1.getInfo().get("random"));
+    val experimentNode1 = extractNode(a1, "experiment");
+    assertFalse(experimentNode1.has("aligned"));
+    assertFalse(experimentNode1.has("alignmentTool"));
+    assertFalse(experimentNode1.has("insertSize"));
+    assertEquals(extractString(a1, "experiment", "libraryStrategy"), "WXS");
+    assertFalse(experimentNode1.has("pairedEnd"));
+    assertFalse(experimentNode1.has("referenceGenome"));
+    assertFalse(a1.getAnalysisData().getData().has("random"));
 
     val filename2 = "documents/deserialization/sequencingread-deserialize2.json";
     val uploadId2 = uploadFromTestDir(DEFAULT_STUDY, filename2, false);
@@ -152,13 +148,13 @@ public class UploadServiceTest {
     assertEquals(analysisStatus2, "ok");
     val analysisId2 = fromStatus(saveStatus2, "analysisId");
     val a2 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId2);
-    val sa2 = ((SequencingReadAnalysis) a2).getExperiment();
-    assertNull(sa2.getAligned());
-    assertNull(sa2.getAlignmentTool());
-    assertNull(sa2.getInsertSize());
-    assertEquals(sa2.getLibraryStrategy(), "WXS");
-    assertTrue(sa2.getPairedEnd());
-    assertNull(sa2.getReferenceGenome());
+    val experimentNode2 = extractNode(a2, "experiment");
+    assertFalse(experimentNode2.has("aligned"));
+    assertFalse(experimentNode2.has("alignmentTool"));
+    assertFalse(experimentNode2.has("insertSize"));
+    assertEquals(extractString(a2, "experiment", "libraryStrategy"), "WXS");
+    assertTrue(extractBoolean(a2, "experiment", "pairedEnd"));
+    assertFalse(experimentNode2.has("referenceGenome"));
   }
 
   @Test
@@ -197,9 +193,9 @@ public class UploadServiceTest {
   public void testSyncUpload() {
     val fileName = "sequencingRead.json";
     val json = readFile(fileName);
-    val uploadStatus = uploadService2.upload(DEFAULT_STUDY, json, false);
+    val uploadStatus = uploadService.upload(DEFAULT_STUDY, json, false);
     val uploadId = fromStatus(uploadStatus, "uploadId");
-    val upload = uploadService2.securedRead(DEFAULT_STUDY, uploadId);
+    val upload = uploadService.securedRead(DEFAULT_STUDY, uploadId);
     assertEquals(upload.getState(), "VALIDATED");
   }
 
@@ -250,7 +246,7 @@ public class UploadServiceTest {
   public void testSyncUpdate() {
     val fileName = "variantCallWithSubmitterId.json";
     val json = readFile(fileName);
-    val uploadStatus = uploadService2.upload(DEFAULT_STUDY, json, false);
+    val uploadStatus = uploadService.upload(DEFAULT_STUDY, json, false);
     log.info(format("UploadStatus='%s'", uploadStatus));
     val uploadId = fromStatus(uploadStatus, "uploadId");
     val status = fromStatus(uploadStatus, "status");
@@ -258,17 +254,17 @@ public class UploadServiceTest {
 
     val json2 = json.replace("silver bullet", "golden hammer");
     assertNotEquals(json, json2);
-    val uploadStatus2 = uploadService2.upload(DEFAULT_STUDY, json2, false);
+    val uploadStatus2 = uploadService.upload(DEFAULT_STUDY, json2, false);
     val uploadId2 = fromStatus(uploadStatus2, "uploadId");
     val status2 = fromStatus(uploadStatus2, "status");
     assertEquals(status2, "WARNING: replaced content for analysisId 'VariantCall-X24Alpha'");
 
-    val upload = uploadService2.securedRead(DEFAULT_STUDY, uploadId2);
+    val upload = uploadService.securedRead(DEFAULT_STUDY, uploadId2);
     assertEquals(upload.getPayload(), json2);
     assertEquals(upload.getState(), "VALIDATED");
 
     // test save
-    val response = uploadService2.save(DEFAULT_STUDY, uploadId, false);
+    val response = uploadService.save(DEFAULT_STUDY, uploadId, false);
     assertEquals(response.getStatusCode(), OK);
   }
 
@@ -480,7 +476,8 @@ public class UploadServiceTest {
     val studyId = studyGenerator.createRandomStudy();
 
     // Create payload1 and save it
-    val payload1 = payloadGenerator.generateDefaultRandomPayload(SequencingReadAnalysis.class);
+    val payload1 =
+        payloadGenerator.generateDefaultRandomPayload(LegacyAnalysisTypeName.SEQUENCING_READ);
     val previousSampleSubmitterIds =
         payload1.getSample().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
     val an1 = analysisService.create(studyId, payload1, false);
@@ -494,7 +491,7 @@ public class UploadServiceTest {
     val jsonPayload = exportedPayload.getPayloads().get(0);
 
     // Create payload 2
-    val payload2 = JsonUtils.fromJson(jsonPayload, AbstractAnalysis.class);
+    val payload2 = JsonUtils.fromJson(jsonPayload, Payload.class);
 
     // Modify the exported payload with a different sampleSubmmiterId
     payload2
@@ -536,22 +533,17 @@ public class UploadServiceTest {
     val ss = createStudyGenerator(studyService, randomGenerator);
     val existingStudyId = ss.createRandomStudy();
     val nonExistingStudyId = ss.generateNonExistingStudyId();
-    stream(AnalysisTypes.values())
+    stream(LegacyAnalysisTypeName.values())
         .forEach(x -> runPayloadStudyField(nonExistingStudyId, existingStudyId, x));
   }
 
   @SneakyThrows
   private void runPayloadStudyField(
-      String nonExistingStudyId, String existingStudyId, AnalysisTypes analysisType) {
+      String nonExistingStudyId,
+      String existingStudyId,
+      LegacyAnalysisTypeName legacyAnalysisTypeName) {
     val payloadGenerator = createPayloadGenerator(randomGenerator);
-    AbstractAnalysis p;
-    if (analysisType == SEQUENCING_READ) {
-      p = payloadGenerator.generateDefaultRandomPayload(SequencingReadAnalysis.class);
-    } else if (analysisType == VARIANT_CALL) {
-      p = payloadGenerator.generateDefaultRandomPayload(VariantCallAnalysis.class);
-    } else {
-      throw new IllegalStateException("not good");
-    }
+    val p = payloadGenerator.generateDefaultRandomPayload(legacyAnalysisTypeName);
 
     // Test study with null value in payload
     p.setStudy(null);
@@ -605,17 +597,17 @@ public class UploadServiceTest {
     return json;
   }
 
-  private Payload createPayloadWithDifferentAnalysisId() {
+  private InternalPayload createPayloadWithDifferentAnalysisId() {
     val filename = "documents/sequencingread-valid.json";
     val json = getJsonNodeFromClasspath(filename);
     val analysisId = createUniqueAnalysisId();
     val jsonPayload = toJson(updateAnalysisId(json, analysisId));
-    return Payload.builder().analysisId(analysisId).jsonPayload(jsonPayload).build();
+    return InternalPayload.builder().analysisId(analysisId).jsonPayload(jsonPayload).build();
   }
 
   @Value
   @Builder
-  private static class Payload {
+  private static class InternalPayload {
     @NonNull private final String analysisId;
     @NonNull private final String jsonPayload;
   }

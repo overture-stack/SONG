@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertEquals;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
+import bio.overture.song.server.model.analysis.Analysis2;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
@@ -57,7 +57,7 @@ public class StudyWithDonorsServiceTest {
 
   @Autowired private StudyService studyService;
 
-  @Autowired private AnalysisService analysisService;
+  @Autowired private AnalysisService2 analysisService;
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(StudyWithDonorsServiceTest.class.getSimpleName());
@@ -77,7 +77,7 @@ public class StudyWithDonorsServiceTest {
     // Generate Random SequencingRead analyses
     val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
     val numAnalysis = 11;
-    val analysisMap = Maps.<String, SequencingReadAnalysis>newHashMap();
+    val analysisMap = Maps.<String, Analysis2>newHashMap();
     for (int i = 0; i < numAnalysis; i++) {
       val sequencingReadAnalysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
       analysisMap.put(sequencingReadAnalysis.getAnalysisId(), sequencingReadAnalysis);

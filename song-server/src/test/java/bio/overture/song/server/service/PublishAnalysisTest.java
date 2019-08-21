@@ -30,6 +30,7 @@ import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.ALL
 import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.NONE;
 import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.SOME;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.resolveLegacyAnalysisTypeName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
@@ -48,9 +49,9 @@ import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
+import bio.overture.song.server.model.analysis.Analysis2;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.enums.AnalysisTypes;
+import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.transaction.Transactional;
@@ -80,7 +81,7 @@ public class PublishAnalysisTest {
   private static final int MIN_SIZE = 1 << 3;
   private static final List<FileEntity> EMPTY_FILE_LIST = ImmutableList.of();
 
-  @Autowired private AnalysisService service;
+  @Autowired private AnalysisService2 service;
 
   @Autowired private FileService fileService;
 
@@ -91,7 +92,7 @@ public class PublishAnalysisTest {
   /** State */
   private List<FileEntity> testFiles;
 
-  private AbstractAnalysis testAnalysis;
+  private Analysis2 testAnalysis;
   private String testAnalysisId;
   private String testStudyId;
 
@@ -108,7 +109,7 @@ public class PublishAnalysisTest {
 
     this.testAnalysis =
         analysisGenerator.createDefaultRandomAnalysis(
-            randomGenerator.randomEnum(AnalysisTypes.class));
+            randomGenerator.randomEnum(LegacyAnalysisTypeName.class));
     this.testAnalysisId = testAnalysis.getAnalysisId();
     this.testStudyId = testAnalysis.getStudy();
 
@@ -326,20 +327,20 @@ public class PublishAnalysisTest {
     ReflectionTestUtils.setField(service, STORAGE_SERVICE, mockStorageService);
   }
 
-  public List<FileEntity> generateFiles(int maxSize, AbstractAnalysis a) {
+  public List<FileEntity> generateFiles(int maxSize, Analysis2 a) {
     return randomList(() -> generateFile(a), maxSize);
   }
 
   /** Generate a random file given an input analysis */
-  public FileEntity generateFile(AbstractAnalysis a) {
-    val analysisType = AnalysisTypes.resolveAnalysisType(a.getAnalysisType());
+  public FileEntity generateFile(Analysis2 a) {
+    val legacyAnalysisTypeName = resolveLegacyAnalysisTypeName(a.getAnalysisSchema().getName());
     String fileType = null;
     String fileName = randomGenerator.generateRandomUUIDAsString() + ".";
 
-    if (analysisType == AnalysisTypes.SEQUENCING_READ) {
+    if (legacyAnalysisTypeName == LegacyAnalysisTypeName.SEQUENCING_READ) {
       fileType = BAM.toString();
       fileName += BAM.getExtension();
-    } else if (analysisType == AnalysisTypes.VARIANT_CALL) {
+    } else if (legacyAnalysisTypeName == LegacyAnalysisTypeName.VARIANT_CALL) {
       fileType = VCF.toString();
       fileName += VCF.getExtension() + ".gz";
     }

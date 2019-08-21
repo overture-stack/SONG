@@ -17,21 +17,19 @@
 
 package bio.overture.song.server.model.analysis;
 
-import bio.overture.song.server.model.Metadata;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+
+import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
-import org.codehaus.jackson.annotate.JsonIgnore;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -42,10 +40,16 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.ToString;
+import lombok.val;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @Data
 @Entity
@@ -53,7 +57,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisS
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = TableNames.ANALYSIS)
-public class Analysis2 extends Metadata {
+public class Analysis2 {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
@@ -65,7 +69,6 @@ public class Analysis2 extends Metadata {
   @Column(name = TableAttributeNames.STATE, nullable = false)
   private String analysisState = UNPUBLISHED.name();
 
-  //ManyToOne(on analysis_schema_id)
   @NotNull
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
@@ -74,24 +77,25 @@ public class Analysis2 extends Metadata {
   @JoinColumn(name = TableAttributeNames.ANALYSIS_SCHEMA_ID, nullable = false)
   private AnalysisSchema analysisSchema;
 
-  //OneToOne
+  // OneToOne
   @OneToOne
   @JoinColumn(name = TableAttributeNames.ANALYSIS_DATA_ID)
   @JsonIgnore
   private AnalysisData analysisData;
 
-  @Transient
-  private List<CompositeEntity> sample;
+  @Transient private List<CompositeEntity> sample;
 
-  @Transient
-  private List<FileEntity> file;
-
-  //TODO: refactor this class. analysisTypeId can fall out of sync with analysisSchema. this field is only here because this class is both a payload and analysis, but the 2 have now diverged.
-  @Transient
-  public String analysisTypeId;
+  @Transient private List<FileEntity> file;
 
   public void setAnalysisState(String state) {
     this.analysisState = resolveAnalysisState(state).toString();
+  }
+
+  @SneakyThrows
+  public JsonNode toJson() {
+    val out = (ObjectNode) readTree(JsonUtils.toPrettyJson(this));
+    out.setAll((ObjectNode) analysisData.getData());
+    return out;
   }
 
   public void setWith(@NonNull Analysis2 a) {
@@ -100,7 +104,5 @@ public class Analysis2 extends Metadata {
     setFile(a.getFile());
     setStudy(a.getStudy());
     setSample(a.getSample());
-    setInfo(a.getInfo());
-    setAnalysisTypeId(a.getAnalysisTypeId());
   }
 }

@@ -24,10 +24,10 @@ import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.enums.AnalysisTypes;
-import bio.overture.song.server.service.AnalysisService;
+import bio.overture.song.server.service.AnalysisService2;
 import bio.overture.song.server.service.FileService;
 import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
 import java.util.function.BiConsumer;
@@ -37,13 +37,13 @@ import lombok.val;
 public class SecureFileTester extends AbstractSecureTester {
 
   private final FileService fileService;
-  private final AnalysisService analysisService;
+  private final AnalysisService2 analysisService;
 
   private SecureFileTester(
       RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull FileService fileService,
-      @NonNull AnalysisService analysisService) {
+      @NonNull AnalysisService2 analysisService) {
     super(randomGenerator, studyService, FILE_NOT_FOUND);
     this.fileService = fileService;
     this.analysisService = analysisService;
@@ -60,7 +60,7 @@ public class SecureFileTester extends AbstractSecureTester {
         SecureAnalysisTester.createSecureAnalysisTester(
             getRandomGenerator(), getStudyService(), analysisService);
     val analysisData =
-        analysisTester.generateData(getRandomGenerator().randomEnum(AnalysisTypes.class));
+        analysisTester.generateData(getRandomGenerator().randomEnum(LegacyAnalysisTypeName.class));
     analysisService.checkAnalysisExists(analysisData.getExistingId());
     val existingAnalysisId = analysisData.getExistingId();
 
@@ -89,7 +89,7 @@ public class SecureFileTester extends AbstractSecureTester {
       RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull FileService fileService,
-      @NonNull AnalysisService analysisService) {
+      @NonNull AnalysisService2 analysisService) {
     return new SecureFileTester(randomGenerator, studyService, fileService, analysisService);
   }
 }

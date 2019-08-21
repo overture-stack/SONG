@@ -162,7 +162,7 @@ public class SchemaValidationTests {
         val filename = entry.getKey() + "." + ext;
         log.info("Testing Filename validation: '{}'", filename);
         val isGood = entry.getValue();
-        val payload = payloadGenerator.generateRandomPayload(analysisTypeClass, fixtureFilename);
+        val payload = payloadGenerator.generateRandomPayload(fixtureFilename);
         payload.setAnalysisId(null);
         payload.getFile().get(0).setFileName(filename);
         val payloadNode = readTree(toJson(payload));

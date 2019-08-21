@@ -26,7 +26,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.StudyService;
-import bio.overture.song.server.service.UploadService;
+import bio.overture.song.server.service.UploadService2;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
 import java.util.List;
@@ -41,10 +41,10 @@ public class SecureUploadTester extends AbstractSecureTester {
   private static final List<String> FILENAMES =
       newArrayList(SEQUENCING_READ_DEFAULT_FILENAME, VARIANT_CALL_DEFAULT_FILENAME);
 
-  private final UploadService uploadService;
+  private final UploadService2 uploadService;
 
   private SecureUploadTester(
-      RandomGenerator randomGenerator, StudyService studyService, UploadService uploadService) {
+      RandomGenerator randomGenerator, StudyService studyService, UploadService2 uploadService) {
     super(randomGenerator, studyService, UPLOAD_ID_NOT_FOUND);
     this.uploadService = uploadService;
   }
@@ -69,7 +69,7 @@ public class SecureUploadTester extends AbstractSecureTester {
   }
 
   public static SecureUploadTester createSecureUploadTester(
-      RandomGenerator randomGenerator, StudyService studyService, UploadService uploadService) {
+      RandomGenerator randomGenerator, StudyService studyService, UploadService2 uploadService) {
     return new SecureUploadTester(randomGenerator, studyService, uploadService);
   }
 }

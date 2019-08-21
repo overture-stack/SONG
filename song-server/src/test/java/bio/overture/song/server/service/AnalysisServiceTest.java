@@ -35,18 +35,20 @@ import static bio.overture.song.core.testing.SongErrorAssertions.catchThrowable;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
-import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
 import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -54,35 +56,33 @@ import static java.util.stream.IntStream.range;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.Metadata;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
-import bio.overture.song.server.model.analysis.VariantCallAnalysis;
+import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.model.enums.AnalysisTypes;
 import bio.overture.song.server.repository.AnalysisRepository;
 import bio.overture.song.server.repository.FileRepository;
 import bio.overture.song.server.repository.SampleRepository;
 import bio.overture.song.server.repository.SampleSetRepository;
 import bio.overture.song.server.repository.SequencingReadRepository;
 import bio.overture.song.server.repository.VariantCallRepository;
+import bio.overture.song.server.utils.TestAnalysis;
 import bio.overture.song.server.utils.generator.AnalysisGenerator;
+import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import bio.overture.song.server.utils.generator.PayloadGenerator;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -102,7 +102,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @Slf4j
 @SpringBootTest
@@ -118,7 +117,7 @@ public class AnalysisServiceTest {
       stream(AnalysisStates.values()).map(AnalysisStates::toString).collect(toImmutableSet());
 
   @Autowired FileService fileService;
-  @Autowired AnalysisService service;
+  @Autowired AnalysisService2 service;
   @Autowired IdService idService;
   @Autowired private StudyService studyService;
   @Autowired private SampleRepository sampleRepository;
@@ -175,36 +174,33 @@ public class AnalysisServiceTest {
     val analysisId = created.getAnalysisId();
     assertEquals(created.getAnalysisId(), analysisId);
     assertEquals(created.getAnalysisState(), "UNPUBLISHED");
-    assertEquals(created.getAnalysisType(), "sequencingRead");
+    assertEquals(created.getAnalysisSchema().getName(), "sequencingRead");
     assertEquals(created.getSample().size(), 1);
     val sample = created.getSample().get(0);
-    val experiment = ((SequencingReadAnalysis) created).getExperiment();
+    val data = created.getAnalysisData().getData();
 
-    assertNotNull(experiment);
-    assertEquals(experiment.getAlignmentTool(), "MUSE variant call pipeline");
-    val expectedMetadata = new Metadata();
-    expectedMetadata.setInfo("marginOfError", "0.01%");
-    assertEquals(experiment.getInfo(), expectedMetadata.getInfo());
+    assertTrue(data.has("experiment"));
+    assertEquals(
+        data.get("experiment").get("alignmentTool").textValue(), "MUSE variant call pipeline");
+    assertEquals(data.get("marginOfError").textValue(), "0.01%");
 
     ; // test update
     val change = "ModifiedToolName";
-    experiment.setAlignmentTool(change);
+    ((ObjectNode) data.path("experiment")).put("alignmentTool", change);
     service.updateAnalysis(DEFAULT_STUDY_ID, created);
     val gotBack = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
-    val experiment2 = ((SequencingReadAnalysis) gotBack).getExperiment();
-    assertEquals(experiment2.getAlignmentTool(), change);
-
+    assertEquals(extractAlignmentTool(gotBack.getAnalysisData()), change);
     log.info(format("Created '%s'", toJson(created)));
   }
 
   @Test
   @Transactional
   public void testIsAnalysisExist() {
-    val analysis = payloadGenerator.generateDefaultRandomPayload(VariantCallAnalysis.class);
+    val payload = payloadGenerator.generateDefaultRandomPayload(VARIANT_CALL);
     val randomAnalysisId = randomGenerator.generateRandomUUIDAsString();
-    analysis.setAnalysisId(randomAnalysisId);
+    payload.setAnalysisId(randomAnalysisId);
     assertFalse(service.isAnalysisExist(randomAnalysisId));
-    val actualAnalysisId = service.create(DEFAULT_STUDY_ID, analysis, false);
+    val actualAnalysisId = service.create(DEFAULT_STUDY_ID, payload, false);
     assertEquals(actualAnalysisId, randomAnalysisId);
     assertTrue(service.isAnalysisExist(randomAnalysisId));
   }
@@ -212,30 +208,38 @@ public class AnalysisServiceTest {
   @Test
   @Transactional
   public void testCreateAndUpdateVariantCall() {
-    val created =
-        analysisGenerator.createRandomAnalysis(
-            VariantCallAnalysis.class, "documents/variantcall-valid-1.json");
+    val created = analysisGenerator.createRandomAnalysis("documents/variantcall-valid-1.json");
     val analysisId = created.getAnalysisId();
     assertEquals(created.getAnalysisId(), analysisId);
     assertEquals(created.getAnalysisState(), UNPUBLISHED.toString());
-    assertEquals(created.getAnalysisType(), "variantCall");
+    assertEquals(created.getAnalysisSchema().getName(), "variantCall");
     assertEquals(created.getSample().size(), 1);
     val sample = created.getSample().get(0);
-    val experiment = ((VariantCallAnalysis) created).getExperiment();
-    assertNotNull(experiment);
-    assertEquals(experiment.getVariantCallingTool(), "silver bullet");
+    assertTrue(created.getAnalysisData().getData().has("experiment"));
+    assertEquals(extractVariantCallingTool(created.getAnalysisData()), "silver bullet");
+    assertTrue(created.getAnalysisData().getData().has("extraInfo"));
     assertEquals(
-        experiment.getInfoAsString(),
-        JsonUtils.fromSingleQuoted("{\"extraInfo\":\"this is extra info\"}"));
+        created.getAnalysisData().getData().path("extraInfo").textValue(), "this is extra info");
+
     // test update
     val change = "GoldenHammer";
-    experiment.setVariantCallingTool(change);
+    ((ObjectNode) extractExperiment(created.getAnalysisData())).put("variantCallingTool", change);
     service.updateAnalysis(DEFAULT_STUDY_ID, created);
     val gotBack = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
-    val experiment2 = ((VariantCallAnalysis) gotBack).getExperiment();
-    assertEquals(experiment2.getVariantCallingTool(), change);
-
+    assertEquals(extractVariantCallingTool(gotBack.getAnalysisData()), change);
     log.info(format("Created '%s'", toJson(created)));
+  }
+
+  private static JsonNode extractExperiment(AnalysisData a) {
+    return a.getData().path("experiment");
+  }
+
+  private static String extractVariantCallingTool(AnalysisData a) {
+    return extractExperiment(a).path("variantCallingTool").textValue();
+  }
+
+  private static String extractAlignmentTool(AnalysisData a) {
+    return extractExperiment(a).path("alignmentTool").textValue();
   }
 
   @Test
@@ -280,25 +284,30 @@ public class AnalysisServiceTest {
   @Transactional
   public void testReadVariantCall() {
     val json = getJsonStringFromClasspath("documents/variantcall-read-test.json");
-    val analysisRaw = fromJson(json, VariantCallAnalysis.class);
-    val analysisId = service.create(DEFAULT_STUDY_ID, analysisRaw, false);
-    val a = (VariantCallAnalysis) service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
-    val aUnsecured = (VariantCallAnalysis) service.unsecuredDeepRead(analysisId);
+    val payload = fromJson(json, Payload.class);
+    val analysisId = service.create(DEFAULT_STUDY_ID, payload, false);
+    val a = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
+    val aUnsecured = service.unsecuredDeepRead(analysisId);
     assertEquals(a, aUnsecured);
 
     // Asserting Analysis
     assertEquals(a.getAnalysisState(), "UNPUBLISHED");
-    assertEquals(a.getAnalysisType(), "variantCall");
+    assertEquals(a.getAnalysisSchema().getName(), "variantCall");
     assertEquals(a.getStudy(), DEFAULT_STUDY_ID);
-    assertInfoKVPair(a, "description1", "description1 for this variantCall analysis an01");
-    assertInfoKVPair(a, "description2", "description2 for this variantCall analysis an01");
-
-    val experiment = a.getExperiment();
-    assertEquals(experiment.getAnalysisId(), analysisId);
-    assertEquals(experiment.getVariantCallingTool(), "silver bullet ex01");
-    assertEquals(experiment.getMatchedNormalSampleSubmitterId(), "sample x24-11a");
-    assertInfoKVPair(
-        experiment, "extraExperimentInfo", "some more data for a variantCall experiment ex01");
+    assertEquals(
+        TestAnalysis.extractString(a, "description1"),
+        "description1 for this variantCall analysis an01");
+    assertEquals(
+        TestAnalysis.extractString(a, "description2"),
+        "description2 for this variantCall analysis an01");
+    assertEquals(
+        TestAnalysis.extractString(a, "experiment", "variantCallingTool"), "silver bullet ex01");
+    assertEquals(
+        TestAnalysis.extractString(a, "experiment", "matchedNormalSampleSubmitterId"),
+        "sample x24-11a");
+    assertEquals(
+        TestAnalysis.extractString(a, "experiment", "extraExperimentInfo"),
+        "some more data for a variantCall experiment ex01");
 
     // Asserting Sample
     assertEquals(a.getSample().size(), 2);
@@ -401,29 +410,34 @@ public class AnalysisServiceTest {
   @Transactional
   public void testReadSequencingRead() {
     val json = getJsonStringFromClasspath("documents/sequencingread-read-test.json");
-    val analysisRaw = fromJson(json, SequencingReadAnalysis.class);
-    val analysisId = service.create(DEFAULT_STUDY_ID, analysisRaw, false);
-    val a = (SequencingReadAnalysis) service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
-    val aUnsecured = (SequencingReadAnalysis) service.unsecuredDeepRead(analysisId);
+    val payload = fromJson(json, Payload.class);
+    val analysisId = service.create(DEFAULT_STUDY_ID, payload, false);
+    val a = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
+    val aUnsecured = service.unsecuredDeepRead(analysisId);
     assertEquals(a, aUnsecured);
 
     // Asserting Analysis
     assertEquals(a.getAnalysisState(), "UNPUBLISHED");
-    assertEquals(a.getAnalysisType(), "sequencingRead");
+    assertEquals(a.getAnalysisSchema().getName(), "sequencingRead");
     assertEquals(a.getStudy(), DEFAULT_STUDY_ID);
-    assertInfoKVPair(a, "description1", "description1 for this sequencingRead analysis an01");
-    assertInfoKVPair(a, "description2", "description2 for this sequencingRead analysis an01");
+    assertEquals(
+        TestAnalysis.extractString(a, "description1"),
+        "description1 for this sequencingRead analysis an01");
+    assertEquals(
+        TestAnalysis.extractString(a, "description2"),
+        "description2 for this sequencingRead analysis an01");
 
-    val experiment = a.getExperiment();
-    assertEquals(experiment.getAnalysisId(), analysisId);
-    assertEquals(experiment.getLibraryStrategy(), "WXS");
-    assertFalse(experiment.getPairedEnd());
-    assertEquals(experiment.getInsertSize().longValue(), 92736);
-    assertTrue(experiment.getAligned());
-    assertEquals(experiment.getAlignmentTool(), "myCool Sequence ReadingTool");
-    assertEquals(experiment.getReferenceGenome(), "someSeq Genome");
-    assertInfoKVPair(
-        experiment, "extraExperimentInfo", "some more data for a sequencingRead experiment ex02");
+    assertEquals(TestAnalysis.extractString(a, "experiment", "libraryStrategy"), "WXS");
+    assertFalse(TestAnalysis.extractBoolean(a, "experiment", "pairedEnd"));
+    assertEquals(TestAnalysis.extractLong(a, "experiment", "insertSize"), 92736);
+    assertTrue(TestAnalysis.extractBoolean(a, "experiment", "aligned"));
+    assertEquals(
+        TestAnalysis.extractString(a, "experiment", "alignmentTool"),
+        "myCool Sequence ReadingTool");
+    assertEquals(TestAnalysis.extractString(a, "experiment", "referenceGenome"), "someSeq Genome");
+    assertEquals(
+        TestAnalysis.extractString(a, "experiment", "extraExperimentInfo"),
+        "some more data for a sequencingRead experiment ex02");
 
     val sampleMap = Maps.<String, CompositeEntity>newHashMap();
 
@@ -535,13 +549,15 @@ public class AnalysisServiceTest {
       assertEquals(compositeEntity, sampleMap.get(compositeEntity.getSampleId()));
     }
 
-    assertEquals(service.readSequencingRead(analysisId), experiment);
+    assertEquals(
+        TestAnalysis.extractNode(service.unsecuredDeepRead(analysisId), "experiment"),
+        TestAnalysis.extractNode(a, "experiment"));
   }
 
   @Test
   @Transactional
   public void testSuppress() {
-    val an = analysisGenerator.createDefaultRandomAnalysis(SequencingReadAnalysis.class);
+    val an = analysisGenerator.createDefaultRandomAnalysis(SEQUENCING_READ);
     assertEquals(an.getAnalysisState(), "UNPUBLISHED");
     val id = an.getAnalysisId();
     val studyId = an.getStudy();
@@ -579,7 +595,22 @@ public class AnalysisServiceTest {
   @Transactional
   public void testDuplicateAnalysisAttemptError() {
     val an1 = service.securedDeepRead(DEFAULT_STUDY_ID, "AN1");
-    assertSongError(() -> service.create(an1.getStudy(), an1, true), DUPLICATE_ANALYSIS_ATTEMPT);
+    val equivalentPayload = convertFromAnalysis(an1);
+    assertSongError(
+        () -> service.create(an1.getStudy(), equivalentPayload, true), DUPLICATE_ANALYSIS_ATTEMPT);
+  }
+
+  public static Payload convertFromAnalysis(Analysis2 a) {
+    val payload =
+        Payload.builder()
+            .analysisId(a.getAnalysisId())
+            .analysisTypeId(resolveAnalysisTypeId(a.getAnalysisSchema()))
+            .file(a.getFile())
+            .sample(a.getSample())
+            .study(a.getStudy())
+            .build();
+    payload.addData(a.getAnalysisData().getData());
+    return payload;
   }
 
   @Test
@@ -595,11 +626,11 @@ public class AnalysisServiceTest {
         "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
         "a2449e0a-7020-5f2d-8610-9f58aafd467a");
 
-    val analysisRaw =
+    val payload =
         payloadGenerator.generateRandomPayload(
-            SequencingReadAnalysis.class, "documents/sequencingread-custom-analysis-id" + ".json");
-    analysisRaw.setAnalysisId(expectedAnalysisId);
-    val actualAnalysisId = service.create(study, analysisRaw, false);
+            "documents/sequencingread-custom-analysis-id" + ".json");
+    payload.setAnalysisId(expectedAnalysisId);
+    val actualAnalysisId = service.create(study, payload, false);
     assertEquals(actualAnalysisId, expectedAnalysisId);
     val analysis = service.securedDeepRead(study, actualAnalysisId);
     for (val file : analysis.getFile()) {
@@ -619,7 +650,7 @@ public class AnalysisServiceTest {
     val nonExistentStudyId = randomGenerator.generateRandomUUID().toString();
     assertFalse(studyService.isStudyExist(nonExistentStudyId));
 
-    val payload = payloadGenerator.generateDefaultRandomPayload(VariantCallAnalysis.class);
+    val payload = payloadGenerator.generateDefaultRandomPayload(VARIANT_CALL);
     payload.setAnalysisId(null);
 
     assertNull(payload.getAnalysisId());
@@ -634,9 +665,9 @@ public class AnalysisServiceTest {
 
     val analysisGenerator = createAnalysisGenerator(studyId, service, randomGenerator);
     val numAnalysis = 10;
-    val sraMap = Maps.<String, SequencingReadAnalysis>newHashMap();
-    val vcaMap = Maps.<String, VariantCallAnalysis>newHashMap();
-    val expectedAnalyses = Sets.<AbstractAnalysis>newHashSet();
+    val sraMap = Maps.<String, Analysis2>newHashMap();
+    val vcaMap = Maps.<String, Analysis2>newHashMap();
+    val expectedAnalyses = Sets.<Analysis2>newHashSet();
     for (int i = 1; i <= numAnalysis; i++) {
       if (i % 2 == 0) {
         val sra = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
@@ -661,13 +692,11 @@ public class AnalysisServiceTest {
     val actualSRAs =
         actualAnalyses.stream()
             .filter(
-                x ->
-                    AnalysisTypes.resolveAnalysisType(x.getAnalysisType())
-                        == AnalysisTypes.SEQUENCING_READ)
+                x -> x.getAnalysisSchema().getName().equals(SEQUENCING_READ.getAnalysisTypeName()))
             .collect(toSet());
     val actualVCAs =
         actualAnalyses.stream()
-            .filter(x -> AnalysisTypes.resolveAnalysisType(x.getAnalysisType()) == VARIANT_CALL)
+            .filter(x -> x.getAnalysisSchema().getName().equals(VARIANT_CALL.getAnalysisTypeName()))
             .collect(toSet());
 
     assertEquals(actualSRAs.size(), sraMap.keySet().size());
@@ -694,19 +723,18 @@ public class AnalysisServiceTest {
             .boxed()
             .map(
                 x -> {
-                  AbstractAnalysis a =
-                      analysisGenerator.createDefaultRandomSequencingReadAnalysis();
+                  Analysis2 a = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
                   AnalysisStates randomState =
                       x == 0 ? PUBLISHED : randomGenerator.randomEnum(AnalysisStates.class);
                   a.setAnalysisState(randomState.toString());
                   service.securedUpdateState(studyId, a.getAnalysisId(), randomState);
                   return a;
                 })
-            .collect(groupingBy(AbstractAnalysis::getAnalysisState));
+            .collect(groupingBy(Analysis2::getAnalysisState));
 
     val actualMap =
         service.getAnalysis(studyId, PUBLISHED_ONLY).stream()
-            .collect(groupingBy(AbstractAnalysis::getAnalysisState));
+            .collect(groupingBy(Analysis2::getAnalysisState));
 
     assertEquals(actualMap.keySet().size(), 1);
     assertTrue(expectedMap.containsKey(PUBLISHED.toString()));
@@ -775,14 +803,14 @@ public class AnalysisServiceTest {
   @Test
   @Transactional
   public void testSequencingReadAnalysisMissingSamplesException() {
-    runAnalysisMissingSamplesTest(SequencingReadAnalysis.class);
+    runAnalysisMissingSamplesTest(SEQUENCING_READ);
     assert (true);
   }
 
   @Test
   @Transactional
   public void testVariantCallAnalysisMissingSamplesException() {
-    runAnalysisMissingSamplesTest(VariantCallAnalysis.class);
+    runAnalysisMissingSamplesTest(VARIANT_CALL);
     assert (true);
   }
 
@@ -822,9 +850,9 @@ public class AnalysisServiceTest {
   @Transactional
   public void testCheckAnalysisUnrelatedToStudy() {
     secureAnalysisTester.runSecureTest((s, a) -> service.checkAnalysisAndStudyRelated(s, a));
-    secureAnalysisTester.runSecureTest((s, a) -> service.securedDeepRead(s, a), VARIANT_CALL);
     secureAnalysisTester.runSecureTest(
-        (s, a) -> service.securedDeepRead(s, a), AnalysisTypes.SEQUENCING_READ);
+        (s, a) -> service.securedDeepRead(s, a), LegacyAnalysisTypeName.VARIANT_CALL);
+    secureAnalysisTester.runSecureTest((s, a) -> service.securedDeepRead(s, a), SEQUENCING_READ);
     secureAnalysisTester.runSecureTest((s, a) -> service.suppress(s, a));
     secureAnalysisTester.runSecureTest((s, a) -> service.securedReadFiles(s, a));
     secureAnalysisTester.runSecureTest((s, a) -> service.publish(s, a, false));
@@ -888,8 +916,8 @@ public class AnalysisServiceTest {
         () -> service.getAnalysis(studyId, newHashSet("SomethingElse")), MALFORMED_PARAMETER);
   }
 
-  private static AnalysisTypes selectAnalysisType(int select) {
-    return select % 2 == 0 ? VARIANT_CALL : SEQUENCING_READ;
+  private static LegacyAnalysisTypeName selectAnalysisType(int select) {
+    return select % 2 == 0 ? LegacyAnalysisTypeName.VARIANT_CALL : SEQUENCING_READ;
   }
 
   @Test
@@ -909,19 +937,15 @@ public class AnalysisServiceTest {
                 x ->
                     range(0, numAnalysesPerStudy)
                         .boxed()
-                        .map(
-                            a ->
-                                (AbstractAnalysis)
-                                    x.createDefaultRandomAnalysis(selectAnalysisType(a))))
+                        .map(a -> (Analysis2) x.createDefaultRandomAnalysis(selectAnalysisType(a))))
             .flatMap(x -> x)
-            .collect(groupingBy(AbstractAnalysis::getStudy));
+            .collect(groupingBy(Analysis2::getStudy));
 
     val studyId = study2AnalysesMap.keySet().stream().findFirst().get();
     val expectedAnalyses = study2AnalysesMap.get(studyId);
 
     val expectedAnalysisMap =
-        expectedAnalyses.stream()
-            .collect(toMap(x -> ((AbstractAnalysis) x).getAnalysisId(), x -> x));
+        expectedAnalyses.stream().collect(toMap(Analysis2::getAnalysisId, identity()));
 
     val expectedAnalysisIds = expectedAnalysisMap.keySet();
 
@@ -931,9 +955,9 @@ public class AnalysisServiceTest {
     val actualAnalyses2 = service.getAnalysisByView(studyId, analysisStates);
 
     val actualAnalysisIds1 =
-        actualAnalyses1.stream().map(AbstractAnalysis::getAnalysisId).collect(toImmutableSet());
+        actualAnalyses1.stream().map(Analysis2::getAnalysisId).collect(toImmutableSet());
     val actualAnalysisIds2 =
-        actualAnalyses2.stream().map(AbstractAnalysis::getAnalysisId).collect(toImmutableSet());
+        actualAnalyses2.stream().map(Analysis2::getAnalysisId).collect(toImmutableSet());
 
     assertCollectionsMatchExactly(actualAnalysisIds1, expectedAnalysisIds);
     assertCollectionsMatchExactly(actualAnalysisIds2, expectedAnalysisIds);
@@ -956,24 +980,9 @@ public class AnalysisServiceTest {
     assertFalse(service.isAnalysisExist(id));
 
     // Generate a payload using the analysisId
-    val payload = payloadGenerator.generateDefaultRandomPayload(SequencingReadAnalysis.class);
+    val payload = payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
     payload.setAnalysisId(id);
 
-    /**
-     * Mock the analysisInfoService. This service is called during the create method of
-     * AnalysisService and then it exceptions out. Since the analysisService has way to many
-     * dependencies (not good), mocking it the right way is ridiculous. Instead, we can mock an
-     * internal service (i.e analysisInfoService) using a runtime surgical tool such as
-     * ReflectionTestUtils, to replace the actual analysisInfoService with the mocked one to
-     * forcefully throw an exception to test the revoke feature. This is a dirty hack and is
-     * characteristic of poor design at the service layer.
-     */
-    val analysisInfoServiceMock = mock(AnalysisInfoService.class);
-    doThrow(new IllegalStateException("some error happened during the "))
-        .when(analysisInfoServiceMock)
-        .create(id, payload.getInfoAsString());
-    val originalAnalysisInfoService = ReflectionTestUtils.getField(service, ANALYSIS_INFO_SERVICE);
-    ReflectionTestUtils.setField(service, ANALYSIS_INFO_SERVICE, analysisInfoServiceMock);
     assertFalse(service.isAnalysisExist(id));
 
     // Ensure the mock is used and that an error was actually thrown
@@ -985,19 +994,16 @@ public class AnalysisServiceTest {
 
     // Ensure the id was not committed to the id server
     assertFalse(idClient.getAnalysisId(id).isPresent());
-
-    // Plug the original analysisInfoService back into service so other tests can function properly.
-    // This is a reset.
-    ReflectionTestUtils.setField(service, ANALYSIS_INFO_SERVICE, originalAnalysisInfoService);
   }
 
   @Test
   public void testUnpublishState() {
-    Stream.of(VARIANT_CALL, SEQUENCING_READ).forEach(this::runUnpublishStateTest);
+    Stream.of(LegacyAnalysisTypeName.VARIANT_CALL, SEQUENCING_READ)
+        .forEach(this::runUnpublishStateTest);
   }
 
-  private void runUnpublishStateTest(AnalysisTypes analysisType) {
-    val a = analysisGenerator.createDefaultRandomAnalysis(analysisType);
+  private void runUnpublishStateTest(LegacyAnalysisTypeName legacyAnalysisTypeName) {
+    val a = analysisGenerator.createDefaultRandomAnalysis(legacyAnalysisTypeName);
     val analysisId = a.getAnalysisId();
     val studyId = a.getStudy();
 
@@ -1030,7 +1036,7 @@ public class AnalysisServiceTest {
   }
 
   private void assertGetAnalysesForStudy(
-      Set<AbstractAnalysis> expectedAnalyses, String studyId, AnalysisStates... states) {
+      Set<Analysis2> expectedAnalyses, String studyId, AnalysisStates... states) {
     Set<String> stateStrings =
         stream(states).map(AnalysisStates::toString).collect(toImmutableSet());
     if (states.length == 0) {
@@ -1040,25 +1046,24 @@ public class AnalysisServiceTest {
 
     val results =
         service.getAnalysis(studyId, states.length == 0 ? newHashSet() : newHashSet(finalStates));
-    val actual = results.stream().map(AbstractAnalysis::getAnalysisId).collect(toImmutableSet());
+    val actual = results.stream().map(Analysis2::getAnalysisId).collect(toImmutableSet());
     val expected =
         expectedAnalyses.stream()
             .filter(x -> finalStates.contains(x.getAnalysisState()))
-            .map(AbstractAnalysis::getAnalysisId)
+            .map(Analysis2::getAnalysisId)
             .collect(toImmutableSet());
     assertCollectionsMatchExactly(actual, expected);
   }
 
-  private AbstractAnalysis createSRAnalysisWithState(
-      AnalysisGenerator generator, AnalysisStates state) {
+  private Analysis2 createSRAnalysisWithState(AnalysisGenerator generator, AnalysisStates state) {
     val a = generator.createDefaultRandomSequencingReadAnalysis();
     service.securedUpdateState(a.getStudy(), a.getAnalysisId(), state);
     return service.unsecuredDeepRead(a.getAnalysisId());
   }
 
-  private void runAnalysisMissingSamplesTest(Class<? extends AbstractAnalysis> analysisClass) {
+  private void runAnalysisMissingSamplesTest(LegacyAnalysisTypeName legacyAnalysisTypeName) {
     // Create random analysis,
-    val analysis = analysisGenerator.createDefaultRandomAnalysis(analysisClass);
+    val analysis = analysisGenerator.createDefaultRandomAnalysis(legacyAnalysisTypeName);
     val analysisId = analysis.getAnalysisId();
 
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(analysisId);
@@ -1071,12 +1076,12 @@ public class AnalysisServiceTest {
     assertEquals(trFunction.apply(l), trFunction.apply(r));
   }
 
-  private static void diff(AbstractAnalysis l, AbstractAnalysis r) {
-    assertFunctionEqual(l, r, AbstractAnalysis::getAnalysisId);
-    assertFunctionEqual(l, r, AbstractAnalysis::getAnalysisState);
-    assertFunctionEqual(l, r, AbstractAnalysis::getAnalysisType);
-    assertFunctionEqual(l, r, AbstractAnalysis::getStudy);
-    assertFunctionEqual(l, r, AbstractAnalysis::getInfoAsString);
+  private static void diff(Analysis2 l, Analysis2 r) {
+    assertFunctionEqual(l, r, Analysis2::getAnalysisId);
+    assertFunctionEqual(l, r, Analysis2::getAnalysisState);
+    assertFunctionEqual(l, r, x -> x.getAnalysisSchema().getName());
+    assertFunctionEqual(l, r, Analysis2::getStudy);
+    assertFunctionEqual(l, r, x -> x.getAnalysisData().getData());
 
     val leftFiles = newHashSet(l.getFile());
     val rightFiles = newHashSet(r.getFile());
@@ -1086,14 +1091,6 @@ public class AnalysisServiceTest {
     val rightSamples = newHashSet(r.getSample());
     assertCollectionsMatchExactly(leftSamples, rightSamples);
 
-    assertEquals(l.getInfo(), r.getInfo());
-    if (l instanceof SequencingReadAnalysis && r instanceof SequencingReadAnalysis) {
-      assertEquals(
-          ((SequencingReadAnalysis) l).getExperiment(),
-          ((SequencingReadAnalysis) r).getExperiment());
-    } else if (l instanceof VariantCallAnalysis && r instanceof VariantCallAnalysis) {
-      assertEquals(
-          ((VariantCallAnalysis) l).getExperiment(), ((VariantCallAnalysis) r).getExperiment());
-    }
+    assertEquals(l.getAnalysisData(), r.getAnalysisData());
   }
 }

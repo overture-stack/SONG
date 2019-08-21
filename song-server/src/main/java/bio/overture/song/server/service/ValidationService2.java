@@ -16,6 +16,15 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
+import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
+import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromAnalysis;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.utils.JsonUtils;
@@ -28,6 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,17 +46,6 @@ import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
-import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
-import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromAnalysis;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 @Service
@@ -73,8 +72,7 @@ public class ValidationService2 {
   @Autowired private final UploadRepository uploadRepository;
 
   @Async
-  public void asyncValidate(
-      @NonNull String uploadId, @NonNull JsonNode payload) {
+  public void asyncValidate(@NonNull String uploadId, @NonNull JsonNode payload) {
     syncValidate(uploadId, payload);
   }
 
@@ -94,19 +92,22 @@ public class ValidationService2 {
     String errors = null;
     try {
       val analysisTypeIdResult = extractAnalysisTypeIdFromAnalysis(payload);
-      if(!analysisTypeIdResult.isPresent()){
+      if (!analysisTypeIdResult.isPresent()) {
         errors = format("Missing the '%s' field", ANALYSIS_TYPE_ID);
       } else {
         val analysisTypeId = parseAnalysisTypeId(analysisTypeIdResult.get());
-        val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false );
-        log.info(format("Found Analysis type: name=%s  version=%s", analysisType.getName(), analysisType.getVersion() ));
+        val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
+        log.info(
+            format(
+                "Found Analysis type: name=%s  version=%s",
+                analysisType.getName(), analysisType.getVersion()));
         val schema = buildSchema(analysisType.getSchema());
         validateWithSchema(schema, payload);
       }
     } catch (ServerException e) {
       log.error(e.getSongError().toPrettyJson());
       errors = e.getSongError().getMessage();
-    } catch (ValidationException e){
+    } catch (ValidationException e) {
       errors = COMMA.join(e.getAllMessages());
       log.error(errors);
     } catch (Exception e) {
@@ -114,7 +115,6 @@ public class ValidationService2 {
       errors = format("Unknown processing problem: %s", e.getMessage());
     }
     return Optional.ofNullable(errors);
-
   }
 
   public void update(@NonNull String uploadId, String errorMessages) {
