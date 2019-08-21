@@ -18,14 +18,8 @@
 package bio.overture.song.server.service.export;
 
 import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
-import static bio.overture.song.server.model.enums.AnalysisTypes.SEQUENCING_READ;
-import static bio.overture.song.server.model.enums.AnalysisTypes.VARIANT_CALL;
-import static bio.overture.song.server.model.enums.AnalysisTypes.resolveAnalysisType;
 import static bio.overture.song.server.service.export.PayloadConverter.createPayloadConverter;
 import static bio.overture.song.server.service.export.PayloadParser.createPayloadParser;
-import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.groupingBy;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
@@ -33,10 +27,8 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
-import bio.overture.song.server.model.analysis.VariantCallAnalysis;
-import bio.overture.song.server.service.AnalysisService;
+import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.service.AnalysisService2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -54,7 +46,7 @@ public class ExportService {
   private static final Set<String> ALL_ANALYSIS_STATES =
       stream(AnalysisStates.values()).map(AnalysisStates::toString).collect(toImmutableSet());
 
-  @Autowired private AnalysisService analysisService;
+  @Autowired private AnalysisService2 analysisService;
 
   @SneakyThrows
   public List<ExportedPayload> exportPayload(
@@ -75,14 +67,14 @@ public class ExportService {
     return ImmutableList.of(createExportedPayload(studyId, payloads));
   }
 
-  private Map<String, List<AbstractAnalysis>> aggregateByStudy(List<String> analysisIds) {
+  private Map<String, List<Analysis2>> aggregateByStudy(List<String> analysisIds) {
     return analysisIds.stream()
         .map(analysisService::unsecuredDeepRead)
-        .collect(groupingBy(AbstractAnalysis::getStudy));
+        .collect(groupingBy(Analysis2::getStudy));
   }
 
   private static ExportedPayload buildExportedPayload(
-      String studyId, List<AbstractAnalysis> analyses, boolean includeAnalysisId) {
+      String studyId, List<Analysis2> analyses, boolean includeAnalysisId) {
     val payloads =
         analyses.stream()
             .map(x -> convertToPayload(x, includeAnalysisId))
@@ -91,20 +83,8 @@ public class ExportService {
   }
 
   @SneakyThrows
-  private static JsonNode convertToPayload(@NonNull AbstractAnalysis a, boolean includeAnalysisId) {
-    JsonNode output;
-    val analysisType = resolveAnalysisType(a.getAnalysisType());
-    if (analysisType == SEQUENCING_READ) {
-      val seqRead = (SequencingReadAnalysis) a;
-      output = readTree(toPrettyJson(seqRead));
-    } else if (analysisType == VARIANT_CALL) {
-      val varCall = (VariantCallAnalysis) a;
-      output = readTree(toPrettyJson(varCall));
-    } else {
-      throw new IllegalStateException(
-          format("Should not be here, unsupported analysisType '%s'", a.getAnalysisType()));
-    }
-
+  private static JsonNode convertToPayload(@NonNull Analysis2 a, boolean includeAnalysisId) {
+    val output = a.toJson();
     val payloadConverter = createPayloadConverter(includeAnalysisId);
     val payloadParser = createPayloadParser(output);
     return payloadConverter.convert(payloadParser);
