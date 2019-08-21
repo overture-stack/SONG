@@ -57,7 +57,7 @@ public class StudyWithDonorsServiceTest {
 
   @Autowired private StudyService studyService;
 
-  @Autowired private AnalysisService2 analysisService;
+  @Autowired private AnalysisService analysisService;
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(StudyWithDonorsServiceTest.class.getSimpleName());

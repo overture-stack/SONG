@@ -102,7 +102,7 @@ public class UploadServiceTest {
 
   @Autowired UploadService uploadService;
 
-  @Autowired AnalysisService2 analysisService;
+  @Autowired AnalysisService analysisService;
 
   @Autowired ExportService exportService;
 

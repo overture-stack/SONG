@@ -68,7 +68,7 @@ public class UploadService {
 
   @Autowired private final IdService id;
   @Autowired private final ValidationService validator;
-  @Autowired private final AnalysisService2 analysisService;
+  @Autowired private final AnalysisService analysisService;
   @Autowired private final UploadRepository uploadRepository;
   @Autowired private final StudyService studyService;
 

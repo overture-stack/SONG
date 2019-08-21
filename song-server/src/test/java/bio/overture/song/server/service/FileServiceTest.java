@@ -56,7 +56,7 @@ public class FileServiceTest {
 
   @Autowired FileService fileService;
   @Autowired StudyService studyService;
-  @Autowired AnalysisService2 analysisService;
+  @Autowired AnalysisService analysisService;
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(FileServiceTest.class.getSimpleName());

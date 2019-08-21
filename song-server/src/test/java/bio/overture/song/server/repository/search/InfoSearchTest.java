@@ -47,7 +47,7 @@ import bio.overture.song.server.model.entity.Info;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.repository.InfoRepository;
-import bio.overture.song.server.service.AnalysisService2;
+import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.UploadService;
 import bio.overture.song.server.utils.TestFiles;
@@ -88,7 +88,7 @@ public class InfoSearchTest {
           "testData_7.json",
           "testData_8.json");
 
-  @Autowired private AnalysisService2 service;
+  @Autowired private AnalysisService service;
   @Autowired private UploadService uploadService;
   @Autowired private InfoRepository infoRepository;
   @Autowired private StudyService studyService;

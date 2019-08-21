@@ -47,14 +47,14 @@ public class FileModificationService {
 
   private final FileService fileService;
   private final FileConverter fileConverter;
-  private final AnalysisService2 analysisService;
+  private final AnalysisService analysisService;
   private final ValidationService validationService;
 
   public FileModificationService(
       @Autowired @NonNull ValidationService validationService,
       @Autowired @NonNull FileService fileService,
       @Autowired @NonNull FileConverter fileConverter,
-      @Autowired @NonNull AnalysisService2 analysisService) {
+      @Autowired @NonNull AnalysisService analysisService) {
     this.fileService = fileService;
     this.analysisService = analysisService;
     this.validationService = validationService;

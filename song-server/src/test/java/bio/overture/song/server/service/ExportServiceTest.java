@@ -92,7 +92,7 @@ public class ExportServiceTest {
 
   @Autowired private UploadService uploadService;
 
-  @Autowired private AnalysisService2 analysisService;
+  @Autowired private AnalysisService analysisService;
 
   @Autowired private StudyService studyService;
 

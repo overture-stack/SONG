@@ -28,7 +28,7 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.model.analysis.Analysis2;
-import bio.overture.song.server.service.AnalysisService2;
+import bio.overture.song.server.service.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class ExportService {
   private static final Set<String> ALL_ANALYSIS_STATES =
       stream(AnalysisStates.values()).map(AnalysisStates::toString).collect(toImmutableSet());
 
-  @Autowired private AnalysisService2 analysisService;
+  @Autowired private AnalysisService analysisService;
 
   @SneakyThrows
   public List<ExportedPayload> exportPayload(

@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.Analysis2;
-import bio.overture.song.server.service.AnalysisService2;
+import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.utils.TestFiles;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ import lombok.val;
 public class AnalysisGenerator {
 
   @NonNull private final String studyId;
-  @NonNull private final AnalysisService2 service;
+  @NonNull private final AnalysisService service;
   @NonNull private final PayloadGenerator payloadGenerator;
   @NonNull private final RandomGenerator randomGenerator;
 
@@ -81,13 +81,13 @@ public class AnalysisGenerator {
   }
 
   public static AnalysisGenerator createAnalysisGenerator(
-      String studyId, AnalysisService2 service, RandomGenerator randomGenerator) {
+      String studyId, AnalysisService service, RandomGenerator randomGenerator) {
     return new AnalysisGenerator(
         studyId, service, createPayloadGenerator(randomGenerator), randomGenerator);
   }
 
   public static AnalysisGenerator createAnalysisGenerator(
-      String studyId, AnalysisService2 service, String randomGeneratorName) {
+      String studyId, AnalysisService service, String randomGeneratorName) {
     val randomGenerator = createRandomGenerator(randomGeneratorName);
     return createAnalysisGenerator(studyId, service, randomGenerator);
   }

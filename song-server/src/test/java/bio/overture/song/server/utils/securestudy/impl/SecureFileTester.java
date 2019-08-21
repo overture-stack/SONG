@@ -24,7 +24,7 @@ import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.service.AnalysisService2;
+import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.FileService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
@@ -37,13 +37,13 @@ import lombok.val;
 public class SecureFileTester extends AbstractSecureTester {
 
   private final FileService fileService;
-  private final AnalysisService2 analysisService;
+  private final AnalysisService analysisService;
 
   private SecureFileTester(
       RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull FileService fileService,
-      @NonNull AnalysisService2 analysisService) {
+      @NonNull AnalysisService analysisService) {
     super(randomGenerator, studyService, FILE_NOT_FOUND);
     this.fileService = fileService;
     this.analysisService = analysisService;
@@ -89,7 +89,7 @@ public class SecureFileTester extends AbstractSecureTester {
       RandomGenerator randomGenerator,
       StudyService studyService,
       @NonNull FileService fileService,
-      @NonNull AnalysisService2 analysisService) {
+      @NonNull AnalysisService analysisService) {
     return new SecureFileTester(randomGenerator, studyService, fileService, analysisService);
   }
 }

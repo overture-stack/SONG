@@ -66,7 +66,7 @@ public class FileModificationServiceTest {
 
   @Autowired FileService fileService;
   @Autowired StudyService studyService;
-  @Autowired AnalysisService2 analysisService;
+  @Autowired AnalysisService analysisService;
 
   @Autowired FileModificationService fileModificationService;
 

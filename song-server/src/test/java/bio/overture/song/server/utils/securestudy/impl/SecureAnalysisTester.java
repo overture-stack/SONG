@@ -21,7 +21,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOU
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.service.AnalysisService2;
+import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
@@ -37,12 +37,10 @@ import lombok.val;
  */
 public class SecureAnalysisTester extends AbstractSecureTester<LegacyAnalysisTypeName> {
 
-  @NonNull private final AnalysisService2 analysisService;
+  @NonNull private final AnalysisService analysisService;
 
   private SecureAnalysisTester(
-      RandomGenerator randomGenerator,
-      StudyService studyService,
-      AnalysisService2 analysisService) {
+      RandomGenerator randomGenerator, StudyService studyService, AnalysisService analysisService) {
     super(randomGenerator, studyService, ANALYSIS_ID_NOT_FOUND);
     this.analysisService = analysisService;
   }
@@ -60,9 +58,7 @@ public class SecureAnalysisTester extends AbstractSecureTester<LegacyAnalysisTyp
   }
 
   public static SecureAnalysisTester createSecureAnalysisTester(
-      RandomGenerator randomGenerator,
-      StudyService studyService,
-      AnalysisService2 analysisService) {
+      RandomGenerator randomGenerator, StudyService studyService, AnalysisService analysisService) {
     return new SecureAnalysisTester(randomGenerator, studyService, analysisService);
   }
 
