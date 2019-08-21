@@ -77,7 +77,6 @@ public class Analysis {
   @JoinColumn(name = TableAttributeNames.ANALYSIS_SCHEMA_ID, nullable = false)
   private AnalysisSchema analysisSchema;
 
-  // OneToOne
   @OneToOne
   @JoinColumn(name = TableAttributeNames.ANALYSIS_DATA_ID)
   @JsonIgnore

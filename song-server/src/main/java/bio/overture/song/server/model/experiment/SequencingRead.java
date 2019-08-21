@@ -32,18 +32,15 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Table(name = TableNames.SEQUENCINGREAD)
 @Data
 @Builder
+@Deprecated
 @AllArgsConstructor
 @RequiredArgsConstructor
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonPropertyOrder({
   ModelAttributeNames.ANALYSIS_ID,
@@ -55,7 +52,7 @@ import lombok.ToString;
   ModelAttributeNames.REFERENCE_GENOME,
   ModelAttributeNames.INFO
 })
-public class SequencingRead extends Experiment {
+public class SequencingRead {
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)

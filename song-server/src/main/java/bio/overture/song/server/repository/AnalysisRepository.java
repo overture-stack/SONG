@@ -17,14 +17,11 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.analysis.Analysis;
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface AnalysisRepository
     extends JpaRepository<Analysis, String>, JpaSpecificationExecutor<Analysis> {
-
-  List<Analysis> findAllByStudyAndAnalysisState(String studyId, String state);
 
   long countAllByStudyAndAnalysisId(String studyId, String analysisId);
 }

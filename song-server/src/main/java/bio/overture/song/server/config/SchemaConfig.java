@@ -21,12 +21,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SchemaConfig {
 
-  public static final Path SCHEMA_PATH = Paths.get("schemas/analysis");
+  public static final Path SCHEMA_PATH = Paths.get("schemas");
+  public static final Path SCHEMA_ANALYSIS_PATH = SCHEMA_PATH.resolve("analysis");
   private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
 
   @Bean
   public Schema analysisRegistrationSchema() {
-    return buildSchema(SCHEMA_PATH, "analysisRegistration.json");
+    return buildSchema(SCHEMA_ANALYSIS_PATH, "analysisRegistration.json");
   }
 
   @Bean
@@ -36,7 +37,7 @@ public class SchemaConfig {
 
   @Bean
   public String analysisPayloadBaseJson() throws IOException {
-    val schemaRelativePath = SCHEMA_PATH.resolve("analysisPayload.json").toString();
+    val schemaRelativePath = SCHEMA_ANALYSIS_PATH.resolve("analysisPayload.json").toString();
     return getResourceContent(schemaRelativePath);
   }
 
@@ -50,7 +51,7 @@ public class SchemaConfig {
   }
 
   private static JsonNode getSchemaAsJson(String schemaFilename) throws IOException {
-    val schemaRelativePath = SCHEMA_PATH.resolve(schemaFilename);
+    val schemaRelativePath = SCHEMA_ANALYSIS_PATH.resolve(schemaFilename);
     return readTree(getResourceContent(schemaRelativePath.toString()));
   }
 

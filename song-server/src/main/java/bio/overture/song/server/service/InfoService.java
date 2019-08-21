@@ -162,14 +162,6 @@ class FileInfoService extends InfoService {
 }
 
 @Service
-class AnalysisInfoService extends InfoService {
-  @Autowired
-  AnalysisInfoService(InfoRepository repo) {
-    super(InfoTypes.ANALYSIS, repo);
-  }
-}
-
-@Service
 class VariantCallInfoService extends InfoService {
   @Autowired
   VariantCallInfoService(InfoRepository repo) {

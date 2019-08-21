@@ -16,21 +16,23 @@
  */
 package bio.overture.song.server.validation;
 
-import static java.lang.Thread.sleep;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonSchema;
-import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
+
+import static java.lang.Thread.sleep;
 
 /**
  * Potentially extract a Validator interface if we want to pursue a Strategy pattern of multiple
  * validation rules or something
  */
 @Slf4j
+@Deprecated
 public class SchemaValidator {
 
   @Autowired private Map<String, JsonSchema> schemaCache;

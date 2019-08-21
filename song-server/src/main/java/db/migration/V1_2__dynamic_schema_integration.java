@@ -1,15 +1,5 @@
 package db.migration;
 
-import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.server.config.SchemaConfig.SCHEMA_PATH;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-import static db.migration.V1_2__dynamic_schema_integration.NonNullObjectNodeBuilder.createNonNullObjectNode;
-import static java.util.Objects.isNull;
-
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +15,16 @@ import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import static db.migration.V1_2__dynamic_schema_integration.NonNullObjectNodeBuilder.createNonNullObjectNode;
+import static java.util.Objects.isNull;
+import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.server.config.SchemaConfig.SCHEMA_ANALYSIS_PATH;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+
 @Slf4j
 public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
 
@@ -32,9 +32,9 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
   private static final String VARIANT_CALL_LEGACY_R_PATH = "legacy/variantCall.json";
   private static final ObjectMapper OBJECT_MAPPER = mapper();
   private static final Schema LEGACY_VARIANT_CALL_SCHEMA =
-      buildSchema(SCHEMA_PATH, VARIANT_CALL_LEGACY_R_PATH);
+      buildSchema(SCHEMA_ANALYSIS_PATH, VARIANT_CALL_LEGACY_R_PATH);
   private static final Schema LEGACY_SEQUENCING_READ_SCHEMA =
-      buildSchema(SCHEMA_PATH, SEQUENCING_READ_LEGACY_R_PATH);
+      buildSchema(SCHEMA_ANALYSIS_PATH, SEQUENCING_READ_LEGACY_R_PATH);
 
   @Override
   public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
@@ -77,7 +77,8 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
 
     // Register variantCall analyis schema
     val variantCall =
-        getJsonNodeFromClasspath(SCHEMA_PATH.resolve(VARIANT_CALL_LEGACY_R_PATH).toString());
+        getJsonNodeFromClasspath(
+            SCHEMA_ANALYSIS_PATH.resolve(VARIANT_CALL_LEGACY_R_PATH).toString());
     jdbcTemplate.update(
         "INSERT INTO analysis_schema (name, schema, version) VALUES ('variantCall', ?, 1)",
         variantCall.toString());
@@ -97,7 +98,8 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
 
     // Register sequencingRead analyis schema
     val sequencingRead =
-        getJsonNodeFromClasspath(SCHEMA_PATH.resolve(SEQUENCING_READ_LEGACY_R_PATH).toString());
+        getJsonNodeFromClasspath(
+            SCHEMA_ANALYSIS_PATH.resolve(SEQUENCING_READ_LEGACY_R_PATH).toString());
 
     // Update all variantCall analyses to point to variantCall analysis_schema
     jdbcTemplate.update(
