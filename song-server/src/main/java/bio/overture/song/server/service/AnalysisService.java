@@ -16,51 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.kafka.AnalysisMessage;
-import bio.overture.song.server.kafka.Sender;
-import bio.overture.song.server.model.SampleSet;
-import bio.overture.song.server.model.SampleSetPK;
-import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import bio.overture.song.server.model.analysis.Analysis2;
-import bio.overture.song.server.model.analysis.AnalysisData;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.repository.AnalysisDataRepository;
-import bio.overture.song.server.repository.AnalysisRepository2;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
-import bio.overture.song.server.repository.search.IdSearchRequest;
-import bio.overture.song.server.repository.search.InfoSearchRequest;
-import bio.overture.song.server.repository.search.InfoSearchResponse;
-import bio.overture.song.server.repository.search.SearchRepository;
-import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
-
-import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
@@ -85,6 +40,49 @@ import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static bio.overture.song.server.repository.search.SearchTerm.createMultiSearchTerms;
 import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
+
+import bio.overture.song.core.model.enums.AnalysisStates;
+import bio.overture.song.server.kafka.AnalysisMessage;
+import bio.overture.song.server.kafka.Sender;
+import bio.overture.song.server.model.SampleSet;
+import bio.overture.song.server.model.SampleSetPK;
+import bio.overture.song.server.model.StorageObject;
+import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.repository.AnalysisDataRepository;
+import bio.overture.song.server.repository.AnalysisRepository;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
+import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.repository.search.IdSearchRequest;
+import bio.overture.song.server.repository.search.InfoSearchRequest;
+import bio.overture.song.server.repository.search.InfoSearchResponse;
+import bio.overture.song.server.repository.search.SearchRepository;
+import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import javax.transaction.Transactional;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 
 @Slf4j
 @Service
@@ -97,7 +95,7 @@ public class AnalysisService {
   @Value("${song.id}")
   private String songServerId;
 
-  @Autowired private final AnalysisRepository2 repository2;
+  @Autowired private final AnalysisRepository repository2;
   @Autowired private final FileInfoService fileInfoService;
   @Autowired private final IdService idService;
   @Autowired private final CompositeEntityService compositeEntityService;
@@ -152,7 +150,7 @@ public class AnalysisService {
     val analysisData = AnalysisData.builder().data(toJsonNode(payload.getData())).build();
     analysisDataRepository.save(analysisData);
 
-    val a = new Analysis2();
+    val a = new Analysis();
     a.setFile(payload.getFile());
     a.setSample(payload.getSample());
     a.setAnalysisId(payload.getAnalysisId());
@@ -176,7 +174,7 @@ public class AnalysisService {
   }
 
   @Transactional
-  public ResponseEntity<String> updateAnalysis(String studyId, Analysis2 analysis) {
+  public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
     val id = analysis.getAnalysisId();
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(id);
     saveCompositeEntities(studyId, id, analysis.getSample());
@@ -195,7 +193,7 @@ public class AnalysisService {
    * @param analysisStates only return analyses that have values from this non-empty list
    * @return returns a List of analysis with the child entities.
    */
-  public List<Analysis2> getAnalysisByView(
+  public List<Analysis> getAnalysisByView(
       @NonNull String studyId, @NonNull Set<String> analysisStates) {
     studyService.checkStudyExist(studyId);
     val finalStates = resolveSelectedAnalysisStates(analysisStates);
@@ -209,7 +207,7 @@ public class AnalysisService {
    * replaced with getAnalysisByView. Refer to SONG-338
    */
   @Deprecated
-  public List<Analysis2> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
+  public List<Analysis> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
     return getAnalysisByView(studyId, analysisStates);
   }
 
@@ -220,10 +218,10 @@ public class AnalysisService {
    * @return returns a list of analysis with child entities in response to the search request. If
    *     nothing is found, an empty list is returned.
    */
-  public List<Analysis2> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request) {
+  public List<Analysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request) {
     val analysisList =
         searchRepository.idSearch(studyId, request).stream()
-            .map(AbstractAnalysis::getAnalysisId)
+            .map(Analysis::getAnalysisId)
             .map(x -> securedDeepRead(studyId, x))
             .collect(toImmutableList());
     if (analysisList.isEmpty()) {
@@ -276,7 +274,7 @@ public class AnalysisService {
    * Unsecurely reads an analysis WITH all of its files, samples and info, but does not verify if
    * the studyId used in the request is allowed to read this analysis
    */
-  public Analysis2 unsecuredDeepRead(@NonNull String id) {
+  public Analysis unsecuredDeepRead(@NonNull String id) {
     val analysis = shallowRead(id);
     analysis.setFile(unsecuredReadFiles(id));
     analysis.setSample(readSamples(id));
@@ -287,7 +285,7 @@ public class AnalysisService {
    * Securely reads an analysis WITH all of its files, samples and info, and verifies the input
    * studyId is related to the requested analysisId
    */
-  public Analysis2 securedDeepRead(@NonNull String studyId, String id) {
+  public Analysis securedDeepRead(@NonNull String studyId, String id) {
     checkAnalysisAndStudyRelated(studyId, id);
     return unsecuredDeepRead(id);
   }
@@ -383,7 +381,7 @@ public class AnalysisService {
     checkAnalysisExists(id);
     return repository2
         .findById(id)
-        .map(Analysis2::getAnalysisState)
+        .map(Analysis::getAnalysisState)
         .map(AnalysisStates::resolveAnalysisState)
         .get();
   }
@@ -437,7 +435,7 @@ public class AnalysisService {
     val state = analysisState.name();
     val analysis = shallowRead(id);
     analysis.setAnalysisState(state);
-    val analysisUpdateRequest = new Analysis2();
+    val analysisUpdateRequest = new Analysis();
     analysisUpdateRequest.setWith(analysis);
     repository2.save(analysisUpdateRequest);
     sendAnalysisMessage(
@@ -458,7 +456,7 @@ public class AnalysisService {
   }
 
   /** Reads an analysis WITHOUT any files, samples or info */
-  private Analysis2 shallowRead(String id) {
+  private Analysis shallowRead(String id) {
     val analysisResult =
         repository2.findOne(new AnalysisSpecificationBuilder(true, true).buildById(id));
 

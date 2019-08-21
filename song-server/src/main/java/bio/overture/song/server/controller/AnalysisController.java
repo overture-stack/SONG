@@ -21,7 +21,7 @@ import static org.icgc.dcc.common.core.util.Splitters.COMMA;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.repository.search.InfoSearchRequest;
@@ -75,7 +75,7 @@ public class AnalysisController {
       value = "GetPublishedAnalysesForStudy",
       notes = "Retrieve all analysis objects for a studyId")
   @GetMapping(value = "")
-  public List<Analysis2> getAnalysis(
+  public List<Analysis> getAnalysis(
       @PathVariable("studyId") String studyId,
       @ApiParam(value = "Non-empty comma separated list of analysis states to filter by")
           @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
@@ -145,7 +145,7 @@ public class AnalysisController {
    */
   @ApiOperation(value = "ReadAnalysis", notes = "Retrieve the analysis object for an analysisId")
   @GetMapping(value = "/{id}")
-  public Analysis2 read(@PathVariable("studyId") String studyId, @PathVariable("id") String id) {
+  public Analysis read(@PathVariable("studyId") String studyId, @PathVariable("id") String id) {
     return analysisService.securedDeepRead(studyId, id);
   }
 
@@ -168,7 +168,7 @@ public class AnalysisController {
           "Search for analysis objects by specifying regex patterns for the "
               + "donorIds, sampleIds, specimenIds, or fileIds request parameters")
   @GetMapping(value = "/search/id")
-  public List<Analysis2> idSearch(
+  public List<Analysis> idSearch(
       @PathVariable("studyId") String studyId,
       @RequestParam(value = "donorId", required = false) String donorIds,
       @RequestParam(value = "sampleId", required = false) String sampleIds,
@@ -185,7 +185,7 @@ public class AnalysisController {
       value = "/search/id",
       consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ResponseBody
-  public List<Analysis2> idSearch(
+  public List<Analysis> idSearch(
       @PathVariable("studyId") String studyId, @RequestBody IdSearchRequest request) {
     return analysisService.idSearch(studyId, request);
   }

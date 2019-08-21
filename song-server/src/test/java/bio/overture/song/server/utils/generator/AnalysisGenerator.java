@@ -24,7 +24,7 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.junit.Assert.assertNotNull;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.utils.TestFiles;
 import lombok.NonNull;
@@ -43,7 +43,7 @@ public class AnalysisGenerator {
    * Create a random analysis by specifying the output analysis class type and the payload fixture
    * to load and persist to db
    */
-  public Analysis2 createRandomAnalysis(String payloadFilename) {
+  public Analysis createRandomAnalysis(String payloadFilename) {
     val payload = payloadGenerator.generateRandomPayload(payloadFilename);
     // Set analysisId to empty to ensure a randomly generated analysisId, and therefore
     // randomly generated objectId (fileIds)
@@ -67,16 +67,16 @@ public class AnalysisGenerator {
    * Creates a default random analysis object in the repository, by loading the default fixture
    * based on the input analysis class type
    */
-  public Analysis2 createDefaultRandomAnalysis(LegacyAnalysisTypeName legacyAnalysisTypeName) {
+  public Analysis createDefaultRandomAnalysis(LegacyAnalysisTypeName legacyAnalysisTypeName) {
     val payloadFilename = resolveDefaultPayloadFilename(legacyAnalysisTypeName);
     return createRandomAnalysis(payloadFilename);
   }
 
-  public Analysis2 createDefaultRandomSequencingReadAnalysis() {
+  public Analysis createDefaultRandomSequencingReadAnalysis() {
     return createDefaultRandomAnalysis(LegacyAnalysisTypeName.SEQUENCING_READ);
   }
 
-  public Analysis2 createDefaultRandomVariantCallAnalysis() {
+  public Analysis createDefaultRandomVariantCallAnalysis() {
     return createDefaultRandomAnalysis(LegacyAnalysisTypeName.VARIANT_CALL);
   }
 

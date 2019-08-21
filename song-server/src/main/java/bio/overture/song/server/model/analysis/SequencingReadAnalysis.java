@@ -17,31 +17,36 @@
 
 package bio.overture.song.server.model.analysis;
 
-import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.experiment.SequencingRead;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @Data
 @Builder
+@Deprecated
 @AllArgsConstructor
 @RequiredArgsConstructor
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SequencingReadAnalysis extends AbstractAnalysis {
+public class SequencingReadAnalysis {
 
-  SequencingRead experiment;
+  private String analysisId;
+  private String study;
+  private String analysisState = UNPUBLISHED.name();
+  private List<CompositeEntity> sample;
+  private List<FileEntity> file;
+  private SequencingRead experiment;
 
   @JsonGetter
-  public String getAnalysisType() {
-    return SEQUENCING_READ_TYPE;
+  public String getAnalysisTypeId() {
+    return "sequencingRead:1";
   }
 }

@@ -27,7 +27,7 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.service.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
@@ -67,14 +67,14 @@ public class ExportService {
     return ImmutableList.of(createExportedPayload(studyId, payloads));
   }
 
-  private Map<String, List<Analysis2>> aggregateByStudy(List<String> analysisIds) {
+  private Map<String, List<Analysis>> aggregateByStudy(List<String> analysisIds) {
     return analysisIds.stream()
         .map(analysisService::unsecuredDeepRead)
-        .collect(groupingBy(Analysis2::getStudy));
+        .collect(groupingBy(Analysis::getStudy));
   }
 
   private static ExportedPayload buildExportedPayload(
-      String studyId, List<Analysis2> analyses, boolean includeAnalysisId) {
+      String studyId, List<Analysis> analyses, boolean includeAnalysisId) {
     val payloads =
         analyses.stream()
             .map(x -> convertToPayload(x, includeAnalysisId))
@@ -83,7 +83,7 @@ public class ExportService {
   }
 
   @SneakyThrows
-  private static JsonNode convertToPayload(@NonNull Analysis2 a, boolean includeAnalysisId) {
+  private static JsonNode convertToPayload(@NonNull Analysis a, boolean includeAnalysisId) {
     val output = a.toJson();
     val payloadConverter = createPayloadConverter(includeAnalysisId);
     val payloadParser = createPayloadParser(output);

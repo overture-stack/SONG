@@ -63,7 +63,7 @@ import static org.junit.Assert.fail;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.FileEntity;
@@ -600,7 +600,7 @@ public class AnalysisServiceTest {
         () -> service.create(an1.getStudy(), equivalentPayload, true), DUPLICATE_ANALYSIS_ATTEMPT);
   }
 
-  public static Payload convertFromAnalysis(Analysis2 a) {
+  public static Payload convertFromAnalysis(Analysis a) {
     val payload =
         Payload.builder()
             .analysisId(a.getAnalysisId())
@@ -665,9 +665,9 @@ public class AnalysisServiceTest {
 
     val analysisGenerator = createAnalysisGenerator(studyId, service, randomGenerator);
     val numAnalysis = 10;
-    val sraMap = Maps.<String, Analysis2>newHashMap();
-    val vcaMap = Maps.<String, Analysis2>newHashMap();
-    val expectedAnalyses = Sets.<Analysis2>newHashSet();
+    val sraMap = Maps.<String, Analysis>newHashMap();
+    val vcaMap = Maps.<String, Analysis>newHashMap();
+    val expectedAnalyses = Sets.<Analysis>newHashSet();
     for (int i = 1; i <= numAnalysis; i++) {
       if (i % 2 == 0) {
         val sra = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
@@ -723,18 +723,18 @@ public class AnalysisServiceTest {
             .boxed()
             .map(
                 x -> {
-                  Analysis2 a = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
+                  Analysis a = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
                   AnalysisStates randomState =
                       x == 0 ? PUBLISHED : randomGenerator.randomEnum(AnalysisStates.class);
                   a.setAnalysisState(randomState.toString());
                   service.securedUpdateState(studyId, a.getAnalysisId(), randomState);
                   return a;
                 })
-            .collect(groupingBy(Analysis2::getAnalysisState));
+            .collect(groupingBy(Analysis::getAnalysisState));
 
     val actualMap =
         service.getAnalysis(studyId, PUBLISHED_ONLY).stream()
-            .collect(groupingBy(Analysis2::getAnalysisState));
+            .collect(groupingBy(Analysis::getAnalysisState));
 
     assertEquals(actualMap.keySet().size(), 1);
     assertTrue(expectedMap.containsKey(PUBLISHED.toString()));
@@ -937,15 +937,15 @@ public class AnalysisServiceTest {
                 x ->
                     range(0, numAnalysesPerStudy)
                         .boxed()
-                        .map(a -> (Analysis2) x.createDefaultRandomAnalysis(selectAnalysisType(a))))
+                        .map(a -> (Analysis) x.createDefaultRandomAnalysis(selectAnalysisType(a))))
             .flatMap(x -> x)
-            .collect(groupingBy(Analysis2::getStudy));
+            .collect(groupingBy(Analysis::getStudy));
 
     val studyId = study2AnalysesMap.keySet().stream().findFirst().get();
     val expectedAnalyses = study2AnalysesMap.get(studyId);
 
     val expectedAnalysisMap =
-        expectedAnalyses.stream().collect(toMap(Analysis2::getAnalysisId, identity()));
+        expectedAnalyses.stream().collect(toMap(Analysis::getAnalysisId, identity()));
 
     val expectedAnalysisIds = expectedAnalysisMap.keySet();
 
@@ -955,9 +955,9 @@ public class AnalysisServiceTest {
     val actualAnalyses2 = service.getAnalysisByView(studyId, analysisStates);
 
     val actualAnalysisIds1 =
-        actualAnalyses1.stream().map(Analysis2::getAnalysisId).collect(toImmutableSet());
+        actualAnalyses1.stream().map(Analysis::getAnalysisId).collect(toImmutableSet());
     val actualAnalysisIds2 =
-        actualAnalyses2.stream().map(Analysis2::getAnalysisId).collect(toImmutableSet());
+        actualAnalyses2.stream().map(Analysis::getAnalysisId).collect(toImmutableSet());
 
     assertCollectionsMatchExactly(actualAnalysisIds1, expectedAnalysisIds);
     assertCollectionsMatchExactly(actualAnalysisIds2, expectedAnalysisIds);
@@ -1036,7 +1036,7 @@ public class AnalysisServiceTest {
   }
 
   private void assertGetAnalysesForStudy(
-      Set<Analysis2> expectedAnalyses, String studyId, AnalysisStates... states) {
+      Set<Analysis> expectedAnalyses, String studyId, AnalysisStates... states) {
     Set<String> stateStrings =
         stream(states).map(AnalysisStates::toString).collect(toImmutableSet());
     if (states.length == 0) {
@@ -1046,16 +1046,16 @@ public class AnalysisServiceTest {
 
     val results =
         service.getAnalysis(studyId, states.length == 0 ? newHashSet() : newHashSet(finalStates));
-    val actual = results.stream().map(Analysis2::getAnalysisId).collect(toImmutableSet());
+    val actual = results.stream().map(Analysis::getAnalysisId).collect(toImmutableSet());
     val expected =
         expectedAnalyses.stream()
             .filter(x -> finalStates.contains(x.getAnalysisState()))
-            .map(Analysis2::getAnalysisId)
+            .map(Analysis::getAnalysisId)
             .collect(toImmutableSet());
     assertCollectionsMatchExactly(actual, expected);
   }
 
-  private Analysis2 createSRAnalysisWithState(AnalysisGenerator generator, AnalysisStates state) {
+  private Analysis createSRAnalysisWithState(AnalysisGenerator generator, AnalysisStates state) {
     val a = generator.createDefaultRandomSequencingReadAnalysis();
     service.securedUpdateState(a.getStudy(), a.getAnalysisId(), state);
     return service.unsecuredDeepRead(a.getAnalysisId());
@@ -1076,11 +1076,11 @@ public class AnalysisServiceTest {
     assertEquals(trFunction.apply(l), trFunction.apply(r));
   }
 
-  private static void diff(Analysis2 l, Analysis2 r) {
-    assertFunctionEqual(l, r, Analysis2::getAnalysisId);
-    assertFunctionEqual(l, r, Analysis2::getAnalysisState);
+  private static void diff(Analysis l, Analysis r) {
+    assertFunctionEqual(l, r, Analysis::getAnalysisId);
+    assertFunctionEqual(l, r, Analysis::getAnalysisState);
     assertFunctionEqual(l, r, x -> x.getAnalysisSchema().getName());
-    assertFunctionEqual(l, r, Analysis2::getStudy);
+    assertFunctionEqual(l, r, Analysis::getStudy);
     assertFunctionEqual(l, r, x -> x.getAnalysisData().getData());
 
     val leftFiles = newHashSet(l.getFile());

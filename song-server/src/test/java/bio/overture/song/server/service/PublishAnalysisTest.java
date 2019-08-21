@@ -49,7 +49,7 @@ import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.google.common.collect.ImmutableList;
@@ -92,7 +92,7 @@ public class PublishAnalysisTest {
   /** State */
   private List<FileEntity> testFiles;
 
-  private Analysis2 testAnalysis;
+  private Analysis testAnalysis;
   private String testAnalysisId;
   private String testStudyId;
 
@@ -327,12 +327,12 @@ public class PublishAnalysisTest {
     ReflectionTestUtils.setField(service, STORAGE_SERVICE, mockStorageService);
   }
 
-  public List<FileEntity> generateFiles(int maxSize, Analysis2 a) {
+  public List<FileEntity> generateFiles(int maxSize, Analysis a) {
     return randomList(() -> generateFile(a), maxSize);
   }
 
   /** Generate a random file given an input analysis */
-  public FileEntity generateFile(Analysis2 a) {
+  public FileEntity generateFile(Analysis a) {
     val legacyAnalysisTypeName = resolveLegacyAnalysisTypeName(a.getAnalysisSchema().getName());
     String fileType = null;
     String fileName = randomGenerator.generateRandomUUIDAsString() + ".";

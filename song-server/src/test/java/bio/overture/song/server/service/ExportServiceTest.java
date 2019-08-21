@@ -40,7 +40,7 @@ import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Sample;
@@ -97,9 +97,6 @@ public class ExportServiceTest {
   @Autowired private StudyService studyService;
 
   @Autowired private AnalysisRepository analysisRepository;
-  @Autowired private AnalysisInfoService analysisInfoService;
-  @Autowired private SequencingReadInfoService sequencingReadInfoService;
-  @Autowired private VariantCallInfoService variantCallInfoService;
   @Autowired private DonorService donorService;
   @Autowired private FileService fileService;
   @Autowired private SampleSetRepository sampleSetRepository;
@@ -198,7 +195,7 @@ public class ExportServiceTest {
 
     val analyses =
         exportedPayload.getPayloads().stream()
-            .map(x -> fromJson(x, Analysis2.class))
+            .map(x -> fromJson(x, Analysis.class))
             .collect(toImmutableList());
     assertEquals(analyses.size(), 1);
     val actualAnalysis = analyses.get(0);
@@ -229,12 +226,12 @@ public class ExportServiceTest {
             .flatMap(Collection::stream)
             .collect(toImmutableList());
     assertEquals(actualStudyModeExportedPayloads.size(), numStudies);
-    val actualStudyModeData = Maps.<String, List<Analysis2>>newHashMap();
+    val actualStudyModeData = Maps.<String, List<Analysis>>newHashMap();
     for (val exportedPayload : actualStudyModeExportedPayloads) {
       val studyId = exportedPayload.getStudyId();
       val analyses =
           exportedPayload.getPayloads().stream()
-              .map(x -> fromJson(x, Analysis2.class))
+              .map(x -> fromJson(x, Analysis.class))
               .collect(toImmutableList());
       actualStudyModeData.put(studyId, analyses);
     }
@@ -243,17 +240,17 @@ public class ExportServiceTest {
     val expectedAnalysisIds =
         expectedData.values().stream()
             .flatMap(Collection::stream)
-            .map(Analysis2::getAnalysisId)
+            .map(Analysis::getAnalysisId)
             .collect(toImmutableList());
     val actualAnalysisModeExportedPayloads =
         exportService.exportPayload(expectedAnalysisIds, includeAnalysisId);
     assertEquals(actualAnalysisModeExportedPayloads.size(), numStudies);
-    val actualAnalysisModeData = Maps.<String, List<Analysis2>>newHashMap();
+    val actualAnalysisModeData = Maps.<String, List<Analysis>>newHashMap();
     for (val exportedPayload : actualAnalysisModeExportedPayloads) {
       val studyId = exportedPayload.getStudyId();
       val analyses =
           exportedPayload.getPayloads().stream()
-              .map(x -> fromJson(x, Analysis2.class))
+              .map(x -> fromJson(x, Analysis.class))
               .collect(toImmutableList());
       actualAnalysisModeData.put(studyId, analyses);
     }
@@ -263,10 +260,9 @@ public class ExportServiceTest {
   }
 
   /** Delete the analysis */
-  private void deleteAnalysis(Analysis2 a) {
+  private void deleteAnalysis(Analysis a) {
     deleteExperiment(a);
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(a.getAnalysisId());
-    analysisInfoService.delete(a.getAnalysisId());
     a.getSample().stream()
         .map(CompositeEntity::getDonor)
         .map(Donor::getDonorId)
@@ -277,7 +273,7 @@ public class ExportServiceTest {
     analysisRepository.deleteById(a.getAnalysisId());
   }
 
-  private void deleteExperiment(Analysis2 a) {
+  private void deleteExperiment(Analysis a) {
     ((ObjectNode) a.getAnalysisData().getData()).remove("experiment");
   }
 
@@ -302,16 +298,16 @@ public class ExportServiceTest {
             legacyAnalysisTypeName, numStudies, numAnalysesPerStudy, includeAnalysisId, true);
 
     // [REDUCTION_TAG] Reduce the data so that there is one analysis for each study
-    val reducedData = Maps.<String, Analysis2>newHashMap();
+    val reducedData = Maps.<String, Analysis>newHashMap();
     data.entrySet().stream()
         .filter(e -> !reducedData.containsKey(e.getKey()))
         .forEach(
             e -> {
               String studyId = e.getKey();
-              List<Analysis2> analyses = e.getValue();
+              List<Analysis> analyses = e.getValue();
               int numAnalyses = analyses.size();
               int randomAnalysisPos = randomGenerator.generateRandomIntRange(0, numAnalyses);
-              Analysis2 randomAnalysis = analyses.get(randomAnalysisPos);
+              Analysis randomAnalysis = analyses.get(randomAnalysisPos);
               reducedData.put(studyId, randomAnalysis);
             });
     assertEquals(reducedData.keySet().size(), numStudies);
@@ -319,7 +315,7 @@ public class ExportServiceTest {
 
     // Create a list of analysisIds that covers all the previously generated studies
     val requestedAnalysisIds =
-        reducedData.values().stream().map(Analysis2::getAnalysisId).collect(toImmutableList());
+        reducedData.values().stream().map(Analysis::getAnalysisId).collect(toImmutableList());
     assertEquals(requestedAnalysisIds.size(), numStudies);
 
     // Export the analysis for the requested analysisIds
@@ -352,7 +348,7 @@ public class ExportServiceTest {
     }
   }
 
-  private Analysis2 submitPayload(String studyId, JsonNode payloadJson) {
+  private Analysis submitPayload(String studyId, JsonNode payloadJson) {
     // Upload and check if successful
     val payload = toJson(payloadJson);
     val uploadStatus = uploadService.upload(studyId, payload, false);
@@ -379,7 +375,7 @@ public class ExportServiceTest {
    * analyses, and put everything in a map, where the keys are studyIds and the values are all the
    * analyses for that study
    */
-  private Map<String, List<Analysis2>> generateData(
+  private Map<String, List<Analysis>> generateData(
       LegacyAnalysisTypeName legacyAnalysisTypeName,
       int numStudies,
       int numAnalysesPerStudy,
@@ -387,7 +383,7 @@ public class ExportServiceTest {
       boolean includeOtherIds) {
 
     val studyGenerator = createStudyGenerator(studyService, randomGenerator);
-    val map = Maps.<String, List<Analysis2>>newHashMap();
+    val map = Maps.<String, List<Analysis>>newHashMap();
     for (int s = 0; s < numStudies; s++) {
       val studyId = studyGenerator.createRandomStudy();
       val analysisGenerator = createAnalysisGenerator(studyId, analysisService, randomGenerator);
@@ -402,7 +398,7 @@ public class ExportServiceTest {
     return ImmutableMap.copyOf(map);
   }
 
-  private static void assertAnalysis(Analysis2 actualAnalysis, Analysis2 expectedAnalysis) {
+  private static void assertAnalysis(Analysis actualAnalysis, Analysis expectedAnalysis) {
     assertEquals(actualAnalysis.getAnalysisSchema(), expectedAnalysis.getAnalysisSchema());
 
     assertEquals(actualAnalysis.getAnalysisState(), expectedAnalysis.getAnalysisState());
@@ -424,13 +420,13 @@ public class ExportServiceTest {
     assertSubmitterIds(actualAnalysis, expectedAnalysis);
   }
 
-  private static void assertExperiment(Analysis2 actual, Analysis2 expected) {
+  private static void assertExperiment(Analysis actual, Analysis expected) {
     val actualExperimentNode = extractNode(actual, "experiment");
     val expectedExperimentNode = extractNode(expected, "experiment");
     assertEquals(actualExperimentNode, expectedExperimentNode);
   }
 
-  private static void assertSubmitterIds(Analysis2 actualAnalysis, Analysis2 expectedAnalysis) {
+  private static void assertSubmitterIds(Analysis actualAnalysis, Analysis expectedAnalysis) {
     val actualSampleIds = collectSampleSubmitterIds(actualAnalysis.getSample());
     val expectedSampleIds = collectSampleSubmitterIds(expectedAnalysis.getSample());
     assertCollectionsMatchExactly(actualSampleIds, expectedSampleIds);
@@ -473,7 +469,7 @@ public class ExportServiceTest {
   }
 
   private static void massageAnalysisInplace(
-      Analysis2 a, boolean includeAnalysisId, boolean includeOtherIds) {
+      Analysis a, boolean includeAnalysisId, boolean includeOtherIds) {
     if (!includeAnalysisId) {
       a.setAnalysisId(DEFAULT_EMPTY_VALUE);
     }
@@ -506,14 +502,14 @@ public class ExportServiceTest {
   }
 
   private static void assertMatchingData(
-      Map<String, List<Analysis2>> actualData, Map<String, List<Analysis2>> expectedData) {
+      Map<String, List<Analysis>> actualData, Map<String, List<Analysis>> expectedData) {
     assertCollectionsMatchExactly(expectedData.keySet(), actualData.keySet());
     for (val studyId : expectedData.keySet()) {
       val expectedAnalyses = expectedData.get(studyId);
       val actualAnalysisMap =
           groupUnique(
               actualData.get(studyId),
-              Analysis2::getAnalysisId); // Assumed that all analyses in the list are unique
+              Analysis::getAnalysisId); // Assumed that all analyses in the list are unique
       for (val expectedAnalysis : expectedAnalyses) {
         assertTrue(actualAnalysisMap.containsKey(expectedAnalysis.getAnalysisId()));
         val actualAnalysis = actualAnalysisMap.get(expectedAnalysis.getAnalysisId());

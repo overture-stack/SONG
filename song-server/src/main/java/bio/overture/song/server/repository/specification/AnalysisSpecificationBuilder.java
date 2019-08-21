@@ -5,7 +5,7 @@ import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
 import static javax.persistence.criteria.JoinType.LEFT;
 
-import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import java.util.Collection;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -17,13 +17,13 @@ import lombok.val;
 import org.springframework.data.jpa.domain.Specification;
 
 @RequiredArgsConstructor
-public class AnalysisSpecificationBuilder extends AbstractSpecificationBuilder<Analysis2, String> {
+public class AnalysisSpecificationBuilder extends AbstractSpecificationBuilder<Analysis, String> {
 
   private final boolean fetchAnalysisSchema;
   private final boolean fetchAnalysisData;
 
   @Override
-  protected Root<Analysis2> setupFetchStrategy(Root<Analysis2> root) {
+  protected Root<Analysis> setupFetchStrategy(Root<Analysis> root) {
     if (fetchAnalysisSchema) {
       root.fetch(ANALYSIS_SCHEMA, LEFT);
     }
@@ -33,7 +33,7 @@ public class AnalysisSpecificationBuilder extends AbstractSpecificationBuilder<A
     return root;
   }
 
-  public Specification<Analysis2> buildByStudyAndAnalysisStates(
+  public Specification<Analysis> buildByStudyAndAnalysisStates(
       @NonNull String study, @NonNull Collection<String> analysisStates) {
     return (fromUser, query, builder) -> {
       val root = setupFetchStrategy(fromUser);
@@ -42,13 +42,12 @@ public class AnalysisSpecificationBuilder extends AbstractSpecificationBuilder<A
     };
   }
 
-  private Predicate whereStatesInPredicate(
-      Root<Analysis2> root, Collection<String> analysisStates) {
+  private Predicate whereStatesInPredicate(Root<Analysis> root, Collection<String> analysisStates) {
     return root.get(ModelAttributeNames.STATE).in(analysisStates);
   }
 
   private Predicate equalsStudyPredicate(
-      Root<Analysis2> root, CriteriaBuilder builder, String study) {
+      Root<Analysis> root, CriteriaBuilder builder, String study) {
     return builder.equal(root.get(STUDY), study);
   }
 }

@@ -7,7 +7,7 @@ import static bio.overture.song.server.model.enums.TableAttributeNames.VERSION;
 import static bio.overture.song.server.repository.CustomJsonType.CUSTOM_JSON_TYPE_PKG_PATH;
 import static org.assertj.core.util.Sets.newHashSet;
 
-import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -65,9 +65,9 @@ public class AnalysisSchema {
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.LAZY)
-  private Set<Analysis2> analyses = newHashSet();
+  private Set<Analysis> analyses = newHashSet();
 
-  public void addAnalysis(Analysis2 a) {
+  public void addAnalysis(Analysis a) {
     this.analyses.add(a);
     a.setAnalysisSchema(this);
   }

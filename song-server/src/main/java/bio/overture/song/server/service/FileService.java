@@ -24,7 +24,6 @@ import static bio.overture.song.core.utils.Responses.OK;
 
 import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.repository.AnalysisRepository;
 import bio.overture.song.server.repository.FileRepository;
 import java.util.List;
 import java.util.Optional;
@@ -38,8 +37,6 @@ import org.springframework.stereotype.Service;
 @Service
 @NoArgsConstructor
 public class FileService {
-
-  @Autowired AnalysisRepository analysisRepository;
 
   @Autowired FileRepository repository;
 

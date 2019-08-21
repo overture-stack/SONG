@@ -40,7 +40,7 @@ import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.analysis.Analysis2;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Info;
@@ -161,7 +161,7 @@ public class InfoSearchTest {
     assert (true);
   }
 
-  private static void assertAnalysisData(Analysis2 a1, Analysis2 a2) {
+  private static void assertAnalysisData(Analysis a1, Analysis a2) {
     assertEquals(a1.getAnalysisSchema(), a2.getAnalysisSchema());
     assertEquals(a1.getAnalysisState(), a2.getAnalysisState());
     assertEquals(a1.getFile().size(), a2.getFile().size());

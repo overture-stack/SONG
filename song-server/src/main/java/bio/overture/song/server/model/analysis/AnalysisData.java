@@ -45,14 +45,14 @@ public class AnalysisData {
       cascade = CascadeType.ALL,
       fetch = FetchType.LAZY,
       optional = false)
-  private Analysis2 analysis;
+  private Analysis analysis;
 
   @NotNull
   @Column(name = DATA)
   @Type(type = CUSTOM_JSON_TYPE_PKG_PATH)
   private JsonNode data;
 
-  public void setAnalysis(Analysis2 a) {
+  public void setAnalysis(Analysis a) {
     this.analysis = a;
     a.setAnalysisData(this);
   }

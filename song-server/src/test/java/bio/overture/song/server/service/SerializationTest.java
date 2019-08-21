@@ -16,27 +16,38 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
-import bio.overture.song.server.model.analysis.VariantCallAnalysis;
+import bio.overture.song.core.utils.ResourceFetcher;
+import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.Specimen;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
-import bio.overture.song.server.model.experiment.SequencingRead;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Test;
 
+@Slf4j
 public class SerializationTest {
 
   private static final String FILEPATH = "src/test/resources/fixtures/";
@@ -51,6 +62,79 @@ public class SerializationTest {
     assertEquals(Collections.emptyMap(), m);
   }
 
+  private static final ResourceFetcher RESOURCE_FETCHER =
+      ResourceFetcher.builder()
+          .resourceType(TEST)
+          .dataDir(Paths.get("documents/deserialization"))
+          .build();
+
+  @Test
+  @SneakyThrows
+  public void testPayloadSerializationAndDeserialization() {
+    val inputJson = RESOURCE_FETCHER.readJsonNode("sequencingRead-input-serialization.json");
+
+    val f1 =
+        FileEntity.builder()
+            .fileAccess("controlled")
+            .fileType("VCF")
+            .fileName(
+                "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz")
+            .fileSize(132394L)
+            .fileMd5sum("d3cec975acc69a42b8cc3b76ec01ec21")
+            .build();
+    f1.setInfo("compression", "gzip");
+
+    val f2 =
+        FileEntity.builder()
+            .fileType("IDX")
+            .fileName(
+                "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx")
+            .fileSize(2394L)
+            .fileAccess("controlled")
+            .fileMd5sum("65ef4aac7bffcb9f3595a69e48ff2f79")
+            .build();
+
+    val sp =
+        Specimen.builder()
+            .specimenSubmitterId("internal_specimen_123456789_01")
+            .specimenClass("Normal")
+            .specimenType("Normal - solid tissue")
+            .build();
+
+    val d =
+        Donor.builder().donorGender("male").donorSubmitterId("internal_donor_123456789_01").build();
+    d.setInfo("ageCategory", "18-25");
+    d.setInfo("riskCategory", "3b");
+
+    val sa = new CompositeEntity();
+    sa.setSampleSubmitterId("internal_sample_123456789_01");
+    sa.setSampleType("Total RNA");
+    sa.setInfo("tissueCollectionMethod", "IV");
+    sa.setSpecimen(sp);
+    sa.setDonor(d);
+
+    val expectedPayload =
+        Payload.builder()
+            .analysisId(inputJson.path("analysisId").textValue())
+            .analysisTypeId("sequencingRead:1")
+            .file(newArrayList(f1, f2))
+            .sample(newArrayList(sa))
+            .study(inputJson.path("study").textValue())
+            .build();
+    val data = RESOURCE_FETCHER.readJsonNode("sequencingRead-expected-data-only.json");
+    expectedPayload.addData(data);
+
+    // Assert proper Serialization
+    val payloadString = toJson(expectedPayload);
+    val actualJson = readTree(payloadString);
+    val expectedJson = RESOURCE_FETCHER.readJsonNode("sequencingRead-expected-serialization.json");
+    assertJsonEquals(expectedJson, actualJson, when(IGNORING_ARRAY_ORDER));
+
+    // Assert proper deserialization
+    val actualPayload = JsonUtils.fromJson(payloadString, Payload.class);
+    assertEquals(expectedPayload, actualPayload);
+  }
+
   @Test
   @SneakyThrows
   public void testDonorSpecimens() {
@@ -60,7 +144,7 @@ public class SerializationTest {
     val gender = "female";
 
     val single =
-        String.format(
+        format(
             "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
                 + "'roses':'red','violets':'blue'}",
             donorId, submitter, study, gender);
@@ -78,7 +162,7 @@ public class SerializationTest {
   @Test
   public void testDonorToJson() {
     val donor = new Donor();
-    val json = JsonUtils.toJson(donor);
+    val json = toJson(donor);
 
     val expected =
         "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null," + "'info':{}}";
@@ -90,7 +174,7 @@ public class SerializationTest {
   public void testDonorSettings() {
     val donor = new Donor();
     donor.setDonorId(null);
-    val json = JsonUtils.toJson(donor);
+    val json = toJson(donor);
     System.err.printf("json='%s'\n", json);
     val expected =
         "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null," + "'info':{}}";
@@ -115,10 +199,10 @@ public class SerializationTest {
             .build();
     donor.setInfo(metadata);
 
-    val json = JsonUtils.toJson(donor);
+    val json = toJson(donor);
 
     val expected =
-        String.format(
+        format(
             "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
                 + "'info':{%s}}",
             id, submitterId, studyId, gender, metadata);
@@ -150,83 +234,15 @@ public class SerializationTest {
   }
 
   @Test
-  public void testSequencingReadToJSON() {
-    val id = "AN1";
-    val aligned = true;
-    val alignmentTool = "BigWrench";
-    val insertSize = 25L;
-    val libraryStrategy = "Other";
-    val pairedEnd = false;
-    val genome = "Castor Canadiansis";
-    // val metadata = JsonUtils.fromSingleQuoted("'sequencingTool': 'NanoporeSeq123'");
-    val metadata = "";
-
-    val sequencingRead =
-        SequencingRead.builder()
-            .analysisId(id)
-            .aligned(aligned)
-            .alignmentTool(alignmentTool)
-            .insertSize(insertSize)
-            .libraryStrategy(libraryStrategy)
-            .pairedEnd(pairedEnd)
-            .referenceGenome(genome)
-            .build();
-    val json = JsonUtils.toJson(sequencingRead);
-
-    val expected =
-        String.format(
-            "{'analysisId':'%s','aligned':%s,'alignmentTool':'%s',"
-                + "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s,'referenceGenome':'%s','info':{%s}}",
-            id, aligned, alignmentTool, insertSize, libraryStrategy, pairedEnd, genome, metadata);
-    val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertEquals(json, expectedJson);
-  }
-
-  @Test
-  public void testSequencingReadFromJson() {
-    val id = "AN1";
-    val aligned = true;
-    val alignmentTool = "BigWrench";
-    val insertSize = 25L;
-    val libraryStrategy = "Other";
-    val genome = "Castor Canadiansis";
-    val pairedEnd = false;
-
-    val metadata = "";
-
-    val sequencingRead1 =
-        SequencingRead.builder()
-            .analysisId(id)
-            .aligned(aligned)
-            .alignmentTool(alignmentTool)
-            .insertSize(insertSize)
-            .libraryStrategy(libraryStrategy)
-            .pairedEnd(pairedEnd)
-            .referenceGenome(genome)
-            .build();
-
-    val singleQuotedJson =
-        String.format(
-            "{'analysisId':'%s','aligned':%s,'alignmentTool':'%s',"
-                + "'insertSize':%s,'libraryStrategy':'%s','pairedEnd':%s, 'referenceGenome': '%s', 'info':{%s}}",
-            id, aligned, alignmentTool, insertSize, libraryStrategy, pairedEnd, genome, metadata);
-    val json = JsonUtils.fromSingleQuoted(singleQuotedJson);
-
-    val sequencingRead2 = JsonUtils.fromJson(json, SequencingRead.class);
-
-    assertEquals(sequencingRead1, sequencingRead2);
-  }
-
-  @Test
   public void testListFile() throws IOException {
     val singleQuotedJson =
         "{'file':[ { 'objectId': 'FI12345', 'fileName':'dna3.bam', 'fileMd5':'A1B2C3D4E5F6'},"
             + "{'objectId': 'FI34567', 'fileName': 'dna7.fasta', 'fileType':'BAM', 'fileSize':1234, 'fileMd5': 'F1E2D3'}]}";
 
     val json = JsonUtils.fromSingleQuoted(singleQuotedJson);
-    val root = JsonUtils.readTree(json);
+    val root = readTree(json);
     val files = root.get("file");
-    String fileJson = JsonUtils.toJson(files);
+    String fileJson = toJson(files);
 
     List<FileEntity> f = Arrays.asList(JsonUtils.fromJson(fileJson, FileEntity[].class));
 
@@ -240,39 +256,31 @@ public class SerializationTest {
   }
 
   @Test
-  public void testSequencingReadAnalysisFromJson() throws IOException {
+  public void testSequencingReadPayloadFromJson() throws IOException {
     val json = readFile(FILEPATH + "sequencingRead.json");
-    val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
+    val payload = JsonUtils.fromJson(json, Payload.class);
 
-    System.out.printf("*** Analysis object='%s'\n", analysis);
-    assertEquals(analysis.getAnalysisType(), "sequencingRead");
-    assertEquals(analysis.getFile().size(), 2);
+    System.out.printf("*** Payload object='%s'\n", payload);
+    assertEquals(payload.getAnalysisTypeId(), "sequencingRead:1");
+    assertEquals(payload.getFile().size(), 2);
     assertEquals(
-        analysis.getSample().get(0).getDonor().getDonorSubmitterId(),
-        "internal_donor_123456789-00");
+        payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
 
-    assertTrue(analysis instanceof SequencingReadAnalysis);
-    val r = ((SequencingReadAnalysis) analysis).getExperiment();
-
-    assertEquals(r.getLibraryStrategy(), "WXS");
-    assertEquals(r.getInsertSize().longValue(), 900L);
-    assertEquals(r.getAlignmentTool(), "MUSE variant call pipeline");
+    val rootNode = JsonUtils.toJsonNode(payload.getData());
+    val experimentNode = rootNode.path("experiment");
+    assertEquals(experimentNode.path("libraryStrategy").textValue(), "WXS");
+    assertEquals(experimentNode.path("insertSize").longValue(), 900L);
+    assertEquals(experimentNode.path("alignmentTool").textValue(), "MUSE variant call pipeline");
   }
 
   @Test
-  public void testVariantCallAnalysisFromJson() throws IOException {
+  public void testVariantCallPayloadFromJson() throws IOException {
     val json = readFile(FILEPATH + "variantCall.json");
-    val analysis = JsonUtils.fromJson(json, AbstractAnalysis.class);
-    System.out.printf("*** Analysis object='%s'\n", analysis);
-    assertEquals(analysis.getAnalysisType(), "variantCall");
-
-    assertTrue(analysis instanceof VariantCallAnalysis);
-    VariantCallAnalysis v = (VariantCallAnalysis) analysis;
-    System.out.printf("VariantCall object='%s'\n", v);
-
-    assertEquals(analysis.getFile().size(), 2);
+    val payload = JsonUtils.fromJson(json, Payload.class);
+    System.out.printf("*** Analysis object='%s'\n", payload);
+    assertEquals(payload.getAnalysisTypeId(), "variantCall:1");
+    assertEquals(payload.getFile().size(), 2);
     assertEquals(
-        analysis.getSample().get(0).getDonor().getDonorSubmitterId(),
-        "internal_donor_123456789-00");
+        payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
   }
 }

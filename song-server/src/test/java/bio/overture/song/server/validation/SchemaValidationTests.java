@@ -18,6 +18,8 @@ package bio.overture.song.server.validation;
 
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
@@ -27,20 +29,23 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.ValidationMessage;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.assertj.core.util.Sets;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
+import org.icgc.dcc.common.core.util.Joiners;
 import org.icgc.dcc.common.core.util.stream.Streams;
 import org.junit.Test;
 
@@ -177,28 +182,29 @@ public class SchemaValidationTests {
     }
   }
 
-  protected Set<ValidationMessage> validate(String schemaFile, String documentFile)
-      throws Exception {
+  protected Set<String> validate(String schemaFile, String documentFile) throws Exception {
     val node = getJsonNodeFromClasspath(documentFile);
     return validate(schemaFile, node);
   }
 
-  protected Set<ValidationMessage> validate(String schemaFile, JsonNode node) throws Exception {
+  protected Set<String> validate(String schemaFile, JsonNode node) throws Exception {
     val schema = getJsonSchemaFromClasspath(schemaFile);
-    val errors = schema.validate(node);
-    if (errors.size() > 0) {
-      for (val msg : errors) {
-        log.error(String.format("Error code %s: %s ", msg.getCode(), msg.getMessage()));
-      }
+    val errors = Sets.<String>newHashSet();
+    try {
+      schema.validate(node);
+    } catch (ValidationException e) {
+      log.error(String.format("Error: %s ", Joiners.COMMA.join(e.getAllMessages())));
+      errors.addAll(e.getAllMessages());
     }
     return errors;
   }
 
-  protected JsonSchema getJsonSchemaFromClasspath(String name) throws Exception {
-    JsonSchemaFactory factory = new JsonSchemaFactory();
-    InputStream is = currentThread().getContextClassLoader().getResourceAsStream(name);
-    JsonSchema schema = factory.getSchema(is);
-    return schema;
+  private static final ResourceFetcher RESOURCE_FETCHER =
+      ResourceFetcher.builder().resourceType(TEST).dataDir(Paths.get("./")).build();
+
+  protected Schema getJsonSchemaFromClasspath(String name) throws Exception {
+    val json = RESOURCE_FETCHER.readJsonNode(name);
+    return buildSchema(json);
   }
 
   protected JsonNode getJsonNodeFromClasspath(String name) throws Exception {
