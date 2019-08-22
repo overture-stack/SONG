@@ -54,6 +54,8 @@ import static bio.overture.song.server.utils.generator.PayloadGenerator.createPa
 @Slf4j
 public class SchemaValidationTests {
 
+  private static final String VARIANT_CALL_LEGACY_SCHEMA_PATH = "schemas/analysis/legacy/variantCall.json";
+  private static final String SEQUENCING_READ_LEGACY_SCHEMA_PATH = "schemas/analysis/legacy/variantCall.json";
   private static final String ANALYSIS_ID = "analysisId";
   private static final String PROPERTIES = "properties";
   private static final String TYPE = "type";
@@ -62,7 +64,7 @@ public class SchemaValidationTests {
 
   @Test
   public void validate_analysis_id_regex() throws Exception {
-    val schemaFiles = newArrayList("schemas/sequencingRead.json", "schemas/variantCall.json");
+    val schemaFiles = newArrayList(SEQUENCING_READ_LEGACY_SCHEMA_PATH, VARIANT_CALL_LEGACY_SCHEMA_PATH);
     for (val schemaFile : schemaFiles) {
       val schema = getJsonNodeFromClasspath(schemaFile);
       assertTrue(schema.has(PROPERTIES));
@@ -79,7 +81,7 @@ public class SchemaValidationTests {
 
   @Test
   public void validate_file_md5_regex() throws Exception {
-    val schemaFiles = newArrayList("schemas/sequencingRead.json", "schemas/variantCall.json");
+    val schemaFiles = newArrayList(SEQUENCING_READ_LEGACY_SCHEMA_PATH, VARIANT_CALL_LEGACY_SCHEMA_PATH);
     for (val schemaFile : schemaFiles) {
       val schema = getJsonNodeFromClasspath(schemaFile);
       val paths =
@@ -103,40 +105,40 @@ public class SchemaValidationTests {
 
   @Test
   public void validate_submit_sequencing_read_happy_path() throws Exception {
-    val errors = validate("schemas/sequencingRead.json", "documents/sequencingread-valid.json");
+    val errors = validate(SEQUENCING_READ_LEGACY_SCHEMA_PATH, "documents/sequencingread-valid.json");
     assertEquals(errors.size(), 0);
   }
 
   @Test
   public void validate_submit_sequencing_read_missing_required() throws Exception {
     val errors =
-        validate("schemas/sequencingRead.json", "documents/sequencingread-missing-required.json");
+        validate(SEQUENCING_READ_LEGACY_SCHEMA_PATH, "documents/sequencingread-missing-required.json");
     assertEquals(errors.size(), 4);
   }
 
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
     val errors =
-        validate("schemas/sequencingRead.json", "documents/sequencingread-invalid-enum.json");
+        validate(SEQUENCING_READ_LEGACY_SCHEMA_PATH, "documents/sequencingread-invalid-enum.json");
     assertEquals(errors.size(), 6);
   }
 
   @Test
   public void validate_submit_variant_call_happy_path() throws Exception {
-    val errors = validate("schemas/variantCall.json", "documents/variantcall-valid.json");
+    val errors = validate(VARIANT_CALL_LEGACY_SCHEMA_PATH, "documents/variantcall-valid.json");
     assertEquals(errors.size(), 0);
   }
 
   @Test
   public void validate_submit_variant_call_missing_required() throws Exception {
     val errors =
-        validate("schemas/variantCall.json", "documents/variantcall-missing-required.json");
+        validate(VARIANT_CALL_LEGACY_SCHEMA_PATH, "documents/variantcall-missing-required.json");
     assertEquals(errors.size(), 4);
   }
 
   @Test
   public void validate_submit_variant_call_invalid_enum() throws Exception {
-    val errors = validate("schemas/variantCall.json", "documents/variantcall-invalid-enum.json");
+    val errors = validate(VARIANT_CALL_LEGACY_SCHEMA_PATH, "documents/variantcall-invalid-enum.json");
     assertEquals(errors.size(), 6);
   }
 
@@ -158,11 +160,11 @@ public class SchemaValidationTests {
       String fixtureFilename;
       if (analysisTypeClass.equals(VariantCallAnalysis.class)) {
         ext = "vcf.gz";
-        schemaFilename = "schemas/variantCall.json";
+        schemaFilename = VARIANT_CALL_LEGACY_SCHEMA_PATH;
         fixtureFilename = "documents/variantcall-valid.json";
       } else {
         ext = "bam";
-        schemaFilename = "schemas/sequencingRead.json";
+        schemaFilename = SEQUENCING_READ_LEGACY_SCHEMA_PATH;
         fixtureFilename = "documents/sequencingread-valid.json";
       }
       for (val entry : testMap.entrySet()) {
@@ -176,9 +178,9 @@ public class SchemaValidationTests {
         val errors = validate(schemaFilename, payloadNode);
 
         if (isGood) {
-          assertEquals(errors.size(), 0);
+          assertEquals(0, errors.size());
         } else {
-          assertEquals(errors.size(), 1);
+          assertEquals(1, errors.size());
         }
       }
     }
@@ -189,6 +191,17 @@ public class SchemaValidationTests {
     return validate(schemaFile, node);
   }
 
+  protected Set<String> validateUnrendered(, JsonNode node) throws Exception {
+    val schema = getJsonSchemaFromClasspath(schemaFile);
+    val errors = Sets.<String>newHashSet();
+    try {
+      schema.validate(convertToJSONObject(node));
+    } catch (ValidationException e) {
+      log.error(String.format("Error: %s ", Joiners.COMMA.join(e.getAllMessages())));
+      errors.addAll(e.getAllMessages());
+    }
+    return errors;
+  }
   protected Set<String> validate(String schemaFile, JsonNode node) throws Exception {
     val schema = getJsonSchemaFromClasspath(schemaFile);
     val errors = Sets.<String>newHashSet();

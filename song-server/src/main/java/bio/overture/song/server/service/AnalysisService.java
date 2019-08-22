@@ -148,6 +148,7 @@ public class AnalysisService {
         analysisTypeId.getName(),
         analysisTypeId.getVersion());
     val analysisSchema = analysisSchemaOpt.get();
+
     val analysisData = AnalysisData.builder().data(toJsonNode(payload.getData())).build();
     analysisDataRepository.save(analysisData);
 
@@ -436,9 +437,7 @@ public class AnalysisService {
     val state = analysisState.name();
     val analysis = shallowRead(id);
     analysis.setAnalysisState(state);
-    val analysisUpdateRequest = new Analysis();
-    analysisUpdateRequest.setWith(analysis);
-    repository.save(analysisUpdateRequest);
+    repository.save(analysis);
     sendAnalysisMessage(
         createAnalysisMessage(id, analysis.getStudy(), analysisState, songServerId));
   }

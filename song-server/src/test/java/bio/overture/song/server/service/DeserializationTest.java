@@ -17,17 +17,17 @@
 
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.utils.TestFiles;
 import lombok.val;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 
 public class DeserializationTest {
 
@@ -42,8 +42,8 @@ public class DeserializationTest {
     val experimentNode1 = rootNode1.path("experiment");
     assertNull(payload1.getAnalysisId());
     assertFalse(experimentNode1.has("matchedNormalSampleSubmitterId"));
-    assertFalse(experimentNode1.has("variantCallingTool"));
-    assertFalse(rootNode1.has("random"));
+    assertFalse(experimentNode1.hasNonNull("variantCallingTool"));
+    assertFalse(experimentNode1.hasNonNull("random"));
 
     val payload2 =
         fromJson(
@@ -54,6 +54,7 @@ public class DeserializationTest {
     val rootNode2 = toJsonNode(payload2.getData());
     val experimentNode2 = rootNode2.path("experiment");
     assertNull(payload2.getAnalysisId());
+    assertTrue(rootNode2.has("experiment"));
     assertFalse(experimentNode2.has("matchedNormalSampleSubmitterId"));
     assertFalse(experimentNode2.has("variantCallingTool"));
   }
@@ -73,9 +74,9 @@ public class DeserializationTest {
     assertFalse(experimentNode1.has("alignmentTool"));
     assertFalse(experimentNode1.has("insertSize"));
     assertEquals(experimentNode1.path("libraryStrategy").textValue(), "WXS");
-    assertFalse(experimentNode1.has("pairedEnd"));
-    assertFalse(experimentNode1.has("referenceGenome"));
-    assertFalse(rootNode1.has("random"));
+    assertFalse(experimentNode1.hasNonNull("pairedEnd"));
+    assertFalse(experimentNode1.hasNonNull("referenceGenome"));
+    assertFalse(experimentNode1.path("info").hasNonNull("random"));
 
     val payload2 =
         fromJson(
@@ -88,9 +89,9 @@ public class DeserializationTest {
     assertNull(payload2.getAnalysisId());
     assertFalse(experimentNode2.has("aligned"));
     assertFalse(experimentNode2.has("alignmentTool"));
-    assertFalse(experimentNode2.has("insertSize"));
+    assertFalse(experimentNode2.hasNonNull("insertSize"));
     assertEquals(experimentNode2.path("libraryStrategy").textValue(), "WXS");
     assertTrue(experimentNode2.path("pairedEnd").booleanValue());
-    assertFalse(experimentNode2.has("referenceGenome"));
+    assertFalse(experimentNode2.hasNonNull("referenceGenome"));
   }
 }

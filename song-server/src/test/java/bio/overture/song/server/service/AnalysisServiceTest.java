@@ -51,6 +51,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -72,6 +73,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
@@ -106,7 +110,7 @@ import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTest
 @ActiveProfiles("test")
 public class AnalysisServiceTest {
 
-  private static final String ANALYSIS_INFO_SERVICE = "analysisInfoService";
+  private static final String ID_SERVICE = "idService";
   private static final String DEFAULT_STUDY_ID = "ABC123";
   private static final String DEFAULT_ANALYSIS_ID = "AN1";
   private static final Set<String> PUBLISHED_ONLY = ImmutableSet.of(PUBLISHED.toString());
@@ -177,7 +181,8 @@ public class AnalysisServiceTest {
     assertTrue(data.has("experiment"));
     assertEquals(
         data.get("experiment").get("alignmentTool").textValue(), "MUSE variant call pipeline");
-    assertEquals(data.get("marginOfError").textValue(), "0.01%");
+    assertTrue(data.path("experiment").hasNonNull("info"));
+    assertEquals(data.path("experiment").path("info").get("marginOfError").textValue(), "0.01%");
 
     ; // test update
     val change = "ModifiedToolName";
@@ -212,9 +217,9 @@ public class AnalysisServiceTest {
     val sample = created.getSample().get(0);
     assertTrue(created.getAnalysisData().getData().has("experiment"));
     assertEquals(extractVariantCallingTool(created.getAnalysisData()), "silver bullet");
-    assertTrue(created.getAnalysisData().getData().has("extraInfo"));
+    assertTrue(created.getAnalysisData().getData().path("experiment").has("extraInfo"));
     assertEquals(
-        created.getAnalysisData().getData().path("extraInfo").textValue(), "this is extra info");
+        created.getAnalysisData().getData().path("experiment").path("extraInfo").textValue(), "this is extra info");
 
     // test update
     val change = "GoldenHammer";
@@ -262,10 +267,10 @@ public class AnalysisServiceTest {
     assertEquals(a.getAnalysisSchema().getName(), "variantCall");
     assertEquals(a.getStudy(), DEFAULT_STUDY_ID);
     assertEquals(
-        TestAnalysis.extractString(a, "description1"),
+        TestAnalysis.extractString(a, "info", "description1"),
         "description1 for this variantCall analysis an01");
     assertEquals(
-        TestAnalysis.extractString(a, "description2"),
+        TestAnalysis.extractString(a, "info", "description2"),
         "description2 for this variantCall analysis an01");
     assertEquals(
         TestAnalysis.extractString(a, "experiment", "variantCallingTool"), "silver bullet ex01");
@@ -388,10 +393,10 @@ public class AnalysisServiceTest {
     assertEquals(a.getAnalysisSchema().getName(), "sequencingRead");
     assertEquals(a.getStudy(), DEFAULT_STUDY_ID);
     assertEquals(
-        TestAnalysis.extractString(a, "description1"),
+        TestAnalysis.extractString(a, "info", "description1"),
         "description1 for this sequencingRead analysis an01");
     assertEquals(
-        TestAnalysis.extractString(a, "description2"),
+        TestAnalysis.extractString(a, "info", "description2"),
         "description2 for this sequencingRead analysis an01");
 
     assertEquals(TestAnalysis.extractString(a, "experiment", "libraryStrategy"), "WXS");
@@ -561,7 +566,7 @@ public class AnalysisServiceTest {
   @Test
   @Transactional
   public void testDuplicateAnalysisAttemptError() {
-    val an1 = service.securedDeepRead(DEFAULT_STUDY_ID, "AN1");
+    val an1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val equivalentPayload = convertFromAnalysis(an1);
     assertSongError(
         () -> service.create(an1.getStudy(), equivalentPayload, true), DUPLICATE_ANALYSIS_ATTEMPT);
@@ -950,6 +955,23 @@ public class AnalysisServiceTest {
     val payload = payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
     payload.setAnalysisId(id);
 
+    /**
+     * Mock the idService. This service is called during the create method of
+     * AnalysisService and then it exceptions out. Since the analysisService has way to many
+     * dependencies (not good), mocking it the right way is ridiculous. Instead, we can mock an
+     * internal service (i.e idService) using a runtime surgical tool such as
+     * ReflectionTestUtils, to replace the actual idService with the mocked one to
+     * forcefully throw an exception to test the revoke feature. This is a dirty hack and is
+     * characteristic of poor design at the service layer.
+     */
+    val mockIdService = mock(IdService.class);
+    doThrow(new IllegalStateException("some error happened during the "))
+        .when(mockIdService)
+        .createAnalysisId(id);
+    when(mockIdService.resolveAnalysisId(id, false)).thenReturn(id);
+
+    val originalIdService = ReflectionTestUtils.getField(service, ID_SERVICE);
+    ReflectionTestUtils.setField(service, ID_SERVICE, mockIdService);
     assertFalse(service.isAnalysisExist(id));
 
     // Ensure the mock is used and that an error was actually thrown
@@ -961,6 +983,10 @@ public class AnalysisServiceTest {
 
     // Ensure the id was not committed to the id server
     assertFalse(idClient.getAnalysisId(id).isPresent());
+
+    // Plug the original analysisInfoService back into service so other tests can function properly.
+    // This is a reset.
+    ReflectionTestUtils.setField(service, ID_SERVICE, originalIdService);
   }
 
   @Test
