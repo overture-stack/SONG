@@ -1,5 +1,15 @@
 package db.migration;
 
+import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.server.config.SchemaConfig.SCHEMA_ANALYSIS_PATH;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static db.migration.V1_2__dynamic_schema_integration.NonNullObjectNodeBuilder.createNonNullObjectNode;
+import static java.util.Objects.isNull;
+
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,16 +24,6 @@ import org.everit.json.schema.ValidationException;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import static db.migration.V1_2__dynamic_schema_integration.NonNullObjectNodeBuilder.createNonNullObjectNode;
-import static java.util.Objects.isNull;
-import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.server.config.SchemaConfig.SCHEMA_ANALYSIS_PATH;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {

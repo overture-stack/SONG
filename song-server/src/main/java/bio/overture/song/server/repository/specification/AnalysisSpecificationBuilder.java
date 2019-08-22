@@ -50,12 +50,13 @@ public class AnalysisSpecificationBuilder extends AbstractSpecificationBuilder<A
     };
   }
 
-  private Predicate equalsAnalysisIdPredicate(Root<Analysis> root, CriteriaBuilder builder, String  analysisId) {
+  private Predicate equalsAnalysisIdPredicate(
+      Root<Analysis> root, CriteriaBuilder builder, String analysisId) {
     return builder.equal(root.get(ModelAttributeNames.ANALYSIS_ID), analysisId);
   }
 
   private Predicate whereStatesInPredicate(Root<Analysis> root, Collection<String> analysisStates) {
-    return root.get(ModelAttributeNames.STATE).in(analysisStates);
+    return root.get(ModelAttributeNames.ANALYSIS_STATE).in(analysisStates);
   }
 
   private Predicate equalsStudyPredicate(

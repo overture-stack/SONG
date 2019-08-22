@@ -16,19 +16,6 @@
  */
 package bio.overture.song.server.validation;
 
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.Thread.currentThread;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;
@@ -36,9 +23,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -48,6 +32,24 @@ import org.everit.json.schema.ValidationException;
 import org.icgc.dcc.common.core.util.Joiners;
 import org.icgc.dcc.common.core.util.stream.Streams;
 import org.junit.Test;
+
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.util.Set;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Thread.currentThread;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 
 @Slf4j
 public class SchemaValidationTests {
@@ -191,7 +193,7 @@ public class SchemaValidationTests {
     val schema = getJsonSchemaFromClasspath(schemaFile);
     val errors = Sets.<String>newHashSet();
     try {
-      schema.validate(node);
+      schema.validate(convertToJSONObject(node));
     } catch (ValidationException e) {
       log.error(String.format("Error: %s ", Joiners.COMMA.join(e.getAllMessages())));
       errors.addAll(e.getAllMessages());

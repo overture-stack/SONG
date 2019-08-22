@@ -76,8 +76,8 @@ public class Analysis {
   @Column(name = TableAttributeNames.STATE, nullable = false)
   private String analysisState = UNPUBLISHED.name();
 
-  //TODO: need to remove this, and replace anything that needs this with Payload object
-  public String getAnalysisTypeId(){
+  // TODO: need to remove this, and replace anything that needs this with Payload object
+  public String getAnalysisTypeId() {
     return resolveAnalysisTypeId(analysisSchema);
   }
 

@@ -17,18 +17,17 @@
 
 package bio.overture.song.server.service.export;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static lombok.AccessLevel.PRIVATE;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.val;
-
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static lombok.AccessLevel.PRIVATE;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
 @Value
 @RequiredArgsConstructor(access = PRIVATE)
@@ -86,5 +85,4 @@ public class PayloadParser {
   private static JsonNode getDonorNodeFromSample(JsonNode sampleNode) {
     return readPath(sampleNode, DONOR);
   }
-
 }

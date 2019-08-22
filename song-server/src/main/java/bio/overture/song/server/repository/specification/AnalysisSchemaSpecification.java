@@ -1,17 +1,16 @@
 package bio.overture.song.server.repository.specification;
 
-import bio.overture.song.server.model.entity.AnalysisSchema;
-import lombok.val;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.lang.Nullable;
-
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.Collection;
-
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
 import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
+
+import bio.overture.song.server.model.entity.AnalysisSchema;
+import java.util.Collection;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import lombok.val;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 
 public class AnalysisSchemaSpecification {
 

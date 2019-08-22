@@ -17,18 +17,17 @@
 
 package bio.overture.song.server.service.export;
 
+import static bio.overture.song.server.service.export.PayloadParser.checkField;
+import static bio.overture.song.server.service.export.PayloadParser.readPath;
+import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.util.List;
-
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
-import static bio.overture.song.server.service.export.PayloadParser.checkField;
-import static bio.overture.song.server.service.export.PayloadParser.readPath;
 
 @RequiredArgsConstructor
 public class PayloadConverter {

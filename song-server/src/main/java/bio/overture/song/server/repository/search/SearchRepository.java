@@ -17,23 +17,24 @@
 
 package bio.overture.song.server.repository.search;
 
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithInfo;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.IdView;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.hibernate.Session;
+
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+import java.util.List;
+
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithInfo;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -78,10 +79,10 @@ public class SearchRepository {
 
   private static Analysis convertToAnalysis(IdView.IdViewProjection proj) {
     return createAnalysis(
-        proj.getStudyId(), proj.getAnalysisId(), proj.getAnalysisState(), proj.getAnalysisType());
+        proj.getStudyId(), proj.getAnalysisId(), proj.getAnalysisState());
   }
 
-  private static Analysis createAnalysis(String studyId, String id, String state, String type) {
+  private static Analysis createAnalysis(String studyId, String id, String state) {
     val a = new Analysis();
     a.setStudy(studyId);
     a.setAnalysisId(id);

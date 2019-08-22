@@ -156,14 +156,13 @@ public class AnalysisService {
     a.setSample(payload.getSample());
     a.setAnalysisId(id);
     a.setAnalysisState(UNPUBLISHED.name());
-    a.setStudy(payload.getStudy());
+    a.setStudy(studyId);
 
     analysisData.setAnalysis(a);
     analysisSchema.addAnalysis(a);
 
     saveCompositeEntities(studyId, id, a.getSample());
     saveFiles(id, studyId, a.getFile());
-
 
     // If there were no errors before, then commit the id to the id server.
     // If the id was created by some other client on the id server in the time
