@@ -16,23 +16,13 @@
  */
 package bio.overture.song.server.validation;
 
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Splitters.PIPE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.ValidationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
-import java.util.Map;
-import java.util.function.Supplier;
 import lombok.val;
+import org.icgc.dcc.common.core.util.Splitters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +31,17 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Splitters.COMMA;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -51,7 +52,6 @@ public class ValidationServiceTest {
   private static final Map<String, String> DEFAULT_TEST_FILE_MAP = Maps.newHashMap();
   private static final String SEQ_READ = "SequencingRead";
   private static final String VAR_CALL = "VariantCall";
-  private static final String STUDY = "study";
 
   static {
     DEFAULT_TEST_FILE_MAP.put(SEQ_READ, "sequencingRead.json");
@@ -87,40 +87,27 @@ public class ValidationServiceTest {
   @Test
   public void testValidateVariantCallMissingAnalysisType() {
     val payload = getJsonFile("variantCall.json");
-    ((ObjectNode) payload).put("analysisType", (String) null);
+    ((ObjectNode) payload).put("analysisTypeId", (String) null);
     val results = service.validate(payload);
     assertTrue(results.isPresent());
     assertTrue(
         results
             .get()
             .contains(
-                "$.analysisType: does not have a value in the enumeration [variantCall]|$.analysisType: null found, string expected"));
+                "[AnalysisTypeService::malformed.parameter] - The analysisTypeId 'null' does not match the regex "));
   }
 
   @Test
   public void testValidateSequencingReadMissingAnalysisType() {
     val payload = getJsonFile("sequencingRead.json");
-    ((ObjectNode) payload).put("analysisType", (String) null);
+    ((ObjectNode) payload).put("analysisTypeId", (String) null);
     val results = service.validate(payload);
     assertTrue(results.isPresent());
     assertTrue(
         results
             .get()
             .contains(
-                "$.analysisType: does not have a value in the enumeration [sequencingRead]|$"
-                    + ".analysisType: null found, string expected"));
-  }
-
-  @Test
-  public void testUnknownAnalysisTypeValidation() {
-    val payload = getJsonFile("sequencingRead.json");
-    val results = service.validate(payload);
-    assertTrue(results.isPresent());
-    assertTrue(
-        results
-            .get()
-            .contains(
-                "Unknown processing problem: Internal Error: could not find specified schema uploadSOME_UNKNOWN_ANALYSIS_TYPE"));
+                "[AnalysisTypeService::malformed.parameter] - The analysisTypeId 'null' does not match the regex "));
   }
 
   @Test
@@ -148,10 +135,10 @@ public class ValidationServiceTest {
 
       assertTrue(results.isPresent());
 
-      val errors = PIPE.splitToList(results.get());
+      val errors = COMMA.splitToList(results.get());
       assertEquals(2, errors.size());
       for (val error : errors) {
-        assertTrue(error.contains("fileMd5sum: does not match the regex pattern"));
+        assertTrue(error.matches("^#/file/[0|1]/fileMd5sum: string \\[[^\\]]+\\] does not match pattern.*"));
       }
     }
   }
@@ -204,33 +191,6 @@ public class ValidationServiceTest {
     }
   }
 
-  private void runRequiredStringForPayloadTest(
-      ObjectNode payload, Supplier<ObjectNode> nodeGetter, String fieldName, String schemaType) {
-    val node = nodeGetter.get();
-    node.put(fieldName, "");
-    val emptyResults = service.validate(payload);
-    assertTrue(emptyResults.isPresent());
-    assertTrue(
-        emptyResults.get().endsWith(format("%s: must be at least 1 characters long", fieldName)));
-
-    node.put(fieldName, (String) null);
-    val nullResults = service.validate(payload);
-    assertTrue(nullResults.isPresent());
-    assertTrue(nullResults.get().endsWith(format("%s: null found, string expected", fieldName)));
-
-    node.remove(fieldName);
-    val missingResults = service.validate(payload);
-    assertTrue(missingResults.isPresent());
-    assertTrue(
-        missingResults.get().endsWith(format("%s: is missing but it is required", fieldName)));
-
-    node.put(
-        fieldName,
-        randomGenerator.generateRandomAsciiString(randomGenerator.generateRandomIntRange(1, 4)));
-    val goodResults = service.validate(payload);
-    assertFalse(goodResults.isPresent());
-  }
-
   private ObjectNode toObjectNode(String schemaType) {
     val testFileName = DEFAULT_TEST_FILE_MAP.get(schemaType);
     return (ObjectNode) getJsonFile(testFileName);
@@ -245,7 +205,7 @@ public class ValidationServiceTest {
 
     if (shouldBeError) {
       assertTrue(results.isPresent());
-      assertTrue(results.get().contains("analysisId: does not match the regex pattern"));
+      assertTrue(results.get().startsWith(format("#/analysisId: string [%s] does not match pattern", analysisId)));
     } else {
       assertFalse("Expecting validation not to have an error", results.isPresent());
     }
@@ -265,7 +225,10 @@ public class ValidationServiceTest {
 
     if (shouldBeError) {
       assertTrue(results.isPresent());
-      assertTrue(results.get().contains("fileMd5sum: does not match the regex pattern"));
+      val errors= Splitters.COMMA.splitToList(results.get());
+      errors.forEach(e ->
+        assertTrue(e.matches("^#/file/[0|1]/fileMd5sum: string.*does not match pattern.*"))
+      );
     } else {
       assertFalse(
           format("Expecting validation not to have an error: %s", results.orElse(null)),
