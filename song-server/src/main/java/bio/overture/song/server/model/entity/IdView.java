@@ -17,14 +17,17 @@
 
 package bio.overture.song.server.model.entity;
 
+import static bio.overture.song.server.model.enums.TableAttributeNames.ANALYSIS_ID;
+import static bio.overture.song.server.model.enums.TableAttributeNames.ANALYSIS_STATE;
+import static bio.overture.song.server.model.enums.TableAttributeNames.DONOR_ID;
+import static bio.overture.song.server.model.enums.TableAttributeNames.OBJECT_ID;
+import static bio.overture.song.server.model.enums.TableAttributeNames.SAMPLE_ID;
+import static bio.overture.song.server.model.enums.TableAttributeNames.SPECIMEN_ID;
+import static bio.overture.song.server.model.enums.TableAttributeNames.STUDY_ID;
+
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Immutable;
-
 import javax.persistence.Column;
 import javax.persistence.ColumnResult;
 import javax.persistence.ConstructorResult;
@@ -35,14 +38,10 @@ import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.SqlResultSetMappings;
 import javax.persistence.Table;
-
-import static bio.overture.song.server.model.enums.TableAttributeNames.ANALYSIS_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.ANALYSIS_STATE;
-import static bio.overture.song.server.model.enums.TableAttributeNames.DONOR_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.OBJECT_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.SAMPLE_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.SPECIMEN_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.STUDY_ID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.Immutable;
 
 // NOTE: Since the '~*' regex evaluator does not exist in HQL, need to create a native postgres call
 @NamedNativeQueries({

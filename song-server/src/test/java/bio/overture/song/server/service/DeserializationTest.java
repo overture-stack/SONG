@@ -17,17 +17,17 @@
 
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.utils.TestFiles;
-import lombok.val;
-import org.junit.Test;
-
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
+
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.utils.TestFiles;
+import lombok.val;
+import org.junit.Test;
 
 public class DeserializationTest {
 

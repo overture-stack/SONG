@@ -17,14 +17,6 @@
 
 package bio.overture.song.server.constants;
 
-import bio.overture.song.core.model.enums.AccessTypes;
-import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.model.enums.InfoSearchResponseColumns;
-import bio.overture.song.server.model.enums.InfoTypes;
-import bio.overture.song.server.model.enums.UploadStates;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
 import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
 import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
@@ -61,6 +53,14 @@ import static bio.overture.song.server.model.enums.UploadStates.UPLOADED;
 import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
 import static bio.overture.song.server.model.enums.UploadStates.VALIDATION_ERROR;
 import static bio.overture.song.server.model.enums.UploadStates.resolveState;
+import static org.junit.Assert.assertEquals;
+
+import bio.overture.song.core.model.enums.AccessTypes;
+import bio.overture.song.core.model.enums.AnalysisStates;
+import bio.overture.song.server.model.enums.InfoSearchResponseColumns;
+import bio.overture.song.server.model.enums.InfoTypes;
+import bio.overture.song.server.model.enums.UploadStates;
+import org.junit.Test;
 
 public class ConstantsTest {
 

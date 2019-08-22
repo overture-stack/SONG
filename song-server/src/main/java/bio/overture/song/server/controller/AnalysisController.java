@@ -24,8 +24,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
-import bio.overture.song.server.repository.search.InfoSearchRequest;
-import bio.overture.song.server.repository.search.InfoSearchResponse;
 import bio.overture.song.server.service.AnalysisService;
 import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
@@ -38,7 +36,6 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -188,48 +185,5 @@ public class AnalysisController {
   public List<Analysis> idSearch(
       @PathVariable("studyId") String studyId, @RequestBody IdSearchRequest request) {
     return analysisService.idSearch(studyId, request);
-  }
-
-  @ApiOperation(
-      value = "InfoSearch",
-      notes =
-          "Retrieve analysis objects by searching for key-value "
-              + "terms specifying the analysis info field. ",
-      hidden = true)
-  @GetMapping(value = "/search/info")
-  public List<InfoSearchResponse> search(
-      @PathVariable("studyId") String studyId,
-      @RequestParam(value = "includeInfo")
-          @ApiParam(
-              value =
-                  "When true, includes the info field in the response, otherwise it is excluded"
-                      + "analysisId",
-              required = true)
-          boolean includeInfo,
-      @RequestParam
-          @ApiParam(
-              value =
-                  "A search terms has the format {key}={value}, where key is a non-whitespace word, and value is"
-                      + " a regex pattern. Multiple search terms must be joined by an '&'",
-              required = true)
-          MultiValueMap<String, String> searchTerms) {
-    searchTerms.remove("includeInfo"); // Always added to map, but is redundant
-    return analysisService.infoSearch(studyId, includeInfo, searchTerms);
-  }
-
-  @ApiOperation(
-      value = "InfoSearch",
-      notes =
-          "Retrieve analysis objects by specifying an InfoSearchRequest and "
-              + "searching the info field of all analyses for a study. The effective query is the logical AND of all search "
-              + "term queries. Child keys are accessed using the '.' character. "
-              + "For instance, if the analysis has the data: \n"
-              + EXAMPLE_ANALYSIS_INFO_JSON
-              + "\n then to search by 'eye_colour', the key of the search term would be "
-              + "\n 'extra_donor_info.physical.eye_colour'")
-  @PostMapping(value = "/search/info")
-  public List<InfoSearchResponse> search(
-      @PathVariable("studyId") String studyId, @RequestBody InfoSearchRequest infoSearchRequest) {
-    return analysisService.infoSearch(studyId, infoSearchRequest);
   }
 }

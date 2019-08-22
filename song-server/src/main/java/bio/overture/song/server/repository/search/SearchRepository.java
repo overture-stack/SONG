@@ -21,9 +21,7 @@ import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.IdView;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import com.google.common.collect.ImmutableList;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.hibernate.Session;
@@ -32,33 +30,12 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.List;
 
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.server.repository.search.InfoSearchResponse.createWithInfo;
-
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class SearchRepository {
 
   private final EntityManager em;
-
-  @SuppressWarnings("unchecked")
-  public List<InfoSearchResponse> infoSearch(
-      @NonNull String studyId, boolean includeInfo, @NonNull Iterable<SearchTerm> searchTerms) {
-    val session = em.unwrap(Session.class);
-    val searchQueryBuilder = SearchQueryBuilder.createSearchQueryBuilder(studyId, includeInfo);
-    searchTerms.forEach(searchQueryBuilder::add);
-
-    Object output = session.createNativeQuery(searchQueryBuilder.build()).getResultList();
-    if (includeInfo) {
-      return ((List<Object[]>) output)
-          .stream().map(SearchRepository::mapWithInfo).collect(toImmutableList());
-    } else {
-      return ((List<String>) output)
-          .stream().map(InfoSearchResponse::createWithoutInfo).collect(toImmutableList());
-    }
-  }
 
   public List<Analysis> idSearch(String studyId, IdSearchRequest request) {
     val session = em.unwrap(Session.class);
@@ -78,8 +55,7 @@ public class SearchRepository {
   }
 
   private static Analysis convertToAnalysis(IdView.IdViewProjection proj) {
-    return createAnalysis(
-        proj.getStudyId(), proj.getAnalysisId(), proj.getAnalysisState());
+    return createAnalysis(proj.getStudyId(), proj.getAnalysisId(), proj.getAnalysisState());
   }
 
   private static Analysis createAnalysis(String studyId, String id, String state) {
@@ -88,11 +64,6 @@ public class SearchRepository {
     a.setAnalysisId(id);
     a.setAnalysisState(state);
     return a;
-  }
-
-  @SneakyThrows
-  private static InfoSearchResponse mapWithInfo(Object[] results) {
-    return createWithInfo(extractAnalysisId(results), readTree(extractInfo(results)));
   }
 
   private static String extractAnalysisId(Object[] result) {

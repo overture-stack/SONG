@@ -16,11 +16,29 @@
  */
 package bio.overture.song.server.validation;
 
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
+import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static java.lang.Thread.currentThread;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -35,25 +53,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.InputStream;
-import java.util.Optional;
-import java.util.Set;
-
-import static java.lang.Thread.currentThread;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
-import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -66,8 +65,7 @@ public class SchemaValidationTests {
   private static final String STRING = "string";
   private static final String PATTERN = "pattern";
 
-  @Autowired
-  private AnalysisTypeService analysisTypeService;
+  @Autowired private AnalysisTypeService analysisTypeService;
 
   @Test
   public void validate_analysis_id_regex() {
@@ -85,10 +83,10 @@ public class SchemaValidationTests {
     }
   }
 
-  private Optional<JsonNode> getPath(JsonNode root, String ...paths){
+  private Optional<JsonNode> getPath(JsonNode root, String... paths) {
     JsonNode currentNode = root;
     for (val path : paths) {
-      if (!currentNode.hasNonNull(path)){
+      if (!currentNode.hasNonNull(path)) {
         return Optional.empty();
       }
       currentNode = currentNode.path(path);
@@ -104,7 +102,7 @@ public class SchemaValidationTests {
       assertTrue(ref.isPresent());
       assertEquals(ref.get().textValue(), "#/definitions/file/fileData");
 
-      val  patternNode = getPath(schema, "definitions", "common", "md5", "pattern" );
+      val patternNode = getPath(schema, "definitions", "common", "md5", "pattern");
       assertTrue(patternNode.isPresent());
       assertEquals(patternNode.get().textValue(), "^[a-fA-F0-9]{32}$");
     }
@@ -118,15 +116,13 @@ public class SchemaValidationTests {
 
   @Test
   public void validate_submit_sequencing_read_missing_required() throws Exception {
-    val errors =
-        validate(SEQUENCING_READ, "documents/sequencingread-missing-required.json");
+    val errors = validate(SEQUENCING_READ, "documents/sequencingread-missing-required.json");
     assertEquals(errors.size(), 4);
   }
 
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
-    val errors =
-        validate(SEQUENCING_READ, "documents/sequencingread-invalid-enum.json");
+    val errors = validate(SEQUENCING_READ, "documents/sequencingread-invalid-enum.json");
     assertEquals(errors.size(), 6);
   }
 
@@ -138,8 +134,7 @@ public class SchemaValidationTests {
 
   @Test
   public void validate_submit_variant_call_missing_required() throws Exception {
-    val errors =
-        validate(VARIANT_CALL, "documents/variantcall-missing-required.json");
+    val errors = validate(VARIANT_CALL, "documents/variantcall-missing-required.json");
     assertEquals(errors.size(), 4);
   }
 
@@ -160,10 +155,10 @@ public class SchemaValidationTests {
     testMap.put("myFile.(name)-so/me_co/ol[characters]", false);
     testMap.put("./myFile.(name)-so/me_co/ol[characters]", false);
     testMap.put("/", false);
-    for (val legacyAnalysisTypeName: LegacyAnalysisTypeName.values()) {
+    for (val legacyAnalysisTypeName : LegacyAnalysisTypeName.values()) {
       String ext;
       String fixtureFilename;
-      if (legacyAnalysisTypeName == VARIANT_CALL ){
+      if (legacyAnalysisTypeName == VARIANT_CALL) {
         ext = "vcf.gz";
         fixtureFilename = "documents/variantcall-valid.json";
       } else {
@@ -189,12 +184,14 @@ public class SchemaValidationTests {
     }
   }
 
-  protected Set<String> validate(LegacyAnalysisTypeName legacyAnalysisTypeName, String payloadFilename) throws Exception {
+  protected Set<String> validate(
+      LegacyAnalysisTypeName legacyAnalysisTypeName, String payloadFilename) throws Exception {
     val node = getJsonNodeFromClasspath(payloadFilename);
     return validate(legacyAnalysisTypeName, node);
   }
 
-  protected Set<String> validate(LegacyAnalysisTypeName legacyAnalysisTypeName, JsonNode payloadJson) throws Exception {
+  protected Set<String> validate(
+      LegacyAnalysisTypeName legacyAnalysisTypeName, JsonNode payloadJson) throws Exception {
     val schemaJson = getLegacySchemaJson(legacyAnalysisTypeName);
     val schema = buildSchema(schemaJson);
     val errors = Sets.<String>newHashSet();
@@ -214,9 +211,11 @@ public class SchemaValidationTests {
     return node;
   }
 
-  private JsonNode getLegacySchemaJson(LegacyAnalysisTypeName legacyAnalysisTypeName){
-    return analysisTypeService.getAnalysisType(
-        createAnalysisTypeId(legacyAnalysisTypeName.getAnalysisTypeName(), 1), false).getSchema();
+  private JsonNode getLegacySchemaJson(LegacyAnalysisTypeName legacyAnalysisTypeName) {
+    return analysisTypeService
+        .getAnalysisType(
+            createAnalysisTypeId(legacyAnalysisTypeName.getAnalysisTypeName(), 1), false)
+        .getSchema();
   }
 
   private static Set<String> getTypes(JsonNode node) {
@@ -226,6 +225,4 @@ public class SchemaValidationTests {
         .map(JsonNode::textValue)
         .collect(toImmutableSet());
   }
-
-
 }
