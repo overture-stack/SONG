@@ -17,13 +17,6 @@
 
 package bio.overture.song.server.service.export;
 
-import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.groupingBy;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.converter.PayloadConverter;
@@ -31,14 +24,22 @@ import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.service.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.groupingBy;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 
 @Service
 public class ExportService {
