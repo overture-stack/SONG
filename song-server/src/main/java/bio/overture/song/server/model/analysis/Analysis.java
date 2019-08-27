@@ -19,7 +19,6 @@ package bio.overture.song.server.model.analysis;
 
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toMap;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 
@@ -32,8 +31,6 @@ import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.Column;
@@ -51,10 +48,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.ToString;
-import lombok.val;
 
 @Data
 @Entity
@@ -75,11 +70,6 @@ public class Analysis {
   @Column(name = TableAttributeNames.STATE, nullable = false)
   private String analysisState = UNPUBLISHED.name();
 
-  // TODO: need to remove this, and replace anything that needs this with Payload object
-  public String getAnalysisTypeId() {
-    return resolveAnalysisTypeId(analysisSchema);
-  }
-
   @NotNull
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
@@ -97,6 +87,11 @@ public class Analysis {
 
   @Transient private List<FileEntity> file;
 
+  // TODO: need to remove this, and replace anything that needs this with Payload object
+  public String getAnalysisTypeId() {
+    return resolveAnalysisTypeId(analysisSchema);
+  }
+
   @SneakyThrows
   @JsonAnyGetter
   public Map<String, Object> getData() {
@@ -105,20 +100,5 @@ public class Analysis {
 
   public void setAnalysisState(String state) {
     this.analysisState = resolveAnalysisState(state).toString();
-  }
-
-  @SneakyThrows
-  public JsonNode toJson() {
-    val out = (ObjectNode) readTree(JsonUtils.toPrettyJson(this));
-    out.setAll((ObjectNode) analysisData.getData());
-    return out;
-  }
-
-  public void setWith(@NonNull Analysis a) {
-    setAnalysisId(a.getAnalysisId());
-    setAnalysisState(a.getAnalysisState());
-    setFile(a.getFile());
-    setStudy(a.getStudy());
-    setSample(a.getSample());
   }
 }

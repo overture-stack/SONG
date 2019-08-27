@@ -66,7 +66,6 @@ public class AnalysisTypeController {
     this.analysisTypeService = analysisTypeService;
   }
 
-  // TODO: have a userDefinedOnly=true/false switch that will return the unrendered version
   @GetMapping("/{analysisTypeId}")
   @ApiOperation(
       value = "GetAnalysisTypeVersion",

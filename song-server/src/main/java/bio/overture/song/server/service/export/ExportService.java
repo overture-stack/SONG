@@ -43,11 +43,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class ExportService {
 
+  /** Constants */
   private static final Set<String> ALL_ANALYSIS_STATES =
       stream(AnalysisStates.values()).map(AnalysisStates::toString).collect(toImmutableSet());
 
-  @Autowired private AnalysisService analysisService;
-  @Autowired private PayloadConverter payloadConverter;
+  /** Dependencies */
+  private final AnalysisService analysisService;
+
+  private final PayloadConverter payloadConverter;
+
+  @Autowired
+  public ExportService(
+      @NonNull AnalysisService analysisService, @NonNull PayloadConverter payloadConverter) {
+    this.analysisService = analysisService;
+    this.payloadConverter = payloadConverter;
+  }
 
   @SneakyThrows
   public List<ExportedPayload> exportPayload(

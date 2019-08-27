@@ -196,9 +196,10 @@ public class AnalysisService {
       @NonNull String studyId, @NonNull Set<String> analysisStates) {
     studyService.checkStudyExist(studyId);
     val finalStates = resolveSelectedAnalysisStates(analysisStates);
-    val analyses = repository.findAll(
-        new AnalysisSpecificationBuilder(true, true)
-            .buildByStudyAndAnalysisStates(studyId, finalStates));
+    val analyses =
+        repository.findAll(
+            new AnalysisSpecificationBuilder(true, true)
+                .buildByStudyAndAnalysisStates(studyId, finalStates));
     analyses.forEach(
         a -> {
           val id = a.getAnalysisId();
@@ -206,7 +207,6 @@ public class AnalysisService {
           a.setSample(readSamples(id));
         });
     return analyses;
-
   }
 
   /**
