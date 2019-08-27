@@ -150,7 +150,7 @@ public class IdServiceTest {
     assertNotNull(id1);
     assertFalse(idClient.getAnalysisId(id1).isPresent());
 
-    val id1Committed = idService.resolveAndCommitAnalysisId("", false);
+    val id1Committed = resolveAndCommitAnalysisId(idService, "", false);
     assertNotNull(id1Committed);
     assertTrue(idClient.getAnalysisId(id1Committed).isPresent());
 
@@ -159,7 +159,7 @@ public class IdServiceTest {
     assertNotEquals(id1, id2);
     assertFalse(idClient.getAnalysisId(id2).isPresent());
 
-    val id2Committed = idService.resolveAndCommitAnalysisId("", false);
+    val id2Committed = resolveAndCommitAnalysisId(idService, "", false);
     assertNotNull(id2Committed);
     assertNotEquals(id1, id2Committed);
     assertTrue(idClient.getAnalysisId(id2Committed).isPresent());
@@ -169,7 +169,7 @@ public class IdServiceTest {
     assertNotEquals(id1, id3);
     assertFalse(idClient.getAnalysisId(id3).isPresent());
 
-    val id3Committed = idService.resolveAndCommitAnalysisId(null, false);
+    val id3Committed = resolveAndCommitAnalysisId(idService, null, false);
     assertNotNull(id1);
     assertNotEquals(id1, id3Committed);
     assertTrue(idClient.getAnalysisId(id3Committed).isPresent());
@@ -207,7 +207,7 @@ public class IdServiceTest {
     val idClient = new HashIdClient(true);
     val idService = new IdService(idClient);
 
-    val id1 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_1, false);
+    val id1 = resolveAndCommitAnalysisId(idService, SUBMITTER_ID_1, false);
     assertEquals(id1, SUBMITTER_ID_1);
     assertSongError(
         () -> idService.resolveAnalysisId(SUBMITTER_ID_1, false),
@@ -217,7 +217,7 @@ public class IdServiceTest {
             + " the same id was attempted to be created");
 
     assertSongError(
-        () -> idService.resolveAndCommitAnalysisId(SUBMITTER_ID_1, false),
+        () -> resolveAndCommitAnalysisId(idService, SUBMITTER_ID_1, false),
         ANALYSIS_ID_COLLISION,
         "No exception was thrown, but should have been thrown "
             + "since ignoreAnalysisIdCollisions=false and"
@@ -228,7 +228,7 @@ public class IdServiceTest {
      * analysisId is still created. SUBMITTER_ID_2 should not exist for first call
      */
     assertFalse(idClient.getAnalysisId(SUBMITTER_ID_2).isPresent());
-    val id2 = idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2, true);
+    val id2 = resolveAndCommitAnalysisId(idService, SUBMITTER_ID_2, true);
     assertEquals(id2, SUBMITTER_ID_2);
     assertSongError(
         () -> idService.resolveAnalysisId(SUBMITTER_ID_2, false),
@@ -237,10 +237,17 @@ public class IdServiceTest {
             + "since ignoreAnalysisIdCollisions=false and"
             + " the same id was attempted to be created");
     assertSongError(
-        () -> idService.resolveAndCommitAnalysisId(SUBMITTER_ID_2, false),
+        () -> resolveAndCommitAnalysisId(idService, SUBMITTER_ID_2, false),
         ANALYSIS_ID_COLLISION,
         "No exception was thrown, but should have been thrown "
             + "since ignoreAnalysisIdCollisions=false and"
             + " the same id was attempted to be created");
+  }
+
+  private static String resolveAndCommitAnalysisId(
+      IdService idService, String analysisId, final boolean ignoreAnalysisIdCollisions) {
+    val id = idService.resolveAnalysisId(analysisId, ignoreAnalysisIdCollisions);
+    idService.createAnalysisId(id);
+    return id;
   }
 }

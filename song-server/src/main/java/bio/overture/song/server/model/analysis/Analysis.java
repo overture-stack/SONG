@@ -30,7 +30,6 @@ import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.Column;
@@ -57,7 +56,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = TableNames.ANALYSIS)
-@JsonInclude(value = JsonInclude.Include.NON_ABSENT)
 public class Analysis {
 
   @Id

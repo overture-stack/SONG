@@ -42,7 +42,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonInclude(JsonInclude.Include.NON_ABSENT)
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public class Sample extends Metadata {
 
   @Id
