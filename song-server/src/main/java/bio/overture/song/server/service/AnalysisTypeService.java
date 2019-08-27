@@ -1,25 +1,5 @@
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
-import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
-import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-import static com.google.common.base.Preconditions.checkState;
-import static java.lang.Integer.parseInt;
-import static java.lang.String.format;
-import static java.util.regex.Pattern.compile;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-
 import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.AnalysisType;
@@ -28,11 +8,6 @@ import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -47,10 +22,38 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+
+import static com.google.common.base.Preconditions.checkState;
+import static java.lang.Integer.parseInt;
+import static java.lang.String.format;
+import static java.util.regex.Pattern.compile;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
+import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
+import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+
 @Slf4j
 @Service
 public class AnalysisTypeService {
 
+  private static final String REQUIRED = "required";
+  private static final String PROPERTIES = "properties";
   private static final String ANALYSIS_TYPE_NAME_REGEX = "[a-zA-Z0-9\\._-]+";
   private static final Pattern ANALYSIS_TYPE_NAME_PATTERN =
       compile("^" + ANALYSIS_TYPE_NAME_REGEX + "$");
@@ -118,17 +121,14 @@ public class AnalysisTypeService {
     return buildAnalysisType(name, version, resolvedSchemaJson);
   }
 
-  // Retrospect:  may have been a better choice to validate the entire schema (including json schema
-  // for file, sample, specimen...etc) against the meta schema (which requires a fixed schema for
-  // files, specimen, samples...etc) instead of these rules below
   private JsonNode renderPayloadJsonSchema(JsonNode schema) throws IOException {
     val rendered = (ObjectNode) readTree(analysisPayloadBaseContent);
-    val baseProperties = (ObjectNode) rendered.path("properties");
-    val schemaProperties = (ObjectNode) schema.path("properties");
-    if (schema.has("required")) {
-      checkState(rendered.has("required"), "The base payload schema should have a required field");
-      val baseRequired = (ArrayNode) rendered.path("required");
-      val schemaRequired = (ArrayNode) schema.path("required");
+    val baseProperties = (ObjectNode) rendered.path(PROPERTIES);
+    val schemaProperties = (ObjectNode) schema.path(PROPERTIES);
+    if (schema.has(REQUIRED)) {
+      checkState(rendered.has(REQUIRED), "The base payload schema should have a required field");
+      val baseRequired = (ArrayNode) rendered.path(REQUIRED);
+      val schemaRequired = (ArrayNode) schema.path(REQUIRED);
       baseRequired.addAll(schemaRequired);
     }
     baseProperties.setAll(schemaProperties);
@@ -159,6 +159,14 @@ public class AnalysisTypeService {
     return new PageImpl<>(analysisTypes, pageable, page.getTotalElements());
   }
 
+  @SneakyThrows
+  public JsonNode resolveSchemaJsonView(
+      @NonNull JsonNode unrenderedSchema, boolean unrenderedOnly, boolean hideSchema) {
+    return hideSchema
+        ? null
+        : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
+  }
+
   private Integer getLatestVersionNumber(String name) {
     return analysisSchemaRepository.countAllByName(name);
   }
@@ -174,14 +182,6 @@ public class AnalysisTypeService {
     } catch (SchemaException e) {
       throw buildServerException(getClass(), MALFORMED_JSON_SCHEMA, e.getMessage());
     }
-  }
-
-  @SneakyThrows
-  public JsonNode resolveSchemaJsonView(
-      @NonNull JsonNode unrenderedSchema, boolean unrenderedOnly, boolean hideSchema) {
-    return hideSchema
-        ? null
-        : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
   }
 
   @SneakyThrows

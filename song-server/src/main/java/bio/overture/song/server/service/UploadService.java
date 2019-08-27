@@ -16,6 +16,34 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.server.model.Upload;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.enums.IdPrefix;
+import bio.overture.song.server.model.enums.UploadStates;
+import bio.overture.song.server.repository.UploadRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.springframework.http.ResponseEntity.ok;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
@@ -25,6 +53,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_VALIDATED;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
@@ -33,33 +62,6 @@ import static bio.overture.song.server.model.enums.UploadStates.CREATED;
 import static bio.overture.song.server.model.enums.UploadStates.SAVED;
 import static bio.overture.song.server.model.enums.UploadStates.UPDATED;
 import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.springframework.http.ResponseEntity.ok;
-
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.server.model.Upload;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.enums.IdPrefix;
-import bio.overture.song.server.model.enums.UploadStates;
-import bio.overture.song.server.repository.UploadRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import javax.transaction.Transactional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -173,12 +175,7 @@ public class UploadService {
         uploadId,
         uploadState.getText(),
         VALIDATED.getText());
-    // split out schema defined fields
-    // convert to analysis with info fields
-    // convert to analsysi_data without info fields and analysis fields
-    val payload = JsonUtils.fromJson(upload.getPayload(), Payload.class);
-
-    // val data extract, non-info
+    val payload = fromJson(upload.getPayload(), Payload.class);
     val analysisId = analysisService.create(studyId, payload, ignoreAnalysisIdCollisions);
     checkServer(
         !isNull(analysisId),

@@ -52,7 +52,6 @@ public class TableAttributeNames {
   public static final String CLASS = "class";
 
   public static final String ANALYSIS_ID = "analysis_id";
-  public static final String ANALYSIS_TYPE = "analysis_type";
   public static final String ANALYSIS_STATE = "analysis_state";
 
   public static final String ORGANIZATION = "organization";
@@ -70,7 +69,6 @@ public class TableAttributeNames {
   public static final String SCHEMA = "schema";
   public static final String VERSION = "version";
   public static final String ANALYSIS_SCHEMA_ID = "analysis_schema_id";
-  public static final String ANALYSIS_DATA = "analysis_data";
   public static final String DATA = "data";
   public static final String ANALYSIS_DATA_ID = "analysis_data_id";
 }

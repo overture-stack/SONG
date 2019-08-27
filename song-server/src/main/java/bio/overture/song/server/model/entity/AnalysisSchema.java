@@ -56,10 +56,10 @@ public class AnalysisSchema {
   @Type(type = CUSTOM_JSON_TYPE_PKG_PATH)
   private JsonNode schema;
 
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
   @JsonIgnore
   @Builder.Default
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   @OneToMany(
       mappedBy = ModelAttributeNames.ANALYSIS_SCHEMA,
       cascade = CascadeType.ALL,

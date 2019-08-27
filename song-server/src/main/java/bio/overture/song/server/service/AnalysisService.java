@@ -16,6 +16,47 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.model.enums.AnalysisStates;
+import bio.overture.song.server.kafka.AnalysisMessage;
+import bio.overture.song.server.kafka.Sender;
+import bio.overture.song.server.model.SampleSet;
+import bio.overture.song.server.model.SampleSetPK;
+import bio.overture.song.server.model.StorageObject;
+import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.repository.AnalysisDataRepository;
+import bio.overture.song.server.repository.AnalysisRepository;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
+import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.repository.search.IdSearchRequest;
+import bio.overture.song.server.repository.search.SearchRepository;
+import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
@@ -39,47 +80,6 @@ import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
-
-import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.converter.FileConverter;
-import bio.overture.song.server.kafka.AnalysisMessage;
-import bio.overture.song.server.kafka.Sender;
-import bio.overture.song.server.model.SampleSet;
-import bio.overture.song.server.model.SampleSetPK;
-import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.analysis.Analysis;
-import bio.overture.song.server.model.analysis.AnalysisData;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.repository.AnalysisDataRepository;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
-import bio.overture.song.server.repository.search.IdSearchRequest;
-import bio.overture.song.server.repository.search.SearchRepository;
-import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import javax.transaction.Transactional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -105,10 +105,10 @@ public class AnalysisService {
   @Autowired private final FileRepository fileRepository;
   @Autowired private final AnalysisSchemaRepository analysisSchemaRepository;
   @Autowired private final AnalysisDataRepository analysisDataRepository;
-  @Autowired private final FileConverter fileConverter;
 
   @Transactional
-  public String create(String studyId, Payload payload, boolean ignoreAnalysisIdCollisions) {
+  public String create(
+      @NonNull String studyId, @NonNull Payload payload, boolean ignoreAnalysisIdCollisions) {
     studyService.checkStudyExist(studyId);
     val candidateAnalysisId = payload.getAnalysisId();
 
@@ -172,6 +172,7 @@ public class AnalysisService {
     return id;
   }
 
+  // TODO: needs to be updated. not correctly implemented
   @Transactional
   public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
     val id = analysis.getAnalysisId();
@@ -186,14 +187,13 @@ public class AnalysisService {
 
   /**
    * Gets all analysis for a given study. This method should be watched in case performance becomes
-   * a problem.
+   * a problem. Fix for SONG-338
    *
    * @param studyId the study ID
    * @param analysisStates only return analyses that have values from this non-empty list
    * @return returns a List of analysis with the child entities.
    */
-  public List<Analysis> getAnalysisByView(
-      @NonNull String studyId, @NonNull Set<String> analysisStates) {
+  public List<Analysis> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
     studyService.checkStudyExist(studyId);
     val finalStates = resolveSelectedAnalysisStates(analysisStates);
     val analyses =
@@ -207,15 +207,6 @@ public class AnalysisService {
           a.setSample(readSamples(id));
         });
     return analyses;
-  }
-
-  /**
-   * NOTE: this was the older implementation that is now used as a reference for testing.It has been
-   * replaced with getAnalysisByView. Refer to SONG-338
-   */
-  @Deprecated
-  public List<Analysis> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
-    return getAnalysisByView(studyId, analysisStates);
   }
 
   /**
@@ -532,6 +523,7 @@ public class AnalysisService {
           format(
               "ObjectIds with a defined and mismatching md5 checksum(%s): [%s]. ",
               mismatchingFileMd5sums.size(), SPACED_COMMA.join(mismatchingFileMd5sums)));
+
     }
     sb.append(
         format(

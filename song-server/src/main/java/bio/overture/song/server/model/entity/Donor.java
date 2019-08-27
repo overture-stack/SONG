@@ -52,7 +52,7 @@ import lombok.ToString;
   ModelAttributeNames.SPECIMENS,
   ModelAttributeNames.INFO
 })
-@JsonInclude(value = JsonInclude.Include.NON_ABSENT)
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class Donor extends Metadata {
 
   @Id

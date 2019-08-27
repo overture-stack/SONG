@@ -29,12 +29,12 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Entity
-@Table(name = TableNames.VARIANTCALL)
 @Data
 @Builder
 @Deprecated
 @AllArgsConstructor
 @RequiredArgsConstructor
+@Table(name = TableNames.VARIANTCALL)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class VariantCall {
 

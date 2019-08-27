@@ -33,6 +33,7 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static org.springframework.util.StringUtils.isEmpty;
 
+import bio.overture.song.server.model.enums.ModelAttributeNames;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.List;
@@ -51,13 +52,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolver {
-
-  /** Constants */
-  public static final String SORT = "sort";
-
-  public static final String SORTORDER = "sortOrder";
-  public static final String OFFSET = "offset";
-  public static final String LIMIT = "limit";
 
   public static final int DEFAULT_LIMIT = 20;
   public static final int DEFAULT_OFFSET = 0;
@@ -85,10 +79,10 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
       WebDataBinderFactory webDataBinderFactory)
       throws Exception {
     return parseAnalysisTypePageable(
-        nativeWebRequest.getParameter(OFFSET),
-        nativeWebRequest.getParameter(LIMIT),
-        nativeWebRequest.getParameter(SORT),
-        nativeWebRequest.getParameter(SORTORDER));
+        nativeWebRequest.getParameter(ModelAttributeNames.OFFSET),
+        nativeWebRequest.getParameter(ModelAttributeNames.LIMIT),
+        nativeWebRequest.getParameter(ModelAttributeNames.SORT),
+        nativeWebRequest.getParameter(ModelAttributeNames.SORTORDER));
   }
 
   public static AnalysisTypePageable createDefaultPageable() {
@@ -100,8 +94,8 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
       @Nullable Integer limit,
       @Nullable Direction sortOrder,
       @Nullable String... sortVariables) {
-    val offsetValue = resolveInteger(OFFSET, DEFAULT_OFFSET, offset);
-    val limitValue = resolveInteger(LIMIT, DEFAULT_LIMIT, limit);
+    val offsetValue = resolveInteger(ModelAttributeNames.OFFSET, DEFAULT_OFFSET, offset);
+    val limitValue = resolveInteger(ModelAttributeNames.LIMIT, DEFAULT_LIMIT, limit);
     val sortOrderValue = resolveSortOrder(DEFAULT_SORT_ORDER, sortOrder);
     val sortVariablesValue = resolveSortVariables(DEFAULT_SORT_VARIABLE, sortVariables);
     val sort = new Sort(sortOrderValue, sortVariablesValue);
@@ -113,8 +107,8 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
       @Nullable String limitString,
       @Nullable String sortVariableString,
       @Nullable String sortOrderString) {
-    val offset = parseInteger(OFFSET, offsetString);
-    val limit = parseInteger(LIMIT, limitString);
+    val offset = parseInteger(ModelAttributeNames.OFFSET, offsetString);
+    val limit = parseInteger(ModelAttributeNames.LIMIT, limitString);
     val sortOrder = parseSortOrder(sortOrderString);
     val sortVariables = parseSortVariables(sortVariableString);
     return createAnalysisTypePageable(offset, limit, sortOrder, sortVariables);

@@ -912,18 +912,13 @@ public class AnalysisServiceTest {
     val analysisStates = ImmutableSet.of(UNPUBLISHED.toString());
 
     val actualAnalyses1 = service.getAnalysis(studyId, analysisStates);
-    val actualAnalyses2 = service.getAnalysisByView(studyId, analysisStates);
 
     val actualAnalysisIds1 =
         actualAnalyses1.stream().map(Analysis::getAnalysisId).collect(toImmutableSet());
-    val actualAnalysisIds2 =
-        actualAnalyses2.stream().map(Analysis::getAnalysisId).collect(toImmutableSet());
 
     assertCollectionsMatchExactly(actualAnalysisIds1, expectedAnalysisIds);
-    assertCollectionsMatchExactly(actualAnalysisIds2, expectedAnalysisIds);
 
     actualAnalyses1.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())));
-    actualAnalyses2.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())));
   }
 
   /**

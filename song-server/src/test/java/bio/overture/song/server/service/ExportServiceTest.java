@@ -18,7 +18,6 @@ import static org.junit.Assert.assertNotEquals;
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.service.export.ExportService;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,6 +26,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
+import javax.transaction.Transactional;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
@@ -67,21 +67,25 @@ public class ExportServiceTest {
   }
 
   @Test
+  @Transactional
   public void testGroupExportWithAnalysisId() {
     runGroupExportTest(true);
   }
 
   @Test
+  @Transactional
   public void testGroupExportWithoutAnalysisId() {
     runGroupExportTest(false);
   }
 
   @Test
+  @Transactional
   public void testSingleExportWithAnalysisId() {
     runSingleExportTest(true);
   }
 
   @Test
+  @Transactional
   public void testSingleExportWithoutAnalysisId() {
     runSingleExportTest(false);
   }

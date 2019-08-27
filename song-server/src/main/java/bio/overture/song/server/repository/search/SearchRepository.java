@@ -64,12 +64,4 @@ public class SearchRepository {
     a.setAnalysisState(state);
     return a;
   }
-
-  private static String extractAnalysisId(Object[] result) {
-    return (String) result[0];
-  }
-
-  private static String extractInfo(Object[] result) {
-    return (String) result[1];
-  }
 }

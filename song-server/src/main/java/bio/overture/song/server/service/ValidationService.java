@@ -16,15 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
-import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
-import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromAnalysis;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.utils.JsonUtils;
@@ -33,13 +24,7 @@ import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
 import bio.overture.song.server.validation.ValidationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import java.util.Optional;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
@@ -47,29 +32,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
+import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
+import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromPayload;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ValidationService {
 
-  private static final String STUDY = "study";
   private static final String FILE_DATA_SCHEMA_ID = "fileData";
   private static final String STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID = "storageDownloadResponse";
 
-  @Autowired private SchemaValidator validator;
+  private final SchemaValidator validator;
+  private final AnalysisTypeService analysisTypeService;
+  private final UploadRepository uploadRepository;
 
-  @Autowired private AnalysisTypeService analysisTypeService;
-
-  @Autowired(required = false)
-  private Long validationDelayMs = -1L;
-
-  protected static final ObjectMapper mapper =
-      new ObjectMapper()
-          .registerModule(new ParameterNamesModule())
-          .registerModule(new Jdk8Module())
-          .registerModule(new JavaTimeModule());
-
-  @Autowired private final UploadRepository uploadRepository;
+  @Autowired
+  public ValidationService(@NonNull SchemaValidator validator,
+      @NonNull AnalysisTypeService analysisTypeService,
+      @NonNull UploadRepository uploadRepository) {
+    this.validator = validator;
+    this.analysisTypeService = analysisTypeService;
+    this.uploadRepository = uploadRepository;
+  }
 
   @Async
   public void asyncValidate(@NonNull String uploadId, @NonNull JsonNode payload) {
@@ -82,16 +74,10 @@ public class ValidationService {
     update(uploadId, errors.orElse(null));
   }
 
-  // To be called at upload level
-  // validateAnalysisTypeName is defined
-  // extract name
-  // optionally extract version
-  // get analysisType
-
   public Optional<String> validate(@NonNull JsonNode payload) {
     String errors = null;
     try {
-      val analysisTypeIdResult = extractAnalysisTypeIdFromAnalysis(payload);
+      val analysisTypeIdResult = extractAnalysisTypeIdFromPayload(payload);
       if (!analysisTypeIdResult.isPresent()) {
         errors = format("Missing the '%s' field", ANALYSIS_TYPE_ID);
       } else {

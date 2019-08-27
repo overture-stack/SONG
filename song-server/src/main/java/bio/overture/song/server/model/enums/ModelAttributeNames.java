@@ -52,13 +52,13 @@ public class ModelAttributeNames {
   public static final String ID = "id";
   public static final String VERSION = "version";
   public static final String NAME = "name";
-  public static final String OFFSET = "offset";
-  public static final String LIMIT = "limit";
   public static final String ANALYSIS_TYPE = "analysisType";
   public static final String ANALYSIS_SCHEMA = "analysisSchema";
   public static final String ANALYSIS_DATA = "analysisData";
-  public static final String ANALYSIS = "analysis";
-  public static final String ANALYSES = "analyses";
   public static final String ANALYSIS_TYPE_ID = "analysisTypeId";
   public static final String ANALYSIS_STATE = "analysisState";
+  public static final String SORT = "sort";
+  public static final String SORTORDER = "sortOrder";
+  public static final String OFFSET = "offset";
+  public static final String LIMIT = "limit";
 }

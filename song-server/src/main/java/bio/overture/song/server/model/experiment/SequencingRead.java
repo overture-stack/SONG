@@ -35,13 +35,11 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Entity
-@Table(name = TableNames.SEQUENCINGREAD)
 @Data
 @Builder
 @Deprecated
 @AllArgsConstructor
 @RequiredArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonPropertyOrder({
   ModelAttributeNames.ANALYSIS_ID,
   ModelAttributeNames.ALIGNED,
@@ -52,6 +50,8 @@ import lombok.RequiredArgsConstructor;
   ModelAttributeNames.REFERENCE_GENOME,
   ModelAttributeNames.INFO
 })
+@Table(name = TableNames.SEQUENCINGREAD)
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class SequencingRead {
 
   @Id

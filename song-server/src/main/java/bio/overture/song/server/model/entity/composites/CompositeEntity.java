@@ -26,10 +26,10 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.val;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @ToString(callSuper = true)
-@JsonInclude(value = JsonInclude.Include.NON_ABSENT)
+@EqualsAndHashCode(callSuper = true)
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class CompositeEntity extends Sample {
   private Specimen specimen;
   private Donor donor;

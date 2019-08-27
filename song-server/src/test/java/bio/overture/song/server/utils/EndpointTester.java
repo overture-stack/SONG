@@ -17,10 +17,10 @@
 
 package bio.overture.song.server.utils;
 
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
 import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

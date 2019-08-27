@@ -15,13 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package bio.overture.song.server.service.export;
+package bio.overture.song.server.service;
 
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.converter.PayloadConverter;
 import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.service.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import lombok.NonNull;
@@ -73,7 +72,7 @@ public class ExportService {
   public List<ExportedPayload> exportPayloadsForStudy(
       @NonNull String studyId, boolean includeAnalysisId) {
     val payloads =
-        analysisService.getAnalysisByView(studyId, ALL_ANALYSIS_STATES).stream()
+        analysisService.getAnalysis(studyId, ALL_ANALYSIS_STATES).stream()
             .map(x -> payloadConverter.convertToPayload(x, includeAnalysisId))
             .map(x -> convertToExportedPayload(x, includeAnalysisId))
             .collect(toImmutableList());

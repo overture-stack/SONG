@@ -22,12 +22,10 @@ insert into Info(id, id_type, info) values ('SA21', 'Sample', '{"name":"sample3"
 
 
 insert into Analysis(id, study_id, state, type, analysis_schema_id) values('AN1','ABC123', 'UNPUBLISHED', 'variantCall', 1);
--- insert into VariantCall(id, variant_calling_tool) values ('AN1','SuperNewVariantCallingTool');
 insert into Info(id, id_type, info) values ('AN1',  'Analysis',       '{"name":"analysis1"}' );
 insert into Info(id, id_type, info) values ('AN1',  'VariantCall', '{"name":"variantCall1"}' );
 
 insert into Analysis(id, study_id, state, type, analysis_schema_id) values ('AN2','ABC123', 'UNPUBLISHED','sequencingRead', 2);
--- insert into SequencingRead (id, library_strategy, paired_end, insert_size, aligned, alignment_tool, reference_genome) values ('AN2','Other', TRUE, 12345, TRUE, 'BigWrench', 'hg19');
 insert into Info(id, id_type, info) values ('AN2',  'Analysis', '{"name":"analysis2"}' );
 insert into Info(id, id_type, info) values ('AN2',  'SequencingRead', '{"name":"sequencingRead2"}' );
 
