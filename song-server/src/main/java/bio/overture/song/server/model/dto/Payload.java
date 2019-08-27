@@ -1,21 +1,22 @@
 package bio.overture.song.server.model.dto;
 
-import static bio.overture.song.core.utils.JsonUtils.convertValue;
-
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import static bio.overture.song.core.utils.JsonUtils.convertValue;
 
 @Data
 @Builder

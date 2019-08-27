@@ -42,11 +42,24 @@ public class AnalysisSpecificationBuilder extends AbstractSpecificationBuilder<A
     };
   }
 
+  @Override
   public Specification<Analysis> buildById(@NonNull String analysisId) {
     return (fromUser, query, builder) -> {
       val root = setupFetchStrategy(fromUser);
       return equalsAnalysisIdPredicate(root, builder, analysisId);
     };
+  }
+
+  @Override
+  public Specification<Analysis> buildByIds(@NonNull Collection<String> analysisIds) {
+    return (fromUser, query, builder) -> {
+      val root = setupFetchStrategy(fromUser);
+      return whereInAnalysisIdsPredicate(root, analysisIds);
+    };
+  }
+
+  private Predicate whereInAnalysisIdsPredicate(Root<Analysis> root, Collection<String> ids) {
+    return root.get(ModelAttributeNames.ANALYSIS_ID).in(ids);
   }
 
   private Predicate equalsAnalysisIdPredicate(

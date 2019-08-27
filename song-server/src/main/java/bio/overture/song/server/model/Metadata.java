@@ -16,28 +16,31 @@
  */
 package bio.overture.song.server.model;
 
-import static bio.overture.song.core.utils.JsonUtils.convertValue;
-import static bio.overture.song.core.utils.JsonUtils.toMap;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Objects.isNull;
-
 import bio.overture.song.core.utils.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import java.util.Map;
-import java.util.TreeMap;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.val;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.isNull;
+import static bio.overture.song.core.utils.JsonUtils.convertValue;
+import static bio.overture.song.core.utils.JsonUtils.toMap;
+
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class Metadata {
 
   private final Map<String, Object> info = new TreeMap<>();

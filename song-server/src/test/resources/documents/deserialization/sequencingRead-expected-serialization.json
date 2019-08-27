@@ -61,7 +61,7 @@
   },
   "pcawg_access" : "controlled",
   "analysisMethod" : {
-    "analysisType" : "Variant calling",
+    "analysisTypeId" : "Variant calling:1",
     "software" : "Broad variant call pipeline"
   },
   "dataCategorization" : {

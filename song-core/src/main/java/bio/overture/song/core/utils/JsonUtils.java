@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 
@@ -79,6 +80,10 @@ public class JsonUtils {
 
   public static JsonNode readTree(InputStream in) throws IOException {
     return mapper.readTree(in);
+  }
+
+  public static JsonNode objectToTree(@NonNull Object object) {
+    return mapper.valueToTree(object);
   }
 
   public static ObjectNode ObjectNode() {

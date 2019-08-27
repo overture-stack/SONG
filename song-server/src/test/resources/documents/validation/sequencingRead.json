@@ -54,7 +54,7 @@
       "downloadUrl": "ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz"
     },
     "analysisMethod": {
-      "analysisType": "Variant calling",
+      "analysisTypeId" : "Variant calling:1",
       "software": "Broad variant call pipeline"
     },
     "study": [

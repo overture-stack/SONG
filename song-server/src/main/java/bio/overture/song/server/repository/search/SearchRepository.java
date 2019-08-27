@@ -21,14 +21,13 @@ import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.IdView;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.hibernate.Session;
-
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor

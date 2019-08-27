@@ -19,7 +19,9 @@ package bio.overture.song.server.service;
 
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.converter.PayloadConverter;
 import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Sample;
@@ -68,7 +70,7 @@ import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.core.utils.Reductions.groupUnique;
 import static bio.overture.song.server.model.enums.UploadStates.resolveState;
-import static bio.overture.song.server.utils.TestAnalysis.extractNode;
+import static bio.overture.song.server.utils.TestAnalysis.extractPayloadNode;
 import static bio.overture.song.server.utils.TestFiles.DEFAULT_EMPTY_VALUE;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
@@ -99,6 +101,7 @@ public class ExportServiceTest {
   @Autowired private DonorService donorService;
   @Autowired private FileService fileService;
   @Autowired private SampleSetRepository sampleSetRepository;
+  @Autowired private PayloadConverter payloadConverter;
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(ExportServiceTest.class.getSimpleName());
@@ -153,14 +156,19 @@ public class ExportServiceTest {
     val studyId = studyGenerator.createRandomStudy();
 
     // Load the payload fixture, and modify its study to match the generated one above
+    val inputPayloadNode =
+        (ObjectNode) getJsonNodeFromClasspath("documents/export/variantcall-input.json");
+    inputPayloadNode.put("study", studyId);
+    val inputPayloadString = JsonUtils.toJson(inputPayloadNode);
+
+    // Load the expected exported payload and modify its study to match the generated one above
     val expectedPayloadNode =
-        (ObjectNode) getJsonNodeFromClasspath("documents/variantcall-valid.json");
+        (ObjectNode) getJsonNodeFromClasspath("documents/export/variantcall-output.json");
     expectedPayloadNode.put("study", studyId);
-    val expectedPayloadString = JsonUtils.toJson(expectedPayloadNode);
 
     // Upload the payload
     val uploadId =
-        fromStatus(uploadService.upload(studyId, expectedPayloadString, false), "uploadId");
+        fromStatus(uploadService.upload(studyId, inputPayloadString, false), "uploadId");
 
     // Save the payload
     val analysisId = fromStatus(uploadService.save(studyId, uploadId, false), "analysisId");
@@ -190,13 +198,14 @@ public class ExportServiceTest {
     val exportedPayload = exportedPayloads.get(0);
     assertEquals(exportedPayload.getStudyId(), studyId);
 
-    val analyses =
+    val payloads =
         exportedPayload.getPayloads().stream()
-            .map(x -> fromJson(x, Analysis.class))
+            .map(x -> fromJson(x, Payload.class))
             .collect(toImmutableList());
-    assertEquals(analyses.size(), 1);
-    val actualAnalysis = analyses.get(0);
-    assertAnalysis(actualAnalysis, expectedAnalysis);
+    assertEquals(payloads.size(), 1);
+    val actualPayload = payloads.get(0);
+    val expectedPayload = payloadConverter.convertToPayload(expectedAnalysis, includeAnalysisId);
+    assertAnalysis(actualPayload, expectedPayload, includeAnalysisId);
   }
 
   public void runExportTest(
@@ -339,9 +348,11 @@ public class ExportServiceTest {
 
       // Submit payload. Should create the same "otherIds" as the expected
       val actualAnalysis = submitPayload(studyId, payload);
+      val actualPayload = payloadConverter.convertToPayload(actualAnalysis, includeAnalysisId);
 
       // Assert output analysis is correct
-      assertAnalysis(actualAnalysis, expectedAnalysis);
+      val expectedPayload = payloadConverter.convertToPayload(expectedAnalysis, includeAnalysisId);
+      assertAnalysis(actualPayload, expectedPayload, includeAnalysisId);
     }
   }
 
@@ -395,13 +406,12 @@ public class ExportServiceTest {
     return ImmutableMap.copyOf(map);
   }
 
-  private static void assertAnalysis(Analysis actualAnalysis, Analysis expectedAnalysis) {
-    assertEquals(actualAnalysis.getAnalysisSchema(), expectedAnalysis.getAnalysisSchema());
+  private static void assertAnalysis(
+      Payload actualAnalysis, Payload expectedAnalysis, boolean includeAnalysisIds) {
 
-    assertEquals(actualAnalysis.getAnalysisState(), expectedAnalysis.getAnalysisState());
-    assertEquals(actualAnalysis.getAnalysisData(), expectedAnalysis.getAnalysisData());
-
-    assertEquals(actualAnalysis.getAnalysisId(), expectedAnalysis.getAnalysisId());
+    if (includeAnalysisIds) {
+      assertEquals(actualAnalysis.getAnalysisId(), expectedAnalysis.getAnalysisId());
+    }
 
     // All of the actuals will have objectIds, sampleIds, specimenIds, donorIds, and analysisIds,
     // however
@@ -417,13 +427,13 @@ public class ExportServiceTest {
     assertSubmitterIds(actualAnalysis, expectedAnalysis);
   }
 
-  private static void assertExperiment(Analysis actual, Analysis expected) {
-    val actualExperimentNode = extractNode(actual, "experiment");
-    val expectedExperimentNode = extractNode(expected, "experiment");
+  private static void assertExperiment(Payload actual, Payload expected) {
+    val actualExperimentNode = extractPayloadNode(actual, "experiment");
+    val expectedExperimentNode = extractPayloadNode(expected, "experiment");
     assertEquals(actualExperimentNode, expectedExperimentNode);
   }
 
-  private static void assertSubmitterIds(Analysis actualAnalysis, Analysis expectedAnalysis) {
+  private static void assertSubmitterIds(Payload actualAnalysis, Payload expectedAnalysis) {
     val actualSampleIds = collectSampleSubmitterIds(actualAnalysis.getSample());
     val expectedSampleIds = collectSampleSubmitterIds(expectedAnalysis.getSample());
     assertCollectionsMatchExactly(actualSampleIds, expectedSampleIds);
@@ -498,7 +508,7 @@ public class ExportServiceTest {
     assertTrue(numStudies > 0);
   }
 
-  private static void assertMatchingData(
+  private void assertMatchingData(
       Map<String, List<Analysis>> actualData, Map<String, List<Analysis>> expectedData) {
     assertCollectionsMatchExactly(expectedData.keySet(), actualData.keySet());
     for (val studyId : expectedData.keySet()) {
@@ -510,7 +520,9 @@ public class ExportServiceTest {
       for (val expectedAnalysis : expectedAnalyses) {
         assertTrue(actualAnalysisMap.containsKey(expectedAnalysis.getAnalysisId()));
         val actualAnalysis = actualAnalysisMap.get(expectedAnalysis.getAnalysisId());
-        assertAnalysis(actualAnalysis, expectedAnalysis);
+        val actualPayload = payloadConverter.convertToPayload(actualAnalysis, true);
+        val expectedPayload = payloadConverter.convertToPayload(expectedAnalysis, true);
+        assertAnalysis(actualPayload, expectedPayload, true);
       }
     }
   }

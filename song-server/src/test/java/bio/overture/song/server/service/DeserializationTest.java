@@ -41,7 +41,7 @@ public class DeserializationTest {
     val rootNode1 = toJsonNode(payload1.getData());
     val experimentNode1 = rootNode1.path("experiment");
     assertNull(payload1.getAnalysisId());
-    assertFalse(experimentNode1.has("matchedNormalSampleSubmitterId"));
+    assertFalse(experimentNode1.hasNonNull("matchedNormalSampleSubmitterId"));
     assertFalse(experimentNode1.hasNonNull("variantCallingTool"));
     assertFalse(experimentNode1.hasNonNull("random"));
 
