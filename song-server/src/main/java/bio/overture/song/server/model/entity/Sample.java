@@ -17,24 +17,23 @@
 
 package bio.overture.song.server.model.entity;
 
+import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
+import static bio.overture.song.server.model.enums.Constants.validate;
+
 import bio.overture.song.server.model.Metadata;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
-import static bio.overture.song.server.model.enums.Constants.validate;
 
 @Entity
 @Table(name = TableNames.SAMPLE)

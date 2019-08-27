@@ -8,17 +8,23 @@
     {
       "sampleSubmitterId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",
-      "size" : 5,
+      "info" : {
+        "size" : 5
+      },
       "specimen": {
         "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
         "specimenClass": "Tumour",
         "specimenType": "Primary tumour - other",
-        "ratio" : "1:6"
+        "info": {
+          "ratio": "1:6"
+        }
       },
       "donor": {
         "donorSubmitterId": "internal_donor_123456789-00",
         "donorGender": "female",
-        "age" : 34
+        "info": {
+          "age" : 34
+        }
       }
     }
   ],
@@ -29,7 +35,10 @@
       "fileMd5sum": "61a91c4bf04ac2bd3795254104f75ad3",
       "fileAccess" : "open",
       "fileType": "VCF",
-      "colour" : "red"
+      "info" : {
+        "colour" : "red"
+
+      }
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
@@ -37,9 +46,12 @@
       "fileMd5sum": "61a91c4bf04bb54d3795254104f75ad3",
       "fileAccess" : "open",
       "fileType": "IDX",
-      "colour" : "green"
+      "info" : {
+        "colour" : "green"
+      }
     }
   ],
+  "institution" : "inst123-1",
   "info": {
     "description": "This is extra info in a JSON format"
   }

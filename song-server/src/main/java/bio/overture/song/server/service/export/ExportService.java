@@ -64,15 +64,16 @@ public class ExportService {
       @NonNull String studyId, boolean includeAnalysisId) {
     val payloads =
         analysisService.getAnalysisByView(studyId, ALL_ANALYSIS_STATES).stream()
-            .map(x -> payloadConverter.convertToPayload(x,includeAnalysisId))
+            .map(x -> payloadConverter.convertToPayload(x, includeAnalysisId))
             .map(x -> convertToExportedPayload(x, includeAnalysisId))
             .collect(toImmutableList());
     return ImmutableList.of(createExportedPayload(studyId, payloads));
   }
 
-  private Map<String, List<Payload>> aggregateByStudy(List<String> analysisIds, boolean includeAnalysisId) {
+  private Map<String, List<Payload>> aggregateByStudy(
+      List<String> analysisIds, boolean includeAnalysisId) {
     return analysisService.unsecuredDeepReads(analysisIds).stream()
-        .map(x -> payloadConverter.convertToPayload(x,includeAnalysisId))
+        .map(x -> payloadConverter.convertToPayload(x, includeAnalysisId))
         .collect(groupingBy(Payload::getStudy));
   }
 
@@ -88,7 +89,7 @@ public class ExportService {
   @SneakyThrows
   private static JsonNode convertToExportedPayload(@NonNull Payload p, boolean includeAnalysisId) {
     if (!includeAnalysisId) {
-      p.setAnalysisTypeId(null);
+      p.setAnalysisId(null);
     }
     return objectToTree(p);
   }
