@@ -26,6 +26,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
+@Deprecated
 public class ValidationResponse {
 
   private Set<ValidationMessage> messages;

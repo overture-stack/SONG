@@ -17,28 +17,86 @@
 
 package bio.overture.song.server.model.analysis;
 
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.utils.JsonUtils.toMap;
+import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.server.model.entity.AnalysisSchema;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
+import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.ToString;
 
-@Entity
-@Table(name = TableNames.ANALYSIS)
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class Analysis extends AbstractAnalysis {
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = TableNames.ANALYSIS)
+public class Analysis {
 
-  @Column(name = TableAttributeNames.TYPE, nullable = false)
-  private String analysisType;
+  @Id
+  @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)
+  private String analysisId;
 
-  @Override
-  public void setWith(AbstractAnalysis a) {
-    super.setWith(a);
-    setAnalysisType(a.getAnalysisType());
+  @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
+  private String study;
+
+  @Column(name = TableAttributeNames.STATE, nullable = false)
+  private String analysisState = UNPUBLISHED.name();
+
+  @NotNull
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @JoinColumn(name = TableAttributeNames.ANALYSIS_SCHEMA_ID, nullable = false)
+  private AnalysisSchema analysisSchema;
+
+  @OneToOne
+  @JoinColumn(name = TableAttributeNames.ANALYSIS_DATA_ID)
+  @JsonIgnore
+  private AnalysisData analysisData;
+
+  @Transient private List<CompositeEntity> sample;
+
+  @Transient private List<FileEntity> file;
+
+  // TODO: need to remove this, and replace anything that needs this with Payload object
+  public String getAnalysisTypeId() {
+    return resolveAnalysisTypeId(analysisSchema);
+  }
+
+  @SneakyThrows
+  @JsonAnyGetter
+  public Map<String, Object> getData() {
+    return toMap(JsonUtils.toJson(analysisData.getData()));
+  }
+
+  public void setAnalysisState(String state) {
+    this.analysisState = resolveAnalysisState(state).toString();
   }
 }

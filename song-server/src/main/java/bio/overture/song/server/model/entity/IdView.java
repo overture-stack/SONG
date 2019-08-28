@@ -19,7 +19,6 @@ package bio.overture.song.server.model.entity;
 
 import static bio.overture.song.server.model.enums.TableAttributeNames.ANALYSIS_ID;
 import static bio.overture.song.server.model.enums.TableAttributeNames.ANALYSIS_STATE;
-import static bio.overture.song.server.model.enums.TableAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.model.enums.TableAttributeNames.DONOR_ID;
 import static bio.overture.song.server.model.enums.TableAttributeNames.OBJECT_ID;
 import static bio.overture.song.server.model.enums.TableAttributeNames.SAMPLE_ID;
@@ -55,8 +54,6 @@ import org.hibernate.annotations.Immutable;
               + ANALYSIS_ID
               + ", "
               + ANALYSIS_STATE
-              + ", "
-              + ANALYSIS_TYPE
               + " FROM IdView WHERE "
               + STUDY_ID
               + " = :"
@@ -88,8 +85,7 @@ import org.hibernate.annotations.Immutable;
               columns = {
                 @ColumnResult(name = STUDY_ID),
                 @ColumnResult(name = ANALYSIS_ID),
-                @ColumnResult(name = ANALYSIS_STATE),
-                @ColumnResult(name = ANALYSIS_TYPE)
+                @ColumnResult(name = ANALYSIS_STATE)
               }))
 })
 @Entity
@@ -119,9 +115,6 @@ public class IdView {
   @Column(name = ANALYSIS_ID)
   private String analysisId;
 
-  @Column(name = ANALYSIS_TYPE)
-  private String analysisType;
-
   @Column(name = ANALYSIS_STATE)
   private String analysisState;
 
@@ -132,6 +125,5 @@ public class IdView {
     private String studyId;
     private String analysisId;
     private String analysisState;
-    private String analysisType;
   }
 }

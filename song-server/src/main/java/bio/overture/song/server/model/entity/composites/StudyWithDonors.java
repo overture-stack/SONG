@@ -26,9 +26,9 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.val;
 
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 @Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class StudyWithDonors extends Study {
 
   List<DonorWithSpecimens> donors = new ArrayList<>();

@@ -52,7 +52,7 @@ abstract class InfoService {
   public Optional<String> readInfo(@NonNull String id) {
     checkInfoExists(
         id); // TODO: optimize by returning Info entity, so that only 1 db read is done instead of
-             // 2.
+    // 2.
     return unsafeRead(id);
   }
 
@@ -158,14 +158,6 @@ class FileInfoService extends InfoService {
   @Autowired
   FileInfoService(InfoRepository repo) {
     super(InfoTypes.FILE, repo);
-  }
-}
-
-@Service
-class AnalysisInfoService extends InfoService {
-  @Autowired
-  AnalysisInfoService(InfoRepository repo) {
-    super(InfoTypes.ANALYSIS, repo);
   }
 }
 

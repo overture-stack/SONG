@@ -16,29 +16,25 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.utils.JsonSchemaUtils.validateWithSchema;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
+import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
+import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromPayload;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
+import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
 import bio.overture.song.server.validation.ValidationResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import java.util.Optional;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
@@ -48,71 +44,58 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ValidationService {
 
-  private static final String STUDY = "study";
   private static final String FILE_DATA_SCHEMA_ID = "fileData";
   private static final String STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID = "storageDownloadResponse";
 
-  @Autowired private SchemaValidator validator;
+  private final SchemaValidator validator;
+  private final AnalysisTypeService analysisTypeService;
+  private final UploadRepository uploadRepository;
 
-  @Autowired private AnalysisTypeService analysisTypeService;
-
-  @Autowired(required = false)
-  private Long validationDelayMs = -1L;
-
-  protected static final ObjectMapper mapper =
-      new ObjectMapper()
-          .registerModule(new ParameterNamesModule())
-          .registerModule(new Jdk8Module())
-          .registerModule(new JavaTimeModule());
-
-  @Autowired private final UploadRepository uploadRepository;
-
-  @SneakyThrows
-  public void validateAnalysisTypeSchema(@NonNull JsonNode analysisTypeSchema) {
-    val metaSchema = analysisTypeService.getAnalysisTypeMetaSchema();
-    try {
-      validateWithSchema(metaSchema, analysisTypeSchema);
-    } catch (ValidationException e) {
-      throw buildServerException(getClass(), SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
-    }
-  }
-
-  private String upperCaseFirstLetter(String s) {
-    return s.substring(0, 1).toUpperCase() + s.substring(1);
+  @Autowired
+  public ValidationService(
+      @NonNull SchemaValidator validator,
+      @NonNull AnalysisTypeService analysisTypeService,
+      @NonNull UploadRepository uploadRepository) {
+    this.validator = validator;
+    this.analysisTypeService = analysisTypeService;
+    this.uploadRepository = uploadRepository;
   }
 
   @Async
-  public void asyncValidate(
-      @NonNull String uploadId, @NonNull String payload, String analysisType) {
-    syncValidate(uploadId, payload, analysisType);
+  public void asyncValidate(@NonNull String uploadId, @NonNull JsonNode payload) {
+    syncValidate(uploadId, payload);
   }
 
-  public void syncValidate(@NonNull String uploadId, @NonNull String payload, String analysisType) {
+  public void syncValidate(@NonNull String uploadId, @NonNull JsonNode payload) {
     log.info("Validating payload for upload Id=" + uploadId + "payload=" + payload);
-    log.info(format("Analysis type='%s'", analysisType));
-    val errors = validate(payload, analysisType);
+    val errors = validate(payload);
     update(uploadId, errors.orElse(null));
   }
 
-  public Optional<String> validate(@NonNull String payload, @NonNull String analysisType) {
-    String errors;
-
-    log.info(format("Analysis type='%s'", analysisType));
+  public Optional<String> validate(@NonNull JsonNode payload) {
+    String errors = null;
     try {
-      val jsonNode = JsonUtils.readTree(payload);
-      val schemaId = "upload" + upperCaseFirstLetter(analysisType);
-      val response = validator.validate(schemaId, jsonNode);
-      if (response.isValid()) {
-        errors = null;
+      val analysisTypeIdResult = extractAnalysisTypeIdFromPayload(payload);
+      if (!analysisTypeIdResult.isPresent()) {
+        errors = format("Missing the '%s' field", ANALYSIS_TYPE_ID);
       } else {
-        errors = response.getValidationErrors();
+        val analysisTypeId = parseAnalysisTypeId(analysisTypeIdResult.get());
+        val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
+        log.info(
+            format(
+                "Found Analysis type: name=%s  version=%s",
+                analysisType.getName(), analysisType.getVersion()));
+        val schema = buildSchema(analysisType.getSchema());
+        validateWithSchema(schema, payload);
       }
-    } catch (JsonProcessingException jpe) {
-      log.error(jpe.getMessage());
-      errors = format("Invalid JSON document submitted: %s", jpe.getMessage());
+    } catch (ServerException e) {
+      log.error(e.getSongError().toPrettyJson());
+      errors = e.getSongError().getMessage();
+    } catch (ValidationException e) {
+      errors = COMMA.join(e.getAllMessages());
+      log.error(errors);
     } catch (Exception e) {
       log.error(e.getMessage());
       errors = format("Unknown processing problem: %s", e.getMessage());
@@ -128,12 +111,14 @@ public class ValidationService {
     }
   }
 
+  // TODO: transition to everit json schema library
   public Optional<String> validate(FileData fileData) {
     val json = JsonUtils.mapper().valueToTree(fileData);
     val resp = validator.validate(FILE_DATA_SCHEMA_ID, json);
     return processResponse(resp);
   }
 
+  // TODO: transition to everit json schema library
   public Optional<String> validateStorageDownloadResponse(JsonNode response) {
     return processResponse(validator.validate(STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
   }

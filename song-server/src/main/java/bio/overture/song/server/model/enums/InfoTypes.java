@@ -30,7 +30,6 @@ public enum InfoTypes {
   SPECIMEN("Specimen"),
   SAMPLE("Sample"),
   FILE("File"),
-  ANALYSIS("Analysis"),
   SEQUENCING_READ("SequencingRead"),
   VARIANT_CALL("VariantCall");
 

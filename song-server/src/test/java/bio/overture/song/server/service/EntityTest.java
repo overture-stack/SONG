@@ -1157,10 +1157,6 @@ public class EntityTest {
     a1_same.setFile(fileGroup1);
     a1_same.setSample(compositeGroup1);
     assertEntitiesEqual(a1, a1_same, true);
-
-    a1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
-    a1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesNotEqual(a1, a1_same);
   }
 
   @Test
@@ -1491,10 +1487,6 @@ public class EntityTest {
     a1_same.setFile(fileGroup1);
     a1_same.setSample(compositeGroup1);
     assertEntitiesEqual(a1, a1_same, true);
-
-    a1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
-    a1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesNotEqual(a1, a1_same);
   }
 
   @Test
@@ -1533,10 +1525,6 @@ public class EntityTest {
             .build();
     assertEntitiesNotEqual(s1, s2);
 
-    s1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
-    s1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesNotEqual(s1, s1_same);
-
     // Test getters
     assertTrue(s1.getAligned());
     assertEquals(s1.getAlignmentTool(), "b1");
@@ -1545,7 +1533,6 @@ public class EntityTest {
     assertEquals(s1.getLibraryStrategy(), LIBRARY_STRATEGIES.get(0));
     assertFalse(s1.getPairedEnd());
     assertEquals(s1.getReferenceGenome(), "c1");
-    assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
   @Test
@@ -1572,15 +1559,10 @@ public class EntityTest {
             .build();
     assertEntitiesNotEqual(v1, v2);
 
-    v1.setInfo("key1", "f5c9381090a53c54358feb2ba5b7a3d7");
-    v1_same.setInfo("key2", "6329334b-dcd5-53c8-98fd-9812ac386d30");
-    assertEntitiesNotEqual(v1, v1_same);
-
     /// Test getters
     assertEquals(v1.getAnalysisId(), "a1");
     assertEquals(v1.getMatchedNormalSampleSubmitterId(), "b1");
     assertEquals(v1.getVariantCallingTool(), "c1");
-    assertInfoKVPair(v1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
   }
 
   @Test

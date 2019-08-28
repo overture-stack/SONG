@@ -16,6 +16,9 @@
  */
 package bio.overture.song.core.utils;
 
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -38,6 +41,7 @@ public class JsonDocUtils {
   public static JsonNode getJsonNodeFromClasspath(String fileName) {
     val mapper = buildObjectMapper();
     val is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+    checkState(!isNull(is), "The file '%s' was not found", fileName);
     return mapper.readTree(is);
   }
 

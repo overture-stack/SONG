@@ -38,7 +38,6 @@ import static bio.overture.song.core.model.enums.FileTypes.values;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.INFO;
-import static bio.overture.song.server.model.enums.InfoTypes.ANALYSIS;
 import static bio.overture.song.server.model.enums.InfoTypes.DONOR;
 import static bio.overture.song.server.model.enums.InfoTypes.FILE;
 import static bio.overture.song.server.model.enums.InfoTypes.SAMPLE;
@@ -140,17 +139,15 @@ public class ConstantsTest {
     assertEquals(SPECIMEN.toString(), "Specimen");
     assertEquals(SAMPLE.toString(), "Sample");
     assertEquals(FILE.toString(), "File");
-    assertEquals(ANALYSIS.toString(), "Analysis");
     assertEquals(SEQUENCING_READ.toString(), "SequencingRead");
     assertEquals(VARIANT_CALL.toString(), "VariantCall");
-    assertEquals(InfoTypes.values().length, 8);
+    assertEquals(InfoTypes.values().length, 7);
 
     assertEquals(resolveInfoType("Study"), STUDY);
     assertEquals(resolveInfoType("Donor"), DONOR);
     assertEquals(resolveInfoType("Specimen"), SPECIMEN);
     assertEquals(resolveInfoType("Sample"), SAMPLE);
     assertEquals(resolveInfoType("File"), FILE);
-    assertEquals(resolveInfoType("Analysis"), ANALYSIS);
     assertEquals(resolveInfoType("SequencingRead"), SEQUENCING_READ);
     assertEquals(resolveInfoType("VariantCall"), VARIANT_CALL);
 

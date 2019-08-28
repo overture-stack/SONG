@@ -5,10 +5,10 @@ import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_SORT_ORDER;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.junit.Assert.assertEquals;

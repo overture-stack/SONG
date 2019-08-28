@@ -111,13 +111,6 @@ public class IdService {
     }
   }
 
-  public String resolveAndCommitAnalysisId(
-      String analysisId, final boolean ignoreAnalysisIdCollisions) {
-    val id = resolveAnalysisId(analysisId, ignoreAnalysisIdCollisions);
-    createAnalysisId(id);
-    return id;
-  }
-
   public void createAnalysisId(@NonNull String analysisId) {
     checkServer(
         isNotBlank(analysisId),
@@ -125,26 +118,5 @@ public class IdService {
         ANALYSIS_ID_NOT_CREATED,
         "Cannot create a blank analysisId");
     idClient.createAnalysisId(analysisId);
-  }
-
-  public String resolveAnalysisId2(String analysisId, final boolean ignoreAnalysisIdCollisions) {
-    if (isNullOrEmpty(analysisId)) {
-      return idClient.createRandomAnalysisId();
-    } else {
-      val opt = idClient.getAnalysisId(analysisId); // IdServer also validates analysisId format
-      val doesIdExist = opt.isPresent();
-      if (doesIdExist) {
-        checkServer(
-            ignoreAnalysisIdCollisions,
-            this.getClass(),
-            ANALYSIS_ID_COLLISION,
-            "Collision detected for analysisId '%s'. To ignore collisions, rerun with "
-                + "ignoreAnalysisIdCollisions = true",
-            analysisId);
-        return opt.get();
-      } else {
-        return idClient.createAnalysisId(analysisId);
-      }
-    }
   }
 }

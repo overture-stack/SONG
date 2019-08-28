@@ -1,19 +1,21 @@
 package bio.overture.song.server.controller;
 
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.core.utils.RandomGenerator.randomList;
 import static bio.overture.song.core.utils.RandomGenerator.randomStream;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
 import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
-import static bio.overture.song.server.utils.ResourceFetcher.ResourceType.MAIN;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
@@ -29,14 +31,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.EndpointTester;
-import bio.overture.song.server.utils.ResourceFetcher;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.nio.file.Paths;
@@ -46,6 +50,7 @@ import javax.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import net.javacrumbs.jsonunit.core.Configuration;
 import org.everit.json.schema.Schema;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -141,6 +146,21 @@ public class AnalysisTypeControllerTest {
         });
   }
 
+  @Test
+  public void schemaRendering_allPermutations_success() {
+    val expectedUnrenderedJson = FETCHER.readJsonNode("unrendered-schema.json");
+    val expectedRenderedJson = FETCHER.readJsonNode("rendered-schema.json");
+    assertNull(analysisTypeService.resolveSchemaJsonView(expectedUnrenderedJson, true, true));
+    assertEquals(
+        analysisTypeService.resolveSchemaJsonView(expectedUnrenderedJson, true, false),
+        expectedUnrenderedJson);
+    assertNull(analysisTypeService.resolveSchemaJsonView(expectedUnrenderedJson, false, true));
+    assertJsonEquals(
+        expectedRenderedJson,
+        analysisTypeService.resolveSchemaJsonView(expectedUnrenderedJson, false, false),
+        Configuration.empty().withOptions(IGNORING_ARRAY_ORDER));
+  }
+
   /**
    * Happy Path: Test successful initial registration of an analysisType as well as an update,
    * resulting in 2 versions
@@ -153,21 +173,24 @@ public class AnalysisTypeControllerTest {
     val nonExistingName2 = generateUniqueName();
     assertNotEquals(nonExistingName1, nonExistingName2);
 
-    val createSchema1 =
-        mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
-    val createSchema2 =
-        mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
+    val createSchema1 = generateRandomRegistrationPayload(randomGenerator);
+    val createSchema2 = generateRandomRegistrationPayload(randomGenerator);
     val createRequest1 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName1).schema(createSchema1).build();
     val createRequest2 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName2).schema(createSchema2).build();
 
+    val expectedCreateSchema1 =
+        analysisTypeService.resolveSchemaJsonView(createSchema1, false, false);
+    val expectedCreateSchema2 =
+        analysisTypeService.resolveSchemaJsonView(createSchema2, false, false);
+
     // Build the expected AnalysisType using the AnalysisTypeService and also verify proper format
-    val expectedAnalysisType1 = buildAnalysisType(nonExistingName1, 1, createSchema1);
+    val expectedAnalysisType1 = buildAnalysisType(nonExistingName1, 1, expectedCreateSchema1);
     assertEquals(resolveAnalysisTypeId(nonExistingName1, 1), nonExistingName1 + ":1");
     assertEquals(expectedAnalysisType1.getId(), resolveAnalysisTypeId(nonExistingName1, 1));
 
-    val expectedAnalysisType2 = buildAnalysisType(nonExistingName2, 1, createSchema2);
+    val expectedAnalysisType2 = buildAnalysisType(nonExistingName2, 1, expectedCreateSchema2);
     assertEquals(resolveAnalysisTypeId(nonExistingName2, 1), nonExistingName2 + ":1");
     assertEquals(expectedAnalysisType2.getId(), resolveAnalysisTypeId(nonExistingName2, 1));
 
@@ -181,22 +204,24 @@ public class AnalysisTypeControllerTest {
         .assertOneEntityEquals(expectedAnalysisType2);
 
     // Update the schema for the same analysisTypeName
-    val updateSchema1 =
-        mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
+    val updateSchema1 = generateRandomRegistrationPayload(randomGenerator);
     val updateRequest1 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName1).schema(updateSchema1).build();
-    val expectedAnalysisTypeUpdate1 = buildAnalysisType(nonExistingName1, 2, updateSchema1);
+    val expectedUpdateSchema1 =
+        analysisTypeService.resolveSchemaJsonView(updateSchema1, false, false);
+    val expectedAnalysisTypeUpdate1 = buildAnalysisType(nonExistingName1, 2, expectedUpdateSchema1);
 
     // Assert the schema and name were properly registered
     endpointTester
         .registerAnalysisTypePostRequestAnd(updateRequest1)
         .assertOneEntityEquals(expectedAnalysisTypeUpdate1);
 
-    val updateSchema2 =
-        mapper().createObjectNode().put("$id", randomGenerator.generateRandomUUIDAsString());
+    val updateSchema2 = generateRandomRegistrationPayload(randomGenerator);
     val updateRequest2 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName2).schema(updateSchema2).build();
-    val expectedAnalysisTypeUpdate2 = buildAnalysisType(nonExistingName2, 2, updateSchema2);
+    val expectedUpdateSchema2 =
+        analysisTypeService.resolveSchemaJsonView(updateSchema2, false, false);
+    val expectedAnalysisTypeUpdate2 = buildAnalysisType(nonExistingName2, 2, expectedUpdateSchema2);
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -497,6 +522,74 @@ public class AnalysisTypeControllerTest {
     assertTrue(actualNoAnalysisTypes.isEmpty());
   }
 
+  private void runInvalidRegisterTest(
+      String filename, String expectedMessage, ServerError expectedServerError) {
+    val nonExistingName = generateUniqueName();
+    val inputInvalidSchema =
+        FETCHER.readJsonNode(Paths.get("schema-fixtures/invalid").resolve(filename).toString());
+    val registerRequest =
+        RegisterAnalysisTypeRequest.builder()
+            .name(nonExistingName)
+            .schema(inputInvalidSchema)
+            .build();
+    val songErrorResponse =
+        endpointTester
+            .registerAnalysisTypePostRequestAnd(registerRequest)
+            .assertServerError(expectedServerError)
+            .getResponse();
+    val songError = parseErrorResponse(songErrorResponse);
+    val actualMessage = songError.getMessage();
+    assertEquals(actualMessage, expectedMessage);
+  }
+
+  @Test
+  public void register_extraFields_schemaViolation() {
+    runInvalidRegisterTest(
+        "invalid.extra_fields.json",
+        "[AnalysisTypeService::schema.violation] - #: extraneous key [$id] is not permitted,#: expected type: Boolean, found: JSONObject",
+        SCHEMA_VIOLATION);
+  }
+
+  @Test
+  public void register_malformedJsonSchema_malformedJsonSchema() {
+    runInvalidRegisterTest(
+        "invalid.malformed_json_schema.json",
+        "[AnalysisTypeService::malformed.json.schema] - #/properties/experiment/properties/something/type: expected type is one of JsonArray or String, found: JsonObject",
+        MALFORMED_JSON_SCHEMA);
+  }
+
+  @Test
+  public void register_missSpeltType_schemaViolation() {
+    runInvalidRegisterTest(
+        "invalid.miss_spelt_type.json",
+        "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#/type: ",
+        SCHEMA_VIOLATION);
+  }
+
+  @Test
+  public void register_missingExperiment_schemaViolation() {
+    runInvalidRegisterTest(
+        "invalid.missing_experiment.json",
+        "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#: extraneous key [$id] is not permitted,#/required: expected at least one array item to match 'contains' schema",
+        SCHEMA_VIOLATION);
+  }
+
+  @Test
+  public void register_misspeltExperiment_schemaViolation() {
+    runInvalidRegisterTest(
+        "invalid.misspelt_experiment.json",
+        "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#: extraneous key [$id] is not permitted,#/properties: required key [experiment] not found",
+        SCHEMA_VIOLATION);
+  }
+
+  @Test
+  public void register_missingType_schemaViolation() {
+    runInvalidRegisterTest(
+        "invalid.missing_type.json",
+        "[AnalysisTypeService::schema.violation] - #: required key [type] not found,#: expected type: Boolean, found: JSONObject",
+        SCHEMA_VIOLATION);
+  }
+
   /** Happy Path: test filtering the listing endpoint by multiple versions only */
   @Test
   @Transactional
@@ -614,12 +707,27 @@ public class AnalysisTypeControllerTest {
         .map(
             i -> {
               val name = names.get(i % repeats);
-              val schema =
-                  mapper()
-                      .createObjectNode()
-                      .put("$id", randomGenerator.generateRandomUUIDAsString());
+              val schema = generateRandomRegistrationPayload(randomGenerator);
               return analysisTypeService.register(name, schema);
             })
         .collect(toImmutableList());
+  }
+
+  private static final ResourceFetcher FETCHER =
+      ResourceFetcher.builder()
+          .resourceType(ResourceFetcher.ResourceType.TEST)
+          .dataDir(Paths.get("documents/validation/dynamic-analysis-type"))
+          .build();
+
+  private static JsonNode generateRandomRegistrationPayload(RandomGenerator r) {
+    val json = (ObjectNode) FETCHER.readJsonNode("schema-fixtures/valid.json");
+    val propertiesNode = (ObjectNode) json.path("properties");
+    val experimentNode = (ObjectNode) propertiesNode.path("experiment");
+    experimentNode.put("title", r.generateRandomUUIDAsString());
+    //    propertiesNode.put("$comment", r.generateRandomUUIDAsString());
+    //    val idNode = propertiesNode.putObject("id");
+    //    idNode.put("type", "string");
+    //    idNode.put("const", r.generateRandomUUIDAsString());
+    return json;
   }
 }

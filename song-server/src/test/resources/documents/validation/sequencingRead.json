@@ -1,6 +1,6 @@
 {
   "study" : "ABC123",
-  "analysisType" : "sequencingRead",
+  "analysisTypeId" : "sequencingRead:1",
   "experiment" : {
     "libraryStrategy" : "WXS",
     "pairedEnd" : false,
@@ -54,7 +54,7 @@
       "downloadUrl": "ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz"
     },
     "analysisMethod": {
-      "analysisType": "Variant calling",
+      "analysisTypeId" : "Variant calling:1",
       "software": "Broad variant call pipeline"
     },
     "study": [

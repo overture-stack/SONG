@@ -18,13 +18,13 @@
 package bio.overture.song.server.service;
 
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
-import bio.overture.song.server.model.analysis.VariantCallAnalysis;
+import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.utils.TestFiles;
 import lombok.val;
 import org.junit.Test;
@@ -33,57 +33,65 @@ public class DeserializationTest {
 
   @Test
   public void testVariantCallDeserialization() {
-    val a1 =
+    val payload1 =
         fromJson(
             TestFiles.getJsonNodeFromClasspath(
                 "documents/deserialization/variantcall-deserialize1.json"),
-            AbstractAnalysis.class);
-    val sa1 = ((VariantCallAnalysis) a1).getExperiment();
-    assertNull(sa1.getAnalysisId());
-    assertNull(sa1.getMatchedNormalSampleSubmitterId());
-    assertNull(sa1.getVariantCallingTool());
-    assertTrue(sa1.getInfo().path("random").isNull());
+            Payload.class);
+    val rootNode1 = toJsonNode(payload1.getData());
+    val experimentNode1 = rootNode1.path("experiment");
+    assertNull(payload1.getAnalysisId());
+    assertFalse(experimentNode1.hasNonNull("matchedNormalSampleSubmitterId"));
+    assertFalse(experimentNode1.hasNonNull("variantCallingTool"));
+    assertFalse(experimentNode1.hasNonNull("random"));
 
-    val a2 =
+    val payload2 =
         fromJson(
             TestFiles.getJsonNodeFromClasspath(
                 "documents/deserialization/variantcall-deserialize2.json"),
-            AbstractAnalysis.class);
-    val sa2 = ((VariantCallAnalysis) a2).getExperiment();
-    assertNull(sa2.getAnalysisId());
-    assertNull(sa2.getMatchedNormalSampleSubmitterId());
-    assertNull(sa2.getVariantCallingTool());
+            Payload.class);
+
+    val rootNode2 = toJsonNode(payload2.getData());
+    val experimentNode2 = rootNode2.path("experiment");
+    assertNull(payload2.getAnalysisId());
+    assertTrue(rootNode2.has("experiment"));
+    assertFalse(experimentNode2.has("matchedNormalSampleSubmitterId"));
+    assertFalse(experimentNode2.has("variantCallingTool"));
   }
 
   @Test
   public void testSequencingReadDeserialization() {
-    val a1 =
+    val payload1 =
         fromJson(
             TestFiles.getJsonNodeFromClasspath(
                 "documents/deserialization/sequencingread-deserialize1.json"),
-            AbstractAnalysis.class);
-    val sa1 = ((SequencingReadAnalysis) a1).getExperiment();
-    assertNull(sa1.getAnalysisId());
-    assertNull(sa1.getAligned());
-    assertNull(sa1.getAlignmentTool());
-    assertNull(sa1.getInsertSize());
-    assertEquals(sa1.getLibraryStrategy(), "WXS");
-    assertNull(sa1.getPairedEnd());
-    assertNull(sa1.getReferenceGenome());
-    assertTrue(sa1.getInfo().path("random").isNull());
+            Payload.class);
 
-    val a2 =
+    val rootNode1 = toJsonNode(payload1.getData());
+    val experimentNode1 = rootNode1.path("experiment");
+    assertNull(payload1.getAnalysisId());
+    assertFalse(experimentNode1.has("aligned"));
+    assertFalse(experimentNode1.has("alignmentTool"));
+    assertFalse(experimentNode1.has("insertSize"));
+    assertEquals(experimentNode1.path("libraryStrategy").textValue(), "WXS");
+    assertFalse(experimentNode1.hasNonNull("pairedEnd"));
+    assertFalse(experimentNode1.hasNonNull("referenceGenome"));
+    assertFalse(experimentNode1.path("info").hasNonNull("random"));
+
+    val payload2 =
         fromJson(
             TestFiles.getJsonNodeFromClasspath(
                 "documents/deserialization/sequencingread-deserialize2.json"),
-            AbstractAnalysis.class);
-    val sa2 = ((SequencingReadAnalysis) a2).getExperiment();
-    assertNull(sa2.getAnalysisId());
-    assertNull(sa2.getAligned());
-    assertNull(sa2.getAlignmentTool());
-    assertNull(sa2.getInsertSize());
-    assertEquals(sa2.getLibraryStrategy(), "WXS");
-    assertTrue(sa2.getPairedEnd());
-    assertNull(sa2.getReferenceGenome());
+            Payload.class);
+
+    val rootNode2 = toJsonNode(payload2.getData());
+    val experimentNode2 = rootNode2.path("experiment");
+    assertNull(payload2.getAnalysisId());
+    assertFalse(experimentNode2.has("aligned"));
+    assertFalse(experimentNode2.has("alignmentTool"));
+    assertFalse(experimentNode2.hasNonNull("insertSize"));
+    assertEquals(experimentNode2.path("libraryStrategy").textValue(), "WXS");
+    assertTrue(experimentNode2.path("pairedEnd").booleanValue());
+    assertFalse(experimentNode2.hasNonNull("referenceGenome"));
   }
 }

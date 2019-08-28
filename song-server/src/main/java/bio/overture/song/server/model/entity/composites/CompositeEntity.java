@@ -25,9 +25,9 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.val;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class CompositeEntity extends Sample {
   private Specimen specimen;
   private Donor donor;

@@ -20,13 +20,13 @@ package bio.overture.song.server.utils.generator;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
 import static lombok.AccessLevel.PRIVATE;
 import static org.junit.Assert.fail;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.analysis.AbstractAnalysis;
-import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
-import bio.overture.song.server.model.analysis.VariantCallAnalysis;
+import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.utils.TestFiles;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -44,12 +44,11 @@ public class PayloadGenerator {
    * keys, which are the sampleSubmitterId, donorSubmitterId, and specimenSubmitterId. It also sets
    * the ana
    */
-  public <T extends AbstractAnalysis> T generateRandomPayload(
-      Class<T> analysisClass, String payloadFilename) {
+  public Payload generateRandomPayload(String payloadFilename) {
     val json = TestFiles.getJsonStringFromClasspath(payloadFilename);
-    val analysis = fromJson(json, analysisClass);
-    analysis.setAnalysisId(TestFiles.EMPTY_STRING);
-    analysis
+    val payload = fromJson(json, Payload.class);
+    payload.setAnalysisId(TestFiles.EMPTY_STRING);
+    payload
         .getSample()
         .forEach(
             x -> {
@@ -58,16 +57,16 @@ public class PayloadGenerator {
                   .setSpecimenSubmitterId(randomGenerator.generateRandomUUID().toString());
               x.getDonor().setDonorSubmitterId(randomGenerator.generateRandomUUID().toString());
             });
-    return analysis;
+    return payload;
   }
 
   /** Based on the input analysis class type, the correct payload fixture filename is returned. */
-  public static <T extends AbstractAnalysis> String resolveDefaultPayloadFilename(
-      Class<T> analysisClass) {
+  public static String resolveDefaultPayloadFilename(
+      LegacyAnalysisTypeName legacyAnalysisTypeName) {
     String payloadFilename = null;
-    if (analysisClass.equals(SequencingReadAnalysis.class)) {
+    if (legacyAnalysisTypeName == SEQUENCING_READ) {
       payloadFilename = "documents/sequencingread-valid.json";
-    } else if (analysisClass.equals(VariantCallAnalysis.class)) {
+    } else if (legacyAnalysisTypeName == VARIANT_CALL) {
       payloadFilename = "documents/variantcall-valid.json";
     } else {
       fail("Shouldnt be here");
@@ -80,9 +79,9 @@ public class PayloadGenerator {
    * analysis object of the correct type. The returned analysis is not persisted in the repository
    * nor is it complete
    */
-  public <T extends AbstractAnalysis> T generateDefaultRandomPayload(Class<T> analysisClass) {
-    val payloadFilename = PayloadGenerator.resolveDefaultPayloadFilename(analysisClass);
-    return generateRandomPayload(analysisClass, payloadFilename);
+  public Payload generateDefaultRandomPayload(LegacyAnalysisTypeName legacyAnalysisTypeName) {
+    val payloadFilename = PayloadGenerator.resolveDefaultPayloadFilename(legacyAnalysisTypeName);
+    return generateRandomPayload(payloadFilename);
   }
 
   public static PayloadGenerator createPayloadGenerator(RandomGenerator randomGenerator) {

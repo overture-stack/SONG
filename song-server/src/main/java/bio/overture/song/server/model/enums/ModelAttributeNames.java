@@ -47,9 +47,18 @@ public class ModelAttributeNames {
   public static final String UPDATED_AT = "updatedAt";
   public static final String ERRORS = "errors";
   public static final String PAYLOAD = "payload";
+  public static final String VARIANT_CALLING_TOOL = "variantCallingTool";
+  public static final String MATCHED_NORMAL_SAMPLE_SUBMITTER_ID = "matchedNormalSampleSubmitterId";
   public static final String ID = "id";
   public static final String VERSION = "version";
   public static final String NAME = "name";
+  public static final String ANALYSIS_TYPE = "analysisType";
+  public static final String ANALYSIS_SCHEMA = "analysisSchema";
+  public static final String ANALYSIS_DATA = "analysisData";
+  public static final String ANALYSIS_TYPE_ID = "analysisTypeId";
+  public static final String ANALYSIS_STATE = "analysisState";
+  public static final String SORT = "sort";
+  public static final String SORTORDER = "sortOrder";
   public static final String OFFSET = "offset";
   public static final String LIMIT = "limit";
 }

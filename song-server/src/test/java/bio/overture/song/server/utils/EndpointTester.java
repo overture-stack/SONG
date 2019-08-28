@@ -17,10 +17,10 @@
 
 package bio.overture.song.server.utils;
 
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.OFFSET;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.SORTORDER;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
 import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -51,6 +51,7 @@ public class EndpointTester {
   private static final String HIDE_SCHEMA = "hideSchema";
 
   public static final Joiner AMPERSAND = Joiner.on("&");
+  private static final String UNRENDERED_ONLY = "unrenderedOnly";
 
   @NonNull private final MockMvc mockMvc;
   private final boolean enableLogging;
@@ -76,11 +77,24 @@ public class EndpointTester {
     return new WebResource(mockMvc, "").logging().headers(headers);
   }
 
+  public ResponseOption getSchemaGetRequestAnd(
+      Collection<String> names,
+      Collection<Integer> versions,
+      Boolean hideSchema,
+      Integer offset,
+      Integer limit,
+      Sort.Direction sortOrder,
+      String... sortVariables) {
+    return getSchemaGetRequestAnd(
+        names, versions, hideSchema, false, offset, limit, sortOrder, sortVariables);
+  }
+
   // GET /schemas
   public ResponseOption getSchemaGetRequestAnd(
       Collection<String> names,
       Collection<Integer> versions,
       Boolean hideSchema,
+      Boolean unrenderedOnly,
       Integer offset,
       Integer limit,
       Sort.Direction sortOrder,
@@ -93,6 +107,7 @@ public class EndpointTester {
         .optionalQuerySingleParam(HIDE_SCHEMA, hideSchema)
         .optionalQuerySingleParam(LIMIT, limit)
         .optionalQuerySingleParam(SORTORDER, sortOrder)
+        .optionalQuerySingleParam(UNRENDERED_ONLY, unrenderedOnly)
         .optionalQueryParamArray(SORT, sortVariables)
         .getAnd();
   }
@@ -105,7 +120,16 @@ public class EndpointTester {
 
   // GET /schemas/<name>:<version>
   public ResponseOption getAnalysisTypeVersionGetRequestAnd(@NonNull String analysisTypeIdString) {
-    return initWebRequest().endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString)).getAnd();
+    return getAnalysisTypeVersionGetRequestAnd(analysisTypeIdString, false);
+  }
+
+  // GET /schemas/<name>:<version>?unrenderedOnly=?
+  public ResponseOption getAnalysisTypeVersionGetRequestAnd(
+      @NonNull String analysisTypeIdString, boolean unrenderedOnly) {
+    return initWebRequest()
+        .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString))
+        .optionalQuerySingleParam(UNRENDERED_ONLY, unrenderedOnly)
+        .getAnd();
   }
 
   // GET /schemas/meta

@@ -18,7 +18,15 @@
 package bio.overture.song.core.exceptions;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.GATEWAY_TIMEOUT;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
@@ -99,6 +107,7 @@ public enum ServerErrors implements ServerError {
   STUDY_ID_MISMATCH(CONFLICT),
   STUDY_ID_MISSING(BAD_REQUEST),
   SCHEMA_VIOLATION(BAD_REQUEST),
+  MALFORMED_JSON_SCHEMA(BAD_REQUEST),
   STORAGE_OBJECT_NOT_FOUND(
       NOT_FOUND), // Used STORAGE instead of SCORE to not tie it to a specific implementation
   UNKNOWN_ERROR(INTERNAL_SERVER_ERROR);

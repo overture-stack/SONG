@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * validation rules or something
  */
 @Slf4j
+@Deprecated
 public class SchemaValidator {
 
   @Autowired private Map<String, JsonSchema> schemaCache;

@@ -25,6 +25,7 @@ import bio.overture.song.core.utils.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import lombok.val;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class Metadata {
 
   private final Map<String, Object> info = new TreeMap<>();

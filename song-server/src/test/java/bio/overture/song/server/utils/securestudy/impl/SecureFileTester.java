@@ -24,10 +24,10 @@ import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.enums.AnalysisTypes;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.FileService;
 import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
 import java.util.function.BiConsumer;
@@ -60,7 +60,7 @@ public class SecureFileTester extends AbstractSecureTester {
         SecureAnalysisTester.createSecureAnalysisTester(
             getRandomGenerator(), getStudyService(), analysisService);
     val analysisData =
-        analysisTester.generateData(getRandomGenerator().randomEnum(AnalysisTypes.class));
+        analysisTester.generateData(getRandomGenerator().randomEnum(LegacyAnalysisTypeName.class));
     analysisService.checkAnalysisExists(analysisData.getExistingId());
     val existingAnalysisId = analysisData.getExistingId();
 
