@@ -1,31 +1,72 @@
 package bio.overture.song.server.security;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.testcontainers.shaded.com.google.common.collect.Sets;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class TestScopeStrategy {
 
-  private static final ScopeValidator SCOPE_VALIDATOR =
-      ScopeValidator.builder().scopePrefix("song").scopeSuffix("READ").build();
+  private static final StudyScopeMatcher STUDY_SCOPE_MATCHER1 =
+      StudyScopeMatcher.builder()
+          .prefix("song")
+          .firstDelimiter(".")
+          .secondDelimiter(".")
+          .suffix("READ")
+          .build();
+
+  private static final StudyScopeMatcher STUDY_SCOPE_MATCHER2 =
+      StudyScopeMatcher.builder()
+          .prefix("PROGRAMDATA")
+          .firstDelimiter("-")
+          .secondDelimiter(".")
+          .suffix("READ")
+          .build();
+
+  private static final SystemScopeMatcher SYSTEM_SCOPE_MATCHER =
+      SystemScopeMatcher.builder().prefix("song").suffix("READ").build();
+
+  private static final StudySecurity STUDY_SECURITY1 =
+      new StudySecurity(STUDY_SCOPE_MATCHER1, SYSTEM_SCOPE_MATCHER);
+
+  private static final StudySecurity STUDY_SECURITY2 =
+      new StudySecurity(STUDY_SCOPE_MATCHER2, SYSTEM_SCOPE_MATCHER);
+
+  private static final SystemSecurity SYSTEM_SECURITY = new SystemSecurity(SYSTEM_SCOPE_MATCHER);
 
   @Test
-  public void testStudyVerify() {
+  public void testStudyVerify1() {
 
     // same case matches for user scope and system scope
-    assertTrue(testStudyVerify("ABC123", "song.ABC123.READ"));
-    assertTrue(testStudyVerify("ABC123", "song.READ"));
-    assertTrue(testStudyVerify("abc123", "song.abc123.READ"));
-    assertTrue(testStudyVerify("abc123", "song.READ"));
+    assertTrue(testStudyVerify1("ABC123", "song.ABC123.READ"));
+    assertTrue(testStudyVerify1("ABC123", "song.READ"));
+    assertTrue(testStudyVerify1("abc123", "song.abc123.READ"));
+    assertTrue(testStudyVerify1("abc123", "song.READ"));
     // wrong case doesn't match
-    assertFalse(testStudyVerify("abc123", "song.ABC123.READ"));
-    assertFalse(testStudyVerify("ABC123", "song.abc123.READ"));
-    assertFalse(testStudyVerify("abc123", "SONG.abc123.READ"));
-    assertFalse(testStudyVerify("abc123", "song.abc123.read"));
-    assertFalse(testStudyVerify("abc123", "song.read"));
-    assertFalse(testStudyVerify("abc123", "SONG.READ"));
+    assertFalse(testStudyVerify1("abc123", "song.ABC123.READ"));
+    assertFalse(testStudyVerify1("ABC123", "song.abc123.READ"));
+    assertFalse(testStudyVerify1("abc123", "SONG.abc123.READ"));
+    assertFalse(testStudyVerify1("abc123", "song.abc123.read"));
+    assertFalse(testStudyVerify1("abc123", "song.read"));
+    assertFalse(testStudyVerify1("abc123", "SONG.READ"));
+  }
+
+  @Test
+  public void testStudyVerify2() {
+
+    // same case matches for user scope and system scope
+    assertTrue(testStudyVerify2("ABC123", "PROGRAMDATA-ABC123.READ"));
+    assertTrue(testStudyVerify2("ABC123", "song.READ"));
+    assertTrue(testStudyVerify2("abc123","PROGRAMDATA-abc123.READ"));
+    assertTrue(testStudyVerify2("abc123","song.READ"));
+    // wrong case doesn't match
+    assertFalse(testStudyVerify2("abc123", "PROGRAMDATA-ABC123.READ"));
+    assertFalse(testStudyVerify2("ABC123", "PROGRAMDATA-abc123.READ"));
+    assertFalse(testStudyVerify2("abc123", "programdata-abc123.READ"));
+    assertFalse(testStudyVerify2("abc123", "PROGRAMDATA-abc123.read"));
+    assertFalse(testStudyVerify2("abc123", "song.read"));
+    assertFalse(testStudyVerify2("abc123", "SONG.READ"));
   }
 
   @Test
@@ -45,11 +86,15 @@ public class TestScopeStrategy {
     assertFalse(testSystemVerify("SONG.READ"));
   }
 
-  private boolean testSystemVerify(String... grantedScopes) {
-    return SCOPE_VALIDATOR.verifyOneOfSystemScope(Sets.newHashSet(grantedScopes));
+  private static boolean testSystemVerify(String... grantedScopes) {
+    return SYSTEM_SECURITY.verifyOneOfSystemScope(Sets.newHashSet(grantedScopes));
   }
 
-  private boolean testStudyVerify(String studyId, String... grantedScopes) {
-    return SCOPE_VALIDATOR.verifyOneOfStudyScope(Sets.newHashSet(grantedScopes), studyId);
+  private static boolean testStudyVerify1(String studyId, String... grantedScopes) {
+    return STUDY_SECURITY1.verifyOneOfStudyScope(Sets.newHashSet(grantedScopes), studyId);
+  }
+
+  private static boolean testStudyVerify2(String studyId, String... grantedScopes) {
+    return STUDY_SECURITY2.verifyOneOfStudyScope(Sets.newHashSet(grantedScopes), studyId);
   }
 }

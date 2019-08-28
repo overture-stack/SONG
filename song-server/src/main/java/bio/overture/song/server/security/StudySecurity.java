@@ -16,8 +16,6 @@
  */
 package bio.overture.song.server.security;
 
-import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
-
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -26,21 +24,43 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
+import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
+
 @Slf4j
 @Component
 @Profile("secure")
 public class StudySecurity {
 
-  private final ScopeValidator scopeValidator;
+  private final StudyScopeMatcher studyScopeMatcher;
+  private final SystemScopeMatcher systemScopeMatcher;
 
   @Autowired
-  public StudySecurity(@NonNull ScopeValidator scopeValidator) {
-    this.scopeValidator = scopeValidator;
+  public StudySecurity(
+      @NonNull StudyScopeMatcher studyScopeMatcher,
+      @NonNull SystemScopeMatcher systemScopeMatcher) {
+    this.studyScopeMatcher = studyScopeMatcher;
+    this.systemScopeMatcher = systemScopeMatcher;
   }
 
   public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
     log.info("Checking study-level authorization for studyId {}", studyId);
     val grantedScopes = extractGrantedScopes(authentication);
-    return scopeValidator.verifyOneOfStudyScope(grantedScopes, studyId);
+    return verifyOneOfStudyScope(grantedScopes, studyId);
+  }
+
+  public boolean isGrantedForStudy(@NonNull String tokenScope, @NonNull String studyId) {
+    log.info(
+        "Checking if input scope '{}' is granted for study scope '{}'",
+        tokenScope,
+        studyScopeMatcher.getStudyScope(studyId));
+    return systemScopeMatcher.isScopeMatchSystem(tokenScope)
+        || studyScopeMatcher.isScopeMatchStudy(tokenScope, studyId); // short-circuit
+  }
+
+  public boolean verifyOneOfStudyScope(
+      @NonNull Set<String> grantedScopes, @NonNull final String studyId) {
+    return grantedScopes.stream().anyMatch(s -> isGrantedForStudy(s, studyId));
   }
 }

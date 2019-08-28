@@ -16,8 +16,6 @@
  */
 package bio.overture.song.server.security;
 
-import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
-
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -26,21 +24,37 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
+import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
+
 @Slf4j
 @Component
 @Profile("secure")
 public class SystemSecurity {
 
-  private final ScopeValidator scopeValidator;
+  private final SystemScopeMatcher systemScopeMatcher;
 
   @Autowired
-  public SystemSecurity(@NonNull ScopeValidator scopeValidator) {
-    this.scopeValidator = scopeValidator;
+  public SystemSecurity(@NonNull SystemScopeMatcher systemScopeMatcher) {
+    this.systemScopeMatcher = systemScopeMatcher;
   }
 
   public boolean authorize(@NonNull Authentication authentication) {
     log.info("Checking system-level authorization");
     val grantedScopes = extractGrantedScopes(authentication);
-    return scopeValidator.verifyOneOfSystemScope(grantedScopes);
+    return verifyOneOfSystemScope(grantedScopes);
+  }
+
+  public boolean verifyOneOfSystemScope(@NonNull Set<String> grantedScopes) {
+    return grantedScopes.stream().anyMatch(this::isGrantedForSystem);
+  }
+
+  public boolean isGrantedForSystem(@NonNull String tokenScope) {
+    log.info(
+        "Checking if input scope '{}' is granted for system scope '{}'",
+        tokenScope,
+        systemScopeMatcher.getSystemScope());
+    return systemScopeMatcher.isScopeMatchSystem(tokenScope);
   }
 }

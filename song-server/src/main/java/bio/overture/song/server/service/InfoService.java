@@ -52,7 +52,7 @@ abstract class InfoService {
   public Optional<String> readInfo(@NonNull String id) {
     checkInfoExists(
         id); // TODO: optimize by returning Info entity, so that only 1 db read is done instead of
-             // 2.
+    // 2.
     return unsafeRead(id);
   }
 

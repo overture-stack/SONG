@@ -16,31 +16,39 @@
  */
 package bio.overture.song.server.config;
 
-import bio.overture.song.server.security.ScopeValidator;
+import bio.overture.song.server.security.StudyScopeMatcher;
+import bio.overture.song.server.security.SystemScopeMatcher;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
-@Configuration
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
+@Getter
+@Setter
+@Component
+@Validated
 @Profile("secure")
 @EnableWebSecurity
 @EnableResourceServer
+@ConfigurationProperties("auth.server.scope")
 public class SecurityConfig extends ResourceServerConfigurerAdapter {
 
   @Autowired private SwaggerConfig swaggerConfig;
 
-  @Value("${auth.server.suffix}")
-  private String scopeSuffix;
-
-  @Value("${auth.server.prefix}")
-  private String scopePrefix;
+  private final ScopeConfig study = new ScopeConfig();
+  private final ScopeConfig system = new ScopeConfig();
 
   @Override
   @SneakyThrows
@@ -71,7 +79,41 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
   }
 
   @Bean
-  public ScopeValidator scopeResolver() {
-    return ScopeValidator.builder().scopePrefix(scopePrefix).scopeSuffix(scopeSuffix).build();
+  public StudyScopeMatcher studyScopeMatcher() {
+    return StudyScopeMatcher.builder()
+        .prefix(study.getPrefix())
+        .firstDelimiter(study.getFirstDelimiter())
+        .secondDelimiter(study.getSecondDelimiter())
+        .suffix(study.getSuffix())
+        .build();
   }
+
+  @Bean
+  public SystemScopeMatcher systemScopeMatcher() {
+    return SystemScopeMatcher.builder()
+        .prefix(system.getPrefix())
+        .suffix(system.getSuffix())
+        .build();
+  }
+
+  @Getter
+  @Setter
+  @Validated
+  public static class ScopeConfig {
+
+    @NotNull
+    @Pattern(regexp = "^\\w+")
+    private String prefix;
+
+    @Pattern(regexp = "^\\W$")
+    private String firstDelimiter;
+
+    @Pattern(regexp = "^\\W$")
+    private String secondDelimiter;
+
+    @NotNull
+    @Pattern(regexp = "^\\w+")
+    private String suffix;
+  }
+
 }
