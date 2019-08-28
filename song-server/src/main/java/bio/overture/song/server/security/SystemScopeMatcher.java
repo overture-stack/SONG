@@ -1,25 +1,27 @@
 package bio.overture.song.server.security;
 
-import static org.icgc.dcc.common.core.util.Joiners.DOT;
-
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+import static lombok.AccessLevel.PRIVATE;
+import static org.icgc.dcc.common.core.util.Joiners.DOT;
+
 @Value
-@Builder
+@RequiredArgsConstructor(access = PRIVATE)
 public class SystemScopeMatcher {
 
-  @NonNull private final String prefix;
-  @NonNull private final String suffix;
+  @NonNull
+  private final String systemScope;
+
+  @Builder
+  public SystemScopeMatcher(@NonNull String prefix, @NonNull String suffix) {
+    this(DOT.join(prefix, suffix));
+  }
 
   public boolean isScopeMatchSystem(@NonNull String tokenScope) {
     return getSystemScope().equals(tokenScope);
   }
 
-  public String getSystemScope() {
-    return DOT.join(prefix, suffix);
-  }
 }
