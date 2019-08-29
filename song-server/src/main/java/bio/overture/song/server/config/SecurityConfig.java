@@ -16,31 +16,38 @@
  */
 package bio.overture.song.server.config;
 
-import bio.overture.song.server.security.ScopeValidator;
+import bio.overture.song.server.security.StudySecurity;
+import bio.overture.song.server.security.SystemSecurity;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
-@Configuration
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
+@Getter
+@Setter
+@Component
+@Validated
 @Profile("secure")
 @EnableWebSecurity
 @EnableResourceServer
+@ConfigurationProperties("auth.server")
 public class SecurityConfig extends ResourceServerConfigurerAdapter {
 
   @Autowired private SwaggerConfig swaggerConfig;
 
-  @Value("${auth.server.suffix}")
-  private String scopeSuffix;
-
-  @Value("${auth.server.prefix}")
-  private String scopePrefix;
+  private final ScopeConfig scope = new ScopeConfig();
 
   @Override
   @SneakyThrows
@@ -71,7 +78,40 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
   }
 
   @Bean
-  public ScopeValidator scopeResolver() {
-    return ScopeValidator.builder().scopePrefix(scopePrefix).scopeSuffix(scopeSuffix).build();
+  public SystemSecurity systemSecurity(){
+    return new SystemSecurity(scope.getSystem());
   }
+
+  @Bean
+  public StudySecurity studySecurity(@Autowired SystemSecurity systemSecurity){
+    return StudySecurity.builder()
+        .studyPrefix(scope.getStudy().getPrefix())
+        .studySuffix(scope.getStudy().getSuffix())
+        .systemScope(scope.getSystem())
+        .build();
+  }
+
+  @Getter
+  @Setter
+  public static class ScopeConfig {
+
+    @NotNull
+    private String system;
+    private final StudyScopeConfig study = new StudyScopeConfig();
+
+    @Getter
+    @Setter
+    public static class StudyScopeConfig{
+
+      @NotNull
+      @Pattern(regexp = "^\\w+\\W$")
+      private String prefix;
+
+
+      @NotNull
+      @Pattern(regexp = "^\\W\\w+$")
+      private String suffix;
+    }
+  }
+
 }

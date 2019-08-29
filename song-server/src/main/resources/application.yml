@@ -105,6 +105,7 @@ auth:
     # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
     multiplier: 2.0
 
+
 ---
 spring.profiles: async-test
 validation.delayMs: 1000
@@ -146,20 +147,6 @@ management:
 
 id.persistInMemory: true
 
-auth:
-  server:
-    prefix: "song"
-    suffix: "WRITE"
-
----
-# To disable initialization, just use the active profiles:    dev,dev-test in that order.
-spring.profiles: dev-ext
-spring:
-  profiles:
-    include: [dev]
-  datasource:
-    initialization-mode: never
-
 ---
 spring:
   profiles: secure
@@ -171,8 +158,11 @@ auth:
     clientSecret: "v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e"
     enableStrictSSL: false
     enableHttpLogging: false
-    prefix: "song"
-    suffix: "WRITE"
+    scope:
+      study:
+        prefix: "song."
+        suffix: ".WRITE"
+      system: "song.WRITE"
 ---
 spring:
   profiles: fastTest
@@ -198,9 +188,9 @@ spring:
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost/song?stringtype=unspecified
-  username:
-  password:
+  url: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
+  username: postgres
+  password: password
   max-active: 10
   max-idle: 1
   min-idle: 1

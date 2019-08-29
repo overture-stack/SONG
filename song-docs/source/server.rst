@@ -63,17 +63,11 @@ By default, the SONG server distribution is configured to run in secure producti
    ################################
 
    server.port=8080
+   management.server.port=8081
 
    ################################
    #     OAuth2 Server Config     #
    ################################
-
-   # Scope prefix used to authorize requests to the SONG server.
-   # For example, using the configurations below, the User-Agent's
-   # access token would need to have collab.upload scope in order to
-   # complete an authorized request
-   auth.server.prefix=collab
-   auth.server.suffix=upload
 
    # Endpoint to validate OAuth2 tokens
    auth.server.url=https://auth.icgc.org/oauth/check_token
@@ -81,6 +75,25 @@ By default, the SONG server distribution is configured to run in secure producti
    auth.server.clientId=<auth-client-id>
    auth.server.clientSecret=<auth-client-secret>
 
+   # Scope prefix used to authorize requests to the SONG server.
+   # For example, using the configurations below, the User-Agent's
+   # access token would need to have collab.upload scope in order to
+   # complete an authorized request
+
+
+   # System-level scope prefix and suffix
+   # For example, using the configurations below, the User-Agent's
+   # access token would need to have collab.WRITE scope in order to
+   # complete an authorized request
+   auth.server.scope.system=collab.WRITE
+
+   # Study-level scope prefix, delimiters and suffix
+   # For example, using the configurations below, the User-Agent's
+   # access token would need to have collab.<studyId>.WRITE scope in order to
+   # complete an authorized request. In general the format of the scope is:
+   # <prefix>STUDY_ID<suffix>
+   auth.server.scope.study.prefix=collab.
+   auth.server.scope.study.suffix=.WRITE
 
    ################################
    #       ID Server Config       #
@@ -125,6 +138,10 @@ By default, the SONG server distribution is configured to run in secure producti
 
 
 The example file above configures the server to use the ``id.icgc.org`` id service, ``auth.icgc.org`` auth service, and the ``storage.cancercollaboratory.org`` SCORe service with a local Postgres database, however any similar service can be used. For example, the :ref:`Docker for SONG Microservice Architecture <docker_microservice_architecture>` uses a different implementation of an OAuth2 server.
+
+Scope Security Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SONG has 2 types of security: **system-level** and **study-level**. **System-level** security is required for any non-study related request, and can be defined via the ``auth.server.scope.system`` property as any string. **Study-level** security is required for any request on a particular study resource and can be defined via the ``auth.server.scope.study.prefix`` and ``auth.server.scope.study.suffix`` properties. For example, by setting the study prefix to ``PROGRAMDATA-`` and the suffix to ``.WRITE``, the required scope for a request associated with the studyId ``ABC123-CA`` would be ``PROGRAMDATA-ABC123-CA.WRITE``.
 
 Database
 ----------------
