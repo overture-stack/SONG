@@ -17,28 +17,20 @@
 package bio.overture.song.server.security;
 
 import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
 import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
 
 @Slf4j
-@Component
-@Profile("secure")
+@Value
 public class SystemSecurity {
 
-  private final SystemScopeMatcher systemScopeMatcher;
-
-  @Autowired
-  public SystemSecurity(@NonNull SystemScopeMatcher systemScopeMatcher) {
-    this.systemScopeMatcher = systemScopeMatcher;
-  }
+  @NonNull private final String systemScope;
 
   public boolean authorize(@NonNull Authentication authentication) {
     log.info("Checking system-level authorization");
@@ -54,7 +46,8 @@ public class SystemSecurity {
     log.info(
         "Checking if input scope '{}' is granted for system scope '{}'",
         tokenScope,
-        systemScopeMatcher.getSystemScope());
-    return systemScopeMatcher.isScopeMatchSystem(tokenScope);
+       getSystemScope());
+    return getSystemScope().equals(tokenScope);
   }
+
 }

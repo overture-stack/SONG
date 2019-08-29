@@ -16,8 +16,8 @@
  */
 package bio.overture.song.server.config;
 
-import bio.overture.song.server.security.StudyScopeMatcher;
-import bio.overture.song.server.security.SystemScopeMatcher;
+import bio.overture.song.server.security.StudySecurity;
+import bio.overture.song.server.security.SystemSecurity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -42,13 +42,12 @@ import javax.validation.constraints.Pattern;
 @Profile("secure")
 @EnableWebSecurity
 @EnableResourceServer
-@ConfigurationProperties("auth.server.scope")
+@ConfigurationProperties("auth.server")
 public class SecurityConfig extends ResourceServerConfigurerAdapter {
 
   @Autowired private SwaggerConfig swaggerConfig;
 
-  private final ScopeConfig study = new ScopeConfig();
-  private final ScopeConfig system = new ScopeConfig();
+  private final ScopeConfig scope = new ScopeConfig();
 
   @Override
   @SneakyThrows
@@ -79,41 +78,40 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
   }
 
   @Bean
-  public StudyScopeMatcher studyScopeMatcher() {
-    return StudyScopeMatcher.builder()
-        .prefix(study.getPrefix())
-        .firstDelimiter(study.getFirstDelimiter())
-        .secondDelimiter(study.getSecondDelimiter())
-        .suffix(study.getSuffix())
-        .build();
+  public SystemSecurity systemSecurity(){
+    return new SystemSecurity(scope.getSystem());
   }
 
   @Bean
-  public SystemScopeMatcher systemScopeMatcher() {
-    return SystemScopeMatcher.builder()
-        .prefix(system.getPrefix())
-        .suffix(system.getSuffix())
+  public StudySecurity studySecurity(@Autowired SystemSecurity systemSecurity){
+    return StudySecurity.builder()
+        .studyPrefix(scope.getStudy().getPrefix())
+        .studySuffix(scope.getStudy().getSuffix())
+        .systemScope(scope.getSystem())
         .build();
   }
 
   @Getter
   @Setter
-  @Validated
   public static class ScopeConfig {
 
     @NotNull
-    @Pattern(regexp = "^\\w+")
-    private String prefix;
+    private String system;
+    private final StudyScopeConfig study = new StudyScopeConfig();
 
-    @Pattern(regexp = "^\\W$")
-    private String firstDelimiter;
+    @Getter
+    @Setter
+    public static class StudyScopeConfig{
 
-    @Pattern(regexp = "^\\W$")
-    private String secondDelimiter;
+      @NotNull
+      @Pattern(regexp = "^\\w+\\W$")
+      private String prefix;
 
-    @NotNull
-    @Pattern(regexp = "^\\w+")
-    private String suffix;
+
+      @NotNull
+      @Pattern(regexp = "^\\W\\w+$")
+      private String suffix;
+    }
   }
 
 }

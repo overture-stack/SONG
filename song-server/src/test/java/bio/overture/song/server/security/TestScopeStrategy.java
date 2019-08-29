@@ -8,32 +8,18 @@ import static org.junit.Assert.assertTrue;
 
 public class TestScopeStrategy {
 
-  private static final StudyScopeMatcher STUDY_SCOPE_MATCHER1 =
-      StudyScopeMatcher.builder()
-          .prefix("song")
-          .firstDelimiter(".")
-          .secondDelimiter(".")
-          .suffix("READ")
-          .build();
+  private static final SystemSecurity SYSTEM_SECURITY = new SystemSecurity("song.READ");
+  private static final StudySecurity STUDY_SECURITY1 = StudySecurity.builder()
+      .studyPrefix("song.")
+      .studySuffix(".READ")
+      .systemScope("song.READ")
+      .build();
 
-  private static final StudyScopeMatcher STUDY_SCOPE_MATCHER2 =
-      StudyScopeMatcher.builder()
-          .prefix("PROGRAMDATA")
-          .firstDelimiter("-")
-          .secondDelimiter(".")
-          .suffix("READ")
-          .build();
-
-  private static final SystemScopeMatcher SYSTEM_SCOPE_MATCHER =
-      SystemScopeMatcher.builder().prefix("song").suffix("READ").build();
-
-  private static final StudySecurity STUDY_SECURITY1 =
-      new StudySecurity(STUDY_SCOPE_MATCHER1, SYSTEM_SCOPE_MATCHER);
-
-  private static final StudySecurity STUDY_SECURITY2 =
-      new StudySecurity(STUDY_SCOPE_MATCHER2, SYSTEM_SCOPE_MATCHER);
-
-  private static final SystemSecurity SYSTEM_SECURITY = new SystemSecurity(SYSTEM_SCOPE_MATCHER);
+  private static final StudySecurity STUDY_SECURITY2 = StudySecurity.builder()
+      .studyPrefix("PROGRAMDATA-")
+      .studySuffix(".READ")
+      .systemScope("song.READ")
+      .build();
 
   @Test
   public void testStudyVerify1() {
