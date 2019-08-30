@@ -16,15 +16,14 @@
  */
 package bio.overture.song.server.security;
 
+import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
+
+import java.util.Set;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.security.core.Authentication;
-
-import java.util.Set;
-
-import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
 
 @Slf4j
 @Value
@@ -46,8 +45,7 @@ public class SystemSecurity {
     log.info(
         "Checking if input scope '{}' is granted for system scope '{}'",
         tokenScope,
-       getSystemScope());
+        getSystemScope());
     return getSystemScope().equals(tokenScope);
   }
-
 }

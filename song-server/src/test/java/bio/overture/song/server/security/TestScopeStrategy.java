@@ -1,25 +1,27 @@
 package bio.overture.song.server.security;
 
-import org.junit.Test;
-import org.testcontainers.shaded.com.google.common.collect.Sets;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+import org.testcontainers.shaded.com.google.common.collect.Sets;
 
 public class TestScopeStrategy {
 
   private static final SystemSecurity SYSTEM_SECURITY = new SystemSecurity("song.READ");
-  private static final StudySecurity STUDY_SECURITY1 = StudySecurity.builder()
-      .studyPrefix("song.")
-      .studySuffix(".READ")
-      .systemScope("song.READ")
-      .build();
+  private static final StudySecurity STUDY_SECURITY1 =
+      StudySecurity.builder()
+          .studyPrefix("song.")
+          .studySuffix(".READ")
+          .systemScope("song.READ")
+          .build();
 
-  private static final StudySecurity STUDY_SECURITY2 = StudySecurity.builder()
-      .studyPrefix("PROGRAMDATA-")
-      .studySuffix(".READ")
-      .systemScope("song.READ")
-      .build();
+  private static final StudySecurity STUDY_SECURITY2 =
+      StudySecurity.builder()
+          .studyPrefix("PROGRAMDATA-")
+          .studySuffix(".READ")
+          .systemScope("song.READ")
+          .build();
 
   @Test
   public void testStudyVerify1() {
@@ -44,8 +46,8 @@ public class TestScopeStrategy {
     // same case matches for user scope and system scope
     assertTrue(testStudyVerify2("ABC123", "PROGRAMDATA-ABC123.READ"));
     assertTrue(testStudyVerify2("ABC123", "song.READ"));
-    assertTrue(testStudyVerify2("abc123","PROGRAMDATA-abc123.READ"));
-    assertTrue(testStudyVerify2("abc123","song.READ"));
+    assertTrue(testStudyVerify2("abc123", "PROGRAMDATA-abc123.READ"));
+    assertTrue(testStudyVerify2("abc123", "song.READ"));
     // wrong case doesn't match
     assertFalse(testStudyVerify2("abc123", "PROGRAMDATA-ABC123.READ"));
     assertFalse(testStudyVerify2("ABC123", "PROGRAMDATA-abc123.READ"));
