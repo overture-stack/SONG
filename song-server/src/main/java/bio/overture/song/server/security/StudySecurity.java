@@ -16,16 +16,15 @@
  */
 package bio.overture.song.server.security;
 
+import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
+
+import java.util.Set;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.security.core.Authentication;
-
-import java.util.Set;
-
-import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
 
 @Slf4j
 @Value
@@ -61,6 +60,6 @@ public class StudySecurity {
   }
 
   public String getStudyScope(@NonNull String studyId) {
-    return studyPrefix +studyId+ studySuffix;
+    return studyPrefix + studyId + studySuffix;
   }
 }

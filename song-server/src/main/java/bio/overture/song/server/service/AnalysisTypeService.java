@@ -1,5 +1,41 @@
 package bio.overture.song.server.service;
 
+import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
+import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.server.model.entity.AnalysisSchema;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.SchemaException;
+import org.everit.json.schema.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+
+import static com.google.common.base.Preconditions.checkState;
+import static java.lang.Integer.parseInt;
+import static java.lang.String.format;
+import static java.util.regex.Pattern.compile;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
@@ -12,40 +48,6 @@ import static bio.overture.song.server.repository.specification.AnalysisSchemaSp
 import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-import static com.google.common.base.Preconditions.checkState;
-import static java.lang.Integer.parseInt;
-import static java.lang.String.format;
-import static java.util.regex.Pattern.compile;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-
-import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
-import bio.overture.song.server.model.dto.AnalysisType;
-import bio.overture.song.server.model.entity.AnalysisSchema;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import javax.transaction.Transactional;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.everit.json.schema.Schema;
-import org.everit.json.schema.SchemaException;
-import org.everit.json.schema.ValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -63,15 +65,18 @@ public class AnalysisTypeService {
   private final Schema analysisTypeMetaSchema;
   private final AnalysisSchemaRepository analysisSchemaRepository;
   private final String analysisPayloadBaseContent;
+  private final boolean useLatestAnalysisType;
 
   @Autowired
   public AnalysisTypeService(
       @NonNull Supplier<Schema> analysisTypeMetaSchemaSupplier,
       @NonNull String analysisPayloadBaseContent,
-      @NonNull AnalysisSchemaRepository analysisSchemaRepository) {
+      @NonNull AnalysisSchemaRepository analysisSchemaRepository,
+      @NonNull @Value("${schemas.useLatestAnalysisType}") Boolean useLatestAnalysisType) {
     this.analysisTypeMetaSchema = analysisTypeMetaSchemaSupplier.get();
     this.analysisSchemaRepository = analysisSchemaRepository;
     this.analysisPayloadBaseContent = analysisPayloadBaseContent;
+    this.useLatestAnalysisType = useLatestAnalysisType;
   }
 
   public Schema getAnalysisTypeMetaSchema() {
@@ -221,6 +226,10 @@ public class AnalysisTypeService {
 
   public static String resolveAnalysisTypeId(@NonNull AnalysisType analysisType) {
     return resolveAnalysisTypeId(analysisType.getName(), analysisType.getVersion());
+  }
+
+  public AnalysisTypeId resolveAnalysisTypeId(@NonNull String analysisTypeIdAsString) {
+    return null;
   }
 
   public static AnalysisTypeId parseAnalysisTypeId(String id) {

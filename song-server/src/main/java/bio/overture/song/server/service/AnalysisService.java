@@ -16,48 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.kafka.AnalysisMessage;
-import bio.overture.song.server.kafka.Sender;
-import bio.overture.song.server.model.SampleSet;
-import bio.overture.song.server.model.SampleSetPK;
-import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.analysis.Analysis;
-import bio.overture.song.server.model.analysis.AnalysisData;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.repository.AnalysisDataRepository;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
-import bio.overture.song.server.repository.search.IdSearchRequest;
-import bio.overture.song.server.repository.search.SearchRepository;
-import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
@@ -81,6 +39,47 @@ import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
+
+import bio.overture.song.core.model.enums.AnalysisStates;
+import bio.overture.song.server.kafka.AnalysisMessage;
+import bio.overture.song.server.kafka.Sender;
+import bio.overture.song.server.model.SampleSet;
+import bio.overture.song.server.model.SampleSetPK;
+import bio.overture.song.server.model.StorageObject;
+import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.repository.AnalysisDataRepository;
+import bio.overture.song.server.repository.AnalysisRepository;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
+import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.repository.search.IdSearchRequest;
+import bio.overture.song.server.repository.search.SearchRepository;
+import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import javax.transaction.Transactional;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -187,22 +186,23 @@ public class AnalysisService {
   }
 
   @Transactional
-  public ResponseEntity<String> updateAnalysis(@NonNull String studyId, @NonNull String analysisId,
-      @NonNull UpdateAnalysisRequest request) {
+  public ResponseEntity<String> updateAnalysis(
+      @NonNull String studyId, @NonNull String analysisId, @NonNull UpdateAnalysisRequest request) {
     // check study id exists
     // check analysisid exists
     // check analysisid associated with studyid
     // Get requested schema
     //    - if name and version defined:   get that exact version
-    //    - if useLatestAnalysisType defined && only name defined:   get the latest analysisType for that analysisTypeName
-    //    - if useLatestAnalysisType defined && analysisTypeId not defined:   get the latest analysisType for the analysisTypeName associated with the analysisId
-    //    - if useLatestAnalysisType NOT_DEFINED && analysisTypeId not defined:   get the same version of the analysisType used in the analysisId
+    //    - if useLatestAnalysisType defined && only name defined:   get the latest analysisType for
+    // that analysisTypeName
+    //    - if useLatestAnalysisType defined && analysisTypeId not defined:   get the latest
+    // analysisType for the analysisTypeName associated with the analysisId
+    //    - if useLatestAnalysisType NOT_DEFINED && analysisTypeId not defined:   get the same
+    // version of the analysisType used in the analysisId
     // Render an updateSchema
     // Validate the dynamicData against the rendered schema
-
-
+    checkAnalysisAndStudyRelated(studyId, analysisId);
     return null;
-
   }
 
   /**
@@ -470,9 +470,10 @@ public class AnalysisService {
     return get(id, false, false);
   }
 
-  private Analysis get(@NonNull String id, boolean fetchAnalysisSchema, boolean fetchAnalysisData){
+  private Analysis get(@NonNull String id, boolean fetchAnalysisSchema, boolean fetchAnalysisData) {
     val analysisResult =
-        repository.findOne(new AnalysisSpecificationBuilder(fetchAnalysisSchema, fetchAnalysisData).buildById(id));
+        repository.findOne(
+            new AnalysisSpecificationBuilder(fetchAnalysisSchema, fetchAnalysisData).buildById(id));
 
     validateAnalysisExistence(analysisResult.isPresent(), id);
     return analysisResult.get();
