@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "required": ["experiment", "colour"],
+  "properties": {
+    "length" : {
+      "type" : "integer"
+    },
+    "colour" : {
+      "type": "string",
+      "enum": [
+        "orange",
+        "green",
+        "red",
+        "yellow",
+        "blue"
+      ]
+    },
+    "experiment": {
+      "type": "object",
+      "required": [
+        "matchedNormalSampleSubmitterId",
+        "variantCallingTool"
+      ],
+      "properties": {
+        "matchedNormalSampleSubmitterId": {
+          "type": "string"
+        },
+        "variantCallingTool": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

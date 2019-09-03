@@ -1,21 +1,7 @@
 package bio.overture.song.server.utils.web;
 
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.OK;
-
 import bio.overture.song.core.exceptions.ServerError;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -23,6 +9,21 @@ import lombok.val;
 import org.icgc.dcc.common.core.util.stream.Streams;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 
 @Value
 public class ResponseOption {
@@ -56,12 +57,12 @@ public class ResponseOption {
 
   public ResponseOption assertServerError(ServerError serverError) {
     val songError = parseErrorResponse(response);
-    assertEquals(songError.getErrorId(), serverError.getErrorId());
+    assertEquals(serverError.getErrorId(), songError.getErrorId());
     return assertStatusCode(serverError.getHttpStatus());
   }
 
   public ResponseOption assertStatusCode(HttpStatus code) {
-    assertEquals(response.getStatusCode(), code);
+    assertEquals(code, response.getStatusCode());
     return this;
   }
 
@@ -110,8 +111,8 @@ public class ResponseOption {
   @SneakyThrows
   private static <T> Set<T> internalExtractManyEntitiesFromResponse(
       ResponseEntity<String> r, Class<T> tClass) {
-    return Streams.stream(MAPPER.readTree(r.getBody()).iterator())
-        .map(x -> MAPPER.convertValue(x, tClass))
-        .collect(toImmutableSet());
+    return new HashSet<>(
+    MAPPER.readValue(r.getBody(), MAPPER.getTypeFactory().constructCollectionType(Set.class, tClass)));
   }
+
 }

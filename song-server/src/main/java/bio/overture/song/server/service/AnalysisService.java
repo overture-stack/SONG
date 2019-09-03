@@ -16,16 +16,62 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.model.enums.AnalysisStates;
+import bio.overture.song.server.kafka.AnalysisMessage;
+import bio.overture.song.server.kafka.Sender;
+import bio.overture.song.server.model.SampleSet;
+import bio.overture.song.server.model.SampleSetPK;
+import bio.overture.song.server.model.StorageObject;
+import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.AnalysisSchema;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.repository.AnalysisDataRepository;
+import bio.overture.song.server.repository.AnalysisRepository;
+import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.repository.search.IdSearchRequest;
+import bio.overture.song.server.repository.search.SearchRepository;
+import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.everit.json.schema.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
+import static io.swagger.models.properties.StringProperty.TYPE;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
 import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
@@ -38,48 +84,12 @@ import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
-import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
-
-import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.kafka.AnalysisMessage;
-import bio.overture.song.server.kafka.Sender;
-import bio.overture.song.server.model.SampleSet;
-import bio.overture.song.server.model.SampleSetPK;
-import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.analysis.Analysis;
-import bio.overture.song.server.model.analysis.AnalysisData;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.repository.AnalysisDataRepository;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
-import bio.overture.song.server.repository.search.IdSearchRequest;
-import bio.overture.song.server.repository.search.SearchRepository;
-import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import javax.transaction.Transactional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
+import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
+import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
+import static bio.overture.song.server.utils.JsonSchemas.STRING;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 @Service
@@ -103,8 +113,8 @@ public class AnalysisService {
   @Autowired private final StudyService studyService;
   @Autowired private final SampleSetRepository sampleSetRepository;
   @Autowired private final FileRepository fileRepository;
-  @Autowired private final AnalysisSchemaRepository analysisSchemaRepository;
   @Autowired private final AnalysisDataRepository analysisDataRepository;
+  @Autowired private final AnalysisTypeService analysisTypeService;
 
   @Transactional
   public String create(
@@ -133,18 +143,7 @@ public class AnalysisService {
             + "delete the analysis for analysisId '%s' and re-save",
         id);
 
-    val analysisTypeId = parseAnalysisTypeId(payload.getAnalysisTypeId());
-    val analysisSchemaOpt =
-        analysisSchemaRepository.findByNameAndVersion(
-            analysisTypeId.getName(), analysisTypeId.getVersion());
-    checkServer(
-        analysisSchemaOpt.isPresent(),
-        getClass(),
-        ANALYSIS_TYPE_NOT_FOUND,
-        "Could not find the analysisType with name = '%s' and version = '%s'",
-        analysisTypeId.getName(),
-        analysisTypeId.getVersion());
-    val analysisSchema = analysisSchemaOpt.get();
+    val analysisSchema = analysisTypeService.getAnalysisSchema(payload.getAnalysisTypeId());
 
     val analysisData = AnalysisData.builder().data(toJsonNode(payload.getData())).build();
     analysisDataRepository.save(analysisData);
@@ -157,7 +156,7 @@ public class AnalysisService {
     a.setStudy(studyId);
 
     analysisData.setAnalysis(a);
-    analysisSchema.addAnalysis(a);
+    analysisSchema.associateAnalysis(a);
 
     saveCompositeEntities(studyId, id, a.getSample());
     saveFiles(id, studyId, a.getFile());
@@ -173,8 +172,9 @@ public class AnalysisService {
   }
 
   // TODO: needs to be updated. not correctly implemented
+  @Deprecated
   @Transactional
-  public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
+  public ResponseEntity<String> updateAnalysisOLD(String studyId, Analysis analysis) {
     val id = analysis.getAnalysisId();
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(id);
     saveCompositeEntities(studyId, id, analysis.getSample());
@@ -185,12 +185,16 @@ public class AnalysisService {
     return ok("AnalysisId %s was updated successfully", analysis.getAnalysisId());
   }
 
+  private static JsonNode buildUpdateRequestData(JsonNode updateAnalysisRequest){
+    val root = ((ObjectNode)updateAnalysisRequest);
+    root.remove(ANALYSIS_TYPE_ID);
+    return root;
+  }
+
   @Transactional
-  public ResponseEntity<String> updateAnalysis(
-      @NonNull String studyId, @NonNull String analysisId, @NonNull UpdateAnalysisRequest request) {
-    // check study id exists
-    // check analysisid exists
-    // check analysisid associated with studyid
+  public void updateAnalysis(
+      @NonNull String studyId, @NonNull String analysisId, @NonNull JsonNode updateAnalysisRequest) {
+    // TODO: When adding "last" feature, need to do this
     // Get requested schema
     //    - if name and version defined:   get that exact version
     //    - if useLatestAnalysisType defined && only name defined:   get the latest analysisType for
@@ -199,10 +203,53 @@ public class AnalysisService {
     // analysisType for the analysisTypeName associated with the analysisId
     //    - if useLatestAnalysisType NOT_DEFINED && analysisTypeId not defined:   get the same
     // version of the analysisType used in the analysisId
-    // Render an updateSchema
-    // Validate the dynamicData against the rendered schema
+
+
+    // Validate prerequisites
     checkAnalysisAndStudyRelated(studyId, analysisId);
-    return null;
+    checkServer(updateAnalysisRequest.hasNonNull(ANALYSIS_TYPE_ID),
+        AnalysisService.class, MALFORMED_PARAMETER,
+        "The updateAnalysisRequest does not contain the string field '%s'", ANALYSIS_TYPE_ID);
+
+    // Extract the schema to validated against
+    val analysisTypeIdAsString = updateAnalysisRequest.path(ANALYSIS_TYPE_ID).textValue();
+    val newAnalysisSchema = analysisTypeService.getAnalysisSchema(analysisTypeIdAsString);
+
+    // Validate the updateAnalysisRequest against the scheme
+    validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
+
+    // Now that the request is validated, fetch the old analysis
+    val oldAnalysis = get(analysisId, true, true);
+
+    // Update the association between the old schema and new schema entites for the requested analysis
+    val oldAnalysisSchema = oldAnalysis.getAnalysisSchema();
+    oldAnalysisSchema.disassociateAnalysis(oldAnalysis);
+    newAnalysisSchema.associateAnalysis(oldAnalysis);
+
+    // Update the analysisData for the requested analysis
+    val newData = buildUpdateRequestData(updateAnalysisRequest);
+    oldAnalysis.getAnalysisData().setData(newData);
+  }
+
+  private static void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema){
+    val renderedUpdateJsonSchema = renderUpdateJsonSchema(analysisSchema);
+    val schema = buildSchema(renderedUpdateJsonSchema);
+    try {
+      validateWithSchema(schema, request);
+    } catch (ValidationException e) {
+      throw buildServerException(AnalysisService.class, SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
+    }
+  }
+
+
+  private static JsonNode renderUpdateJsonSchema(AnalysisSchema analysisSchema){
+    val root = analysisSchema.getSchema().deepCopy();
+    val requiredNode = (ArrayNode)root.get(REQUIRED);
+    requiredNode.add(ANALYSIS_TYPE_ID);
+    val propertiesNode = (ObjectNode)root.get(PROPERTIES);
+    val atiNode = propertiesNode.putObject(ANALYSIS_TYPE_ID);
+    atiNode.put(TYPE, STRING);
+    return root;
   }
 
   /**

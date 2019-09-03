@@ -17,21 +17,13 @@
 
 package bio.overture.song.server.utils;
 
-import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
-import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.ResponseOption;
 import bio.overture.song.server.utils.web.WebResource;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import java.util.Collection;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -40,6 +32,16 @@ import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collection;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
+import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
 
 @RequiredArgsConstructor
 public class EndpointTester {
@@ -116,6 +118,28 @@ public class EndpointTester {
   public ResponseOption registerAnalysisTypePostRequestAnd(
       @NonNull RegisterAnalysisTypeRequest request) {
     return initWebRequest().endpoint(SCHEMAS).body(request).postAnd();
+  }
+
+  public ResponseOption exportAnalysisGetRequestAnd(Boolean includeAnalysisId, String ... analysisIds){
+    return initWebRequest()
+        .endpoint("export/analysis/%s", Joiners.COMMA.join( analysisIds))
+        .optionalQuerySingleParam("includeAnalysisId", includeAnalysisId)
+        .getAnd();
+  }
+
+  public ResponseOption getAnalysisGetRequestAnd(@NonNull String studyId, @NonNull String analysisId){
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/%s", studyId, analysisId)
+        .getAnd();
+  }
+
+  public ResponseOption updateAnalysisPutRequestAnd(@NonNull String studyId,
+      @NonNull String analysisId,
+      @NonNull JsonNode updateAnalysisRequest){
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/%s", studyId, analysisId)
+        .body(updateAnalysisRequest)
+        .putAnd();
   }
 
   // GET /schemas/<name>:<version>

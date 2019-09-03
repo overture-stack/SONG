@@ -1,0 +1,19 @@
+{
+  "analysisTypeId" : "sequencingRead:2",
+  "fruit" : "banana",
+  "experiment": {
+    "libraryStrategy": "WXS",
+    "pairedEnd": false,
+    "insertSize": 1000,
+    "aligned": false,
+    "alignmentTool": "MUSE variant call pipeline 2",
+    "referenceGenome": "hs37d5",
+    "info": {
+      "marginOfError": "0.01%"
+    }
+  },
+  "info": {
+    "description": "This is extra info in a JSON format"
+  }
+}
+

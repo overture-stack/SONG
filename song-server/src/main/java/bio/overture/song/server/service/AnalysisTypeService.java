@@ -46,6 +46,8 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
 import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
+import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
+import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
@@ -53,8 +55,6 @@ import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 @Service
 public class AnalysisTypeService {
 
-  private static final String REQUIRED = "required";
-  private static final String PROPERTIES = "properties";
   private static final String ANALYSIS_TYPE_NAME_REGEX = "[a-zA-Z0-9\\._-]+";
   private static final Pattern ANALYSIS_TYPE_NAME_PATTERN =
       compile("^" + ANALYSIS_TYPE_NAME_REGEX + "$");
@@ -83,16 +83,21 @@ public class AnalysisTypeService {
     return analysisTypeMetaSchema;
   }
 
-  public AnalysisType getAnalysisType(
-      @NonNull String analysisTypeIdAsString, boolean unrenderedOnly) {
+  public AnalysisSchema getAnalysisSchema( String analysisTypeIdAsString) {
+    // Parse out the name and version
+    val analysisTypeId = parseAnalysisTypeId(analysisTypeIdAsString);
+    return getAnalysisSchema(analysisTypeId);
+  }
+
+  public AnalysisType getAnalysisType( String analysisTypeIdAsString, boolean unrenderedOnly) {
     // Parse out the name and version
     val analysisTypeId = parseAnalysisTypeId(analysisTypeIdAsString);
     return getAnalysisType(analysisTypeId, unrenderedOnly);
   }
 
   @SneakyThrows
-  public AnalysisType getAnalysisType(
-      @NonNull AnalysisTypeId analysisTypeId, boolean unrenderedOnly) {
+  public AnalysisSchema getAnalysisSchema(
+      @NonNull AnalysisTypeId analysisTypeId) {
     val name = analysisTypeId.getName();
     val version = analysisTypeId.getVersion();
 
@@ -116,13 +121,20 @@ public class AnalysisTypeService {
           getClass(),
           ANALYSIS_TYPE_NOT_FOUND,
           "Version '%s' of analysisType with name '%s' does not exist however exists for the latest version '%s'",
-          name,
           version,
+          name,
           latestVersion);
     }
     log.debug("Found analysisType '{}' with version '{}'", name, version);
-    val resolvedSchemaJson = resolveSchemaJsonView(result.get().getSchema(), unrenderedOnly, false);
-    return buildAnalysisType(name, version, resolvedSchemaJson);
+    return result.get();
+  }
+
+  @SneakyThrows
+  public AnalysisType getAnalysisType(
+      @NonNull AnalysisTypeId analysisTypeId, boolean unrenderedOnly) {
+    val analysisSchema = getAnalysisSchema(analysisTypeId);
+    val resolvedSchemaJson = resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
+    return buildAnalysisType(analysisTypeId.getName(), analysisTypeId.getVersion(), resolvedSchemaJson);
   }
 
   private JsonNode renderPayloadJsonSchema(JsonNode schema) throws IOException {

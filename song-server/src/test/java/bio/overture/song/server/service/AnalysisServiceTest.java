@@ -187,7 +187,7 @@ public class AnalysisServiceTest {
     ; // test update
     val change = "ModifiedToolName";
     ((ObjectNode) data.path("experiment")).put("alignmentTool", change);
-    service.updateAnalysis(DEFAULT_STUDY_ID, created);
+    service.updateAnalysisOLD(DEFAULT_STUDY_ID, created);
     val gotBack = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
     assertEquals(extractAlignmentTool(gotBack.getAnalysisData()), change);
     log.info(format("Created '%s'", toJson(created)));
@@ -225,7 +225,7 @@ public class AnalysisServiceTest {
     // test update
     val change = "GoldenHammer";
     ((ObjectNode) extractExperiment(created.getAnalysisData())).put("variantCallingTool", change);
-    service.updateAnalysis(DEFAULT_STUDY_ID, created);
+    service.updateAnalysisOLD(DEFAULT_STUDY_ID, created);
     val gotBack = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
     assertEquals(extractVariantCallingTool(gotBack.getAnalysisData()), change);
     log.info(format("Created '%s'", toJson(created)));

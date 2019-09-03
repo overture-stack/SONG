@@ -1,0 +1,54 @@
+{
+  "type": "object",
+  "required": [ "experiment", "fruit"],
+  "properties": {
+    "fruit" : {
+      "type": "string",
+      "enum": [
+        "blueberry",
+        "banana",
+        "apple",
+        "lemon",
+        "watermelon"
+      ]
+    },
+    "experiment": {
+      "type": "object",
+      "required": [
+        "libraryStrategy"
+      ],
+      "properties": {
+        "aligned": {
+          "type": ["boolean", "null"]
+        },
+        "alignmentTool": {
+          "type": ["string", "null"]
+        },
+        "insertSize": {
+          "type": ["integer", "null"]
+        },
+        "libraryStrategy": {
+          "type": "string",
+          "enum": [
+            "WGS",
+            "WXS",
+            "RNA-Seq",
+            "ChIP-Seq",
+            "miRNA-Seq",
+            "Bisulfite-Seq",
+            "Validation",
+            "Amplicon",
+            "Other"
+          ]
+        },
+        "pairedEnd": {
+          "type": [ "boolean", "null"]
+        },
+        "referenceGenome": {
+          "type": ["string", "null"]
+        }
+      }
+    }
+  }
+}
+

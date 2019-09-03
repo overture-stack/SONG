@@ -1,0 +1,17 @@
+{
+  "experiment": {
+    "libraryStrategy": "WXS",
+    "pairedEnd": false,
+    "insertSize": 900,
+    "aligned": true,
+    "alignmentTool": "MUSE variant call pipeline 1",
+    "referenceGenome": "hs37d5",
+    "info": {
+      "marginOfError": "0.01%"
+    }
+  },
+  "info": {
+    "description": "This is extra info in a JSON format"
+  }
+}
+
