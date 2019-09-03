@@ -18,6 +18,8 @@ package bio.overture.song.server.config;
 
 import bio.overture.song.server.security.StudySecurity;
 import bio.overture.song.server.security.SystemSecurity;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -31,9 +33,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
@@ -78,12 +77,12 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
   }
 
   @Bean
-  public SystemSecurity systemSecurity(){
+  public SystemSecurity systemSecurity() {
     return new SystemSecurity(scope.getSystem());
   }
 
   @Bean
-  public StudySecurity studySecurity(@Autowired SystemSecurity systemSecurity){
+  public StudySecurity studySecurity(@Autowired SystemSecurity systemSecurity) {
     return StudySecurity.builder()
         .studyPrefix(scope.getStudy().getPrefix())
         .studySuffix(scope.getStudy().getSuffix())
@@ -95,23 +94,20 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
   @Setter
   public static class ScopeConfig {
 
-    @NotNull
-    private String system;
+    @NotNull private String system;
     private final StudyScopeConfig study = new StudyScopeConfig();
 
     @Getter
     @Setter
-    public static class StudyScopeConfig{
+    public static class StudyScopeConfig {
 
       @NotNull
       @Pattern(regexp = "^\\w+\\W$")
       private String prefix;
-
 
       @NotNull
       @Pattern(regexp = "^\\W\\w+$")
       private String suffix;
     }
   }
-
 }
