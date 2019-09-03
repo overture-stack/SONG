@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "analysis-type-meta-schema",
+    "title": "Meta-schema for validating AnalysisType schemas",
+    "type": ["object", "boolean"],
+    "required": ["properties", "type"],
+    "properties": {
+        "type" : {
+            "type" : "string",
+            "const": "object"
+        },
+        "definitions" : {
+          "type" : "object"
+        },
+        "properties" : {
+            "type": "object",
+            "required": ["experiment"],
+            "additionalProperties": true,
+            "properties": {
+                "study" : {
+                    "not" : {}
+                },
+                "analysisType" : {
+                    "not" : {}
+                },
+                "sample" : {
+                    "not" : {}
+                },
+                "file" : {
+                    "not" : {}
+                },
+                "info" : {
+                    "not" : {}
+                },
+                "analysisId" : {
+                    "not" : {}
+                },
+                "experiment": {
+                    "type" : "object"
+                }
+            }
+        },
+        "required" : {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "type": "string"
+            },
+            "contains": {
+                "const": "experiment"
+            }
+        }
+    },
+    "default": true,
+    "additionalProperties": false
+}

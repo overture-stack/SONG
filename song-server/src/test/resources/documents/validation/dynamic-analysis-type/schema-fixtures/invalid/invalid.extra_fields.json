@@ -1,0 +1,36 @@
+{
+  "$id" : "some-extra-field",
+  "type" : "object",
+  "required" : ["experiment", "tool", "sandpaper-number"],
+  "properties" : {
+    "experiment" : {
+      "type" : "object",
+      "required" : ["model", "year"],
+      "properties": {
+        "model" : {
+          "type" : "string"
+        },
+        "year" : {
+          "type": "integer",
+          "minimum": 1990
+        },
+        "serial" : {
+          "type" : "string",
+          "minLength": 12
+        },
+        "heavy" : {
+          "type" : "boolean"
+        }
+      }
+    },
+    "tool" : {
+      "type" : "string"
+    },
+    "sandpaper-description" : {
+      "type": "string"
+    },
+    "sandpaper-number" : {
+      "type": "integer"
+    }
+  }
+}

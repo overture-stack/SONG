@@ -1,0 +1,7 @@
+debugEnable=true
+accessToken=${ACCESSTOKEN}
+java \
+         -Dclient.debug=$debugEnable \
+         -Dclient.accessToken=$accessToken \
+         -jar ../../../../song-client/target/song-client-*-SNAPSHOT-exec.jar $@
+

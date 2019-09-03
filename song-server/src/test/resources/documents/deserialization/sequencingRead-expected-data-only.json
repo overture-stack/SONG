@@ -1,0 +1,31 @@
+{
+  "experiment" : {
+    "libraryStrategy" : "WXS",
+    "pairedEnd" : false,
+    "insertSize" : 900,
+    "aligned" : true,
+    "alignmentTool" : "MUSE variant call pipeline",
+    "referenceGenome" : "hs37d5",
+    "info" : {
+      "marginOfError" : "0.01%"
+    }
+  },
+  "pcawg_access": "controlled",
+  "dataCategorization": {
+    "dataType": "SGV",
+    "experimentalStrategy": "WGS"
+  },
+  "referenceGenome": {
+    "genomeBuild": "GRCh37",
+    "referenceName": "hs37d5",
+    "downloadUrl": "ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz"
+  },
+  "analysisMethod": {
+    "analysisTypeId" : "Variant calling:1",
+    "software": "Broad variant call pipeline"
+  },
+  "icgc_study": [
+    "PCAWG",
+    "EGA"
+  ]
+}

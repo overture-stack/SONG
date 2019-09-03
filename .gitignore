@@ -1,6 +1,8 @@
 # Eclipse IDE
 .project
 .classpath
+.settings
+.settings/
 .apt_generated
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.apt.core.prefs
@@ -9,6 +11,13 @@ org.eclipse.jdt.apt.core.prefs
 .idea
 *.iml
 atlassian-ide-plugin.xml
+
+#Spring
+application.*.properties
+application.*.yml
+application-*.properties
+application-*.yml
+
 
 # VSCode
 .vscode

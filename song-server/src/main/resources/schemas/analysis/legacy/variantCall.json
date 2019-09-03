@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "variantCall",
+  "type": "object",
+  "required": ["experiment"],
+  "properties": {
+    "experiment": {
+      "type": "object",
+      "required": [
+        "matchedNormalSampleSubmitterId",
+        "variantCallingTool"
+      ],
+      "properties": {
+        "matchedNormalSampleSubmitterId": {
+          "type": "string"
+        },
+        "variantCallingTool": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

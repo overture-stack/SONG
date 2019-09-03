@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://song.icgc.org/messages/fileData",
+  "type" : "object",
+  "allOf": [
+    {
+      "$ref": "#/definitions/file_base"
+    }
+  ],
+  "definitions": {
+    "file_base": {
+      "type": "object",
+      "properties": {
+        "fileSize": {
+          "type": "integer",
+          "minimum" : 0,
+          "exclusiveMinimum": true
+        },
+        "fileAccess": {
+          "type": "string",
+          "enum": [
+            "open",
+            "controlled"
+          ]
+        },
+        "fileMd5sum": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{32}$"
+        },
+        "info": {
+          "type": "object"
+        }
+      }
+    },
+    "file_complete": {
+      "type": "object",
+      "required": [
+        "fileName",
+        "fileType"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/file_base"
+        },
+        {
+          "properties": {
+            "fileName": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$"
+            },
+            "fileType": {
+              "type": "string",
+              "enum": [
+                "FASTA",
+                "FAI",
+                "FASTQ",
+                "BAM",
+                "BAI",
+                "VCF",
+                "TBI",
+                "IDX",
+                "XML"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+

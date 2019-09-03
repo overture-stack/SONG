@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://song.icgc.org/messages/storageDownloadResponse",
+  "type": "object",
+  "required": ["objectId", "objectSize"],
+  "properties": {
+      "objectMd5": {
+        "type": ["string", "null"],
+        "pattern" : "^[a-fA-F0-9]{32}$"
+      },
+      "objectId": {
+        "type": "string",
+        "pattern" : "^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{1,34}[a-zA-Z0-9]{1}$"
+      },
+      "objectSize": {
+        "type": "integer",
+          "minimum" : 0,
+          "exclusiveMinimum": true
+      }
+  }
+}

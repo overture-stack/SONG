@@ -1,0 +1,26 @@
+{
+  "sampleId":  "sa1",
+  "sampleSubmitterId":  "ssId1",
+  "sampleType":  "RNA",
+  "specimenId":  "sp1",
+  "specimen": {
+    "specimenId":  "sp1",
+    "donorId":  "DO1",
+    "specimenClass":  "Tumour",
+    "specimenSubmitterId":  "sp_sub_1",
+    "specimenType":  "Normal - EBV immortalized",
+    "info" : { "randomSpecimenField" : "someSpecimenValue" }
+
+  },
+  "donor" : {
+    "donorId":  "DO1",
+    "studyId":  "Study1",
+    "donorGender":  "male",
+    "donorSubmitterId":  "dsId1",
+    "info" : { "randomDonorField" : "someDonorValue" }
+  },
+  "info" : {
+    "randomSampleField" : "someSampleValue" ,
+    "randomCEField" : "someCEValue"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "study" : "ABC123",
+  "analysisTypeId" : "variantCall:1",
+  "experiment": {
+    "variantCallingTool": "silver bullet ex01",
+    "matchedNormalSampleSubmitterId": "sample x24-11a",
+    "extraExperimentInfo": "some more data for a variantCall experiment ex01"
+  },
+  "sample": [
+    {
+      "sampleSubmitterId": "internal_sample_98024759826836_fs01",
+      "sampleType": "Total RNA",
+      "extraSampleInfo": "some more data for a variantCall sample_fs01",
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fs01",
+        "specimenClass": "Tumour",
+        "specimenType": "Primary tumour - other",
+        "extraSpecimenInfo_0": "first for a variantCall specimen_fs01",
+        "extraSpecimenInfo_1": "second data for a variantCall specimen_fs01"
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789-00_fs01",
+        "donorGender": "male",
+        "extraDonorInfo": "some more data for a variantCall donor_fs01"
+      }
+    },
+    {
+      "sampleSubmitterId": "internal_sample_98024759826836_fs02",
+      "sampleType": "Total RNA",
+      "extraSampleInfo": "some more data for a variantCall sample_fs02",
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fs02",
+        "specimenClass": "Tumour",
+        "specimenType": "Primary tumour - other",
+        "extraSpecimenInfo": "some more data for a variantCall specimen_fs02"
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789-00_fs02",
+        "donorGender": "female",
+        "extraDonorInfo_0": "first data for a variantCall donor_fs02",
+        "extraDonorInfo_1": "second data for a variantCall donor_fs02"
+      }
+    }
+  ],
+  "file": [
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "fileSize": 376953,
+      "fileMd5sum": "652b2e2b7133229a89650de27ad7fc41",
+      "fileAccess" : "controlled",
+      "fileType": "VCF",
+      "extraFileInfo_0" : "first data for variantCall file_fn1",
+      "extraFileInfo_1" : "second data for variantCall file_fn1"
+    },
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "fileSize": 983820,
+      "fileMd5sum": "b8b743a499e461922accad58fdbf25d2",
+      "fileAccess" : "open",
+      "fileType": "VCF",
+      "extraFileInfo" : "some more data for variantCall file_fn2"
+    },
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+      "fileSize": 4840,
+      "fileMd5sum": "2b80298c2f312df7db482105053f889b",
+      "fileAccess" : "open",
+      "fileType": "IDX",
+      "extraFileInfo" : "some more data for variantCall file_fn3"
+    }
+  ],
+  "info": {
+    "description1": "description1 for this variantCall analysis an01",
+    "description2": "description2 for this variantCall analysis an01"
+  }
+}

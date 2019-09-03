@@ -1,0 +1,2 @@
+9a793e90d0d1e11301ea8da996446e59  example.vcf.gz
+c03274816eb4907a92b8e5632cd6eb81  example.vcf.gz.idx

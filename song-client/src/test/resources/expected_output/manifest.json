@@ -1,0 +1,4 @@
+[{ 
+analysis_id: "$id",
+files: [ { file_id: "", file_name: "" }, ... ]
+]

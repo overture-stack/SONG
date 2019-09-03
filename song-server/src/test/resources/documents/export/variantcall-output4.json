@@ -1,0 +1,58 @@
+{
+  "analysisTypeId" : "variantCall:1",
+  "experiment": {
+    "variantCallingTool": "silver bullet4",
+    "matchedNormalSampleSubmitterId": "sample x24-11a4"
+  },
+  "sample": [
+    {
+      "sampleSubmitterId": "internal_sample_98024759826834",
+      "sampleType": "Total RNA",
+      "info" : {
+        "size" : 54
+      },
+      "specimen": {
+        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk4",
+        "specimenClass": "Tumour",
+        "specimenType": "Primary tumour - other",
+        "info": {
+          "ratio": "1:4"
+        }
+      },
+      "donor": {
+        "donorSubmitterId": "internal_donor_123456789-04",
+        "donorGender": "male",
+        "info": {
+          "age" : 344
+        }
+      }
+    }
+  ],
+  "file": [
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711-4.somatic.snv_mnv.vcf.gz",
+      "fileSize": 3769534,
+      "fileMd5sum": "61a91c4bf04ac2bd3795254104f75a04",
+      "fileAccess" : "open",
+      "fileType": "VCF",
+      "info" : {
+        "colour" : "red4"
+
+      }
+    },
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711-4.somatic.snv_mnv.vcf.gz.idx",
+      "fileSize": 48404,
+      "fileMd5sum": "51a91c4bf04bb54d3795254104f75a04",
+      "fileAccess" : "open",
+      "fileType": "IDX",
+      "info" : {
+        "colour" : "green4"
+      }
+    }
+  ],
+  "institution" : "inst123-4",
+  "info": {
+    "description": "This is extra info in a JSON format-4"
+  }
+}

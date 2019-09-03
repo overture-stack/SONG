@@ -1,69 +1,397 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.
-This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
-You should have received a copy of the GNU General Public License along with
-this program. If not, see <http://www.gnu.org/licenses/>.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
-SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  ~ Copyright (c) 2018. Ontario Institute for Cancer Research
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as
+  ~ published by the Free Software Foundation, either version 3 of the
+  ~ License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Affero General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Affero General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.icgc.dcc</groupId>
-    <artifactId>sodalite</artifactId>
+    <groupId>bio.overture</groupId>
+    <artifactId>song</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>2.0.0</version>
     <modules>
-        <module>sodalite-server</module>
+        <module>song-core</module>
+        <module>song-server</module>
+        <module>song-client</module>
     </modules>
 
     <parent>
-        <groupId>org.icgc.dcc</groupId>
-        <artifactId>dcc-parent</artifactId>
-        <version>31</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.6.RELEASE</version>
+        <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
     <repositories>
         <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
             <id>dcc-releases</id>
             <url>https://artifacts.oicr.on.ca/artifactory/dcc-release</url>
         </repository>
+        <repository>
+            <id>dcc-snapshot</id>
+            <url>https://artifacts.oicr.on.ca/artifactory/dcc-snapshot</url>
+        </repository>
+        <repository>
+            <id>Atlassian 3rd Party</id>
+            <url>https://maven.atlassian.com/3rdparty/</url>
+        </repository>
+        <repository>
+            <id>osssonatype</id>
+            <name>OSS Sonatype</name>
+            <url>https://repo1.maven.org/maven2/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>jcenter-snapshots</id>
+            <name>jcenter</name>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
     </repositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.security.oauth</groupId>
+                <artifactId>spring-security-oauth2</artifactId>
+                <version>${spring-security-oauth2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.icgc.dcc</groupId>
+                <artifactId>dcc-id-client</artifactId>
+                <version>${dcc-id.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock</artifactId>
+                <version>${wiremock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${spring-kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
+            <!--                      Hibernate                      -->
+            <dependency>
+                <groupId>com.marvinformatics.hibernate</groupId>
+                <artifactId>hibernate-native-json</artifactId>
+                <version>${hibernate-native-json.version}</version>
+            </dependency>
+
+            <!-- Mapstruct - automated pojo mapping -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-jdk8</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+
+            <!-- Hibernate Validator              -->
+            <!--Validates annotations at build time-->
+            <dependency>
+                <groupId>org.hibernate.validator</groupId>
+                <artifactId>hibernate-validator-annotation-processor</artifactId>
+                <version>${hibernate-validator.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.bohnman</groupId>
+                <artifactId>squiggly-filter-jackson</artifactId>
+                <version>${squiggly.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.uuid</groupId>
+                <artifactId>java-uuid-generator</artifactId>
+                <version>${java-uuid-generator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-guava</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-parameter-names</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>${networknt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.icgc.dcc</groupId>
+                <artifactId>dcc-common-core</artifactId>
+                <version>${dcc-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.beust</groupId>
+                <artifactId>jcommander</artifactId>
+                <version>${jcommander.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>${jansi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.json-unit</groupId>
+                <artifactId>json-unit</artifactId>
+                <version>${json-unit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <!-- update Hibernate dependency on Javassist to 3.23.1 for Java 11 compatibility -->
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${java-assist.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.interceptor</groupId>
+                <artifactId>javax.interceptor-api</artifactId>
+                <version>${javax.interceptor-api.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>jdbc</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.everit-org.json-schema</groupId>
+                <artifactId>org.everit.json.schema</artifactId>
+                <version>${everit.jsonschema.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <defaultGoal>install</defaultGoal>
+		<plugins>
+			<plugin>
+				<groupId>com.coveo</groupId>
+				<artifactId>fmt-maven-plugin</artifactId>
+				<version>${plugin.fmt.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <inherited>true</inherited>
+                    <configuration>
+                        <release>11</release>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <showWarnings>true</showWarnings>
+						<forceJavacCompilerUse>true</forceJavacCompilerUse>
+						<verbose>true</verbose>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <!-- update compiler plugin dependency on
+                            ASM for Java 11 compatibility -->
+                            <groupId>org.ow2.asm</groupId>
+                            <artifactId>asm</artifactId>
+                            <version>6.2</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
+                <!-- Test -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <forkCount>1</forkCount>
+                        <reuseForks>false</reuseForks>
+                        <argLine>-Xms256m -Xmx1g</argLine>
+                        <redirectTestOutputToFile>${test.redirectTestOutputToFile}</redirectTestOutputToFile>
+                        <useFile>${test.useFile}</useFile>
+                        <systemProperties>
+                            <java.awt.headless>true</java.awt.headless>
+                        </systemProperties>
+                        <argLine>
+                            --illegal-access=permit
+                        </argLine>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>delombok</id>
+            <properties>
+                <generateSources.skipDelombok>false</generateSources.skipDelombok>
+            </properties>
+        </profile>
+        <profile>
+            <id>jenkins</id>
+            <properties>
+                <test.redirectTestOutputToFile>false</test.redirectTestOutputToFile>
+                <test.useFile>false</test.useFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+            <properties>
+                <package.attach>true</package.attach>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
-        <!-- Versions - DCC -->
+        <!-- Project Related Properties -->
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>11</java.version>
+        <test.redirectTestOutputToFile>true</test.redirectTestOutputToFile>
+        <test.useFile>true</test.useFile>
+
+        <!-- Common Versions -->
+        <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
+        <spring-data-commons.version>1.12.11.RELEASE</spring-data-commons.version>
         <dcc-common.version>4.3.8</dcc-common.version>
+        <postgresql.version>42.2.2</postgresql.version>
+        <junit.version>4.12</junit.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <logback.version>1.2.3</logback.version>
+        <lombok.version>1.18.4</lombok.version>
 
-        <!-- Versions - Spring -->
-        <spring.version>4.3.3.RELEASE</spring.version>
-        <!-- Versions - Spring Security -->
-        <spring-security.version>4.1.3.RELEASE</spring-security.version>
+        <jackson.version>2.9.4</jackson.version>
+        <networknt.version>0.1.5</networknt.version>
+        <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
+        <wiremock.version>2.14.0</wiremock.version>
+        <springfox.version>2.9.0</springfox.version>
+        <dcc-id.version>5.2.0</dcc-id.version>
+        <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
+        <hibernate-native-json.version>0.4</hibernate-native-json.version>
+        <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
+        <guava.version>24.1-jre</guava.version>
+        <jcommander.version>1.69</jcommander.version>
+        <jansi.version>1.16</jansi.version>
+        <squiggly.version>1.3.11</squiggly.version>
+        <mapstruct.version>1.3.0.Final</mapstruct.version>
+        <mockito.version>2.23.0</mockito.version>
+        <json-unit.version>2.0.3</json-unit.version>
 
-        <!-- Versions - Spring Boot -->
-        <spring-boot.version>1.4.1.RELEASE</spring-boot.version>
-        <!-- Versions - Spring Boot - Maven -->
-        <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
-        <!-- Versions - Spring Boot - Jackson -->
-        <jackson.version>2.8.3</jackson.version>
-        <!-- Versions - Spring Boot - Slf4j -->
-        <slf4j.version>1.7.21</slf4j.version>
-        <!-- Versions - Spring Boot - Logging -->
-        <logback.version>1.1.7</logback.version>
-        <!-- Versions - Spring Boot - H2 -->
-        <h2.version>1.4.192</h2.version>
+        <jaxb.version>2.3.1</jaxb.version>
+        <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <java-assist.version>3.23.1-GA</java-assist.version>
 
 
-        <jdbi.version>2.55</jdbi.version>
+        <javax.interceptor-api.version>1.2</javax.interceptor-api.version>
+        <testcontainers.version>1.10.6</testcontainers.version>
+        <flyway.version>5.2.4</flyway.version>
+        <everit.jsonschema.version>1.11.1</everit.jsonschema.version>
+		<plugin.fmt.version>2.9</plugin.fmt.version>
     </properties>
 
 </project>

@@ -1,0 +1,10 @@
+{
+  "analysisId" :  "an1",
+  "aligned" :  true,
+  "alignmentTool" :  "myAlignmentTool",
+  "pairedEnd" :  true,
+  "insertSize" :  0,
+  "libraryStrategy" :  "WXS",
+  "referenceGenome" :  "GR37",
+  "info" : { "randomField" : "someValue" }
+}
