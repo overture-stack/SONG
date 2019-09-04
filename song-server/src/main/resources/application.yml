@@ -105,8 +105,6 @@ auth:
     # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
     multiplier: 2.0
 
-schemas.useLatestAnalysisType: true
-
 ---
 spring.profiles: async-test
 validation.delayMs: 1000

@@ -235,32 +235,6 @@ public class AnalysisService {
     oldAnalysis.getAnalysisData().setData(newData);
   }
 
-  private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema){
-    val renderedUpdateJsonSchema = renderUpdateJsonSchema(analysisSchema);
-    val schema = buildSchema(renderedUpdateJsonSchema);
-    try {
-      validateWithSchema(schema, request);
-    } catch (ValidationException e) {
-      throw buildServerException(AnalysisService.class, SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
-    }
-  }
-
-  @SneakyThrows
-  private JsonNode renderUpdateJsonSchema(AnalysisSchema analysisSchema){
-    val jsonSchema = (ObjectNode)readTree(analysisUpdateBaseJson);
-    // Merge required fields
-    val requiredNode = (ArrayNode)jsonSchema.path(REQUIRED);
-    val coreRequiredNode = (ArrayNode)analysisSchema.getSchema().path(REQUIRED);
-    requiredNode.addAll(coreRequiredNode);
-
-    // Merge properties fields
-    val propertiesNode = (ObjectNode)jsonSchema.path(PROPERTIES);
-    val corePropertiesNode = (ObjectNode)analysisSchema.getSchema().path(PROPERTIES);
-    propertiesNode.setAll(corePropertiesNode);
-
-    return jsonSchema;
-  }
-
   /**
    * Gets all analysis for a given study. This method should be watched in case performance becomes
    * a problem. Fix for SONG-338
@@ -524,6 +498,32 @@ public class AnalysisService {
   /** Reads an analysis WITHOUT any files, samples or info */
   private Analysis shallowRead(String id) {
     return get(id, false, false);
+  }
+
+  private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema){
+    val renderedUpdateJsonSchema = renderUpdateJsonSchema(analysisSchema);
+    val schema = buildSchema(renderedUpdateJsonSchema);
+    try {
+      validateWithSchema(schema, request);
+    } catch (ValidationException e) {
+      throw buildServerException(AnalysisService.class, SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
+    }
+  }
+
+  @SneakyThrows
+  private JsonNode renderUpdateJsonSchema(AnalysisSchema analysisSchema){
+    val jsonSchema = (ObjectNode)readTree(analysisUpdateBaseJson);
+    // Merge required fields
+    val requiredNode = (ArrayNode)jsonSchema.path(REQUIRED);
+    val coreRequiredNode = (ArrayNode)analysisSchema.getSchema().path(REQUIRED);
+    requiredNode.addAll(coreRequiredNode);
+
+    // Merge properties fields
+    val propertiesNode = (ObjectNode)jsonSchema.path(PROPERTIES);
+    val corePropertiesNode = (ObjectNode)analysisSchema.getSchema().path(PROPERTIES);
+    propertiesNode.setAll(corePropertiesNode);
+
+    return jsonSchema;
   }
 
   private Analysis get(@NonNull String id, boolean fetchAnalysisSchema, boolean fetchAnalysisData) {

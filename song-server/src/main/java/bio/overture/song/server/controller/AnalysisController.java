@@ -83,8 +83,7 @@ public class AnalysisController {
   }
 
   /**
-   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is
-   * implemented
+   * [DCC-5726] - non-dynamic updates disabled until hibernate is properly integrated
    */
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @PutMapping(

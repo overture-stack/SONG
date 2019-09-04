@@ -17,7 +17,6 @@ import org.everit.json.schema.SchemaException;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -66,18 +65,15 @@ public class AnalysisTypeService {
   private final Schema analysisTypeMetaSchema;
   private final AnalysisSchemaRepository analysisSchemaRepository;
   private final String analysisPayloadBaseContent;
-  private final boolean useLatestAnalysisType;
 
   @Autowired
   public AnalysisTypeService(
       @NonNull Supplier<Schema> analysisTypeMetaSchemaSupplier,
       @Qualifier("analysisPayloadBaseJson") @NonNull String analysisPayloadBaseContent,
-      @NonNull AnalysisSchemaRepository analysisSchemaRepository,
-      @NonNull @Value("${schemas.useLatestAnalysisType}") Boolean useLatestAnalysisType) {
+      @NonNull AnalysisSchemaRepository analysisSchemaRepository ) {
     this.analysisTypeMetaSchema = analysisTypeMetaSchemaSupplier.get();
     this.analysisSchemaRepository = analysisSchemaRepository;
     this.analysisPayloadBaseContent = analysisPayloadBaseContent;
-    this.useLatestAnalysisType = useLatestAnalysisType;
   }
 
   public Schema getAnalysisTypeMetaSchema() {
@@ -239,10 +235,6 @@ public class AnalysisTypeService {
 
   public static String resolveAnalysisTypeId(@NonNull AnalysisType analysisType) {
     return resolveAnalysisTypeId(analysisType.getName(), analysisType.getVersion());
-  }
-
-  public AnalysisTypeId resolveAnalysisTypeId(@NonNull String analysisTypeIdAsString) {
-    return null;
   }
 
   public static AnalysisTypeId parseAnalysisTypeId(String id) {
