@@ -96,5 +96,46 @@ spec:
                 }
             }
         }
+
+        stage('Deploy to Overture QA') {
+            when {
+                  branch "develop"
+            }
+            steps {
+                container('helm') {
+                    withCredentials([file(credentialsId:'4ed1e45c-b552-466b-8f86-729402993e3b', variable: 'KUBECONFIG')]) {
+                        sh 'env'
+                        sh 'helm init --client-only'
+                        sh "helm ls --kubeconfig $KUBECONFIG"
+                        sh "helm repo add overture https://overture-stack.github.io/charts-server/"
+                        sh """
+                            helm upgrade --kubeconfig $KUBECONFIG --install --namespace=overture-qa song-overture-qa \\
+                            overture/song --reuse-values --set-string image.tag=${commit}
+                           """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Overture Staging') {
+            when {
+                  branch "master"
+            }
+            steps {
+                container('helm') {
+                    withCredentials([file(credentialsId:'4ed1e45c-b552-466b-8f86-729402993e3b', variable: 'KUBECONFIG')]) {
+                        sh 'env'
+                        sh 'helm init --client-only'
+                        sh "helm ls --kubeconfig $KUBECONFIG"
+                        sh "helm repo add overture https://overture-stack.github.io/charts-server/"
+                        sh """
+                            helm upgrade --kubeconfig $KUBECONFIG --install --namespace=overture-staging song-overture-staging \\
+                            overture/song --reuse-values --set-string image.tag=${version}
+                           """
+                    }
+                }
+            }
+        }
+
     }
 }
