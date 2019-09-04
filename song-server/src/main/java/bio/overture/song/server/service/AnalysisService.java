@@ -175,26 +175,6 @@ public class AnalysisService {
     return id;
   }
 
-  // TODO: needs to be updated. not correctly implemented
-  @Deprecated
-  @Transactional
-  public ResponseEntity<String> updateAnalysisOLD(String studyId, Analysis analysis) {
-    val id = analysis.getAnalysisId();
-    sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(id);
-    saveCompositeEntities(studyId, id, analysis.getSample());
-    fileRepository.deleteAllByAnalysisId(id);
-    analysis.getFile().forEach(f -> fileInfoService.delete(f.getObjectId()));
-    saveFiles(id, studyId, analysis.getFile());
-    analysisDataRepository.save(analysis.getAnalysisData());
-    return ok("AnalysisId %s was updated successfully", analysis.getAnalysisId());
-  }
-
-  private static JsonNode buildUpdateRequestData(JsonNode updateAnalysisRequest){
-    val root = ((ObjectNode)updateAnalysisRequest);
-    root.remove(ANALYSIS_TYPE_ID);
-    return root;
-  }
-
   @Transactional
   public void updateAnalysis(
       @NonNull String studyId, @NonNull String analysisId, @NonNull JsonNode updateAnalysisRequest) {
@@ -643,4 +623,11 @@ public class AnalysisService {
     }
     return ImmutableSet.copyOf(finalStates);
   }
+
+  private static JsonNode buildUpdateRequestData(JsonNode updateAnalysisRequest){
+    val root = ((ObjectNode)updateAnalysisRequest);
+    root.remove(ANALYSIS_TYPE_ID);
+    return root;
+  }
+
 }
