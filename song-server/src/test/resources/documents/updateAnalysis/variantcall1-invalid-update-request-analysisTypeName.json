@@ -1,0 +1,10 @@
+{
+  "analysisTypeId" : "variantCallNonExistent:1",
+  "experiment": {
+    "variantCallingTool": "silver bullet 1",
+    "matchedNormalSampleSubmitterId": "sample x24-11a"
+  },
+  "info": {
+    "description": "This is extra info in a JSON format"
+  }
+}

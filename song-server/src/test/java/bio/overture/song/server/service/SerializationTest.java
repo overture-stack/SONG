@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -133,6 +134,10 @@ public class SerializationTest {
     // Assert proper deserialization
     val actualPayload = JsonUtils.fromJson(payloadString, Payload.class);
     assertEquals(expectedPayload, actualPayload);
+  }
+
+  private static <T, R> void assertEqualField(Function<T, R> fieldFunction, T expected, T actual) {
+    assertEquals(fieldFunction.apply(expected), fieldFunction.apply(actual));
   }
 
   @Test

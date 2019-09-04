@@ -105,7 +105,6 @@ auth:
     # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
     multiplier: 2.0
 
-
 ---
 spring.profiles: async-test
 validation.delayMs: 1000

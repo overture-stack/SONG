@@ -16,34 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
-import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
-import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
-import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
-import static bio.overture.song.core.utils.Responses.ok;
-import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
-import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
-
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.kafka.AnalysisMessage;
 import bio.overture.song.server.kafka.Sender;
@@ -53,32 +25,72 @@ import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
 import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.AnalysisDataRepository;
 import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import bio.overture.song.server.repository.FileRepository;
 import bio.overture.song.server.repository.SampleSetRepository;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.repository.search.SearchRepository;
 import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.everit.json.schema.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import javax.transaction.Transactional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
+import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
+import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
+import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
+import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
+import static bio.overture.song.core.utils.Responses.ok;
+import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
+import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
+import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 @Service
@@ -91,6 +103,9 @@ public class AnalysisService {
   @Value("${song.id}")
   private String songServerId;
 
+  @Autowired @Qualifier("analysisUpdateBaseJson")
+  private final String analysisUpdateBaseJson;
+
   @Autowired private final AnalysisRepository repository;
   @Autowired private final FileInfoService fileInfoService;
   @Autowired private final IdService idService;
@@ -102,8 +117,8 @@ public class AnalysisService {
   @Autowired private final StudyService studyService;
   @Autowired private final SampleSetRepository sampleSetRepository;
   @Autowired private final FileRepository fileRepository;
-  @Autowired private final AnalysisSchemaRepository analysisSchemaRepository;
   @Autowired private final AnalysisDataRepository analysisDataRepository;
+  @Autowired private final AnalysisTypeService analysisTypeService;
 
   @Transactional
   public String create(
@@ -132,18 +147,7 @@ public class AnalysisService {
             + "delete the analysis for analysisId '%s' and re-save",
         id);
 
-    val analysisTypeId = parseAnalysisTypeId(payload.getAnalysisTypeId());
-    val analysisSchemaOpt =
-        analysisSchemaRepository.findByNameAndVersion(
-            analysisTypeId.getName(), analysisTypeId.getVersion());
-    checkServer(
-        analysisSchemaOpt.isPresent(),
-        getClass(),
-        ANALYSIS_TYPE_NOT_FOUND,
-        "Could not find the analysisType with name = '%s' and version = '%s'",
-        analysisTypeId.getName(),
-        analysisTypeId.getVersion());
-    val analysisSchema = analysisSchemaOpt.get();
+    val analysisSchema = analysisTypeService.getAnalysisSchema(payload.getAnalysisTypeId());
 
     val analysisData = AnalysisData.builder().data(toJsonNode(payload.getData())).build();
     analysisDataRepository.save(analysisData);
@@ -156,7 +160,7 @@ public class AnalysisService {
     a.setStudy(studyId);
 
     analysisData.setAnalysis(a);
-    analysisSchema.addAnalysis(a);
+    analysisSchema.associateAnalysis(a);
 
     saveCompositeEntities(studyId, id, a.getSample());
     saveFiles(id, studyId, a.getFile());
@@ -171,17 +175,44 @@ public class AnalysisService {
     return id;
   }
 
-  // TODO: needs to be updated. not correctly implemented
   @Transactional
-  public ResponseEntity<String> updateAnalysis(String studyId, Analysis analysis) {
-    val id = analysis.getAnalysisId();
-    sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(id);
-    saveCompositeEntities(studyId, id, analysis.getSample());
-    fileRepository.deleteAllByAnalysisId(id);
-    analysis.getFile().forEach(f -> fileInfoService.delete(f.getObjectId()));
-    saveFiles(id, studyId, analysis.getFile());
-    analysisDataRepository.save(analysis.getAnalysisData());
-    return ok("AnalysisId %s was updated successfully", analysis.getAnalysisId());
+  public void updateAnalysis(
+      @NonNull String studyId, @NonNull String analysisId, @NonNull JsonNode updateAnalysisRequest) {
+    // TODO: When adding "last" feature, need to do this
+    // Get requested schema
+    //    - if name and version defined:   get that exact version
+    //    - if useLatestAnalysisType defined && only name defined:   get the latest analysisType for
+    // that analysisTypeName
+    //    - if useLatestAnalysisType defined && analysisTypeId not defined:   get the latest
+    // analysisType for the analysisTypeName associated with the analysisId
+    //    - if useLatestAnalysisType NOT_DEFINED && analysisTypeId not defined:   get the same
+    // version of the analysisType used in the analysisId
+
+
+    // Validate prerequisites
+    checkAnalysisAndStudyRelated(studyId, analysisId);
+    checkServer(updateAnalysisRequest.hasNonNull(ANALYSIS_TYPE_ID),
+        AnalysisService.class, MALFORMED_PARAMETER,
+        "The updateAnalysisRequest does not contain the string field '%s'", ANALYSIS_TYPE_ID);
+
+    // Extract the schema to validated against
+    val analysisTypeIdAsString = updateAnalysisRequest.path(ANALYSIS_TYPE_ID).textValue();
+    val newAnalysisSchema = analysisTypeService.getAnalysisSchema(analysisTypeIdAsString);
+
+    // Validate the updateAnalysisRequest against the scheme
+    validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
+
+    // Now that the request is validated, fetch the old analysis
+    val oldAnalysis = get(analysisId, true, true);
+
+    // Update the association between the old schema and new schema entites for the requested analysis
+    val oldAnalysisSchema = oldAnalysis.getAnalysisSchema();
+    oldAnalysisSchema.disassociateAnalysis(oldAnalysis);
+    newAnalysisSchema.associateAnalysis(oldAnalysis);
+
+    // Update the analysisData for the requested analysis
+    val newData = buildUpdateRequestData(updateAnalysisRequest);
+    oldAnalysis.getAnalysisData().setData(newData);
   }
 
   /**
@@ -446,8 +477,39 @@ public class AnalysisService {
 
   /** Reads an analysis WITHOUT any files, samples or info */
   private Analysis shallowRead(String id) {
+    return get(id, false, false);
+  }
+
+  private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema){
+    val renderedUpdateJsonSchema = renderUpdateJsonSchema(analysisSchema);
+    val schema = buildSchema(renderedUpdateJsonSchema);
+    try {
+      validateWithSchema(schema, request);
+    } catch (ValidationException e) {
+      throw buildServerException(AnalysisService.class, SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
+    }
+  }
+
+  @SneakyThrows
+  private JsonNode renderUpdateJsonSchema(AnalysisSchema analysisSchema){
+    val jsonSchema = (ObjectNode)readTree(analysisUpdateBaseJson);
+    // Merge required fields
+    val requiredNode = (ArrayNode)jsonSchema.path(REQUIRED);
+    val coreRequiredNode = (ArrayNode)analysisSchema.getSchema().path(REQUIRED);
+    requiredNode.addAll(coreRequiredNode);
+
+    // Merge properties fields
+    val propertiesNode = (ObjectNode)jsonSchema.path(PROPERTIES);
+    val corePropertiesNode = (ObjectNode)analysisSchema.getSchema().path(PROPERTIES);
+    propertiesNode.setAll(corePropertiesNode);
+
+    return jsonSchema;
+  }
+
+  private Analysis get(@NonNull String id, boolean fetchAnalysisSchema, boolean fetchAnalysisData) {
     val analysisResult =
-        repository.findOne(new AnalysisSpecificationBuilder(true, true).buildById(id));
+        repository.findOne(
+            new AnalysisSpecificationBuilder(fetchAnalysisSchema, fetchAnalysisData).buildById(id));
 
     validateAnalysisExistence(analysisResult.isPresent(), id);
     return analysisResult.get();
@@ -561,4 +623,11 @@ public class AnalysisService {
     }
     return ImmutableSet.copyOf(finalStates);
   }
+
+  private static JsonNode buildUpdateRequestData(JsonNode updateAnalysisRequest){
+    val root = ((ObjectNode)updateAnalysisRequest);
+    root.remove(ANALYSIS_TYPE_ID);
+    return root;
+  }
+
 }

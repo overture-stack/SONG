@@ -1,0 +1,9 @@
+{
+  "experiment": {
+    "variantCallingTool": "silver bullet",
+    "matchedNormalSampleSubmitterId": "sample x24-11a"
+  },
+  "info": {
+    "description": "This is extra info in a JSON format"
+  }
+}

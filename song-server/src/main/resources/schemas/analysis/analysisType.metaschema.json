@@ -23,13 +23,13 @@
                 "analysisType" : {
                     "not" : {}
                 },
+                "analysisTypeId" : {
+                    "not" : {}
+                },
                 "sample" : {
                     "not" : {}
                 },
                 "file" : {
-                    "not" : {}
-                },
-                "info" : {
                     "not" : {}
                 },
                 "analysisId" : {
