@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,8 +32,6 @@ public class SchemaConfig {
   public static final Path SCHEMA_PATH = Paths.get("schemas");
   public static final Path SCHEMA_ANALYSIS_PATH = SCHEMA_PATH.resolve("analysis");
   private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
-
-  @NotNull private Boolean useLatestAnalysisType;
 
   @Bean
   public String analysisPayloadBaseJson() throws IOException {
