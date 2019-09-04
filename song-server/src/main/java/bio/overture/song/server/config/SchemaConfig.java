@@ -1,15 +1,6 @@
 package bio.overture.song.server.config;
 
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
-import static bio.overture.song.server.utils.Resources.getResourceContent;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.function.Supplier;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -21,6 +12,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.function.Supplier;
+
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
+import static bio.overture.song.server.utils.Resources.getResourceContent;
 
 @Getter
 @Setter
@@ -38,6 +39,12 @@ public class SchemaConfig {
   @Bean
   public String analysisPayloadBaseJson() throws IOException {
     val schemaRelativePath = SCHEMA_ANALYSIS_PATH.resolve("analysisPayload.json").toString();
+    return getResourceContent(schemaRelativePath);
+  }
+
+  @Bean
+  public String analysisUpdateBaseJson() throws IOException {
+    val schemaRelativePath = SCHEMA_ANALYSIS_PATH.resolve("analysisUpdate.json").toString();
     return getResourceContent(schemaRelativePath);
   }
 

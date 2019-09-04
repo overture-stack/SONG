@@ -42,10 +42,12 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -57,7 +59,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import static io.swagger.models.properties.StringProperty.TYPE;
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
@@ -80,6 +81,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Responses.ok;
@@ -87,7 +89,6 @@ import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessa
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
-import static bio.overture.song.server.utils.JsonSchemas.STRING;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
@@ -101,6 +102,9 @@ public class AnalysisService {
 
   @Value("${song.id}")
   private String songServerId;
+
+  @Autowired @Qualifier("analysisUpdateBaseJson")
+  private final String analysisUpdateBaseJson;
 
   @Autowired private final AnalysisRepository repository;
   @Autowired private final FileInfoService fileInfoService;
@@ -231,7 +235,7 @@ public class AnalysisService {
     oldAnalysis.getAnalysisData().setData(newData);
   }
 
-  private static void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema){
+  private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema){
     val renderedUpdateJsonSchema = renderUpdateJsonSchema(analysisSchema);
     val schema = buildSchema(renderedUpdateJsonSchema);
     try {
@@ -241,15 +245,20 @@ public class AnalysisService {
     }
   }
 
+  @SneakyThrows
+  private JsonNode renderUpdateJsonSchema(AnalysisSchema analysisSchema){
+    val jsonSchema = (ObjectNode)readTree(analysisUpdateBaseJson);
+    // Merge required fields
+    val requiredNode = (ArrayNode)jsonSchema.path(REQUIRED);
+    val coreRequiredNode = (ArrayNode)analysisSchema.getSchema().path(REQUIRED);
+    requiredNode.addAll(coreRequiredNode);
 
-  private static JsonNode renderUpdateJsonSchema(AnalysisSchema analysisSchema){
-    val root = analysisSchema.getSchema().deepCopy();
-    val requiredNode = (ArrayNode)root.get(REQUIRED);
-    requiredNode.add(ANALYSIS_TYPE_ID);
-    val propertiesNode = (ObjectNode)root.get(PROPERTIES);
-    val atiNode = propertiesNode.putObject(ANALYSIS_TYPE_ID);
-    atiNode.put(TYPE, STRING);
-    return root;
+    // Merge properties fields
+    val propertiesNode = (ObjectNode)jsonSchema.path(PROPERTIES);
+    val corePropertiesNode = (ObjectNode)analysisSchema.getSchema().path(PROPERTIES);
+    propertiesNode.setAll(corePropertiesNode);
+
+    return jsonSchema;
   }
 
   /**

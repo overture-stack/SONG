@@ -16,6 +16,7 @@ import org.everit.json.schema.Schema;
 import org.everit.json.schema.SchemaException;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -70,7 +71,7 @@ public class AnalysisTypeService {
   @Autowired
   public AnalysisTypeService(
       @NonNull Supplier<Schema> analysisTypeMetaSchemaSupplier,
-      @NonNull String analysisPayloadBaseContent,
+      @Qualifier("analysisPayloadBaseJson") @NonNull String analysisPayloadBaseContent,
       @NonNull AnalysisSchemaRepository analysisSchemaRepository,
       @NonNull @Value("${schemas.useLatestAnalysisType}") Boolean useLatestAnalysisType) {
     this.analysisTypeMetaSchema = analysisTypeMetaSchemaSupplier.get();

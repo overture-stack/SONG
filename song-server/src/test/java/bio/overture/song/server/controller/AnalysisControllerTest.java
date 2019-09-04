@@ -31,7 +31,6 @@ import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -238,10 +237,11 @@ public class AnalysisControllerTest {
 				ENTITY_NOT_RELATED_TO_STUDY);
 	}
 
-	// This test will try to update an analysis with reserved fields (like study, file, sample...etc) and should prevent the user from doing that
 	@Test
 	public void updateAnalysis_illegalData_SchemaViolation(){
-		throw new NotImplementedException("updateAnalysis_illegalData_SchemaViolation not implemented");
+	  // Assert that when an update request is made containing study, file, sample, specimen, etc, it gets invalidated against the rendered updateAnalysis schema
+		assertUpdateAnalysisError(studyId, variantAnalysis.getAnalysisId(), "variantcall1-valid-payload.json",
+				SCHEMA_VIOLATION);
 	}
 
 	private void assertAnalysisIdHasSameData(String analysisId, String analysisDataFixtureFilename){
