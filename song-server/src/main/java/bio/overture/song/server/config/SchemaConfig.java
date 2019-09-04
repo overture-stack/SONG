@@ -10,9 +10,11 @@ import org.everit.json.schema.loader.SchemaClient;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,12 +28,16 @@ import static bio.overture.song.server.utils.Resources.getResourceContent;
 @Setter
 @Validated
 @Component
+@Configuration
 @ConfigurationProperties("schemas")
 public class SchemaConfig {
 
   public static final Path SCHEMA_PATH = Paths.get("schemas");
   public static final Path SCHEMA_ANALYSIS_PATH = SCHEMA_PATH.resolve("analysis");
   private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
+
+  @NotNull
+  private Boolean useLatest;
 
   @Bean
   public String analysisPayloadBaseJson() throws IOException {
