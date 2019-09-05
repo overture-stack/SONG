@@ -24,6 +24,10 @@ import org.mapstruct.MappingInheritanceStrategy;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.compile;
+
 @MapperConfig(
     componentModel = "spring",
     unmappedTargetPolicy = ReportingPolicy.ERROR,
@@ -31,4 +35,14 @@ import org.mapstruct.ReportingPolicy;
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
     collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
     mappingInheritanceStrategy = MappingInheritanceStrategy.AUTO_INHERIT_ALL_FROM_CONFIG)
-public class ConverterConfig {}
+public class ConverterConfig {
+
+  private static final String ANALYSIS_TYPE_NAME_REGEX = "[a-zA-Z0-9\\._-]+";
+
+  public static final String ANALYSIS_TYPE_ID_STRING_FORMAT = "%s:%s";
+  public static final Pattern ANALYSIS_TYPE_NAME_PATTERN =
+      compile("^" + ANALYSIS_TYPE_NAME_REGEX + "$");
+  public static final Pattern ANALYSIS_TYPE_ID_PATTERN =
+      compile("^(" + ANALYSIS_TYPE_NAME_REGEX + "):(\\d+)$");
+
+}

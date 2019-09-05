@@ -73,7 +73,7 @@ public class AnalysisSchema {
     a.setAnalysisSchema(this);
   }
 
-  public void disassociateAnalysis(Analysis a){
+  public void disassociateAnalysis(Analysis a) {
     this.analyses.removeIf(x -> x.getAnalysisId().equals(a.getAnalysisId()));
     a.setAnalysisSchema(null);
   }

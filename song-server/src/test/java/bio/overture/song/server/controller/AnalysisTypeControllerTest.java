@@ -1,39 +1,10 @@
 package bio.overture.song.server.controller;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.core.utils.RandomGenerator.randomList;
-import static bio.overture.song.core.utils.RandomGenerator.randomStream;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
-import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
-import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
-import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.IntStream.range;
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
-import static net.javacrumbs.jsonunit.JsonAssert.when;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
+import bio.overture.song.server.converter.AnalysisTypeIdConverter;
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
@@ -43,10 +14,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.function.Supplier;
-import javax.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -65,6 +32,40 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.transaction.Transactional;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.function.Supplier;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.RandomGenerator.randomList;
+import static bio.overture.song.core.utils.RandomGenerator.randomStream;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
+import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -81,6 +82,7 @@ public class AnalysisTypeControllerTest {
   @Autowired private AnalysisTypeService analysisTypeService;
 
   @Autowired private AnalysisSchemaRepository analysisSchemaRepository;
+  @Autowired private AnalysisTypeIdConverter analysisTypeIdConverter;
 
   private MockMvc mockMvc;
   private EndpointTester endpointTester;
@@ -180,19 +182,24 @@ public class AnalysisTypeControllerTest {
     val createRequest2 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName2).schema(createSchema2).build();
 
-    val expectedCreateSchema1 =
-        analysisTypeService.resolveSchemaJsonView(createSchema1, false, false);
-    val expectedCreateSchema2 =
-        analysisTypeService.resolveSchemaJsonView(createSchema2, false, false);
-
     // Build the expected AnalysisType using the AnalysisTypeService and also verify proper format
-    val expectedAnalysisType1 = buildAnalysisType(nonExistingName1, 1, expectedCreateSchema1);
-    assertEquals(resolveAnalysisTypeId(nonExistingName1, 1), nonExistingName1 + ":1");
-    assertEquals(expectedAnalysisType1.getId(), resolveAnalysisTypeId(nonExistingName1, 1));
+    val expectedAnalysisTypeId1 =
+        AnalysisTypeId.builder().name(nonExistingName1).version(1).build();
+    val expectedAnalysisType1 =
+        analysisTypeService.buildAnalysisType(expectedAnalysisTypeId1, createSchema1, false, false);
+    assertEquals(
+        analysisTypeIdConverter.convertToString(expectedAnalysisTypeId1), nonExistingName1 + ":1");
+    assertEquals(
+        expectedAnalysisType1.getId(), analysisTypeIdConverter.convertToString(expectedAnalysisTypeId1));
 
-    val expectedAnalysisType2 = buildAnalysisType(nonExistingName2, 1, expectedCreateSchema2);
-    assertEquals(resolveAnalysisTypeId(nonExistingName2, 1), nonExistingName2 + ":1");
-    assertEquals(expectedAnalysisType2.getId(), resolveAnalysisTypeId(nonExistingName2, 1));
+    val expectedAnalysisTypeId2 =
+        AnalysisTypeId.builder().name(nonExistingName2).version(1).build();
+    val expectedAnalysisType2 =
+        analysisTypeService.buildAnalysisType(expectedAnalysisTypeId2, createSchema2, false, false);
+    assertEquals(
+        analysisTypeIdConverter.convertToString(expectedAnalysisTypeId2), nonExistingName2 + ":1");
+    assertEquals(
+        expectedAnalysisType2.getId(), analysisTypeIdConverter.convertToString(expectedAnalysisTypeId2));
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -207,9 +214,9 @@ public class AnalysisTypeControllerTest {
     val updateSchema1 = generateRandomRegistrationPayload(randomGenerator);
     val updateRequest1 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName1).schema(updateSchema1).build();
-    val expectedUpdateSchema1 =
-        analysisTypeService.resolveSchemaJsonView(updateSchema1, false, false);
-    val expectedAnalysisTypeUpdate1 = buildAnalysisType(nonExistingName1, 2, expectedUpdateSchema1);
+    val updatedAnalysisTypeId1 = AnalysisTypeId.builder().name(nonExistingName1).version(2).build();
+    val expectedAnalysisTypeUpdate1 =
+        analysisTypeService.buildAnalysisType(updatedAnalysisTypeId1, updateSchema1, false, false);
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -219,9 +226,9 @@ public class AnalysisTypeControllerTest {
     val updateSchema2 = generateRandomRegistrationPayload(randomGenerator);
     val updateRequest2 =
         RegisterAnalysisTypeRequest.builder().name(nonExistingName2).schema(updateSchema2).build();
-    val expectedUpdateSchema2 =
-        analysisTypeService.resolveSchemaJsonView(updateSchema2, false, false);
-    val expectedAnalysisTypeUpdate2 = buildAnalysisType(nonExistingName2, 2, expectedUpdateSchema2);
+    val updatedAnalysisTypeId2 = AnalysisTypeId.builder().name(nonExistingName2).version(2).build();
+    val expectedAnalysisTypeUpdate2 =
+        analysisTypeService.buildAnalysisType(updatedAnalysisTypeId2, updateSchema2, false, false);
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -257,7 +264,7 @@ public class AnalysisTypeControllerTest {
     val expectedAnalysisType = randomGenerator.randomElement(data);
 
     // Get the analysisTypeId using the service and assert it has the correct format
-    val requestAnalysisTypeId = resolveAnalysisTypeId(expectedAnalysisType);
+    val requestAnalysisTypeId = expectedAnalysisType.getId();
     assertEquals(
         requestAnalysisTypeId,
         expectedAnalysisType.getName() + ":" + expectedAnalysisType.getVersion());
@@ -293,9 +300,10 @@ public class AnalysisTypeControllerTest {
   @Test
   public void getAnalysisTypeByVersion_nonExistingName_notFound() {
     val nonExistingName = generateUniqueName();
-    val analysisTypeId = resolveAnalysisTypeId(nonExistingName, 1);
+    val analysisTypeId = AnalysisTypeId.builder().name(nonExistingName).version(1).build();
+    val analysisTypeIdString = analysisTypeIdConverter.convertToString(analysisTypeId);
     endpointTester
-        .getAnalysisTypeVersionGetRequestAnd(analysisTypeId)
+        .getAnalysisTypeVersionGetRequestAnd(analysisTypeIdString)
         .assertServerError(ANALYSIS_TYPE_NOT_FOUND);
   }
 
@@ -308,9 +316,14 @@ public class AnalysisTypeControllerTest {
   public void getAnalysisTypeByVersion_nonExistingVersion_notFound() {
     val existingAnalysisType = generateData(1).get(0);
     val nonExistingVersion = existingAnalysisType.getVersion() + 1;
-    val analysisTypeId = resolveAnalysisTypeId(existingAnalysisType.getName(), nonExistingVersion);
+    val analysisTypeId =
+        AnalysisTypeId.builder()
+            .name(existingAnalysisType.getName())
+            .version(nonExistingVersion)
+            .build();
+    val analysisTypeIdString = analysisTypeIdConverter.convertToString(analysisTypeId);
     endpointTester
-        .getAnalysisTypeVersionGetRequestAnd(analysisTypeId)
+        .getAnalysisTypeVersionGetRequestAnd(analysisTypeIdString)
         .assertServerError(ANALYSIS_TYPE_NOT_FOUND);
   }
 

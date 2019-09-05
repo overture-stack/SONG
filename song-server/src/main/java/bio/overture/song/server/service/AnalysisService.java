@@ -103,7 +103,8 @@ public class AnalysisService {
   @Value("${song.id}")
   private String songServerId;
 
-  @Autowired @Qualifier("analysisUpdateBaseJson")
+  @Autowired
+  @Qualifier("analysisUpdateBaseJson")
   private final String analysisUpdateBaseJson;
 
   @Autowired private final AnalysisRepository repository;
@@ -177,7 +178,9 @@ public class AnalysisService {
 
   @Transactional
   public void updateAnalysis(
-      @NonNull String studyId, @NonNull String analysisId, @NonNull JsonNode updateAnalysisRequest) {
+      @NonNull String studyId,
+      @NonNull String analysisId,
+      @NonNull JsonNode updateAnalysisRequest) {
     // TODO: When adding "last" feature, need to do this
     // Get requested schema
     //    - if name and version defined:   get that exact version
@@ -188,12 +191,14 @@ public class AnalysisService {
     //    - if useLatestAnalysisType NOT_DEFINED && analysisTypeId not defined:   get the same
     // version of the analysisType used in the analysisId
 
-
     // Validate prerequisites
     checkAnalysisAndStudyRelated(studyId, analysisId);
-    checkServer(updateAnalysisRequest.hasNonNull(ANALYSIS_TYPE_ID),
-        AnalysisService.class, MALFORMED_PARAMETER,
-        "The updateAnalysisRequest does not contain the string field '%s'", ANALYSIS_TYPE_ID);
+    checkServer(
+        updateAnalysisRequest.hasNonNull(ANALYSIS_TYPE_ID),
+        AnalysisService.class,
+        MALFORMED_PARAMETER,
+        "The updateAnalysisRequest does not contain the string field '%s'",
+        ANALYSIS_TYPE_ID);
 
     // Extract the schema to validated against
     val analysisTypeIdAsString = updateAnalysisRequest.path(ANALYSIS_TYPE_ID).textValue();
@@ -205,7 +210,8 @@ public class AnalysisService {
     // Now that the request is validated, fetch the old analysis
     val oldAnalysis = get(analysisId, true, true);
 
-    // Update the association between the old schema and new schema entites for the requested analysis
+    // Update the association between the old schema and new schema entites for the requested
+    // analysis
     val oldAnalysisSchema = oldAnalysis.getAnalysisSchema();
     oldAnalysisSchema.disassociateAnalysis(oldAnalysis);
     newAnalysisSchema.associateAnalysis(oldAnalysis);
@@ -480,27 +486,28 @@ public class AnalysisService {
     return get(id, false, false);
   }
 
-  private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema){
+  private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema) {
     val renderedUpdateJsonSchema = renderUpdateJsonSchema(analysisSchema);
     val schema = buildSchema(renderedUpdateJsonSchema);
     try {
       validateWithSchema(schema, request);
     } catch (ValidationException e) {
-      throw buildServerException(AnalysisService.class, SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
+      throw buildServerException(
+          AnalysisService.class, SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
     }
   }
 
   @SneakyThrows
-  private JsonNode renderUpdateJsonSchema(AnalysisSchema analysisSchema){
-    val jsonSchema = (ObjectNode)readTree(analysisUpdateBaseJson);
+  private JsonNode renderUpdateJsonSchema(AnalysisSchema analysisSchema) {
+    val jsonSchema = (ObjectNode) readTree(analysisUpdateBaseJson);
     // Merge required fields
-    val requiredNode = (ArrayNode)jsonSchema.path(REQUIRED);
-    val coreRequiredNode = (ArrayNode)analysisSchema.getSchema().path(REQUIRED);
+    val requiredNode = (ArrayNode) jsonSchema.path(REQUIRED);
+    val coreRequiredNode = (ArrayNode) analysisSchema.getSchema().path(REQUIRED);
     requiredNode.addAll(coreRequiredNode);
 
     // Merge properties fields
-    val propertiesNode = (ObjectNode)jsonSchema.path(PROPERTIES);
-    val corePropertiesNode = (ObjectNode)analysisSchema.getSchema().path(PROPERTIES);
+    val propertiesNode = (ObjectNode) jsonSchema.path(PROPERTIES);
+    val corePropertiesNode = (ObjectNode) analysisSchema.getSchema().path(PROPERTIES);
     propertiesNode.setAll(corePropertiesNode);
 
     return jsonSchema;
@@ -624,10 +631,9 @@ public class AnalysisService {
     return ImmutableSet.copyOf(finalStates);
   }
 
-  private static JsonNode buildUpdateRequestData(JsonNode updateAnalysisRequest){
-    val root = ((ObjectNode)updateAnalysisRequest);
+  private static JsonNode buildUpdateRequestData(JsonNode updateAnalysisRequest) {
+    val root = ((ObjectNode) updateAnalysisRequest);
     root.remove(ANALYSIS_TYPE_ID);
     return root;
   }
-
 }

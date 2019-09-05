@@ -1,19 +1,25 @@
 package bio.overture.song.server.model.analysis;
 
-import static lombok.AccessLevel.PRIVATE;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_ABSENT;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Optional;
+import lombok.Builder;
 import lombok.Value;
 
 @Value
-@RequiredArgsConstructor(access = PRIVATE)
+@Builder
+@JsonInclude(NON_ABSENT)
 public class AnalysisTypeId {
 
-  @NonNull private final String name;
-  @NonNull private final Integer version;
+  private final String name;
+  private final Integer version;
 
-  public static AnalysisTypeId createAnalysisTypeId(String name, int version) {
-    return new AnalysisTypeId(name, version);
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
+
+  public Optional<Integer> getVersion() {
+    return Optional.ofNullable(version);
   }
 }

@@ -33,5 +33,5 @@ public class UploadData {
   private String submittedAnalysisId;
   private String uploadState;
   private List<String> uploadErrors;
-  private long fileSize = -1;
+  @Builder.Default private long fileSize = -1;
 }
