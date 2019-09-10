@@ -17,9 +17,9 @@
 
 package bio.overture.song.server.model.enums;
 
-import static lombok.AccessLevel.PRIVATE;
-
 import lombok.NoArgsConstructor;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
 public class ModelAttributeNames {
@@ -55,7 +55,6 @@ public class ModelAttributeNames {
   public static final String ANALYSIS_TYPE = "analysisType";
   public static final String ANALYSIS_SCHEMA = "analysisSchema";
   public static final String ANALYSIS_DATA = "analysisData";
-  public static final String ANALYSIS_TYPE_ID = "analysisTypeId";
   public static final String ANALYSIS_STATE = "analysisState";
   public static final String SORT = "sort";
   public static final String SORTORDER = "sortOrder";

@@ -16,17 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
-import static net.javacrumbs.jsonunit.JsonAssert.when;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
@@ -36,6 +25,11 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -44,10 +38,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.Test;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 
 @Slf4j
 public class SerializationTest {
@@ -267,7 +268,7 @@ public class SerializationTest {
     val payload = JsonUtils.fromJson(json, Payload.class);
 
     System.out.printf("*** Payload object='%s'\n", payload);
-    assertEquals(payload.getAnalysisType().getName(), "variantCall");
+    assertEquals(payload.getAnalysisType().getName(), "sequencingRead");
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFile().size(), 2);
     assertEquals(
