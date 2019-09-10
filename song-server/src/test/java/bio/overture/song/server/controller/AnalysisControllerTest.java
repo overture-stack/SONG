@@ -186,7 +186,7 @@ public class AnalysisControllerTest {
     assertJsonEquals(
         RESOURCE_FETCHER.readJsonNode("variantcall2-valid-update-request.json"),
         RESOURCE_FETCHER.readJsonNode("variantcall3-valid-update-request.json"),
-        when(IGNORING_ARRAY_ORDER).whenIgnoringPaths("analysisTypeId"));
+        when(IGNORING_ARRAY_ORDER).whenIgnoringPaths("analysisType"));
 
     // update the data for variantCall:3 (this update is almost the same as the previous)
     updateAnalysisWithFixture(
@@ -220,8 +220,8 @@ public class AnalysisControllerTest {
   }
 
   @Test
-  public void updateAnalysis_missingAnalysisTypeId_MalformedRequest() {
-    // Assert that when an updateAnalysis request is made with a missing analysisTypeId field, a
+  public void updateAnalysis_missingAnalysisType_MalformedRequest() {
+    // Assert that when an updateAnalysis request is made with a missing analysisType field, a
     // MALFORMED_PARAMETER error occurs
     assertUpdateAnalysisError(
         studyId,

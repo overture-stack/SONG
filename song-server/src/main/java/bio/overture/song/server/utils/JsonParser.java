@@ -1,6 +1,6 @@
 package bio.overture.song.server.utils;
 
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static lombok.AccessLevel.PRIVATE;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,7 +17,7 @@ public class JsonParser {
     return Optional.empty();
   }
 
-  public static Optional<String> extractAnalysisTypeIdFromPayload(JsonNode payload) {
-    return extractNode(payload, ANALYSIS_TYPE_ID).map(JsonNode::asText);
+  public static Optional<JsonNode> extractAnalysisTypeFromPayload(JsonNode payload) {
+    return extractNode(payload, ANALYSIS_TYPE);
   }
 }

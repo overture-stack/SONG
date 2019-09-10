@@ -86,7 +86,7 @@ public class Analysis {
   @Transient private List<FileEntity> file;
 
   // TODO: need to remove this, and replace anything that needs this with Payload object
-  public String getAnalysisTypeId() {
+  public AnalysisTypeId getAnalysisType() {
     return resolveAnalysisTypeId(analysisSchema);
   }
 

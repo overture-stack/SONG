@@ -12,8 +12,7 @@ import static bio.overture.song.core.utils.RandomGenerator.randomList;
 import static bio.overture.song.core.utils.RandomGenerator.randomStream;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.service.AnalysisTypeService.buildAnalysisType;
-import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+import static bio.overture.song.server.model.dto.AnalysisType.createAnalysisType;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 import static com.google.common.collect.Lists.newArrayList;
@@ -34,6 +33,7 @@ import static org.junit.Assert.assertTrue;
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
@@ -186,13 +186,8 @@ public class AnalysisTypeControllerTest {
         analysisTypeService.resolveSchemaJsonView(createSchema2, false, false);
 
     // Build the expected AnalysisType using the AnalysisTypeService and also verify proper format
-    val expectedAnalysisType1 = buildAnalysisType(nonExistingName1, 1, expectedCreateSchema1);
-    assertEquals(resolveAnalysisTypeId(nonExistingName1, 1), nonExistingName1 + ":1");
-    assertEquals(expectedAnalysisType1.getId(), resolveAnalysisTypeId(nonExistingName1, 1));
-
-    val expectedAnalysisType2 = buildAnalysisType(nonExistingName2, 1, expectedCreateSchema2);
-    assertEquals(resolveAnalysisTypeId(nonExistingName2, 1), nonExistingName2 + ":1");
-    assertEquals(expectedAnalysisType2.getId(), resolveAnalysisTypeId(nonExistingName2, 1));
+    val expectedAnalysisType1 = createAnalysisType(nonExistingName1, 1, expectedCreateSchema1);
+    val expectedAnalysisType2 = createAnalysisType(nonExistingName2, 1, expectedCreateSchema2);
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -209,7 +204,8 @@ public class AnalysisTypeControllerTest {
         RegisterAnalysisTypeRequest.builder().name(nonExistingName1).schema(updateSchema1).build();
     val expectedUpdateSchema1 =
         analysisTypeService.resolveSchemaJsonView(updateSchema1, false, false);
-    val expectedAnalysisTypeUpdate1 = buildAnalysisType(nonExistingName1, 2, expectedUpdateSchema1);
+    val expectedAnalysisTypeUpdate1 =
+        createAnalysisType(nonExistingName1, 2, expectedUpdateSchema1);
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -221,7 +217,8 @@ public class AnalysisTypeControllerTest {
         RegisterAnalysisTypeRequest.builder().name(nonExistingName2).schema(updateSchema2).build();
     val expectedUpdateSchema2 =
         analysisTypeService.resolveSchemaJsonView(updateSchema2, false, false);
-    val expectedAnalysisTypeUpdate2 = buildAnalysisType(nonExistingName2, 2, expectedUpdateSchema2);
+    val expectedAnalysisTypeUpdate2 =
+        createAnalysisType(nonExistingName2, 2, expectedUpdateSchema2);
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -256,15 +253,10 @@ public class AnalysisTypeControllerTest {
     val data = generateData(10);
     val expectedAnalysisType = randomGenerator.randomElement(data);
 
-    // Get the analysisTypeId using the service and assert it has the correct format
-    val requestAnalysisTypeId = resolveAnalysisTypeId(expectedAnalysisType);
-    assertEquals(
-        requestAnalysisTypeId,
-        expectedAnalysisType.getName() + ":" + expectedAnalysisType.getVersion());
-
     // Assert the actual retrieved resource matches the expected
     endpointTester
-        .getAnalysisTypeVersionGetRequestAnd(requestAnalysisTypeId)
+        .getAnalysisTypeVersionGetRequestAnd(
+            expectedAnalysisType.getName(), expectedAnalysisType.getVersion(), false)
         .assertOneEntityEquals(expectedAnalysisType);
   }
 
@@ -273,16 +265,14 @@ public class AnalysisTypeControllerTest {
   public void getAnalysisTypeByVersion_malformedId_malformedParameter() {
     val malformedIds =
         newHashSet(
-            "som3th!ng$:4",
-            "something-4",
-            "something:bad",
-            "something:-7",
-            "something:1.0",
-            "something4");
+            AnalysisTypeId.builder().name("som3th!ng$").version(4).build(),
+            AnalysisTypeId.builder().name("something").version(-7).build(),
+            AnalysisTypeId.builder().name("something").version(0).build());
     malformedIds.forEach(
         analysisTypeId ->
             endpointTester
-                .getAnalysisTypeVersionGetRequestAnd(analysisTypeId)
+                .getAnalysisTypeVersionGetRequestAnd(
+                    analysisTypeId.getName(), analysisTypeId.getVersion(), false)
                 .assertServerError(MALFORMED_PARAMETER));
   }
 
@@ -293,9 +283,8 @@ public class AnalysisTypeControllerTest {
   @Test
   public void getAnalysisTypeByVersion_nonExistingName_notFound() {
     val nonExistingName = generateUniqueName();
-    val analysisTypeId = resolveAnalysisTypeId(nonExistingName, 1);
     endpointTester
-        .getAnalysisTypeVersionGetRequestAnd(analysisTypeId)
+        .getAnalysisTypeVersionGetRequestAnd(nonExistingName, 1, false)
         .assertServerError(ANALYSIS_TYPE_NOT_FOUND);
   }
 
@@ -308,9 +297,9 @@ public class AnalysisTypeControllerTest {
   public void getAnalysisTypeByVersion_nonExistingVersion_notFound() {
     val existingAnalysisType = generateData(1).get(0);
     val nonExistingVersion = existingAnalysisType.getVersion() + 1;
-    val analysisTypeId = resolveAnalysisTypeId(existingAnalysisType.getName(), nonExistingVersion);
     endpointTester
-        .getAnalysisTypeVersionGetRequestAnd(analysisTypeId)
+        .getAnalysisTypeVersionGetRequestAnd(
+            existingAnalysisType.getName(), nonExistingVersion, false)
         .assertServerError(ANALYSIS_TYPE_NOT_FOUND);
   }
 
@@ -366,7 +355,6 @@ public class AnalysisTypeControllerTest {
     val at2 = actualAnalysisTypes2.get(0);
     assertNull(at2.getSchema());
     assertEquals(at2.getName(), expectedAnalysisType.getName());
-    assertEquals(at2.getId(), expectedAnalysisType.getId());
     assertEquals(at2.getVersion(), expectedAnalysisType.getVersion());
   }
 

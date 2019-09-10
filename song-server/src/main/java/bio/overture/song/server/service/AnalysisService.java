@@ -34,11 +34,13 @@ import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
@@ -57,6 +59,7 @@ import bio.overture.song.server.model.SampleSetPK;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.entity.FileEntity;
@@ -147,7 +150,9 @@ public class AnalysisService {
             + "delete the analysis for analysisId '%s' and re-save",
         id);
 
-    val analysisSchema = analysisTypeService.getAnalysisSchema(payload.getAnalysisTypeId());
+    val analysisSchema =
+        analysisTypeService.getAnalysisSchema(
+            payload.getAnalysisType().getName(), payload.getAnalysisType().getVersion());
 
     val analysisData = AnalysisData.builder().data(toJsonNode(payload.getData())).build();
     analysisDataRepository.save(analysisData);
@@ -193,15 +198,15 @@ public class AnalysisService {
     // Validate prerequisites
     checkAnalysisAndStudyRelated(studyId, analysisId);
     checkServer(
-        updateAnalysisRequest.hasNonNull(ANALYSIS_TYPE_ID),
+        updateAnalysisRequest.hasNonNull(ANALYSIS_TYPE),
         AnalysisService.class,
         MALFORMED_PARAMETER,
         "The updateAnalysisRequest does not contain the string field '%s'",
         ANALYSIS_TYPE_ID);
 
     // Extract the schema to validated against
-    val analysisTypeIdAsString = updateAnalysisRequest.path(ANALYSIS_TYPE_ID).textValue();
-    val newAnalysisSchema = analysisTypeService.getAnalysisSchema(analysisTypeIdAsString);
+    val analysisTypeId = fromJson(updateAnalysisRequest.path(ANALYSIS_TYPE), AnalysisTypeId.class);
+    val newAnalysisSchema = analysisTypeService.getAnalysisSchema(analysisTypeId);
 
     // Validate the updateAnalysisRequest against the scheme
     validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
@@ -209,7 +214,7 @@ public class AnalysisService {
     // Now that the request is validated, fetch the old analysis
     val oldAnalysis = get(analysisId, true, true);
 
-    // Update the association between the old schema and new schema entites for the requested
+    // Update the association between the old schema and new schema entities for the requested
     // analysis
     val oldAnalysisSchema = oldAnalysis.getAnalysisSchema();
     oldAnalysisSchema.disassociateAnalysis(oldAnalysis);
