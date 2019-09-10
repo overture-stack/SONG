@@ -1,6 +1,9 @@
 {
   "study" : "ABC123",
-  "analysisTypeId" : "variantCall:1",
+  "analysisType" : {
+    "name" : "variantCall",
+    "version" : 1
+  },
   "experiment": {
     "variantCallingTool": "silver bullet",
     "matchedNormalSampleSubmitterId": "sample x24-11a",

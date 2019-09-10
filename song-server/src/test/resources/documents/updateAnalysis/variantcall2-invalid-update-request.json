@@ -1,5 +1,8 @@
 {
-  "analysisTypeId" : "variantCall:2",
+  "analysisType" : {
+    "name" : "variantCall",
+    "version" : 2
+  },
   "experiment": {
     "variantCallingTool": "silver bullet",
     "matchedNormalSampleSubmitterId": "sample x24-11a"

@@ -1,5 +1,8 @@
 {
-  "analysisTypeId" : "sequencingRead:1",
+  "analysisType" : {
+    "name" : "sequencingRead",
+    "version" : 1
+  },
   "experiment": {
     "libraryStrategy": "WXS",
     "pairedEnd": false,
