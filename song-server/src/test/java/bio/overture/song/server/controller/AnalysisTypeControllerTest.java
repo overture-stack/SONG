@@ -288,7 +288,6 @@ public class AnalysisTypeControllerTest {
   public void getAnalysisTypeByVersion_malformedId_malformedParameter() {
     val malformedIds =
         newHashSet(
-            AnalysisTypeId.builder().version(4).build(),
             AnalysisTypeId.builder().name("som3th!ng$").version(4).build(),
             AnalysisTypeId.builder().name("something").version(-7).build(),
             AnalysisTypeId.builder().name("something").version(0).build());
