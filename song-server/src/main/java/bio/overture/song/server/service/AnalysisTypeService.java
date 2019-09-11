@@ -42,7 +42,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.server.model.dto.AnalysisType.createAnalysisType;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
 import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
@@ -82,7 +81,11 @@ public class AnalysisTypeService {
     val analysisSchema = getAnalysisSchema(name, resolvedVersion);
     val resolvedSchemaJson =
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
-    return createAnalysisType(name, resolvedVersion, resolvedSchemaJson);
+    return AnalysisType.builder()
+        .name(name)
+        .version(resolvedVersion)
+        .schema(resolvedSchemaJson)
+        .build();
   }
 
   @SneakyThrows
@@ -130,8 +133,11 @@ public class AnalysisTypeService {
     val analysisSchema = getAnalysisSchema(analysisTypeId);
     val resolvedSchemaJson =
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
-    return createAnalysisType(
-        analysisTypeId.getName(), analysisTypeId.getVersion(), resolvedSchemaJson);
+    return AnalysisType.builder()
+        .name(analysisTypeId.getName())
+        .version(analysisTypeId.getVersion())
+        .schema(resolvedSchemaJson)
+        .build();
   }
 
   @Transactional
@@ -209,7 +215,11 @@ public class AnalysisTypeService {
     analysisSchema.setVersion(version);
     log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, version);
     val resolvedSchemaJson = resolveSchemaJsonView(analysisSchema.getSchema(), false, false);
-    return createAnalysisType(analysisTypeName, version, resolvedSchemaJson);
+    return AnalysisType.builder()
+        .name(analysisTypeName)
+        .version(version)
+        .schema(resolvedSchemaJson)
+        .build();
   }
 
   public static AnalysisTypeId resolveAnalysisTypeId(
@@ -227,10 +237,11 @@ public class AnalysisTypeService {
 
   private AnalysisType convertToAnalysisType(
       AnalysisSchema analysisSchema, boolean hideSchema, boolean unrenderedOnly) {
-    return createAnalysisType(
-        analysisSchema.getName(),
-        analysisSchema.getVersion(),
-        resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema));
+    return AnalysisType.builder()
+        .name(analysisSchema.getName())
+        .version(analysisSchema.getVersion())
+        .schema(resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema))
+        .build();
   }
 
   private static void validateAnalysisTypeName(@NonNull String analysisTypeName) {

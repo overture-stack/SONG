@@ -62,7 +62,6 @@ import static bio.overture.song.core.utils.RandomGenerator.randomList;
 import static bio.overture.song.core.utils.RandomGenerator.randomStream;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.model.dto.AnalysisType.createAnalysisType;
 import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 
@@ -187,8 +186,8 @@ public class AnalysisTypeControllerTest {
         analysisTypeService.resolveSchemaJsonView(createSchema2, false, false);
 
     // Build the expected AnalysisType using the AnalysisTypeService and also verify proper format
-    val expectedAnalysisType1 = createAnalysisType(nonExistingName1, 1, expectedCreateSchema1);
-    val expectedAnalysisType2 = createAnalysisType(nonExistingName2, 1, expectedCreateSchema2);
+    val expectedAnalysisType1 = AnalysisType.builder().name(nonExistingName1).version(1).schema(expectedCreateSchema1).build();
+    val expectedAnalysisType2 = AnalysisType.builder().name(nonExistingName2).version(1).schema(expectedCreateSchema2).build();
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -205,8 +204,11 @@ public class AnalysisTypeControllerTest {
         RegisterAnalysisTypeRequest.builder().name(nonExistingName1).schema(updateSchema1).build();
     val expectedUpdateSchema1 =
         analysisTypeService.resolveSchemaJsonView(updateSchema1, false, false);
-    val expectedAnalysisTypeUpdate1 =
-        createAnalysisType(nonExistingName1, 2, expectedUpdateSchema1);
+    val expectedAnalysisTypeUpdate1 = AnalysisType.builder()
+        .name(nonExistingName1)
+        .version(2)
+        .schema(expectedUpdateSchema1)
+        .build();
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -219,7 +221,11 @@ public class AnalysisTypeControllerTest {
     val expectedUpdateSchema2 =
         analysisTypeService.resolveSchemaJsonView(updateSchema2, false, false);
     val expectedAnalysisTypeUpdate2 =
-        createAnalysisType(nonExistingName2, 2, expectedUpdateSchema2);
+        AnalysisType.builder()
+        .name(nonExistingName2)
+        .version(2)
+        .schema(expectedUpdateSchema2)
+        .build();
 
     // Assert the schema and name were properly registered
     endpointTester
