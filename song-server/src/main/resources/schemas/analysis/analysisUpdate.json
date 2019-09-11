@@ -3,16 +3,28 @@
   "$id": "analysis-update",
   "title": "Base schema for validating analysis update requests",
   "type" : "object",
-  "required": ["analysisTypeId"],
+  "required": ["analysisType"],
   "properties": {
-    "analysisTypeId": {
-      "type" : "string"
+    "analysisType": {
+      "type" : "object",
+      "required": ["name", "version"],
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "version" : {
+          "type" : "integer"
+        }
+      }
     },
     "study": {
       "not": {}
     },
-    "analysisType": {
+    "analysisTypeId": {
       "not": {}
+    },
+    "analysisState" : {
+      "not" : {}
     },
     "sample": {
       "not": {}

@@ -14,7 +14,10 @@
     "analysisId": "an1",
     "study": "Study1",
     "analysisState": "UNPUBLISHED",
-    "analysisTypeId" : "sequencingRead:1",
+    "analysisType" : {
+      "name" : "sequencingRead",
+      "version" : 1
+    },
     "sample": [
         {
             "sampleId": "sa1",

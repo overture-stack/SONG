@@ -31,6 +31,7 @@ import lombok.val;
 import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
+import org.springframework.lang.Nullable;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collection;
@@ -49,6 +50,7 @@ public class EndpointTester {
   private static final String SCHEMAS = "schemas";
   private static final String NAMES = "names";
   private static final String VERSIONS = "versions";
+  private static final String VERSION = "version";
   private static final String META = "meta";
   private static final String HIDE_SCHEMA = "hideSchema";
 
@@ -114,44 +116,60 @@ public class EndpointTester {
         .getAnd();
   }
 
+  // GET /upload/{studyId}/status/{uploadId}
+  public ResponseOption getUploadStatusGetRequestAnd(String studyId, String uploadId){
+    return initWebRequest()
+        .endpoint("upload/%s/status/%s", studyId, uploadId)
+        .getAnd();
+  }
+
+  public ResponseOption syncUploadPostRequestAnd(String studyId, JsonNode payload){
+    return initWebRequest()
+        .endpoint("upload/%s", studyId)
+        .body(payload)
+        .postAnd();
+  }
+
   // POST /schemas
   public ResponseOption registerAnalysisTypePostRequestAnd(
       @NonNull RegisterAnalysisTypeRequest request) {
     return initWebRequest().endpoint(SCHEMAS).body(request).postAnd();
   }
 
-  public ResponseOption exportAnalysisGetRequestAnd(Boolean includeAnalysisId, String ... analysisIds){
+  public ResponseOption exportAnalysisGetRequestAnd(
+      Boolean includeAnalysisId, String... analysisIds) {
     return initWebRequest()
-        .endpoint("export/analysis/%s", Joiners.COMMA.join( analysisIds))
+        .endpoint("export/analysis/%s", Joiners.COMMA.join(analysisIds))
         .optionalQuerySingleParam("includeAnalysisId", includeAnalysisId)
         .getAnd();
   }
 
-  public ResponseOption getAnalysisGetRequestAnd(@NonNull String studyId, @NonNull String analysisId){
-    return initWebRequest()
-        .endpoint("studies/%s/analysis/%s", studyId, analysisId)
-        .getAnd();
+  public ResponseOption getAnalysisGetRequestAnd(
+      @NonNull String studyId, @NonNull String analysisId) {
+    return initWebRequest().endpoint("studies/%s/analysis/%s", studyId, analysisId).getAnd();
   }
 
-  public ResponseOption updateAnalysisPutRequestAnd(@NonNull String studyId,
+  public ResponseOption updateAnalysisPutRequestAnd(
+      @NonNull String studyId,
       @NonNull String analysisId,
-      @NonNull JsonNode updateAnalysisRequest){
+      @NonNull JsonNode updateAnalysisRequest) {
     return initWebRequest()
         .endpoint("studies/%s/analysis/%s", studyId, analysisId)
         .body(updateAnalysisRequest)
         .putAnd();
   }
 
-  // GET /schemas/<name>:<version>
-  public ResponseOption getAnalysisTypeVersionGetRequestAnd(@NonNull String analysisTypeIdString) {
-    return getAnalysisTypeVersionGetRequestAnd(analysisTypeIdString, false);
+  // GET /schemas/<name>
+  public ResponseOption getLatestAnalysisTypeGetRequestAnd(@NonNull String analysisTypeName) {
+    return getAnalysisTypeVersionGetRequestAnd(analysisTypeName, null, false);
   }
 
-  // GET /schemas/<name>:<version>?unrenderedOnly=?
+  // GET /schemas/<name>?version=<integer>&unrenderedOnly=<boolean>
   public ResponseOption getAnalysisTypeVersionGetRequestAnd(
-      @NonNull String analysisTypeIdString, boolean unrenderedOnly) {
+      @NonNull String analysisTypeName, @Nullable Integer version, boolean unrenderedOnly) {
     return initWebRequest()
-        .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString))
+        .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeName))
+        .optionalQuerySingleParam(VERSION, version)
         .optionalQuerySingleParam(UNRENDERED_ONLY, unrenderedOnly)
         .getAnd();
   }

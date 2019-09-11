@@ -94,7 +94,7 @@ public interface PayloadConverter {
     val payload =
         Payload.builder()
             .analysisId(includeAnalysisIds ? a.getAnalysisId() : null)
-            .analysisTypeId(resolveAnalysisTypeId(a.getAnalysisSchema()))
+            .analysisType(resolveAnalysisTypeId(a.getAnalysisSchema()))
             .study(a.getStudy())
             .sample(convertToSamplePayloads(a.getSample()))
             .file(convertToFilePayloads(a.getFile()))

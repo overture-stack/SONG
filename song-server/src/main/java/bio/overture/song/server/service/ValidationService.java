@@ -16,24 +16,15 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
-import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
-import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromPayload;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
 import bio.overture.song.server.validation.ValidationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -41,6 +32,17 @@ import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 @Service
@@ -77,16 +79,17 @@ public class ValidationService {
   public Optional<String> validate(@NonNull JsonNode payload) {
     String errors = null;
     try {
-      val analysisTypeIdResult = extractAnalysisTypeIdFromPayload(payload);
-      if (!analysisTypeIdResult.isPresent()) {
-        errors = format("Missing the '%s' field", ANALYSIS_TYPE_ID);
+      val analysisTypeResult = extractAnalysisTypeFromPayload(payload);
+      if (!analysisTypeResult.isPresent()) {
+        errors = format("Missing the '%s' field", ANALYSIS_TYPE);
       } else {
-        val analysisTypeId = parseAnalysisTypeId(analysisTypeIdResult.get());
+        val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
         val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
         log.info(
             format(
                 "Found Analysis type: name=%s  version=%s",
                 analysisType.getName(), analysisType.getVersion()));
+
         val schema = buildSchema(analysisType.getSchema());
         validateWithSchema(schema, payload);
       }

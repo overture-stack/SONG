@@ -1,5 +1,6 @@
 package bio.overture.song.server.model.dto;
 
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -22,7 +23,7 @@ public class Payload extends DynamicData {
 
   private String study;
   private String analysisId;
-  private String analysisTypeId;
+  private AnalysisTypeId analysisType;
   private List<CompositeEntity> sample;
   private List<FileEntity> file;
 }

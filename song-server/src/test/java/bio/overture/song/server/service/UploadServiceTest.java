@@ -435,7 +435,7 @@ public class UploadServiceTest {
 
     val incorrectPayloadNode = readTree(payload.getJsonPayload());
     ((ObjectNode) incorrectPayloadNode)
-        .remove("analysisTypeId"); // this would cause an incorrect payload
+        .remove("analysisType"); // this would cause an incorrect payload
     val incorrectPayload = incorrectPayloadNode.toString();
 
     val uploadResponse = uploadService.upload(DEFAULT_STUDY, incorrectPayload, false);
