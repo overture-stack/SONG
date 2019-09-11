@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.compile;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
@@ -56,9 +57,6 @@ public class AnalysisTypeService {
   private static final String ANALYSIS_TYPE_NAME_REGEX = "[a-zA-Z0-9\\._-]+";
   private static final Pattern ANALYSIS_TYPE_NAME_PATTERN =
       compile("^" + ANALYSIS_TYPE_NAME_REGEX + "$");
-  private static final Pattern ANALYSIS_TYPE_ID_PATTERN =
-      compile("^(" + ANALYSIS_TYPE_NAME_REGEX + "):(\\d+)$");
-  private static final String ANALYSIS_TYPE_ID_FORMAT = "%s:%s";
 
   private final Schema analysisTypeMetaSchema;
   private final AnalysisSchemaRepository analysisSchemaRepository;
@@ -95,8 +93,9 @@ public class AnalysisTypeService {
   }
 
   @SneakyThrows
-  public AnalysisSchema getAnalysisSchema(@NonNull String name, @NonNull Integer version) {
-
+  public AnalysisSchema getAnalysisSchema(String name, Integer version) {
+    checkServer(!isBlank(name), getClass(), MALFORMED_PARAMETER, "The name parameter is blank");
+    checkServer(!isNull(version), getClass(), MALFORMED_PARAMETER, "The version parameter is null");
     validateAnalysisTypeName(name);
     checkServer(
         version > 0,
@@ -135,20 +134,6 @@ public class AnalysisTypeService {
         analysisTypeId.getName(), analysisTypeId.getVersion(), resolvedSchemaJson);
   }
 
-  private JsonNode renderPayloadJsonSchema(JsonNode schema) throws IOException {
-    val rendered = (ObjectNode) readTree(analysisPayloadBaseContent);
-    val baseProperties = (ObjectNode) rendered.path(PROPERTIES);
-    val schemaProperties = (ObjectNode) schema.path(PROPERTIES);
-    if (schema.has(REQUIRED)) {
-      checkState(rendered.has(REQUIRED), "The base payload schema should have a required field");
-      val baseRequired = (ArrayNode) rendered.path(REQUIRED);
-      val schemaRequired = (ArrayNode) schema.path(REQUIRED);
-      baseRequired.addAll(schemaRequired);
-    }
-    baseProperties.setAll(schemaProperties);
-    return rendered;
-  }
-
   @Transactional
   public AnalysisType register(
       @NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
@@ -179,6 +164,20 @@ public class AnalysisTypeService {
     return hideSchema
         ? null
         : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
+  }
+
+  private JsonNode renderPayloadJsonSchema(JsonNode schema) throws IOException {
+    val rendered = (ObjectNode) readTree(analysisPayloadBaseContent);
+    val baseProperties = (ObjectNode) rendered.path(PROPERTIES);
+    val schemaProperties = (ObjectNode) schema.path(PROPERTIES);
+    if (schema.has(REQUIRED)) {
+      checkState(rendered.has(REQUIRED), "The base payload schema should have a required field");
+      val baseRequired = (ArrayNode) rendered.path(REQUIRED);
+      val schemaRequired = (ArrayNode) schema.path(REQUIRED);
+      baseRequired.addAll(schemaRequired);
+    }
+    baseProperties.setAll(schemaProperties);
+    return rendered;
   }
 
   private Integer getLatestVersionNumber(String name) {
