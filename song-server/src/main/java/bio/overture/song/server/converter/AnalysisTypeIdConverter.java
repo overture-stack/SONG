@@ -3,7 +3,6 @@ package bio.overture.song.server.converter;
 import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.entity.AnalysisSchema;
-import com.google.common.base.Joiner;
 import lombok.NonNull;
 import lombok.val;
 import org.mapstruct.Mapper;
@@ -16,7 +15,6 @@ import static bio.overture.song.core.exceptions.ServerException.buildServerExcep
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.server.config.ConverterConfig.ANALYSIS_TYPE_ID_PATTERN;
 import static bio.overture.song.server.config.ConverterConfig.ANALYSIS_TYPE_ID_STRING_FORMAT;
-import static bio.overture.song.server.config.ConverterConfig.ANALYSIS_TYPE_NAME_PATTERN;
 
 /**
  * Responsible for converting TO and FROM objects of type AnalysisTypeId
@@ -48,21 +46,12 @@ public abstract class AnalysisTypeIdConverter {
         MALFORMED_PARAMETER,
         "The analysisTypeId must not be blank");
     val matcher = ANALYSIS_TYPE_ID_PATTERN.matcher(s);
-    if (matcher.matches()) {
-      val name = matcher.group(1);
-      val version = parseInt(matcher.group(2));
-      return AnalysisTypeId.builder().name(name).version(version).build();
-    } else if (ANALYSIS_TYPE_NAME_PATTERN.matcher(s).matches()) {
-      return AnalysisTypeId.builder().name(s).build();
-    } else {
-      throw buildServerException(
-          AnalysisTypeIdConverter.class,
-          MALFORMED_PARAMETER,
-          "The analysisTypeId '%s' does not match any of the supported formats: ['%s']",
-          s,
-          Joiner.on("' , '")
-              .join(ANALYSIS_TYPE_ID_PATTERN.pattern(), ANALYSIS_TYPE_NAME_PATTERN.pattern()));
-    }
+    checkServer(matcher.matches(), AnalysisTypeIdConverter.class, MALFORMED_PARAMETER,
+        "The analysisTypeId '%s' does not match required regex: '%s'",
+        s, ANALYSIS_TYPE_ID_PATTERN.pattern());
+    val name = matcher.group(1);
+    val version = parseInt(matcher.group(2));
+    return AnalysisTypeId.builder().name(name).version(version).build();
   }
 
   private static String resolveStringFormat(@NonNull String name, @NonNull Integer version) {

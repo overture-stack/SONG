@@ -66,4 +66,12 @@ public class AnalysisTypeIdConverterTest {
     val actual = CONVERTER.convertFromString(input);
     assertEquals(actual, expected);
   }
+
+  // checkName name missing error
+  // convertToAnalysisTypeId analysisTypeID missing version error
+  // convertToAnalysisTypeId analysisTypeID missing name error
+  // convertFromString null or empty error
+  // convertFromString name only error
+  // convertFromString name only error
+
 }
