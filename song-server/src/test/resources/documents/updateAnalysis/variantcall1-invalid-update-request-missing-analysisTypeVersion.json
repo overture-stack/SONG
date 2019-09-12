@@ -1,10 +1,9 @@
 {
   "analysisType" : {
-    "name" : "variantCall",
-    "version" : 2
+    "name" : "variantCall"
   },
   "experiment": {
-    "variantCallingTool": "silver bullet",
+    "variantCallingTool": "silver bullet 1",
     "matchedNormalSampleSubmitterId": "sample x24-11a"
   },
   "info": {

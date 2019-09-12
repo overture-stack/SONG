@@ -86,4 +86,17 @@ public interface PayloadConverter {
   List<CompositeEntity> convertToSamplePayloads(Collection<CompositeEntity> samples);
 
   List<FileEntity> convertToFilePayloads(Collection<FileEntity> files);
+
+  default Payload convertToPayload(Analysis a, boolean includeAnalysisIds) {
+    val payload =
+        Payload.builder()
+            .analysisId(includeAnalysisIds ? a.getAnalysisId() : null)
+            .analysisType(resolveAnalysisTypeId(a.getAnalysisSchema()))
+            .study(a.getStudy())
+            .sample(convertToSamplePayloads(a.getSample()))
+            .file(convertToFilePayloads(a.getFile()))
+            .build();
+    payload.addData(a.getAnalysisData().getData());
+    return payload;
+  }
 }

@@ -89,10 +89,9 @@ public class Analysis {
 
   @Transient private List<FileEntity> file;
 
-  // TODO: need to remove this, and replace anything that needs this with Payload object or some
-  // other DTO
-  public String getAnalysisTypeId() {
-    return ANALYSIS_TYPE_ID_CONVERTER_INSTANCE.convertToString(analysisSchema);
+  // TODO: need to remove this, and replace anything that needs this with Payload object
+  public AnalysisTypeId getAnalysisType() {
+    return resolveAnalysisTypeId(analysisSchema);
   }
 
   @SneakyThrows

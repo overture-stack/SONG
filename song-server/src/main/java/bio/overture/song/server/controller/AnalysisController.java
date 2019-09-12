@@ -18,6 +18,7 @@ package bio.overture.song.server.controller;
 
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static org.icgc.dcc.common.core.util.Splitters.COMMA;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -87,6 +89,7 @@ public class AnalysisController {
       value = "/{analysisId}",
       consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   public void updateAnalysis(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("analysisId") String analysisId,
       @RequestBody JsonNode updateAnalysisRequest) {
@@ -102,6 +105,7 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> publishAnalysis(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
       @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
@@ -117,7 +121,9 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> unpublishAnalysis(
-      @PathVariable("studyId") String studyId, @PathVariable("id") String id) {
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @PathVariable("id") String id) {
     return analysisService.unpublish(studyId, id);
   }
 
@@ -130,7 +136,9 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public ResponseEntity<String> suppressAnalysis(
-      @PathVariable("studyId") String studyId, @PathVariable("id") String id) {
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @PathVariable("id") String id) {
     return analysisService.suppress(studyId, id);
   }
 

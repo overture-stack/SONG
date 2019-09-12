@@ -1,19 +1,21 @@
 package bio.overture.song.server.model.analysis;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_ABSENT;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import java.util.Optional;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
+@Data
 @Builder
-@JsonInclude(NON_ABSENT)
+@NoArgsConstructor
+@AllArgsConstructor
 public class AnalysisTypeId {
 
-  private final String name;
-  private final Integer version;
+  @NotNull private String name;
+
+  @NotNull @Positive private Integer version;
 
   public Optional<String> getName() {
     return Optional.ofNullable(name);

@@ -1,5 +1,8 @@
 {
-  "analysisTypeId" : "variantCall:2",
+  "analysisType" : {
+    "name" : "variantCall",
+    "version" : 2
+  },
   "colour" : "red",
   "experiment": {
     "variantCallingTool": "silver bullet 2",

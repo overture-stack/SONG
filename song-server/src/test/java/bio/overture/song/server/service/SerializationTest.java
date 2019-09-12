@@ -38,6 +38,11 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -46,10 +51,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.Test;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 
 @Slf4j
 public class SerializationTest {
@@ -151,7 +163,7 @@ public class SerializationTest {
     val expectedPayload =
         Payload.builder()
             .analysisId(inputJson.path("analysisId").textValue())
-            .analysisTypeId("sequencingRead:1")
+            .analysisType(AnalysisTypeId.builder().name("sequencingRead").version(1).build())
             .file(newArrayList(f1, f2))
             .sample(newArrayList(sa))
             .study(inputJson.path("study").textValue())
@@ -300,7 +312,8 @@ public class SerializationTest {
     val payload = JsonUtils.fromJson(json, Payload.class);
 
     System.out.printf("*** Payload object='%s'\n", payload);
-    assertEquals(payload.getAnalysisTypeId(), "sequencingRead:1");
+    assertEquals(payload.getAnalysisType().getName(), "sequencingRead");
+    assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFile().size(), 2);
     assertEquals(
         payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
@@ -317,7 +330,8 @@ public class SerializationTest {
     val json = readFile(FILEPATH + "variantCall.json");
     val payload = JsonUtils.fromJson(json, Payload.class);
     System.out.printf("*** Analysis object='%s'\n", payload);
-    assertEquals(payload.getAnalysisTypeId(), "variantCall:1");
+    assertEquals(payload.getAnalysisType().getName(), "variantCall");
+    assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFile().size(), 2);
     assertEquals(
         payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");

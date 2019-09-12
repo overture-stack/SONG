@@ -66,25 +66,29 @@ public class AnalysisTypeController {
     this.analysisTypeService = analysisTypeService;
   }
 
-  @GetMapping("/{analysisTypeId}")
+  @GetMapping("/{name}")
   @ApiOperation(
       value = "GetAnalysisTypeVersion",
-      notes = "Retrieves a specific version of a schema for an analysisType")
+      notes = "Retrieves the latest version of a schema for an analysisType")
   public AnalysisType getAnalysisTypeVersion(
-      @ApiParam(
-              value = "Compound analysisType id in the form {name}:{version}",
-              type = "string",
-              required = false)
-          @PathVariable(value = "analysisTypeId", required = true)
-          String analysisTypeIdString,
+      @ApiParam(value = "The name of an analysisType", type = "string", required = true)
+          @PathVariable(value = "name", required = true)
+          String name,
       @ApiParam(
               value = "Only retrieve the unrendered schema that was initially registered",
               type = "boolean",
               defaultValue = "false",
               required = false)
           @RequestParam(value = "unrenderedOnly", required = false, defaultValue = "false")
-          boolean unrenderedOnly) {
-    return analysisTypeService.getAnalysisType(analysisTypeIdString, unrenderedOnly);
+          boolean unrenderedOnly,
+      @ApiParam(
+              value = "Optionally, retrieve a specific version of the analysisType",
+              type = "integer",
+              defaultValue = "false",
+              required = false)
+          @RequestParam(value = "version", required = false)
+          Integer version) {
+    return analysisTypeService.getAnalysisType(name, version, unrenderedOnly);
   }
 
   @SneakyThrows

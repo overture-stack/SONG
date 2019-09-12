@@ -31,6 +31,9 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.isNull;
+import static java.util.regex.Pattern.compile;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
@@ -52,9 +55,12 @@ import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 @Service
 public class AnalysisTypeService {
 
+  private static final String ANALYSIS_TYPE_NAME_REGEX = "[a-zA-Z0-9\\._-]+";
+  private static final Pattern ANALYSIS_TYPE_NAME_PATTERN =
+      compile("^" + ANALYSIS_TYPE_NAME_REGEX + "$");
+
   /** Dependencies */
   private final Schema analysisTypeMetaSchema;
-
   private final AnalysisSchemaRepository analysisSchemaRepository;
   private final String analysisPayloadBaseContent;
   private final AnalysisTypeIdConverter analysisTypeIdConverter;
@@ -80,97 +86,37 @@ public class AnalysisTypeService {
     return analysisTypeMetaSchema;
   }
 
-  public AnalysisSchema getAnalysisSchema(String analysisTypeIdAsString) {
-    // Parse out the name and version
-    val analysisTypeId = analysisTypeIdConverter.convertFromString(analysisTypeIdAsString);
-    return getAnalysisSchema(analysisTypeId);
-  }
-
-  public AnalysisType getAnalysisType(String analysisTypeIdAsString, boolean unrenderedOnly) {
-    // Parse out the name and version
-    val analysisTypeId = analysisTypeIdConverter.convertFromString(analysisTypeIdAsString);
-    return getAnalysisType(analysisTypeId, unrenderedOnly);
-  }
-
-  @SneakyThrows
   public AnalysisType getAnalysisType(
-      @NonNull AnalysisTypeId analysisTypeId, boolean unrenderedOnly) {
-    val analysisSchema = getAnalysisSchema(analysisTypeId);
-    return buildAnalysisType(analysisTypeId, analysisSchema.getSchema(), false, unrenderedOnly);
-  }
-
-  @Transactional
-  public AnalysisType register(
-      @NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
-    validateAnalysisTypeName(analysisTypeName);
-    validateAnalysisTypeSchema(analysisTypeSchema);
-    return commitAnalysisType(analysisTypeName, analysisTypeSchema);
-  }
-
-  public Page<AnalysisType> listAnalysisTypes(
-      @Nullable Collection<String> names,
-      @Nullable Collection<Integer> versions,
-      @NonNull Pageable pageable,
-      boolean hideSchema,
-      boolean unrenderedOnly) {
-    validatePositiveVersionsIfDefined(versions);
-    val spec = buildListQuery(names, versions);
-    val page = analysisSchemaRepository.findAll(spec, pageable);
-    val analysisTypes =
-        page.getContent().stream()
-            .map(a -> buildAnalysisType(a, hideSchema, unrenderedOnly))
-            .collect(toImmutableList());
-    return new PageImpl<>(analysisTypes, pageable, page.getTotalElements());
-  }
-
-  @SneakyThrows
-  public JsonNode resolveSchemaJsonView(
-      @NonNull JsonNode unrenderedSchema, boolean unrenderedOnly, boolean hideSchema) {
-    return hideSchema
-        ? null
-        : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
-  }
-
-  //TODO: [rtisma] make this private
-  public AnalysisType buildAnalysisType(@NonNull AnalysisTypeId analysisTypeId, JsonNode schema, boolean hideSchema, boolean unrenderedOnly) {
+      @NonNull String name, @Nullable Integer version, boolean unrenderedOnly) {
+    val resolvedVersion = isNull(version) ? getLatestVersionNumber(name) : version;
+    val analysisSchema = getAnalysisSchema(name, resolvedVersion);
+    val resolvedSchemaJson =
+        resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
     return AnalysisType.builder()
-        .id(analysisTypeIdConverter.convertToString(analysisTypeId))
-        .name(analysisTypeId.getName().orElse(null))
-        .version(analysisTypeId.getVersion().orElse(null))
-        .schema(resolveSchemaJsonView(schema, unrenderedOnly, hideSchema))
+        .name(name)
+        .version(resolvedVersion)
+        .schema(resolvedSchemaJson)
         .build();
   }
 
   @SneakyThrows
-  private AnalysisSchema getAnalysisSchema(@NonNull AnalysisTypeId analysisTypeId) {
-    val name =
-        analysisTypeId
-            .getName()
-            .orElseThrow(
-                () ->
-                    buildServerException(
-                        getClass(),
-                        MALFORMED_PARAMETER,
-                        "The analysisTypeId name must not be null"));
-    Integer version;
-    if (analysisTypeId.getVersion().isPresent()) {
-      version = analysisTypeId.getVersion().get();
-      checkServer(
-          version > 0,
-          getClass(),
-          MALFORMED_PARAMETER,
-          "The version '%s' must be greater than 0",
-          version);
-    } else if (useLatest) {
-      version = getLatestVersionNumber(name);
-    } else {
-      throw buildServerException(
-          getClass(),
-          MALFORMED_PARAMETER,
-          "Could not resolve the requested version for analysisType name '%s' since the version number is missing and useLatest=false",
-          name);
-    }
+  public AnalysisSchema getAnalysisSchema(@NonNull AnalysisTypeId analysisTypeId) {
+    val name = analysisTypeId.getName();
+    val version = analysisTypeId.getVersion();
+    return getAnalysisSchema(name, version);
+  }
 
+  @SneakyThrows
+  public AnalysisSchema getAnalysisSchema(String name, Integer version) {
+    checkServer(!isBlank(name), getClass(), MALFORMED_PARAMETER, "The name parameter is blank");
+    checkServer(!isNull(version), getClass(), MALFORMED_PARAMETER, "The version parameter is null");
+    validateAnalysisTypeName(name);
+    checkServer(
+        version > 0,
+        getClass(),
+        MALFORMED_PARAMETER,
+        "The version '%s' must be greater than 0",
+        version);
     val result = analysisSchemaRepository.findByNameAndVersion(name, version);
     if (!result.isPresent()) {
       val latestVersion = getLatestVersionNumber(name);
@@ -192,6 +138,50 @@ public class AnalysisTypeService {
     return result.get();
   }
 
+  @SneakyThrows
+  public AnalysisType getAnalysisType(
+      @NonNull AnalysisTypeId analysisTypeId, boolean unrenderedOnly) {
+    val analysisSchema = getAnalysisSchema(analysisTypeId);
+    val resolvedSchemaJson =
+        resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
+    return AnalysisType.builder()
+        .name(analysisTypeId.getName())
+        .version(analysisTypeId.getVersion())
+        .schema(resolvedSchemaJson)
+        .build();
+  }
+
+  @Transactional
+  public AnalysisType register(
+      @NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
+    validateAnalysisTypeName(analysisTypeName);
+    validateAnalysisTypeSchema(analysisTypeSchema);
+    return commitAnalysisType(analysisTypeName, analysisTypeSchema);
+  }
+
+  public Page<AnalysisType> listAnalysisTypes(
+      @Nullable Collection<String> names,
+      @Nullable Collection<Integer> versions,
+      @NonNull Pageable pageable,
+      boolean hideSchema,
+      boolean unrenderedOnly) {
+    validatePositiveVersionsIfDefined(versions);
+    val spec = buildListQuery(names, versions);
+    val page = analysisSchemaRepository.findAll(spec, pageable);
+    val analysisTypes =
+        page.getContent().stream()
+            .map(a -> convertToAnalysisType(a, hideSchema, unrenderedOnly))
+            .collect(toImmutableList());
+    return new PageImpl<>(analysisTypes, pageable, page.getTotalElements());
+  }
+
+  @SneakyThrows
+  public JsonNode resolveSchemaJsonView(
+      @NonNull JsonNode unrenderedSchema, boolean unrenderedOnly, boolean hideSchema) {
+    return hideSchema
+        ? null
+        : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
+  }
 
   private JsonNode renderPayloadJsonSchema(JsonNode schema) throws IOException {
     val rendered = (ObjectNode) readTree(analysisPayloadBaseContent);
@@ -235,14 +225,34 @@ public class AnalysisTypeService {
             analysisTypeName, analysisSchema.getId());
     analysisSchema.setVersion(version);
     log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, version);
-    val analysisTypeId = AnalysisTypeId.builder().name(analysisTypeName).version(version).build();
-    return buildAnalysisType(analysisTypeId, analysisSchema.getSchema(), false, false);
+    val resolvedSchemaJson = resolveSchemaJsonView(analysisSchema.getSchema(), false, false);
+    return AnalysisType.builder()
+        .name(analysisTypeName)
+        .version(version)
+        .schema(resolvedSchemaJson)
+        .build();
   }
 
-  private AnalysisType buildAnalysisType(
+  public static AnalysisTypeId resolveAnalysisTypeId(
+      @NonNull String name, @NonNull Integer version) {
+    return AnalysisTypeId.builder().name(name).version(version).build();
+  }
+
+  public static AnalysisTypeId resolveAnalysisTypeId(@NonNull AnalysisSchema analysisSchema) {
+    return resolveAnalysisTypeId(analysisSchema.getName(), analysisSchema.getVersion());
+  }
+
+  public static AnalysisTypeId resolveAnalysisTypeId(@NonNull AnalysisType analysisType) {
+    return resolveAnalysisTypeId(analysisType.getName(), analysisType.getVersion());
+  }
+
+  private AnalysisType convertToAnalysisType(
       AnalysisSchema analysisSchema, boolean hideSchema, boolean unrenderedOnly) {
-    val analysisTypeId = analysisTypeIdConverter.convertToAnalysisTypeId(analysisSchema);
-    return buildAnalysisType(analysisTypeId, analysisSchema.getSchema(), hideSchema, unrenderedOnly);
+    return AnalysisType.builder()
+        .name(analysisSchema.getName())
+        .version(analysisSchema.getVersion())
+        .schema(resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema))
+        .build();
   }
 
 
