@@ -17,16 +17,15 @@
 
 package bio.overture.song.server.config;
 
+import static java.util.regex.Pattern.compile;
+
+import java.util.regex.Pattern;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.MappingInheritanceStrategy;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
-
-import java.util.regex.Pattern;
-
-import static java.util.regex.Pattern.compile;
 
 @MapperConfig(
     componentModel = "spring",
@@ -44,5 +43,4 @@ public class ConverterConfig {
       compile("^" + ANALYSIS_TYPE_NAME_REGEX + "$");
   public static final Pattern ANALYSIS_TYPE_ID_PATTERN =
       compile("^(" + ANALYSIS_TYPE_NAME_REGEX + "):(\\d+)$");
-
 }

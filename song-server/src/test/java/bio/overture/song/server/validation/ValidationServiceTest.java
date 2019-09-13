@@ -90,10 +90,7 @@ public class ValidationServiceTest {
     ((ObjectNode) payload).put("analysisType", (String) null);
     val results = service.validate(payload);
     assertTrue(results.isPresent());
-    assertTrue(
-        results
-            .get()
-            .contains("Missing the 'analysisType' field"));
+    assertTrue(results.get().contains("Missing the 'analysisType' field"));
   }
 
   @Test
@@ -102,10 +99,7 @@ public class ValidationServiceTest {
     ((ObjectNode) payload).put("analysisType", (String) null);
     val results = service.validate(payload);
     assertTrue(results.isPresent());
-    assertTrue(
-        results
-            .get()
-            .contains("Missing the 'analysisType' field"));
+    assertTrue(results.get().contains("Missing the 'analysisType' field"));
   }
 
   @Test

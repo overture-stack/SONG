@@ -1,7 +1,6 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
-import bio.overture.song.server.converter.AnalysisTypeIdConverter;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.entity.AnalysisSchema;
@@ -29,6 +28,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.isNull;
@@ -61,25 +61,23 @@ public class AnalysisTypeService {
 
   /** Dependencies */
   private final Schema analysisTypeMetaSchema;
+
   private final AnalysisSchemaRepository analysisSchemaRepository;
   private final String analysisPayloadBaseContent;
-  private final AnalysisTypeIdConverter analysisTypeIdConverter;
 
   /** Configuration */
-  private final boolean useLatest;
+  private final boolean enforceLatest;
 
   @Autowired
   public AnalysisTypeService(
-      @NonNull AnalysisTypeIdConverter analysisTypeIdConverter,
-      @Value("${schemas.useLatest}") boolean useLatest,
+      @Value("${schemas.enforceLatest}") boolean enforceLatest,
       @NonNull Supplier<Schema> analysisTypeMetaSchemaSupplier,
       @Qualifier("analysisPayloadBaseJson") @NonNull String analysisPayloadBaseContent,
       @NonNull AnalysisSchemaRepository analysisSchemaRepository) {
     this.analysisTypeMetaSchema = analysisTypeMetaSchemaSupplier.get();
     this.analysisSchemaRepository = analysisSchemaRepository;
     this.analysisPayloadBaseContent = analysisPayloadBaseContent;
-    this.useLatest = useLatest;
-    this.analysisTypeIdConverter = analysisTypeIdConverter;
+    this.enforceLatest = enforceLatest;
   }
 
   public Schema getAnalysisTypeMetaSchema() {
@@ -109,15 +107,10 @@ public class AnalysisTypeService {
   @SneakyThrows
   public AnalysisSchema getAnalysisSchema(String name, Integer version) {
     checkServer(!isBlank(name), getClass(), MALFORMED_PARAMETER, "The name parameter is blank");
-    checkServer(!isNull(version), getClass(), MALFORMED_PARAMETER, "The version parameter is null");
     validateAnalysisTypeName(name);
-    checkServer(
-        version > 0,
-        getClass(),
-        MALFORMED_PARAMETER,
-        "The version '%s' must be greater than 0",
-        version);
-    val result = analysisSchemaRepository.findByNameAndVersion(name, version);
+
+    val resolvedVersion = resolveVersion(name, version);
+    val result = analysisSchemaRepository.findByNameAndVersion(name, resolvedVersion);
     if (!result.isPresent()) {
       val latestVersion = getLatestVersionNumber(name);
       checkServer(
@@ -183,6 +176,23 @@ public class AnalysisTypeService {
         : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
   }
 
+  public Integer getLatestVersionNumber(String name) {
+    return analysisSchemaRepository.countAllByName(name);
+  }
+
+  private int resolveVersion(@NonNull String name, Integer nullableVersion) {
+    if (isNull(nullableVersion)) {
+      return getLatestVersionNumber(name);
+    }
+    checkServer(
+        nullableVersion > 0,
+        getClass(),
+        MALFORMED_PARAMETER,
+        "The version '%s' must be greater than 0",
+        nullableVersion);
+    return nullableVersion;
+  }
+
   private JsonNode renderPayloadJsonSchema(JsonNode schema) throws IOException {
     val rendered = (ObjectNode) readTree(analysisPayloadBaseContent);
     val baseProperties = (ObjectNode) rendered.path(PROPERTIES);
@@ -195,10 +205,6 @@ public class AnalysisTypeService {
     }
     baseProperties.setAll(schemaProperties);
     return rendered;
-  }
-
-  private Integer getLatestVersionNumber(String name) {
-    return analysisSchemaRepository.countAllByName(name);
   }
 
   @SneakyThrows
@@ -254,7 +260,6 @@ public class AnalysisTypeService {
         .schema(resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema))
         .build();
   }
-
 
   private void validateAnalysisTypeName(@NonNull String analysisTypeName) {
     checkAnalysisTypeIdName(analysisTypeName);

@@ -222,23 +222,14 @@ public class AnalysisControllerTest {
 
   @Test
   public void updateAnalysis_missingAnalysisTypeVersion_MalformedRequest() {
-    // Assert that when an updateAnalysis request is made with a missing analysisType.version field, a
+    // Assert that when an updateAnalysis request is made with a missing analysisType.version field,
+    // a
     // MALFORMED_PARAMETER error occurs
     assertUpdateAnalysisError(
         studyId,
         variantAnalysis.getAnalysisId(),
         "variantcall1-invalid-update-request-missing-analysisTypeVersion.json",
         MALFORMED_PARAMETER);
-
-  @Test
-  public void updateAnalysis_schemaNotUpdatedAndDataUpdatedAndInvalid_SchemaViolation() {
-    // Assert that when the schema version is not changes, but the data is invalid, a
-    // SCHEMA_VIOLATION exception is thrown
-    assertUpdateAnalysisError(
-        studyId,
-        variantAnalysis.getAnalysisId(),
-        "variantcall1-invalid-update-request.json",
-        SCHEMA_VIOLATION);
   }
 
   @Test
@@ -248,9 +239,8 @@ public class AnalysisControllerTest {
     assertUpdateAnalysisError(
         studyId,
         variantAnalysis.getAnalysisId(),
-            "variantcall1-invalid-update-request-missing-analysisTypeName.json",
+        "variantcall1-invalid-update-request-missing-analysisTypeName.json",
         MALFORMED_PARAMETER);
-
   }
 
   @Test

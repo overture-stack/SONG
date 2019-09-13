@@ -17,9 +17,16 @@
 
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.groupingBy;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.converter.AnalysisTypeIdConverter;
 import bio.overture.song.server.converter.PayloadConverter;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
@@ -30,22 +37,14 @@ import bio.overture.song.server.model.entity.Specimen;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.groupingBy;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
 
 @Service
 public class ExportService {
@@ -58,16 +57,12 @@ public class ExportService {
   private final AnalysisService analysisService;
 
   private final PayloadConverter payloadConverter;
-  private final AnalysisTypeIdConverter analysisTypeIdConverter;
 
   @Autowired
   public ExportService(
-      @NonNull AnalysisTypeIdConverter analysisTypeIdConverter,
-      @NonNull AnalysisService analysisService,
-      @NonNull PayloadConverter payloadConverter) {
+      @NonNull AnalysisService analysisService, @NonNull PayloadConverter payloadConverter) {
     this.analysisService = analysisService;
     this.payloadConverter = payloadConverter;
-    this.analysisTypeIdConverter = analysisTypeIdConverter;
   }
 
   @SneakyThrows
@@ -94,7 +89,7 @@ public class ExportService {
     val payload =
         Payload.builder()
             .analysisId(includeAnalysisIds ? a.getAnalysisId() : null)
-            .analysisTypeId(analysisTypeIdConverter.convertToString(a.getAnalysisSchema()))
+            .analysisType(resolveAnalysisTypeId(a.getAnalysisSchema()))
             .study(a.getStudy())
             .sample(payloadConverter.convertToSamplePayloads(a.getSample()))
             .file(payloadConverter.convertToFilePayloads(a.getFile()))

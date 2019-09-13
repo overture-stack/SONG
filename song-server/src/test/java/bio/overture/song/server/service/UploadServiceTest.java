@@ -28,7 +28,12 @@ import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
 import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
 import static bio.overture.song.server.model.enums.UploadStates.resolveState;
 import static bio.overture.song.server.utils.TestAnalysis.extractBoolean;
@@ -44,6 +49,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.util.Arrays.stream;
+import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -53,13 +59,17 @@ import static org.springframework.http.HttpStatus.OK;
 
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.Upload;
+import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import javax.transaction.Transactional;
 import lombok.Builder;
@@ -69,11 +79,13 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.icgc.dcc.id.client.core.IdClient;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -87,6 +99,14 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 @Transactional
 public class UploadServiceTest {
 
+  private static final ResourceFetcher DOCUMENTS_FETCHER =
+      ResourceFetcher.builder().resourceType(TEST).dataDir(Paths.get("documents/")).build();
+
+  private static final ResourceFetcher LEGACY_SCHEMA_FETCHER =
+      ResourceFetcher.builder()
+          .resourceType(MAIN)
+          .dataDir(Paths.get("schemas/analysis/legacy/"))
+          .build();
   private static final String FILEPATH = "../src/test/resources/fixtures/";
   private static final String DEFAULT_STUDY = "ABC123";
   private static int ANALYSIS_ID_COUNT = 0;
@@ -108,9 +128,19 @@ public class UploadServiceTest {
   @Autowired StudyService studyService;
 
   @Autowired IdClient idClient;
+  @Autowired ValidationService validationService;
+  @Autowired UploadRepository uploadRepository;
+  @Autowired AnalysisTypeService analysisTypeService;
+
+  private AnalysisType latestAnalysisType;
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(UploadServiceTest.class.getSimpleName());
+
+  @Before
+  public void beforeTest() {
+    lazyInitNewAnalysisType();
+  }
 
   @Test
   public void testAsyncSequencingRead() {
@@ -261,80 +291,6 @@ public class UploadServiceTest {
     val upload = uploadService.securedRead(DEFAULT_STUDY, uploadId2);
     assertEquals(upload.getPayload(), json2);
     assertEquals(upload.getState(), "VALIDATED");
-
-    // test save
-    val response = uploadService.save(DEFAULT_STUDY, uploadId, false);
-    assertEquals(response.getStatusCode(), OK);
-  }
-
-  @SneakyThrows
-  private void testSequencingRead(final boolean isAsyncValidation) {
-    test("sequencingRead.json", isAsyncValidation);
-  }
-
-  @SneakyThrows
-  private void testVariantCall(final boolean isAsyncValidation) {
-    test("variantCall.json", isAsyncValidation);
-  }
-
-  @SneakyThrows
-  private String readFile(String name) {
-    return new String(Files.readAllBytes(new java.io.File(FILEPATH, name).toPath()));
-  }
-
-  private String read(String studyId, String uploadId) {
-    Upload status = uploadService.securedRead(studyId, uploadId);
-    return status.getState();
-  }
-
-  private String validate(String studyId, String uploadId) throws InterruptedException {
-    String state = read(studyId, uploadId);
-    // wait for the server to finish
-    while (state.equals("CREATED") || state.equals("UPDATED")) {
-      sleep(50);
-      state = read(studyId, uploadId);
-    }
-    return state;
-  }
-
-  @SneakyThrows
-  private String uploadFromFixtureDir(String study, String fileName, boolean isAsyncValidation) {
-    val json = readFile(fileName);
-    return upload(study, json, isAsyncValidation);
-  }
-
-  @SneakyThrows
-  private String uploadFromTestDir(String study, String fileName, boolean isAsyncValidation) {
-    val json = getJsonStringFromClasspath(fileName);
-    return upload(study, json, isAsyncValidation);
-  }
-
-  @SneakyThrows
-  private String upload(String study, String json, boolean isAsyncValidation) {
-    // test upload
-    val uploadStatus = uploadService.upload(study, json, isAsyncValidation);
-    assertEquals(uploadStatus.getStatusCode(), OK);
-    val uploadId = fromStatus(uploadStatus, "uploadId");
-    log.info(format("UploadId='%s'", uploadId));
-    assertTrue(uploadId.startsWith("UP"));
-
-    val initialState = read(study, uploadId);
-    if (isAsyncValidation) {
-      // test create for Asynchronous case
-      assertEquals(initialState, "CREATED");
-    } else {
-      assertEquals(initialState, "VALIDATED"); // Synchronous should always return VALIDATED
-    }
-
-    // test validation
-    val finalState = validate(study, uploadId);
-    assertEquals(finalState, "VALIDATED");
-    return uploadId;
-  }
-
-  @SneakyThrows
-  private void test(String fileName, boolean isAsyncValidation) {
-    val uploadId = uploadFromFixtureDir(DEFAULT_STUDY, fileName, isAsyncValidation);
 
     // test save
     val response = uploadService.save(DEFAULT_STUDY, uploadId, false);
@@ -536,6 +492,38 @@ public class UploadServiceTest {
         .forEach(x -> runPayloadStudyField(nonExistingStudyId, existingStudyId, x));
   }
 
+  private void lazyInitNewAnalysisType() {
+    if (isNull(latestAnalysisType)) {
+      val analysisTypeVersion1 =
+          analysisTypeService.register(
+              randomGenerator.generateRandomAsciiString(7),
+              LEGACY_SCHEMA_FETCHER.readJsonNode("variantCall.json"));
+      assertEquals(analysisTypeVersion1.getVersion().intValue(), 1);
+
+      val analysisTypeVersion2 =
+          analysisTypeService.register(
+              analysisTypeVersion1.getName(), analysisTypeVersion1.getSchema());
+
+      assertEquals(analysisTypeVersion2.getName(), analysisTypeVersion1.getName());
+      assertEquals(analysisTypeVersion2.getVersion().intValue(), 2);
+      latestAnalysisType = analysisTypeVersion2;
+    }
+  }
+
+  private JsonNode buildTestEnforcePayload(@Nullable Boolean isLatestVersion) {
+    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    val analysisTypeNode = (ObjectNode) j.path(ANALYSIS_TYPE);
+    analysisTypeNode.put(NAME, latestAnalysisType.getName());
+    if (isNull(isLatestVersion)) {
+      analysisTypeNode.remove(VERSION);
+    } else if (isLatestVersion) {
+      analysisTypeNode.put(VERSION, latestAnalysisType.getVersion());
+    } else {
+      analysisTypeNode.put(VERSION, latestAnalysisType.getVersion() - 1);
+    }
+    return null;
+  }
+
   @SneakyThrows
   private void runPayloadStudyField(
       String nonExistingStudyId,
@@ -602,6 +590,80 @@ public class UploadServiceTest {
     val analysisId = createUniqueAnalysisId();
     val jsonPayload = toJson(updateAnalysisId(json, analysisId));
     return InternalPayload.builder().analysisId(analysisId).jsonPayload(jsonPayload).build();
+  }
+
+  @SneakyThrows
+  private void testSequencingRead(final boolean isAsyncValidation) {
+    test("sequencingRead.json", isAsyncValidation);
+  }
+
+  @SneakyThrows
+  private void testVariantCall(final boolean isAsyncValidation) {
+    test("variantCall.json", isAsyncValidation);
+  }
+
+  @SneakyThrows
+  private String readFile(String name) {
+    return new String(Files.readAllBytes(new java.io.File(FILEPATH, name).toPath()));
+  }
+
+  private String read(String studyId, String uploadId) {
+    Upload status = uploadService.securedRead(studyId, uploadId);
+    return status.getState();
+  }
+
+  private String validate(String studyId, String uploadId) throws InterruptedException {
+    String state = read(studyId, uploadId);
+    // wait for the server to finish
+    while (state.equals("CREATED") || state.equals("UPDATED")) {
+      sleep(50);
+      state = read(studyId, uploadId);
+    }
+    return state;
+  }
+
+  @SneakyThrows
+  private String uploadFromFixtureDir(String study, String fileName, boolean isAsyncValidation) {
+    val json = readFile(fileName);
+    return upload(study, json, isAsyncValidation);
+  }
+
+  @SneakyThrows
+  private String uploadFromTestDir(String study, String fileName, boolean isAsyncValidation) {
+    val json = getJsonStringFromClasspath(fileName);
+    return upload(study, json, isAsyncValidation);
+  }
+
+  @SneakyThrows
+  private String upload(String study, String json, boolean isAsyncValidation) {
+    // test upload
+    val uploadStatus = uploadService.upload(study, json, isAsyncValidation);
+    assertEquals(uploadStatus.getStatusCode(), OK);
+    val uploadId = fromStatus(uploadStatus, "uploadId");
+    log.info(format("UploadId='%s'", uploadId));
+    assertTrue(uploadId.startsWith("UP"));
+
+    val initialState = read(study, uploadId);
+    if (isAsyncValidation) {
+      // test create for Asynchronous case
+      assertEquals(initialState, "CREATED");
+    } else {
+      assertEquals(initialState, "VALIDATED"); // Synchronous should always return VALIDATED
+    }
+
+    // test validation
+    val finalState = validate(study, uploadId);
+    assertEquals(finalState, "VALIDATED");
+    return uploadId;
+  }
+
+  @SneakyThrows
+  private void test(String fileName, boolean isAsyncValidation) {
+    val uploadId = uploadFromFixtureDir(DEFAULT_STUDY, fileName, isAsyncValidation);
+
+    // test save
+    val response = uploadService.save(DEFAULT_STUDY, uploadId, false);
+    assertEquals(response.getStatusCode(), OK);
   }
 
   @Value

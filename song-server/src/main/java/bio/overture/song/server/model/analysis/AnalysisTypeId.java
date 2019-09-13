@@ -1,5 +1,6 @@
 package bio.overture.song.server.model.analysis;
 
+import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -15,13 +16,9 @@ public class AnalysisTypeId {
 
   @NotNull private String name;
 
-  @NotNull @Positive private Integer version;
+  @Positive private Integer version;
 
-  public Optional<String> getName() {
-    return Optional.ofNullable(name);
-  }
-
-  public Optional<Integer> getVersion() {
+  public Optional<Integer> getOptionalVersion() {
     return Optional.ofNullable(version);
   }
 }

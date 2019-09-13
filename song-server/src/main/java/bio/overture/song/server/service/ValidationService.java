@@ -20,6 +20,7 @@ import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
+import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
@@ -30,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -37,9 +39,8 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
-import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromPayload;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
@@ -56,15 +57,18 @@ public class ValidationService {
   private final SchemaValidator validator;
   private final AnalysisTypeService analysisTypeService;
   private final UploadRepository uploadRepository;
+  private final boolean enforceLatest;
 
   @Autowired
   public ValidationService(
+      @Value("${schemas.enforceLatest}") boolean enforceLatest,
       @NonNull SchemaValidator validator,
       @NonNull AnalysisTypeService analysisTypeService,
       @NonNull UploadRepository uploadRepository) {
     this.validator = validator;
     this.analysisTypeService = analysisTypeService;
     this.uploadRepository = uploadRepository;
+    this.enforceLatest = enforceLatest;
   }
 
   @Async
@@ -87,13 +91,16 @@ public class ValidationService {
       } else {
         val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
         val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
-        log.info(
-            format(
-                "Found Analysis type: name=%s  version=%s",
-                analysisType.getName(), analysisType.getVersion()));
+        errors = validateLatest(analysisType);
+        if (isBlank(errors)) {
+          log.info(
+              format(
+                  "Found Analysis type: name=%s  version=%s",
+                  analysisType.getName(), analysisType.getVersion()));
 
-        val schema = buildSchema(analysisType.getSchema());
-        validateWithSchema(schema, payload);
+          val schema = buildSchema(analysisType.getSchema());
+          validateWithSchema(schema, payload);
+        }
       }
     } catch (ServerException e) {
       log.error(e.getSongError().toPrettyJson());
@@ -126,6 +133,21 @@ public class ValidationService {
   // TODO: transition to everit json schema library
   public Optional<String> validateStorageDownloadResponse(JsonNode response) {
     return processResponse(validator.validate(STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
+  }
+
+  private String validateLatest(AnalysisType a) {
+    if (enforceLatest && !isNull(a.getVersion())) {
+      val latestVersion = analysisTypeService.getLatestVersionNumber(a.getName());
+      if (!a.getVersion().equals(latestVersion)) {
+        val message =
+            format(
+                "Must use the latest version '%s' while enforceLatest=true, but using version '%s' of analysisType '%s' instead",
+                latestVersion, a.getVersion(), a.getName());
+        log.error(message);
+        return message;
+      }
+    }
+    return null;
   }
 
   private void updateState(

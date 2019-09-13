@@ -106,7 +106,7 @@ auth:
     multiplier: 2.0
 
 schemas:
-  useLatest: true
+  enforceLatest: true
 
 ---
 spring.profiles: async-test

@@ -17,8 +17,12 @@
 
 package bio.overture.song.server.model.analysis;
 
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.utils.JsonUtils.toMap;
+import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+
 import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.server.converter.AnalysisTypeIdConverter;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
@@ -26,14 +30,8 @@ import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.ToString;
-
+import java.util.List;
+import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -44,13 +42,13 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
-
-import static org.mapstruct.factory.Mappers.getMapper;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.utils.JsonUtils.toMap;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -59,8 +57,6 @@ import static bio.overture.song.core.utils.JsonUtils.toMap;
 @AllArgsConstructor
 @Table(name = TableNames.ANALYSIS)
 public class Analysis {
-  private static final AnalysisTypeIdConverter ANALYSIS_TYPE_ID_CONVERTER_INSTANCE =
-      getMapper(AnalysisTypeIdConverter.class);
 
   @Id
   @Column(name = TableAttributeNames.ID, updatable = false, unique = true, nullable = false)

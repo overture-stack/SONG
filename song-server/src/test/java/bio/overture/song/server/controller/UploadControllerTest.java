@@ -17,6 +17,25 @@
 
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
+import static bio.overture.song.server.model.enums.UploadStates.VALIDATION_ERROR;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Joiners.PATH;
+import static org.junit.Assert.assertEquals;
+
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
@@ -27,6 +46,10 @@ import bio.overture.song.server.utils.TestFiles;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Stream;
+import javax.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Before;
@@ -41,39 +64,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.transaction.Transactional;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Stream;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.PATH;
-import static org.junit.Assert.assertEquals;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
-import static bio.overture.song.server.model.enums.UploadStates.VALIDATION_ERROR;
-import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(secure = false)
 @ActiveProfiles({"test"})
 public class UploadControllerTest {
 
-  private static final ResourceFetcher DOCUMENTS_FETCHER = ResourceFetcher.builder()
-      .resourceType(TEST)
-      .dataDir(Paths.get("documents/"))
-      .build();
+  private static final ResourceFetcher DOCUMENTS_FETCHER =
+      ResourceFetcher.builder().resourceType(TEST).dataDir(Paths.get("documents/")).build();
+
+  private static final ResourceFetcher LEGACY_SCHEMA_FETCHER =
+      ResourceFetcher.builder()
+          .resourceType(MAIN)
+          .dataDir(Paths.get("schemas/analysis/legacy/"))
+          .build();
 
   private static final String UPLOAD_TEST_DIR = "documents";
   private static final List<String> PAYLOAD_PATHS =
@@ -126,19 +130,19 @@ public class UploadControllerTest {
   @Test
   @SneakyThrows
   @Transactional
-  public void uploadPayload_missingAnalysisTypeName_schemaViolation(){
+  public void uploadPayload_missingAnalysisTypeName_schemaViolation() {
     // Prepare the payload
     val existingStudyId = studyGenerator.createRandomStudy();
 
     // Get the valid payload
-    val payload = (ObjectNode)DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    val payload = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
     payload.put("study", existingStudyId);
 
     // Assert the payload is valid
     assertUploadState(existingStudyId, payload, VALIDATED);
 
     // Get the analysisTypeNode
-    val analysisTypeNode = (ObjectNode)payload.path("analysisType");
+    val analysisTypeNode = (ObjectNode) payload.path("analysisType");
 
     // Corrupt the payload by removing analysisType.name
     analysisTypeNode.remove("name");
@@ -161,19 +165,21 @@ public class UploadControllerTest {
   }
 
   @SneakyThrows
-  private void assertUploadState(String studyId, JsonNode payload, UploadStates expectedUploadState){
+  private void assertUploadState(
+      String studyId, JsonNode payload, UploadStates expectedUploadState) {
     // Upload the payload
-    val response = endpointTester.syncUploadPostRequestAnd(studyId, payload)
-        .assertOk()
-        .getResponse();
+    val response =
+        endpointTester.syncUploadPostRequestAnd(studyId, payload).assertOk().getResponse();
     val uploadId = readTree(response.getBody()).path("uploadId").textValue();
 
     // assert the upload state
-    val statusResponse = readTree(
-        endpointTester.getUploadStatusGetRequestAnd(studyId, uploadId)
-            .assertOk()
-            .getResponse()
-            .getBody());
+    val statusResponse =
+        readTree(
+            endpointTester
+                .getUploadStatusGetRequestAnd(studyId, uploadId)
+                .assertOk()
+                .getResponse()
+                .getBody());
     val actualUploadState = statusResponse.path("state").textValue();
     assertEquals(actualUploadState, expectedUploadState.getText());
   }

@@ -1,12 +1,12 @@
 package bio.overture.song.server.converter;
 
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
-import static lombok.AccessLevel.PRIVATE;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.server.config.ConverterConfig.ANALYSIS_TYPE_NAME_PATTERN;
+import static lombok.AccessLevel.PRIVATE;
+
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class AnalysisTypeIds {
@@ -20,5 +20,4 @@ public final class AnalysisTypeIds {
         name,
         ANALYSIS_TYPE_NAME_PATTERN.pattern());
   }
-
 }
