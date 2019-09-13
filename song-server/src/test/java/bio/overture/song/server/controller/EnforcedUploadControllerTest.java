@@ -1,5 +1,6 @@
 package bio.overture.song.server.controller;
 
+import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
@@ -15,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.junit.Assert.assertNotEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;
@@ -148,16 +150,97 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
 
   @Test
   public void enforceLatestSave_LatestAndEnforced_Success(){
+    // Create a valid payload containing the latest version
+    val payload = buildTestEnforcePayload(true);
 
+    // Upload the payload and assert successful validation when enforceLatest=true
+    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
+
+    // Assert that saving the upload while enforceLatest=true is successful
+    getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
+        .assertOk();
   }
 
   @Test
+  @SneakyThrows
   public void enforceLatestPublish_LatestAndEnforced_Success(){
+    // Create a valid payload containing the latest version
+    val payload = buildTestEnforcePayload(true);
 
+    // Upload the payload and assert its validated
+    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
+
+    // Save the upload
+    val saveStatus = JsonUtils.readTree(getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
+        .assertOk()
+        .getResponse()
+        .getBody());
+    val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+
+    // Assert that ANALYSIS_TYPE_INCORRECT_VERSION is NOT thrown when the latest analysis
+    // is published when enforceLatest = true.
+    // Since there were no files uploaded, an error will occur anyways, however the version check should happen first
+    val songError = SongError.parseErrorResponse(getEndpointTester().publishAnalysisPutRequestAnd(getStudyId(), analysisId)
+        .getResponse());
+    assertNotEquals(songError.getErrorId(), ANALYSIS_TYPE_INCORRECT_VERSION);
   }
 
   @Test
+  @SneakyThrows
   public void enforceLatestUpdate_LatestAndEnforced_Success(){
+    // Create a valid payload containing the latest version
+    val payload = buildTestEnforcePayload(true);
 
+    // Upload the payload and assert its validated
+    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
+
+    // Save the upload
+    val saveStatus = JsonUtils.readTree(getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
+        .assertOk()
+        .getResponse()
+        .getBody());
+    val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+
+    // Create an updateRequest body
+    val request =new UpdateAnalysisRequest();
+    val nonLatestAnalysisTypeId = AnalysisTypeId.builder()
+        .name(getLatestAnalysisType().getName())
+        .version(getLatestAnalysisType().getVersion())
+        .build();
+    request.setAnalysisType(nonLatestAnalysisTypeId);
+    request.addData(getLatestAnalysisType().getSchema());
+
+    // Assert success that when an analysisUpdate using the latest analysisType is attempted
+    getEndpointTester().updateAnalysisPutRequestAnd(getStudyId(), analysisId, objectToTree(request))
+        .assertOk();
+  }
+
+  @Test
+  @SneakyThrows
+  public void enforceLatestUpdate_MissingVersionAndEnforced_Success(){
+    // Create a valid payload containing the latest version
+    val payload = buildTestEnforcePayload(true);
+
+    // Upload the payload and assert its validated
+    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
+
+    // Save the upload
+    val saveStatus = JsonUtils.readTree(getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
+        .assertOk()
+        .getResponse()
+        .getBody());
+    val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+
+    // Create an updateRequest body with a missing version
+    val request =new UpdateAnalysisRequest();
+    val nonLatestAnalysisTypeId = AnalysisTypeId.builder()
+        .name(getLatestAnalysisType().getName())
+        .build();
+    request.setAnalysisType(nonLatestAnalysisTypeId);
+    request.addData(getLatestAnalysisType().getSchema());
+
+    // Assert success that when an analysisUpdate using the latest analysisType is attempted
+    getEndpointTester().updateAnalysisPutRequestAnd(getStudyId(), analysisId, objectToTree(request))
+        .assertOk();
   }
 }
