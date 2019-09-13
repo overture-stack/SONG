@@ -176,7 +176,7 @@ public class AnalysisTypeService {
         : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
   }
 
-  public Integer getLatestVersionNumber(String name) {
+  public Integer getLatestVersionNumber(@NonNull String name) {
     return analysisSchemaRepository.countAllByName(name);
   }
 

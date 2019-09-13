@@ -16,9 +16,59 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.model.enums.AnalysisStates;
+import bio.overture.song.server.kafka.AnalysisMessage;
+import bio.overture.song.server.kafka.Sender;
+import bio.overture.song.server.model.SampleSet;
+import bio.overture.song.server.model.SampleSetPK;
+import bio.overture.song.server.model.StorageObject;
+import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.AnalysisSchema;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.repository.AnalysisDataRepository;
+import bio.overture.song.server.repository.AnalysisRepository;
+import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.repository.search.IdSearchRequest;
+import bio.overture.song.server.repository.search.SearchRepository;
+import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.everit.json.schema.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
@@ -45,53 +95,6 @@ import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
-
-import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.kafka.AnalysisMessage;
-import bio.overture.song.server.kafka.Sender;
-import bio.overture.song.server.model.SampleSet;
-import bio.overture.song.server.model.SampleSetPK;
-import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.analysis.Analysis;
-import bio.overture.song.server.model.analysis.AnalysisData;
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.AnalysisSchema;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.repository.AnalysisDataRepository;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
-import bio.overture.song.server.repository.search.IdSearchRequest;
-import bio.overture.song.server.repository.search.SearchRepository;
-import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import javax.transaction.Transactional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.everit.json.schema.ValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -121,6 +124,7 @@ public class AnalysisService {
   @Autowired private final FileRepository fileRepository;
   @Autowired private final AnalysisDataRepository analysisDataRepository;
   @Autowired private final AnalysisTypeService analysisTypeService;
+  @Autowired private final ValidationService validationService;
 
   @Transactional
   public String create(
@@ -349,7 +353,11 @@ public class AnalysisService {
   public ResponseEntity<String> publish(
       @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
-    val files = unsecuredReadFiles(id);
+
+    val a = unsecuredDeepRead(id);
+    val analysisSchema = a.getAnalysisSchema();
+    checkAnalysisTypeVersion(analysisSchema);
+    val files = a.getFile();
     checkMissingFiles(id, files);
     val file2storageObjectMap = getStorageObjectsForFiles(files);
     checkMismatchingFileSizes(id, file2storageObjectMap);
@@ -415,6 +423,11 @@ public class AnalysisService {
         .map(Analysis::getAnalysisState)
         .map(AnalysisStates::resolveAnalysisState)
         .get();
+  }
+
+  private void checkAnalysisTypeVersion(AnalysisSchema a){
+    val errors = validationService.validateAnalysisTypeVersion(a.getName(), a.getVersion());
+    checkServer(isNull(errors), getClass(), ANALYSIS_TYPE_INCORRECT_VERSION, errors);
   }
 
   private Map<FileEntity, StorageObject> getStorageObjectsForFiles(List<FileEntity> files) {
@@ -490,6 +503,7 @@ public class AnalysisService {
   }
 
   private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema) {
+    checkAnalysisTypeVersion(analysisSchema);
     val renderedUpdateJsonSchema = renderUpdateJsonSchema(analysisSchema);
     val schema = buildSchema(renderedUpdateJsonSchema);
     try {

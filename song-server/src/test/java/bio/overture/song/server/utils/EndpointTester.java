@@ -159,6 +159,21 @@ public class EndpointTester {
     return getAnalysisTypeVersionGetRequestAnd(analysisTypeName, null, false);
   }
 
+  // POST /upload/{study}/save/{uploadId}
+  public ResponseOption saveUploadPostRequestAnd(@NonNull String studyId, @NonNull String uploadId){
+    return initWebRequest()
+        .endpoint("upload/%s/save/%s", studyId, uploadId)
+        .postAnd();
+  }
+
+
+  // PUT /studies/{}/analysis/publish/{aid}
+  public ResponseOption publishAnalysisPutRequestAnd(@NonNull String studyId, @NonNull String analysisId){
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/publish/%s", studyId, analysisId)
+        .putAnd();
+  }
+
   // GET /schemas/<name>?version=<integer>&unrenderedOnly=<boolean>
   public ResponseOption getAnalysisTypeVersionGetRequestAnd(
       @NonNull String analysisTypeName, @Nullable Integer version, boolean unrenderedOnly) {

@@ -91,7 +91,7 @@ public class ValidationService {
       } else {
         val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
         val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
-        errors = validateLatest(analysisType);
+        errors = validateAnalysisTypeVersion(analysisType);
         if (isBlank(errors)) {
           log.info(
               format(
@@ -135,14 +135,22 @@ public class ValidationService {
     return processResponse(validator.validate(STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
   }
 
-  private String validateLatest(AnalysisType a) {
-    if (enforceLatest && !isNull(a.getVersion())) {
-      val latestVersion = analysisTypeService.getLatestVersionNumber(a.getName());
-      if (!a.getVersion().equals(latestVersion)) {
+  public String validateAnalysisTypeVersion(AnalysisType a) {
+    return validateAnalysisTypeVersion(a.getName(), a.getVersion());
+  }
+
+  public String validateAnalysisTypeVersion(AnalysisTypeId a) {
+    return validateAnalysisTypeVersion(a.getName(), a.getVersion());
+  }
+
+  public String validateAnalysisTypeVersion(@NonNull String name, Integer version) {
+    if (enforceLatest && !isNull(version)) {
+      val latestVersion = analysisTypeService.getLatestVersionNumber(name);
+      if (!version.equals(latestVersion)) {
         val message =
             format(
                 "Must use the latest version '%s' while enforceLatest=true, but using version '%s' of analysisType '%s' instead",
-                latestVersion, a.getVersion(), a.getName());
+                latestVersion, version, name);
         log.error(message);
         return message;
       }
@@ -167,7 +175,7 @@ public class ValidationService {
     updateState(uploadId, UploadStates.VALIDATED, "");
   }
 
-  private void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
+  public void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
     updateState(uploadId, UploadStates.VALIDATION_ERROR, errorMessages);
   }
 

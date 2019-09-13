@@ -25,6 +25,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.isNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
@@ -63,10 +64,12 @@ public abstract class AbstractEnforcedTester {
   @Getter private EndpointTester endpointTester;
   private MockMvc mockMvc;
 
+  @Getter
   private AnalysisType latestAnalysisType;
 
   @Getter private String studyId;
   private boolean initialized;
+  private JsonNode variantCallSchema;
 
   @Before
   public void beforeEachTest() {
@@ -78,32 +81,41 @@ public abstract class AbstractEnforcedTester {
 
   private void lazyInit() {
     if (!initialized) {
-      val studyGenerator = StudyGenerator.createStudyGenerator(getStudyService(), randomGenerator);
-      studyId = studyGenerator.createRandomStudy();
-      val schema = LEGACY_SCHEMA_FETCHER.readJsonNode("variantCall.json");
-      val analysisTypeVersion1 =
-          endpointTester
-              .registerAnalysisTypePostRequestAnd(
-                  RegisterAnalysisTypeRequest.builder()
-                      .name(randomGenerator.generateRandomAsciiString(7))
-                      .schema(schema)
-                      .build())
-              .extractOneEntity(AnalysisType.class);
-      assertEquals(analysisTypeVersion1.getVersion().intValue(), 1);
-
-      val analysisTypeVersion2 =
-          endpointTester
-              .registerAnalysisTypePostRequestAnd(
-                  RegisterAnalysisTypeRequest.builder()
-                      .name(analysisTypeVersion1.getName())
-                      .schema(schema)
-                      .build())
-              .extractOneEntity(AnalysisType.class);
-      assertEquals(analysisTypeVersion2.getName(), analysisTypeVersion1.getName());
-      assertEquals(analysisTypeVersion2.getVersion().intValue(), 2);
-      latestAnalysisType = analysisTypeVersion2;
+      initialRegistration();
+      registerAgain();
       initialized = true;
     }
+  }
+
+  private void initialRegistration(){
+    val studyGenerator = StudyGenerator.createStudyGenerator(getStudyService(), randomGenerator);
+    studyId = studyGenerator.createRandomStudy();
+    variantCallSchema = LEGACY_SCHEMA_FETCHER.readJsonNode("variantCall.json");
+    val analysisTypeVersion =
+        endpointTester
+            .registerAnalysisTypePostRequestAnd(
+                RegisterAnalysisTypeRequest.builder()
+                    .name(randomGenerator.generateRandomAsciiString(7))
+                    .schema(variantCallSchema)
+                    .build())
+            .extractOneEntity(AnalysisType.class);
+    assertEquals(analysisTypeVersion.getVersion().intValue(), 1);
+    latestAnalysisType = analysisTypeVersion;
+  }
+
+  protected void registerAgain(){
+    assertFalse(isNull(latestAnalysisType));
+    val analysisTypeVersion =
+        endpointTester
+            .registerAnalysisTypePostRequestAnd(
+                RegisterAnalysisTypeRequest.builder()
+                    .name(latestAnalysisType.getName())
+                    .schema(variantCallSchema)
+                    .build())
+            .extractOneEntity(AnalysisType.class);
+    assertEquals(analysisTypeVersion.getName(), latestAnalysisType.getName());
+    assertEquals(analysisTypeVersion.getVersion().intValue(), latestAnalysisType.getVersion()+1);
+    latestAnalysisType = analysisTypeVersion;
   }
 
   protected JsonNode buildTestEnforcePayload(@Nullable Boolean isLatestVersion) {
@@ -122,7 +134,7 @@ public abstract class AbstractEnforcedTester {
   }
 
   @SneakyThrows
-  protected void assertUploadState(
+  protected String assertUploadState(
       String studyId, JsonNode payload, UploadStates expectedUploadState) {
     // Upload the payload
     val response =
@@ -139,5 +151,6 @@ public abstract class AbstractEnforcedTester {
                 .getBody());
     val actualUploadState = statusResponse.path("state").textValue();
     assertEquals(expectedUploadState.getText(), actualUploadState);
+    return uploadId;
   }
 }
