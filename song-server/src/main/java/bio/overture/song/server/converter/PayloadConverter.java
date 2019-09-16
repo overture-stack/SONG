@@ -86,4 +86,5 @@ public interface PayloadConverter {
   List<CompositeEntity> convertToSamplePayloads(Collection<CompositeEntity> samples);
 
   List<FileEntity> convertToFilePayloads(Collection<FileEntity> files);
+
 }
