@@ -17,9 +17,6 @@
 
 package bio.overture.song.server.config;
 
-import static java.util.regex.Pattern.compile;
-
-import java.util.regex.Pattern;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.MapperConfig;
@@ -34,13 +31,4 @@ import org.mapstruct.ReportingPolicy;
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
     collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
     mappingInheritanceStrategy = MappingInheritanceStrategy.AUTO_INHERIT_ALL_FROM_CONFIG)
-public class ConverterConfig {
-
-  private static final String ANALYSIS_TYPE_NAME_REGEX = "[a-zA-Z0-9\\._-]+";
-
-  public static final String ANALYSIS_TYPE_ID_STRING_FORMAT = "%s:%s";
-  public static final Pattern ANALYSIS_TYPE_NAME_PATTERN =
-      compile("^" + ANALYSIS_TYPE_NAME_REGEX + "$");
-  public static final Pattern ANALYSIS_TYPE_ID_PATTERN =
-      compile("^(" + ANALYSIS_TYPE_NAME_REGEX + "):(\\d+)$");
-}
+public class ConverterConfig { }

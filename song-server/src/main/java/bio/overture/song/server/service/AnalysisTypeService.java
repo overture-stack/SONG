@@ -43,7 +43,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.server.converter.AnalysisTypeIds.checkAnalysisTypeIdName;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
 import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
@@ -262,7 +261,13 @@ public class AnalysisTypeService {
   }
 
   private void validateAnalysisTypeName(@NonNull String analysisTypeName) {
-    checkAnalysisTypeIdName(analysisTypeName);
+    checkServer(
+        ANALYSIS_TYPE_NAME_PATTERN.matcher(analysisTypeName).matches(),
+        getClass(),
+        MALFORMED_PARAMETER,
+        "The analysisTypeId name '%s' does not match the regex: %s",
+        analysisTypeName,
+        ANALYSIS_TYPE_NAME_PATTERN.pattern());
   }
 
   private static void validatePositiveVersionsIfDefined(@Nullable Collection<Integer> versions) {
