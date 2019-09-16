@@ -1,0 +1,14 @@
+{
+  "analysisType" : {
+    "name" : "variantCall"
+  },
+  "length" : 897873,
+  "colour" : "blue",
+  "experiment": {
+    "variantCallingTool": "silver bullet 1",
+    "matchedNormalSampleSubmitterId": "sample x24-11a"
+  },
+  "info": {
+    "description": "This is extra info in a JSON format"
+  }
+}

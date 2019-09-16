@@ -17,25 +17,6 @@
 
 package bio.overture.song.server.controller;
 
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
-import static bio.overture.song.server.model.enums.UploadStates.VALIDATION_ERROR;
-import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.updateStudyInPayload;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.PATH;
-import static org.junit.Assert.assertEquals;
-
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
@@ -46,10 +27,6 @@ import bio.overture.song.server.utils.TestFiles;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Before;
@@ -78,6 +55,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
 import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
@@ -177,8 +155,8 @@ public class UploadControllerTest {
     analysisTypeNode.put("name", VARIANT_CALL.getAnalysisTypeName());
     analysisTypeNode.remove("version");
 
-    // Assert the payload with a missing analysisType.version field is invalid
-    assertUploadState(existingStudyId, payload, VALIDATION_ERROR);
+    // Assert the payload with a missing analysisType.version field is valid
+    assertUploadState(existingStudyId, payload, VALIDATED);
 
     // remove the analysisType node from the payload
     payload.remove("analysisType");
@@ -204,7 +182,7 @@ public class UploadControllerTest {
                 .getResponse()
                 .getBody());
     val actualUploadState = statusResponse.path("state").textValue();
-    assertEquals(actualUploadState, expectedUploadState.getText());
+    assertEquals(expectedUploadState.getText(), actualUploadState);
   }
 
   @SneakyThrows

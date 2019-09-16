@@ -16,19 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
-import static net.javacrumbs.jsonunit.JsonAssert.when;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
@@ -58,7 +45,9 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
@@ -80,17 +69,17 @@ public class SerializationTest {
 
     val r1 = objectToTree(a1);
     assertTrue(r1.hasNonNull("name"));
-    assertFalse(r1.has("version"));
+    assertFalse(r1.hasNonNull("version"));
     assertEquals(r1.path("name").textValue(), "something");
 
     val r2 = objectToTree(a2);
     assertTrue(r2.hasNonNull("version"));
-    assertFalse(r2.has("name"));
+    assertFalse(r2.hasNonNull("name"));
     assertEquals(r2.path("version").intValue(), 33);
 
     val r3 = objectToTree(a3);
-    assertFalse(r3.has("version"));
-    assertFalse(r3.has("name"));
+    assertFalse(r3.hasNonNull("version"));
+    assertFalse(r3.hasNonNull("name"));
 
     val r4 = objectToTree(a4);
     assertTrue(r4.hasNonNull("version"));

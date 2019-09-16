@@ -65,10 +65,10 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 
 @Slf4j
 @Transactional
-@SpringBootTest
 @ActiveProfiles({"test"})
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(secure = false)
+@SpringBootTest(properties = "schemas.enforceLatest=false")
 public class AnalysisControllerTest {
 
   private static final ResourceFetcher RESOURCE_FETCHER =
@@ -229,7 +229,10 @@ public class AnalysisControllerTest {
         studyId,
         variantAnalysis.getAnalysisId(),
         "variantcall1-invalid-update-request-missing-analysisTypeVersion.json",
-        MALFORMED_PARAMETER);
+        SCHEMA_VIOLATION);
+
+    updateAnalysisWithFixture(studyId, variantAnalysis.getAnalysisId(),
+    "variantcall1-valid-update-request-missing-analysisTypeVersion.json");
   }
 
   @Test
@@ -327,7 +330,8 @@ public class AnalysisControllerTest {
   private JsonNode updateAnalysisWithFixture(
       String studyId, String analysisId, String updateRequestFixtureFilename) {
     val update_request = RESOURCE_FETCHER.readJsonNode(updateRequestFixtureFilename);
-    endpointTester.updateAnalysisPutRequestAnd(studyId, analysisId, update_request);
+    endpointTester.updateAnalysisPutRequestAnd(studyId, analysisId, update_request)
+        .assertOk();
     return update_request;
   }
 
