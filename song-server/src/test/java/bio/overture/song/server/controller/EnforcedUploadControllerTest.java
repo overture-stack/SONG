@@ -1,6 +1,5 @@
 package bio.overture.song.server.controller;
 
-import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
@@ -15,9 +14,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.Assert.assertNotEquals;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;
@@ -36,6 +37,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Autowired private WebApplicationContext webApplicationContext;
   @Autowired private StudyService studyService;
   @Autowired private AnalysisService analysisService;
+
 
   /**
    * Implementations
@@ -58,7 +60,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   }
 
   @Test
-  public void enforceLatestUpload_MissingVersionAndEnforced_Validated() {
+  public void enforceLatestUpload_MissingVersion_Validated() {
     // Create a valid payload missing the version field
     val payload = buildTestEnforcePayload(null);
 
@@ -67,7 +69,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   }
 
   @Test
-  public void enforceLatestUpload_LatestAndEnforced_Validated() {
+  public void enforceLatestUpload_Latest_Validated() {
     // Create a valid payload containing the latest version
     val payload = buildTestEnforcePayload(true);
 
@@ -76,7 +78,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   }
 
   @Test
-  public void enforceLatestSave_NonLatestAndEnforced_AnalysisTypeIncorrectVersion(){
+  public void enforceLatestSave_NonLatest_AnalysisTypeIncorrectVersion(){
     // Create a valid payload containing the latest version
     val payload = buildTestEnforcePayload(true);
 
@@ -93,7 +95,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
 
   @Test
   @SneakyThrows
-  public void enforceLatestPublish_NonLatestAndEnforced_AnalysisTypeIncorrectVersion(){
+  public void enforceLatestPublish_NonLatest_AnalysisTypeIncorrectVersion(){
     // Create a valid payload containing the latest version
     val payload = buildTestEnforcePayload(true);
 
@@ -118,7 +120,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
 
   @Test
   @SneakyThrows
-  public void enforceLatestAnalysisUpdate_NonLatestAndEnforced_AnalysisTypeIncorrectVersion(){
+  public void enforceLatestUpdate_NonLatest_AnalysisTypeIncorrectVersion(){
     // Create a valid payload containing the latest version
     val payload = buildTestEnforcePayload(true);
 
@@ -152,7 +154,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   }
 
   @Test
-  public void enforceLatestSave_LatestAndEnforced_Success(){
+  public void enforceLatestSave_Latest_Success(){
     // Create a valid payload containing the latest version
     val payload = buildTestEnforcePayload(true);
 
@@ -166,7 +168,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
 
   @Test
   @SneakyThrows
-  public void enforceLatestPublish_LatestAndEnforced_Success(){
+  public void enforceLatestPublish_Latest_Success(){
     // Create a valid payload containing the latest version
     val payload = buildTestEnforcePayload(true);
 
@@ -180,17 +182,21 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
         .getBody());
     val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
 
-    // Assert that ANALYSIS_TYPE_INCORRECT_VERSION is NOT thrown when the latest analysis
-    // is published when enforceLatest = true.
-    // Since there were no files uploaded, an error will occur anyways, however the version check should happen first
-    val songError = SongError.parseErrorResponse(getEndpointTester().publishAnalysisPutRequestAnd(getStudyId(), analysisId)
-        .getResponse());
-    assertNotEquals(songError.getErrorId(), ANALYSIS_TYPE_INCORRECT_VERSION);
+    // Assert the error ResourceAccessException was thrown, indicating that the check for the analysisType version
+    // was successfull
+    boolean completedAnalysisTypeCheck = false;
+    try {
+      getEndpointTester().publishAnalysisPutRequestAnd(getStudyId(), analysisId).getResponse();
+    } catch (Exception e){
+      assertEquals(e.getCause().getClass(), ResourceAccessException.class);
+      completedAnalysisTypeCheck = true;
+    }
+    assertTrue(completedAnalysisTypeCheck);
   }
 
   @Test
   @SneakyThrows
-  public void enforceLatestUpdate_LatestAndEnforced_Success(){
+  public void enforceLatestUpdate_Latest_Success(){
     // Create a valid payload containing the latest version
     val payload = buildTestEnforcePayload(true);
 
@@ -221,7 +227,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
 
   @Test
   @SneakyThrows
-  public void enforceLatestUpdate_MissingVersionAndEnforced_Success(){
+  public void enforceLatestUpdate_MissingVersion_Success(){
     // Create a valid payload containing the latest version
     val payload = buildTestEnforcePayload(true);
 
