@@ -117,17 +117,12 @@ public class EndpointTester {
   }
 
   // GET /upload/{studyId}/status/{uploadId}
-  public ResponseOption getUploadStatusGetRequestAnd(String studyId, String uploadId){
-    return initWebRequest()
-        .endpoint("upload/%s/status/%s", studyId, uploadId)
-        .getAnd();
+  public ResponseOption getUploadStatusGetRequestAnd(String studyId, String uploadId) {
+    return initWebRequest().endpoint("upload/%s/status/%s", studyId, uploadId).getAnd();
   }
 
-  public ResponseOption syncUploadPostRequestAnd(String studyId, JsonNode payload){
-    return initWebRequest()
-        .endpoint("upload/%s", studyId)
-        .body(payload)
-        .postAnd();
+  public ResponseOption syncUploadPostRequestAnd(String studyId, JsonNode payload) {
+    return initWebRequest().endpoint("upload/%s", studyId).body(payload).postAnd();
   }
 
   // POST /schemas
@@ -162,6 +157,21 @@ public class EndpointTester {
   // GET /schemas/<name>
   public ResponseOption getLatestAnalysisTypeGetRequestAnd(@NonNull String analysisTypeName) {
     return getAnalysisTypeVersionGetRequestAnd(analysisTypeName, null, false);
+  }
+
+  // POST /upload/{study}/save/{uploadId}
+  public ResponseOption saveUploadPostRequestAnd(@NonNull String studyId, @NonNull String uploadId){
+    return initWebRequest()
+        .endpoint("upload/%s/save/%s", studyId, uploadId)
+        .postAnd();
+  }
+
+
+  // PUT /studies/{}/analysis/publish/{aid}
+  public ResponseOption publishAnalysisPutRequestAnd(@NonNull String studyId, @NonNull String analysisId){
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/publish/%s", studyId, analysisId)
+        .putAnd();
   }
 
   // GET /schemas/<name>?version=<integer>&unrenderedOnly=<boolean>

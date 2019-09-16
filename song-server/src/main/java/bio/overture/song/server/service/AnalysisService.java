@@ -61,12 +61,14 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
@@ -122,6 +124,7 @@ public class AnalysisService {
   @Autowired private final FileRepository fileRepository;
   @Autowired private final AnalysisDataRepository analysisDataRepository;
   @Autowired private final AnalysisTypeService analysisTypeService;
+  @Autowired private final ValidationService validationService;
 
   @Transactional
   public String create(
@@ -350,7 +353,11 @@ public class AnalysisService {
   public ResponseEntity<String> publish(
       @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
-    val files = unsecuredReadFiles(id);
+
+    val a = unsecuredDeepRead(id);
+    val analysisSchema = a.getAnalysisSchema();
+    checkAnalysisTypeVersion(analysisSchema);
+    val files = a.getFile();
     checkMissingFiles(id, files);
     val file2storageObjectMap = getStorageObjectsForFiles(files);
     checkMismatchingFileSizes(id, file2storageObjectMap);
@@ -416,6 +423,11 @@ public class AnalysisService {
         .map(Analysis::getAnalysisState)
         .map(AnalysisStates::resolveAnalysisState)
         .get();
+  }
+
+  private void checkAnalysisTypeVersion(AnalysisSchema a){
+    val errors = validationService.validateAnalysisTypeVersion(a.getName(), a.getVersion());
+    checkServer(isNull(errors), getClass(), ANALYSIS_TYPE_INCORRECT_VERSION, errors);
   }
 
   private Map<FileEntity, StorageObject> getStorageObjectsForFiles(List<FileEntity> files) {
@@ -491,6 +503,7 @@ public class AnalysisService {
   }
 
   private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema) {
+    checkAnalysisTypeVersion(analysisSchema);
     val renderedUpdateJsonSchema = renderUpdateJsonSchema(analysisSchema);
     val schema = buildSchema(renderedUpdateJsonSchema);
     try {

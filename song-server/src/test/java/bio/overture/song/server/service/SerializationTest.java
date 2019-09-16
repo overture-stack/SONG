@@ -45,7 +45,9 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
@@ -54,6 +56,37 @@ import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 public class SerializationTest {
 
   private static final String FILEPATH = "src/test/resources/fixtures/";
+
+  @Test
+  public void testAnalysisTypeId() {
+    val a1 = AnalysisTypeId.builder().name("something").build();
+
+    val a2 = AnalysisTypeId.builder().version(33).build();
+
+    val a3 = AnalysisTypeId.builder().build();
+
+    val a4 = AnalysisTypeId.builder().name("something").version(33).build();
+
+    val r1 = objectToTree(a1);
+    assertTrue(r1.hasNonNull("name"));
+    assertFalse(r1.hasNonNull("version"));
+    assertEquals(r1.path("name").textValue(), "something");
+
+    val r2 = objectToTree(a2);
+    assertTrue(r2.hasNonNull("version"));
+    assertFalse(r2.hasNonNull("name"));
+    assertEquals(r2.path("version").intValue(), 33);
+
+    val r3 = objectToTree(a3);
+    assertFalse(r3.hasNonNull("version"));
+    assertFalse(r3.hasNonNull("name"));
+
+    val r4 = objectToTree(a4);
+    assertTrue(r4.hasNonNull("version"));
+    assertTrue(r4.hasNonNull("name"));
+    assertEquals(r4.path("version").intValue(), 33);
+    assertEquals(r4.path("name").textValue(), "something");
+  }
 
   @Test
   @SneakyThrows

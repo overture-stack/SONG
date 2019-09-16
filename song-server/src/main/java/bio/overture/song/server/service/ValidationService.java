@@ -20,6 +20,7 @@ import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
+import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
@@ -30,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,7 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
@@ -54,15 +57,18 @@ public class ValidationService {
   private final SchemaValidator validator;
   private final AnalysisTypeService analysisTypeService;
   private final UploadRepository uploadRepository;
+  private final boolean enforceLatest;
 
   @Autowired
   public ValidationService(
+      @Value("${schemas.enforceLatest}") boolean enforceLatest,
       @NonNull SchemaValidator validator,
       @NonNull AnalysisTypeService analysisTypeService,
       @NonNull UploadRepository uploadRepository) {
     this.validator = validator;
     this.analysisTypeService = analysisTypeService;
     this.uploadRepository = uploadRepository;
+    this.enforceLatest = enforceLatest;
   }
 
   @Async
@@ -85,13 +91,16 @@ public class ValidationService {
       } else {
         val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
         val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
-        log.info(
-            format(
-                "Found Analysis type: name=%s  version=%s",
-                analysisType.getName(), analysisType.getVersion()));
+        errors = validateAnalysisTypeVersion(analysisType);
+        if (isBlank(errors)) {
+          log.info(
+              format(
+                  "Found Analysis type: name=%s  version=%s",
+                  analysisType.getName(), analysisType.getVersion()));
 
-        val schema = buildSchema(analysisType.getSchema());
-        validateWithSchema(schema, payload);
+          val schema = buildSchema(analysisType.getSchema());
+          validateWithSchema(schema, payload);
+        }
       }
     } catch (ServerException e) {
       log.error(e.getSongError().toPrettyJson());
@@ -126,6 +135,29 @@ public class ValidationService {
     return processResponse(validator.validate(STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
   }
 
+  public String validateAnalysisTypeVersion(AnalysisType a) {
+    return validateAnalysisTypeVersion(a.getName(), a.getVersion());
+  }
+
+  public String validateAnalysisTypeVersion(AnalysisTypeId a) {
+    return validateAnalysisTypeVersion(a.getName(), a.getVersion());
+  }
+
+  public String validateAnalysisTypeVersion(@NonNull String name, Integer version) {
+    if (enforceLatest && !isNull(version)) {
+      val latestVersion = analysisTypeService.getLatestVersionNumber(name);
+      if (!version.equals(latestVersion)) {
+        val message =
+            format(
+                "Must use the latest version '%s' while enforceLatest=true, but using version '%s' of analysisType '%s' instead",
+                latestVersion, version, name);
+        log.error(message);
+        return message;
+      }
+    }
+    return null;
+  }
+
   private void updateState(
       @NonNull String uploadId, @NonNull UploadStates state, @NonNull String errors) {
     uploadRepository
@@ -143,7 +175,7 @@ public class ValidationService {
     updateState(uploadId, UploadStates.VALIDATED, "");
   }
 
-  private void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
+  public void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
     updateState(uploadId, UploadStates.VALIDATION_ERROR, errorMessages);
   }
 

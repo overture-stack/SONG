@@ -24,12 +24,37 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.utils.TestFiles;
 import lombok.val;
 import org.junit.Test;
 
 public class DeserializationTest {
+
+  @Test
+  public void testAnalysisTypeId() {
+    val j1 = JsonUtils.mapper().createObjectNode();
+    j1.put("name", "something");
+    j1.put("version", 33);
+    val e1 = AnalysisTypeId.builder().name("something").version(33).build();
+    assertEquals(fromJson(j1, AnalysisTypeId.class), e1);
+
+    val j2 = JsonUtils.mapper().createObjectNode();
+    j2.put("name", "something");
+    val e2 = AnalysisTypeId.builder().name("something").build();
+    assertEquals(fromJson(j2, AnalysisTypeId.class), e2);
+
+    val j3 = JsonUtils.mapper().createObjectNode();
+    j3.put("version", 33);
+    val e3 = AnalysisTypeId.builder().version(33).build();
+    assertEquals(fromJson(j3, AnalysisTypeId.class), e3);
+
+    val j4 = JsonUtils.mapper().createObjectNode();
+    val e4 = AnalysisTypeId.builder().build();
+    assertEquals(fromJson(j4, AnalysisTypeId.class), e4);
+  }
 
   @Test
   public void testVariantCallDeserialization() {

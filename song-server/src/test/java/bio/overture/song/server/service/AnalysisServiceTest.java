@@ -61,7 +61,6 @@ import static org.mockito.Mockito.when;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.converter.PayloadConverter;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
 import bio.overture.song.server.model.dto.Payload;
@@ -122,7 +121,7 @@ public class AnalysisServiceTest {
   @Autowired private FileRepository fileRepository;
   @Autowired private SampleSetRepository sampleSetRepository;
   @Autowired private IdClient idClient;
-  @Autowired private PayloadConverter payloadConverter;
+  @Autowired private ExportService exportService;
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(
@@ -547,7 +546,7 @@ public class AnalysisServiceTest {
   @Transactional
   public void testDuplicateAnalysisAttemptError() {
     val an1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
-    val equivalentPayload = payloadConverter.convertToPayload(an1, true);
+    val equivalentPayload = exportService.convertToPayloadDTO(an1, true);
     assertSongError(
         () -> service.create(an1.getStudy(), equivalentPayload, true), DUPLICATE_ANALYSIS_ATTEMPT);
   }

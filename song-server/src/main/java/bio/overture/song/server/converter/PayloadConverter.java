@@ -1,12 +1,9 @@
 package bio.overture.song.server.converter;
 
-import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 import static org.mapstruct.NullValuePropertyMappingStrategy.SET_TO_DEFAULT;
 
 import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.model.Metadata;
-import bio.overture.song.server.model.analysis.Analysis;
-import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Specimen;
@@ -90,16 +87,4 @@ public interface PayloadConverter {
 
   List<FileEntity> convertToFilePayloads(Collection<FileEntity> files);
 
-  default Payload convertToPayload(Analysis a, boolean includeAnalysisIds) {
-    val payload =
-        Payload.builder()
-            .analysisId(includeAnalysisIds ? a.getAnalysisId() : null)
-            .analysisType(resolveAnalysisTypeId(a.getAnalysisSchema()))
-            .study(a.getStudy())
-            .sample(convertToSamplePayloads(a.getSample()))
-            .file(convertToFilePayloads(a.getFile()))
-            .build();
-    payload.addData(a.getAnalysisData().getData());
-    return payload;
-  }
 }

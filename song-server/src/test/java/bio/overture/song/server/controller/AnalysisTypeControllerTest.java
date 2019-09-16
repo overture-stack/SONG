@@ -1,5 +1,34 @@
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.RandomGenerator.randomList;
+import static bio.overture.song.core.utils.RandomGenerator.randomStream;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
+import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
@@ -186,8 +215,18 @@ public class AnalysisTypeControllerTest {
         analysisTypeService.resolveSchemaJsonView(createSchema2, false, false);
 
     // Build the expected AnalysisType using the AnalysisTypeService and also verify proper format
-    val expectedAnalysisType1 = AnalysisType.builder().name(nonExistingName1).version(1).schema(expectedCreateSchema1).build();
-    val expectedAnalysisType2 = AnalysisType.builder().name(nonExistingName2).version(1).schema(expectedCreateSchema2).build();
+    val expectedAnalysisType1 =
+        AnalysisType.builder()
+            .name(nonExistingName1)
+            .version(1)
+            .schema(expectedCreateSchema1)
+            .build();
+    val expectedAnalysisType2 =
+        AnalysisType.builder()
+            .name(nonExistingName2)
+            .version(1)
+            .schema(expectedCreateSchema2)
+            .build();
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -204,11 +243,12 @@ public class AnalysisTypeControllerTest {
         RegisterAnalysisTypeRequest.builder().name(nonExistingName1).schema(updateSchema1).build();
     val expectedUpdateSchema1 =
         analysisTypeService.resolveSchemaJsonView(updateSchema1, false, false);
-    val expectedAnalysisTypeUpdate1 = AnalysisType.builder()
-        .name(nonExistingName1)
-        .version(2)
-        .schema(expectedUpdateSchema1)
-        .build();
+    val expectedAnalysisTypeUpdate1 =
+        AnalysisType.builder()
+            .name(nonExistingName1)
+            .version(2)
+            .schema(expectedUpdateSchema1)
+            .build();
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -222,10 +262,10 @@ public class AnalysisTypeControllerTest {
         analysisTypeService.resolveSchemaJsonView(updateSchema2, false, false);
     val expectedAnalysisTypeUpdate2 =
         AnalysisType.builder()
-        .name(nonExistingName2)
-        .version(2)
-        .schema(expectedUpdateSchema2)
-        .build();
+            .name(nonExistingName2)
+            .version(2)
+            .schema(expectedUpdateSchema2)
+            .build();
 
     // Assert the schema and name were properly registered
     endpointTester
@@ -250,7 +290,8 @@ public class AnalysisTypeControllerTest {
   }
 
   /**
-   * Happy Path: Test the latest analysisType can be read when the version param is not defined (missing)
+   * Happy Path: Test the latest analysisType can be read when the version param is not defined
+   * (missing)
    */
   @Test
   @Transactional
@@ -260,14 +301,16 @@ public class AnalysisTypeControllerTest {
     val expectedAnalysisTypeName = randomGenerator.randomElement(data).getName();
 
     // Get the latest version of the analysisType
-    val expectedAnalysisType = data.stream()
-        .filter(x -> x.getName().equals(expectedAnalysisTypeName))
-        .filter(x -> x.getVersion().equals(10))
-        .findFirst()
-        .get();
+    val expectedAnalysisType =
+        data.stream()
+            .filter(x -> x.getName().equals(expectedAnalysisTypeName))
+            .filter(x -> x.getVersion().equals(10))
+            .findFirst()
+            .get();
 
     // Assert the response is the latest analysisType
-    endpointTester.getLatestAnalysisTypeGetRequestAnd(expectedAnalysisType.getName())
+    endpointTester
+        .getLatestAnalysisTypeGetRequestAnd(expectedAnalysisType.getName())
         .assertOneEntityEquals(expectedAnalysisType);
   }
 

@@ -55,6 +55,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
 import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
@@ -70,10 +71,14 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 @ActiveProfiles({"test"})
 public class UploadControllerTest {
 
-  private static final ResourceFetcher DOCUMENTS_FETCHER = ResourceFetcher.builder()
-      .resourceType(TEST)
-      .dataDir(Paths.get("documents/"))
-      .build();
+  private static final ResourceFetcher DOCUMENTS_FETCHER =
+      ResourceFetcher.builder().resourceType(TEST).dataDir(Paths.get("documents/")).build();
+
+  private static final ResourceFetcher LEGACY_SCHEMA_FETCHER =
+      ResourceFetcher.builder()
+          .resourceType(MAIN)
+          .dataDir(Paths.get("schemas/analysis/legacy/"))
+          .build();
 
   private static final String UPLOAD_TEST_DIR = "documents";
   private static final List<String> PAYLOAD_PATHS =
@@ -126,19 +131,19 @@ public class UploadControllerTest {
   @Test
   @SneakyThrows
   @Transactional
-  public void uploadPayload_missingAnalysisTypeName_schemaViolation(){
+  public void uploadPayload_missingAnalysisTypeName_schemaViolation() {
     // Prepare the payload
     val existingStudyId = studyGenerator.createRandomStudy();
 
     // Get the valid payload
-    val payload = (ObjectNode)DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    val payload = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
     payload.put("study", existingStudyId);
 
     // Assert the payload is valid
     assertUploadState(existingStudyId, payload, VALIDATED);
 
     // Get the analysisTypeNode
-    val analysisTypeNode = (ObjectNode)payload.path("analysisType");
+    val analysisTypeNode = (ObjectNode) payload.path("analysisType");
 
     // Corrupt the payload by removing analysisType.name
     analysisTypeNode.remove("name");
@@ -150,8 +155,8 @@ public class UploadControllerTest {
     analysisTypeNode.put("name", VARIANT_CALL.getAnalysisTypeName());
     analysisTypeNode.remove("version");
 
-    // Assert the payload with a missing analysisType.version field is invalid
-    assertUploadState(existingStudyId, payload, VALIDATION_ERROR);
+    // Assert the payload with a missing analysisType.version field is valid
+    assertUploadState(existingStudyId, payload, VALIDATED);
 
     // remove the analysisType node from the payload
     payload.remove("analysisType");
@@ -161,21 +166,23 @@ public class UploadControllerTest {
   }
 
   @SneakyThrows
-  private void assertUploadState(String studyId, JsonNode payload, UploadStates expectedUploadState){
+  private void assertUploadState(
+      String studyId, JsonNode payload, UploadStates expectedUploadState) {
     // Upload the payload
-    val response = endpointTester.syncUploadPostRequestAnd(studyId, payload)
-        .assertOk()
-        .getResponse();
+    val response =
+        endpointTester.syncUploadPostRequestAnd(studyId, payload).assertOk().getResponse();
     val uploadId = readTree(response.getBody()).path("uploadId").textValue();
 
     // assert the upload state
-    val statusResponse = readTree(
-        endpointTester.getUploadStatusGetRequestAnd(studyId, uploadId)
-            .assertOk()
-            .getResponse()
-            .getBody());
+    val statusResponse =
+        readTree(
+            endpointTester
+                .getUploadStatusGetRequestAnd(studyId, uploadId)
+                .assertOk()
+                .getResponse()
+                .getBody());
     val actualUploadState = statusResponse.path("state").textValue();
-    assertEquals(actualUploadState, expectedUploadState.getText());
+    assertEquals(expectedUploadState.getText(), actualUploadState);
   }
 
   @SneakyThrows

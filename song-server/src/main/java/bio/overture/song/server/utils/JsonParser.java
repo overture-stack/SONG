@@ -1,5 +1,8 @@
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static lombok.AccessLevel.PRIVATE;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.NoArgsConstructor;
 

@@ -17,6 +17,7 @@ import org.everit.json.schema.SchemaException;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -57,18 +58,25 @@ public class AnalysisTypeService {
   private static final Pattern ANALYSIS_TYPE_NAME_PATTERN =
       compile("^" + ANALYSIS_TYPE_NAME_REGEX + "$");
 
+  /** Dependencies */
   private final Schema analysisTypeMetaSchema;
+
   private final AnalysisSchemaRepository analysisSchemaRepository;
   private final String analysisPayloadBaseContent;
 
+  /** Configuration */
+  private final boolean enforceLatest;
+
   @Autowired
   public AnalysisTypeService(
+      @Value("${schemas.enforceLatest}") boolean enforceLatest,
       @NonNull Supplier<Schema> analysisTypeMetaSchemaSupplier,
       @Qualifier("analysisPayloadBaseJson") @NonNull String analysisPayloadBaseContent,
       @NonNull AnalysisSchemaRepository analysisSchemaRepository) {
     this.analysisTypeMetaSchema = analysisTypeMetaSchemaSupplier.get();
     this.analysisSchemaRepository = analysisSchemaRepository;
     this.analysisPayloadBaseContent = analysisPayloadBaseContent;
+    this.enforceLatest = enforceLatest;
   }
 
   public Schema getAnalysisTypeMetaSchema() {
@@ -98,15 +106,10 @@ public class AnalysisTypeService {
   @SneakyThrows
   public AnalysisSchema getAnalysisSchema(String name, Integer version) {
     checkServer(!isBlank(name), getClass(), MALFORMED_PARAMETER, "The name parameter is blank");
-    checkServer(!isNull(version), getClass(), MALFORMED_PARAMETER, "The version parameter is null");
     validateAnalysisTypeName(name);
-    checkServer(
-        version > 0,
-        getClass(),
-        MALFORMED_PARAMETER,
-        "The version '%s' must be greater than 0",
-        version);
-    val result = analysisSchemaRepository.findByNameAndVersion(name, version);
+
+    val resolvedVersion = resolveVersion(name, version);
+    val result = analysisSchemaRepository.findByNameAndVersion(name, resolvedVersion);
     if (!result.isPresent()) {
       val latestVersion = getLatestVersionNumber(name);
       checkServer(
@@ -172,6 +175,23 @@ public class AnalysisTypeService {
         : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
   }
 
+  public Integer getLatestVersionNumber(@NonNull String name) {
+    return analysisSchemaRepository.countAllByName(name);
+  }
+
+  private int resolveVersion(@NonNull String name, Integer nullableVersion) {
+    if (isNull(nullableVersion)) {
+      return getLatestVersionNumber(name);
+    }
+    checkServer(
+        nullableVersion > 0,
+        getClass(),
+        MALFORMED_PARAMETER,
+        "The version '%s' must be greater than 0",
+        nullableVersion);
+    return nullableVersion;
+  }
+
   private JsonNode renderPayloadJsonSchema(JsonNode schema) throws IOException {
     val rendered = (ObjectNode) readTree(analysisPayloadBaseContent);
     val baseProperties = (ObjectNode) rendered.path(PROPERTIES);
@@ -184,10 +204,6 @@ public class AnalysisTypeService {
     }
     baseProperties.setAll(schemaProperties);
     return rendered;
-  }
-
-  private Integer getLatestVersionNumber(String name) {
-    return analysisSchemaRepository.countAllByName(name);
   }
 
   @SneakyThrows
@@ -244,12 +260,12 @@ public class AnalysisTypeService {
         .build();
   }
 
-  private static void validateAnalysisTypeName(@NonNull String analysisTypeName) {
+  private void validateAnalysisTypeName(@NonNull String analysisTypeName) {
     checkServer(
         ANALYSIS_TYPE_NAME_PATTERN.matcher(analysisTypeName).matches(),
-        AnalysisTypeService.class,
+        getClass(),
         MALFORMED_PARAMETER,
-        "The analysisType name '%s' does not match the regex",
+        "The analysisTypeId name '%s' does not match the regex: %s",
         analysisTypeName,
         ANALYSIS_TYPE_NAME_PATTERN.pattern());
   }

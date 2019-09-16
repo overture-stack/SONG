@@ -155,7 +155,7 @@ public class AnalysisController {
   }
 
   /**
-   * * Return all of the files in the fileset for this analyis
+   * * Return all of the files in the fileset for this analysis
    *
    * @param id The analysis id
    * @return A list of all the files in this analysis analysisId's fileset.
