@@ -4,6 +4,7 @@ import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
+import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -34,6 +35,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
    */
   @Autowired private WebApplicationContext webApplicationContext;
   @Autowired private StudyService studyService;
+  @Autowired private AnalysisService analysisService;
 
   /**
    * Implementations
@@ -133,6 +135,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
     // Register a new version, making the previously saved analysis out-dated
     registerAgain();
 
+    val a = analysisService.unsecuredDeepRead(analysisId);
     // Create an updateRequest body
     val request =new UpdateAnalysisRequest();
     val nonLatestAnalysisTypeId = AnalysisTypeId.builder()
@@ -140,7 +143,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
         .version(getLatestAnalysisType().getVersion()-1)
         .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(getLatestAnalysisType().getSchema());
+    request.addData(a.getAnalysisData().getData());
 
     // Assert that when an analysisUpdate using an out-dated analysisType is attempted,
     // an ANALYSIS_TYPE_INCORRECT_VERSION server error is thrown
@@ -200,6 +203,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
         .getResponse()
         .getBody());
     val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+    val a = analysisService.unsecuredDeepRead(analysisId);
 
     // Create an updateRequest body
     val request =new UpdateAnalysisRequest();
@@ -208,7 +212,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
         .version(getLatestAnalysisType().getVersion())
         .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(getLatestAnalysisType().getSchema());
+    request.addData(a.getAnalysisData().getData());
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester().updateAnalysisPutRequestAnd(getStudyId(), analysisId, objectToTree(request))
@@ -230,6 +234,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
         .getResponse()
         .getBody());
     val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+    val a = analysisService.unsecuredDeepRead(analysisId);
 
     // Create an updateRequest body with a missing version
     val request =new UpdateAnalysisRequest();
@@ -237,10 +242,11 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
         .name(getLatestAnalysisType().getName())
         .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(getLatestAnalysisType().getSchema());
+    request.addData(a.getAnalysisData().getData());
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester().updateAnalysisPutRequestAnd(getStudyId(), analysisId, objectToTree(request))
         .assertOk();
   }
+
 }

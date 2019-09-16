@@ -7,13 +7,13 @@
   "properties": {
     "analysisType": {
       "type" : "object",
-      "required": ["name", "version"],
+      "required": ["name"],
       "properties" : {
         "name" : {
           "type" : "string"
         },
         "version" : {
-          "type" : "integer"
+          "type" : ["integer", "null"]
         }
       }
     },
