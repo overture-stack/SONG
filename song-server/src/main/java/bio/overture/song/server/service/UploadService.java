@@ -19,6 +19,7 @@ package bio.overture.song.server.service;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.dto.SubmitResponse;
 import bio.overture.song.server.model.enums.IdPrefix;
 import bio.overture.song.server.repository.UploadRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +48,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CRE
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
 import static bio.overture.song.core.exceptions.ServerErrors.UPLOAD_ID_NOT_FOUND;
@@ -56,6 +59,7 @@ import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
 import static bio.overture.song.server.model.enums.UploadStates.CREATED;
 import static bio.overture.song.server.model.enums.UploadStates.SAVED;
@@ -174,7 +178,8 @@ public class UploadService {
   @SneakyThrows
   @Transactional
   public ResponseEntity<String> save(
-      @NonNull String studyId, @NonNull String uploadId, final boolean ignoreAnalysisIdCollisions) {
+      @NonNull String studyId, @NonNull String uploadId,
+      final boolean ignoreAnalysisIdCollisions) {
     val upload = securedRead(studyId, uploadId);
     val uploadState = resolveState(upload.getState());
 
@@ -199,6 +204,38 @@ public class UploadService {
     updateAsSaved(uploadId);
     val reply = fromSingleQuoted(format("{'analysisId': '%s', 'status': '%s'}", analysisId, "ok"));
     return ok(reply);
+  }
+
+  public SubmitResponse submit(@NonNull String studyId, String payloadString, final boolean ignoreAnalysisIdCollisions) {
+    // Check study exists
+    studyService.checkStudyExist(studyId);
+
+    // Parse payload
+    JsonNode payloadJson;
+    try {
+      payloadJson = readTree(payloadString);
+    } catch (IOException e) {
+      log.error(e.getMessage());
+      throw buildServerException(getClass(), PAYLOAD_PARSING, "Unable to read the input payload: "+e.getMessage());
+    }
+
+    // Validate payload
+    val error = validator.validate(payloadJson);
+    if (error.isPresent()){
+      val message =error.get();
+      throw buildServerException(getClass(), SCHEMA_VIOLATION, message);
+    }
+
+    // Check the payload studyId matches the request studyId
+    val payload = fromJson(payloadJson, Payload.class);
+    checkStudyInPayload(studyId, payload);
+
+    // Create the analysis
+    val analysisId = analysisService.create(studyId, payload, ignoreAnalysisIdCollisions);
+    return SubmitResponse.builder()
+        .analysisId(analysisId)
+        .status(OK)
+        .build();
   }
 
   private Upload unsecuredRead(@NonNull String uploadId) {

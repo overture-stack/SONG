@@ -176,7 +176,13 @@ public class AnalysisTypeService {
   }
 
   public Integer getLatestVersionNumber(@NonNull String name) {
-    return analysisSchemaRepository.countAllByName(name);
+    val version = analysisSchemaRepository.countAllByName(name);
+    checkServer(
+        version > 0,
+        getClass(),
+        ANALYSIS_TYPE_NOT_FOUND,
+        "The analysisType with name '%s' was not found",name);
+    return version;
   }
 
   private int resolveVersion(@NonNull String name, Integer nullableVersion) {

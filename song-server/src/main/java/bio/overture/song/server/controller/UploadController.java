@@ -17,15 +17,11 @@
 
 package bio.overture.song.server.controller;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import bio.overture.song.server.model.Upload;
+import bio.overture.song.server.model.dto.SubmitResponse;
 import bio.overture.song.server.service.UploadService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +36,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
@@ -97,5 +99,17 @@ public class UploadController {
       @RequestParam(value = "ignoreAnalysisIdCollisions", defaultValue = "false")
           boolean ignoreAnalysisIdCollisions) {
     return uploadService.save(studyId, uploadId, ignoreAnalysisIdCollisions);
+  }
+
+  @ApiOperation(value = "Submit", notes = "Synchronously submit a json payload")
+  @PostMapping(
+      value = "/{studyId}",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  public SubmitResponse submit(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @RequestBody @Valid String json_payload) {
+    return uploadService.submit(studyId, json_payload, false);
   }
 }

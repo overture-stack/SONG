@@ -16,11 +16,9 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
-import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
@@ -90,9 +88,9 @@ public class ValidationService {
         errors = format("Missing the '%s' field", ANALYSIS_TYPE);
       } else {
         val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
-        val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
-        errors = validateAnalysisTypeVersion(analysisType);
+        errors = validateAnalysisTypeVersion(analysisTypeId);
         if (isBlank(errors)) {
+          val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
           log.info(
               format(
                   "Found Analysis type: name=%s  version=%s",
@@ -102,15 +100,9 @@ public class ValidationService {
           validateWithSchema(schema, payload);
         }
       }
-    } catch (ServerException e) {
-      log.error(e.getSongError().toPrettyJson());
-      errors = e.getSongError().getMessage();
     } catch (ValidationException e) {
       errors = COMMA.join(e.getAllMessages());
       log.error(errors);
-    } catch (Exception e) {
-      log.error(e.getMessage());
-      errors = format("Unknown processing problem: %s", e.getMessage());
     }
     return Optional.ofNullable(errors);
   }
@@ -133,10 +125,6 @@ public class ValidationService {
   // TODO: transition to everit json schema library
   public Optional<String> validateStorageDownloadResponse(JsonNode response) {
     return processResponse(validator.validate(STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
-  }
-
-  public String validateAnalysisTypeVersion(AnalysisType a) {
-    return validateAnalysisTypeVersion(a.getName(), a.getVersion());
   }
 
   public String validateAnalysisTypeVersion(AnalysisTypeId a) {

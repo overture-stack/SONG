@@ -40,7 +40,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -77,10 +76,7 @@ import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
 import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
 import static bio.overture.song.server.model.enums.UploadStates.resolveState;
 import static bio.overture.song.server.utils.TestAnalysis.extractBoolean;
@@ -510,20 +506,6 @@ public class UploadServiceTest {
       assertEquals(analysisTypeVersion2.getVersion().intValue(), 2);
       latestAnalysisType = analysisTypeVersion2;
     }
-  }
-
-  private JsonNode buildTestEnforcePayload(@Nullable Boolean isLatestVersion) {
-    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val analysisTypeNode = (ObjectNode) j.path(ANALYSIS_TYPE);
-    analysisTypeNode.put(NAME, latestAnalysisType.getName());
-    if (isNull(isLatestVersion)) {
-      analysisTypeNode.remove(VERSION);
-    } else if (isLatestVersion) {
-      analysisTypeNode.put(VERSION, latestAnalysisType.getVersion());
-    } else {
-      analysisTypeNode.put(VERSION, latestAnalysisType.getVersion() - 1);
-    }
-    return null;
   }
 
   @SneakyThrows
