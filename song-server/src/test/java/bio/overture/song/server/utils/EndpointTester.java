@@ -78,7 +78,11 @@ public class EndpointTester {
     val headers = new HttpHeaders();
     headers.setContentType(APPLICATION_JSON);
     headers.setAccept(ImmutableList.of(APPLICATION_JSON));
-    return new WebResource(mockMvc, "").logging().headers(headers);
+    val w = new WebResource(mockMvc, "").headers(headers);
+    if (enableLogging){
+      w.logging();
+    }
+    return w;
   }
 
   public ResponseOption getSchemaGetRequestAnd(
@@ -116,32 +120,10 @@ public class EndpointTester {
         .getAnd();
   }
 
-  // GET /upload/{studyId}/status/{uploadId}
-  public ResponseOption getUploadStatusGetRequestAnd(String studyId, String uploadId) {
-    return initWebRequest().endpoint("upload/%s/status/%s", studyId, uploadId).getAnd();
-  }
-
-  public ResponseOption syncUploadPostRequestAnd(String studyId, JsonNode payload) {
-    return initWebRequest().endpoint("upload/%s", studyId).body(payload).postAnd();
-  }
-
   // POST /schemas
   public ResponseOption registerAnalysisTypePostRequestAnd(
       @NonNull RegisterAnalysisTypeRequest request) {
     return initWebRequest().endpoint(SCHEMAS).body(request).postAnd();
-  }
-
-  public ResponseOption exportAnalysisGetRequestAnd(
-      Boolean includeAnalysisId, String... analysisIds) {
-    return initWebRequest()
-        .endpoint("export/analysis/%s", Joiners.COMMA.join(analysisIds))
-        .optionalQuerySingleParam("includeAnalysisId", includeAnalysisId)
-        .getAnd();
-  }
-
-  public ResponseOption getAnalysisGetRequestAnd(
-      @NonNull String studyId, @NonNull String analysisId) {
-    return initWebRequest().endpoint("studies/%s/analysis/%s", studyId, analysisId).getAnd();
   }
 
   public ResponseOption updateAnalysisPutRequestAnd(
@@ -159,14 +141,7 @@ public class EndpointTester {
     return getAnalysisTypeVersionGetRequestAnd(analysisTypeName, null, false);
   }
 
-  // POST /upload/{study}/save/{uploadId}
-  public ResponseOption saveUploadPostRequestAnd(@NonNull String studyId, @NonNull String uploadId){
-    return initWebRequest()
-        .endpoint("upload/%s/save/%s", studyId, uploadId)
-        .postAnd();
-  }
-
-  // POST /upload/{study}/submit
+  // POST /upload/{study}
   public ResponseOption submitPostRequestAnd(@NonNull String studyId, JsonNode payload){
     return initWebRequest().endpoint("upload/%s", studyId).body(payload).postAnd();
   }

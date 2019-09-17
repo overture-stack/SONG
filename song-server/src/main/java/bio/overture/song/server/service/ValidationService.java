@@ -37,7 +37,10 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
@@ -124,6 +127,8 @@ public class ValidationService {
   }
 
   public String validateAnalysisTypeVersion(AnalysisTypeId a) {
+    checkServer(!isBlank(a.getName()), getClass(),
+        MALFORMED_PARAMETER, "The analysisType name cannot be null");
     return validateAnalysisTypeVersion(a.getName(), a.getVersion());
   }
 

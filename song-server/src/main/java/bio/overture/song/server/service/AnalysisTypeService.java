@@ -169,7 +169,8 @@ public class AnalysisTypeService {
         : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
   }
 
-  public Integer getLatestVersionNumber(@NonNull String name) {
+  public Integer getLatestVersionNumber(String name) {
+    validateAnalysisTypeName(name);
     val version = analysisSchemaRepository.countAllByName(name);
     checkServer(
         version > 0,
