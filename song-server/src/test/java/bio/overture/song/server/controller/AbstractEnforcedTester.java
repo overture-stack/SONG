@@ -3,15 +3,14 @@ package bio.overture.song.server.controller;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.server.model.dto.SubmitResponse;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
-import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.EndpointTester;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Before;
 import org.springframework.lang.Nullable;
@@ -20,13 +19,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.file.Paths;
-import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.isNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
@@ -47,14 +43,8 @@ public abstract class AbstractEnforcedTester {
           .dataDir(Paths.get("schemas/analysis/legacy/"))
           .build();
 
-  private static final String UPLOAD_TEST_DIR = "documents";
-  private static final List<String> PAYLOAD_PATHS =
-      newArrayList("variantcall-valid.json", "sequencingread-valid.json");
-  private static final String DEFAULT_STUDY_ID = "ABC123";
-
   // This was done because the autowired mockMvc wasn't working properly, it was getting http 403
   // errors
-
   protected abstract WebApplicationContext getWebApplicationContext();
   protected abstract StudyService getStudyService();
 
@@ -133,24 +123,10 @@ public abstract class AbstractEnforcedTester {
     return j;
   }
 
-  @SneakyThrows
-  protected String assertUploadState(
-      String studyId, JsonNode payload, UploadStates expectedUploadState) {
-    // Upload the payload
-    val response =
-        endpointTester.syncUploadPostRequestAnd(studyId, payload).assertOk().getResponse();
-    val uploadId = readTree(response.getBody()).path("uploadId").textValue();
-
-    // assert the upload state
-    val statusResponse =
-        readTree(
-            endpointTester
-                .getUploadStatusGetRequestAnd(studyId, uploadId)
-                .assertOk()
-                .getResponse()
-                .getBody());
-    val actualUploadState = statusResponse.path("state").textValue();
-    assertEquals(expectedUploadState.getText(), actualUploadState);
-    return uploadId;
+  protected  SubmitResponse submit(boolean isLatestVersion){
+    // Create a valid payload containing the latest version
+    val payload = buildTestEnforcePayload(isLatestVersion);
+    return getEndpointTester().submitPostRequestAnd(getStudyId(), payload)
+        .extractOneEntity(SubmitResponse.class);
   }
 }

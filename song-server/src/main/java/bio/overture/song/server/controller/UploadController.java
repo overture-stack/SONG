@@ -53,18 +53,6 @@ public class UploadController {
   /** Dependencies */
   @Autowired private final UploadService uploadService;
 
-  @ApiOperation(value = "SyncUpload", notes = "Synchronously uploads a json payload")
-  @PostMapping(
-      value = "/{studyId}",
-      consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
-  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> syncUpload(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId,
-      @RequestBody @Valid String json_payload) {
-    return uploadService.upload(studyId, json_payload, false);
-  }
-
   @ApiOperation(value = "AsyncUpload", notes = "Asynchronously uploads a json payload")
   @PostMapping(
       value = "/{studyId}/async",

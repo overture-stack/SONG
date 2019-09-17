@@ -214,6 +214,8 @@ public class UploadService {
     JsonNode payloadJson;
     try {
       payloadJson = readTree(payloadString);
+      val payload = fromJson(payloadJson, Payload.class);
+      checkAnalysisTypeVersion(payload);
     } catch (IOException e) {
       log.error(e.getMessage());
       throw buildServerException(getClass(), PAYLOAD_PARSING, "Unable to read the input payload: "+e.getMessage());
@@ -251,6 +253,7 @@ public class UploadService {
 
   // Check if enforceLatest=True, that the uploadId contains the latest version.
   // If it doesnt, mark the uploadId as VALIDATION_ERROR uploadState and error out.
+  @Deprecated
   private void checkAnalysisTypeVersion(Payload payload, String uploadId){
     val analysisTypeId = payload.getAnalysisType();
     val errors = validator.validateAnalysisTypeVersion(analysisTypeId);
@@ -258,6 +261,12 @@ public class UploadService {
       validator.updateAsInvalid(uploadId, errors);
       throw buildServerException(getClass(), ANALYSIS_TYPE_INCORRECT_VERSION, errors);
     }
+  }
+
+  private void checkAnalysisTypeVersion(Payload payload){
+    val analysisTypeId = payload.getAnalysisType();
+    val errors = validator.validateAnalysisTypeVersion(analysisTypeId);
+    checkServer(isNull(errors),getClass(), ANALYSIS_TYPE_INCORRECT_VERSION, errors);
   }
 
   private void create(

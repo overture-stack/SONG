@@ -166,6 +166,11 @@ public class EndpointTester {
         .postAnd();
   }
 
+  // POST /upload/{study}/submit
+  public ResponseOption submitPostRequestAnd(@NonNull String studyId, JsonNode payload){
+    return initWebRequest().endpoint("upload/%s", studyId).body(payload).postAnd();
+  }
+
 
   // PUT /studies/{}/analysis/publish/{aid}
   public ResponseOption publishAnalysisPutRequestAnd(@NonNull String studyId, @NonNull String analysisId){

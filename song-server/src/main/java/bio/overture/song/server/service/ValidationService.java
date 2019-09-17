@@ -37,7 +37,6 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
@@ -88,17 +87,14 @@ public class ValidationService {
         errors = format("Missing the '%s' field", ANALYSIS_TYPE);
       } else {
         val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
-        errors = validateAnalysisTypeVersion(analysisTypeId);
-        if (isBlank(errors)) {
-          val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
-          log.info(
-              format(
-                  "Found Analysis type: name=%s  version=%s",
-                  analysisType.getName(), analysisType.getVersion()));
+        val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
+        log.info(
+            format(
+                "Found Analysis type: name=%s  version=%s",
+                analysisType.getName(), analysisType.getVersion()));
 
-          val schema = buildSchema(analysisType.getSchema());
-          validateWithSchema(schema, payload);
-        }
+        val schema = buildSchema(analysisType.getSchema());
+        validateWithSchema(schema, payload);
       }
     } catch (ValidationException e) {
       errors = COMMA.join(e.getAllMessages());

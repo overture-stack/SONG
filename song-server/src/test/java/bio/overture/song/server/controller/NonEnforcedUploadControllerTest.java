@@ -1,6 +1,5 @@
 package bio.overture.song.server.controller;
 
-import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
 import bio.overture.song.server.service.AnalysisService;
@@ -20,8 +19,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;
-import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
+import static bio.overture.song.core.utils.Responses.OK;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(secure = false)
@@ -33,47 +31,20 @@ public class NonEnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Autowired private StudyService studyService;
   @Autowired private AnalysisService analysisService;
 
-  @Override protected WebApplicationContext getWebApplicationContext() {
+  @Override
+  protected WebApplicationContext getWebApplicationContext() {
     return webApplicationContext;
   }
 
-  @Override protected StudyService getStudyService() {
+  @Override
+  protected StudyService getStudyService() {
     return studyService;
-  }
-
-  @Test
-  public void nonEnforceLatestUpload_NonLatestAndNotEnforced_ValidationError() {
-    val payload = buildTestEnforcePayload(false);
-    assertUploadState(getStudyId(), payload, VALIDATED);
-  }
-
-  @Test
-  public void nonEnforceLatestUpload_MissingVersionAndNotEnforced_Validated() {
-    val payload = buildTestEnforcePayload(null);
-    assertUploadState(getStudyId(), payload, VALIDATED);
-  }
-
-  @Test
-  public void nonEnforceLatestUpload_LatestAndNotEnforced_Validated() {
-    val payload = buildTestEnforcePayload(true);
-    assertUploadState(getStudyId(), payload, VALIDATED);
   }
 
   @Test
   @SneakyThrows
   public void nonEnforcedLatestUpdate_NonLatest_Success(){
-    // Create a valid payload containing the latest version
-    val payload = buildTestEnforcePayload(true);
-
-    // Upload the payload and assert its validated
-    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
-
-    // Save the upload
-    val saveStatus = JsonUtils.readTree(getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
-        .assertOk()
-        .getResponse()
-        .getBody());
-    val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+    val analysisId = submit(false).getAnalysisId();
 
     // Register a new version, making the previously saved analysis out-dated
     registerAgain();
@@ -96,18 +67,7 @@ public class NonEnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   @SneakyThrows
   public void nonEnforcedLatestUpdate_Latest_Success(){
-    // Create a valid payload containing the latest version
-    val payload = buildTestEnforcePayload(true);
-
-    // Upload the payload and assert its validated
-    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
-
-    // Save the upload
-    val saveStatus = JsonUtils.readTree(getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
-        .assertOk()
-        .getResponse()
-        .getBody());
-    val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+    val analysisId = submit(true).getAnalysisId();
     val a = analysisService.unsecuredDeepRead(analysisId);
 
     // Create an updateRequest body
@@ -127,18 +87,7 @@ public class NonEnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   @SneakyThrows
   public void nonEnforcedLatestUpdate_Missing_Success(){
-    // Create a valid payload containing the latest version
-    val payload = buildTestEnforcePayload(true);
-
-    // Upload the payload and assert its validated
-    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
-
-    // Save the upload
-    val saveStatus = JsonUtils.readTree(getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
-        .assertOk()
-        .getResponse()
-        .getBody());
-    val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+    val analysisId = submit(true).getAnalysisId();
     val a = analysisService.unsecuredDeepRead(analysisId);
 
     // Create an updateRequest body with a missing version
@@ -158,18 +107,7 @@ public class NonEnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   @SneakyThrows
   public void nonEnforcedLatestPublish_Latest_Success(){
-    // Create a valid payload containing the latest version
-    val payload = buildTestEnforcePayload(true);
-
-    // Upload the payload and assert its validated
-    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
-
-    // Save the upload
-    val saveStatus = JsonUtils.readTree(getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
-        .assertOk()
-        .getResponse()
-        .getBody());
-    val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+    val analysisId = submit(true).getAnalysisId();
 
     // Assert the error ResourceAccessException was thrown, indicating that the check for the analysisType version
     // was successfull
@@ -186,18 +124,7 @@ public class NonEnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   @SneakyThrows
   public void nonEnforcedLatestPublish_NonLatest_Success(){
-    // Create a valid payload containing the latest version
-    val payload = buildTestEnforcePayload(true);
-
-    // Upload the payload and assert its validated
-    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
-
-    // Save the upload
-    val saveStatus = JsonUtils.readTree(getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
-        .assertOk()
-        .getResponse()
-        .getBody());
-    val analysisId = saveStatus.path(ANALYSIS_ID).textValue();
+    val analysisId = submit(true).getAnalysisId();
 
     // Register a new version, making the previously saved analysis out-dated
     registerAgain();
@@ -215,32 +142,16 @@ public class NonEnforcedUploadControllerTest extends AbstractEnforcedTester {
   }
 
   @Test
-  public void nonEnforcedLatestSave_Latest_Success(){
-    // Create a valid payload containing the latest version
-    val payload = buildTestEnforcePayload(true);
-
-    // Upload the payload and assert successful validation when enforceLatest=true
-    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
-
-    // Assert that saving the upload while enforceLatest=true is successful
-    getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
-        .assertOk();
+  public void nonEnforcedLatestSubmit_Latest_Success(){
+    val status = submit(true).getStatus();
+    assertEquals(OK, status);
   }
 
   @Test
-  public void nonEnforcedLatestSave_NonLatest_Success(){
-    // Create a valid payload containing the latest version
-    val payload = buildTestEnforcePayload(true);
-
-    // Upload the payload and assert successful validation when enforceLatest=true
-    val uploadId = assertUploadState(getStudyId(), payload, VALIDATED);
-
-    // Register a new version, making the previously upload outdated
-    registerAgain();
-
-    // Assert that saving the upload while enforceLatest=false is successful
-    getEndpointTester().saveUploadPostRequestAnd(getStudyId(), uploadId )
-        .assertOk();
-
+  public void nonEnforcedLatestSubmit_NonLatest_Success(){
+    val status = submit(false).getStatus();
+    assertEquals(OK, status);
   }
+
+
 }
