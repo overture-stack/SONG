@@ -17,6 +17,14 @@
 
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
+import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.ResponseOption;
@@ -24,6 +32,7 @@ import bio.overture.song.server.utils.web.WebResource;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -33,16 +42,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.Nullable;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Collection;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
-import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
 
 @RequiredArgsConstructor
 public class EndpointTester {
@@ -79,7 +78,7 @@ public class EndpointTester {
     headers.setContentType(APPLICATION_JSON);
     headers.setAccept(ImmutableList.of(APPLICATION_JSON));
     val w = new WebResource(mockMvc, "").headers(headers);
-    if (enableLogging){
+    if (enableLogging) {
       w.logging();
     }
     return w;
@@ -142,13 +141,13 @@ public class EndpointTester {
   }
 
   // POST /upload/{study}
-  public ResponseOption submitPostRequestAnd(@NonNull String studyId, JsonNode payload){
+  public ResponseOption submitPostRequestAnd(@NonNull String studyId, JsonNode payload) {
     return initWebRequest().endpoint("upload/%s", studyId).body(payload).postAnd();
   }
 
-
   // PUT /studies/{}/analysis/publish/{aid}
-  public ResponseOption publishAnalysisPutRequestAnd(@NonNull String studyId, @NonNull String analysisId){
+  public ResponseOption publishAnalysisPutRequestAnd(
+      @NonNull String studyId, @NonNull String analysisId) {
     return initWebRequest()
         .endpoint("studies/%s/analysis/publish/%s", studyId, analysisId)
         .putAnd();

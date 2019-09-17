@@ -16,20 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.dto.SubmitResponse;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.io.IOException;
-
-import static java.util.Objects.isNull;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
@@ -42,6 +28,19 @@ import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static java.util.Objects.isNull;
+
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.dto.SubmitResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import javax.transaction.Transactional;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -62,7 +61,8 @@ public class UploadService {
   }
 
   @Transactional
-  public SubmitResponse submit(@NonNull String studyId, String payloadString, final boolean ignoreAnalysisIdCollisions) {
+  public SubmitResponse submit(
+      @NonNull String studyId, String payloadString, final boolean ignoreAnalysisIdCollisions) {
     // Check study exists
     studyService.checkStudyExist(studyId);
 
@@ -80,21 +80,21 @@ public class UploadService {
 
     // Create the analysis
     val analysisId = analysisService.create(studyId, payload, ignoreAnalysisIdCollisions);
-    return SubmitResponse.builder()
-        .analysisId(analysisId)
-        .status(OK)
-        .build();
+    return SubmitResponse.builder().analysisId(analysisId).status(OK).build();
   }
 
-  private void checkAnalysisTypeVersion(@NonNull Payload payload){
-    checkServer(!isNull(payload.getAnalysisType()), getClass(),
-        MALFORMED_PARAMETER, "The analysisType field cannot be null");
+  private void checkAnalysisTypeVersion(@NonNull Payload payload) {
+    checkServer(
+        !isNull(payload.getAnalysisType()),
+        getClass(),
+        MALFORMED_PARAMETER,
+        "The analysisType field cannot be null");
     val analysisTypeId = payload.getAnalysisType();
     val errors = validator.validateAnalysisTypeVersion(analysisTypeId);
-    checkServer(isNull(errors),getClass(), ANALYSIS_TYPE_INCORRECT_VERSION, errors);
+    checkServer(isNull(errors), getClass(), ANALYSIS_TYPE_INCORRECT_VERSION, errors);
   }
 
-  private JsonNode parsePayload(String payloadString){
+  private JsonNode parsePayload(String payloadString) {
     try {
       val payloadJson = readTree(payloadString);
       val payload = fromJson(payloadJson, Payload.class);
@@ -102,15 +102,18 @@ public class UploadService {
       return payloadJson;
     } catch (IOException e) {
       log.error(e.getMessage());
-      throw buildServerException(getClass(), PAYLOAD_PARSING, "Unable to read the input payload: "+payloadString.replaceAll("%", "%%"));
+      throw buildServerException(
+          getClass(),
+          PAYLOAD_PARSING,
+          "Unable to read the input payload: " + payloadString.replaceAll("%", "%%"));
     }
   }
 
-  private void validatePayload(JsonNode payloadJson){
+  private void validatePayload(JsonNode payloadJson) {
     // Validate payload format and content
     val error = validator.validate(payloadJson);
-    if (error.isPresent()){
-      val message =error.get();
+    if (error.isPresent()) {
+      val message = error.get();
       throw buildServerException(getClass(), SCHEMA_VIOLATION, message);
     }
   }
@@ -132,5 +135,4 @@ public class UploadService {
         expectedStudyId,
         payloadStudyId);
   }
-
 }

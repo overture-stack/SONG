@@ -16,40 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.core.utils.Responses;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.repository.UploadRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.icgc.dcc.id.client.core.IdClient;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-
-import javax.transaction.Transactional;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
 import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
@@ -65,6 +31,39 @@ import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspat
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.core.utils.Responses;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.repository.UploadRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Map;
+import javax.transaction.Transactional;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.icgc.dcc.id.client.core.IdClient;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 @Slf4j
 @SpringBootTest
@@ -97,7 +96,6 @@ public class UploadServiceTest {
   @Autowired ValidationService validationService;
   @Autowired UploadRepository uploadRepository;
   @Autowired AnalysisTypeService analysisTypeService;
-
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(UploadServiceTest.class.getSimpleName());
@@ -153,7 +151,8 @@ public class UploadServiceTest {
         ANALYSIS_ID_COLLISION,
         "Collision was not detected!");
 
-    // Submit2 - same as save1 except ignoreAnalysisIdCollisions = true, which will successfully submit
+    // Submit2 - same as save1 except ignoreAnalysisIdCollisions = true, which will successfully
+    // submit
     // the payload
     val response2 = uploadService.submit(DEFAULT_STUDY, jsonPayload, true);
     assertEquals(Responses.OK, response2.getStatus());
@@ -176,7 +175,8 @@ public class UploadServiceTest {
     assertTrue(idClient.getAnalysisId(expectedAnalysisId).isPresent());
     assertEquals(Responses.OK, response1.getStatus());
 
-    // Submit2 - should detect that an analysis with the same analysisId was already save in the song
+    // Submit2 - should detect that an analysis with the same analysisId was already save in the
+    // song
     // database
     assertSongError(
         () -> uploadService.submit(DEFAULT_STUDY, jsonPayload, true),

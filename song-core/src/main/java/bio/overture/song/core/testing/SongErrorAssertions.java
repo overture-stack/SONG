@@ -17,14 +17,6 @@
 
 package bio.overture.song.core.testing;
 
-import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.exceptions.ServerException;
-import lombok.NonNull;
-import lombok.val;
-
-import java.util.Collection;
-import java.util.function.Supplier;
-
 import static com.google.common.collect.Sets.difference;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
@@ -33,6 +25,13 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.exceptions.ServerException;
+import java.util.Collection;
+import java.util.function.Supplier;
+import lombok.NonNull;
+import lombok.val;
 
 public class SongErrorAssertions {
   private static final Object EMPTY_OBJECT = new Object();

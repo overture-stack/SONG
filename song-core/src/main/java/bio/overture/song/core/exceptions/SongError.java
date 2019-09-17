@@ -17,20 +17,20 @@
 
 package bio.overture.song.core.exceptions;
 
+import static bio.overture.song.core.utils.Debug.streamCallingStackTrace;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.Responses.contextMessage;
+import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
+import static java.lang.System.currentTimeMillis;
+import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+
 import bio.overture.song.core.utils.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.val;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpResponse;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -40,16 +40,15 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkState;
-import static java.lang.String.format;
-import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
-import static java.lang.System.currentTimeMillis;
-import static bio.overture.song.core.utils.Debug.streamCallingStackTrace;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.Responses.contextMessage;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.val;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({
@@ -140,7 +139,8 @@ public class SongError {
       String context, ServerError serverError, String formattedMessage, Object... args) {
     return createSongError(
         serverError,
-        contextMessage(context + "::" + serverError.getErrorId(), formattedMessage, args).replaceAll("%","%%"));
+        contextMessage(context + "::" + serverError.getErrorId(), formattedMessage, args)
+            .replaceAll("%", "%%"));
   }
 
   public static SongError createSongError(

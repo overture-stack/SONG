@@ -16,6 +16,8 @@
  */
 package bio.overture.song.core.utils;
 
+import static com.google.common.base.Strings.emptyToNull;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
@@ -32,16 +34,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.val;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
-
-import static com.google.common.base.Strings.emptyToNull;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.val;
 
 /** Utility functions related to deal with JSON */
 public class JsonUtils {

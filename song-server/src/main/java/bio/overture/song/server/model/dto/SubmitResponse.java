@@ -13,5 +13,4 @@ public class SubmitResponse {
 
   private String analysisId;
   private String status;
-
 }

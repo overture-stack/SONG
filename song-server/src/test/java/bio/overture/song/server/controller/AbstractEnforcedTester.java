@@ -1,5 +1,17 @@
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import static java.util.Objects.isNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.AnalysisType;
@@ -10,6 +22,7 @@ import bio.overture.song.server.utils.EndpointTester;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.nio.file.Paths;
 import lombok.Getter;
 import lombok.val;
 import org.junit.Before;
@@ -17,20 +30,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.nio.file.Paths;
-
-import static java.util.Objects.isNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
-import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 
 public abstract class AbstractEnforcedTester {
 
@@ -46,6 +45,7 @@ public abstract class AbstractEnforcedTester {
   // This was done because the autowired mockMvc wasn't working properly, it was getting http 403
   // errors
   protected abstract WebApplicationContext getWebApplicationContext();
+
   protected abstract StudyService getStudyService();
 
   /** State */
@@ -54,8 +54,7 @@ public abstract class AbstractEnforcedTester {
   @Getter private EndpointTester endpointTester;
   private MockMvc mockMvc;
 
-  @Getter
-  private AnalysisType latestAnalysisType;
+  @Getter private AnalysisType latestAnalysisType;
 
   @Getter private String studyId;
   private boolean initialized;
@@ -77,7 +76,7 @@ public abstract class AbstractEnforcedTester {
     }
   }
 
-  private void initialRegistration(){
+  private void initialRegistration() {
     val studyGenerator = StudyGenerator.createStudyGenerator(getStudyService(), randomGenerator);
     studyId = studyGenerator.createRandomStudy();
     variantCallSchema = LEGACY_SCHEMA_FETCHER.readJsonNode("variantCall.json");
@@ -93,7 +92,7 @@ public abstract class AbstractEnforcedTester {
     latestAnalysisType = analysisTypeVersion;
   }
 
-  protected void registerAgain(){
+  protected void registerAgain() {
     assertFalse(isNull(latestAnalysisType));
     val analysisTypeVersion =
         endpointTester
@@ -104,7 +103,7 @@ public abstract class AbstractEnforcedTester {
                     .build())
             .extractOneEntity(AnalysisType.class);
     assertEquals(analysisTypeVersion.getName(), latestAnalysisType.getName());
-    assertEquals(analysisTypeVersion.getVersion().intValue(), latestAnalysisType.getVersion()+1);
+    assertEquals(analysisTypeVersion.getVersion().intValue(), latestAnalysisType.getVersion() + 1);
     latestAnalysisType = analysisTypeVersion;
   }
 
@@ -123,10 +122,11 @@ public abstract class AbstractEnforcedTester {
     return j;
   }
 
-  protected  SubmitResponse submit(boolean isLatestVersion){
+  protected SubmitResponse submit(boolean isLatestVersion) {
     // Create a valid payload containing the latest version
     val payload = buildTestEnforcePayload(isLatestVersion);
-    return getEndpointTester().submitPostRequestAnd(getStudyId(), payload)
+    return getEndpointTester()
+        .submitPostRequestAnd(getStudyId(), payload)
         .extractOneEntity(SubmitResponse.class);
   }
 }

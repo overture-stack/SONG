@@ -31,4 +31,4 @@ import org.mapstruct.ReportingPolicy;
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
     collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
     mappingInheritanceStrategy = MappingInheritanceStrategy.AUTO_INHERIT_ALL_FROM_CONFIG)
-public class ConverterConfig { }
+public class ConverterConfig {}
