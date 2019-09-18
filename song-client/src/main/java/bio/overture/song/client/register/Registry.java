@@ -16,18 +16,20 @@
  */
 package bio.overture.song.client.register;
 
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
-
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.config.Config;
 import bio.overture.song.core.model.file.FileData;
-import java.util.List;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
+
+import java.util.List;
+
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
 
 @Component
 public class Registry {
@@ -48,33 +50,12 @@ public class Registry {
   }
 
   /**
-   * Register an analysis with the song server.
-   *
-   * @param json
-   * @return The analysisId that the server returned, or null if an error occurred.
+   * Submit an payload to the song server.
    */
-  public Status upload(String json, boolean isAsyncValidation) {
+  public Status submit(String json) {
     checkServerAlive();
-    val url = endpoint.upload(studyId, isAsyncValidation);
+    val url = endpoint.submit(studyId);
     return restClient.postAuth(accessToken, url, json);
-  }
-
-  /**
-   * * Returns the state of the registration on the server (JSON)
-   *
-   * @param uploadId
-   * @return The state of the upload
-   */
-  public Status getUploadStatus(String studyId, String uploadId) {
-    checkServerAlive();
-    val url = endpoint.status(studyId, uploadId);
-    return restClient.get(accessToken, url);
-  }
-
-  public Status save(String studyId, String uploadId, boolean ignoreAnalysisIdCollisions) {
-    checkServerAlive();
-    val url = endpoint.saveById(studyId, uploadId, ignoreAnalysisIdCollisions);
-    return restClient.postAuth(accessToken, url);
   }
 
   public Status getAnalysisFiles(String studyId, String analysisId) {
@@ -155,6 +136,12 @@ public class Registry {
     checkServerAlive();
     val url = endpoint.infoSearch(studyId, includeInfo, searchTerms);
     return restClient.get(accessToken, url);
+  }
+
+  public Status getAnalysisType(@NonNull String name, @Nullable Integer version, @Nullable Boolean unrenderedOnly) {
+    checkServerAlive();
+    val url = endpoint.getAnalysisType(name, version, unrenderedOnly);
+    return restClient.get(url);
   }
 
   public Status getSchema(String schemaId) {

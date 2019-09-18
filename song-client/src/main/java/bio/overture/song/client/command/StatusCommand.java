@@ -17,25 +17,20 @@
 package bio.overture.song.client.command;
 
 import bio.overture.song.client.cli.Status;
-import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @Parameters(
     separators = "=",
     commandDescription = "Get the status of an upload from it's upload id.")
 public class StatusCommand extends Command {
-
-  @Parameter(
-      names = {"-u", "--upload-id"},
-      required = false)
-  private String uploadId;
 
   @Parameter(
       names = {"-p", "--ping"},
@@ -45,20 +40,10 @@ public class StatusCommand extends Command {
 
   @NonNull private Registry registry;
 
-  @NonNull private Config config;
-
   @Override
   public void run() throws IOException {
-    if (ping) {
-      val status = new Status();
-      status.output(Boolean.toString(registry.isAlive()));
-      save(status);
-    } else {
-      if (uploadId == null) {
-        uploadId = getJson().at("/uploadId").asText("");
-      }
-      val status = registry.getUploadStatus(config.getStudyId(), uploadId);
-      save(status);
-    }
+    val status = new Status();
+    status.output(Boolean.toString(registry.isAlive()));
+    save(status);
   }
 }

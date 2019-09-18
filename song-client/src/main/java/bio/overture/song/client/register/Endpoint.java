@@ -16,16 +16,18 @@
  */
 package bio.overture.song.client.register;
 
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.springframework.lang.Nullable;
+
+import java.util.List;
+
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 @RequiredArgsConstructor
 public class Endpoint {
@@ -34,26 +36,30 @@ public class Endpoint {
 
   @NonNull private String serverUrl;
 
-  public String upload(String studyId, boolean isAsyncValidation) {
-    if (isAsyncValidation) {
-      return format("%s/upload/%s/async", serverUrl, studyId);
-    } else {
-      return format("%s/upload/%s", serverUrl, studyId);
-    }
-  }
-
-  public String saveById(String studyId, String uploadId, boolean ignoreAnalysisIdCollisions) {
-    return format(
-        "%s/upload/%s/save/%s?ignoreAnalysisIdCollisions=%s",
-        serverUrl, studyId, uploadId, ignoreAnalysisIdCollisions);
-  }
-
-  public String status(String studyId, String uploadId) {
-    return format("%s/upload/%s/status/%s", serverUrl, studyId, uploadId);
+  public String submit(String studyId) {
+    return format("%s/upload/%s", serverUrl, studyId);
   }
 
   public String getAnalysisFiles(String studyId, String analysisId) {
     return format("%s/studies/%s/analysis/%s/files", serverUrl, studyId, analysisId);
+  }
+
+  public String getAnalysisType(@NonNull String name, @Nullable Integer version, @Nullable Boolean unrenderedOnly) {
+    val sb = new StringBuilder();
+    sb.append(format("%s/schemas/%s", serverUrl, name));
+    if (!isNull(version) && !isNull(unrenderedOnly) ){
+      sb.append("?")
+          .append("version="+version)
+          .append("&")
+          .append("unrenderedOnly="+unrenderedOnly);
+    } else if(!isNull(version)){
+      sb.append("?")
+          .append("version="+version);
+    } else if(!isNull(unrenderedOnly)){
+      sb.append("?")
+          .append("unrenderedOnly="+unrenderedOnly);
+    }
+    return sb.toString();
   }
 
   public String getAnalysis(String studyId, String analysisId) {

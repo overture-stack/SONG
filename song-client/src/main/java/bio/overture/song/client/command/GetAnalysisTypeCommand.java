@@ -16,40 +16,48 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-@RequiredArgsConstructor
-@Parameters(
-    separators = "=",
-    commandDescription =
-        "Save an uploaded analysis by it's upload id, and get the permanent analysis id")
-public class SaveCommand extends Command {
+import java.io.IOException;
 
-  @Parameter(names = {"-u", "--upload-id"})
-  private String uploadId;
+@RequiredArgsConstructor
+@Parameters(separators = "=", commandDescription = "Retrieve schema information")
+public class GetAnalysisTypeCommand extends Command {
+
+  private static final String N_SWITCH = "-n";
+  private static final String NAME_SWITCH = "--name";
+  private static final String VERSION_SWITCH = "--version";
+  private static final String V_SWITCH = "-v";
+  private static final String UNRENDERED_ONLY_SWITCH = "--unrendered-only";
+  private static final String U_SWITCH = "-u";
+
 
   @Parameter(
-      names = {"-i", "--ignore-id-collisions"},
-      description = "Ignores analysisId collisions with ids from the IdService")
-  boolean ignoreAnalysisIdCollisions = false;
+      names = { N_SWITCH, NAME_SWITCH },
+      required = true)
+  private String name;
+
+  @Parameter(
+      names = {V_SWITCH, VERSION_SWITCH},
+      required = false)
+  private Integer version;
+
+  @Parameter(
+      names = {U_SWITCH, UNRENDERED_ONLY_SWITCH},
+      required = false)
+  private boolean unrenderedOnly;
 
   @NonNull private Registry registry;
 
-  @NonNull private Config config;
-
   @Override
   public void run() throws IOException {
-    if (uploadId == null) {
-      uploadId = getJson().at("/uploadId").asText("");
-    }
-    val status = registry.save(config.getStudyId(), uploadId, ignoreAnalysisIdCollisions);
-    save(status);
+    val apiStatus = registry.getAnalysisType(name, version, unrenderedOnly);
+    save(apiStatus);
   }
+
 }
