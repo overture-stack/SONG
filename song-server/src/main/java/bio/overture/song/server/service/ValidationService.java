@@ -16,16 +16,27 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.exceptions.ServerException;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+
 import bio.overture.song.core.model.file.FileData;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.AnalysisTypeId;
-import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
 import bio.overture.song.server.validation.ValidationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -34,18 +45,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
-import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 @Service
@@ -91,26 +90,17 @@ public class ValidationService {
       } else {
         val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
         val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
-        errors = validateAnalysisTypeVersion(analysisType);
-        if (isBlank(errors)) {
-          log.info(
-              format(
-                  "Found Analysis type: name=%s  version=%s",
-                  analysisType.getName(), analysisType.getVersion()));
+        log.info(
+            format(
+                "Found Analysis type: name=%s  version=%s",
+                analysisType.getName(), analysisType.getVersion()));
 
-          val schema = buildSchema(analysisType.getSchema());
-          validateWithSchema(schema, payload);
-        }
+        val schema = buildSchema(analysisType.getSchema());
+        validateWithSchema(schema, payload);
       }
-    } catch (ServerException e) {
-      log.error(e.getSongError().toPrettyJson());
-      errors = e.getSongError().getMessage();
     } catch (ValidationException e) {
       errors = COMMA.join(e.getAllMessages());
       log.error(errors);
-    } catch (Exception e) {
-      log.error(e.getMessage());
-      errors = format("Unknown processing problem: %s", e.getMessage());
     }
     return Optional.ofNullable(errors);
   }
@@ -135,11 +125,12 @@ public class ValidationService {
     return processResponse(validator.validate(STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
   }
 
-  public String validateAnalysisTypeVersion(AnalysisType a) {
-    return validateAnalysisTypeVersion(a.getName(), a.getVersion());
-  }
-
   public String validateAnalysisTypeVersion(AnalysisTypeId a) {
+    checkServer(
+        !isBlank(a.getName()),
+        getClass(),
+        MALFORMED_PARAMETER,
+        "The analysisType name cannot be null");
     return validateAnalysisTypeVersion(a.getName(), a.getVersion());
   }
 

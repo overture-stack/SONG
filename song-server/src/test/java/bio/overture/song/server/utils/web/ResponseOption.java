@@ -15,6 +15,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -22,20 +25,6 @@ import lombok.val;
 import org.icgc.dcc.common.core.util.stream.Streams;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.OK;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 
 @Value
 public class ResponseOption {
@@ -127,6 +116,5 @@ public class ResponseOption {
         TypeFactory.defaultInstance().constructCollectionType(List.class, tClass);
     List<T> resultDto = MAPPER.readValue(r.getBody(), typeReference);
     return ImmutableSet.copyOf(resultDto);
-
   }
 }

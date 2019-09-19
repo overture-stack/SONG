@@ -132,7 +132,6 @@ public class JsonUtils {
     return fromJson(mapper.readTree(json), toValue);
   }
 
-  @SneakyThrows
   public static <T> T fromJson(JsonNode json, Class<T> toValue) {
     return mapper.convertValue(json, toValue);
   }

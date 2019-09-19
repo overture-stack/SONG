@@ -1,41 +1,5 @@
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
-import bio.overture.song.server.model.dto.AnalysisType;
-import bio.overture.song.server.model.entity.AnalysisSchema;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.everit.json.schema.Schema;
-import org.everit.json.schema.SchemaException;
-import org.everit.json.schema.ValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-
-import static com.google.common.base.Preconditions.checkState;
-import static java.util.Objects.isNull;
-import static java.util.regex.Pattern.compile;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
@@ -49,6 +13,40 @@ import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.isNull;
+import static java.util.regex.Pattern.compile;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+
+import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
+import bio.overture.song.server.model.analysis.AnalysisTypeId;
+import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.server.model.entity.AnalysisSchema;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import javax.transaction.Transactional;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.SchemaException;
+import org.everit.json.schema.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -64,19 +62,14 @@ public class AnalysisTypeService {
   private final AnalysisSchemaRepository analysisSchemaRepository;
   private final String analysisPayloadBaseContent;
 
-  /** Configuration */
-  private final boolean enforceLatest;
-
   @Autowired
   public AnalysisTypeService(
-      @Value("${schemas.enforceLatest}") boolean enforceLatest,
       @NonNull Supplier<Schema> analysisTypeMetaSchemaSupplier,
       @Qualifier("analysisPayloadBaseJson") @NonNull String analysisPayloadBaseContent,
       @NonNull AnalysisSchemaRepository analysisSchemaRepository) {
     this.analysisTypeMetaSchema = analysisTypeMetaSchemaSupplier.get();
     this.analysisSchemaRepository = analysisSchemaRepository;
     this.analysisPayloadBaseContent = analysisPayloadBaseContent;
-    this.enforceLatest = enforceLatest;
   }
 
   public Schema getAnalysisTypeMetaSchema() {
@@ -175,8 +168,16 @@ public class AnalysisTypeService {
         : unrenderedOnly ? unrenderedSchema : renderPayloadJsonSchema(unrenderedSchema);
   }
 
-  public Integer getLatestVersionNumber(@NonNull String name) {
-    return analysisSchemaRepository.countAllByName(name);
+  public Integer getLatestVersionNumber(String name) {
+    validateAnalysisTypeName(name);
+    val version = analysisSchemaRepository.countAllByName(name);
+    checkServer(
+        version > 0,
+        getClass(),
+        ANALYSIS_TYPE_NOT_FOUND,
+        "The analysisType with name '%s' was not found",
+        name);
+    return version;
   }
 
   private int resolveVersion(@NonNull String name, Integer nullableVersion) {

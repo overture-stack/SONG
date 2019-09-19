@@ -176,9 +176,8 @@ public class ExportServiceTest {
       val inputPayloadJson = (ObjectNode) getJsonNodeFromClasspath(inputFilename);
       inputPayloadJson.put("study", studyId);
 
-      val uploadId =
-          fromStatus(uploadService.upload(studyId, toJson(inputPayloadJson), false), "uploadId");
-      val analysisId = fromStatus(uploadService.save(studyId, uploadId, true), "analysisId");
+      val analysisId =
+          uploadService.submit(studyId, toJson(inputPayloadJson), false).getAnalysisId();
 
       val outputFilename = format("documents/export/variantcall-output%d.json", fixtureNumber);
       val outputExportedPayloadJson = (ObjectNode) getJsonNodeFromClasspath(outputFilename);

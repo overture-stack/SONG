@@ -139,7 +139,8 @@ public class SongError {
       String context, ServerError serverError, String formattedMessage, Object... args) {
     return createSongError(
         serverError,
-        contextMessage(context + "::" + serverError.getErrorId(), formattedMessage, args));
+        contextMessage(context + "::" + serverError.getErrorId(), formattedMessage, args)
+            .replaceAll("%", "%%"));
   }
 
   public static SongError createSongError(
