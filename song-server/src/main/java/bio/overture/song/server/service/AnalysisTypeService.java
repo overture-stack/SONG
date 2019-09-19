@@ -137,8 +137,7 @@ public class AnalysisTypeService {
   }
 
   @Transactional
-  public AnalysisType register(
-      @NonNull String analysisTypeName, JsonNode analysisTypeSchema) {
+  public AnalysisType register(@NonNull String analysisTypeName, JsonNode analysisTypeSchema) {
     validateAnalysisTypeName(analysisTypeName);
     validateAnalysisTypeSchema(analysisTypeSchema);
     return commitAnalysisType(analysisTypeName, analysisTypeSchema);
@@ -209,7 +208,8 @@ public class AnalysisTypeService {
 
   @SneakyThrows
   private void validateAnalysisTypeSchema(JsonNode analysisTypeSchema) {
-    checkServer(!isNull(analysisTypeSchema), getClass(), SCHEMA_VIOLATION, "Schema field cannot be null");
+    checkServer(
+        !isNull(analysisTypeSchema), getClass(), SCHEMA_VIOLATION, "Schema field cannot be null");
     val metaSchema = getAnalysisTypeMetaSchema();
     try {
       validateWithSchema(metaSchema, analysisTypeSchema);

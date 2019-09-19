@@ -620,21 +620,15 @@ public class AnalysisTypeControllerTest {
         SCHEMA_VIOLATION);
   }
 
-  /**
-   * Sad Path: test that an error occurs when registering an empty schema
-   */
+  /** Sad Path: test that an error occurs when registering an empty schema */
   @Test
   @Transactional
-  public void register_emptySchema_schemaViolation(){
-    val r = RegisterAnalysisTypeRequest.builder()
-        .name(this.generateUniqueName())
-        .build();
-    endpointTester.registerAnalysisTypePostRequestAnd(r)
-        .assertServerError(SCHEMA_VIOLATION);
+  public void register_emptySchema_schemaViolation() {
+    val r = RegisterAnalysisTypeRequest.builder().name(this.generateUniqueName()).build();
+    endpointTester.registerAnalysisTypePostRequestAnd(r).assertServerError(SCHEMA_VIOLATION);
 
     r.setSchema(mapper().createObjectNode());
-    endpointTester.registerAnalysisTypePostRequestAnd(r)
-        .assertServerError(SCHEMA_VIOLATION);
+    endpointTester.registerAnalysisTypePostRequestAnd(r).assertServerError(SCHEMA_VIOLATION);
   }
 
   /** Happy Path: test filtering the listing endpoint by multiple versions only */

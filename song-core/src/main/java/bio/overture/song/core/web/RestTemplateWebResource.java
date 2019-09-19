@@ -2,6 +2,7 @@ package bio.overture.song.core.web;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,7 +15,6 @@ public class RestTemplateWebResource extends AbstractWebResource<RestTemplateWeb
   private final RestTemplate restTemplate;
   private final RetryTemplate retryTemplate;
 
-  @Builder
   public RestTemplateWebResource(
       @NonNull String serverUrl,
       @NonNull RetryTemplate retryTemplate,
@@ -31,5 +31,18 @@ public class RestTemplateWebResource extends AbstractWebResource<RestTemplateWeb
         r ->
             restTemplate.exchange(
                 endpoint, httpMethod, new HttpEntity<>(body, headers), String.class));
+  }
+
+  @Value
+  @Builder
+  public static class Factory {
+    @NonNull private final String serverUrl;
+    @NonNull private final RetryTemplate retryTemplate;
+    @NonNull private final RestTemplate restTemplate;
+
+    public RestTemplateWebResource create(){
+      return new RestTemplateWebResource(serverUrl, retryTemplate, restTemplate);
+    }
+
   }
 }

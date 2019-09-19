@@ -40,8 +40,7 @@ public class SpringAppTest extends AbstractClientMainTest {
   @SneakyThrows
   @Ignore
   public void testUpload() {
-//    val jsonPath = Paths.get("../src/test/resources/fixtures/sequencingRead.json");
-    val jsonPath = Paths.get("../song-docker-demo/example/exampleVariantCall.json");
+    val jsonPath = Paths.get("../src/test/resources/fixtures/sequencingRead.json");
     assertTrue(Files.exists(jsonPath));
     executeMain("upload", "-f", jsonPath.toString());
     log.info("sdf");
