@@ -16,20 +16,17 @@
  */
 package bio.overture.song.client.command;
 
+import static bio.overture.song.client.util.FileIO.readFileContent;
+import static bio.overture.song.client.util.FileIO.statusFileExists;
+
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
+import java.nio.file.Paths;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static com.google.common.io.Files.toByteArray;
-import static bio.overture.song.client.util.FileCheckers.checkFileExists;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Register an analysisType")
@@ -49,18 +46,14 @@ public class RegisterAnalysisTypeCommand extends Command {
   public void run() throws IOException {
     // File checking
     val filePath = Paths.get(fileName);
-    val fileStatus = checkFileExists(filePath);
-    if (fileStatus.hasErrors()){
+    val fileStatus = statusFileExists(filePath);
+    if (fileStatus.hasErrors()) {
       save(fileStatus);
       return;
     }
 
-    val json = readUploadContent(filePath);
+    val json = readFileContent(filePath);
     val apiStatus = registry.registerAnalysisType(json);
     save(apiStatus);
-  }
-  private String readUploadContent(Path filePath) throws IOException {
-    val file = new File(fileName);
-    return new String(toByteArray(file));
   }
 }

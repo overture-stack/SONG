@@ -14,37 +14,56 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package bio.overture.song.client.command;
+
+import static bio.overture.song.client.util.FileIO.readFileContent;
+import static bio.overture.song.client.util.FileIO.statusFileExists;
 
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import java.io.IOException;
+import java.nio.file.Paths;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 @RequiredArgsConstructor
-@Parameters(separators = "=", commandDescription = "Suppress an analysis id")
-public class SuppressCommand extends Command {
+@Parameters(separators = "=", commandDescription = "Update the dynamic data of an analysis")
+public class UpdateAnalysisCommand extends Command {
+  private static final String ANALYSIS_ID_SWITCH = "--analysis-id";
+  private static final String A_SWITCH = "-a";
+  private static final String FILE_SWITCH = "--file";
+  private static final String F_SWITCH = "-f";
 
   @Parameter(
-      names = {"-a", "--analysis-id"},
-      required = false)
-  private String analysisId;
+      names = {F_SWITCH, FILE_SWITCH},
+      required = true)
+  private String fileName;
 
-  @NonNull private Registry registry;
+  @Parameter(
+      names = {A_SWITCH, ANALYSIS_ID_SWITCH},
+      required = true)
+  private String analysisId;
 
   @NonNull private Config config;
 
+  @NonNull private Registry registry;
+
   @Override
   public void run() throws IOException {
-    if (analysisId == null) {
-      analysisId = getJson().at("/analysisId").asText("");
+    // File checking
+    val filePath = Paths.get(fileName);
+    val fileStatus = statusFileExists(filePath);
+    if (fileStatus.hasErrors()) {
+      save(fileStatus);
+      return;
     }
 
-    val status = registry.suppress(config.getStudyId(), analysisId);
+    val json = readFileContent(filePath);
+    val status = registry.updateAnalysis(config.getStudyId(), analysisId, json);
     save(status);
   }
 }

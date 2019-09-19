@@ -16,7 +16,12 @@
  */
 package bio.overture.song.client.register;
 
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
+
 import bio.overture.song.client.cli.Status;
+import java.util.function.Function;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +31,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.function.Function;
-
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.PUT;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
 
 @Component
 public class RestClient {

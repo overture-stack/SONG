@@ -19,11 +19,10 @@ package bio.overture.song.client.command;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Retrieve schema information")

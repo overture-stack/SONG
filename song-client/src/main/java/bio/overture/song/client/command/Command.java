@@ -16,6 +16,8 @@
  */
 package bio.overture.song.client.command;
 
+import static bio.overture.song.client.util.FileIO.prefixErrorMessage;
+
 import bio.overture.song.client.cli.Status;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +39,7 @@ public abstract class Command {
    *     <p>Formats a string and adds it to the output for the command
    */
   public Status err(String format, Object... args) {
-    status.err(format, args);
+    status.err(prefixErrorMessage(format, args));
     return status;
   }
 

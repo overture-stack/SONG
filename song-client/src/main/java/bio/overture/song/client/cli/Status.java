@@ -16,14 +16,14 @@
  */
 package bio.overture.song.client.cli;
 
-import lombok.Data;
-import lombok.NonNull;
-import org.fusesource.jansi.AnsiConsole;
-
 import static java.lang.String.format;
 import static org.fusesource.jansi.Ansi.Color.GREEN;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
+
+import lombok.Data;
+import lombok.NonNull;
+import org.fusesource.jansi.AnsiConsole;
 
 /** This class holds status results for commands that have run. */
 @Data

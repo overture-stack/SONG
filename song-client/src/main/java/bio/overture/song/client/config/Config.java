@@ -16,7 +16,12 @@
  */
 package bio.overture.song.client.config;
 
+import static java.lang.Boolean.parseBoolean;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+
 import bio.overture.song.client.errors.ServerResponseErrorHandler;
+import java.io.IOException;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +38,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-
-import java.io.IOException;
-
-import static java.lang.Boolean.parseBoolean;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 
 @Slf4j
 @Getter
@@ -73,12 +72,16 @@ public class Config {
   }
 
   @RequiredArgsConstructor
-  public static class DefaultClientHttpRequestInterceptor implements ClientHttpRequestInterceptor{
+  public static class DefaultClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
 
     @NonNull private final String accessToken;
 
-    @Override public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] bytes,
-        ClientHttpRequestExecution clientHttpRequestExecution) throws IOException {
+    @Override
+    public ClientHttpResponse intercept(
+        HttpRequest httpRequest,
+        byte[] bytes,
+        ClientHttpRequestExecution clientHttpRequestExecution)
+        throws IOException {
       val h = httpRequest.getHeaders();
       h.remove(CONTENT_TYPE);
       h.setContentType(APPLICATION_JSON_UTF8);
@@ -86,5 +89,4 @@ public class Config {
       return clientHttpRequestExecution.execute(httpRequest, bytes);
     }
   }
-
 }

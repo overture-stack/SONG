@@ -16,6 +16,11 @@
  */
 package bio.overture.song.client.command;
 
+import static bio.overture.song.client.util.FileIO.statusDirectoryExists;
+import static java.nio.file.Paths.get;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
+
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.json.JsonObject;
 import bio.overture.song.client.model.Manifest;
@@ -26,20 +31,13 @@ import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Paths.get;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RequiredArgsConstructor
 @Parameters(
@@ -75,19 +73,13 @@ public class ManifestCommand extends Command {
     }
 
     inputDirPath = get(inputDirName);
-
-    if (!exists(inputDirPath)) {
-      err("[SONG_CLIENT_ERROR]: The input path '%s' does not exist", inputDirName);
-      return;
-    }
-
-    if (!isDirectory(inputDirPath)) {
-      err("[SONG_CLIENT_ERROR]: The input path '%s' is not a directory", inputDirName);
+    val dirStatus = statusDirectoryExists(inputDirPath);
+    if (dirStatus.hasErrors()) {
+      save(dirStatus);
       return;
     }
 
     val status = registry.getAnalysisFiles(config.getStudyId(), analysisId);
-
     if (status.hasErrors()) {
       save(status);
       return;
@@ -102,11 +94,9 @@ public class ManifestCommand extends Command {
             .collect(toList());
 
     if (m.getEntries().size() == 0) {
-      err("[SONG_CLIENT_ERROR]: the analysisId '%s' returned 0 files", analysisId);
+      err("the analysisId '%s' returned 0 files", analysisId);
     } else if (missingFiles.size() > 0) {
-      err(
-          "[SONG_CLIENT_ERROR]: The following files do not exist: \n'%s'",
-          Joiner.on("',\n'").join(missingFiles));
+      err("The following files do not exist: \n'%s'", Joiner.on("',\n'").join(missingFiles));
     } else if (fileName == null) {
       output(m.toString());
     } else {

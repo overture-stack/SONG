@@ -16,22 +16,21 @@
  */
 package bio.overture.song.client.command;
 
+import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
+import static bio.overture.song.client.command.rules.ParamTerm.createParamTerm;
+import static bio.overture.song.client.command.rules.RuleProcessor.createRuleProcessor;
+import static java.util.Objects.nonNull;
+
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
+import java.util.Objects;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
-import java.util.Objects;
-
-import static java.util.Objects.nonNull;
-import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
-import static bio.overture.song.client.command.rules.ParamTerm.createParamTerm;
-import static bio.overture.song.client.command.rules.RuleProcessor.createRuleProcessor;
 
 @RequiredArgsConstructor
 @Parameters(
@@ -43,7 +42,6 @@ public class SearchCommand extends Command {
   private static final String ANALYSIS_MODE = "ANALYSIS_MODE";
 
   private static final String ID_MODE = "ID_MODE";
-  private static final String INFO_MODE = "INFO_MODE";
 
   /** Short Switch Constants */
   private static final String F_SWITCH = "-f";
@@ -51,8 +49,6 @@ public class SearchCommand extends Command {
   private static final String SA_SWITCH = "-sa";
   private static final String SP_SWITCH = "-sp";
   private static final String D_SWITCH = "-d";
-  private static final String I_SWITCH = "-i";
-  private static final String T_SWITCH = "-t";
   private static final String A_SWITCH = "-a";
 
   /** Long Switch Constants */
@@ -61,8 +57,6 @@ public class SearchCommand extends Command {
   private static final String SAMPLE_ID_SWITCH = "--sample-id";
   private static final String SPECIMEN_ID_SWITCH = "--specimen-id";
   private static final String DONOR_ID_SWITCH = "--donor-id";
-  private static final String INFO_SWITCH = "--info";
-  private static final String SEARCH_TERMS_SWITCH = "--search-terms";
   private static final String ANALYSIS_ID_SWITCH = "--analysis-id";
 
   @Parameter(

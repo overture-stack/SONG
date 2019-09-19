@@ -16,34 +16,39 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.cli.Status;
+import static bio.overture.song.client.util.FileIO.readFileContent;
+import static bio.overture.song.client.util.FileIO.statusFileExists;
+
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
+import java.nio.file.Paths;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
-@Parameters(
-    separators = "=",
-    commandDescription = "Get the status of an upload from it's upload id.")
-public class StatusCommand extends Command {
+@Parameters(separators = "=", commandDescription = "Submit a payload to create an analysis")
+public class SubmitCommand extends Command {
 
-  @Parameter(
-      names = {"-p", "--ping"},
-      required = false,
-      description = "Pings the server to see if its connected")
-  private boolean ping;
+  @Parameter(names = {"-f", "--file"})
+  private String fileName;
 
   @NonNull private Registry registry;
 
   @Override
   public void run() throws IOException {
-    val status = new Status();
-    status.output(Boolean.toString(registry.isAlive()));
+    // File checking
+    val filePath = Paths.get(fileName);
+    val fileStatus = statusFileExists(filePath);
+    if (fileStatus.hasErrors()) {
+      save(fileStatus);
+      return;
+    }
+
+    val json = readFileContent(filePath);
+    val status = registry.submit(json);
     save(status);
   }
 }

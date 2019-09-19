@@ -16,15 +16,14 @@
  */
 package bio.overture.song.client;
 
+import static org.springframework.boot.WebApplicationType.NONE;
+
+import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.util.function.Consumer;
-
-import static org.springframework.boot.WebApplicationType.NONE;
 
 @SpringBootApplication
 public class SpringApp {

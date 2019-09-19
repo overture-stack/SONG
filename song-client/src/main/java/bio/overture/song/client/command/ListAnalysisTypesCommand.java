@@ -16,20 +16,19 @@
  */
 package bio.overture.song.client.command;
 
+import static bio.overture.song.client.command.ListAnalysisTypesCommand.SortDirection.DESC;
+import static com.google.common.collect.Lists.newArrayList;
+
 import bio.overture.song.client.register.Endpoint;
 import bio.overture.song.client.register.Registry;
 import bio.overture.song.client.util.EnumConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
+import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static bio.overture.song.client.command.ListAnalysisTypesCommand.SortDirection.DESC;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Retrieve schema information")

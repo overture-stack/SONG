@@ -17,6 +17,10 @@
 
 package bio.overture.song.client.command;
 
+import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.Registry;
 import bio.overture.song.core.model.enums.AccessTypes;
@@ -27,15 +31,10 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
-
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Update a file")
