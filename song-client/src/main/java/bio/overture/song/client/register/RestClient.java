@@ -16,33 +16,37 @@
  */
 package bio.overture.song.client.register;
 
-import static bio.overture.song.core.utils.JsonUtils.toJson;
+import bio.overture.song.client.cli.Status;
+import lombok.NonNull;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.function.Function;
+
 import static java.util.Objects.isNull;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-
-import bio.overture.song.client.cli.Status;
-import bio.overture.song.client.errors.ServerResponseErrorHandler;
-import java.util.function.Function;
-import lombok.NonNull;
-import lombok.val;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 
 @Component
 public class RestClient {
 
   private final RestTemplate restTemplate;
+  private final RetryTemplate retryTemplate;
 
-  public RestClient() {
-    this.restTemplate = new RestTemplate();
-    this.restTemplate.setErrorHandler(new ServerResponseErrorHandler());
+  @Autowired
+  public RestClient(@NonNull RestTemplate restTemplate, @NonNull RetryTemplate retryTemplate) {
+    this.restTemplate = restTemplate;
+    this.retryTemplate = retryTemplate;
   }
 
   public Status get(@NonNull String url) {
@@ -95,7 +99,7 @@ public class RestClient {
 
   private <T> Status tryRequest(Function<RestTemplate, ResponseEntity<T>> restTemplateFunction) {
     Status status = new Status();
-    val response = restTemplateFunction.apply(restTemplate);
+    val response = retryTemplate.execute(r -> restTemplateFunction.apply(restTemplate));
     if (response.getStatusCode() == HttpStatus.OK) {
       if (response.getBody() == null) {
         status.err("[SONG_CLIENT_ERROR]: Null response from server: %s", response.toString());

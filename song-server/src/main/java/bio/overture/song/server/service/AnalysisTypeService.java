@@ -6,9 +6,9 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
-import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;

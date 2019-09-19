@@ -1,4 +1,4 @@
-package bio.overture.song.server.utils.web;
+package bio.overture.song.core.web;
 
 import lombok.Builder;
 import lombok.NonNull;

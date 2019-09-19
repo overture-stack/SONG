@@ -1,4 +1,4 @@
-package bio.overture.song.server.utils.web;
+package bio.overture.song.core.web;
 
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;

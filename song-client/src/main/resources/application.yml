@@ -22,7 +22,12 @@ client:
   studyId: ABC123
   programName: sing
   debug: false
-  accessToken: ${accessToken:}
+  accessToken: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+#  retry:
+#    maxRetries: 5
+#    initialBackoff: 15000
+#    multiplier: 2.0
+
 logging.level.org.springframework: OFF
 
 

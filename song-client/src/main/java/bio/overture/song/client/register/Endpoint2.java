@@ -17,41 +17,34 @@
 package bio.overture.song.client.register;
 
 import static java.lang.String.format;
-import static java.util.Objects.isNull;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 import bio.overture.song.client.command.ListAnalysisTypesCommand.SortDirection;
 import bio.overture.song.client.command.ListAnalysisTypesCommand.SortOrder;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
+import bio.overture.song.client.util.RequestParamBuilder;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import lombok.val;
 import org.springframework.lang.Nullable;
 
 @RequiredArgsConstructor
-public class Endpoint {
-
-  private static final Joiner AMPERSAND_JOINER = Joiner.on("&");
-
-  @NonNull private String serverUrl;
+public class Endpoint2 {
 
   public String submit(String studyId) {
-    return format("%s/upload/%s", serverUrl, studyId);
+    return format("/upload/%s", studyId);
   }
 
   public String getAnalysisFiles(String studyId, String analysisId) {
-    return format("%s/studies/%s/analysis/%s/files", serverUrl, studyId, analysisId);
+    return format("/studies/%s/analysis/%s/files", studyId, analysisId);
   }
 
   @Value
   @Builder
   public static class ListAnalysisTypesRequest {
     @NonNull private final List<String> names;
-    @NonNull private final List<Integer> version;
+    @NonNull private final List<Integer> versions;
     @NonNull private final List<SortOrder> sortOrders;
 
     /** Nullable */
@@ -64,89 +57,76 @@ public class Endpoint {
   }
 
   public String listAnalysisTypes(@NonNull ListAnalysisTypesRequest r) {
-    val sb = new StringBuilder();
-    sb.append(format("%s/schemas", serverUrl));
-    return sb.toString();
+    return new RequestParamBuilder()
+        .optionalQuerySingleParam("hideSchema", r.getHideSchema())
+        .optionalQuerySingleParam("limit", r.getLimit())
+        .optionalQuerySingleParam("offset", r.getOffset())
+        .optionalQueryParamCollection("names", r.getNames())
+        .optionalQueryParamCollection("versions", r.getVersions())
+        .optionalQueryParamCollection("sort", r.getSortOrders())
+        .optionalQuerySingleParam("sortOrder", r.getSortDirection())
+        .optionalQuerySingleParam("unrenderedOnly", r.getUnrenderedOnly())
+        .build("/schemas");
   }
 
   public String getAnalysisType(
       @NonNull String name, @Nullable Integer version, @Nullable Boolean unrenderedOnly) {
-    val sb = new StringBuilder();
-    sb.append(format("%s/schemas/%s", serverUrl, name));
-    if (!isNull(version) && !isNull(unrenderedOnly)) {
-      sb.append("?")
-          .append("version=" + version)
-          .append("&")
-          .append("unrenderedOnly=" + unrenderedOnly);
-    } else if (!isNull(version)) {
-      sb.append("?").append("version=" + version);
-    } else if (!isNull(unrenderedOnly)) {
-      sb.append("?").append("unrenderedOnly=" + unrenderedOnly);
-    }
-    return sb.toString();
+    return new RequestParamBuilder()
+        .optionalQuerySingleParam("version", version)
+        .optionalQuerySingleParam("unrenderedOnly", unrenderedOnly)
+        .build("/schemas/" + name);
   }
 
   public String getAnalysis(String studyId, String analysisId) {
-    return format("%s/studies/%s/analysis/%s", serverUrl, studyId, analysisId);
+    return format("/studies/%s/analysis/%s", studyId, analysisId);
   }
 
   public String isAlive() {
-    return format("%s/isAlive", serverUrl);
+    return "/isAlive";
   }
 
   public String publish(String studyId, String analysisId, boolean ignoreUndefinedMd5) {
     return format(
-        "%s/studies/%s/analysis/publish/%s?ignoreUndefinedMd5=%s",
-        serverUrl, studyId, analysisId, ignoreUndefinedMd5);
+        "/studies/%s/analysis/publish/%s?ignoreUndefinedMd5=%s",
+        studyId, analysisId, ignoreUndefinedMd5);
   }
 
   public String unpublish(String studyId, String analysisId) {
-    return format("%s/studies/%s/analysis/unpublish/%s", serverUrl, studyId, analysisId);
+    return format("/studies/%s/analysis/unpublish/%s", studyId, analysisId);
   }
 
   public String updateFile(String studyId, String objectId) {
-    return format("%s/studies/%s/files/%s", serverUrl, studyId, objectId);
+    return format("/studies/%s/files/%s", studyId, objectId);
   }
 
   public String exportAnalysisIds(List<String> analysisIds, boolean includeAnalysisId) {
     return format(
-        "%s/export/analysis/%s?includeAnalysisId=%s",
-        serverUrl, COMMA.join(analysisIds), includeAnalysisId);
+        "/export/analysis/%s?includeAnalysisId=%s", COMMA.join(analysisIds), includeAnalysisId);
   }
 
   public String exportStudy(String studyId, boolean includeAnalysisId) {
-    return format(
-        "%s/export/studies/%s?includeAnalysisId=%s", serverUrl, studyId, includeAnalysisId);
+    return format("/export/studies/%s?includeAnalysisId=%s", studyId, includeAnalysisId);
   }
 
   public String suppress(String studyId, String analysisId) {
-    return format("%s/studies/%s/analysis/suppress/%s", serverUrl, studyId, analysisId);
+    return format("/studies/%s/analysis/suppress/%s", studyId, analysisId);
   }
 
   public String idSearch(
       @NonNull String studyId, String sampleId, String specimenId, String donorId, String fileId) {
-    val list = Lists.<String>newArrayList();
-    if (!isNull(sampleId)) {
-      list.add("sampleId=" + sampleId);
-    }
-    if (!isNull(specimenId)) {
-      list.add("specimenId=" + specimenId);
-    }
-    if (!isNull(donorId)) {
-      list.add("donorId=" + donorId);
-    }
-    if (!isNull(fileId)) {
-      list.add("fileId=" + fileId);
-    }
-    val params = AMPERSAND_JOINER.join(list);
-    return format("%s/studies/%s/analysis/search/id?%s", serverUrl, studyId, params);
+    return new RequestParamBuilder()
+        .optionalQuerySingleParam("sampleId", sampleId)
+        .optionalQuerySingleParam("specimenId", specimenId)
+        .optionalQuerySingleParam("donorId", donorId)
+        .optionalQuerySingleParam("fileId", fileId)
+        .build(format("/studies/%s/analysis/search/id", studyId));
   }
 
   public String getSchema(@NonNull String schemaId) {
-    return format("%s/schema/%s", serverUrl, schemaId);
+    return format("/schema/%s", schemaId);
   }
 
   public String listSchemas() {
-    return format("%s/schema/list", serverUrl);
+    return "/schema/list";
   }
 }

@@ -20,10 +20,10 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
+import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
-import static bio.overture.song.server.utils.CollectionUtils.isArrayBlank;
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.stream;
 import static java.util.Objects.isNull;

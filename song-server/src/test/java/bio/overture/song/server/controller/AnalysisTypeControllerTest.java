@@ -5,6 +5,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHE
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -12,7 +13,6 @@ import static bio.overture.song.core.utils.RandomGenerator.randomList;
 import static bio.overture.song.core.utils.RandomGenerator.randomStream;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;

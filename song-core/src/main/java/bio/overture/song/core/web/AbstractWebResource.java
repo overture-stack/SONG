@@ -1,10 +1,9 @@
-package bio.overture.song.server.utils.web;
+package bio.overture.song.core.web;
 
+import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
+import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.server.utils.CollectionUtils.isArrayBlank;
-import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
-import static bio.overture.song.server.utils.EndpointTester.AMPERSAND;
-import static bio.overture.song.server.utils.web.QueryParam.createQueryParam;
+import static bio.overture.song.core.web.QueryParam.createQueryParam;
 import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -15,6 +14,7 @@ import static org.icgc.dcc.common.core.util.Joiners.PATH;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Optional;
@@ -26,22 +26,19 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @Slf4j
 @RequiredArgsConstructor
-public class WebResource {
+public abstract class AbstractWebResource<W extends AbstractWebResource<W>> implements WebResource {
   private static final ObjectMapper REGULAR_MAPPER = new ObjectMapper();
   private static final ObjectMapper PRETTY_MAPPER = new ObjectMapper();
+  private static final Joiner AMPERSAND = Joiner.on("&");
 
   static {
     PRETTY_MAPPER.enable(INDENT_OUTPUT);
   }
 
-  @NonNull private final MockMvc mockMvc;
   @NonNull private final String serverUrl;
 
   private String endpoint;
@@ -55,71 +52,76 @@ public class WebResource {
     return new ResponseOption(responseEntity);
   }
 
-  private WebResource thisInstance() {
-    return this;
+  @SuppressWarnings("unchecked")
+  private W thisInstance() {
+    return (W) this;
   }
 
-  public WebResource endpoint(String formattedEndpoint, Object... args) {
+  public W endpoint(String formattedEndpoint, Object... args) {
     this.endpoint = format(formattedEndpoint, args);
+    // ensure there is only one leading slash
+    if (isBlank(serverUrl)) {
+      this.endpoint = this.endpoint.replaceAll("^\\/*", "/");
+    }
     return thisInstance();
   }
 
-  public WebResource body(Object body) {
+  public W body(Object body) {
     this.body = body;
     return thisInstance();
   }
 
-  public WebResource headers(HttpHeaders httpHeaders) {
+  public W headers(HttpHeaders httpHeaders) {
     this.headers = httpHeaders;
     return thisInstance();
   }
 
-  public WebResource logging() {
+  public W logging() {
     return configLogging(true, false);
   }
 
-  public WebResource prettyLogging() {
+  public W prettyLogging() {
     return configLogging(true, true);
   }
 
-  public WebResource optionalQueryParamCollection(String key, Collection values) {
+  public W optionalQueryParamCollection(String key, Collection values) {
     if (!isCollectionBlank(values)) {
       return queryParam(key, values);
     }
     return thisInstance();
   }
 
-  public WebResource optionalQuerySingleParam(String key, Object value) {
+  public W optionalQuerySingleParam(String key, Object value) {
     if (!isNull(value)) {
       return querySingleParam(key, value);
     }
     return thisInstance();
   }
 
-  public WebResource querySingleParam(String key, Object value) {
+  public W querySingleParam(String key, Object value) {
     return queryParam(key, ImmutableList.of(value));
   }
 
-  public WebResource optionalQueryParamArray(String key, Object[] values) {
+  public W optionalQueryParamArray(String key, Object[] values) {
     if (!isArrayBlank(values)) {
       return optionalQueryParamCollection(key, newArrayList(values));
     }
     return thisInstance();
   }
 
-  public WebResource optionalQueryParamMulti(String key, Object... values) {
+  public W optionalQueryParamMulti(String key, Object... values) {
     if (!isArrayBlank(values)) {
       return optionalQueryParamCollection(key, newArrayList(values));
     }
     return thisInstance();
   }
 
-  public WebResource queryParam(String key, Collection values) {
+  public W queryParam(String key, Collection values) {
     queryParams.add(createQueryParam(key, values));
     return thisInstance();
   }
 
-  private WebResource configLogging(boolean enable, boolean pretty) {
+  private W configLogging(boolean enable, boolean pretty) {
     this.enableLogging = enable;
     this.pretty = pretty;
     return thisInstance();
@@ -163,7 +165,8 @@ public class WebResource {
   }
 
   private String getUrl() {
-    return PATH.join(this.serverUrl, this.endpoint) + getQuery().map(x -> "?" + x).orElse("");
+    val prefix = isBlank(serverUrl) ? endpoint : PATH.join(serverUrl, endpoint);
+    return prefix + getQuery().map(x -> "?" + x).orElse("");
   }
 
   private ResponseEntity<String> doRequest(Object objectBody, HttpMethod httpMethod) {
@@ -173,23 +176,7 @@ public class WebResource {
   @SneakyThrows
   private ResponseEntity<String> doRequest(String stringBody, HttpMethod httpMethod) {
     logRequest(enableLogging, pretty, httpMethod, getUrl(), stringBody);
-    val mvcRequest = MockMvcRequestBuilders.request(httpMethod, getUrl()).headers(headers);
-    if (!isNull(stringBody)) {
-      mvcRequest.content(stringBody);
-    }
-    val mvcResult = mockMvc.perform(mvcRequest).andReturn();
-    val mvcResponse = mvcResult.getResponse();
-    val httpStatus = HttpStatus.resolve(mvcResponse.getStatus());
-    String responseObject = null;
-    if (httpStatus.isError()) {
-      responseObject = mvcResponse.getContentAsString();
-      if (isBlank(responseObject) && !isNull(mvcResult.getResolvedException())) {
-        responseObject = mvcResult.getResolvedException().getMessage();
-      }
-    } else {
-      responseObject = mvcResponse.getContentAsString();
-    }
-    val response = ResponseEntity.status(mvcResponse.getStatus()).body(responseObject);
+    val response = executeRequest(httpMethod, getUrl(), headers, stringBody);
     logResponse(enableLogging, pretty, response);
     return response;
   }

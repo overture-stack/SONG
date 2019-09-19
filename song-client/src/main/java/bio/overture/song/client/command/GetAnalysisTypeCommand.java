@@ -19,11 +19,10 @@ package bio.overture.song.client.command;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Retrieve schema information")
@@ -36,9 +35,8 @@ public class GetAnalysisTypeCommand extends Command {
   private static final String UNRENDERED_ONLY_SWITCH = "--unrendered-only";
   private static final String U_SWITCH = "-u";
 
-
   @Parameter(
-      names = { N_SWITCH, NAME_SWITCH },
+      names = {N_SWITCH, NAME_SWITCH},
       required = true)
   private String name;
 
@@ -59,5 +57,4 @@ public class GetAnalysisTypeCommand extends Command {
     val apiStatus = registry.getAnalysisType(name, version, unrenderedOnly);
     save(apiStatus);
   }
-
 }

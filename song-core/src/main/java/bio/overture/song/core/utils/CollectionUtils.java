@@ -1,4 +1,4 @@
-package bio.overture.song.server.utils;
+package bio.overture.song.core.utils;
 
 import static java.util.Objects.isNull;
 import static java.util.stream.IntStream.range;

@@ -17,23 +17,26 @@
 
 package bio.overture.song.client.errors;
 
-import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
-import static bio.overture.song.core.exceptions.SongError.createSongError;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static java.util.Objects.isNull;
-import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
-
+import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.utils.JsonUtils;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
+import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static bio.overture.song.core.exceptions.SongError.createSongError;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 
 @Slf4j
 public class ServerResponseErrorHandler extends DefaultResponseErrorHandler {
@@ -58,7 +61,17 @@ public class ServerResponseErrorHandler extends DefaultResponseErrorHandler {
     val br = new BufferedReader(new InputStreamReader(clientHttpResponse.getBody()));
     val body = NEWLINE.join(br.lines().iterator());
     SongError songError = parseErrorResponse(httpStatusCode, body);
-    if (isNull(songError.getErrorId()) && isInvalidToken(body)) {
+    if (isNull(songError)){
+      songError = createSongError(new ServerError(){
+        @Override public String getErrorId() {
+          return httpStatusCode.toString().toLowerCase().replaceAll("_", ".");
+        }
+
+        @Override public HttpStatus getHttpStatus() {
+          return httpStatusCode;
+        }
+      }, httpStatusCode.getReasonPhrase());
+    } else if(isNull(songError.getErrorId()) && isInvalidToken(body)) {
       songError = createSongError(UNAUTHORIZED_TOKEN, "Invalid token");
     }
     throw new ServerException(songError);

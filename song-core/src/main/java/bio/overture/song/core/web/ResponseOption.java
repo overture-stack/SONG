@@ -1,4 +1,4 @@
-package bio.overture.song.server.utils.web;
+package bio.overture.song.core.web;
 
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;

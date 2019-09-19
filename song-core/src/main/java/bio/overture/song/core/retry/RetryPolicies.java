@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package bio.overture.song.server.retry;
+package bio.overture.song.core.retry;
 
 import static java.lang.Boolean.TRUE;
 import static lombok.AccessLevel.PRIVATE;

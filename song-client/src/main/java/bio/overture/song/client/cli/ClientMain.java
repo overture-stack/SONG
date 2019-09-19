@@ -31,6 +31,7 @@ import bio.overture.song.client.command.UploadCommand;
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.ErrorStatusHeader;
 import bio.overture.song.client.register.Registry;
+import bio.overture.song.client.register.Registry2;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
 import lombok.extern.slf4j.Slf4j;
@@ -57,13 +58,13 @@ public class ClientMain implements CommandLineRunner {
   private Config config;
 
   @Autowired
-  ClientMain(Config config, Registry registry) {
+  ClientMain(Config config, Registry registry, Registry2 registry2) {
     val programName = config.getProgramName();
     val options = new Options();
 
     val builder = new CommandParserBuilder(programName, options);
     builder.register("config", new ConfigCommand(config));
-    builder.register("upload", new UploadCommand(registry));
+    builder.register("upload", new UploadCommand(registry2));
     builder.register("status", new StatusCommand(registry));
     builder.register("get-analysis-type", new GetAnalysisTypeCommand(registry));
     builder.register("search", new SearchCommand(registry, config));
