@@ -20,8 +20,10 @@ import bio.overture.song.client.command.ConfigCommand;
 import bio.overture.song.client.command.ExportCommand;
 import bio.overture.song.client.command.FileUpdateCommand;
 import bio.overture.song.client.command.GetAnalysisTypeCommand;
+import bio.overture.song.client.command.ListAnalysisTypesCommand;
 import bio.overture.song.client.command.ManifestCommand;
 import bio.overture.song.client.command.PublishCommand;
+import bio.overture.song.client.command.RegisterAnalysisTypeCommand;
 import bio.overture.song.client.command.SchemaCommand;
 import bio.overture.song.client.command.SearchCommand;
 import bio.overture.song.client.command.StatusCommand;
@@ -31,7 +33,6 @@ import bio.overture.song.client.command.UploadCommand;
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.register.ErrorStatusHeader;
 import bio.overture.song.client.register.Registry;
-import bio.overture.song.client.register.Registry2;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
 import lombok.extern.slf4j.Slf4j;
@@ -58,15 +59,17 @@ public class ClientMain implements CommandLineRunner {
   private Config config;
 
   @Autowired
-  ClientMain(Config config, Registry registry, Registry2 registry2) {
+  ClientMain(Config config, Registry registry) {
     val programName = config.getProgramName();
     val options = new Options();
 
     val builder = new CommandParserBuilder(programName, options);
     builder.register("config", new ConfigCommand(config));
-    builder.register("upload", new UploadCommand(registry2));
+    builder.register("upload", new UploadCommand(registry));
     builder.register("status", new StatusCommand(registry));
     builder.register("get-analysis-type", new GetAnalysisTypeCommand(registry));
+    builder.register("list-analysis-types", new ListAnalysisTypesCommand(registry));
+    builder.register("register-analysis-type", new RegisterAnalysisTypeCommand(registry));
     builder.register("search", new SearchCommand(registry, config));
     builder.register("manifest", new ManifestCommand(registry, config));
     builder.register("publish", new PublishCommand(registry, config));

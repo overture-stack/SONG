@@ -16,12 +16,6 @@
  */
 package bio.overture.song.client.command;
 
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Paths.get;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
-
 import bio.overture.song.client.config.Config;
 import bio.overture.song.client.json.JsonObject;
 import bio.overture.song.client.model.Manifest;
@@ -32,13 +26,20 @@ import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.isDirectory;
+import static java.nio.file.Paths.get;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 
 @RequiredArgsConstructor
 @Parameters(

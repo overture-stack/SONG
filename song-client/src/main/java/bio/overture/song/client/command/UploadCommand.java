@@ -16,7 +16,7 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.register.Registry2;
+import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.google.common.base.Charsets;
@@ -35,7 +35,7 @@ public class UploadCommand extends Command {
   @Parameter(names = {"-f", "--file"})
   private String fileName;
 
-  @NonNull private Registry2 registry;
+  @NonNull private Registry registry;
 
   @Override
   public void run() throws IOException {

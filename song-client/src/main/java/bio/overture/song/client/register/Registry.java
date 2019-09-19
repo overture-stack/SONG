@@ -16,13 +16,10 @@
  */
 package bio.overture.song.client.register;
 
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
-
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.config.Config;
+import bio.overture.song.client.register.Endpoint.ListAnalysisTypesRequest;
 import bio.overture.song.core.model.file.FileData;
-import java.util.List;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,20 +27,23 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
+import java.util.List;
+
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
+
 @Component
 public class Registry {
 
   private final RestClient restClient;
   private final Endpoint endpoint;
-  private final String accessToken;
   private final String studyId;
   private final String serverUrl;
 
   @Autowired
   public Registry(@NonNull Config config, @NonNull RestClient restClient) {
     this.restClient = restClient;
-    this.endpoint = new Endpoint(config.getServerUrl());
-    this.accessToken = config.getAccessToken();
+    this.endpoint = new Endpoint();
     this.studyId = config.getStudyId();
     this.serverUrl = config.getServerUrl();
   }
@@ -52,19 +52,31 @@ public class Registry {
   public Status submit(String json) {
     checkServerAlive();
     val url = endpoint.submit(studyId);
-    return restClient.postAuth(accessToken, url, json);
+    return restClient.post(url, json);
   }
 
   public Status getAnalysisFiles(String studyId, String analysisId) {
     checkServerAlive();
     val url = endpoint.getAnalysisFiles(studyId, analysisId);
-    return restClient.get(accessToken, url);
+    return restClient.get(url);
   }
 
   public Status getAnalysis(String studyId, String analysisId) {
     checkServerAlive();
     val url = endpoint.getAnalysis(studyId, analysisId);
-    return restClient.get(accessToken, url);
+    return restClient.get(url);
+  }
+
+  public Status listAnalysisTypes(@NonNull ListAnalysisTypesRequest listAnalysisTypesRequest) {
+    checkServerAlive();
+    val url = endpoint.listAnalysisTypes(listAnalysisTypesRequest);
+    return restClient.get(url);
+  }
+
+  public Status registerAnalysisType(@NonNull String json) {
+    checkServerAlive();
+    val url = endpoint.registerAnalysisType();
+    return restClient.post(url, json);
   }
 
   /**
@@ -89,13 +101,13 @@ public class Registry {
   public Status publish(String studyId, String analysisId, boolean ignoreUndefinedMd5) {
     checkServerAlive();
     val url = endpoint.publish(studyId, analysisId, ignoreUndefinedMd5);
-    return restClient.putAuth(accessToken, url);
+    return restClient.put(url);
   }
 
   public Status unpublish(String studyId, String analysisId) {
     checkServerAlive();
     val url = endpoint.unpublish(studyId, analysisId);
-    return restClient.putAuth(accessToken, url);
+    return restClient.put(url);
   }
 
   public Status exportStudy(@NonNull String studyId, boolean includeAnalysisId) {
@@ -113,20 +125,20 @@ public class Registry {
   public Status suppress(String studyId, String analysisId) {
     checkServerAlive();
     val url = endpoint.suppress(studyId, analysisId);
-    return restClient.putAuth(accessToken, url);
+    return restClient.put(url);
   }
 
   public Status updateFile(String studyId, String objectId, FileData fileUpdateRequest) {
     checkServerAlive();
     val url = endpoint.updateFile(studyId, objectId);
-    return restClient.putAuthObject(accessToken, url, fileUpdateRequest);
+    return restClient.putObject(url, fileUpdateRequest);
   }
 
   public Status idSearch(
       String studyId, String sampleId, String specimenId, String donorId, String fileId) {
     checkServerAlive();
     val url = endpoint.idSearch(studyId, sampleId, specimenId, donorId, fileId);
-    return restClient.get(accessToken, url);
+    return restClient.get(url);
   }
 
   public Status getAnalysisType(

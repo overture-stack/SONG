@@ -16,9 +16,33 @@
  */
 package bio.overture.song.client.command;
 
-import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+import bio.overture.song.client.cli.Status;
+import bio.overture.song.client.command.rules.ModeRule;
+import bio.overture.song.client.command.rules.ParamTerm;
+import bio.overture.song.client.command.rules.RuleProcessor;
+import bio.overture.song.client.register.Registry;
+import bio.overture.song.core.model.ExportedPayload;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Charsets;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Maps;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Stopwatch.createUnstarted;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -35,32 +59,9 @@ import static java.util.Objects.isNull;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.icgc.dcc.common.core.util.stream.Streams.stream;
-
-import bio.overture.song.client.cli.Status;
-import bio.overture.song.client.command.rules.ModeRule;
-import bio.overture.song.client.command.rules.ParamTerm;
-import bio.overture.song.client.command.rules.RuleProcessor;
-import bio.overture.song.client.register.Registry;
-import bio.overture.song.core.model.ExportedPayload;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Charsets;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Maps;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
+import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 
 @Slf4j
 @RequiredArgsConstructor

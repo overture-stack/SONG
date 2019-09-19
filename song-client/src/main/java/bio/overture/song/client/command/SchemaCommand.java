@@ -16,19 +16,20 @@
  */
 package bio.overture.song.client.command;
 
-import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
-import static bio.overture.song.client.command.rules.ParamTerm.createParamTerm;
-import static bio.overture.song.client.command.rules.RuleProcessor.createRuleProcessor;
-
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import java.io.IOException;
-import java.util.Objects;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+
+import java.io.IOException;
+import java.util.Objects;
+
+import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
+import static bio.overture.song.client.command.rules.ParamTerm.createParamTerm;
+import static bio.overture.song.client.command.rules.RuleProcessor.createRuleProcessor;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Retrieve schema information")

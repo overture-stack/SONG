@@ -17,14 +17,12 @@
 
 package bio.overture.song.client.errors;
 
-import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.utils.JsonUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 
@@ -61,17 +59,7 @@ public class ServerResponseErrorHandler extends DefaultResponseErrorHandler {
     val br = new BufferedReader(new InputStreamReader(clientHttpResponse.getBody()));
     val body = NEWLINE.join(br.lines().iterator());
     SongError songError = parseErrorResponse(httpStatusCode, body);
-    if (isNull(songError)){
-      songError = createSongError(new ServerError(){
-        @Override public String getErrorId() {
-          return httpStatusCode.toString().toLowerCase().replaceAll("_", ".");
-        }
-
-        @Override public HttpStatus getHttpStatus() {
-          return httpStatusCode;
-        }
-      }, httpStatusCode.getReasonPhrase());
-    } else if(isNull(songError.getErrorId()) && isInvalidToken(body)) {
+    if(isNull(songError.getErrorId()) && isInvalidToken(body)) {
       songError = createSongError(UNAUTHORIZED_TOKEN, "Invalid token");
     }
     throw new ServerException(songError);

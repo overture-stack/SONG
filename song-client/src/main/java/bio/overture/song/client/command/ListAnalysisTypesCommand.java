@@ -16,8 +16,8 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.register.Endpoint2;
-import bio.overture.song.client.register.Registry2;
+import bio.overture.song.client.register.Endpoint;
+import bio.overture.song.client.register.Registry;
 import bio.overture.song.client.util.EnumConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -106,12 +106,12 @@ public class ListAnalysisTypesCommand extends Command {
       required = false)
   private Integer limit;
 
-  @NonNull private Registry2 registry;
+  @NonNull private Registry registry;
 
   @Override
   public void run() throws IOException {
     val r =
-        Endpoint2.ListAnalysisTypesRequest.builder()
+        Endpoint.ListAnalysisTypesRequest.builder()
             .names(names)
             .versions(versions)
             .hideSchema(hideSchema)
@@ -140,8 +140,8 @@ public class ListAnalysisTypesCommand extends Command {
   }
 
   public enum SortOrder {
-    VERSION,
-    NAME;
+    version,
+    name;
   }
 
   public enum SortDirection {
