@@ -19,7 +19,7 @@ package bio.overture.song.core.utils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static lombok.AccessLevel.PRIVATE;
-import static org.apache.logging.log4j.util.Strings.isNotBlank;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -28,6 +28,6 @@ import lombok.NonNull;
 public class Checkers {
 
   public static void checkNotBlank(@NonNull String input) {
-    checkArgument(isNotBlank(input), "The input '%s' cannot be blank", input);
+    checkArgument(!isBlank(input), "The input '%s' cannot be blank", input);
   }
 }

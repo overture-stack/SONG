@@ -17,12 +17,12 @@
 
 package bio.overture.song.client.register;
 
+import static bio.overture.song.core.utils.Debug.generateHeader;
+import static java.lang.String.format;
+
 import bio.overture.song.client.config.Config;
 import bio.overture.song.core.exceptions.SongError;
 import lombok.val;
-
-import static java.lang.String.format;
-import static bio.overture.song.core.utils.Debug.generateHeader;
 
 public class ErrorStatusHeader {
 

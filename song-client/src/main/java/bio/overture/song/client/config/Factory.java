@@ -1,11 +1,15 @@
 package bio.overture.song.client.config;
 
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+
 import bio.overture.song.client.cli.ClientMain;
 import bio.overture.song.client.errors.ServerResponseErrorHandler;
 import bio.overture.song.client.register.Registry;
 import bio.overture.song.client.register.RestClient;
 import bio.overture.song.core.retry.DefaultRetryListener;
 import bio.overture.song.core.retry.RetryPolicies;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -21,25 +25,20 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import java.io.IOException;
-
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-
 @RequiredArgsConstructor
 public class Factory {
 
   @NonNull private final Config config;
 
-  public ClientMain buildClientMain(){
+  public ClientMain buildClientMain() {
     return new ClientMain(config, buildRegistry());
   }
 
-  private Registry buildRegistry(){
+  private Registry buildRegistry() {
     return new Registry(config, buildRestClient());
   }
 
-  private RestClient buildRestClient(){
+  private RestClient buildRestClient() {
     return new RestClient(buildRestTemplate(), buildRetryTemplate());
   }
 
@@ -56,7 +55,8 @@ public class Factory {
     val result = new RetryTemplate();
     result.setBackOffPolicy(defineBackOffPolicy(retryConfig));
     result.setRetryPolicy(
-        new SimpleRetryPolicy(retryConfig.getMaxRetries(), RetryPolicies.getRetryableExceptions(), true));
+        new SimpleRetryPolicy(
+            retryConfig.getMaxRetries(), RetryPolicies.getRetryableExceptions(), true));
     result.registerListener(new DefaultRetryListener(false));
     return result;
   }
@@ -86,5 +86,4 @@ public class Factory {
       return clientHttpRequestExecution.execute(httpRequest, bytes);
     }
   }
-
 }

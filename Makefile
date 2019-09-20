@@ -15,3 +15,12 @@ login-psql:
 
 format:
 	@mvn fmt:format
+
+build-server:
+	@mvn package -DskipTests -pl song-server -am 
+	
+build-client:
+	@mvn package -DskipTests -pl song-client -am 
+
+clean:
+	@mvn clean

@@ -16,19 +16,18 @@
  */
 package bio.overture.song.client.register;
 
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+
 import bio.overture.song.client.command.ListAnalysisTypesCommand.SortDirection;
 import bio.overture.song.client.command.ListAnalysisTypesCommand.SortOrder;
 import bio.overture.song.client.util.RequestParamBuilder;
+import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.lang.Nullable;
-
-import java.util.List;
-
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 @RequiredArgsConstructor
 public class Endpoint {

@@ -40,9 +40,8 @@ public class RestTemplateWebResource extends AbstractWebResource<RestTemplateWeb
     @NonNull private final RetryTemplate retryTemplate;
     @NonNull private final RestTemplate restTemplate;
 
-    public RestTemplateWebResource create(){
+    public RestTemplateWebResource create() {
       return new RestTemplateWebResource(serverUrl, retryTemplate, restTemplate);
     }
-
   }
 }
