@@ -14,19 +14,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package bio.overture.song.client.config;
 
-package bio.overture.song.client.benchmark.model;
+import static java.lang.Boolean.parseBoolean;
 
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
-@Value
-@Builder
-public class StatComposite {
+@Slf4j
+@Data
+public class ClientConfig {
 
-  @NonNull private final String studyId;
-  @NonNull private final Stat uploadStat;
-  @NonNull private final Stat statusStat;
-  @NonNull private final Stat saveStat;
+  private String serverUrl;
+  private String studyId;
+  private String programName;
+  private String accessToken;
+  private String debug;
+
+  public boolean isDebug() {
+    return parseBoolean(debug);
+  }
 }

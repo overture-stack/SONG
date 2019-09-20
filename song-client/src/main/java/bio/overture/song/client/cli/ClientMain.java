@@ -16,10 +16,6 @@
  */
 package bio.overture.song.client.cli;
 
-import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
-import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
-import static bio.overture.song.core.exceptions.SongError.createSongError;
-
 import bio.overture.song.client.command.ConfigCommand;
 import bio.overture.song.client.command.ExportCommand;
 import bio.overture.song.client.command.FileUpdateCommand;
@@ -33,31 +29,31 @@ import bio.overture.song.client.command.SearchCommand;
 import bio.overture.song.client.command.SubmitCommand;
 import bio.overture.song.client.command.SuppressCommand;
 import bio.overture.song.client.command.UnpublishCommand;
-import bio.overture.song.client.config.Config;
+import bio.overture.song.client.config.ClientConfig;
 import bio.overture.song.client.register.ErrorStatusHeader;
 import bio.overture.song.client.register.Registry;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
-import java.io.IOException;
-import java.net.HttpRetryException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClientException;
 
+import java.io.IOException;
+import java.net.HttpRetryException;
+
+import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
+import static bio.overture.song.core.exceptions.SongError.createSongError;
+
 @Slf4j
-@Configuration
-public class ClientMain implements CommandLineRunner {
+public class ClientMain {
 
   private CommandParser dispatcher;
   private ErrorStatusHeader errorStatusHeader;
   private Registry registry;
-  private Config config;
+  private ClientConfig config;
 
-  @Autowired
-  public ClientMain(Config config, Registry registry) {
+  public ClientMain(ClientConfig config, Registry registry) {
     val programName = config.getProgramName();
     val options = new Options();
 
@@ -81,7 +77,6 @@ public class ClientMain implements CommandLineRunner {
     this.config = config;
   }
 
-  @Override
   public void run(String... args) {
     val command = dispatcher.parse(args);
     try {

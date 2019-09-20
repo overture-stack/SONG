@@ -20,7 +20,7 @@ package bio.overture.song.client.command;
 import static bio.overture.song.client.util.FileIO.readFileContent;
 import static bio.overture.song.client.util.FileIO.statusFileExists;
 
-import bio.overture.song.client.config.Config;
+import bio.overture.song.client.config.ClientConfig;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -48,7 +48,7 @@ public class UpdateAnalysisCommand extends Command {
       required = true)
   private String analysisId;
 
-  @NonNull private Config config;
+  @NonNull private ClientConfig config;
 
   @NonNull private Registry registry;
 

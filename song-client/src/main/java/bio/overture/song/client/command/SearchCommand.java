@@ -22,7 +22,7 @@ import static bio.overture.song.client.command.rules.RuleProcessor.createRulePro
 import static java.util.Objects.nonNull;
 
 import bio.overture.song.client.cli.Status;
-import bio.overture.song.client.config.Config;
+import bio.overture.song.client.config.ClientConfig;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -86,7 +86,7 @@ public class SearchCommand extends Command {
 
   @NonNull private Registry registry;
 
-  @NonNull private Config config;
+  @NonNull private ClientConfig config;
 
   @Override
   public void run() throws IOException {

@@ -46,7 +46,12 @@ current_dir=$PWD
 fn=$0
 sing_home=$current_dir/`dirname $fn`/../
 
+#         -Dspring.config.location="$sing_home/conf/" \
+
 java --illegal-access=deny \
-         -Dspring.config.location="$sing_home/conf/" \
+		 -Dlog.name=song \
+		 -Dlog.path=$sing_home/logs \
+		 -Dlogback.configurationFile=$sing_home/conf/logback.xml \
          -jar $sing_home/lib/song-client.jar \
+         "$sing_home/conf/application.yml" \
          $@

@@ -16,7 +16,7 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.config.Config;
+import bio.overture.song.client.config.ClientConfig;
 import com.beust.jcommander.Parameters;
 import java.io.IOException;
 import lombok.NonNull;
@@ -27,7 +27,7 @@ import lombok.val;
 @Parameters(commandDescription = "Show the current configuration settings")
 public class ConfigCommand extends Command {
 
-  @NonNull private Config config;
+  @NonNull private ClientConfig config;
 
   @Override
   public void run() throws IOException {

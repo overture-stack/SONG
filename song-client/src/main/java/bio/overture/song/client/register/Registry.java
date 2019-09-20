@@ -16,22 +16,21 @@
  */
 package bio.overture.song.client.register;
 
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
-
 import bio.overture.song.client.cli.Status;
-import bio.overture.song.client.config.Config;
+import bio.overture.song.client.config.ClientConfig;
 import bio.overture.song.client.register.Endpoint.ListAnalysisTypesRequest;
 import bio.overture.song.core.model.file.FileData;
-import java.util.List;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
-@Component
+import java.util.List;
+
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
+
 public class Registry {
 
   private final RestClient restClient;
@@ -40,7 +39,7 @@ public class Registry {
   private final String serverUrl;
 
   @Autowired
-  public Registry(@NonNull Config config, @NonNull RestClient restClient) {
+  public Registry(@NonNull ClientConfig config, @NonNull RestClient restClient) {
     this.restClient = restClient;
     this.endpoint = new Endpoint();
     this.studyId = config.getStudyId();
@@ -85,11 +84,7 @@ public class Registry {
    */
   public boolean isAlive() {
     val url = endpoint.isAlive();
-    try {
-      return parseBoolean(restClient.get(url).getOutputs());
-    } catch (Throwable e) {
-      return false;
-    }
+    return parseBoolean(restClient.get(url).getOutputs());
   }
 
   /**

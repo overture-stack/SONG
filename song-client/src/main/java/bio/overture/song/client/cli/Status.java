@@ -17,6 +17,7 @@
 package bio.overture.song.client.cli;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static org.fusesource.jansi.Ansi.Color.GREEN;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -75,13 +76,13 @@ public class Status {
   }
 
   public void reportErrors() {
-    if (!"".equals(errors)) {
+    if (!isNull(errors) && !"".equals(errors)) {
       AnsiConsole.err().println(ansi().eraseLine().fg(RED).a(errors).reset());
     }
   }
 
   public void reportOutput() {
-    if (!"".equals(outputs)) {
+    if (!isNull(outputs) && !"".equals(outputs)) {
       AnsiConsole.out().println(ansi().eraseLine().fg(GREEN).a(outputs).reset());
     }
   }

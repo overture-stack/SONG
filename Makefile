@@ -18,6 +18,9 @@ format:
 
 build-server:
 	@mvn package -DskipTests -pl song-server -am 
+
+build-core:
+	@mvn package -DskipTests -pl song-core -am 
 	
 build-client:
 	@mvn package -DskipTests -pl song-client -am 

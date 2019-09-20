@@ -27,7 +27,6 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import org.springframework.lang.Nullable;
 
 @RequiredArgsConstructor
 public class Endpoint {
@@ -57,8 +56,7 @@ public class Endpoint {
         .build("/schemas");
   }
 
-  public String getAnalysisType(
-      @NonNull String name, @Nullable Integer version, @Nullable Boolean unrenderedOnly) {
+  public String getAnalysisType(@NonNull String name, Integer version, Boolean unrenderedOnly) {
     return new RequestParamBuilder()
         .optionalQuerySingleParam("version", version)
         .optionalQuerySingleParam("unrenderedOnly", unrenderedOnly)

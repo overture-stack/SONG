@@ -16,7 +16,7 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.config.Config;
+import bio.overture.song.client.config.ClientConfig;
 import bio.overture.song.client.register.Registry;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -41,7 +41,7 @@ public class PublishCommand extends Command {
 
   @NonNull private Registry registry;
 
-  @NonNull private Config config;
+  @NonNull private ClientConfig config;
 
   @Override
   public void run() throws IOException {

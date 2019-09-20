@@ -21,7 +21,7 @@ import static java.nio.file.Paths.get;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 
-import bio.overture.song.client.config.Config;
+import bio.overture.song.client.config.ClientConfig;
 import bio.overture.song.client.json.JsonObject;
 import bio.overture.song.client.model.Manifest;
 import bio.overture.song.client.model.ManifestEntry;
@@ -62,7 +62,7 @@ public class ManifestCommand extends Command {
 
   @NonNull private Registry registry;
 
-  @NonNull private Config config;
+  @NonNull private ClientConfig config;
 
   private Path inputDirPath;
 

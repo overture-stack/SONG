@@ -28,8 +28,8 @@ public class AbstractClientMainTest {
   public ExitCodeCapture exitCodeCapture = new ExitCodeCapture();
 
   protected void executeMain(String... args) {
-    SpringApp.exit = exitCodeCapture;
-    SpringApp.main(args);
+    Main.exit = exitCodeCapture;
+    Main.main(args);
   }
 
   protected String getOutput() {

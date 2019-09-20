@@ -21,7 +21,7 @@ import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
-import bio.overture.song.client.config.Config;
+import bio.overture.song.client.config.ClientConfig;
 import bio.overture.song.client.register.Registry;
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.file.FileUpdateRequest;
@@ -61,7 +61,7 @@ public class FileUpdateCommand extends Command {
       converter = JsonNodeConverter.class)
   private JsonNode fileInfoString;
 
-  @NonNull private Config config;
+  @NonNull private ClientConfig config;
 
   @NonNull private Registry registry;
 

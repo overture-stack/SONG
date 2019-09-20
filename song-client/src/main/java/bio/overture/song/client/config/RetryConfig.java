@@ -19,58 +19,17 @@ package bio.overture.song.client.config;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.springframework.retry.backoff.ExponentialBackOffPolicy.DEFAULT_MULTIPLIER;
 
-import bio.overture.song.core.retry.DefaultRetryListener;
-import bio.overture.song.core.retry.RetryPolicies;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.val;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.retry.backoff.BackOffPolicy;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
-import org.springframework.stereotype.Component;
-import org.springframework.validation.annotation.Validated;
+import lombok.Data;
 
-@Getter
-@Setter
-@Component
-@Validated
+@Data
 public class RetryConfig {
 
   private static final int DEFAULT_MAX_RETRIES = 5;
   private static final long DEFAULT_INITIAL_BACKOFF_INTERVAL = SECONDS.toMillis(15L);
 
-  @NotNull @PositiveOrZero private Integer maxRetries = DEFAULT_MAX_RETRIES;
+  private Integer maxRetries = DEFAULT_MAX_RETRIES;
 
-  @NotNull @PositiveOrZero private Long initialBackoff = DEFAULT_INITIAL_BACKOFF_INTERVAL;
+  private Long initialBackoff = DEFAULT_INITIAL_BACKOFF_INTERVAL;
 
-  @NotNull @PositiveOrZero private Double multiplier = DEFAULT_MULTIPLIER;
-
-  @Bean
-  @Primary
-  public RetryTemplate retryTemplate() {
-    return buildRetryTemplate(false);
-  }
-
-  private RetryTemplate buildRetryTemplate(boolean retryOnAllErrors) {
-    val result = new RetryTemplate();
-    result.setBackOffPolicy(defineBackOffPolicy());
-
-    result.setRetryPolicy(
-        new SimpleRetryPolicy(getMaxRetries(), RetryPolicies.getRetryableExceptions(), true));
-    result.registerListener(new DefaultRetryListener(retryOnAllErrors));
-    return result;
-  }
-
-  private BackOffPolicy defineBackOffPolicy() {
-    val backOffPolicy = new ExponentialBackOffPolicy();
-    backOffPolicy.setInitialInterval(getInitialBackoff());
-    backOffPolicy.setMultiplier(getMultiplier());
-
-    return backOffPolicy;
-  }
+  private Double multiplier = DEFAULT_MULTIPLIER;
 }
