@@ -17,16 +17,13 @@
 
 package bio.overture.song.client.register;
 
-import static bio.overture.song.core.utils.Debug.generateHeader;
-import static java.lang.String.format;
-
 import bio.overture.song.client.config.Config;
 import bio.overture.song.core.exceptions.SongError;
 import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
+import static java.lang.String.format;
+import static bio.overture.song.core.utils.Debug.generateHeader;
+
 public class ErrorStatusHeader {
 
   private static final String SONG_SERVER_ERROR_TITLE = "SONG SERVER ERROR";
@@ -41,7 +38,6 @@ public class ErrorStatusHeader {
 
   private final boolean debugEnabled;
 
-  @Autowired
   public ErrorStatusHeader(Config config) {
     this.debugEnabled = config.isDebug();
   }
