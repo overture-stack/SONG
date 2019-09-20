@@ -16,9 +16,6 @@
  */
 package bio.overture.song.core.utils;
 
-import static com.google.common.base.Preconditions.checkState;
-import static java.util.Objects.isNull;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -28,6 +25,11 @@ import com.google.common.base.Strings;
 import lombok.SneakyThrows;
 import lombok.val;
 
+import java.io.InputStream;
+
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.isNull;
+
 public class JsonDocUtils {
 
   private static ObjectMapper buildObjectMapper() {
@@ -35,6 +37,12 @@ public class JsonDocUtils {
         .registerModule(new ParameterNamesModule())
         .registerModule(new Jdk8Module())
         .registerModule(new JavaTimeModule());
+  }
+
+  public static InputStream getInputStreamClasspath(String fileName) {
+    val is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+    checkState(!isNull(is), "The file '%s' was not found", fileName);
+    return is;
   }
 
   @SneakyThrows

@@ -16,16 +16,43 @@
  */
 package bio.overture.song.client;
 
-import static org.springframework.boot.WebApplicationType.NONE;
-
-import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration;
+import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
+import org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration;
+import org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
+import org.springframework.boot.autoconfigure.task.TaskSchedulingAutoConfiguration;
+import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
 
-@SpringBootApplication
+import java.util.function.Consumer;
+
+import static org.springframework.boot.WebApplicationType.NONE;
+
+@SpringBootApplication(
+    exclude = {
+      JacksonAutoConfiguration.class,
+      HttpMessageConvertersAutoConfiguration.class,
+      CacheAutoConfiguration.class,
+      SpringApplicationAdminJmxAutoConfiguration.class,
+      CodecsAutoConfiguration.class,
+      JmxAutoConfiguration.class,
+      ProjectInfoAutoConfiguration.class,
+      PropertyPlaceholderAutoConfiguration.class,
+      RestTemplateAutoConfiguration.class,
+      TaskExecutionAutoConfiguration.class,
+      TaskSchedulingAutoConfiguration.class,
+      ValidationAutoConfiguration.class
+    })
 public class SpringApp {
 
   public static Consumer<Integer> exit = System::exit;
