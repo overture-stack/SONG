@@ -20,8 +20,8 @@ package bio.overture.song.client.errors;
 import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
 import static bio.overture.song.core.exceptions.SongError.createSongError;
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.Joiners.NEWLINE;
 import static java.util.Objects.isNull;
-import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
 
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;

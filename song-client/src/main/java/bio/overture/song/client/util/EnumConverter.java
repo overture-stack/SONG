@@ -1,7 +1,7 @@
 package bio.overture.song.client.util;
 
+import static bio.overture.song.core.utils.Joiners.COMMA;
 import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;

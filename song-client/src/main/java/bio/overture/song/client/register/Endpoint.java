@@ -16,8 +16,8 @@
  */
 package bio.overture.song.client.register;
 
+import static bio.overture.song.core.utils.Joiners.COMMA;
 import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 import bio.overture.song.client.command.ListAnalysisTypesCommand.SortDirection;
 import bio.overture.song.client.command.ListAnalysisTypesCommand.SortOrder;

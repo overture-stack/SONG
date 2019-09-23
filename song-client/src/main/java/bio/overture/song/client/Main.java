@@ -1,8 +1,6 @@
 package bio.overture.song.client;
 
 import bio.overture.song.client.config.Config;
-import bio.overture.song.client.config.Factory;
-import bio.overture.song.core.utils.JsonDocUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.SneakyThrows;
@@ -10,14 +8,19 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.newInputStream;
+import static java.util.Objects.isNull;
+import static bio.overture.song.core.utils.JsonDocUtils.getInputStreamClasspath;
+
 @Slf4j
 public class Main {
 
+  private static final String DEFAULT_CONFIG_FILENAME = "application.yml";
   public static Consumer<Integer> exit = System::exit;
 
   @SneakyThrows
@@ -30,12 +33,13 @@ public class Main {
 
   @SneakyThrows
   public static Config buildConfig(String file) {
-    //    val is = JsonDocUtils.getInputStreamClasspath();
     InputStream is;
-    if (Files.exists(Paths.get(file))) {
-      is = Files.newInputStream(Paths.get(file));
+    if (isNull(file)){
+      is = getInputStreamClasspath(DEFAULT_CONFIG_FILENAME);
+    } else if(exists(Paths.get(file))) {
+      is = newInputStream(Paths.get(file));
     } else {
-      is = JsonDocUtils.getInputStreamClasspath(file);
+      is = getInputStreamClasspath(file);
     }
     val mapper = new ObjectMapper(new YAMLFactory());
     val tree = mapper.readTree(is);

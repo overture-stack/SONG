@@ -16,20 +16,17 @@
  */
 package bio.overture.song.client.register;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
+
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.config.ClientConfig;
 import bio.overture.song.client.register.Endpoint.ListAnalysisTypesRequest;
 import bio.overture.song.core.model.file.FileData;
+import java.util.List;
 import lombok.NonNull;
 import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestClientException;
-
-import java.util.List;
-
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.format;
 
 public class Registry {
 
@@ -38,7 +35,6 @@ public class Registry {
   private final String studyId;
   private final String serverUrl;
 
-  @Autowired
   public Registry(@NonNull ClientConfig config, @NonNull RestClient restClient) {
     this.restClient = restClient;
     this.endpoint = new Endpoint();
@@ -141,8 +137,7 @@ public class Registry {
     return restClient.get(url);
   }
 
-  public Status getAnalysisType(
-      @NonNull String name, @Nullable Integer version, @Nullable Boolean unrenderedOnly) {
+  public Status getAnalysisType(@NonNull String name, Integer version, Boolean unrenderedOnly) {
     checkServerAlive();
     val url = endpoint.getAnalysisType(name, version, unrenderedOnly);
     return restClient.get(url);

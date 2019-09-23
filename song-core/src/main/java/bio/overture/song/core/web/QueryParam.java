@@ -1,7 +1,7 @@
 package bio.overture.song.core.web;
 
+import static bio.overture.song.core.utils.Joiners.COMMA;
 import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 import java.util.Collection;
 import lombok.Builder;

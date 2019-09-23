@@ -24,7 +24,6 @@ import bio.overture.song.client.cli.Status;
 import java.util.function.Function;
 import lombok.NonNull;
 import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +35,6 @@ public class RestClient {
   private final RestTemplate restTemplate;
   private final RetryTemplate retryTemplate;
 
-  @Autowired
   public RestClient(@NonNull RestTemplate restTemplate, @NonNull RetryTemplate retryTemplate) {
     this.restTemplate = restTemplate;
     this.retryTemplate = retryTemplate;

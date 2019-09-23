@@ -19,6 +19,7 @@ package bio.overture.song.client.command;
 import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+import static bio.overture.song.core.utils.Streams.stream;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Stopwatch.createUnstarted;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -34,7 +35,6 @@ import static java.nio.file.Files.newBufferedWriter;
 import static java.util.Objects.isNull;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.command.rules.ModeRule;

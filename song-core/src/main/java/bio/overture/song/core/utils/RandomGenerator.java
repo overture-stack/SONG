@@ -23,7 +23,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.Collections.shuffle;
 import static java.util.stream.Collectors.toList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import com.google.common.collect.ImmutableList;
@@ -221,7 +221,7 @@ public class RandomGenerator {
         .boxed()
         .map(shuffledList::get)
         .map(list::get)
-        .collect(toImmutableList());
+        .collect(toUnmodifiableList());
   }
 
   /**

@@ -18,7 +18,7 @@
 package bio.overture.song.client.command.rules;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.List;
 import lombok.NonNull;
@@ -31,7 +31,7 @@ public class ModeRule {
   @NonNull private final List<ParamTerm<?>> paramTerms;
 
   public List<ParamTerm<?>> getDefinedTerms() {
-    return paramTerms.stream().filter(ParamTerm::isDefined).collect(toImmutableList());
+    return paramTerms.stream().filter(ParamTerm::isDefined).collect(toUnmodifiableList());
   }
 
   public boolean isModeDefined() {

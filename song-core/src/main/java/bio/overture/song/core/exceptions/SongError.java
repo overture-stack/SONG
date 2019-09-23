@@ -20,12 +20,12 @@ package bio.overture.song.core.exceptions;
 import static bio.overture.song.core.utils.Debug.streamCallingStackTrace;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.Responses.contextMessage;
+import static bio.overture.song.core.utils.Streams.stream;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import bio.overture.song.core.utils.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -107,11 +107,11 @@ public class SongError {
   }
 
   public void setStackTraceElementArray(StackTraceElement[] stackTrace) {
-    setStackTraceElementList(stream(stackTrace).collect(toImmutableList()));
+    setStackTraceElementList(stream(stackTrace).collect(toUnmodifiableList()));
   }
 
   public void setStackTraceElementList(List<StackTraceElement> stackTrace) {
-    this.stackTrace = stackTrace.stream().map(Object::toString).collect(toImmutableList());
+    this.stackTrace = stackTrace.stream().map(Object::toString).collect(toUnmodifiableList());
   }
 
   @JsonIgnore
@@ -154,7 +154,7 @@ public class SongError {
       @NonNull String debugMessage,
       @NonNull String formattedMessage,
       Object... args) {
-    val st = streamCallingStackTrace().skip(1).map(Object::toString).collect(toImmutableList());
+    val st = streamCallingStackTrace().skip(1).map(Object::toString).collect(toUnmodifiableList());
     return SongError.builder()
         .message(format(formattedMessage, args))
         .errorId(serverError.getErrorId())

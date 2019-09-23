@@ -1,24 +1,8 @@
 package bio.overture.song.core.web;
 
-import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
-import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.web.QueryParam.createQueryParam;
-import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.Joiners.PATH;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -27,6 +11,23 @@ import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
+import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
+import static bio.overture.song.core.utils.Joiners.PATH;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.web.QueryParam.createQueryParam;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -160,7 +161,7 @@ public abstract class AbstractWebResource<W extends AbstractWebResource<W>> impl
   }
 
   private Optional<String> getQuery() {
-    val queryStrings = queryParams.stream().map(QueryParam::toString).collect(toImmutableSet());
+    val queryStrings = queryParams.stream().map(QueryParam::toString).collect(toUnmodifiableSet());
     return queryStrings.isEmpty() ? Optional.empty() : Optional.of(AMPERSAND.join(queryStrings));
   }
 

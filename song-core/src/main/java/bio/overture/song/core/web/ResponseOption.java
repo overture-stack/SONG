@@ -1,7 +1,7 @@
 package bio.overture.song.core.web;
 
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -11,6 +11,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.utils.Streams;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -22,7 +23,6 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
-import org.icgc.dcc.common.core.util.stream.Streams;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -100,7 +100,7 @@ public class ResponseOption {
     assertNotNull(page);
     return Streams.stream(page.path("content").iterator())
         .map(x -> MAPPER.convertValue(x, tClass))
-        .collect(toImmutableList());
+        .collect(toUnmodifiableList());
   }
 
   @SneakyThrows

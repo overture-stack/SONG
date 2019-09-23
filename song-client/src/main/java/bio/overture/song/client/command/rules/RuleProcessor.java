@@ -20,7 +20,7 @@ package bio.overture.song.client.command.rules;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import bio.overture.song.client.cli.Status;
 import com.google.common.collect.Maps;
@@ -36,7 +36,7 @@ public class RuleProcessor {
 
   public Status check() {
     val definedModeRules =
-        modeRuleMap.values().stream().filter(ModeRule::isModeDefined).collect(toImmutableList());
+        modeRuleMap.values().stream().filter(ModeRule::isModeDefined).collect(toUnmodifiableList());
     val status = new Status();
 
     if (definedModeRules.size() > 1) {

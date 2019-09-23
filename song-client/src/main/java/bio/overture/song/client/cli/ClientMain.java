@@ -16,6 +16,10 @@
  */
 package bio.overture.song.client.cli;
 
+import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
+import static bio.overture.song.core.exceptions.SongError.createSongError;
+
 import bio.overture.song.client.command.ConfigCommand;
 import bio.overture.song.client.command.ExportCommand;
 import bio.overture.song.client.command.FileUpdateCommand;
@@ -34,16 +38,11 @@ import bio.overture.song.client.register.ErrorStatusHeader;
 import bio.overture.song.client.register.Registry;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
+import java.io.IOException;
+import java.net.HttpRetryException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.web.client.RestClientException;
-
-import java.io.IOException;
-import java.net.HttpRetryException;
-
-import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
-import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
-import static bio.overture.song.core.exceptions.SongError.createSongError;
 
 @Slf4j
 public class ClientMain {
