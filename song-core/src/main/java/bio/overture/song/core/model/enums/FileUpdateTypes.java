@@ -17,13 +17,14 @@
 
 package bio.overture.song.core.model.enums;
 
-import static java.util.Objects.isNull;
-
-import bio.overture.song.core.model.file.FileContent;
-import bio.overture.song.core.model.file.FileData;
-import bio.overture.song.core.model.file.FileMetadata;
-import java.util.function.Function;
+import bio.overture.song.core.model.FileContent;
+import bio.overture.song.core.model.FileData;
+import bio.overture.song.core.model.FileMetadata;
 import lombok.val;
+
+import java.util.function.Function;
+
+import static java.util.Objects.isNull;
 
 public enum FileUpdateTypes {
   NO_UPDATE,

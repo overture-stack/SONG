@@ -21,9 +21,9 @@ import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.FileTypes;
-import bio.overture.song.core.model.file.File;
-import bio.overture.song.core.model.file.FileData;
-import bio.overture.song.server.model.Metadata;
+import bio.overture.song.core.model.File;
+import bio.overture.song.core.model.FileData;
+import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;

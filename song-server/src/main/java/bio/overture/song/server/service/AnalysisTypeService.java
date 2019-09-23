@@ -21,8 +21,8 @@ import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
 import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
-import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;

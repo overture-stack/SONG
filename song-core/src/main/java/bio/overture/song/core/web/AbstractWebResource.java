@@ -1,8 +1,24 @@
 package bio.overture.song.core.web;
 
+import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
+import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
+import static bio.overture.song.core.utils.Joiners.PATH;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.web.QueryParam.createQueryParam;
+import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -11,23 +27,6 @@ import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toUnmodifiableSet;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
-import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
-import static bio.overture.song.core.utils.Joiners.PATH;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.web.QueryParam.createQueryParam;
 
 @Slf4j
 @RequiredArgsConstructor

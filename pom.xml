@@ -24,6 +24,7 @@
     <modules>
         <module>song-core</module>
         <module>song-server</module>
+		<module>song-java-sdk</module>
         <module>song-client</module>
     </modules>
 
@@ -134,11 +135,16 @@
 
             <!-- Hibernate Validator              -->
             <!--Validates annotations at build time-->
-            <dependency>
-                <groupId>org.hibernate.validator</groupId>
-                <artifactId>hibernate-validator-annotation-processor</artifactId>
-                <version>${hibernate-validator.version}</version>
-            </dependency>
+			<dependency>
+				<groupId>org.hibernate.validator</groupId>
+				<artifactId>hibernate-validator-annotation-processor</artifactId>
+				<version>${hibernate-validator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate.validator</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>${hibernate-validator.version}</version>
+			</dependency>
 
             <dependency>
                 <groupId>com.github.bohnman</groupId>

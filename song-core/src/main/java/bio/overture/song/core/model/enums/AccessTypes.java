@@ -17,11 +17,11 @@
 
 package bio.overture.song.core.model.enums;
 
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
 
 @RequiredArgsConstructor
 public enum AccessTypes {

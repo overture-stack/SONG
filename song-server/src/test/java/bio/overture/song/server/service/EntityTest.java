@@ -39,7 +39,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.model.enums.FileTypes;
-import bio.overture.song.server.model.Metadata;
+import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.analysis.SequencingReadAnalysis;
 import bio.overture.song.server.model.analysis.VariantCallAnalysis;

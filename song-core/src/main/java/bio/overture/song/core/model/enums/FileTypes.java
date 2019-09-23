@@ -17,12 +17,12 @@
 
 package bio.overture.song.core.model.enums;
 
-import static bio.overture.song.core.utils.Streams.stream;
-import static java.lang.String.format;
-
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import static java.lang.String.format;
+import static bio.overture.song.core.utils.Streams.stream;
 
 @RequiredArgsConstructor
 public enum FileTypes {
