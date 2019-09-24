@@ -17,7 +17,7 @@
 package bio.overture.song.sdk.register;
 
 import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
-import bio.overture.song.sdk.util.RequestParamBuilder;
+import bio.overture.song.client.util.RequestParamBuilder;
 import lombok.NonNull;
 
 import java.util.List;

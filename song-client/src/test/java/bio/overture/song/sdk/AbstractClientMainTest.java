@@ -18,6 +18,8 @@
 package bio.overture.song.sdk;
 
 import java.util.function.Consumer;
+
+import bio.overture.song.client.Main;
 import lombok.Getter;
 import org.junit.Rule;
 import org.springframework.boot.test.rule.OutputCapture;

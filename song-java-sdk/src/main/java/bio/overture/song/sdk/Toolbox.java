@@ -3,7 +3,7 @@ package bio.overture.song.sdk;
 import bio.overture.song.sdk.config.Config;
 import bio.overture.song.sdk.factory.SpringRegistryFactory;
 import bio.overture.song.sdk.register.Registry;
-import bio.overture.song.sdk.util.ManifestClient;
+import bio.overture.song.client.util.ManifestClient;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
