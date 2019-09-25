@@ -19,7 +19,8 @@ package bio.overture.song.client.command;
 import static bio.overture.song.client.util.FileIO.readFileContent;
 import static bio.overture.song.client.util.FileIO.statusFileExists;
 
-import bio.overture.song.sdk.register.Registry;
+import bio.overture.song.client.config.CustomRestClientConfig;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import java.io.IOException;
@@ -35,7 +36,8 @@ public class SubmitCommand extends Command {
   @Parameter(names = {"-f", "--file"})
   private String fileName;
 
-  @NonNull private Registry registry;
+  @NonNull private CustomRestClientConfig clientConfig;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
@@ -48,7 +50,7 @@ public class SubmitCommand extends Command {
     }
 
     val json = readFileContent(filePath);
-    val status = registry.submit(json);
-    save(status);
+    val submitResponse = songApi.submit(clientConfig.getStudyId(), json);
+    prettyOutput(submitResponse);
   }
 }

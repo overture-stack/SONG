@@ -25,5 +25,8 @@ build-core:
 build-client:
 	@mvn package -DskipTests -pl song-client -am 
 
+build-sdk:
+	@mvn package -DskipTests -pl song-java-sdk -am 
+
 clean:
 	@mvn clean

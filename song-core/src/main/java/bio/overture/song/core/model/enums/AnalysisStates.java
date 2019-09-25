@@ -17,15 +17,14 @@
 
 package bio.overture.song.core.model.enums;
 
-import bio.overture.song.core.utils.Streams;
-import lombok.NonNull;
-
-import java.util.Collection;
-import java.util.Set;
-
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toUnmodifiableSet;
+
+import bio.overture.song.core.utils.Streams;
+import java.util.Collection;
+import java.util.Set;
+import lombok.NonNull;
 
 public enum AnalysisStates {
   PUBLISHED,

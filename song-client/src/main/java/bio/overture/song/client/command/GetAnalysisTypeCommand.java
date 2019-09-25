@@ -16,16 +16,13 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.sdk.register.Registry;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
-
-import static bio.overture.song.client.cli.Status.statusFromResponse;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Retrieve schema information")
@@ -53,13 +50,11 @@ public class GetAnalysisTypeCommand extends Command {
       required = false)
   private boolean unrenderedOnly;
 
-  @NonNull private Registry registry;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
-    val response = registry.getAnalysisType(name, version, unrenderedOnly);
-    save(statusFromResponse(response));
+    val response = songApi.getAnalysisType(name, version, unrenderedOnly);
+    prettyOutput(response);
   }
-
-
 }

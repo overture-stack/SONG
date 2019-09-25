@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package bio.overture.song.sdk.register;
+package bio.overture.song.sdk;
+
+import static java.lang.Boolean.parseBoolean;
 
 import bio.overture.song.core.model.Analysis;
 import bio.overture.song.core.model.AnalysisType;
@@ -24,56 +26,55 @@ import bio.overture.song.core.model.FileData;
 import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
-import bio.overture.song.sdk.rest.RestClient;
+import bio.overture.song.sdk.web.Endpoint;
+import bio.overture.song.sdk.web.RestClient;
+import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
-import java.util.List;
-
-import static java.lang.Boolean.parseBoolean;
-
 @RequiredArgsConstructor
-public class Registry {
+public class SongApi {
 
   @NonNull private final RestClient restClient;
   @NonNull private final Endpoint endpoint;
 
-  public Registry(RestClient restClient) {
+  public SongApi(RestClient restClient) {
     this(restClient, new Endpoint());
   }
 
   /** Submit an payload to the song server. */
-  public ResponseEntity<SubmitResponse> submit(@NonNull String studyId, @NonNull String json) {
+  public SubmitResponse submit(@NonNull String studyId, @NonNull String json) {
     checkServerAlive();
     val url = endpoint.submit(studyId);
-    return restClient.post(url, json, SubmitResponse.class);
+    return restClient.post(url, json, SubmitResponse.class).getBody();
   }
 
-  public ResponseEntity<List<File>> getAnalysisFiles(@NonNull String studyId, @NonNull String analysisId) {
+  public List<File> getAnalysisFiles(@NonNull String studyId, @NonNull String analysisId) {
     checkServerAlive();
     val url = endpoint.getAnalysisFiles(studyId, analysisId);
-    return restClient.getList(url, File.class);
+    return restClient.getList(url, File.class).getBody();
   }
 
-  public ResponseEntity<Analysis> getAnalysis(@NonNull String studyId, @NonNull String analysisId) {
+  public Analysis getAnalysis(@NonNull String studyId, @NonNull String analysisId) {
     checkServerAlive();
     val url = endpoint.getAnalysis(studyId, analysisId);
-    return restClient.get(url, Analysis.class);
+    return restClient.get(url, Analysis.class).getBody();
   }
 
-  public ResponseEntity<List<AnalysisType>> listAnalysisTypes(@NonNull ListAnalysisTypesRequest listAnalysisTypesRequest) {
+  public List<AnalysisType> listAnalysisTypes(
+      @NonNull ListAnalysisTypesRequest listAnalysisTypesRequest) {
     checkServerAlive();
     val url = endpoint.listAnalysisTypes(listAnalysisTypesRequest);
-    return restClient.getList(url, AnalysisType.class);
+    return restClient.getList(url, AnalysisType.class).getBody();
   }
 
-  public ResponseEntity<AnalysisType> registerAnalysisType(@NonNull String json) {
+  public AnalysisType registerAnalysisType(@NonNull String json) {
     checkServerAlive();
     val url = endpoint.registerAnalysisType();
-    return restClient.post(url, json, AnalysisType.class);
+    return restClient.post(url, json, AnalysisType.class).getBody();
   }
 
   /**
@@ -91,46 +92,50 @@ public class Registry {
    * RestTemplate.put is a void method. need to find RestTemplate implementation that returns a
    * response
    */
-  public ResponseEntity<String> publish(@NonNull String studyId, @NonNull String analysisId, boolean ignoreUndefinedMd5) {
+  public String publish(
+      @NonNull String studyId, @NonNull String analysisId, boolean ignoreUndefinedMd5) {
     checkServerAlive();
     val url = endpoint.publish(studyId, analysisId, ignoreUndefinedMd5);
-    return restClient.put(url, String.class);
+    return restClient.put(url, String.class).getBody();
   }
 
-  public ResponseEntity<String> unpublish(@NonNull String studyId, @NonNull String analysisId) {
+  public String unpublish(@NonNull String studyId, @NonNull String analysisId) {
     checkServerAlive();
     val url = endpoint.unpublish(studyId, analysisId);
-    return restClient.put(url, String.class);
+    return restClient.put(url, String.class).getBody();
   }
 
-  public ResponseEntity<List<ExportedPayload>> exportStudy(@NonNull String studyId, boolean includeAnalysisId) {
+  public List<ExportedPayload> exportStudy(@NonNull String studyId, boolean includeAnalysisId) {
     checkServerAlive();
     val url = endpoint.exportStudy(studyId, includeAnalysisId);
-    return restClient.getList(url, ExportedPayload.class);
+    return restClient.getList(url, ExportedPayload.class).getBody();
   }
 
-  public ResponseEntity<List<ExportedPayload>> exportAnalyses(@NonNull List<String> analysisIds, boolean includeAnalysisId) {
+  public List<ExportedPayload> exportAnalyses(
+      @NonNull List<String> analysisIds, boolean includeAnalysisId) {
     checkServerAlive();
     val url = endpoint.exportAnalysisIds(analysisIds, includeAnalysisId);
-    return restClient.getList(url, ExportedPayload.class);
+    return restClient.getList(url, ExportedPayload.class).getBody();
   }
 
-  public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String analysisId) {
+  public String suppress(@NonNull String studyId, @NonNull String analysisId) {
     checkServerAlive();
     val url = endpoint.suppress(studyId, analysisId);
-    return restClient.put(url, String.class);
+    return restClient.put(url, String.class).getBody();
   }
 
-  public ResponseEntity updateAnalysis(@NonNull String studyId, @NonNull String analysisId, @NonNull String updateAnalysisRequest) {
+  public void updateAnalysis(
+      @NonNull String studyId, @NonNull String analysisId, @NonNull String updateAnalysisRequest) {
     checkServerAlive();
     val url = endpoint.updateAnalysis(studyId, analysisId);
-    return restClient.put(url, updateAnalysisRequest, Object.class);
+    restClient.put(url, updateAnalysisRequest, Object.class);
   }
 
-  public ResponseEntity<FileUpdateResponse> updateFile(@NonNull String studyId, @NonNull String objectId, @NonNull FileData fileUpdateRequest) {
+  public FileUpdateResponse updateFile(
+      @NonNull String studyId, @NonNull String objectId, @NonNull FileData fileUpdateRequest) {
     checkServerAlive();
     val url = endpoint.updateFile(studyId, objectId);
-    return restClient.put(url, fileUpdateRequest, FileUpdateResponse.class);
+    return restClient.put(url, fileUpdateRequest, FileUpdateResponse.class).getBody();
   }
 
   public ResponseEntity<List<Analysis>> idSearch(
@@ -140,7 +145,8 @@ public class Registry {
     return restClient.getList(url, Analysis.class);
   }
 
-  public ResponseEntity<AnalysisType> getAnalysisType(@NonNull String name, Integer version, Boolean unrenderedOnly) {
+  public ResponseEntity<AnalysisType> getAnalysisType(
+      @NonNull String name, Integer version, Boolean unrenderedOnly) {
     checkServerAlive();
     val url = endpoint.getAnalysisType(name, version, unrenderedOnly);
     return restClient.get(url, AnalysisType.class);

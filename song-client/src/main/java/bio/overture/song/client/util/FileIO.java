@@ -1,18 +1,17 @@
 package bio.overture.song.client.util;
 
-import bio.overture.song.client.cli.Status;
-import lombok.NonNull;
-import lombok.val;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import static com.google.common.io.Files.toByteArray;
 import static java.lang.String.format;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.isRegularFile;
+
+import bio.overture.song.client.cli.Status;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import lombok.NonNull;
+import lombok.val;
 
 public class FileIO {
 

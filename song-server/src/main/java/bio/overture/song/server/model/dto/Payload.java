@@ -1,18 +1,17 @@
 package bio.overture.song.server.model.dto;
 
-import bio.overture.song.core.model.DynamicData;
 import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.DynamicData;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import java.util.List;
 
 @Data
 @Builder

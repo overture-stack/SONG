@@ -1,31 +1,32 @@
 package bio.overture.song.sdk;
 
-import bio.overture.song.sdk.config.Config;
-import bio.overture.song.sdk.factory.SpringRegistryFactory;
-import bio.overture.song.sdk.register.Registry;
-import bio.overture.song.client.util.ManifestClient;
+import static lombok.AccessLevel.PRIVATE;
+
+import bio.overture.song.sdk.config.RestClientConfig;
+import bio.overture.song.sdk.config.RetryConfig;
+import bio.overture.song.sdk.config.SdkConfig;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import static lombok.AccessLevel.PRIVATE;
-
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
 public class Toolbox {
 
-  @NonNull private final Registry registry;
+  @NonNull private final SongApi songApi;
   @NonNull private final ManifestClient manifestClient;
 
-  public static Toolbox create(@NonNull Config config){
-    val factory = SpringRegistryFactory.builder()
-        .restClientConfig(config.getClient())
-        .retryConfig(config.getRetry())
-        .build();
-    val registry = factory.build();
-    val manifestClient = new ManifestClient(registry);
-    return new Toolbox(registry, manifestClient);
+  public static Toolbox createToolbox(@NonNull SdkConfig config) {
+    return createToolbox(config.getClient(), config.getRetry());
   }
 
+  public static Toolbox createToolbox(
+      @NonNull RestClientConfig restClientConfig, @NonNull RetryConfig retryConfig) {
+    val factory =
+        Factory.builder().retryConfig(retryConfig).restClientConfig(restClientConfig).build();
+    val songApi = factory.buildSongApi();
+    val manifestClient = new ManifestClient(songApi);
+    return new Toolbox(songApi, manifestClient);
+  }
 }

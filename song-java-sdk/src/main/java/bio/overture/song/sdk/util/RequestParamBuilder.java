@@ -1,20 +1,19 @@
-package bio.overture.song.client.util;
+package bio.overture.song.sdk.util;
 
-import bio.overture.song.core.web.QueryParam;
-import lombok.NonNull;
-import lombok.val;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toUnmodifiableSet;
 import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
 import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.core.utils.Joiners.AMPERSAND;
 import static bio.overture.song.core.web.QueryParam.createQueryParam;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+
+import bio.overture.song.core.web.QueryParam;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import lombok.NonNull;
+import lombok.val;
 
 public class RequestParamBuilder {
 

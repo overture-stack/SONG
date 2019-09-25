@@ -30,10 +30,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.model.AnalysisType;
+import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
-import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import bio.overture.song.server.service.AnalysisTypeService;

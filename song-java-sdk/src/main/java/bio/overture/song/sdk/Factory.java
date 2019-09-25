@@ -1,16 +1,15 @@
-package bio.overture.song.sdk.factory;
+package bio.overture.song.sdk;
 
 import bio.overture.song.core.retry.DefaultRetryListener;
 import bio.overture.song.core.retry.RetryPolicies;
 import bio.overture.song.sdk.config.RestClientConfig;
 import bio.overture.song.sdk.config.RetryConfig;
-import bio.overture.song.client.errors.ServerResponseErrorHandler;
-import bio.overture.song.sdk.register.Endpoint;
-import bio.overture.song.sdk.register.Registry;
-import bio.overture.song.sdk.rest.RestClient;
-import bio.overture.song.sdk.rest.impl.SpringRestClient;
-import bio.overture.song.sdk.rest.impl.SpringRetryRestClientDecorator;
-import bio.overture.song.client.util.DefaultClientHttpRequestInterceptor;
+import bio.overture.song.sdk.errors.ServerResponseErrorHandler;
+import bio.overture.song.sdk.util.DefaultClientHttpRequestInterceptor;
+import bio.overture.song.sdk.web.Endpoint;
+import bio.overture.song.sdk.web.RestClient;
+import bio.overture.song.sdk.web.impl.DefaultRestClient;
+import bio.overture.song.sdk.web.impl.DefaultRetryRestClientDecorator;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -25,35 +24,34 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Builder
 @RequiredArgsConstructor
-public class SpringRegistryFactory extends AbstractRegistryFactory{
+public class Factory {
 
   @NonNull private final RestClientConfig restClientConfig;
   @NonNull private final RetryConfig retryConfig;
 
-  @Override
-  public Registry build() {
-    return new Registry(buildFinalRestClient(), new Endpoint());
+  public SongApi buildSongApi() {
+    return new SongApi(buildRestClient(restClientConfig, retryConfig), new Endpoint());
   }
 
-  private RestClient buildFinalRestClient() {
-    return SpringRetryRestClientDecorator.builder()
-        .restClient(buildSpringRestClient(restClientConfig))
+  public static RestClient buildRestClient(@NonNull RestClientConfig restClientConfig) {
+    return DefaultRestClient.builder().restTemplate(buildRestTemplate(restClientConfig)).build();
+  }
+
+  public static RestClient buildRestClient(
+      @NonNull RestClientConfig restClientConfig, @NonNull RetryConfig retryConfig) {
+    return DefaultRetryRestClientDecorator.builder()
+        .restClient(buildRestClient(restClientConfig))
         .retryTemplate(buildRetryTemplate(retryConfig))
         .build();
   }
 
-  private static SpringRestClient buildSpringRestClient(RestClientConfig restClientConfig){
-    return SpringRestClient.builder()
-        .restTemplate(buildRestTemplate(restClientConfig))
-        .build();
-  }
-
-  private static RestTemplate buildRestTemplate(RestClientConfig restClientConfig) {
+  public static RestTemplate buildRestTemplate(@NonNull RestClientConfig restClientConfig) {
     val r = new RestTemplate();
     r.setErrorHandler(new ServerResponseErrorHandler());
     r.setUriTemplateHandler(new DefaultUriBuilderFactory(restClientConfig.getServerUrl()));
     r.setRequestFactory(new SimpleClientHttpRequestFactory());
-    r.getInterceptors().add(new DefaultClientHttpRequestInterceptor(restClientConfig.getAccessToken()));
+    r.getInterceptors()
+        .add(new DefaultClientHttpRequestInterceptor(restClientConfig.getAccessToken()));
     return r;
   }
 

@@ -20,5 +20,4 @@ public class Specimen extends Metadata {
   private String specimenSubmitterId;
   private String specimenClass;
   private String specimenType;
-
 }

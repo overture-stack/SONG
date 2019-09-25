@@ -1,4 +1,4 @@
-package bio.overture.song.client.util;
+package bio.overture.song.sdk.util;
 
 import static bio.overture.song.core.utils.Joiners.COMMA;
 import static java.lang.String.format;

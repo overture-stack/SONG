@@ -16,22 +16,21 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.cli.Status;
-import bio.overture.song.sdk.config.RestClientConfig;
-import bio.overture.song.sdk.register.Registry;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-
-import java.io.IOException;
-import java.util.Objects;
-
-import static java.util.Objects.nonNull;
 import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
 import static bio.overture.song.client.command.rules.ParamTerm.createParamTerm;
 import static bio.overture.song.client.command.rules.RuleProcessor.createRuleProcessor;
+import static java.util.Objects.nonNull;
+
+import bio.overture.song.client.cli.Status;
+import bio.overture.song.client.config.CustomRestClientConfig;
+import bio.overture.song.sdk.SongApi;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import java.io.IOException;
+import java.util.Objects;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RequiredArgsConstructor
 @Parameters(
@@ -85,18 +84,18 @@ public class SearchCommand extends Command {
       required = false)
   private String analysisId;
 
-  @NonNull private Registry registry;
-
-  @NonNull private RestClientConfig config;
+  @NonNull private CustomRestClientConfig config;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
     val status = checkRules();
     if (!status.hasErrors()) {
       if (isIdSearchMode()) {
-        status.save(registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId));
+        status.outputPrettyJson(
+            songApi.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId));
       } else if (isAnalysisSearchMode()) {
-        status.save(registry.getAnalysis(config.getStudyId(), analysisId));
+        status.outputPrettyJson(songApi.getAnalysis(config.getStudyId(), analysisId));
       } else {
         status.err("Must define at least one switch for the 'search' command\n");
       }

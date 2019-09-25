@@ -17,19 +17,18 @@
 
 package bio.overture.song.client.command;
 
-import bio.overture.song.sdk.config.RestClientConfig;
-import bio.overture.song.sdk.register.Registry;
+import static bio.overture.song.client.util.FileIO.readFileContent;
+import static bio.overture.song.client.util.FileIO.statusFileExists;
+
+import bio.overture.song.client.config.CustomRestClientConfig;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
+import java.nio.file.Paths;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
-import java.nio.file.Paths;
-
-import static bio.overture.song.client.util.FileIO.readFileContent;
-import static bio.overture.song.client.util.FileIO.statusFileExists;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Update the dynamic data of an analysis")
@@ -49,9 +48,9 @@ public class UpdateAnalysisCommand extends Command {
       required = true)
   private String analysisId;
 
-  @NonNull private RestClientConfig config;
+  @NonNull private CustomRestClientConfig config;
 
-  @NonNull private Registry registry;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
@@ -64,7 +63,7 @@ public class UpdateAnalysisCommand extends Command {
     }
 
     val json = readFileContent(filePath);
-    val status = registry.updateAnalysis(config.getStudyId(), analysisId, json);
-    save(status);
+    songApi.updateAnalysis(config.getStudyId(), analysisId, json);
+    output("Successfully updated analysisId '%s'", analysisId);
   }
 }

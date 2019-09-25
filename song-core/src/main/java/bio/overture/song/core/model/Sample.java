@@ -15,10 +15,8 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class Sample extends Metadata {
 
-
   private String sampleId;
   private String specimenId;
   private String sampleSubmitterId;
   private String sampleType;
-
 }

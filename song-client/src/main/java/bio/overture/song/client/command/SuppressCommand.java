@@ -16,15 +16,14 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.sdk.config.RestClientConfig;
-import bio.overture.song.sdk.register.Registry;
+import bio.overture.song.client.config.CustomRestClientConfig;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Suppress an analysis id")
@@ -35,9 +34,8 @@ public class SuppressCommand extends Command {
       required = false)
   private String analysisId;
 
-  @NonNull private Registry registry;
-
-  @NonNull private RestClientConfig config;
+  @NonNull private CustomRestClientConfig config;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
@@ -45,7 +43,7 @@ public class SuppressCommand extends Command {
       analysisId = getJson().at("/analysisId").asText("");
     }
 
-    val status = registry.suppress(config.getStudyId(), analysisId);
-    save(status);
+    val message = songApi.suppress(config.getStudyId(), analysisId);
+    output(message);
   }
 }

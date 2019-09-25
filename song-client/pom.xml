@@ -76,6 +76,10 @@
 					<groupId>org.icgc.dcc</groupId>
 					<artifactId>dcc-common-core</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.hibernate.validator</groupId>
+					<artifactId>hibernate-validator</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -92,10 +96,6 @@
 		</dependency>
 
 		<!-- JSON -->
-		<dependency>
-			<groupId>com.networknt</groupId>
-			<artifactId>json-schema-validator</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-yaml</artifactId>

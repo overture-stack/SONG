@@ -16,11 +16,17 @@
  */
 package bio.overture.song.sdk.model;
 
-import lombok.Data;
-import lombok.NonNull;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.val;
 
 @Data
 public class Manifest {
@@ -35,7 +41,7 @@ public class Manifest {
 
   public Manifest(@NonNull String analysisId) {
     this.analysisId = analysisId;
-    this.entries = new ArrayList<ManifestEntry>();
+    this.entries = new ArrayList<>();
   }
 
   public void add(ManifestEntry m) {
@@ -48,6 +54,14 @@ public class Manifest {
         + TWO_TABS
         + NEWLINE
         + entries.stream().map(e -> e.toString() + NEWLINE).reduce(EMPTY, (a, b) -> a + b);
+  }
+
+  public void writeToFile(@NonNull String outputFilename) throws IOException {
+    val path = Paths.get(outputFilename);
+    if (!exists(path.getParent())) {
+      createDirectories(path.getParent());
+    }
+    Files.write(path, toString().getBytes());
   }
 
   public void addAll(@NonNull Collection<? extends ManifestEntry> collect) {

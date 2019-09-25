@@ -17,7 +17,7 @@
 package bio.overture.song.client.command;
 
 import bio.overture.song.client.cli.Status;
-import bio.overture.song.sdk.register.Registry;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameters;
 import java.io.IOException;
 import lombok.NonNull;
@@ -28,12 +28,12 @@ import lombok.val;
 @Parameters(separators = "=", commandDescription = "Ping the server")
 public class PingCommand extends Command {
 
-  @NonNull private Registry registry;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
     val status = new Status();
-    status.output(Boolean.toString(registry.isAlive()));
+    status.output(Boolean.toString(songApi.isAlive()));
     save(status);
   }
 }

@@ -16,22 +16,21 @@
  */
 package bio.overture.song.client.command;
 
+import static bio.overture.song.sdk.model.SortDirection.DESC;
+import static com.google.common.collect.Lists.newArrayList;
+
+import bio.overture.song.client.util.EnumConverter;
+import bio.overture.song.sdk.SongApi;
+import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
 import bio.overture.song.sdk.model.SortDirection;
 import bio.overture.song.sdk.model.SortOrder;
-import bio.overture.song.sdk.register.Endpoint;
-import bio.overture.song.sdk.register.Registry;
-import bio.overture.song.client.util.EnumConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
+import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static bio.overture.song.sdk.model.SortDirection.DESC;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Retrieve schema information")
@@ -108,12 +107,12 @@ public class ListAnalysisTypesCommand extends Command {
       required = false)
   private Integer limit;
 
-  @NonNull private Registry registry;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
     val r =
-        Endpoint.ListAnalysisTypesRequest.builder()
+        ListAnalysisTypesRequest.builder()
             .names(names)
             .versions(versions)
             .hideSchema(hideSchema)
@@ -123,8 +122,8 @@ public class ListAnalysisTypesCommand extends Command {
             .sortDirection(sortDirection)
             .sortOrders(sortOrders)
             .build();
-    val status = registry.listAnalysisTypes(r);
-    save(status);
+    val response = songApi.listAnalysisTypes(r);
+    prettyOutput(response);
   }
 
   public static class SortDirectionConverter extends EnumConverter<SortDirection> {
@@ -140,5 +139,4 @@ public class ListAnalysisTypesCommand extends Command {
       return SortOrder.class;
     }
   }
-
 }

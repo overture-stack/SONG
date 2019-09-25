@@ -15,25 +15,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package bio.overture.song.client.errors;
-
-import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
-import static bio.overture.song.core.exceptions.SongError.createSongError;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static bio.overture.song.core.utils.Joiners.NEWLINE;
-import static java.util.Objects.isNull;
+package bio.overture.song.sdk.errors;
 
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.utils.JsonUtils;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import static java.util.Objects.isNull;
+import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static bio.overture.song.core.exceptions.SongError.createSongError;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.Joiners.NEWLINE;
 
 @Slf4j
 public class ServerResponseErrorHandler extends DefaultResponseErrorHandler {

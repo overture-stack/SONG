@@ -1,10 +1,9 @@
 package bio.overture.song.sdk.model;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-
-import java.util.List;
 
 @Value
 @Builder

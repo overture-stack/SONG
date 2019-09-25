@@ -17,26 +17,24 @@
 
 package bio.overture.song.client.command;
 
+import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+
+import bio.overture.song.client.config.CustomRestClientConfig;
 import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.sdk.config.RestClientConfig;
-import bio.overture.song.sdk.register.Registry;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.io.IOException;
-
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static bio.overture.song.client.cli.Status.statusFromResponse;
-import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 
 @RequiredArgsConstructor
 @Parameters(separators = "=", commandDescription = "Update a file")
@@ -63,9 +61,9 @@ public class FileUpdateCommand extends Command {
       converter = JsonNodeConverter.class)
   private JsonNode fileInfoString;
 
-  @NonNull private RestClientConfig config;
+  @NonNull private CustomRestClientConfig config;
 
-  @NonNull private Registry registry;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
@@ -77,9 +75,8 @@ public class FileUpdateCommand extends Command {
             .info(fileInfoString)
             .build();
 
-    val response = registry.updateFile(config.getStudyId(), objectId, request);
-    val status = statusFromResponse(response);
-    save(status);
+    val fileUpdateResponse = songApi.updateFile(config.getStudyId(), objectId, request);
+    prettyOutput(fileUpdateResponse);
   }
 
   public static class AccessTypeConverter implements IStringConverter<AccessTypes> {

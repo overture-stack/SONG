@@ -16,19 +16,17 @@
  */
 package bio.overture.song.client.cli;
 
-import lombok.Data;
-import lombok.NonNull;
-import lombok.val;
-import org.fusesource.jansi.AnsiConsole;
-import org.springframework.http.ResponseEntity;
-
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.fusesource.jansi.Ansi.Color.GREEN;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+
+import lombok.Data;
+import lombok.NonNull;
+import org.fusesource.jansi.AnsiConsole;
 
 /** This class holds status results for commands that have run. */
 @Data
@@ -61,11 +59,11 @@ public class Status {
     outputs += s.outputs;
   }
 
-  public void outputPrettyJson(Object o){
+  public void outputPrettyJson(Object o) {
     output(toPrettyJson(o));
   }
 
-  public void outputJson(Object o){
+  public void outputJson(Object o) {
     output(toJson(o));
   }
 
@@ -92,6 +90,7 @@ public class Status {
       outputs += format(format, args);
     }
   }
+
   public void reportErrors() {
     if (!isNull(errors) && !"".equals(errors)) {
       AnsiConsole.err().println(ansi().eraseLine().fg(RED).a(errors).reset());
@@ -107,15 +106,5 @@ public class Status {
   public void report() {
     reportOutput();
     reportErrors();
-  }
-
-  public static Status statusFromResponse(ResponseEntity o){
-    val s = new Status();
-    if (o.getStatusCode().isError()){
-      s.err(prefixErrorMessage(o.getBody().toString()));
-    } else {
-      s.outputPrettyJson(o);
-    }
-    return s;
   }
 }

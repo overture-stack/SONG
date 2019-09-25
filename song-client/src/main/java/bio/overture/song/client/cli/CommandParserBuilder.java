@@ -18,10 +18,9 @@ package bio.overture.song.client.cli;
 
 import bio.overture.song.client.command.Command;
 import com.beust.jcommander.JCommander;
-import lombok.val;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.val;
 
 /** A class to build CommandParsers */
 public class CommandParserBuilder {

@@ -1,34 +1,31 @@
 package bio.overture.song.client;
 
-import bio.overture.song.sdk.config.Config;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.function.Consumer;
-
+import static bio.overture.song.client.cli.ClientMain.createClientMain;
+import static bio.overture.song.core.utils.JsonDocUtils.getInputStreamClasspath;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.newInputStream;
 import static java.util.Objects.isNull;
-import static bio.overture.song.core.utils.JsonDocUtils.getInputStreamClasspath;
+
+import bio.overture.song.client.config.Config;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 @Slf4j
 public class Main {
 
   private static final String DEFAULT_CONFIG_FILENAME = "application.yml";
-  public static Consumer<Integer> exit = System::exit;
 
   @SneakyThrows
   public static void main(String[] args) {
     val config = buildConfig(args[0]);
-    val factory = new Factory(config);
     val otherArgs = Arrays.stream(args).skip(1).toArray(String[]::new);
-    factory.buildClientMain().run(otherArgs);
+    createClientMain(config).run(otherArgs);
   }
 
   @SneakyThrows

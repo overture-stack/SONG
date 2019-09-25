@@ -30,8 +30,8 @@ import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
 import static java.util.Objects.isNull;
 
-import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.core.model.SubmitResponse;
+import bio.overture.song.server.model.dto.Payload;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import javax.transaction.Transactional;

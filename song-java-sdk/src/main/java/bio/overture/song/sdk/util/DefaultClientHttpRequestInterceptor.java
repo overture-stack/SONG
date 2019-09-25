@@ -1,4 +1,4 @@
-package bio.overture.song.client.util;
+package bio.overture.song.sdk.util;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.springframework.http.HttpHeaders.ACCEPT;

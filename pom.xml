@@ -23,9 +23,9 @@
     <version>2.0.0</version>
     <modules>
         <module>song-core</module>
-        <module>song-server</module>
 		<module>song-java-sdk</module>
         <module>song-client</module>
+        <module>song-server</module>
     </modules>
 
     <parent>
@@ -181,6 +181,16 @@
                 <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+			</dependency>
             <dependency>
                 <groupId>com.networknt</groupId>
                 <artifactId>json-schema-validator</artifactId>

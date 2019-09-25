@@ -16,31 +16,23 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.sdk.config.RestClientConfig;
+import bio.overture.song.client.config.CustomRestClientConfig;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @Parameters(commandDescription = "Show the current configuration settings")
 public class ConfigCommand extends Command {
 
-  @NonNull private RestClientConfig config;
+  @NonNull private CustomRestClientConfig config;
 
   @Override
   public void run() throws IOException {
     output("Current configuration:\n");
-
-    @NonNull val url = config.getServerUrl();
-    output("URL: %s\n", url);
-
-    @NonNull val id = config.getStudyId();
-    output("Study ID: %s\n", id);
-
-    @NonNull val debugEnabled = config.isDebug();
-    output("Debug Enabled: %s\n", debugEnabled);
+    output("URL: %s\n", config.getServerUrl());
+    output("Study ID: %s\n", config.getStudyId());
+    output("Debug Enabled: %s\n", config.isDebug());
   }
 }

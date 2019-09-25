@@ -1,18 +1,17 @@
-package bio.overture.song.client.util;
-
-import lombok.NonNull;
-import lombok.val;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Optional;
-import java.util.function.Supplier;
+package bio.overture.song.sdk.util;
 
 import static com.google.common.io.Files.toByteArray;
 import static java.lang.String.format;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.isRegularFile;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.function.Supplier;
+import lombok.NonNull;
+import lombok.val;
 
 public class FileIO {
 
@@ -53,9 +52,8 @@ public class FileIO {
 
   private static void pathChecker(Supplier<Optional<String>> statusSupplier) throws IOException {
     val result = statusSupplier.get();
-    if (result.isPresent()){
+    if (result.isPresent()) {
       throw new IOException(result.get());
     }
   }
-
 }

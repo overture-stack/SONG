@@ -1,7 +1,9 @@
 package bio.overture.song.server.model.dto;
 
-import bio.overture.song.core.model.DynamicData;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.DynamicData;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,8 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Data
 @NoArgsConstructor

@@ -17,12 +17,12 @@
 
 package bio.overture.song.client.errors;
 
-import bio.overture.song.core.exceptions.SongError;
-import bio.overture.song.sdk.config.RestClientConfig;
-import lombok.val;
-
-import static java.lang.String.format;
 import static bio.overture.song.core.utils.Debug.generateHeader;
+import static java.lang.String.format;
+
+import bio.overture.song.client.config.CustomRestClientConfig;
+import bio.overture.song.core.exceptions.SongError;
+import lombok.val;
 
 public class ErrorStatusHeader {
 
@@ -38,7 +38,7 @@ public class ErrorStatusHeader {
 
   private final boolean debugEnabled;
 
-  public ErrorStatusHeader(RestClientConfig config) {
+  public ErrorStatusHeader(CustomRestClientConfig config) {
     this.debugEnabled = config.isDebug();
   }
 

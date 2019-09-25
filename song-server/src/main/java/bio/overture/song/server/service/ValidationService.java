@@ -28,9 +28,9 @@ import static java.util.Objects.isNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
+import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.FileData;
 import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;

@@ -14,16 +14,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package bio.overture.song.sdk.register;
+package bio.overture.song.sdk.web;
+
+import static bio.overture.song.core.utils.Joiners.COMMA;
+import static java.lang.String.format;
 
 import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
-import bio.overture.song.client.util.RequestParamBuilder;
-import lombok.NonNull;
-
+import bio.overture.song.sdk.util.RequestParamBuilder;
 import java.util.List;
-
-import static java.lang.String.format;
-import static bio.overture.song.core.utils.Joiners.COMMA;
+import lombok.NonNull;
 
 public class Endpoint {
 
@@ -66,7 +65,7 @@ public class Endpoint {
     return new RequestParamBuilder()
         .optionalQuerySingleParam("version", version)
         .optionalQuerySingleParam("unrenderedOnly", unrenderedOnly)
-        .build(serverUrl+"/schemas/" + name);
+        .build(serverUrl + "/schemas/" + name);
   }
 
   public String getAnalysis(String studyId, @NonNull String analysisId) {
@@ -74,10 +73,11 @@ public class Endpoint {
   }
 
   public String isAlive() {
-    return serverUrl+"/isAlive";
+    return serverUrl + "/isAlive";
   }
 
-  public String publish(@NonNull String studyId, @NonNull String analysisId, boolean ignoreUndefinedMd5) {
+  public String publish(
+      @NonNull String studyId, @NonNull String analysisId, boolean ignoreUndefinedMd5) {
     return format(
         "%s/studies/%s/analysis/publish/%s?ignoreUndefinedMd5=%s",
         serverUrl, studyId, analysisId, ignoreUndefinedMd5);
@@ -97,11 +97,13 @@ public class Endpoint {
 
   public String exportAnalysisIds(@NonNull List<String> analysisIds, boolean includeAnalysisId) {
     return format(
-        "%s/export/analysis/%s?includeAnalysisId=%s", serverUrl, COMMA.join(analysisIds), includeAnalysisId);
+        "%s/export/analysis/%s?includeAnalysisId=%s",
+        serverUrl, COMMA.join(analysisIds), includeAnalysisId);
   }
 
   public String exportStudy(@NonNull String studyId, boolean includeAnalysisId) {
-    return format("%s/export/studies/%s?includeAnalysisId=%s", serverUrl, studyId, includeAnalysisId);
+    return format(
+        "%s/export/studies/%s?includeAnalysisId=%s", serverUrl, studyId, includeAnalysisId);
   }
 
   public String suppress(@NonNull String studyId, @NonNull String analysisId) {
@@ -118,8 +120,7 @@ public class Endpoint {
         .build(format("%s/studies/%s/analysis/search/id", serverUrl, studyId));
   }
 
-  private static String sanitizeServerUrl(String serverUrl){
+  private static String sanitizeServerUrl(String serverUrl) {
     return serverUrl.trim().replaceAll("[\\/]+$", "");
   }
-
 }

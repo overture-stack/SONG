@@ -19,7 +19,7 @@ package bio.overture.song.client.command;
 import static bio.overture.song.client.util.FileIO.readFileContent;
 import static bio.overture.song.client.util.FileIO.statusFileExists;
 
-import bio.overture.song.sdk.register.Registry;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class RegisterAnalysisTypeCommand extends Command {
       required = true)
   private String fileName;
 
-  @NonNull private Registry registry;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
@@ -53,7 +53,7 @@ public class RegisterAnalysisTypeCommand extends Command {
     }
 
     val json = readFileContent(filePath);
-    val apiStatus = registry.registerAnalysisType(json);
-    save(apiStatus);
+    val analysisType = songApi.registerAnalysisType(json);
+    prettyOutput(analysisType);
   }
 }

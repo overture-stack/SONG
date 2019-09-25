@@ -16,15 +16,15 @@
  */
 package bio.overture.song.client.command;
 
+import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+
 import bio.overture.song.client.cli.Status;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
-import lombok.val;
-
 import java.io.IOException;
-
-import static bio.overture.song.client.util.FileIO.prefixErrorMessage;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.val;
 
 /** Abstract parent class for Command objects. */
 @Data
@@ -40,7 +40,7 @@ public abstract class Command {
    *     <p>Formats a string and adds it to the output for the command
    */
   public Status err(String format, Object... args) {
-    status.err(prefixErrorMessage(format, args));
+    status.err(format, args);
     return status;
   }
 
@@ -53,6 +53,10 @@ public abstract class Command {
    */
   public void output(String format, Object... args) {
     status.output(format, args);
+  }
+
+  public void prettyOutput(@NonNull Object jsonSerializableObject) {
+    output(toPrettyJson(jsonSerializableObject));
   }
 
   public void save(Status status) {

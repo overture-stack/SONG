@@ -17,21 +17,23 @@
 
 package bio.overture.song.sdk;
 
+import bio.overture.song.client.cli.ClientMain;
 import java.util.function.Consumer;
-
-import bio.overture.song.client.Main;
 import lombok.Getter;
 import org.junit.Rule;
 import org.springframework.boot.test.rule.OutputCapture;
 
-public class AbstractClientMainTest {
+public abstract class AbstractClientMainTest {
 
   @Rule public OutputCapture capture = new OutputCapture();
+
   public ExitCodeCapture exitCodeCapture = new ExitCodeCapture();
 
+  protected abstract ClientMain getClientMain();
+
   protected void executeMain(String... args) {
-    Main.exit = exitCodeCapture;
-    Main.main(args);
+    ClientMain.exit = exitCodeCapture;
+    getClientMain().run(args);
   }
 
   protected String getOutput() {

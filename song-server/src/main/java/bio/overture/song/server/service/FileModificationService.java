@@ -17,20 +17,6 @@
 
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.exceptions.ServerException;
-import bio.overture.song.core.model.FileData;
-import bio.overture.song.core.model.FileUpdateResponse;
-import bio.overture.song.core.model.enums.FileUpdateTypes;
-import bio.overture.song.server.converter.FileConverter;
-import bio.overture.song.server.model.entity.FileEntity;
-import lombok.NonNull;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-
-import static java.lang.String.format;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE_REQUEST;
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
@@ -42,6 +28,19 @@ import static bio.overture.song.core.model.enums.FileUpdateTypes.CONTENT_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.METADATA_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.NO_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.resolveFileUpdateType;
+import static java.lang.String.format;
+
+import bio.overture.song.core.exceptions.ServerException;
+import bio.overture.song.core.model.FileData;
+import bio.overture.song.core.model.FileUpdateResponse;
+import bio.overture.song.core.model.enums.FileUpdateTypes;
+import bio.overture.song.server.converter.FileConverter;
+import bio.overture.song.server.model.entity.FileEntity;
+import javax.transaction.Transactional;
+import lombok.NonNull;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FileModificationService {

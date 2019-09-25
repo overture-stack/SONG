@@ -1,8 +1,8 @@
-package bio.overture.song.client.errors;
+package bio.overture.song.sdk.errors;
 
 import static java.lang.String.format;
 
-public class ManifestClientException extends RuntimeException{
+public class ManifestClientException extends RuntimeException {
 
   public ManifestClientException() {
     super();
@@ -20,11 +20,9 @@ public class ManifestClientException extends RuntimeException{
     super(cause);
   }
 
-  public static void checkManifest(boolean expression, String formattedString, Object ... args){
-    if (!expression){
+  public static void checkManifest(boolean expression, String formattedString, Object... args) {
+    if (!expression) {
       throw new ManifestClientException(format(formattedString, args));
     }
   }
-
-
 }
