@@ -122,7 +122,7 @@ public class ListAnalysisTypesCommand extends Command {
             .sortDirection(sortDirection)
             .sortOrders(sortOrders)
             .build();
-    val response = songApi.listAnalysisTypes(r);
+    val response = songApi.listAnalysisTypes(r).getResultSet();
     prettyOutput(response);
   }
 

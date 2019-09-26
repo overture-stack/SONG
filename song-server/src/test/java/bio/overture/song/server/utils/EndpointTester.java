@@ -84,7 +84,7 @@ public class EndpointTester {
     return w;
   }
 
-  public ResponseOption getSchemaGetRequestAnd(
+  public ResponseOption listSchemasGetRequestAnd(
       Collection<String> names,
       Collection<Integer> versions,
       Boolean hideSchema,
@@ -92,12 +92,12 @@ public class EndpointTester {
       Integer limit,
       Sort.Direction sortOrder,
       String... sortVariables) {
-    return getSchemaGetRequestAnd(
+    return listSchemasGetRequestAnd(
         names, versions, hideSchema, false, offset, limit, sortOrder, sortVariables);
   }
 
   // GET /schemas
-  public ResponseOption getSchemaGetRequestAnd(
+  public ResponseOption listSchemasGetRequestAnd(
       Collection<String> names,
       Collection<Integer> versions,
       Boolean hideSchema,

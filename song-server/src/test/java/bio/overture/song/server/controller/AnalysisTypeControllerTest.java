@@ -245,7 +245,7 @@ public class AnalysisTypeControllerTest {
     // Assert there are only 2 entries for the analysisType name
     val results =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 ImmutableList.of(nonExistingName1, nonExistingName2),
                 null,
                 null,
@@ -380,7 +380,7 @@ public class AnalysisTypeControllerTest {
     val name = expectedAnalysisType.getName();
     val actualAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(ImmutableList.of(name), null, false, null, null, null, null)
+            .listSchemasGetRequestAnd(ImmutableList.of(name), null, false, null, null, null, null)
             .extractPageResults(AnalysisType.class);
 
     assertEquals(1, actualAnalysisTypes.size());
@@ -390,7 +390,7 @@ public class AnalysisTypeControllerTest {
 
     val actualAnalysisTypes2 =
         endpointTester
-            .getSchemaGetRequestAnd(ImmutableList.of(name), null, true, null, null, null, null)
+            .listSchemasGetRequestAnd(ImmutableList.of(name), null, true, null, null, null, null)
             .extractPageResults(AnalysisType.class);
 
     assertEquals(1, actualAnalysisTypes2.size());
@@ -407,7 +407,7 @@ public class AnalysisTypeControllerTest {
     generateData(10);
     val actualAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(null, null, null, null, null, null, null)
+            .listSchemasGetRequestAnd(null, null, null, null, null, null, null)
             .extractPageResults(AnalysisType.class);
 
     // Assert default size is DEFAULT_LIMIT
@@ -444,7 +444,7 @@ public class AnalysisTypeControllerTest {
     // ********************************
     val actualAllAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 selectedNames, selectedVersions, null, 0, selectedData.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertEquals(actualAllAnalysisTypes.size(), selectedData.size());
@@ -463,7 +463,7 @@ public class AnalysisTypeControllerTest {
 
     val actualSomeAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 someSelectedNames,
                 someSelectedVersions,
                 null,
@@ -483,7 +483,7 @@ public class AnalysisTypeControllerTest {
 
     val actualNoAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 noSelectedNames, noSelectedVersions, null, 0, selectedData.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertTrue(actualNoAnalysisTypes.isEmpty());
@@ -493,7 +493,7 @@ public class AnalysisTypeControllerTest {
     // ********************************
     val actualNoAnalysisTypes2 =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 selectedNames, noSelectedVersions, null, 0, selectedData.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertTrue(actualNoAnalysisTypes2.isEmpty());
@@ -503,7 +503,7 @@ public class AnalysisTypeControllerTest {
     // ********************************
     val actualNoAnalysisTypes3 =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 noSelectedNames, selectedVersions, null, 0, selectedData.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertTrue(actualNoAnalysisTypes3.isEmpty());
@@ -525,7 +525,7 @@ public class AnalysisTypeControllerTest {
     // All Existing Names
     val actualAllAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 expectedNames, null, null, 0, expectedAnalysisTypes.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertEquals(actualAllAnalysisTypes.size(), expectedAnalysisTypes.size());
@@ -536,7 +536,7 @@ public class AnalysisTypeControllerTest {
     randomStream(this::generateUniqueName, 4).forEach(someExistingNames::add);
     val actualSomeAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 someExistingNames, null, null, 0, expectedAnalysisTypes.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertEquals(actualSomeAnalysisTypes.size(), expectedAnalysisTypes.size());
@@ -546,7 +546,7 @@ public class AnalysisTypeControllerTest {
     val noExistingNames = randomStream(this::generateUniqueName, 4).collect(toImmutableSet());
     val actualNoAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 noExistingNames, null, null, 0, expectedAnalysisTypes.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertTrue(actualNoAnalysisTypes.isEmpty());
@@ -653,7 +653,8 @@ public class AnalysisTypeControllerTest {
     // ******************************
     val actualAllAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(null, selectedVersions, null, 0, totalAnalysisTypes, null, null)
+            .listSchemasGetRequestAnd(
+                null, selectedVersions, null, 0, totalAnalysisTypes, null, null)
             .extractPageResults(AnalysisType.class).stream()
             // Since there may be other persisted data with same version number, ignore those
             // analysisTypes
@@ -675,7 +676,7 @@ public class AnalysisTypeControllerTest {
     // ignored)
     val actualSomeAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 null, someExistingSelectedVersions, null, 0, totalAnalysisTypes, null, null)
             .extractPageResults(AnalysisType.class).stream()
             // Since there may be other persisted data with same version number, ignore those
@@ -692,7 +693,7 @@ public class AnalysisTypeControllerTest {
     val noExistingSelectedVersions = newHashSet(repeats + 3, repeats + 7);
     val actualNoAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 null, noExistingSelectedVersions, null, 0, totalAnalysisTypes, null, null)
             .extractPageResults(AnalysisType.class).stream()
             // Since there may be other persisted data with same version number, ignore those
@@ -710,7 +711,7 @@ public class AnalysisTypeControllerTest {
 
     val results =
         endpointTester
-            .getSchemaGetRequestAnd(ImmutableList.of(name), null, null, 0, 100, null, null)
+            .listSchemasGetRequestAnd(ImmutableList.of(name), null, null, 0, 100, null, null)
             .extractPageResults(AnalysisType.class);
 
     val actualNames = mapToImmutableSet(results, AnalysisType::getName);

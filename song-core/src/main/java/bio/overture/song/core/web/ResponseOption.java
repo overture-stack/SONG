@@ -1,7 +1,6 @@
 package bio.overture.song.core.web;
 
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -11,7 +10,8 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.utils.Streams;
+import bio.overture.song.core.model.PageDTO;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -96,11 +96,10 @@ public class ResponseOption {
   @SneakyThrows
   private static <T> List<T> internalExtractPageResultSetFromResponse(
       ResponseEntity<String> r, Class<T> tClass) {
-    val page = MAPPER.readTree(r.getBody());
+    val raw = MAPPER.readTree(r.getBody());
+    val page = MAPPER.<PageDTO<T>>convertValue(raw, new TypeReference<PageDTO<T>>() {});
     assertNotNull(page);
-    return Streams.stream(page.path("content").iterator())
-        .map(x -> MAPPER.convertValue(x, tClass))
-        .collect(toUnmodifiableList());
+    return page.getResultSet();
   }
 
   @SneakyThrows

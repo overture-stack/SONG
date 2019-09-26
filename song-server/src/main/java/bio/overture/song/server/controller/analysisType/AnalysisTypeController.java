@@ -29,6 +29,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import bio.overture.song.core.model.AnalysisType;
+import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.AnalysisTypeService;
 import io.swagger.annotations.Api;
@@ -41,7 +42,6 @@ import java.util.Set;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -139,7 +139,7 @@ public class AnalysisTypeController {
   })
   @ApiOperation(value = "ListAnalysisTypes", notes = "Retrieves a list of registered analysisTypes")
   @GetMapping
-  public Page<AnalysisType> listAnalysisTypes(
+  public PageDTO<AnalysisType> listAnalysisTypes(
       @ApiParam(
               value = "Comma separated list of names",
               required = false,

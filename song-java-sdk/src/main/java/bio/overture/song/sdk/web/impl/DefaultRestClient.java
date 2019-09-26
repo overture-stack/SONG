@@ -22,12 +22,10 @@ import static org.springframework.http.HttpMethod.PUT;
 
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.sdk.web.RestClient;
-import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.val;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -53,31 +51,10 @@ public class DefaultRestClient implements RestClient {
   }
 
   @Override
-  public <R> ResponseEntity<R> put(@NonNull String endpoint, Object body, Class<R> responseType)
+  public <R> ResponseEntity<R> put(
+      @NonNull String endpoint, Object body, @NonNull Class<R> responseType)
       throws ServerException {
     val entity = new HttpEntity<Object>(body, null);
     return restTemplate.exchange(endpoint, PUT, entity, responseType);
-  }
-
-  @Override
-  public <R> ResponseEntity<List<R>> putList(String endpoint, Object body, Class<R> responseType)
-      throws ServerException {
-    val entity = new HttpEntity<Object>(body, null);
-    return restTemplate.exchange(
-        endpoint, PUT, entity, new ParameterizedTypeReference<List<R>>() {});
-  }
-
-  @Override
-  public <R> ResponseEntity<List<R>> getList(String endpoint, Class<R> responseType)
-      throws ServerException {
-    return restTemplate.exchange(endpoint, GET, null, new ParameterizedTypeReference<List<R>>() {});
-  }
-
-  @Override
-  public <R> ResponseEntity<List<R>> postList(String endpoint, Object body, Class<R> responseType)
-      throws ServerException {
-    val entity = new HttpEntity<Object>(body, null);
-    return restTemplate.exchange(
-        endpoint, POST, entity, new ParameterizedTypeReference<List<R>>() {});
   }
 }

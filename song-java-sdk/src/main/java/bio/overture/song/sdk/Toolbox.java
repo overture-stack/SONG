@@ -5,6 +5,7 @@ import static lombok.AccessLevel.PRIVATE;
 import bio.overture.song.sdk.config.RestClientConfig;
 import bio.overture.song.sdk.config.RetryConfig;
 import bio.overture.song.sdk.config.SdkConfig;
+import bio.overture.song.sdk.config.impl.DefaultRetryConfig;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,9 @@ public class Toolbox {
     val songApi = factory.buildSongApi();
     val manifestClient = new ManifestClient(songApi);
     return new Toolbox(songApi, manifestClient);
+  }
+
+  public static Toolbox createToolbox(@NonNull RestClientConfig restClientConfig) {
+    return createToolbox(restClientConfig, new DefaultRetryConfig());
   }
 }

@@ -71,7 +71,7 @@ public class ClientMain {
 
     val builder = new CommandParserBuilder(restClientConfig.getProgramName(), options);
     builder.register("config", new ConfigCommand(restClientConfig));
-    builder.register("upload", new SubmitCommand(restClientConfig, songApi));
+    builder.register("submit", new SubmitCommand(restClientConfig, songApi));
     builder.register("ping", new PingCommand(songApi));
     builder.register("get-analysis-type", new GetAnalysisTypeCommand(songApi));
     builder.register("list-analysis-types", new ListAnalysisTypesCommand(songApi));
@@ -125,6 +125,8 @@ public class ClientMain {
       command.err(errorStatusHeader.getSongServerErrorOutput(songError));
     } catch (IOException e) {
       command.err("IO Error: %s", e.getMessage());
+    } catch (Throwable e) {
+      command.err("Unknown error: %s", e.getMessage());
     } finally {
       command.report();
       exit(exitCode);

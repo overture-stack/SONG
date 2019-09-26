@@ -25,6 +25,16 @@ build-core:
 build-client:
 	@mvn package -DskipTests -pl song-client -am 
 
+analyze:
+	@mvn dependency:analyze-report
+
+package-client:
+	@mvn package -pl song-client -am 
+
+package-server:
+	@mvn package -pl song-server -am 
+
+
 build-sdk:
 	@mvn package -DskipTests -pl song-java-sdk -am 
 
