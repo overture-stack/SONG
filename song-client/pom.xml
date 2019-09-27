@@ -41,32 +41,6 @@
 			<groupId>bio.overture</groupId>
 			<artifactId>song-core</artifactId>
 			<version>2.0.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.datatype</groupId>
-					<artifactId>jackson-datatype-jdk8</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.datatype</groupId>
-					<artifactId>jackson-datatype-jsr310</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.module</groupId>
-					<artifactId>jackson-module-parameter-names</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-web</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.icgc.dcc</groupId>
-					<artifactId>dcc-common-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.hibernate.validator</groupId>
-					<artifactId>hibernate-validator</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!-- CLI -->
@@ -97,6 +71,10 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
 		</dependency>
 
 		<!--Logging-->
