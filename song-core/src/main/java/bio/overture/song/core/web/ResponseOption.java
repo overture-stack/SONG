@@ -1,6 +1,8 @@
 package bio.overture.song.core.web;
 
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.Deserialization.deserializeList;
+import static bio.overture.song.core.utils.Deserialization.deserializePage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -10,12 +12,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.model.PageDTO;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -96,8 +93,7 @@ public class ResponseOption {
   @SneakyThrows
   private static <T> List<T> internalExtractPageResultSetFromResponse(
       ResponseEntity<String> r, Class<T> tClass) {
-    val raw = MAPPER.readTree(r.getBody());
-    val page = MAPPER.<PageDTO<T>>convertValue(raw, new TypeReference<PageDTO<T>>() {});
+    val page = deserializePage(r.getBody(), tClass);
     assertNotNull(page);
     return page.getResultSet();
   }
@@ -111,9 +107,7 @@ public class ResponseOption {
   @SneakyThrows
   private static <T> Set<T> internalExtractManyEntitiesFromResponse(
       ResponseEntity<String> r, Class<T> tClass) {
-    CollectionType typeReference =
-        TypeFactory.defaultInstance().constructCollectionType(List.class, tClass);
-    List<T> resultDto = MAPPER.readValue(r.getBody(), typeReference);
-    return ImmutableSet.copyOf(resultDto);
+    val contents = deserializeList(r.getBody(), tClass);
+    return Set.copyOf(contents);
   }
 }

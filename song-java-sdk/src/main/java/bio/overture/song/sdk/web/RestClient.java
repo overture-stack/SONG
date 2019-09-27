@@ -1,12 +1,12 @@
 package bio.overture.song.sdk.web;
 
+import static bio.overture.song.core.utils.Deserialization.deserializeList;
+import static bio.overture.song.core.utils.Deserialization.deserializePage;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.ResponseEntity.status;
 
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.PageDTO;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.NonNull;
@@ -88,29 +88,14 @@ public interface RestClient {
   @SneakyThrows
   default <T> ResponseEntity<PageDTO<T>> convertToPage(
       @NonNull ResponseEntity<String> response, @NonNull Class<T> contentType) {
-    val reader = MAPPER.readerFor(new TypeReference<PageDTO<T>>() {});
-    val erasedPage = reader.<PageDTO<T>>readValue(response.getBody());
-    val contents =
-        erasedPage.getResultSet().stream()
-            .map(x -> MAPPER.convertValue(x, contentType))
-            .collect(toUnmodifiableList());
-    val pageDTO = new PageDTO<T>();
-    pageDTO.setOffset(erasedPage.getOffset());
-    pageDTO.setLimit(erasedPage.getLimit());
-    pageDTO.setCount(erasedPage.getCount());
-    pageDTO.setResultSet(contents);
+    val pageDTO = deserializePage(response.getBody(), contentType);
     return status(response.getStatusCode()).body(pageDTO);
   }
 
   @SneakyThrows
   default <T> ResponseEntity<List<T>> convertToList(
       @NonNull ResponseEntity<String> response, @NonNull Class<T> contentType) {
-    val reader = MAPPER.readerFor(new TypeReference<List<T>>() {});
-    val erasedList = reader.<List<T>>readValue(response.getBody());
-    val contents =
-        erasedList.stream()
-            .map(x -> MAPPER.convertValue(x, contentType))
-            .collect(toUnmodifiableList());
+    val contents = deserializeList(response.getBody(), contentType);
     return status(response.getStatusCode()).body(contents);
   }
 }

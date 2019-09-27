@@ -110,10 +110,11 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   private RandomGenerator randomGenerator;
 
   @Before
-  public void beforeTest(){
+  public void beforeTest() {
     randomGenerator = createRandomGenerator(HappyPathClientMainTest.class.getSimpleName());
     when(customRestClientConfig.getStudyId()).thenReturn(DUMMY_STUDY_ID);
   }
+
   @Override
   protected ClientMain getClientMain() {
     // Needs to be a new instance, to avoid appending status
@@ -380,25 +381,25 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   }
 
   @Test
-  public void testPublish(){
+  public void testPublish() {
     val outputMessage = randomGenerator.generateRandomAsciiString(40);
     val outputMessage2 = randomGenerator.generateRandomAsciiString(40);
     assertNotEquals(outputMessage, outputMessage2);
 
-    when(songApi.publish(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID, false))
-        .thenReturn(outputMessage);
-    when(songApi.publish(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID, true))
-        .thenReturn(outputMessage2);
+    when(songApi.publish(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID, false)).thenReturn(outputMessage);
+    when(songApi.publish(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID, true)).thenReturn(outputMessage2);
     assertOutputString(outputMessage, "publish", "-a", DUMMY_ANALYSIS_ID);
     assertOutputString(outputMessage2, "publish", "-a", DUMMY_ANALYSIS_ID, "-i");
-    assertOutputString(outputMessage2, "publish", "-a", DUMMY_ANALYSIS_ID, "--ignore-undefined-md5");
-    assertOutputString(outputMessage, "publish",  "--analysis-id", DUMMY_ANALYSIS_ID);
+    assertOutputString(
+        outputMessage2, "publish", "-a", DUMMY_ANALYSIS_ID, "--ignore-undefined-md5");
+    assertOutputString(outputMessage, "publish", "--analysis-id", DUMMY_ANALYSIS_ID);
     assertOutputString(outputMessage2, "publish", "--analysis-id", DUMMY_ANALYSIS_ID, "-i");
-    assertOutputString(outputMessage2, "publish", "--analysis-id", DUMMY_ANALYSIS_ID, "--ignore-undefined-md5");
+    assertOutputString(
+        outputMessage2, "publish", "--analysis-id", DUMMY_ANALYSIS_ID, "--ignore-undefined-md5");
   }
 
   @Test
-  public void testUnpublish(){
+  public void testUnpublish() {
     val outputMessage = randomGenerator.generateRandomAsciiString(40);
     when(songApi.unpublish(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID)).thenReturn(outputMessage);
     assertOutputString(outputMessage, "unpublish", "-a", DUMMY_ANALYSIS_ID);
@@ -406,7 +407,7 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   }
 
   @Test
-  public void testSuppress(){
+  public void testSuppress() {
     val outputMessage = randomGenerator.generateRandomAsciiString(40);
     when(songApi.suppress(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID)).thenReturn(outputMessage);
     assertOutputString(outputMessage, "suppress", "-a", DUMMY_ANALYSIS_ID);
@@ -415,40 +416,65 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
 
   @Test
   @SneakyThrows
-  public void testUpdateFile(){
+  public void testUpdateFile() {
     Long size = 9999L;
     val access = "open";
-    val info =   "{\"firstName\" : \"John\"}";
+    val info = "{\"firstName\" : \"John\"}";
     val md5 = randomGenerator.generateRandomMD5();
-    val expectedUpdateRequest = FileUpdateRequest.builder()
-        .fileSize(size)
-        .fileAccess(access)
-        .fileMd5sum(md5)
-        .info(mapper().readTree(info))
-        .build();
-    val expectedUpdateResponse = FileUpdateResponse.builder()
-        .message(randomGenerator.generateRandomAsciiString(20))
-        .build();
+    val expectedUpdateRequest =
+        FileUpdateRequest.builder()
+            .fileSize(size)
+            .fileAccess(access)
+            .fileMd5sum(md5)
+            .info(mapper().readTree(info))
+            .build();
+    val expectedUpdateResponse =
+        FileUpdateResponse.builder().message(randomGenerator.generateRandomAsciiString(20)).build();
     val expectedUpdateResponseJson = objectToTree(expectedUpdateResponse);
-    when(songApi.updateFile(DUMMY_STUDY_ID, DUMMY_OBJECT_ID, expectedUpdateRequest )).thenReturn(expectedUpdateResponse);
-    assertOutputJson(expectedUpdateResponseJson,
-        "update-file", "--object-id", DUMMY_OBJECT_ID, "-s", size.toString(), "-m", md5, "-a", access, "-i", info );
-    assertOutputJson(expectedUpdateResponseJson,
-        "update-file", "--object-id", DUMMY_OBJECT_ID, "--size  ", size.toString(), "--md5", md5, "--access ", access, "--info", info );
+    when(songApi.updateFile(DUMMY_STUDY_ID, DUMMY_OBJECT_ID, expectedUpdateRequest))
+        .thenReturn(expectedUpdateResponse);
+    assertOutputJson(
+        expectedUpdateResponseJson,
+        "update-file",
+        "--object-id",
+        DUMMY_OBJECT_ID,
+        "-s",
+        size.toString(),
+        "-m",
+        md5,
+        "-a",
+        access,
+        "-i",
+        info);
+    assertOutputJson(
+        expectedUpdateResponseJson,
+        "update-file",
+        "--object-id",
+        DUMMY_OBJECT_ID,
+        "--size  ",
+        size.toString(),
+        "--md5",
+        md5,
+        "--access ",
+        access,
+        "--info",
+        info);
   }
 
   @Test
   @SneakyThrows
-  public void testExport(){
+  public void testExport() {
     val map = Maps.<String, JsonNode>newLinkedHashMap();
     val list = Lists.<String>newArrayList();
-    IntStream.range(0,4).boxed().map(x -> randomGenerator.generateRandomUUIDAsString())
-    .forEach( x -> {
-      val j = (JsonNode)mapper().createObjectNode().put("analysisId", x);
-      list.add(x);
-      map.put(x, j);
-    });
-
+    IntStream.range(0, 4)
+        .boxed()
+        .map(x -> randomGenerator.generateRandomUUIDAsString())
+        .forEach(
+            x -> {
+              val j = (JsonNode) mapper().createObjectNode().put("analysisId", x);
+              list.add(x);
+              map.put(x, j);
+            });
 
     val payloads1 = List.of(map.get(list.get(0)), map.get(list.get(1)));
     val payloads2 = List.of(map.get(list.get(2)), map.get(list.get(3)));
@@ -463,7 +489,8 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
     val studyDir = outputDir.resolve(DUMMY_STUDY_ID);
 
     // Assert Studymode
-    val c1 = executeMain("export", "-s", DUMMY_STUDY_ID, "-o", outputDir.toAbsolutePath().toString());
+    val c1 =
+        executeMain("export", "-s", DUMMY_STUDY_ID, "-o", outputDir.toAbsolutePath().toString());
     assertTrue(getExitCode() == 0);
     assertTrue(isBlank(c1.getErr()));
     assertFalse(isBlank(c1.getOut()));
@@ -472,8 +499,16 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
     // Assert Analysis mode
     val outputDir2 = tmp.newFolder().toPath();
     val studyDir2 = outputDir2.resolve(DUMMY_STUDY_ID);
-    val c2 = executeMain("export", "-a", list.get(0), list.get(1), list.get(2), list.get(3),
-        "-o", outputDir2.toAbsolutePath().toString());
+    val c2 =
+        executeMain(
+            "export",
+            "-a",
+            list.get(0),
+            list.get(1),
+            list.get(2),
+            list.get(3),
+            "-o",
+            outputDir2.toAbsolutePath().toString());
     assertTrue(getExitCode() == 0);
     assertTrue(isBlank(c2.getErr()));
     assertFalse(isBlank(c2.getOut()));
@@ -481,22 +516,23 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   }
 
   @SneakyThrows
-  private static void assertExport(Path studyDir, Map<String, JsonNode> data){
-    val numFiles = Files.walk(studyDir, 1)
-        .filter(Files::isRegularFile)
-        .peek(x -> {
-          val filename = x.getFileName().toString();
-          val actualAnalysisId = filename.replaceAll(".json", "");
-          val expectedPayload = data.get(actualAnalysisId);
-          try{
-            val actualPayload = readTree(Files.readString(x));
-            assertEquals(expectedPayload, actualPayload);
-          } catch (Throwable e){
-            throw Lombok.sneakyThrow(e);
-          }
-        })
-        .count();
+  private static void assertExport(Path studyDir, Map<String, JsonNode> data) {
+    val numFiles =
+        Files.walk(studyDir, 1)
+            .filter(Files::isRegularFile)
+            .peek(
+                x -> {
+                  val filename = x.getFileName().toString();
+                  val actualAnalysisId = filename.replaceAll(".json", "");
+                  val expectedPayload = data.get(actualAnalysisId);
+                  try {
+                    val actualPayload = readTree(Files.readString(x));
+                    assertEquals(expectedPayload, actualPayload);
+                  } catch (Throwable e) {
+                    throw Lombok.sneakyThrow(e);
+                  }
+                })
+            .count();
     assertEquals(data.keySet().size(), numFiles);
   }
-
 }
