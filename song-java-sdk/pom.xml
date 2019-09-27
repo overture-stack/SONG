@@ -25,8 +25,7 @@
 	<artifactId>song-java-sdk</artifactId>
 
 	<dependencies>
-
-        <!-- Submodule Dependency -->
+		<!-- Submodule Dependency -->
 		<dependency>
 			<groupId>bio.overture</groupId>
 			<artifactId>song-core</artifactId>
@@ -43,7 +42,7 @@
 			<artifactId>spring-retry</artifactId>
 		</dependency>
 
-        <!-- Logging -->
+		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
