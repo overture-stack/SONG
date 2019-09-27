@@ -1,7 +1,7 @@
 package bio.overture.song.sdk;
 
+import static bio.overture.song.core.utils.FileIO.checkDirectoryExists;
 import static bio.overture.song.sdk.errors.ManifestClientException.checkManifest;
-import static bio.overture.song.sdk.util.FileIO.checkDirectoryExists;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Paths.get;
 import static java.util.stream.Collectors.toList;

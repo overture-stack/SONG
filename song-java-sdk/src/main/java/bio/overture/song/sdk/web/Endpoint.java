@@ -19,8 +19,8 @@ package bio.overture.song.sdk.web;
 import static bio.overture.song.core.utils.Joiners.COMMA;
 import static java.lang.String.format;
 
+import bio.overture.song.core.web.RequestParamBuilder;
 import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
-import bio.overture.song.sdk.util.RequestParamBuilder;
 import java.util.List;
 import lombok.NonNull;
 

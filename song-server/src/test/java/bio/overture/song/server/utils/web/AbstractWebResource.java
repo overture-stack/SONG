@@ -1,4 +1,4 @@
-package bio.overture.song.core.web;
+package bio.overture.song.server.utils.web;
 
 import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
 import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
@@ -13,6 +13,7 @@ import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
+import bio.overture.song.core.web.QueryParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -30,7 +31,7 @@ import org.springframework.http.ResponseEntity;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class AbstractWebResource<W extends AbstractWebResource<W>> implements WebResource {
+public abstract class AbstractWebResource<W extends AbstractWebResource<W>> {
   private static final ObjectMapper REGULAR_MAPPER = new ObjectMapper();
   private static final ObjectMapper PRETTY_MAPPER = new ObjectMapper();
   private static final Joiner AMPERSAND = Joiner.on("&");
@@ -47,6 +48,9 @@ public abstract class AbstractWebResource<W extends AbstractWebResource<W>> impl
   private HttpHeaders headers;
   private boolean enableLogging = false;
   private boolean pretty = false;
+
+  protected abstract ResponseEntity<String> executeRequest(
+      HttpMethod httpMethod, String url, HttpHeaders headers, String stringBody);
 
   private ResponseOption createResponseOption(ResponseEntity<String> responseEntity) {
     return new ResponseOption(responseEntity);

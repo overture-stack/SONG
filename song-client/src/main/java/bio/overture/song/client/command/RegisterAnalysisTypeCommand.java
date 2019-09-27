@@ -16,8 +16,8 @@
  */
 package bio.overture.song.client.command;
 
-import static bio.overture.song.client.util.FileIO.readFileContent;
-import static bio.overture.song.client.util.FileIO.statusFileExists;
+import static bio.overture.song.core.utils.FileIO.readFileContent;
+import static bio.overture.song.core.utils.FileIO.statusFileDoesNotExist;
 
 import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameter;
@@ -46,9 +46,9 @@ public class RegisterAnalysisTypeCommand extends Command {
   public void run() throws IOException {
     // File checking
     val filePath = Paths.get(fileName);
-    val fileStatus = statusFileExists(filePath);
-    if (fileStatus.hasErrors()) {
-      save(fileStatus);
+    val errorResult = statusFileDoesNotExist(filePath);
+    if (errorResult.isPresent()) {
+      err(errorResult.get());
       return;
     }
 

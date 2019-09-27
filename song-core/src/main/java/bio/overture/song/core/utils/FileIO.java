@@ -1,4 +1,4 @@
-package bio.overture.song.sdk.util;
+package bio.overture.song.core.utils;
 
 import static com.google.common.io.Files.toByteArray;
 import static java.lang.String.format;

@@ -26,9 +26,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.web.ResponseOption;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.MockMvcWebResource;
+import bio.overture.song.server.utils.web.ResponseOption;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;

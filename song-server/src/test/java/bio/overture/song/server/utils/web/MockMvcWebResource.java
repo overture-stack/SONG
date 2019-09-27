@@ -3,7 +3,6 @@ package bio.overture.song.server.utils.web;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
-import bio.overture.song.core.web.AbstractWebResource;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

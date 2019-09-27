@@ -1,4 +1,4 @@
-package bio.overture.song.core.web;
+package bio.overture.song.server.utils.web;
 
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.Deserialization.deserializeList;
