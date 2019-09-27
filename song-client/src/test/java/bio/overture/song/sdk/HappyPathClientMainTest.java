@@ -24,16 +24,21 @@ import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.Donor;
 import bio.overture.song.core.model.FileDTO;
+import bio.overture.song.core.model.FileUpdateRequest;
+import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.core.model.Sample;
 import bio.overture.song.core.model.Specimen;
 import bio.overture.song.core.model.SubmitResponse;
+import bio.overture.song.core.utils.RandomGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.Lombok;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -46,15 +51,22 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
@@ -66,6 +78,7 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 public class HappyPathClientMainTest extends AbstractClientMainTest {
 
   private static final String DUMMY_STUDY_ID = "ABC123";
+  private static final String DUMMY_OBJECT_ID = UUID.randomUUID().toString();
   private static final String DUMMY_ANALYSIS_ID = UUID.randomUUID().toString();
   private static final JsonNode DUMMY_PAYLOAD = mapper().createObjectNode().put("study", "ABC123");
   private static final JsonNode DUMMY_SCHEMA = mapper().createObjectNode().put("type", "object");
@@ -94,22 +107,22 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   @Mock private SongApi songApi;
   @Mock private CustomRestClientConfig customRestClientConfig;
   @Mock private ManifestClient manifestClient;
+  private RandomGenerator randomGenerator;
 
+  @Before
+  public void beforeTest(){
+    randomGenerator = createRandomGenerator(HappyPathClientMainTest.class.getSimpleName());
+    when(customRestClientConfig.getStudyId()).thenReturn(DUMMY_STUDY_ID);
+  }
   @Override
   protected ClientMain getClientMain() {
     // Needs to be a new instance, to avoid appending status
     return new ClientMain(customRestClientConfig, songApi, manifestClient);
   }
 
-  @Before
-  public void beforeTest() {
-    Mockito.reset(songApi);
-  }
-
   /** Ensure the capture mechanism is working properly */
   @Test
   public void testCaptureConsole() {
-    val randomGenerator = createRandomGenerator("capture");
     val expectedStdout = randomGenerator.generateRandomAsciiString(30);
     val expectedStderr = randomGenerator.generateRandomAsciiString(30);
     assertNotEquals(expectedStdout, expectedStderr);
@@ -161,6 +174,14 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
     val actualOutputJson = readTree(e1.getOut());
     val expectedOutputJson = objectToTree(ANALYSIS_TYPE_PAGE.getResultSet());
     assertEquals(expectedOutputJson, actualOutputJson);
+  }
+
+  @SneakyThrows
+  private void assertOutputString(String expectedOutputString, String... args) {
+    val e1 = executeMain(args);
+    assertTrue(getExitCode() == 0);
+    val actualOutputString = e1.getOut().trim();
+    assertEquals(expectedOutputString, actualOutputString);
   }
 
   @SneakyThrows
@@ -234,7 +255,6 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
 
     val expectedSubmitResponse =
         SubmitResponse.builder().analysisId(DUMMY_ANALYSIS_ID).status("ok").build();
-    when(customRestClientConfig.getStudyId()).thenReturn(DUMMY_STUDY_ID);
     when(songApi.submit(DUMMY_STUDY_ID, DUMMY_PAYLOAD.toString()))
         .thenReturn(expectedSubmitResponse);
     assertOutputJson(objectToTree(expectedSubmitResponse), "submit", "-f", file.getAbsolutePath());
@@ -251,7 +271,6 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
             .analysisType(ANALYSIS_TYPE_ID1)
             .study(DUMMY_STUDY_ID)
             .build();
-    when(customRestClientConfig.getStudyId()).thenReturn(DUMMY_STUDY_ID);
     when(songApi.getAnalysis(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID)).thenReturn(expectedAnalysis);
     assertOutputJson(objectToTree(expectedAnalysis), "search", "-a", DUMMY_ANALYSIS_ID);
     assertOutputJson(objectToTree(expectedAnalysis), "search", "--analysis-id", DUMMY_ANALYSIS_ID);
@@ -272,7 +291,6 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
                 .study(DUMMY_STUDY_ID)
                 .build());
 
-    when(customRestClientConfig.getStudyId()).thenReturn(DUMMY_STUDY_ID);
     when(songApi.idSearch(DUMMY_STUDY_ID, expectedSample.getSampleId(), null, null, null))
         .thenReturn(expectedAnalyses);
     when(songApi.idSearch(DUMMY_STUDY_ID, null, expectedSpecimen.getSpecimenId(), null, null))
@@ -311,7 +329,6 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   @SneakyThrows
   public void testManifest() {
     val mc = new ManifestClient(songApi);
-    val randomGenerator = createRandomGenerator("manifest");
     // Create tmp inputDir and tmp files, as well as expected FileDTOs
     val inputDir = tmp.newFolder().toPath();
     val expectedFiles =
@@ -363,21 +380,123 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   }
 
   @Test
-  @Ignore
-  public void testR() {
-    when(songApi.listAnalysisTypes(Mockito.any())).thenCallRealMethod();
-    val customRestClientConfig =
-        CustomRestClientConfig.builder()
-            .accessToken("1bf201c1-c458-41e9-af3a-723bd45796cb")
-            //            .accessToken("922da174-c3b0-4114-9046-9150c0357120")
-            //        .serverUrl("https://song.dev.argo.cancercollaboratory.org")
-            .serverUrl("http://localhost:8080")
-            .studyId("ABC123-CA")
-            .build();
-    val toolbox = Toolbox.createToolbox(customRestClientConfig);
-    val cm =
-        new ClientMain(customRestClientConfig, toolbox.getSongApi(), toolbox.getManifestClient());
-    cm.run("list-analysis-types");
-    log.info("sdfsdf");
+  public void testPublish(){
+    val outputMessage = randomGenerator.generateRandomAsciiString(40);
+    val outputMessage2 = randomGenerator.generateRandomAsciiString(40);
+    assertNotEquals(outputMessage, outputMessage2);
+
+    when(songApi.publish(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID, false))
+        .thenReturn(outputMessage);
+    when(songApi.publish(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID, true))
+        .thenReturn(outputMessage2);
+    assertOutputString(outputMessage, "publish", "-a", DUMMY_ANALYSIS_ID);
+    assertOutputString(outputMessage2, "publish", "-a", DUMMY_ANALYSIS_ID, "-i");
+    assertOutputString(outputMessage2, "publish", "-a", DUMMY_ANALYSIS_ID, "--ignore-undefined-md5");
+    assertOutputString(outputMessage, "publish",  "--analysis-id", DUMMY_ANALYSIS_ID);
+    assertOutputString(outputMessage2, "publish", "--analysis-id", DUMMY_ANALYSIS_ID, "-i");
+    assertOutputString(outputMessage2, "publish", "--analysis-id", DUMMY_ANALYSIS_ID, "--ignore-undefined-md5");
   }
+
+  @Test
+  public void testUnpublish(){
+    val outputMessage = randomGenerator.generateRandomAsciiString(40);
+    when(songApi.unpublish(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID)).thenReturn(outputMessage);
+    assertOutputString(outputMessage, "unpublish", "-a", DUMMY_ANALYSIS_ID);
+    assertOutputString(outputMessage, "unpublish", "--analysis-id", DUMMY_ANALYSIS_ID);
+  }
+
+  @Test
+  public void testSuppress(){
+    val outputMessage = randomGenerator.generateRandomAsciiString(40);
+    when(songApi.suppress(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID)).thenReturn(outputMessage);
+    assertOutputString(outputMessage, "suppress", "-a", DUMMY_ANALYSIS_ID);
+    assertOutputString(outputMessage, "suppress", "--analysis-id", DUMMY_ANALYSIS_ID);
+  }
+
+  @Test
+  @SneakyThrows
+  public void testUpdateFile(){
+    Long size = 9999L;
+    val access = "open";
+    val info =   "{\"firstName\" : \"John\"}";
+    val md5 = randomGenerator.generateRandomMD5();
+    val expectedUpdateRequest = FileUpdateRequest.builder()
+        .fileSize(size)
+        .fileAccess(access)
+        .fileMd5sum(md5)
+        .info(mapper().readTree(info))
+        .build();
+    val expectedUpdateResponse = FileUpdateResponse.builder()
+        .message(randomGenerator.generateRandomAsciiString(20))
+        .build();
+    val expectedUpdateResponseJson = objectToTree(expectedUpdateResponse);
+    when(songApi.updateFile(DUMMY_STUDY_ID, DUMMY_OBJECT_ID, expectedUpdateRequest )).thenReturn(expectedUpdateResponse);
+    assertOutputJson(expectedUpdateResponseJson,
+        "update-file", "--object-id", DUMMY_OBJECT_ID, "-s", size.toString(), "-m", md5, "-a", access, "-i", info );
+    assertOutputJson(expectedUpdateResponseJson,
+        "update-file", "--object-id", DUMMY_OBJECT_ID, "--size  ", size.toString(), "--md5", md5, "--access ", access, "--info", info );
+  }
+
+  @Test
+  @SneakyThrows
+  public void testExport(){
+    val map = Maps.<String, JsonNode>newLinkedHashMap();
+    val list = Lists.<String>newArrayList();
+    IntStream.range(0,4).boxed().map(x -> randomGenerator.generateRandomUUIDAsString())
+    .forEach( x -> {
+      val j = (JsonNode)mapper().createObjectNode().put("analysisId", x);
+      list.add(x);
+      map.put(x, j);
+    });
+
+
+    val payloads1 = List.of(map.get(list.get(0)), map.get(list.get(1)));
+    val payloads2 = List.of(map.get(list.get(2)), map.get(list.get(3)));
+    val exportedPayload1 = createExportedPayload(DUMMY_STUDY_ID, payloads1);
+    val exportedPayload2 = createExportedPayload(DUMMY_STUDY_ID, payloads2);
+    val expectedResponse = List.of(exportedPayload1, exportedPayload2);
+
+    when(songApi.exportStudy(eq(DUMMY_STUDY_ID), anyBoolean())).thenReturn(expectedResponse);
+    when(songApi.exportAnalyses(anyList(), anyBoolean())).thenReturn(expectedResponse);
+
+    val outputDir = tmp.newFolder().toPath();
+    val studyDir = outputDir.resolve(DUMMY_STUDY_ID);
+
+    // Assert Studymode
+    val c1 = executeMain("export", "-s", DUMMY_STUDY_ID, "-o", outputDir.toAbsolutePath().toString());
+    assertTrue(getExitCode() == 0);
+    assertTrue(isBlank(c1.getErr()));
+    assertFalse(isBlank(c1.getOut()));
+    assertExport(studyDir, map);
+
+    // Assert Analysis mode
+    val outputDir2 = tmp.newFolder().toPath();
+    val studyDir2 = outputDir2.resolve(DUMMY_STUDY_ID);
+    val c2 = executeMain("export", "-a", list.get(0), list.get(1), list.get(2), list.get(3),
+        "-o", outputDir2.toAbsolutePath().toString());
+    assertTrue(getExitCode() == 0);
+    assertTrue(isBlank(c2.getErr()));
+    assertFalse(isBlank(c2.getOut()));
+    assertExport(studyDir2, map);
+  }
+
+  @SneakyThrows
+  private static void assertExport(Path studyDir, Map<String, JsonNode> data){
+    val numFiles = Files.walk(studyDir, 1)
+        .filter(Files::isRegularFile)
+        .peek(x -> {
+          val filename = x.getFileName().toString();
+          val actualAnalysisId = filename.replaceAll(".json", "");
+          val expectedPayload = data.get(actualAnalysisId);
+          try{
+            val actualPayload = readTree(Files.readString(x));
+            assertEquals(expectedPayload, actualPayload);
+          } catch (Throwable e){
+            throw Lombok.sneakyThrow(e);
+          }
+        })
+        .count();
+    assertEquals(data.keySet().size(), numFiles);
+  }
+
 }
