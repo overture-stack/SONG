@@ -5,6 +5,15 @@
   "type" : "object",
   "required": ["analysisType"],
   "properties": {
+    "analysisId": {
+      "not": {}
+    },
+    "study": {
+      "not": {}
+    },
+    "analysisState" : {
+      "not" : {}
+    },
     "analysisType": {
       "type" : "object",
       "required": ["name"],
@@ -17,22 +26,13 @@
         }
       }
     },
-    "study": {
-      "not": {}
-    },
     "analysisTypeId": {
       "not": {}
-    },
-    "analysisState" : {
-      "not" : {}
     },
     "sample": {
       "not": {}
     },
     "file": {
-      "not": {}
-    },
-    "analysisId": {
       "not": {}
     }
   }
