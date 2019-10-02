@@ -1,13 +1,14 @@
 package bio.overture.song.client.util;
 
-import static bio.overture.song.core.utils.Joiners.COMMA;
-import static java.lang.String.format;
-
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.ParameterException;
-import java.util.EnumSet;
 import lombok.NonNull;
 import lombok.val;
+
+import java.util.EnumSet;
+
+import static java.lang.String.format;
+import static bio.overture.song.core.utils.Joiners.COMMA;
 
 public abstract class EnumConverter<E extends Enum<E>> implements IStringConverter<E> {
 
@@ -23,7 +24,7 @@ public abstract class EnumConverter<E extends Enum<E>> implements IStringConvert
             () ->
                 new ParameterException(
                     format(
-                        "Value '%s' cannot be converter to %s. Available values are: [%s]",
+                        "Value '%s' cannot be converted to %s. Available values are: [%s]",
                         value, getEnumClass().getSimpleName(), COMMA.join(enumSet))));
   }
 }
