@@ -16,17 +16,19 @@
  */
 package bio.overture.song.sdk.model;
 
-import static java.nio.file.Files.createDirectories;
-import static java.nio.file.Files.exists;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.val;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.val;
+
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
+import static java.util.Objects.isNull;
 
 @Data
 public class Manifest {
@@ -58,7 +60,8 @@ public class Manifest {
 
   public void writeToFile(@NonNull String outputFilename) throws IOException {
     val path = Paths.get(outputFilename);
-    if (!exists(path.getParent())) {
+    val parentPath = path.getParent();
+    if (!isNull(parentPath) && !exists(parentPath)) {
       createDirectories(path.getParent());
     }
     Files.write(path, toString().getBytes());
