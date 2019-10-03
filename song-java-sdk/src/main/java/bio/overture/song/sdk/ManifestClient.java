@@ -47,7 +47,7 @@ public class ManifestClient {
   }
 
   private static Manifest createManifest(
-      Path inputDir, String analysisId, @NonNull List<File> files) throws IOException {
+      Path inputDir, String analysisId, @NonNull List<? extends File> files) throws IOException {
     val manifest = new Manifest(analysisId);
     files.stream().map(f -> createManifestEntry(inputDir, f)).forEach(manifest::add);
     return manifest;

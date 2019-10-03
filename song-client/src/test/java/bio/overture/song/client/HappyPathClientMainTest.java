@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
+ * Copyright (c) 2019. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package bio.overture.song.sdk;
+package bio.overture.song.client;
 
 import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
@@ -49,6 +49,8 @@ import bio.overture.song.core.model.Sample;
 import bio.overture.song.core.model.Specimen;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.sdk.ManifestClient;
+import bio.overture.song.sdk.SongApi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -117,7 +119,7 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   @Override
   protected ClientMain getClientMain() {
     // Needs to be a new instance, to avoid appending status
-    return new ClientMain(customRestClientConfig, songApi, manifestClient);
+    return new ClientMain(customRestClientConfig, songApi, new ManifestClient(songApi));
   }
 
   /** Ensure the capture mechanism is working properly */
@@ -328,7 +330,6 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   @Test
   @SneakyThrows
   public void testManifest() {
-    val mc = new ManifestClient(songApi);
     // Create tmp inputDir and tmp files, as well as expected FileDTOs
     val inputDir = tmp.newFolder().toPath();
     val expectedFiles =
@@ -343,38 +344,36 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
                         .objectId(randomGenerator.generateRandomUUIDAsString())
                         .fileMd5sum(randomGenerator.generateRandomMD5())
                         .build())
-            .map(f -> (bio.overture.song.core.model.File) f)
             .collect(toUnmodifiableList());
 
     // Mock api to return expected FileDTOs
     when(songApi.getAnalysisFiles(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID)).thenReturn(expectedFiles);
 
-    // Generate manifest and assert entries match expected data
-    val m =
-        mc.generateManifest(
-            DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID, inputDir.toAbsolutePath().toString());
-    assertEquals(DUMMY_ANALYSIS_ID, m.getAnalysisId());
-    assertEquals(m.getEntries().size(), expectedFiles.size());
-    val actualEntries = List.copyOf(m.getEntries());
-    for (int i = 0; i < m.getEntries().size(); i++) {
-      val actualEntry = actualEntries.get(i);
-      val expectedFile = expectedFiles.get(i);
-      assertEquals(expectedFile.getFileName(), actualEntry.getFileName().replaceAll(".*\\/", ""));
-      assertEquals(expectedFile.getObjectId(), actualEntry.getFileId());
-      assertEquals(expectedFile.getFileMd5sum(), actualEntry.getMd5sum());
-    }
-
     // Build expected output string of manifest
     val expectedStringBuilder = new StringBuilder().append(DUMMY_ANALYSIS_ID + "\t\t\n");
-    m.getEntries().stream()
-        .map(e -> e.getFileId() + "\t" + e.getFileName() + "\t" + e.getMd5sum() + "\n")
+    expectedFiles.stream()
+        .map(
+            e ->
+                e.getObjectId()
+                    + "\t"
+                    + inputDir.toAbsolutePath().resolve(e.getFileName()).toString()
+                    + "\t"
+                    + e.getFileMd5sum()
+                    + "\n")
         .forEach(expectedStringBuilder::append);
     val expectedString = expectedStringBuilder.toString();
-    assertEquals(expectedString, m.toString());
 
     // Assert the manifest is written to the file properly
     val outputFile = tmp.newFile();
-    m.writeToFile(outputFile.getAbsolutePath());
+    executeMain(
+        "manifest",
+        "-f",
+        outputFile.getAbsolutePath(),
+        "-a",
+        DUMMY_ANALYSIS_ID,
+        "-d",
+        inputDir.toAbsolutePath().toString());
+
     val actualFileContents = Files.readString(outputFile.toPath());
     assertEquals(expectedString, actualFileContents);
   }

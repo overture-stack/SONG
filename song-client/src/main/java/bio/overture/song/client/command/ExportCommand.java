@@ -144,7 +144,6 @@ public class ExportCommand extends Command {
 
   @Override
   public void run() {
-    songApi.checkServerAlive();
     // Process rules
     val ruleStatus = checkRules();
     if (ruleStatus.hasErrors()) {

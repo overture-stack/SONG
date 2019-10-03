@@ -16,10 +16,6 @@
  */
 package bio.overture.song.client.cli;
 
-import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
-import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
-import static bio.overture.song.core.exceptions.SongError.createSongError;
-
 import bio.overture.song.client.command.ConfigCommand;
 import bio.overture.song.client.command.ExportCommand;
 import bio.overture.song.client.command.FileUpdateCommand;
@@ -41,13 +37,19 @@ import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.sdk.ManifestClient;
 import bio.overture.song.sdk.SongApi;
 import bio.overture.song.sdk.Toolbox;
-import java.io.IOException;
-import java.net.HttpRetryException;
-import java.util.function.Consumer;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.ResourceAccessException;
+
+import java.io.IOException;
+import java.net.HttpRetryException;
+import java.util.function.Consumer;
+
+import static bio.overture.song.client.util.ErrorMessage.fromException;
+import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
+import static bio.overture.song.core.exceptions.SongError.createSongError;
 
 @Slf4j
 public class ClientMain {
@@ -93,43 +95,53 @@ public class ClientMain {
     try {
       command.run();
       exitCode = SUCCESS_STATUS;
-    } catch (RestClientException e) {
-      val isAlive = songApi.isAlive();
-      SongError songError;
-      if (isAlive) {
-        val cause = e.getCause();
-        if (cause instanceof HttpRetryException) {
-          val httpRetryException = (HttpRetryException) cause;
-          if (httpRetryException.responseCode() == UNAUTHORIZED_TOKEN.getHttpStatus().value()) {
-            songError = createSongError(UNAUTHORIZED_TOKEN, "Invalid token");
-          } else {
-            songError =
-                createSongError(
-                    UNKNOWN_ERROR,
-                    "Unknown error with ResponseCode [%s] -- Reason: %s, Message: %s",
-                    httpRetryException.responseCode(),
-                    httpRetryException.getReason(),
-                    httpRetryException.getMessage());
-          }
-        } else {
-          songError = createSongError(UNKNOWN_ERROR, "Unknown error: %s", e.getMessage());
-        }
-        command.err(errorStatusHeader.getSongClientErrorOutput(songError));
-      } else {
-        command.err(
-            errorStatusHeader.createMessage(
-                "The SONG server may not be running on '%s'", restClientConfig.getServerUrl()));
-      }
+    } catch (ResourceAccessException e) {
+      val errorMessage = processResourceAccessException(e);
+      log.error(errorMessage);
+      command.err(errorMessage);
     } catch (ServerException ex) {
       val songError = ex.getSongError();
+      log.error(songError.toPrettyJson());
       command.err(errorStatusHeader.getSongServerErrorOutput(songError));
     } catch (IOException e) {
-      command.err("IO Error: %s", e.getMessage());
+      val em = fromException(e);
+      log.error(em.toPrettyJson());
+      command.err("IO Error[%s]: %s", em.getTimestamp(), e.getMessage());
     } catch (Throwable e) {
-      command.err("Unknown error: %s", e.getMessage());
+      val em = fromException(e);
+      log.error(em.toPrettyJson());
+      command.err("Unknown error[%s]: %s", em.getTimestamp(), e.getMessage());
     } finally {
       command.report();
       exit(exitCode);
+    }
+  }
+
+  private String processResourceAccessException(ResourceAccessException e) {
+    val isAlive = songApi.isAlive();
+    if (isAlive) {
+      SongError songError = null;
+      val cause = e.getCause();
+      if (cause instanceof HttpRetryException) {
+        val httpRetryException = (HttpRetryException) cause;
+        if (httpRetryException.responseCode() == UNAUTHORIZED_TOKEN.getHttpStatus().value()) {
+          songError = createSongError(UNAUTHORIZED_TOKEN, "Invalid token");
+        } else {
+          songError =
+              createSongError(
+                  UNKNOWN_ERROR,
+                  "Unknown error with ResponseCode [%s] -- Reason: %s, Message: %s",
+                  httpRetryException.responseCode(),
+                  httpRetryException.getReason(),
+                  httpRetryException.getMessage());
+        }
+      } else {
+        songError = createSongError(UNKNOWN_ERROR, "Unknown error: %s", e.getMessage());
+      }
+      return errorStatusHeader.getSongClientErrorOutput(songError);
+    } else {
+      return errorStatusHeader.createMessage(
+          "The SONG server may not be running on '%s'", restClientConfig.getServerUrl());
     }
   }
 
