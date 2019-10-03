@@ -17,7 +17,7 @@
 
 package bio.overture.song.server;
 
-import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
+import static bio.overture.song.core.model.FileUpdateRequest.createFileUpdateRequest;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static org.junit.Assert.assertEquals;
@@ -25,8 +25,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import bio.overture.song.core.model.file.FileData;
-import bio.overture.song.core.model.file.FileUpdateRequest;
+import bio.overture.song.core.model.FileData;
+import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.converter.FileConverter;

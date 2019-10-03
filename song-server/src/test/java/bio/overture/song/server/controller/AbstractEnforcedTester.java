@@ -12,10 +12,10 @@ import static java.util.Objects.isNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import bio.overture.song.core.model.AnalysisType;
+import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
-import bio.overture.song.server.model.dto.AnalysisType;
-import bio.overture.song.server.model.dto.SubmitResponse;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.EndpointTester;

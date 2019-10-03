@@ -17,7 +17,6 @@
 package bio.overture.song.client.command;
 
 import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Stopwatch.createUnstarted;
@@ -34,14 +33,13 @@ import static java.nio.file.Files.newBufferedWriter;
 import static java.util.Objects.isNull;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 
 import bio.overture.song.client.cli.Status;
 import bio.overture.song.client.command.rules.ModeRule;
 import bio.overture.song.client.command.rules.ParamTerm;
 import bio.overture.song.client.command.rules.RuleProcessor;
-import bio.overture.song.client.register.Registry;
 import bio.overture.song.core.model.ExportedPayload;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -134,7 +132,7 @@ public class ExportCommand extends Command {
   private boolean includeAnalysisId = true;
 
   /** Dependencies */
-  @NonNull private Registry registry;
+  @NonNull private SongApi songApi;
 
   /** State */
   private AtomicInteger fileCount = new AtomicInteger(0);
@@ -146,7 +144,6 @@ public class ExportCommand extends Command {
 
   @Override
   public void run() {
-    registry.checkServerAlive();
     // Process rules
     val ruleStatus = checkRules();
     if (ruleStatus.hasErrors()) {
@@ -212,16 +209,15 @@ public class ExportCommand extends Command {
   }
 
   private void processStudyMode() {
-    val status = registry.exportStudy(studyId, includeAnalysisId);
-    val json = status.getOutputs();
-    if (status.hasErrors()) {
-      err(status.getErrors());
-      return;
+    val exportedPayloads = songApi.exportStudy(studyId, includeAnalysisId);
+    val exportStatus = exportedPayloadsToDisk("Study(" + studyId + ")", exportedPayloads);
+    if (exportStatus.hasErrors()) {
+      save(exportStatus);
+    } else {
+      output(
+          "Successfully exported payloads for the studyId '%s' to output directory '%s'",
+          studyId, outputDir);
     }
-    jsonToDisk("Study(" + studyId + ")", json);
-    output(
-        "Successfully exported payloads for the studyId '%s' to output directory '%s'",
-        studyId, outputDir);
   }
 
   @SneakyThrows
@@ -269,8 +265,9 @@ public class ExportCommand extends Command {
   private Status processAnalysis(String name, List<String> analysisIds) {
     // Get data from ExportService
     Status exportStatus = new Status();
+    List<ExportedPayload> exportedPayloads = null;
     try {
-      exportStatus = registry.exportAnalyses(analysisIds, includeAnalysisId);
+      exportedPayloads = songApi.exportAnalyses(analysisIds, includeAnalysisId);
     } catch (Throwable t) {
       exportStatus.err("ExportError: %s", t.getMessage());
     }
@@ -280,24 +277,23 @@ public class ExportCommand extends Command {
     }
 
     // Extract payloads and store to outputDir
-    val json = exportStatus.getOutputs();
-    exportStatus.save(jsonToDisk(name, json));
+    exportStatus.save(exportedPayloadsToDisk(name, exportedPayloads));
     return exportStatus;
   }
 
-  private Status jsonToDisk(String batchId, String json) {
+  private Status exportedPayloadsToDisk(String batchId, List<ExportedPayload> exportedPayloads) {
     val status = new Status();
     try {
-      val root = OBJECT_MAPPER.readTree(json);
       val dirPath = Paths.get(outputDir);
-      stream(root.iterator())
-          .map(j -> fromJson(j, ExportedPayload.class))
-          .forEach(x -> exportedPayloadToFile(x, dirPath));
+      exportedPayloads.forEach(x -> exportedPayloadToFile(x, dirPath));
       status.output(
           "Successfully exported payloads for '%s' batch to output directory %s",
           batchId, dirPath.toAbsolutePath().toString());
-    } catch (Exception e) {
-      status.err("ERROR [%s] -- (%s): %s ", batchId, e.getClass().getName(), e.getMessage());
+    } catch (Throwable e) {
+      val message =
+          format("ERROR [%s] -- (%s): %s ", batchId, e.getClass().getName(), e.getMessage());
+      log.error(message);
+      status.err(message);
     }
     return status;
   }

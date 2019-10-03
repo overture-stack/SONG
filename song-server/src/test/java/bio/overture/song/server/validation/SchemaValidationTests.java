@@ -30,7 +30,7 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
+import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.fasterxml.jackson.databind.JsonNode;

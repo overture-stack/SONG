@@ -19,9 +19,9 @@ package bio.overture.song.server.config;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.springframework.retry.backoff.ExponentialBackOffPolicy.DEFAULT_MULTIPLIER;
 
-import bio.overture.song.server.retry.ClientRetryListener;
-import bio.overture.song.server.retry.DefaultRetryListener;
-import bio.overture.song.server.retry.RetryPolicies;
+import bio.overture.song.core.retry.ClientRetryListener;
+import bio.overture.song.core.retry.DefaultRetryListener;
+import bio.overture.song.core.retry.RetryPolicies;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -56,7 +56,7 @@ public class RetryConfig {
 
     result.setRetryPolicy(
         new SimpleRetryPolicy(maxRetries, RetryPolicies.getRetryableExceptions(), true));
-    result.registerListener(new DefaultRetryListener(clientRetryListener()));
+    result.registerListener(new DefaultRetryListener(false));
     return result;
   }
 

@@ -1,6 +1,7 @@
 package bio.overture.song.server.model.dto;
 
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.DynamicData;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;

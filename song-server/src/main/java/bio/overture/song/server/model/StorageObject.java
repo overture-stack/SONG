@@ -19,7 +19,7 @@ package bio.overture.song.server.model;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-import bio.overture.song.core.model.file.FileContent;
+import bio.overture.song.core.model.FileContent;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;

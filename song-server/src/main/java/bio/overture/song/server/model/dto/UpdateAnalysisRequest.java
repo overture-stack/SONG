@@ -2,7 +2,8 @@ package bio.overture.song.server.model.dto;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.DynamicData;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -19,8 +19,8 @@ package bio.overture.song.server.converter;
 
 import static org.mapstruct.factory.Mappers.getMapper;
 
-import bio.overture.song.core.model.file.FileData;
-import bio.overture.song.core.model.file.FileUpdateRequest;
+import bio.overture.song.core.model.FileData;
+import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.entity.FileEntity;

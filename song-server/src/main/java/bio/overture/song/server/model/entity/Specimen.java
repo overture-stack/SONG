@@ -21,7 +21,7 @@ import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
 import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
 import static bio.overture.song.server.model.enums.Constants.validate;
 
-import bio.overture.song.server.model.Metadata;
+import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;

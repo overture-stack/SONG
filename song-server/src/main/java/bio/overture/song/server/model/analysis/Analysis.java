@@ -22,6 +22,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisS
 import static bio.overture.song.core.utils.JsonUtils.toMap;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 
+import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.entity.FileEntity;

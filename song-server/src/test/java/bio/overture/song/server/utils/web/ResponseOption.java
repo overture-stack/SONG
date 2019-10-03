@@ -1,7 +1,8 @@
 package bio.overture.song.server.utils.web;
 
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static bio.overture.song.core.utils.Deserialization.deserializeList;
+import static bio.overture.song.core.utils.Deserialization.deserializePage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -12,9 +13,6 @@ import static org.springframework.http.HttpStatus.OK;
 
 import bio.overture.song.core.exceptions.ServerError;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -22,7 +20,6 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
-import org.icgc.dcc.common.core.util.stream.Streams;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -96,11 +93,9 @@ public class ResponseOption {
   @SneakyThrows
   private static <T> List<T> internalExtractPageResultSetFromResponse(
       ResponseEntity<String> r, Class<T> tClass) {
-    val page = MAPPER.readTree(r.getBody());
+    val page = deserializePage(r.getBody(), tClass);
     assertNotNull(page);
-    return Streams.stream(page.path("content").iterator())
-        .map(x -> MAPPER.convertValue(x, tClass))
-        .collect(toImmutableList());
+    return page.getResultSet();
   }
 
   @SneakyThrows
@@ -112,9 +107,7 @@ public class ResponseOption {
   @SneakyThrows
   private static <T> Set<T> internalExtractManyEntitiesFromResponse(
       ResponseEntity<String> r, Class<T> tClass) {
-    CollectionType typeReference =
-        TypeFactory.defaultInstance().constructCollectionType(List.class, tClass);
-    List<T> resultDto = MAPPER.readValue(r.getBody(), typeReference);
-    return ImmutableSet.copyOf(resultDto);
+    val contents = deserializeList(r.getBody(), tClass);
+    return Set.copyOf(contents);
   }
 }

@@ -19,16 +19,14 @@ package bio.overture.song.client.command;
 import static bio.overture.song.client.command.rules.ModeRule.createModeRule;
 import static bio.overture.song.client.command.rules.ParamTerm.createParamTerm;
 import static bio.overture.song.client.command.rules.RuleProcessor.createRuleProcessor;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.nonNull;
 
 import bio.overture.song.client.cli.Status;
-import bio.overture.song.client.config.Config;
-import bio.overture.song.client.register.Registry;
+import bio.overture.song.client.config.CustomRestClientConfig;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +42,6 @@ public class SearchCommand extends Command {
   private static final String ANALYSIS_MODE = "ANALYSIS_MODE";
 
   private static final String ID_MODE = "ID_MODE";
-  private static final String INFO_MODE = "INFO_MODE";
 
   /** Short Switch Constants */
   private static final String F_SWITCH = "-f";
@@ -52,8 +49,6 @@ public class SearchCommand extends Command {
   private static final String SA_SWITCH = "-sa";
   private static final String SP_SWITCH = "-sp";
   private static final String D_SWITCH = "-d";
-  private static final String I_SWITCH = "-i";
-  private static final String T_SWITCH = "-t";
   private static final String A_SWITCH = "-a";
 
   /** Long Switch Constants */
@@ -62,8 +57,6 @@ public class SearchCommand extends Command {
   private static final String SAMPLE_ID_SWITCH = "--sample-id";
   private static final String SPECIMEN_ID_SWITCH = "--specimen-id";
   private static final String DONOR_ID_SWITCH = "--donor-id";
-  private static final String INFO_SWITCH = "--info";
-  private static final String SEARCH_TERMS_SWITCH = "--search-terms";
   private static final String ANALYSIS_ID_SWITCH = "--analysis-id";
 
   @Parameter(
@@ -91,40 +84,23 @@ public class SearchCommand extends Command {
       required = false)
   private String analysisId;
 
-  @Parameter(
-      names = {I_SWITCH, INFO_SWITCH},
-      required = false)
-  private boolean includeInfo = false;
-
-  @Parameter(
-      names = {T_SWITCH, SEARCH_TERMS_SWITCH},
-      required = false,
-      variableArity = true)
-  private List<String> infoSearchTerms = newArrayList();
-
-  @NonNull private Registry registry;
-
-  @NonNull private Config config;
+  @NonNull private CustomRestClientConfig config;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
     val status = checkRules();
     if (!status.hasErrors()) {
       if (isIdSearchMode()) {
-        status.save(registry.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId));
-      } else if (isInfoSearchMode()) {
-        status.save(registry.infoSearch(config.getStudyId(), includeInfo, infoSearchTerms));
+        status.outputPrettyJson(
+            songApi.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId));
       } else if (isAnalysisSearchMode()) {
-        status.save(registry.getAnalysis(config.getStudyId(), analysisId));
+        status.outputPrettyJson(songApi.getAnalysis(config.getStudyId(), analysisId));
       } else {
         status.err("Must define at least one switch for the 'search' command\n");
       }
     }
     save(status);
-  }
-
-  private boolean isInfoSearchMode() {
-    return infoSearchTerms.size() > 0;
   }
 
   private boolean isAnalysisSearchMode() {
@@ -142,14 +118,10 @@ public class SearchCommand extends Command {
     val donorTerm = createParamTerm(D_SWITCH, DONOR_ID_SWITCH, donorId, Objects::nonNull);
     val analysisIdTerm =
         createParamTerm(A_SWITCH, ANALYSIS_ID_SWITCH, analysisId, Objects::nonNull);
-    val infoTerm = createParamTerm(I_SWITCH, INFO_SWITCH, includeInfo, x -> x);
-    val searchTerm =
-        createParamTerm(T_SWITCH, SEARCH_TERMS_SWITCH, infoSearchTerms, x -> x.size() > 0);
 
     val idSearchMode = createModeRule(ID_MODE, fileTerm, sampleTerm, specimenTerm, donorTerm);
-    val infoSearchMode = createModeRule(INFO_MODE, infoTerm, searchTerm);
     val analysisSearchMode = createModeRule(ANALYSIS_MODE, analysisIdTerm);
-    val ruleProcessor = createRuleProcessor(idSearchMode, infoSearchMode, analysisSearchMode);
+    val ruleProcessor = createRuleProcessor(idSearchMode, analysisSearchMode);
     return ruleProcessor.check();
   }
 }

@@ -16,11 +16,14 @@
  */
 package bio.overture.song.client.command;
 
+import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+
 import bio.overture.song.client.cli.Status;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.val;
 
 /** Abstract parent class for Command objects. */
@@ -50,6 +53,10 @@ public abstract class Command {
    */
   public void output(String format, Object... args) {
     status.output(format, args);
+  }
+
+  public void prettyOutput(@NonNull Object jsonSerializableObject) {
+    output(toPrettyJson(jsonSerializableObject));
   }
 
   public void save(Status status) {

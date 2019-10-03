@@ -21,7 +21,7 @@ import static bio.overture.song.server.model.enums.Constants.DONOR_GENDER;
 import static bio.overture.song.server.model.enums.Constants.validate;
 import static bio.overture.song.server.model.enums.TableNames.DONOR;
 
-import bio.overture.song.server.model.Metadata;
+import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.annotation.JsonInclude;

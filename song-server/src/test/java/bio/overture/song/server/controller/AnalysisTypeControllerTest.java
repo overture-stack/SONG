@@ -5,6 +5,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHE
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -12,7 +13,6 @@ import static bio.overture.song.core.utils.RandomGenerator.randomList;
 import static bio.overture.song.core.utils.RandomGenerator.randomStream;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -30,10 +30,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.model.AnalysisType;
+import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
-import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import bio.overture.song.server.service.AnalysisTypeService;
@@ -245,7 +245,7 @@ public class AnalysisTypeControllerTest {
     // Assert there are only 2 entries for the analysisType name
     val results =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 ImmutableList.of(nonExistingName1, nonExistingName2),
                 null,
                 null,
@@ -380,7 +380,7 @@ public class AnalysisTypeControllerTest {
     val name = expectedAnalysisType.getName();
     val actualAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(ImmutableList.of(name), null, false, null, null, null, null)
+            .listSchemasGetRequestAnd(ImmutableList.of(name), null, false, null, null, null, null)
             .extractPageResults(AnalysisType.class);
 
     assertEquals(1, actualAnalysisTypes.size());
@@ -390,7 +390,7 @@ public class AnalysisTypeControllerTest {
 
     val actualAnalysisTypes2 =
         endpointTester
-            .getSchemaGetRequestAnd(ImmutableList.of(name), null, true, null, null, null, null)
+            .listSchemasGetRequestAnd(ImmutableList.of(name), null, true, null, null, null, null)
             .extractPageResults(AnalysisType.class);
 
     assertEquals(1, actualAnalysisTypes2.size());
@@ -407,7 +407,7 @@ public class AnalysisTypeControllerTest {
     generateData(10);
     val actualAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(null, null, null, null, null, null, null)
+            .listSchemasGetRequestAnd(null, null, null, null, null, null, null)
             .extractPageResults(AnalysisType.class);
 
     // Assert default size is DEFAULT_LIMIT
@@ -444,7 +444,7 @@ public class AnalysisTypeControllerTest {
     // ********************************
     val actualAllAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 selectedNames, selectedVersions, null, 0, selectedData.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertEquals(actualAllAnalysisTypes.size(), selectedData.size());
@@ -463,7 +463,7 @@ public class AnalysisTypeControllerTest {
 
     val actualSomeAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 someSelectedNames,
                 someSelectedVersions,
                 null,
@@ -483,7 +483,7 @@ public class AnalysisTypeControllerTest {
 
     val actualNoAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 noSelectedNames, noSelectedVersions, null, 0, selectedData.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertTrue(actualNoAnalysisTypes.isEmpty());
@@ -493,7 +493,7 @@ public class AnalysisTypeControllerTest {
     // ********************************
     val actualNoAnalysisTypes2 =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 selectedNames, noSelectedVersions, null, 0, selectedData.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertTrue(actualNoAnalysisTypes2.isEmpty());
@@ -503,7 +503,7 @@ public class AnalysisTypeControllerTest {
     // ********************************
     val actualNoAnalysisTypes3 =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 noSelectedNames, selectedVersions, null, 0, selectedData.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertTrue(actualNoAnalysisTypes3.isEmpty());
@@ -525,7 +525,7 @@ public class AnalysisTypeControllerTest {
     // All Existing Names
     val actualAllAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 expectedNames, null, null, 0, expectedAnalysisTypes.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertEquals(actualAllAnalysisTypes.size(), expectedAnalysisTypes.size());
@@ -536,7 +536,7 @@ public class AnalysisTypeControllerTest {
     randomStream(this::generateUniqueName, 4).forEach(someExistingNames::add);
     val actualSomeAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 someExistingNames, null, null, 0, expectedAnalysisTypes.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertEquals(actualSomeAnalysisTypes.size(), expectedAnalysisTypes.size());
@@ -546,7 +546,7 @@ public class AnalysisTypeControllerTest {
     val noExistingNames = randomStream(this::generateUniqueName, 4).collect(toImmutableSet());
     val actualNoAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 noExistingNames, null, null, 0, expectedAnalysisTypes.size() * 2, null, null)
             .extractPageResults(AnalysisType.class);
     assertTrue(actualNoAnalysisTypes.isEmpty());
@@ -620,21 +620,15 @@ public class AnalysisTypeControllerTest {
         SCHEMA_VIOLATION);
   }
 
-  /**
-   * Sad Path: test that an error occurs when registering an empty schema
-   */
+  /** Sad Path: test that an error occurs when registering an empty schema */
   @Test
   @Transactional
-  public void register_emptySchema_schemaViolation(){
-    val r = RegisterAnalysisTypeRequest.builder()
-        .name(this.generateUniqueName())
-        .build();
-    endpointTester.registerAnalysisTypePostRequestAnd(r)
-        .assertServerError(SCHEMA_VIOLATION);
+  public void register_emptySchema_schemaViolation() {
+    val r = RegisterAnalysisTypeRequest.builder().name(this.generateUniqueName()).build();
+    endpointTester.registerAnalysisTypePostRequestAnd(r).assertServerError(SCHEMA_VIOLATION);
 
     r.setSchema(mapper().createObjectNode());
-    endpointTester.registerAnalysisTypePostRequestAnd(r)
-        .assertServerError(SCHEMA_VIOLATION);
+    endpointTester.registerAnalysisTypePostRequestAnd(r).assertServerError(SCHEMA_VIOLATION);
   }
 
   /** Happy Path: test filtering the listing endpoint by multiple versions only */
@@ -659,7 +653,8 @@ public class AnalysisTypeControllerTest {
     // ******************************
     val actualAllAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(null, selectedVersions, null, 0, totalAnalysisTypes, null, null)
+            .listSchemasGetRequestAnd(
+                null, selectedVersions, null, 0, totalAnalysisTypes, null, null)
             .extractPageResults(AnalysisType.class).stream()
             // Since there may be other persisted data with same version number, ignore those
             // analysisTypes
@@ -681,7 +676,7 @@ public class AnalysisTypeControllerTest {
     // ignored)
     val actualSomeAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 null, someExistingSelectedVersions, null, 0, totalAnalysisTypes, null, null)
             .extractPageResults(AnalysisType.class).stream()
             // Since there may be other persisted data with same version number, ignore those
@@ -698,7 +693,7 @@ public class AnalysisTypeControllerTest {
     val noExistingSelectedVersions = newHashSet(repeats + 3, repeats + 7);
     val actualNoAnalysisTypes =
         endpointTester
-            .getSchemaGetRequestAnd(
+            .listSchemasGetRequestAnd(
                 null, noExistingSelectedVersions, null, 0, totalAnalysisTypes, null, null)
             .extractPageResults(AnalysisType.class).stream()
             // Since there may be other persisted data with same version number, ignore those
@@ -716,7 +711,7 @@ public class AnalysisTypeControllerTest {
 
     val results =
         endpointTester
-            .getSchemaGetRequestAnd(ImmutableList.of(name), null, null, 0, 100, null, null)
+            .listSchemasGetRequestAnd(ImmutableList.of(name), null, null, 0, 100, null, null)
             .extractPageResults(AnalysisType.class);
 
     val actualNames = mapToImmutableSet(results, AnalysisType::getName);

@@ -31,9 +31,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -54,12 +51,7 @@ public class JsonUtils {
     val specialModule = new SimpleModule();
     specialModule.addDeserializer(String.class, SpecialStringJsonDeserializer.instance);
 
-    val mapper =
-        new ObjectMapper()
-            .registerModule(new ParameterNamesModule())
-            .registerModule(new Jdk8Module())
-            .registerModule(specialModule)
-            .registerModule(new JavaTimeModule());
+    val mapper = new ObjectMapper().registerModule(specialModule);
 
     mapper.disable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
     mapper.disable(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS);

@@ -18,6 +18,7 @@ package bio.overture.song.server.service;
 
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE_REQUEST;
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
+import static bio.overture.song.core.model.FileUpdateRequest.createFileUpdateRequest;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
@@ -26,7 +27,6 @@ import static bio.overture.song.core.model.enums.FileUpdateTypes.CONTENT_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.METADATA_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.NO_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.resolveFileUpdateType;
-import static bio.overture.song.core.model.file.FileUpdateRequest.createFileUpdateRequest;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.service.FileModificationService.doUnpublish;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
@@ -40,8 +40,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.enums.AccessTypes;
-import bio.overture.song.core.model.file.FileUpdateRequest;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.converter.FileConverter;

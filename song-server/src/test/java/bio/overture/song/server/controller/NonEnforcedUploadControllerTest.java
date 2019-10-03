@@ -5,7 +5,7 @@ import static bio.overture.song.core.utils.Responses.OK;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
+import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;

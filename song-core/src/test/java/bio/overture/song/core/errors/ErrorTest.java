@@ -20,7 +20,7 @@ package bio.overture.song.core.errors;
 import static bio.overture.song.core.exceptions.ServerErrors.extractErrorId;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.core.utils.Debug.streamCallingStackTrace;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpStatus.CONFLICT;
 
@@ -45,7 +45,7 @@ public class ErrorTest {
             .stackTrace(
                 streamCallingStackTrace()
                     .map(StackTraceElement::toString)
-                    .collect(toImmutableList()))
+                    .collect(toUnmodifiableList()))
             .timestamp(System.currentTimeMillis())
             .build();
 

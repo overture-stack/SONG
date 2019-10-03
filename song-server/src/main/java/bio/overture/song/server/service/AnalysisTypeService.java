@@ -6,9 +6,9 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
-import static bio.overture.song.server.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
@@ -20,9 +20,10 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
+import bio.overture.song.core.model.AnalysisType;
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
-import bio.overture.song.server.model.analysis.AnalysisTypeId;
-import bio.overture.song.server.model.dto.AnalysisType;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -137,14 +138,13 @@ public class AnalysisTypeService {
   }
 
   @Transactional
-  public AnalysisType register(
-      @NonNull String analysisTypeName, JsonNode analysisTypeSchema) {
+  public AnalysisType register(@NonNull String analysisTypeName, JsonNode analysisTypeSchema) {
     validateAnalysisTypeName(analysisTypeName);
     validateAnalysisTypeSchema(analysisTypeSchema);
     return commitAnalysisType(analysisTypeName, analysisTypeSchema);
   }
 
-  public Page<AnalysisType> listAnalysisTypes(
+  public PageDTO<AnalysisType> listAnalysisTypes(
       @Nullable Collection<String> names,
       @Nullable Collection<Integer> versions,
       @NonNull Pageable pageable,
@@ -157,7 +157,7 @@ public class AnalysisTypeService {
         page.getContent().stream()
             .map(a -> convertToAnalysisType(a, hideSchema, unrenderedOnly))
             .collect(toImmutableList());
-    return new PageImpl<>(analysisTypes, pageable, page.getTotalElements());
+    return convertToPageDTO(new PageImpl<>(analysisTypes, pageable, page.getTotalElements()));
   }
 
   @SneakyThrows
@@ -209,7 +209,8 @@ public class AnalysisTypeService {
 
   @SneakyThrows
   private void validateAnalysisTypeSchema(JsonNode analysisTypeSchema) {
-    checkServer(!isNull(analysisTypeSchema), getClass(), SCHEMA_VIOLATION, "Schema field cannot be null");
+    checkServer(
+        !isNull(analysisTypeSchema), getClass(), SCHEMA_VIOLATION, "Schema field cannot be null");
     val metaSchema = getAnalysisTypeMetaSchema();
     try {
       validateWithSchema(metaSchema, analysisTypeSchema);
@@ -278,5 +279,10 @@ public class AnalysisTypeService {
         AnalysisTypeController.class,
         MALFORMED_PARAMETER,
         "The requested versions must be greater than 0");
+  }
+
+  private static <T> PageDTO<T> convertToPageDTO(@NonNull Page<T> page) {
+    return new PageDTO<>(
+        page.getSize(), page.getNumber(), page.getTotalElements(), page.getContent());
   }
 }

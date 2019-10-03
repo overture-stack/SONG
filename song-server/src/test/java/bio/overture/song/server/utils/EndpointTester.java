@@ -27,8 +27,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
+import bio.overture.song.server.utils.web.MockMvcWebResource;
 import bio.overture.song.server.utils.web.ResponseOption;
-import bio.overture.song.server.utils.web.WebResource;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -73,18 +73,18 @@ public class EndpointTester {
         .andExpect(songErrorContent(expectedServerError));
   }
 
-  public WebResource initWebRequest() {
+  public MockMvcWebResource initWebRequest() {
     val headers = new HttpHeaders();
     headers.setContentType(APPLICATION_JSON);
     headers.setAccept(ImmutableList.of(APPLICATION_JSON));
-    val w = new WebResource(mockMvc, "").headers(headers);
+    val w = new MockMvcWebResource("", mockMvc).headers(headers);
     if (enableLogging) {
       w.logging();
     }
     return w;
   }
 
-  public ResponseOption getSchemaGetRequestAnd(
+  public ResponseOption listSchemasGetRequestAnd(
       Collection<String> names,
       Collection<Integer> versions,
       Boolean hideSchema,
@@ -92,12 +92,12 @@ public class EndpointTester {
       Integer limit,
       Sort.Direction sortOrder,
       String... sortVariables) {
-    return getSchemaGetRequestAnd(
+    return listSchemasGetRequestAnd(
         names, versions, hideSchema, false, offset, limit, sortOrder, sortVariables);
   }
 
   // GET /schemas
-  public ResponseOption getSchemaGetRequestAnd(
+  public ResponseOption listSchemasGetRequestAnd(
       Collection<String> names,
       Collection<Integer> versions,
       Boolean hideSchema,
