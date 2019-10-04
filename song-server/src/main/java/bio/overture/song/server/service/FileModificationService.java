@@ -31,9 +31,9 @@ import static bio.overture.song.core.model.enums.FileUpdateTypes.resolveFileUpda
 import static java.lang.String.format;
 
 import bio.overture.song.core.exceptions.ServerException;
+import bio.overture.song.core.model.FileData;
+import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.core.model.enums.FileUpdateTypes;
-import bio.overture.song.core.model.file.FileData;
-import bio.overture.song.core.model.file.FileUpdateResponse;
 import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.entity.FileEntity;
 import javax.transaction.Transactional;

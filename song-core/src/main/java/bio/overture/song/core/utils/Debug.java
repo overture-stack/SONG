@@ -17,11 +17,11 @@
 
 package bio.overture.song.core.utils;
 
+import static bio.overture.song.core.utils.Joiners.NEWLINE;
+import static bio.overture.song.core.utils.Streams.stream;
 import static java.lang.Thread.currentThread;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static lombok.AccessLevel.PRIVATE;
-import static org.icgc.dcc.common.core.util.Joiners.NEWLINE;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -33,7 +33,7 @@ public class Debug {
 
   /** Gets the stacktrace List of the calling function */
   public static List<StackTraceElement> getCallingStackTrace() {
-    return stream(currentThread().getStackTrace()).skip(2).collect(toImmutableList());
+    return stream(currentThread().getStackTrace()).skip(2).collect(toUnmodifiableList());
   }
 
   public static Stream<StackTraceElement> streamCallingStackTrace() {

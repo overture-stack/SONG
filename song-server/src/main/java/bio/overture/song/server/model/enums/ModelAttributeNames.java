@@ -55,7 +55,6 @@ public class ModelAttributeNames {
   public static final String ANALYSIS_TYPE = "analysisType";
   public static final String ANALYSIS_SCHEMA = "analysisSchema";
   public static final String ANALYSIS_DATA = "analysisData";
-  public static final String ANALYSIS_TYPE_ID = "analysisTypeId";
   public static final String ANALYSIS_STATE = "analysisState";
   public static final String SORT = "sort";
   public static final String SORTORDER = "sortOrder";

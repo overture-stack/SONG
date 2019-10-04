@@ -105,6 +105,8 @@ auth:
     # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
     multiplier: 2.0
 
+schemas:
+  enforceLatest: true
 
 ---
 spring.profiles: async-test

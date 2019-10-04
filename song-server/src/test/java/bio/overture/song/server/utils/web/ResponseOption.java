@@ -1,8 +1,8 @@
 package bio.overture.song.server.utils.web;
 
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static bio.overture.song.core.utils.Deserialization.deserializeList;
+import static bio.overture.song.core.utils.Deserialization.deserializePage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -20,7 +20,6 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
-import org.icgc.dcc.common.core.util.stream.Streams;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -56,12 +55,12 @@ public class ResponseOption {
 
   public ResponseOption assertServerError(ServerError serverError) {
     val songError = parseErrorResponse(response);
-    assertEquals(songError.getErrorId(), serverError.getErrorId());
+    assertEquals(serverError.getErrorId(), songError.getErrorId());
     return assertStatusCode(serverError.getHttpStatus());
   }
 
   public ResponseOption assertStatusCode(HttpStatus code) {
-    assertEquals(response.getStatusCode(), code);
+    assertEquals(code, response.getStatusCode());
     return this;
   }
 
@@ -94,11 +93,9 @@ public class ResponseOption {
   @SneakyThrows
   private static <T> List<T> internalExtractPageResultSetFromResponse(
       ResponseEntity<String> r, Class<T> tClass) {
-    val page = MAPPER.readTree(r.getBody());
+    val page = deserializePage(r.getBody(), tClass);
     assertNotNull(page);
-    return Streams.stream(page.path("content").iterator())
-        .map(x -> MAPPER.convertValue(x, tClass))
-        .collect(toImmutableList());
+    return page.getResultSet();
   }
 
   @SneakyThrows
@@ -110,8 +107,7 @@ public class ResponseOption {
   @SneakyThrows
   private static <T> Set<T> internalExtractManyEntitiesFromResponse(
       ResponseEntity<String> r, Class<T> tClass) {
-    return Streams.stream(MAPPER.readTree(r.getBody()).iterator())
-        .map(x -> MAPPER.convertValue(x, tClass))
-        .collect(toImmutableSet());
+    val contents = deserializeList(r.getBody(), tClass);
+    return Set.copyOf(contents);
   }
 }

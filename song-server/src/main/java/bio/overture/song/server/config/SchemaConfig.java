@@ -9,24 +9,43 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
+import javax.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaClient;
 import org.everit.json.schema.loader.SchemaLoader;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
+@Getter
+@Setter
+@Validated
+@Component
 @Configuration
+@ConfigurationProperties("schemas")
 public class SchemaConfig {
 
   public static final Path SCHEMA_PATH = Paths.get("schemas");
   public static final Path SCHEMA_ANALYSIS_PATH = SCHEMA_PATH.resolve("analysis");
   private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
 
+  @NotNull private Boolean enforceLatest;
+
   @Bean
   public String analysisPayloadBaseJson() throws IOException {
     val schemaRelativePath = SCHEMA_ANALYSIS_PATH.resolve("analysisPayload.json").toString();
+    return getResourceContent(schemaRelativePath);
+  }
+
+  @Bean
+  public String analysisUpdateBaseJson() throws IOException {
+    val schemaRelativePath = SCHEMA_ANALYSIS_PATH.resolve("analysisUpdate.json").toString();
     return getResourceContent(schemaRelativePath);
   }
 

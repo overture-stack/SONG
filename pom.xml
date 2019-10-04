@@ -20,11 +20,12 @@
     <groupId>bio.overture</groupId>
     <artifactId>song</artifactId>
     <packaging>pom</packaging>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <modules>
         <module>song-core</module>
-        <module>song-server</module>
+        <module>song-java-sdk</module>
         <module>song-client</module>
+        <module>song-server</module>
     </modules>
 
     <parent>
@@ -62,20 +63,50 @@
             <name>jcenter</name>
             <url>https://jcenter.bintray.com/</url>
         </repository>
+        <repository>
+            <id>spring-releases</id>
+            <name>Spring Releases</name>
+            <url>https://repo.spring.io/libs-release</url>
+        </repository>
     </repositories>
 
     <dependencyManagement>
         <dependencies>
+            <!--Spring Boot-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-test</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
+            <!--Spring Framework-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring-framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring-framework.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.security.oauth</groupId>
                 <artifactId>spring-security-oauth2</artifactId>
                 <version>${spring-security-oauth2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.icgc.dcc</groupId>
-                <artifactId>dcc-id-client</artifactId>
-                <version>${dcc-id.version}</version>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${spring-kafka.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons-core</artifactId>
+                <version>${spring-data-commons-core.version}</version>
+            </dependency>
+
+            <!--Swagger-->
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger2</artifactId>
@@ -86,24 +117,8 @@
                 <artifactId>springfox-swagger-ui</artifactId>
                 <version>${springfox.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.github.tomakehurst</groupId>
-                <artifactId>wiremock</artifactId>
-                <version>${wiremock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.kafka</groupId>
-                <artifactId>spring-kafka</artifactId>
-                <version>${spring-kafka.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
 
-            <!--                      Hibernate                      -->
+            <!-- Hibernate  ORM -->
             <dependency>
                 <groupId>com.marvinformatics.hibernate</groupId>
                 <artifactId>hibernate-native-json</artifactId>
@@ -129,20 +144,34 @@
                 <artifactId>hibernate-validator-annotation-processor</artifactId>
                 <version>${hibernate-validator.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.hibernate.validator</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>${hibernate-validator.version}</version>
+            </dependency>
+            <!--Must be compatible with hibernate-validator version-->
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${javax.validation.version}</version>
+            </dependency>
 
+            <!--Web-->
             <dependency>
                 <groupId>com.github.bohnman</groupId>
                 <artifactId>squiggly-filter-jackson</artifactId>
                 <version>${squiggly.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.fasterxml.uuid</groupId>
-                <artifactId>java-uuid-generator</artifactId>
-                <version>${java-uuid-generator.version}</version>
-            </dependency>
+
+            <!--JSON Processing-->
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-guava</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
@@ -161,20 +190,29 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>json-schema-validator</artifactId>
-                <version>${networknt.version}</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <!--Postgres-->
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.icgc.dcc</groupId>
-                <artifactId>dcc-common-core</artifactId>
-                <version>${dcc-common.version}</version>
-            </dependency>
+
+            <!--Command Line Interface-->
             <dependency>
                 <groupId>com.beust</groupId>
                 <artifactId>jcommander</artifactId>
@@ -185,6 +223,57 @@
                 <artifactId>jansi</artifactId>
                 <version>${jansi.version}</version>
             </dependency>
+
+
+            <!--Misc-->
+            <dependency>
+                <!-- update Hibernate dependency on Javassist to 3.23.1 for Java 11 compatibility -->
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${java-assist.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.interceptor</groupId>
+                <artifactId>javax.interceptor-api</artifactId>
+                <version>${javax.interceptor-api.version}</version>
+            </dependency>
+
+            <!--ICGC Libs-->
+            <dependency>
+                <groupId>org.icgc.dcc</groupId>
+                <artifactId>dcc-common-core</artifactId>
+                <version>${dcc-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.icgc.dcc</groupId>
+                <artifactId>dcc-id-client</artifactId>
+                <version>${dcc-id.version}</version>
+            </dependency>
+
+            <!--Json Schema-->
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>${networknt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.everit-org.json-schema</groupId>
+                <artifactId>org.everit.json.schema</artifactId>
+                <version>${everit.jsonschema.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!--Utility Libs-->
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${apache.commons.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -192,15 +281,52 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.uuid</groupId>
+                <artifactId>java-uuid-generator</artifactId>
+                <version>${java-uuid-generator.version}</version>
+            </dependency>
+
+            <!--Logging-->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <!--Testing-->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>jdbc</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock</artifactId>
+                <version>${wiremock.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -215,43 +341,10 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <!-- update Hibernate dependency on Javassist to 3.23.1 for Java 11 compatibility -->
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${java-assist.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${jaxb.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>javax.interceptor</groupId>
-                <artifactId>javax.interceptor-api</artifactId>
-                <version>${javax.interceptor-api.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>jdbc</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>${testcontainers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.everit-org.json-schema</groupId>
-                <artifactId>org.everit.json.schema</artifactId>
-                <version>${everit.jsonschema.version}</version>
-                <scope>provided</scope>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
             </dependency>
 
         </dependencies>
@@ -259,20 +352,20 @@
 
     <build>
         <defaultGoal>install</defaultGoal>
-		<plugins>
-			<plugin>
-				<groupId>com.coveo</groupId>
-				<artifactId>fmt-maven-plugin</artifactId>
-				<version>${plugin.fmt.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>format</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
+        <plugins>
+            <plugin>
+                <groupId>com.coveo</groupId>
+                <artifactId>fmt-maven-plugin</artifactId>
+                <version>${plugin.fmt.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -285,8 +378,8 @@
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <showWarnings>true</showWarnings>
-						<forceJavacCompilerUse>true</forceJavacCompilerUse>
-						<verbose>true</verbose>
+                        <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                        <verbose>true</verbose>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -317,6 +410,17 @@
                             --illegal-access=permit
                         </argLine>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${plugin.maven.dependency.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.shared</groupId>
+                            <artifactId>maven-dependency-analyzer</artifactId>
+                            <version>${maven.dependency.analyzer.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -355,7 +459,9 @@
 
         <!-- Common Versions -->
         <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
-        <spring-data-commons.version>1.12.11.RELEASE</spring-data-commons.version>
+        <spring-data-commons-core.version>1.4.1.RELEASE</spring-data-commons-core.version>
+        <!--<spring-data-commons.version>1.12.11.RELEASE</spring-data-commons.version>-->
+        <spring-framework.version>5.1.9.RELEASE</spring-framework.version>
         <dcc-common.version>4.3.8</dcc-common.version>
         <postgresql.version>42.2.2</postgresql.version>
         <junit.version>4.12</junit.version>
@@ -371,7 +477,10 @@
         <dcc-id.version>5.2.0</dcc-id.version>
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
         <hibernate-native-json.version>0.4</hibernate-native-json.version>
+
         <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
+        <javax.validation.version>2.0.1.Final</javax.validation.version>
+
         <guava.version>24.1-jre</guava.version>
         <jcommander.version>1.69</jcommander.version>
         <jansi.version>1.16</jansi.version>
@@ -379,6 +488,7 @@
         <mapstruct.version>1.3.0.Final</mapstruct.version>
         <mockito.version>2.23.0</mockito.version>
         <json-unit.version>2.0.3</json-unit.version>
+        <apache.commons.version>2.6</apache.commons.version>
 
         <jaxb.version>2.3.1</jaxb.version>
         <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
@@ -391,7 +501,9 @@
         <testcontainers.version>1.10.6</testcontainers.version>
         <flyway.version>5.2.4</flyway.version>
         <everit.jsonschema.version>1.11.1</everit.jsonschema.version>
-		<plugin.fmt.version>2.9</plugin.fmt.version>
+        <plugin.fmt.version>2.9</plugin.fmt.version>
+        <plugin.maven.dependency.version>3.1.1</plugin.maven.dependency.version>
+        <maven.dependency.analyzer.version>1.11.1</maven.dependency.analyzer.version>
     </properties>
 
 </project>

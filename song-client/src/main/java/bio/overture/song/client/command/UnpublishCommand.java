@@ -16,8 +16,8 @@
  */
 package bio.overture.song.client.command;
 
-import bio.overture.song.client.config.Config;
-import bio.overture.song.client.register.Registry;
+import bio.overture.song.client.config.CustomRestClientConfig;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import java.io.IOException;
@@ -32,9 +32,8 @@ public class UnpublishCommand extends Command {
   @Parameter(names = {"-a", "--analysis-id"})
   private String analysisId;
 
-  @NonNull private Registry registry;
-
-  @NonNull private Config config;
+  @NonNull private CustomRestClientConfig config;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
@@ -42,7 +41,7 @@ public class UnpublishCommand extends Command {
       analysisId = getJson().at("/analysisId").asText("");
     }
 
-    val status = registry.unpublish(config.getStudyId(), analysisId);
-    save(status);
+    val message = songApi.unpublish(config.getStudyId(), analysisId);
+    output(message);
   }
 }

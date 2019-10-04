@@ -28,7 +28,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import bio.overture.song.server.model.dto.AnalysisType;
+import bio.overture.song.core.model.AnalysisType;
+import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.AnalysisTypeService;
 import io.swagger.annotations.Api;
@@ -41,7 +42,6 @@ import java.util.Set;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,25 +66,29 @@ public class AnalysisTypeController {
     this.analysisTypeService = analysisTypeService;
   }
 
-  @GetMapping("/{analysisTypeId}")
+  @GetMapping("/{name}")
   @ApiOperation(
       value = "GetAnalysisTypeVersion",
-      notes = "Retrieves a specific version of a schema for an analysisType")
+      notes = "Retrieves the latest version of a schema for an analysisType")
   public AnalysisType getAnalysisTypeVersion(
-      @ApiParam(
-              value = "Compound analysisType id in the form {name}:{version}",
-              type = "string",
-              required = false)
-          @PathVariable(value = "analysisTypeId", required = true)
-          String analysisTypeIdString,
+      @ApiParam(value = "The name of an analysisType", type = "string", required = true)
+          @PathVariable(value = "name", required = true)
+          String name,
       @ApiParam(
               value = "Only retrieve the unrendered schema that was initially registered",
               type = "boolean",
               defaultValue = "false",
               required = false)
           @RequestParam(value = "unrenderedOnly", required = false, defaultValue = "false")
-          boolean unrenderedOnly) {
-    return analysisTypeService.getAnalysisType(analysisTypeIdString, unrenderedOnly);
+          boolean unrenderedOnly,
+      @ApiParam(
+              value = "Optionally, retrieve a specific version of the analysisType",
+              type = "integer",
+              defaultValue = "false",
+              required = false)
+          @RequestParam(value = "version", required = false)
+          Integer version) {
+    return analysisTypeService.getAnalysisType(name, version, unrenderedOnly);
   }
 
   @SneakyThrows
@@ -135,7 +139,7 @@ public class AnalysisTypeController {
   })
   @ApiOperation(value = "ListAnalysisTypes", notes = "Retrieves a list of registered analysisTypes")
   @GetMapping
-  public Page<AnalysisType> listAnalysisTypes(
+  public PageDTO<AnalysisType> listAnalysisTypes(
       @ApiParam(
               value = "Comma separated list of names",
               required = false,

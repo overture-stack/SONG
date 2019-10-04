@@ -16,7 +16,10 @@
  */
 package bio.overture.song.client.cli;
 
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static org.fusesource.jansi.Ansi.Color.GREEN;
 import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
@@ -28,6 +31,12 @@ import org.fusesource.jansi.AnsiConsole;
 /** This class holds status results for commands that have run. */
 @Data
 public class Status {
+
+  private static final String ERROR_PREFIX = "[SONG_CLIENT_ERROR]";
+
+  public static String prefixErrorMessage(@NonNull String formattedErrorMessage, Object... args) {
+    return ERROR_PREFIX + ": " + format(formattedErrorMessage, args);
+  }
 
   private String errors;
   private String outputs;
@@ -48,6 +57,14 @@ public class Status {
   public void save(@NonNull Status s) {
     errors += s.errors;
     outputs += s.outputs;
+  }
+
+  public void outputPrettyJson(Object o) {
+    output(toPrettyJson(o));
+  }
+
+  public void outputJson(Object o) {
+    output(toJson(o));
   }
 
   public boolean isOk() {
@@ -75,13 +92,13 @@ public class Status {
   }
 
   public void reportErrors() {
-    if (!"".equals(errors)) {
+    if (!isNull(errors) && !"".equals(errors)) {
       AnsiConsole.err().println(ansi().eraseLine().fg(RED).a(errors).reset());
     }
   }
 
   public void reportOutput() {
-    if (!"".equals(outputs)) {
+    if (!isNull(outputs) && !"".equals(outputs)) {
       AnsiConsole.out().println(ansi().eraseLine().fg(GREEN).a(outputs).reset());
     }
   }

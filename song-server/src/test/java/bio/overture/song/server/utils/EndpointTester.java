@@ -27,8 +27,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
+import bio.overture.song.server.utils.web.MockMvcWebResource;
 import bio.overture.song.server.utils.web.ResponseOption;
-import bio.overture.song.server.utils.web.WebResource;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
@@ -39,6 +40,7 @@ import lombok.val;
 import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
+import org.springframework.lang.Nullable;
 import org.springframework.test.web.servlet.MockMvc;
 
 @RequiredArgsConstructor
@@ -47,6 +49,7 @@ public class EndpointTester {
   private static final String SCHEMAS = "schemas";
   private static final String NAMES = "names";
   private static final String VERSIONS = "versions";
+  private static final String VERSION = "version";
   private static final String META = "meta";
   private static final String HIDE_SCHEMA = "hideSchema";
 
@@ -70,14 +73,18 @@ public class EndpointTester {
         .andExpect(songErrorContent(expectedServerError));
   }
 
-  public WebResource initWebRequest() {
+  public MockMvcWebResource initWebRequest() {
     val headers = new HttpHeaders();
     headers.setContentType(APPLICATION_JSON);
     headers.setAccept(ImmutableList.of(APPLICATION_JSON));
-    return new WebResource(mockMvc, "").logging().headers(headers);
+    val w = new MockMvcWebResource("", mockMvc).headers(headers);
+    if (enableLogging) {
+      w.logging();
+    }
+    return w;
   }
 
-  public ResponseOption getSchemaGetRequestAnd(
+  public ResponseOption listSchemasGetRequestAnd(
       Collection<String> names,
       Collection<Integer> versions,
       Boolean hideSchema,
@@ -85,12 +92,12 @@ public class EndpointTester {
       Integer limit,
       Sort.Direction sortOrder,
       String... sortVariables) {
-    return getSchemaGetRequestAnd(
+    return listSchemasGetRequestAnd(
         names, versions, hideSchema, false, offset, limit, sortOrder, sortVariables);
   }
 
   // GET /schemas
-  public ResponseOption getSchemaGetRequestAnd(
+  public ResponseOption listSchemasGetRequestAnd(
       Collection<String> names,
       Collection<Integer> versions,
       Boolean hideSchema,
@@ -118,16 +125,40 @@ public class EndpointTester {
     return initWebRequest().endpoint(SCHEMAS).body(request).postAnd();
   }
 
-  // GET /schemas/<name>:<version>
-  public ResponseOption getAnalysisTypeVersionGetRequestAnd(@NonNull String analysisTypeIdString) {
-    return getAnalysisTypeVersionGetRequestAnd(analysisTypeIdString, false);
+  public ResponseOption updateAnalysisPutRequestAnd(
+      @NonNull String studyId,
+      @NonNull String analysisId,
+      @NonNull JsonNode updateAnalysisRequest) {
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/%s", studyId, analysisId)
+        .body(updateAnalysisRequest)
+        .putAnd();
   }
 
-  // GET /schemas/<name>:<version>?unrenderedOnly=?
-  public ResponseOption getAnalysisTypeVersionGetRequestAnd(
-      @NonNull String analysisTypeIdString, boolean unrenderedOnly) {
+  // GET /schemas/<name>
+  public ResponseOption getLatestAnalysisTypeGetRequestAnd(@NonNull String analysisTypeName) {
+    return getAnalysisTypeVersionGetRequestAnd(analysisTypeName, null, false);
+  }
+
+  // POST /upload/{study}
+  public ResponseOption submitPostRequestAnd(@NonNull String studyId, JsonNode payload) {
+    return initWebRequest().endpoint("upload/%s", studyId).body(payload).postAnd();
+  }
+
+  // PUT /studies/{}/analysis/publish/{aid}
+  public ResponseOption publishAnalysisPutRequestAnd(
+      @NonNull String studyId, @NonNull String analysisId) {
     return initWebRequest()
-        .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeIdString))
+        .endpoint("studies/%s/analysis/publish/%s", studyId, analysisId)
+        .putAnd();
+  }
+
+  // GET /schemas/<name>?version=<integer>&unrenderedOnly=<boolean>
+  public ResponseOption getAnalysisTypeVersionGetRequestAnd(
+      @NonNull String analysisTypeName, @Nullable Integer version, boolean unrenderedOnly) {
+    return initWebRequest()
+        .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeName))
+        .optionalQuerySingleParam(VERSION, version)
         .optionalQuerySingleParam(UNRENDERED_ONLY, unrenderedOnly)
         .getAnd();
   }

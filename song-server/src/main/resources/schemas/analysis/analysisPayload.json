@@ -141,6 +141,18 @@
 				}
 			}
 		},
+		"analysisType" : {
+			"type": "object",
+            "required": ["name"],
+			"properties": {
+				"name" : {
+					"type" : "string"
+				},
+				"version": {
+					"type" : ["integer","null"]
+				}
+			}
+		},
 		"sample" : {
 			"sampleTypes" :{
 				"type": "string",
@@ -167,14 +179,14 @@
 			}
 		}
 	},
-	"required": [ "study", "analysisTypeId", "sample","file"],
+	"required": [ "study", "analysisType", "sample","file"],
 	"properties": {
 		"study" : {
 			"type": "string",
 			"minLength": 1
 		},
-		"analysisTypeId": {
-			"type": "string"
+		"analysisType": {
+			"allOf": [{"$ref" :  "#/definitions/analysisType"}]
 		},
 		"sample": {
 			"type": "array",

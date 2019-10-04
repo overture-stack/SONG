@@ -16,17 +16,20 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE_ID;
-import static bio.overture.song.server.service.AnalysisTypeService.parseAnalysisTypeId;
-import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeIdFromPayload;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
-import bio.overture.song.core.exceptions.ServerException;
-import bio.overture.song.core.model.file.FileData;
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.FileData;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
@@ -39,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -52,15 +56,18 @@ public class ValidationService {
   private final SchemaValidator validator;
   private final AnalysisTypeService analysisTypeService;
   private final UploadRepository uploadRepository;
+  private final boolean enforceLatest;
 
   @Autowired
   public ValidationService(
+      @Value("${schemas.enforceLatest}") boolean enforceLatest,
       @NonNull SchemaValidator validator,
       @NonNull AnalysisTypeService analysisTypeService,
       @NonNull UploadRepository uploadRepository) {
     this.validator = validator;
     this.analysisTypeService = analysisTypeService;
     this.uploadRepository = uploadRepository;
+    this.enforceLatest = enforceLatest;
   }
 
   @Async
@@ -77,28 +84,23 @@ public class ValidationService {
   public Optional<String> validate(@NonNull JsonNode payload) {
     String errors = null;
     try {
-      val analysisTypeIdResult = extractAnalysisTypeIdFromPayload(payload);
-      if (!analysisTypeIdResult.isPresent()) {
-        errors = format("Missing the '%s' field", ANALYSIS_TYPE_ID);
+      val analysisTypeResult = extractAnalysisTypeFromPayload(payload);
+      if (!analysisTypeResult.isPresent()) {
+        errors = format("Missing the '%s' field", ANALYSIS_TYPE);
       } else {
-        val analysisTypeId = parseAnalysisTypeId(analysisTypeIdResult.get());
+        val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
         val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
         log.info(
             format(
                 "Found Analysis type: name=%s  version=%s",
                 analysisType.getName(), analysisType.getVersion()));
+
         val schema = buildSchema(analysisType.getSchema());
         validateWithSchema(schema, payload);
       }
-    } catch (ServerException e) {
-      log.error(e.getSongError().toPrettyJson());
-      errors = e.getSongError().getMessage();
     } catch (ValidationException e) {
       errors = COMMA.join(e.getAllMessages());
       log.error(errors);
-    } catch (Exception e) {
-      log.error(e.getMessage());
-      errors = format("Unknown processing problem: %s", e.getMessage());
     }
     return Optional.ofNullable(errors);
   }
@@ -123,6 +125,30 @@ public class ValidationService {
     return processResponse(validator.validate(STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID, response));
   }
 
+  public String validateAnalysisTypeVersion(AnalysisTypeId a) {
+    checkServer(
+        !isBlank(a.getName()),
+        getClass(),
+        MALFORMED_PARAMETER,
+        "The analysisType name cannot be null");
+    return validateAnalysisTypeVersion(a.getName(), a.getVersion());
+  }
+
+  public String validateAnalysisTypeVersion(@NonNull String name, Integer version) {
+    if (enforceLatest && !isNull(version)) {
+      val latestVersion = analysisTypeService.getLatestVersionNumber(name);
+      if (!version.equals(latestVersion)) {
+        val message =
+            format(
+                "Must use the latest version '%s' while enforceLatest=true, but using version '%s' of analysisType '%s' instead",
+                latestVersion, version, name);
+        log.error(message);
+        return message;
+      }
+    }
+    return null;
+  }
+
   private void updateState(
       @NonNull String uploadId, @NonNull UploadStates state, @NonNull String errors) {
     uploadRepository
@@ -140,7 +166,7 @@ public class ValidationService {
     updateState(uploadId, UploadStates.VALIDATED, "");
   }
 
-  private void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
+  public void updateAsInvalid(@NonNull String uploadId, @NonNull String errorMessages) {
     updateState(uploadId, UploadStates.VALIDATION_ERROR, errorMessages);
   }
 

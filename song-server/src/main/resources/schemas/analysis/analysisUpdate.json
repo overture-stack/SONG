@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "analysis-update",
+  "title": "Base schema for validating analysis update requests",
+  "type" : "object",
+  "required": ["analysisType"],
+  "properties": {
+    "analysisId": {
+      "not": {}
+    },
+    "study": {
+      "not": {}
+    },
+    "analysisState" : {
+      "not" : {}
+    },
+    "analysisType": {
+      "type" : "object",
+      "required": ["name"],
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "version" : {
+          "type" : ["integer", "null"]
+        }
+      }
+    },
+    "analysisTypeId": {
+      "not": {}
+    },
+    "sample": {
+      "not": {}
+    },
+    "file": {
+      "not": {}
+    }
+  }
+}

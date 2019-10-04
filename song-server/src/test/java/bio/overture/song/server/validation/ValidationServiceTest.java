@@ -86,27 +86,19 @@ public class ValidationServiceTest {
   @Test
   public void testValidateVariantCallMissingAnalysisType() {
     val payload = getJsonFile("variantCall.json");
-    ((ObjectNode) payload).put("analysisTypeId", (String) null);
+    ((ObjectNode) payload).put("analysisType", (String) null);
     val results = service.validate(payload);
     assertTrue(results.isPresent());
-    assertTrue(
-        results
-            .get()
-            .contains(
-                "[AnalysisTypeService::malformed.parameter] - The analysisTypeId 'null' does not match the regex "));
+    assertTrue(results.get().contains("Missing the 'analysisType' field"));
   }
 
   @Test
   public void testValidateSequencingReadMissingAnalysisType() {
     val payload = getJsonFile("sequencingRead.json");
-    ((ObjectNode) payload).put("analysisTypeId", (String) null);
+    ((ObjectNode) payload).put("analysisType", (String) null);
     val results = service.validate(payload);
     assertTrue(results.isPresent());
-    assertTrue(
-        results
-            .get()
-            .contains(
-                "[AnalysisTypeService::malformed.parameter] - The analysisTypeId 'null' does not match the regex "));
+    assertTrue(results.get().contains("Missing the 'analysisType' field"));
   }
 
   @Test

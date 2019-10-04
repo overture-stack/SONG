@@ -1,6 +1,9 @@
 {
   "study" : "ABC123",
-  "analysisTypeId" : "sequencingRead:1",
+  "analysisType" : {
+    "name" : "sequencingRead",
+    "version" : 1
+  },
   "experiment": {
     "aligned": true,
     "pairedEnd": false,

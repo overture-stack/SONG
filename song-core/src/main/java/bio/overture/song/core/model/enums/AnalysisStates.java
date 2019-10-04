@@ -19,12 +19,12 @@ package bio.overture.song.core.model.enums;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 
+import bio.overture.song.core.utils.Streams;
 import java.util.Collection;
 import java.util.Set;
 import lombok.NonNull;
-import org.icgc.dcc.common.core.util.stream.Streams;
 
 public enum AnalysisStates {
   PUBLISHED,
@@ -32,7 +32,7 @@ public enum AnalysisStates {
   SUPPRESSED;
 
   private static final Set<String> SET =
-      Streams.stream(values()).map(AnalysisStates::toString).collect(toImmutableSet());
+      Streams.stream(values()).map(AnalysisStates::toString).collect(toUnmodifiableSet());
 
   public String toString() {
     return this.name();
@@ -54,6 +54,6 @@ public enum AnalysisStates {
 
   public static Set<String> findIncorrectAnalysisStates(
       @NonNull Collection<String> analysisStates) {
-    return analysisStates.stream().filter(x -> !SET.contains(x)).collect(toImmutableSet());
+    return analysisStates.stream().filter(x -> !SET.contains(x)).collect(toUnmodifiableSet());
   }
 }

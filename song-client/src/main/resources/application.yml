@@ -18,11 +18,13 @@
 # DCC Client Server - Default Configuration
 #
 client:
-  serverUrl: http://localhost:8080/
+  serverUrl: http://localhost:8080
   studyId: ABC123
   programName: sing
   debug: false
   accessToken: ${accessToken:}
-logging.level.org.springframework: OFF
-
+retry:
+  maxRetries: 5
+  initialBackoff: 15000
+  multiplier: 2.0
 

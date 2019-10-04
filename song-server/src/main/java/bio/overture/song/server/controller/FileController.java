@@ -18,8 +18,8 @@ package bio.overture.song.server.controller;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import bio.overture.song.core.model.file.FileUpdateRequest;
-import bio.overture.song.core.model.file.FileUpdateResponse;
+import bio.overture.song.core.model.FileUpdateRequest;
+import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.service.FileModificationService;
 import bio.overture.song.server.service.FileService;

@@ -25,8 +25,10 @@ import static org.junit.Assert.assertNotNull;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.utils.TestFiles;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -43,8 +45,12 @@ public class AnalysisGenerator {
    * Create a random analysis by specifying the output analysis class type and the payload fixture
    * to load and persist to db
    */
-  public Analysis createRandomAnalysis(String payloadFilename) {
-    val payload = payloadGenerator.generateRandomPayload(payloadFilename);
+  public Analysis createRandomAnalysis(@NonNull String payloadFilename) {
+    return createRandomAnalysis(() -> payloadGenerator.generateRandomPayload(payloadFilename));
+  }
+
+  public Analysis createRandomAnalysis(@NonNull Supplier<Payload> payloadSupplier) {
+    val payload = payloadSupplier.get();
     // Set analysisId to empty to ensure a randomly generated analysisId, and therefore
     // randomly generated objectId (fileIds)
     payload.setAnalysisId(TestFiles.EMPTY_STRING);

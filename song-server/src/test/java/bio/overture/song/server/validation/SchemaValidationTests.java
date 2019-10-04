@@ -18,7 +18,6 @@ package bio.overture.song.server.validation;
 
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.server.model.analysis.AnalysisTypeId.createAnalysisTypeId;
 import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
@@ -31,6 +30,7 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -212,10 +212,12 @@ public class SchemaValidationTests {
   }
 
   private JsonNode getLegacySchemaJson(LegacyAnalysisTypeName legacyAnalysisTypeName) {
-    return analysisTypeService
-        .getAnalysisType(
-            createAnalysisTypeId(legacyAnalysisTypeName.getAnalysisTypeName(), 1), false)
-        .getSchema();
+    val aid =
+        AnalysisTypeId.builder()
+            .name(legacyAnalysisTypeName.getAnalysisTypeName())
+            .version(1)
+            .build();
+    return analysisTypeService.getAnalysisType(aid, false).getSchema();
   }
 
   private static Set<String> getTypes(JsonNode node) {

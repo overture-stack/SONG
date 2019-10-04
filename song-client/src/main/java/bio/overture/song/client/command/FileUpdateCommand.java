@@ -21,11 +21,11 @@ import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
-import bio.overture.song.client.config.Config;
-import bio.overture.song.client.register.Registry;
+import bio.overture.song.client.config.CustomRestClientConfig;
+import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.enums.AccessTypes;
-import bio.overture.song.core.model.file.FileUpdateRequest;
 import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.sdk.SongApi;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -61,9 +61,9 @@ public class FileUpdateCommand extends Command {
       converter = JsonNodeConverter.class)
   private JsonNode fileInfoString;
 
-  @NonNull private Config config;
+  @NonNull private CustomRestClientConfig config;
 
-  @NonNull private Registry registry;
+  @NonNull private SongApi songApi;
 
   @Override
   public void run() throws IOException {
@@ -74,7 +74,9 @@ public class FileUpdateCommand extends Command {
             .fileMd5sum(fileMd5)
             .info(fileInfoString)
             .build();
-    save(registry.updateFile(config.getStudyId(), objectId, request));
+
+    val fileUpdateResponse = songApi.updateFile(config.getStudyId(), objectId, request);
+    prettyOutput(fileUpdateResponse);
   }
 
   public static class AccessTypeConverter implements IStringConverter<AccessTypes> {

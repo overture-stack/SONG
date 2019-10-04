@@ -67,8 +67,13 @@ public class AnalysisSchema {
       fetch = FetchType.LAZY)
   private Set<Analysis> analyses = newHashSet();
 
-  public void addAnalysis(Analysis a) {
+  public void associateAnalysis(Analysis a) {
     this.analyses.add(a);
     a.setAnalysisSchema(this);
+  }
+
+  public void disassociateAnalysis(Analysis a) {
+    this.analyses.removeIf(x -> x.getAnalysisId().equals(a.getAnalysisId()));
+    a.setAnalysisSchema(null);
   }
 }

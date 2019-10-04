@@ -16,6 +16,11 @@ import org.everit.json.schema.loader.SchemaLoader;
 @NoArgsConstructor(access = PRIVATE)
 public class JsonSchemas {
 
+  public static final String REQUIRED = "required";
+  public static final String PROPERTIES = "properties";
+  public static final String TYPE = "type";
+  public static final String STRING = "string";
+
   @SneakyThrows
   public static Schema buildSchema(@NonNull Path schemaDir, @NonNull String filePathname) {
     val jsonObject = convertToJSONObject(schemaDir.resolve(filePathname));

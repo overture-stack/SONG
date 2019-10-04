@@ -31,7 +31,6 @@ import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectio
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.testing.SongErrorAssertions.catchThrowable;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
@@ -43,7 +42,6 @@ import static bio.overture.song.server.utils.generator.PayloadGenerator.createPa
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 import static com.google.common.collect.Sets.newHashSet;
-import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -63,7 +61,6 @@ import static org.mockito.Mockito.when;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.converter.PayloadConverter;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
 import bio.overture.song.server.model.dto.Payload;
@@ -81,7 +78,6 @@ import bio.overture.song.server.utils.generator.PayloadGenerator;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -98,7 +94,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -125,7 +120,7 @@ public class AnalysisServiceTest {
   @Autowired private FileRepository fileRepository;
   @Autowired private SampleSetRepository sampleSetRepository;
   @Autowired private IdClient idClient;
-  @Autowired private PayloadConverter payloadConverter;
+  @Autowired private ExportService exportService;
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(
@@ -136,8 +131,6 @@ public class AnalysisServiceTest {
   private AnalysisGenerator analysisGenerator;
   private StudyGenerator studyGenerator;
   private SecureAnalysisTester secureAnalysisTester;
-
-  @Autowired private RetryTemplate retryTemplate;
 
   @Before
   public void beforeTest() {
@@ -175,7 +168,6 @@ public class AnalysisServiceTest {
     assertEquals(created.getAnalysisState(), "UNPUBLISHED");
     assertEquals(created.getAnalysisSchema().getName(), "sequencingRead");
     assertEquals(created.getSample().size(), 1);
-    val sample = created.getSample().get(0);
     val data = created.getAnalysisData().getData();
 
     assertTrue(data.has("experiment"));
@@ -183,14 +175,6 @@ public class AnalysisServiceTest {
         data.get("experiment").get("alignmentTool").textValue(), "MUSE variant call pipeline");
     assertTrue(data.path("experiment").hasNonNull("info"));
     assertEquals(data.path("experiment").path("info").get("marginOfError").textValue(), "0.01%");
-
-    ; // test update
-    val change = "ModifiedToolName";
-    ((ObjectNode) data.path("experiment")).put("alignmentTool", change);
-    service.updateAnalysis(DEFAULT_STUDY_ID, created);
-    val gotBack = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
-    assertEquals(extractAlignmentTool(gotBack.getAnalysisData()), change);
-    log.info(format("Created '%s'", toJson(created)));
   }
 
   @Test
@@ -214,21 +198,12 @@ public class AnalysisServiceTest {
     assertEquals(created.getAnalysisState(), UNPUBLISHED.toString());
     assertEquals(created.getAnalysisSchema().getName(), "variantCall");
     assertEquals(created.getSample().size(), 1);
-    val sample = created.getSample().get(0);
     assertTrue(created.getAnalysisData().getData().has("experiment"));
     assertEquals(extractVariantCallingTool(created.getAnalysisData()), "silver bullet");
     assertTrue(created.getAnalysisData().getData().path("experiment").has("extraInfo"));
     assertEquals(
         created.getAnalysisData().getData().path("experiment").path("extraInfo").textValue(),
         "this is extra info");
-
-    // test update
-    val change = "GoldenHammer";
-    ((ObjectNode) extractExperiment(created.getAnalysisData())).put("variantCallingTool", change);
-    service.updateAnalysis(DEFAULT_STUDY_ID, created);
-    val gotBack = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
-    assertEquals(extractVariantCallingTool(gotBack.getAnalysisData()), change);
-    log.info(format("Created '%s'", toJson(created)));
   }
 
   private static JsonNode extractExperiment(AnalysisData a) {
@@ -568,7 +543,7 @@ public class AnalysisServiceTest {
   @Transactional
   public void testDuplicateAnalysisAttemptError() {
     val an1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
-    val equivalentPayload = payloadConverter.convertToPayload(an1, true);
+    val equivalentPayload = exportService.convertToPayloadDTO(an1, true);
     assertSongError(
         () -> service.create(an1.getStudy(), equivalentPayload, true), DUPLICATE_ANALYSIS_ATTEMPT);
   }

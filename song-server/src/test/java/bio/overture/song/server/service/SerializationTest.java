@@ -16,6 +16,7 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
@@ -25,8 +26,10 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.Payload;
@@ -42,6 +45,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -51,6 +55,37 @@ import org.junit.Test;
 public class SerializationTest {
 
   private static final String FILEPATH = "src/test/resources/fixtures/";
+
+  @Test
+  public void testAnalysisTypeId() {
+    val a1 = AnalysisTypeId.builder().name("something").build();
+
+    val a2 = AnalysisTypeId.builder().version(33).build();
+
+    val a3 = AnalysisTypeId.builder().build();
+
+    val a4 = AnalysisTypeId.builder().name("something").version(33).build();
+
+    val r1 = objectToTree(a1);
+    assertTrue(r1.hasNonNull("name"));
+    assertFalse(r1.hasNonNull("version"));
+    assertEquals(r1.path("name").textValue(), "something");
+
+    val r2 = objectToTree(a2);
+    assertTrue(r2.hasNonNull("version"));
+    assertFalse(r2.hasNonNull("name"));
+    assertEquals(r2.path("version").intValue(), 33);
+
+    val r3 = objectToTree(a3);
+    assertFalse(r3.hasNonNull("version"));
+    assertFalse(r3.hasNonNull("name"));
+
+    val r4 = objectToTree(a4);
+    assertTrue(r4.hasNonNull("version"));
+    assertTrue(r4.hasNonNull("name"));
+    assertEquals(r4.path("version").intValue(), 33);
+    assertEquals(r4.path("name").textValue(), "something");
+  }
 
   @Test
   @SneakyThrows
@@ -116,7 +151,7 @@ public class SerializationTest {
     val expectedPayload =
         Payload.builder()
             .analysisId(inputJson.path("analysisId").textValue())
-            .analysisTypeId("sequencingRead:1")
+            .analysisType(AnalysisTypeId.builder().name("sequencingRead").version(1).build())
             .file(newArrayList(f1, f2))
             .sample(newArrayList(sa))
             .study(inputJson.path("study").textValue())
@@ -133,6 +168,10 @@ public class SerializationTest {
     // Assert proper deserialization
     val actualPayload = JsonUtils.fromJson(payloadString, Payload.class);
     assertEquals(expectedPayload, actualPayload);
+  }
+
+  private static <T, R> void assertEqualField(Function<T, R> fieldFunction, T expected, T actual) {
+    assertEquals(fieldFunction.apply(expected), fieldFunction.apply(actual));
   }
 
   @Test
@@ -261,7 +300,8 @@ public class SerializationTest {
     val payload = JsonUtils.fromJson(json, Payload.class);
 
     System.out.printf("*** Payload object='%s'\n", payload);
-    assertEquals(payload.getAnalysisTypeId(), "sequencingRead:1");
+    assertEquals(payload.getAnalysisType().getName(), "sequencingRead");
+    assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFile().size(), 2);
     assertEquals(
         payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
@@ -278,7 +318,8 @@ public class SerializationTest {
     val json = readFile(FILEPATH + "variantCall.json");
     val payload = JsonUtils.fromJson(json, Payload.class);
     System.out.printf("*** Analysis object='%s'\n", payload);
-    assertEquals(payload.getAnalysisTypeId(), "variantCall:1");
+    assertEquals(payload.getAnalysisType().getName(), "variantCall");
+    assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFile().size(), 2);
     assertEquals(
         payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
