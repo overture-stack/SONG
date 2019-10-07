@@ -16,14 +16,11 @@
  */
 package bio.overture.song.server.controller;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.service.SpecimenService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,10 +32,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
-@Api(tags = "Specimen", description = "Create,read and delete specimens")
+@Api(tags = "Specimen", description = "Read and delete specimens")
 public class SpecimenController {
 
   /** Dependencies */
