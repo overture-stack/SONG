@@ -16,6 +16,12 @@
  */
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static org.icgc.dcc.common.core.util.Splitters.COMMA;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
@@ -25,6 +31,7 @@ import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -42,18 +49,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-import static org.icgc.dcc.common.core.util.Splitters.COMMA;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}/analysis")
-@Api(tags = "Analysis", description = "Create, Read, Update, publish, unpublish, suppress and search analyses")
+@Api(
+    tags = "Analysis",
+    description = "Create, Read, Update, publish, unpublish, suppress and search analyses")
 public class AnalysisController {
 
   private static final String EXAMPLE_ANALYSIS_INFO_JSON =
@@ -85,9 +86,7 @@ public class AnalysisController {
   }
 
   /** [DCC-5726] - non-dynamic updates disabled until hibernate is properly integrated */
-  @ApiOperation(
-      value = "UpdateAnalysis",
-      notes = "Update dynamic-data for for an analysis")
+  @ApiOperation(value = "UpdateAnalysis", notes = "Update dynamic-data for for an analysis")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @PutMapping(
       value = "/{analysisId}",

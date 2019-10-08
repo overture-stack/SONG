@@ -16,19 +16,18 @@
  */
 package bio.overture.song.sdk.model;
 
-import lombok.Data;
-import lombok.NonNull;
-import lombok.val;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.exists;
+import static java.util.Objects.isNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static java.nio.file.Files.createDirectories;
-import static java.nio.file.Files.exists;
-import static java.util.Objects.isNull;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.val;
 
 @Data
 public class Manifest {

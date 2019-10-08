@@ -16,12 +16,19 @@
  */
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.model.entity.composites.StudyWithDonors;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.StudyWithDonorsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,14 +41,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-
 @RestController
 @RequestMapping(path = "/studies")
 @RequiredArgsConstructor
@@ -53,10 +52,7 @@ public class StudyController {
 
   @Autowired private final StudyWithDonorsService studyWithDonorsService;
 
-  @ApiOperation(
-      value = "GetStudy",
-      notes =
-          "Retrieves information for a study")
+  @ApiOperation(value = "GetStudy", notes = "Retrieves information for a study")
   @GetMapping("/{studyId}")
   public Study getStudy(@PathVariable("studyId") String studyId) {
     return studyService.read(studyId);
