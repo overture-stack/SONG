@@ -52,7 +52,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}/analysis")
-@Api(tags = "Analysis", description = "Read, publish, unpublish, suppress and search analyses")
+@Api(
+    tags = "Analysis",
+    description = "Create, Read, Update, publish, unpublish, suppress and search analyses")
 public class AnalysisController {
 
   private static final String EXAMPLE_ANALYSIS_INFO_JSON =
@@ -72,7 +74,7 @@ public class AnalysisController {
   @Autowired private final AnalysisService analysisService;
 
   @ApiOperation(
-      value = "GetPublishedAnalysesForStudy",
+      value = "GetAnalysesForStudy",
       notes = "Retrieve all analysis objects for a studyId")
   @GetMapping(value = "")
   public List<Analysis> getAnalysis(
@@ -84,6 +86,7 @@ public class AnalysisController {
   }
 
   /** [DCC-5726] - non-dynamic updates disabled until hibernate is properly integrated */
+  @ApiOperation(value = "UpdateAnalysis", notes = "Update dynamic-data for for an analysis")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @PutMapping(
       value = "/{analysisId}",

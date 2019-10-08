@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
-@Api(tags = "Donor", description = "Create, read and delete donors")
+@Api(tags = "Donor", description = "Read and delete donors")
 public class DonorController {
 
   /** Dependencies */

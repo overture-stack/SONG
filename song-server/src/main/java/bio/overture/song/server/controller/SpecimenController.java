@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
-@Api(tags = "Specimen", description = "Create,read and delete specimens")
+@Api(tags = "Specimen", description = "Read and delete specimens")
 public class SpecimenController {
 
   /** Dependencies */

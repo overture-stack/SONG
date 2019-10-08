@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "/upload")
 @RequiredArgsConstructor
-@Api(tags = "Upload", description = "Validate, monitor and save json metadata")
+@Api(tags = "Upload", description = "Submit and validate json metadata")
 public class UploadController {
 
   /** Dependencies */

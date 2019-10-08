@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
-@Api(tags = "File", description = "Read and delete files")
+@Api(tags = "File", description = "Read, Update and delete files")
 public class FileController {
 
   /** Dependencies */
