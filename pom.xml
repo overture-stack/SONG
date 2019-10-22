@@ -107,6 +107,15 @@
                 <version>${spring-data-commons-core.version}</version>
             </dependency>
 
+            <!-- Spring Cloud -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!--Swagger-->
             <dependency>
                 <groupId>io.springfox</groupId>
@@ -463,6 +472,7 @@
         <spring-data-commons-core.version>1.4.1.RELEASE</spring-data-commons-core.version>
         <!--<spring-data-commons.version>1.12.11.RELEASE</spring-data-commons.version>-->
         <spring-framework.version>5.1.9.RELEASE</spring-framework.version>
+        <spring-cloud.version>Greenwich.SR3</spring-cloud.version>
         <dcc-common.version>4.3.8</dcc-common.version>
         <postgresql.version>42.2.2</postgresql.version>
         <junit.version>4.12</junit.version>
