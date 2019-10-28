@@ -60,8 +60,55 @@ When running locally they can be accessed here: http://localhost:8080/swagger-ui
    Dockerfile Location: `Dockerfile`
    Build Context: `/`
    `Autobuild` is set to the ON position
+
    `Build Caching` is set to the ON position
 4. Then save the configuration
+
+### Docker Song Client
+The `song-client` is a CLI tool used for communicating with a `song-server`. 
+
+#### Building
+Simply running `mvn clean package` will package the client into a `-dist.tar.gz` file. 
+
+#### Configuration
+After unarchiving the distribution, it can be configured via the `./conf/application.yml` file. Alternatively, the client can be configured through environment variables, which take presedence over the `application.yml` config. 
+For example, to run the `song-client config` command using environment variables with the same values as the `application.yml` configuration below:
+
+```yaml
+client:
+  serverUrl: http://localhost:8080
+  studyId: ABC123-CA
+  programName: sing
+  debug: true
+  accessToken: myAccessToken
+```
+
+could be done via:
+
+```bash
+CLIENT_SERVER_URL=http://localhost:8080 \ 
+CLIENT_STUDY_ID=ABC123-CA \
+CLIENT_PROGRAM_NAME=sing \
+CLIENT_DEBUG=true \
+CLIENT_ACCESS_TOKEN=myAccessToken \
+./bin/sing config
+```
+
+#### Running the client locally
+The `song-client` can be run using the `./bin/sing` script.
+
+#### Running the client using Docker
+Alternatively, the `song-client` can be run using docker. To run the dockerized client with the configurations above, the following command could be executed:
+```bash
+docker run --rm \
+  -e 'CLIENT_SERVER_URL=http://localhost:8080' \
+  -e 'CLIENT_STUDY_ID=ABC123-CA' \
+  -e 'CLIENT_PROGRAM_NAME=sing' \
+  -e 'CLIENT_DEBUG=true' \
+  -e 'CLIENT_ACCESS_TOKEN=myAccessToken' \
+  overture/song-client:latest 
+  bin/sing config
+```
 
 ### Notes
 
