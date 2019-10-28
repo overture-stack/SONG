@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-stretch as dev_client
+FROM openjdk:11-jre-stretch as client
 
 ENV SONG_CLIENT_HOME   /song-client
 ENV CLIENT_DIST_DIR    /song-client-dist
