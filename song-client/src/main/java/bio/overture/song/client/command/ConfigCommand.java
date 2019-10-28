@@ -18,10 +18,9 @@ package bio.overture.song.client.command;
 
 import bio.overture.song.client.config.CustomRestClientConfig;
 import com.beust.jcommander.Parameters;
+import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @Parameters(commandDescription = "Show the current configuration settings")

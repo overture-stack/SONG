@@ -8,38 +8,25 @@ RUN ./mvnw clean package -DskipTests
 ###############################################################################################################
 FROM openjdk:11-jre-stretch as client
 
-ENV DCC_HOME /opt/dcc
-ENV DCC_DATA $DCC_HOME/data
-ENV DCC_TOOLS $DCC_HOME/tools
+ENV SONG_CLIENT_HOME   /song-client
+ENV CLIENT_DIST_DIR    /song-client-dist
 
-RUN apt update &&  \
-    apt install -y python3 curl jq && \ 
-    mkdir -p $DCC_HOME
-
-ENV DCC_CONFIG $DCC_HOME/config
-ENV CLIENT_HOME $DCC_DATA
 ENV TARBALL $DCC_HOME/download.tar.gz
 
-COPY song-docker-demo/client/config/* $DCC_CONFIG/
+COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
 
-ENV SAVE_STUDY_SCRIPT $DCC_TOOLS/save_study.sh
-ENV EXPAND_SCRIPT $DCC_TOOLS/expand.py
-ENV INPUT_FILE  $DCC_CONFIG/application.yml.template
-ENV OUTPUT_FILE  $CLIENT_HOME/conf/application.yml
+RUN tar zxvf song-client.tar.gz -C /tmp \
+	&& rm -rf song-client.tar.gz \
+    && mv -f /tmp/song-client-*  /tmp/song-client-dist  \
+    && cp -r /tmp/song-client-dist $CLIENT_DIST_DIR \
+	&& mkdir -p $CLIENT_DIST_DIR/logs \
+	&& touch $CLIENT_DIST_DIR/logs/client.log \
+	&& chmod 777 $CLIENT_DIST_DIR/logs/client.log \
+	&& mkdir -p $SONG_CLIENT_HOME \
+	&& mv $CLIENT_DIST_DIR/* $SONG_CLIENT_HOME 
 
-COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz $TARBALL
-
-RUN cd $DCC_HOME && \
-    tar zxvf $TARBALL && \
-    mv -f $DCC_HOME/song-client-* $DCC_HOME/song-client
-
-WORKDIR $SONG_HOME/song-client
-
-CMD rm -rf $CLIENT_HOME/* && \
-		cp -rf $DCC_HOME/song-client/* $CLIENT_HOME && \
-		python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE
-		
-
+# Set working directory for convenience with interactive usage
+WORKDIR $SONG_CLIENT_HOME
 
 ###############################################################################################################
 

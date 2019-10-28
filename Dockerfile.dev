@@ -1,0 +1,18 @@
+FROM openjdk:11-jre-stretch as dev_client
+
+ENV SONG_CLIENT_HOME   /song-client
+ENV CLIENT_DIST_DIR    /song-client-dist
+
+COPY song-client/target/song-client-*-dist.tar.gz  /song-client.tar.gz
+RUN tar zxvf song-client.tar.gz -C /tmp \
+	&& rm -rf song-client.tar.gz \
+    && mv -f /tmp/song-client-*  /tmp/song-client-dist  \
+    && cp -r /tmp/song-client-dist $CLIENT_DIST_DIR \
+	&& mkdir -p $CLIENT_DIST_DIR/logs \
+	&& touch $CLIENT_DIST_DIR/logs/client.log \
+	&& chmod 777 $CLIENT_DIST_DIR/logs/client.log \
+	&& mkdir -p $SONG_CLIENT_HOME \
+	&& mv $CLIENT_DIST_DIR/* $SONG_CLIENT_HOME 
+
+# Set working directory for convenience with interactive usage
+WORKDIR $SONG_CLIENT_HOME
