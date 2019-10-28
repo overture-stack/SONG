@@ -33,6 +33,7 @@ public class ConfigCommand extends Command {
     output("Current configuration:\n");
     output("URL: %s\n", config.getServerUrl());
     output("Study ID: %s\n", config.getStudyId());
+    output("Access Token: %s\n", config.getAccessToken());
     output("Debug Enabled: %s\n", config.isDebug());
   }
 }
