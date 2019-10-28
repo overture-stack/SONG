@@ -71,9 +71,12 @@ spec:
                     withCredentials([usernamePassword(credentialsId:'OvertureDockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh 'docker login -u $USERNAME -p $PASSWORD'
                     }
-                    sh "docker build --network=host -f Dockerfile . -t overture/song-server:edge -t overture/song-server:${commit}"
+                    sh "docker build --target=server --network=host -f Dockerfile . -t overture/song-server:edge -t overture/song-server:${commit}"
+                    sh "docker build --target=client --network=host -f Dockerfile . -t overture/song-client:edge -t overture/song-client:${commit}"
                     sh "docker push overture/song-server:${commit}"
                     sh "docker push overture/song-server:edge"
+                    sh "docker push overture/song-client:${commit}"
+                    sh "docker push overture/song-client:edge"
                 }
             }
         }
@@ -90,9 +93,12 @@ spec:
                     withCredentials([usernamePassword(credentialsId:'OvertureDockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh 'docker login -u $USERNAME -p $PASSWORD'
                     }
-                    sh "docker build --network=host -f Dockerfile . -t overture/song-server:latest -t overture/song-server:${version}"
+                    sh "docker build --target=server --network=host -f Dockerfile . -t overture/song-server:latest -t overture/song-server:${version}"
+                    sh "docker build --target=client --network=host -f Dockerfile . -t overture/song-client:latest -t overture/song-client:${version}"
                     sh "docker push overture/song-server:${version}"
                     sh "docker push overture/song-server:latest"
+                    sh "docker push overture/song-client:${version}"
+                    sh "docker push overture/song-client:latest"
                 }
             }
         }
