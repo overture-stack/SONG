@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
+ * Copyright (c) 2019. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -18,6 +18,7 @@ package bio.overture.song.sdk.model;
 
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.exists;
+import static java.util.Objects.isNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,7 +59,8 @@ public class Manifest {
 
   public void writeToFile(@NonNull String outputFilename) throws IOException {
     val path = Paths.get(outputFilename);
-    if (!exists(path.getParent())) {
+    val parentPath = path.getParent();
+    if (!isNull(parentPath) && !exists(parentPath)) {
       createDirectories(path.getParent());
     }
     Files.write(path, toString().getBytes());

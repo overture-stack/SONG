@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
+ * Copyright (c) 2019. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}")
-@Api(tags = "Specimen", description = "Create,read and delete specimens")
+@Api(tags = "Specimen", description = "Read and delete specimens")
 public class SpecimenController {
 
   /** Dependencies */

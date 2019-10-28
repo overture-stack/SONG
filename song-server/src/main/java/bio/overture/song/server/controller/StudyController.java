@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
+ * Copyright (c) 2019. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -52,10 +52,7 @@ public class StudyController {
 
   @Autowired private final StudyWithDonorsService studyWithDonorsService;
 
-  @ApiOperation(
-      value = "GetStudy",
-      notes =
-          "Retrieves information for a study. If the study does not exist, an empty array is returned")
+  @ApiOperation(value = "GetStudy", notes = "Retrieves information for a study")
   @GetMapping("/{studyId}")
   public Study getStudy(@PathVariable("studyId") String studyId) {
     return studyService.read(studyId);
