@@ -18,9 +18,10 @@ package bio.overture.song.client.command;
 
 import bio.overture.song.client.config.CustomRestClientConfig;
 import com.beust.jcommander.Parameters;
-import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @Parameters(commandDescription = "Show the current configuration settings")
@@ -33,6 +34,7 @@ public class ConfigCommand extends Command {
     output("Current configuration:\n");
     output("URL: %s\n", config.getServerUrl());
     output("Study ID: %s\n", config.getStudyId());
+    output("Access Token: %s\n", config.getAccessToken());
     output("Debug Enabled: %s\n", config.isDebug());
   }
 }

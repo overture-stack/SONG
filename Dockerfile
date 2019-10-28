@@ -33,10 +33,13 @@ RUN cd $DCC_HOME && \
     tar zxvf $TARBALL && \
     mv -f $DCC_HOME/song-client-* $DCC_HOME/song-client
 
+WORKDIR $SONG_HOME/song-client
+
 CMD rm -rf $CLIENT_HOME/* && \
 		cp -rf $DCC_HOME/song-client/* $CLIENT_HOME && \
-		python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE && \
-		$SAVE_STUDY_SCRIPT $SERVER_URL $CLIENT_STUDY_ID $AUTH_TOKEN 
+		python3 $EXPAND_SCRIPT $INPUT_FILE $OUTPUT_FILE
+		
+
 
 ###############################################################################################################
 
