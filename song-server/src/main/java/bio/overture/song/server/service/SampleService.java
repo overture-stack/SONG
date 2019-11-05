@@ -48,7 +48,7 @@ public class SampleService {
 
   @Autowired private final SampleInfoService infoService;
 
-  @Autowired private final IdService idService;
+  @Autowired private final IdServiceOLD idServiceOLD;
 
   @Autowired private final StudyService studyService;
 
@@ -168,7 +168,7 @@ public class SampleService {
   private String createSampleId(String studyId, Sample sample) {
     studyService.checkStudyExist(studyId);
     val inputSampleId = sample.getSampleId();
-    val id = idService.generateSampleId(sample.getSampleSubmitterId(), studyId);
+    val id = idServiceOLD.generateSampleId(sample.getSampleSubmitterId(), studyId);
     checkServer(
         isNullOrEmpty(inputSampleId) || id.equals(inputSampleId),
         getClass(),

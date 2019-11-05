@@ -16,6 +16,35 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.entity.Donor;
+import bio.overture.song.server.model.entity.Specimen;
+import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
+import bio.overture.song.server.utils.securestudy.impl.SecureDonorTester;
+import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.transaction.Transactional;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toSet;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
@@ -27,34 +56,6 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureDonorTester.createSecureDonorTester;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.stream.Collectors.toSet;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Donor;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
-import bio.overture.song.server.utils.securestudy.impl.SecureDonorTester;
-import com.google.common.collect.Sets;
-import javax.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @Slf4j
 @SpringBootTest
@@ -64,7 +65,7 @@ public class DonorServiceTest {
 
   @Autowired DonorService service;
   @Autowired SpecimenService specimenService;
-  @Autowired IdService idService;
+  @Autowired IdServiceOLD idServiceOLD;
   @Autowired StudyService studyService;
 
   private final RandomGenerator randomGenerator =
@@ -256,7 +257,7 @@ public class DonorServiceTest {
     val randomDonorId = randomGenerator.generateRandomUUIDAsString();
     val randomDonorSubmitterId = randomGenerator.generateRandomUUID().toString();
     val randomDonorGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
-    val expectedId = idService.generateDonorId(randomDonorSubmitterId, DEFAULT_STUDY_ID);
+    val expectedId = idServiceOLD.generateDonorId(randomDonorSubmitterId, DEFAULT_STUDY_ID);
     assertFalse(service.isDonorExist(expectedId));
     SongErrorAssertions.assertSongErrorRunnable(
         () -> service.checkDonorExists(randomDonorId), DONOR_DOES_NOT_EXIST);
@@ -314,7 +315,7 @@ public class DonorServiceTest {
     val studyId = DEFAULT_STUDY_ID;
     val randomGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
     val randomDonorSubmitterId = randomGenerator.generateRandomUUIDAsString();
-    val expectedId = idService.generateDonorId(randomDonorSubmitterId, studyId);
+    val expectedId = idServiceOLD.generateDonorId(randomDonorSubmitterId, studyId);
 
     val donorWithSpecimens = new DonorWithSpecimens();
     donorWithSpecimens.setStudyId(studyId);

@@ -41,7 +41,7 @@ public class FileService {
   @Autowired FileRepository repository;
 
   @Autowired FileInfoService infoService;
-  @Autowired IdService idService;
+  @Autowired IdServiceOLD idServiceOLD;
   @Autowired StudyService studyService;
   @Autowired FileConverter fileConverter;
 
@@ -49,7 +49,7 @@ public class FileService {
       @NonNull String analysisId, @NonNull String studyId, @NonNull FileEntity file) {
     studyService.checkStudyExist(studyId);
 
-    val id = idService.generateFileId(analysisId, file.getFileName());
+    val id = idServiceOLD.generateFileId(analysisId, file.getFileName());
     file.setObjectId(id);
     file.setStudyId(studyId);
     file.setAnalysisId(analysisId);

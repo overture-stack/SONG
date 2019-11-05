@@ -61,7 +61,7 @@ public class MockedSubmitTest {
 
   @Mock private AnalysisService analysisService;
   @Mock private ValidationService validationService;
-  @Mock private IdService idService;
+  @Mock private IdServiceOLD idServiceOLD;
   @Mock private UploadRepository uploadRepository;
 
   /** DUT */

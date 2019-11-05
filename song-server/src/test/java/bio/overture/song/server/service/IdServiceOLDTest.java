@@ -16,27 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.EMPTY;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.MALFORMED_UUID;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.NORMAL;
-import static bio.overture.song.server.service.IdServiceTest.IdServiceResponseTypes.WHITESPACE_ONLY;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.OK;
-
 import bio.overture.song.core.utils.RandomGenerator;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -49,8 +28,29 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.OK;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.EMPTY;
+import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.MALFORMED_UUID;
+import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.NORMAL;
+import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.WHITESPACE_ONLY;
+
 @Slf4j
-public class IdServiceTest {
+public class IdServiceOLDTest {
 
   private static final String SUBMITTER_ID_1 = "AN8899";
   private static final String SUBMITTER_ID_2 = "AN112233";
@@ -58,13 +58,13 @@ public class IdServiceTest {
   @Rule public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
 
   private RandomGenerator randomGenerator;
-  private IdService idService;
+  private IdServiceOLD idServiceOLD;
 
   @Before
   public void beforeTest() {
     val idServiceUrl = "http://localhost:" + wireMockRule.port();
     val idClient = new HttpIdClient(idServiceUrl, "", "");
-    idService = new IdService(idClient);
+    idServiceOLD = new IdServiceOLD(idClient);
     randomGenerator = createRandomGenerator(this.getClass().getSimpleName());
   }
 
@@ -75,28 +75,28 @@ public class IdServiceTest {
 
     // Test Normal Case
     responseConfig(NORMAL, analysisId, filename);
-    idService.generateFileId(analysisId, filename);
+    idServiceOLD.generateFileId(analysisId, filename);
 
     // Test NotFound case
     responseConfig(IdServiceResponseTypes.NOT_FOUND, analysisId, filename);
     log.info("sdf");
     assertExceptionThrownBy(
-        IllegalStateException.class, () -> idService.generateFileId(analysisId, filename));
+        IllegalStateException.class, () -> idServiceOLD.generateFileId(analysisId, filename));
 
     // Test Whitespace Case
     responseConfig(WHITESPACE_ONLY, analysisId, filename);
     assertExceptionThrownBy(
-        IllegalStateException.class, () -> idService.generateFileId(analysisId, filename));
+        IllegalStateException.class, () -> idServiceOLD.generateFileId(analysisId, filename));
 
     // Test Empty Case
     responseConfig(EMPTY, analysisId, filename);
     assertExceptionThrownBy(
-        IllegalStateException.class, () -> idService.generateFileId(analysisId, filename));
+        IllegalStateException.class, () -> idServiceOLD.generateFileId(analysisId, filename));
 
     // Test Malformed Case
     responseConfig(MALFORMED_UUID, analysisId, filename);
     assertExceptionThrownBy(
-        IllegalStateException.class, () -> idService.generateFileId(analysisId, filename));
+        IllegalStateException.class, () -> idServiceOLD.generateFileId(analysisId, filename));
   }
 
   enum IdServiceResponseTypes {
@@ -144,7 +144,7 @@ public class IdServiceTest {
   @Test
   public void testUndefinedAnalysisId() {
     val idClient = new HashIdClient(true);
-    val idService = new IdService(idClient);
+    val idService = new IdServiceOLD(idClient);
 
     val id1 = idService.resolveAnalysisId("", false);
     assertNotNull(id1);
@@ -178,7 +178,7 @@ public class IdServiceTest {
   @Test
   public void testAnalysisIdNormal() {
     val idClient = new HashIdClient(true);
-    val idService = new IdService(idClient);
+    val idService = new IdServiceOLD(idClient);
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1, false);
     assertEquals(id1, SUBMITTER_ID_1);
@@ -191,7 +191,7 @@ public class IdServiceTest {
   @Test
   public void testIgnoreAnalysisIdCollision() {
     val idClient = new HashIdClient(true);
-    val idService = new IdService(idClient);
+    val idService = new IdServiceOLD(idClient);
 
     val id1 = idService.resolveAnalysisId(SUBMITTER_ID_1, false);
     assertEquals(id1, SUBMITTER_ID_1);
@@ -205,7 +205,7 @@ public class IdServiceTest {
   @Test
   public void testAnalysisIdCollision() {
     val idClient = new HashIdClient(true);
-    val idService = new IdService(idClient);
+    val idService = new IdServiceOLD(idClient);
 
     val id1 = resolveAndCommitAnalysisId(idService, SUBMITTER_ID_1, false);
     assertEquals(id1, SUBMITTER_ID_1);
@@ -245,9 +245,9 @@ public class IdServiceTest {
   }
 
   private static String resolveAndCommitAnalysisId(
-      IdService idService, String analysisId, final boolean ignoreAnalysisIdCollisions) {
-    val id = idService.resolveAnalysisId(analysisId, ignoreAnalysisIdCollisions);
-    idService.createAnalysisId(id);
+      IdServiceOLD idServiceOLD, String analysisId, final boolean ignoreAnalysisIdCollisions) {
+    val id = idServiceOLD.resolveAnalysisId(analysisId, ignoreAnalysisIdCollisions);
+    idServiceOLD.createAnalysisId(id);
     return id;
   }
 }

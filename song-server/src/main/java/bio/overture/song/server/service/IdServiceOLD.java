@@ -16,16 +16,7 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
-import static org.apache.logging.log4j.util.Strings.isNotBlank;
-
 import bio.overture.song.server.model.enums.IdPrefix;
-import java.util.UUID;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -33,9 +24,19 @@ import org.icgc.dcc.id.client.core.IdClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+
 @Service
 @RequiredArgsConstructor
-public class IdService {
+public class IdServiceOLD {
 
   /** Dependencies. */
   @Autowired private final IdClient idClient;

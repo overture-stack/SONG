@@ -113,7 +113,7 @@ public class AnalysisServiceTest {
 
   @Autowired FileService fileService;
   @Autowired AnalysisService service;
-  @Autowired IdService idService;
+  @Autowired IdServiceOLD idServiceOLD;
   @Autowired private StudyService studyService;
   @Autowired private SampleRepository sampleRepository;
   @Autowired private AnalysisRepository analysisRepository;
@@ -906,7 +906,7 @@ public class AnalysisServiceTest {
   public void testRevokeAnalysisId() {
 
     // Find an analysisId that is unique and doesnt exist
-    val id = idService.resolveAnalysisId("", false);
+    val id = idServiceOLD.resolveAnalysisId("", false);
     assertFalse(service.isAnalysisExist(id));
 
     // Generate a payload using the analysisId
@@ -921,7 +921,7 @@ public class AnalysisServiceTest {
      * idService with the mocked one to forcefully throw an exception to test the revoke feature.
      * This is a dirty hack and is characteristic of poor design at the service layer.
      */
-    val mockIdService = mock(IdService.class);
+    val mockIdService = mock(IdServiceOLD.class);
     doThrow(new IllegalStateException("some error happened during the "))
         .when(mockIdService)
         .createAnalysisId(id);

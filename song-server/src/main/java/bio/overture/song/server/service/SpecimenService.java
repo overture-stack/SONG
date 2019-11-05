@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpecimenService {
 
-  @Autowired private final IdService idService;
+  @Autowired private final IdServiceOLD idServiceOLD;
   @Autowired private final SampleService sampleService;
   @Autowired private final SpecimenInfoService infoService;
   @Autowired private final SpecimenRepository repository;
@@ -53,7 +53,7 @@ public class SpecimenService {
   private String createSpecimenId(String studyId, Specimen specimen) {
     studyService.checkStudyExist(studyId);
     val inputSpecimenId = specimen.getSpecimenId();
-    val id = idService.generateSpecimenId(specimen.getSpecimenSubmitterId(), studyId);
+    val id = idServiceOLD.generateSpecimenId(specimen.getSpecimenSubmitterId(), studyId);
     checkServer(
         isNullOrEmpty(inputSpecimenId) || id.equals(inputSpecimenId),
         getClass(),

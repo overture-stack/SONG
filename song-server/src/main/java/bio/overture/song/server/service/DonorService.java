@@ -46,7 +46,7 @@ public class DonorService {
 
   @Autowired private final DonorRepository donorRepository;
   @Autowired private final DonorInfoService infoService;
-  @Autowired private final IdService idService;
+  @Autowired private final IdServiceOLD idServiceOLD;
   @Autowired private final SpecimenService specimenService;
   @Autowired private final StudyService studyService;
 
@@ -54,7 +54,7 @@ public class DonorService {
     studyService.checkStudyExist(donorWithSpecimens.getStudyId());
     val inputDonorId = donorWithSpecimens.getDonorId();
     val id =
-        idService.generateDonorId(
+        idServiceOLD.generateDonorId(
             donorWithSpecimens.getDonorSubmitterId(), donorWithSpecimens.getStudyId());
     checkServer(
         isNullOrEmpty(inputDonorId) || id.equals(inputDonorId),

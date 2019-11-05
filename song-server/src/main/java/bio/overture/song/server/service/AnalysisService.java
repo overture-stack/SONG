@@ -112,7 +112,7 @@ public class AnalysisService {
 
   @Autowired private final AnalysisRepository repository;
   @Autowired private final FileInfoService fileInfoService;
-  @Autowired private final IdService idService;
+  @Autowired private final IdServiceOLD idServiceOLD;
   @Autowired private final CompositeEntityService compositeEntityService;
   @Autowired private final FileService fileService;
   @Autowired private final StorageService storageService;
@@ -132,7 +132,7 @@ public class AnalysisService {
     val candidateAnalysisId = payload.getAnalysisId();
 
     // This doesnt commit the id to the id server
-    val id = idService.resolveAnalysisId(candidateAnalysisId, ignoreAnalysisIdCollisions);
+    val id = idServiceOLD.resolveAnalysisId(candidateAnalysisId, ignoreAnalysisIdCollisions);
     /**
      * [Summary]: Guard from misleading response [Details]: If user attempts to save an uploadId a
      * second time, an error is thrown. This restricts the user from doing updates to the uploadId
@@ -177,7 +177,7 @@ public class AnalysisService {
     // between the resolveAnalysisId method and the createAnalysisId method,
     // then commit anyways. Entities have already been created using the id,
     // as well, the probability of a collision is very low
-    idService.createAnalysisId(id);
+    idServiceOLD.createAnalysisId(id);
     sendAnalysisMessage(createAnalysisMessage(id, studyId, UNPUBLISHED, songServerId));
     return id;
   }
