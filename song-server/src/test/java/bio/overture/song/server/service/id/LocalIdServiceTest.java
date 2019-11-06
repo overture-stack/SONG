@@ -37,28 +37,28 @@ public class LocalIdServiceTest {
 
   @Test
   public void testDonorId() {
-    twoParamTest(LOCAL_ID_SERVICE::getDonorId);
+    twoParamTest(LOCAL_ID_SERVICE::resolveDonorId);
   }
 
   @Test
   public void testSpecimenId() {
-    twoParamTest(LOCAL_ID_SERVICE::getSpecimenId);
+    twoParamTest(LOCAL_ID_SERVICE::resolveSpecimenId);
   }
 
   @Test
   public void testSampleId() {
-    twoParamTest(LOCAL_ID_SERVICE::getSampleId);
+    twoParamTest(LOCAL_ID_SERVICE::resolveSampleId);
   }
 
   @Test
   public void testFileId() {
-    twoParamTest(LOCAL_ID_SERVICE::getFileId);
+    twoParamTest(LOCAL_ID_SERVICE::resolveFileId);
   }
 
   @Test
   public void testAnalysisId() {
     val submittedAnalysisId = Optional.of(UUID.randomUUID().toString());
-    val actualId = LOCAL_ID_SERVICE.getAnalysisId(submittedAnalysisId.get(), false);
+    val actualId = LOCAL_ID_SERVICE.resolveAnalysisId(submittedAnalysisId.get(), false);
     assertEquals(actualId, submittedAnalysisId);
   }
 

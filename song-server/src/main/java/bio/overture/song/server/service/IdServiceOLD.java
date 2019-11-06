@@ -17,10 +17,10 @@
 package bio.overture.song.server.service;
 
 import bio.overture.song.server.model.enums.IdPrefix;
+import bio.overture.song.server.service.id.IdService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.icgc.dcc.id.client.core.IdClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,38 +39,22 @@ import static bio.overture.song.core.exceptions.ServerException.checkServer;
 public class IdServiceOLD {
 
   /** Dependencies. */
-  @Autowired private final IdClient idClient;
+  @Autowired private final IdService idService;
 
   public String generateDonorId(@NonNull String submittedDonorId, @NonNull String study) {
-    return idClient.createDonorId(submittedDonorId, study);
+    return idService.resolveDonorId(study, submittedDonorId).orElse(null);
   }
 
   public String generateSpecimenId(@NonNull String submittedSpecimenId, @NonNull String study) {
-    return idClient.createSpecimenId(submittedSpecimenId, study);
+    return idService.resolveSpecimenId(study, submittedSpecimenId).orElse(null);
   }
 
   public String generateSampleId(@NonNull String submittedSampleId, @NonNull String study) {
-    return idClient.createSampleId(submittedSampleId, study);
-  }
-
-  private void checkGeneratedId(String id) {
-    checkState(isNotBlank(id), "The generated id cannot be blank");
-    try {
-      UUID.fromString(id);
-    } catch (IllegalArgumentException e) {
-      throw new IllegalStateException(format("The generated id '%s' is not in UUID format", id));
-    }
+    return idService.resolveSampleId(submittedSampleId, submittedSampleId).orElse(null);
   }
 
   public String generateFileId(@NonNull String analysisId, @NonNull String fileName) {
-    val opt = idClient.getObjectId(analysisId, fileName);
-    if (opt.isPresent()) {
-      val id = opt.get();
-      checkGeneratedId(id);
-      return id;
-    } else {
-      throw new IllegalStateException("Generating objectId should not yield missing value.");
-    }
+    return idService.resolveFileId(analysisId, fileName).orElse("null");
   }
 
   public String generate(IdPrefix prefix) {
@@ -97,12 +81,11 @@ public class IdServiceOLD {
    */
   public String resolveAnalysisId(String analysisId, final boolean ignoreAnalysisIdCollisions) {
     if (isNullOrEmpty(analysisId)) {
-      return idClient.generateUniqueAnalysisId();
+      return idService.uniqueAnalysisId(false);
     } else {
-      val opt = idClient.getAnalysisId(analysisId); // IdServer also validates analysisId format
-      val doesIdExist = opt.isPresent();
+      val analysisIdExists = idService.isAnalysisIdExist(analysisId);
       checkServer(
-          !doesIdExist || ignoreAnalysisIdCollisions,
+          !analysisIdExists || ignoreAnalysisIdCollisions,
           this.getClass(),
           ANALYSIS_ID_COLLISION,
           "Collision detected for analysisId '%s'. To ignore collisions, rerun with "
@@ -118,6 +101,6 @@ public class IdServiceOLD {
         getClass(),
         ANALYSIS_ID_NOT_CREATED,
         "Cannot create a blank analysisId");
-    idClient.createAnalysisId(analysisId);
+    idService.createAnalysisId(analysisId);
   }
 }

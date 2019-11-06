@@ -39,28 +39,28 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public Optional<String> getFileId(@NonNull String analysisId, @NonNull String fileName) {
+  public Optional<String> resolveFileId(@NonNull String analysisId, @NonNull String fileName) {
     return generateId(analysisId, fileName);
   }
 
   @Override
-  public Optional<String> getAnalysisId(@NonNull String submitterAnalysisId, boolean create) {
+  public Optional<String> resolveAnalysisId(@NonNull String submitterAnalysisId, boolean create) {
     return Optional.of(submitterAnalysisId);
   }
 
   @Override
-  public Optional<String> getDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
+  public Optional<String> resolveDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
     return generateId(studyId, submitterDonorId);
   }
 
   @Override
-  public Optional<String> getSpecimenId(
+  public Optional<String> resolveSpecimenId(
       @NonNull String studyId, @NonNull String submitterSpecimenId) {
     return generateId(studyId, submitterSpecimenId);
   }
 
   @Override
-  public Optional<String> getSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
+  public Optional<String> resolveSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
     return generateId(studyId, submitterSampleId);
   }
 
