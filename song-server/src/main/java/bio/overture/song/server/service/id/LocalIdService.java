@@ -19,6 +19,7 @@ package bio.overture.song.server.service.id;
 
 import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.google.common.base.Joiner;
+import java.util.Optional;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,14 +27,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class LocalIdService implements IdService {
 
-  /**
-   * Constants
-   */
-  private final static Joiner COLON = Joiner.on(":");
+  /** Constants */
+  private static final Joiner COLON = Joiner.on(":");
 
-  /**
-   * Dependencies
-   */
+  /** Dependencies */
   private final NameBasedGenerator nameBasedGenerator;
 
   @Autowired
@@ -42,31 +39,32 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public String getFileId(@NonNull String analysisId, @NonNull String fileName) {
+  public Optional<String> getFileId(@NonNull String analysisId, @NonNull String fileName) {
     return generateId(analysisId, fileName);
   }
 
   @Override
-  public String getAnalysisId(@NonNull String submitterAnalysisId) {
-    return submitterAnalysisId;
+  public Optional<String> getAnalysisId(@NonNull String submitterAnalysisId, boolean create) {
+    return Optional.of(submitterAnalysisId);
   }
 
   @Override
-  public String getDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
+  public Optional<String> getDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
     return generateId(studyId, submitterDonorId);
   }
 
   @Override
-  public String getSpecimenId(@NonNull String studyId, @NonNull String submitterSpecimenId) {
+  public Optional<String> getSpecimenId(
+      @NonNull String studyId, @NonNull String submitterSpecimenId) {
     return generateId(studyId, submitterSpecimenId);
   }
 
   @Override
-  public String getSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
+  public Optional<String> getSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
     return generateId(studyId, submitterSampleId);
   }
 
-  private String generateId(String... keys) {
-    return nameBasedGenerator.generate(COLON.join(keys)).toString();
+  private Optional<String> generateId(String... keys) {
+    return Optional.of(nameBasedGenerator.generate(COLON.join(keys)).toString());
   }
 }

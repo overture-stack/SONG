@@ -20,6 +20,7 @@ package bio.overture.song.server.service.id;
 import lombok.val;
 import org.junit.Test;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -28,40 +29,40 @@ import static bio.overture.song.server.config.IdConfig.createNameBasedGenerator;
 
 public class LocalIdServiceTest {
 
-  private static final String ID_A = "8540ebac-66f2-553a-b865-0d3006edd892";
-  private static final String ID_B = "57f844eb-4ab4-5d3d-8dc1-8b7a463e20c1";
-  private static final String ID_C = "b4f5aea1-1f4c-5e12-8557-76dbadb26239";
+  private static final Optional<String> ID_A = Optional.of("8540ebac-66f2-553a-b865-0d3006edd892");
+  private static final Optional<String> ID_B = Optional.of("57f844eb-4ab4-5d3d-8dc1-8b7a463e20c1");
+  private static final Optional<String> ID_C = Optional.of("b4f5aea1-1f4c-5e12-8557-76dbadb26239");
 
-  private static LocalIdService LOCAL_ID_SERVICE= new LocalIdService(createNameBasedGenerator());
+  private static LocalIdService LOCAL_ID_SERVICE = new LocalIdService(createNameBasedGenerator());
 
   @Test
-  public void testDonorId(){
+  public void testDonorId() {
     twoParamTest(LOCAL_ID_SERVICE::getDonorId);
   }
 
   @Test
-  public void testSpecimenId(){
+  public void testSpecimenId() {
     twoParamTest(LOCAL_ID_SERVICE::getSpecimenId);
   }
 
   @Test
-  public void testSampleId(){
+  public void testSampleId() {
     twoParamTest(LOCAL_ID_SERVICE::getSampleId);
   }
 
   @Test
-  public void testFileId(){
+  public void testFileId() {
     twoParamTest(LOCAL_ID_SERVICE::getFileId);
   }
 
   @Test
-  public void testAnalysisId(){
-    val submittedAnalysisId = UUID.randomUUID().toString();
-    val actualId = LOCAL_ID_SERVICE.getAnalysisId(submittedAnalysisId);
+  public void testAnalysisId() {
+    val submittedAnalysisId = Optional.of(UUID.randomUUID().toString());
+    val actualId = LOCAL_ID_SERVICE.getAnalysisId(submittedAnalysisId.get(), false);
     assertEquals(actualId, submittedAnalysisId);
   }
 
-  private void twoParamTest(BiFunction<String, String, String> idServiceFunction){
+  private void twoParamTest(BiFunction<String, String, Optional<String>> idServiceFunction) {
     val p1_1 = "parameter1_1";
     val p1_2 = "parameter1_2";
     val p2_1 = "parameter2_1";
@@ -78,5 +79,4 @@ public class LocalIdServiceTest {
     val id4 = idServiceFunction.apply(p1_2, p2_1);
     assertEquals(id4, ID_C);
   }
-
 }

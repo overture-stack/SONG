@@ -16,18 +16,14 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.utils.RandomGenerator;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.icgc.dcc.id.client.http.HttpIdClient;
-import org.icgc.dcc.id.client.util.HashIdClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.EMPTY;
+import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.MALFORMED_UUID;
+import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.NORMAL;
+import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.WHITESPACE_ONLY;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -40,14 +36,18 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.OK;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.EMPTY;
-import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.MALFORMED_UUID;
-import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.NORMAL;
-import static bio.overture.song.server.service.IdServiceOLDTest.IdServiceResponseTypes.WHITESPACE_ONLY;
+
+import bio.overture.song.core.utils.RandomGenerator;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.icgc.dcc.id.client.http.HttpIdClient;
+import org.icgc.dcc.id.client.util.HashIdClient;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 @Slf4j
 public class IdServiceOLDTest {

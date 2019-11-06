@@ -18,6 +18,8 @@ package bio.overture.song.server.config;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
+import java.security.MessageDigest;
+import java.util.UUID;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -29,15 +31,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
-
 @Configuration
 @Data
 @ConfigurationProperties(prefix = "id")
 public class IdConfig {
-  private static final UUID NAMESPACE_UUID = UUID.fromString("6ba7b812-9dad-11d1-80b4-00c04fd430c8");
+  private static final UUID NAMESPACE_UUID =
+      UUID.fromString("6ba7b812-9dad-11d1-80b4-00c04fd430c8");
   private static final int DEFAULT_MAX_RETRIES = 10;
   private static final float DEFAULT_MULTIPLIER = 2;
   private static final int DEFAULT_INITIAL_BACKOFF_SECONDS = 2;
@@ -75,8 +74,7 @@ public class IdConfig {
   }
 
   @SneakyThrows
-  public static  NameBasedGenerator createNameBasedGenerator() {
+  public static NameBasedGenerator createNameBasedGenerator() {
     return Generators.nameBasedGenerator(NAMESPACE_UUID, MessageDigest.getInstance("SHA-1"));
   }
-
 }

@@ -17,12 +17,18 @@
 
 package bio.overture.song.server.service.id;
 
+import java.util.Optional;
+
 public interface IdService {
 
-  String getFileId(String analysisId, String fileName);
-  String getAnalysisId(String submitterAnalysisId);
-  String getDonorId(String studyId, String submitterDonorId);
-  String getSpecimenId(String studyId, String submitterSpecimenId);
-  String getSampleId(String studyId, String submitterSampleId);
+  Optional<String> getFileId(String analysisId, String fileName);
+
+  Optional<String> getAnalysisId(String submitterAnalysisId, boolean create);
+
+  Optional<String> getDonorId(String studyId, String submitterDonorId);
+
+  Optional<String> getSpecimenId(String studyId, String submitterSpecimenId);
+
+  Optional<String> getSampleId(String studyId, String submitterSampleId);
 
 }
