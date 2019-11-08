@@ -542,7 +542,7 @@ public class AnalysisService {
    * @param ignoreAnalysisIdCollisions
    * @return
    */
-  public String resolveCandidateAnalysisId(String analysisId, final boolean ignoreAnalysisIdCollisions) {
+  private String resolveCandidateAnalysisId(String analysisId, final boolean ignoreAnalysisIdCollisions) {
     if (isNullOrEmpty(analysisId)) {
       return idService.uniqueCandidateAnalysisId();
     } else {
@@ -558,7 +558,7 @@ public class AnalysisService {
     }
   }
 
-  public void registerAnalysisId(@NonNull String analysisId) {
+  private void registerAnalysisId(@NonNull String analysisId) {
     checkServer(
         isNotBlank(analysisId),
         getClass(),
