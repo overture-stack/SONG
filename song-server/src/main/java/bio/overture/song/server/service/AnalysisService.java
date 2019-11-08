@@ -532,10 +532,11 @@ public class AnalysisService {
    * +---------+--------+-------------------+----------------------------------------------------+ |
    * DEFINED | EXISTS | IGNORE_COLLISIONS | OUTPUT |
    * +---------+--------+-------------------+----------------------------------------------------+ |
-   * 0 | x | x | return an uncommitted random unique analysisId | | | | | | | 1 | 0 | x | return an
-   * uncommitted user submitted analysisId | | | | | | | 1 | 1 | 0 | collision detected, throw
-   * server error | | | | | | | 1 | 1 | 1 | reuse the submitted analysisId |
-   * +---------+--------+-------------------+----------------------------------------------------+
+   * 0 | x | x | return an uncommitted random unique analysisId |
+   * 1 | 0 | x | return an uncommitted user submitted analysisId |
+   * 1 | 1 | 0 | collision detected, throw server error |
+   * 1 | 1 | 1 | reuse the submitted analysisId |
+   * +---------+--------+-------------------+----------------------------------------------------+ |
    *
    * @param analysisId can be null/empty
    * @param ignoreAnalysisIdCollisions
