@@ -17,35 +17,56 @@
 
 package bio.overture.song.server.service.id;
 
+import bio.overture.song.server.repository.AnalysisRepository;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
+import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import com.google.common.base.Joiner;
-import java.util.Optional;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+import static com.fasterxml.uuid.Generators.randomBasedGenerator;
+
+@Slf4j
 @Service
 public class LocalIdService implements IdService {
 
   /** Constants */
   private static final Joiner COLON = Joiner.on(":");
+  private static final RandomBasedGenerator RANDOM_UUID_GENERATOR = randomBasedGenerator();
 
   /** Dependencies */
   private final NameBasedGenerator nameBasedGenerator;
+  private final AnalysisRepository analysisRepository;
 
   @Autowired
-  public LocalIdService(@NonNull NameBasedGenerator nameBasedGenerator) {
+  public LocalIdService(@NonNull NameBasedGenerator nameBasedGenerator,
+      @NonNull AnalysisRepository analysisRepository) {
     this.nameBasedGenerator = nameBasedGenerator;
+    this.analysisRepository = analysisRepository;
+  }
+
+  @Override
+  public boolean isAnalysisIdExist(@NonNull String analysisId) {
+    return analysisRepository.existsById(analysisId);
+  }
+
+  @Override
+  public String uniqueCandidateAnalysisId() {
+    return RANDOM_UUID_GENERATOR.generate().toString();
+  }
+
+  @Override
+  public void saveAnalysisId(@NonNull String submitterAnalysisId) {
+    log.warn("Skipping analysisId creation for {}", getClass().getSimpleName());
   }
 
   @Override
   public Optional<String> resolveFileId(@NonNull String analysisId, @NonNull String fileName) {
     return generateId(analysisId, fileName);
-  }
-
-  @Override
-  public Optional<String> resolveAnalysisId(@NonNull String submitterAnalysisId, boolean create) {
-    return Optional.of(submitterAnalysisId);
   }
 
   @Override

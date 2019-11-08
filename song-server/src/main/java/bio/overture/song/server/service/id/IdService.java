@@ -32,15 +32,16 @@ public interface IdService {
   /**
    * Indicates if the submitterAnalysisId exists already
    */
-  boolean isAnalysisIdExist(String submitterAnalysisId);
+  boolean isAnalysisIdExist(String analysisId);
 
   /**
-   * Generates a random unique analysisId, with the option of also persisting the value
+   * Generates a random unique analysisId, without persisting
    */
-  String uniqueAnalysisId(boolean persist);
+  String uniqueCandidateAnalysisId();
 
   /**
    *  Idempotent method that creates an analysisId
    */
-  void createAnalysisId(String submitterAnalysisId);
+  void saveAnalysisId(String submitterAnalysisId);
+
 }

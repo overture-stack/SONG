@@ -17,49 +17,87 @@
 
 package bio.overture.song.server.service.id;
 
+import bio.overture.song.server.repository.AnalysisRepository;
 import lombok.val;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.BiFunction;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static bio.overture.song.server.config.IdConfig.createNameBasedGenerator;
 
+@RunWith(MockitoJUnitRunner.class)
 public class LocalIdServiceTest {
 
   private static final Optional<String> ID_A = Optional.of("8540ebac-66f2-553a-b865-0d3006edd892");
   private static final Optional<String> ID_B = Optional.of("57f844eb-4ab4-5d3d-8dc1-8b7a463e20c1");
   private static final Optional<String> ID_C = Optional.of("b4f5aea1-1f4c-5e12-8557-76dbadb26239");
+  private static final String UUID1 = "b7f5aea7-1f4c-5e12-8557-76dbadb26333";
 
-  private static LocalIdService LOCAL_ID_SERVICE = new LocalIdService(createNameBasedGenerator());
+
+  @Mock private AnalysisRepository analysisRepository;
+
+  private LocalIdService localIdService;
+
+  @Before
+  public void beforeTest(){
+    this.localIdService = new LocalIdService(createNameBasedGenerator(), analysisRepository);
+  }
 
   @Test
   public void testDonorId() {
-    twoParamTest(LOCAL_ID_SERVICE::resolveDonorId);
+    twoParamTest(localIdService::resolveDonorId);
   }
 
   @Test
   public void testSpecimenId() {
-    twoParamTest(LOCAL_ID_SERVICE::resolveSpecimenId);
+    twoParamTest(localIdService::resolveSpecimenId);
   }
 
   @Test
   public void testSampleId() {
-    twoParamTest(LOCAL_ID_SERVICE::resolveSampleId);
+    twoParamTest(localIdService::resolveSampleId);
   }
 
   @Test
   public void testFileId() {
-    twoParamTest(LOCAL_ID_SERVICE::resolveFileId);
+    twoParamTest(localIdService::resolveFileId);
   }
 
   @Test
-  public void testAnalysisId() {
-    val submittedAnalysisId = Optional.of(UUID.randomUUID().toString());
-    val actualId = LOCAL_ID_SERVICE.resolveAnalysisId(submittedAnalysisId.get(), false);
-    assertEquals(actualId, submittedAnalysisId);
+  public void testUniqueAnalysisId(){
+    val id1 = localIdService.uniqueCandidateAnalysisId();
+    val id2 = localIdService.uniqueCandidateAnalysisId();
+    assertNotEquals(id1, id2);
+  }
+
+  @Test
+  public void testIsAnalysisIdExist(){
+    reset(analysisRepository);
+    when(analysisRepository.existsById(UUID1)).thenReturn(false);
+    assertFalse(localIdService.isAnalysisIdExist(UUID1));
+
+    reset(analysisRepository);
+    when(analysisRepository.existsById(UUID1)).thenReturn(true);
+    assertTrue(localIdService.isAnalysisIdExist(UUID1));
+  }
+
+  @Test
+  public void testSaveAnalysisId(){
+    reset(analysisRepository);
+    localIdService.saveAnalysisId(UUID1);
+    verifyZeroInteractions(analysisRepository);
   }
 
   private void twoParamTest(BiFunction<String, String, Optional<String>> idServiceFunction) {
