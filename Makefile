@@ -13,6 +13,9 @@ run-flyway-migration:
 login-psql:
 	@PGPASSWORD=password psql -h localhost -p 8082  -U postgres song
 
+containerized-login-psql:
+	@docker-compose exec -e "PGPASSWORD=password" db psql -h localhost -p 8082  -U postgres song
+
 format:
 	@mvn fmt:format
 
