@@ -17,9 +17,9 @@
 
 package bio.overture.song.server.model.enums;
 
-import static lombok.AccessLevel.PRIVATE;
-
 import lombok.NoArgsConstructor;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
 public class TableAttributeNames {

@@ -16,6 +16,43 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.core.utils.Responses;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.repository.UploadRepository;
+import bio.overture.song.server.service.id.IdService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import javax.transaction.Transactional;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
 import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
@@ -31,39 +68,6 @@ import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspat
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.core.utils.Responses;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.repository.UploadRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.Map;
-import javax.transaction.Transactional;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.icgc.dcc.id.client.core.IdClient;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 @Slf4j
 @SpringBootTest
@@ -73,6 +77,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 @Transactional
 public class UploadServiceTest {
 
+  private static final String ID_SERVICE = "idService";
   private static final String DEFAULT_STUDY = "ABC123";
   private static int ANALYSIS_ID_COUNT = 0;
   private static final String SEQ_READ = "SequencingRead";
@@ -92,7 +97,7 @@ public class UploadServiceTest {
 
   @Autowired StudyService studyService;
 
-  @Autowired IdClient idClient;
+  @Autowired IdService idService;
   @Autowired ValidationService validationService;
   @Autowired UploadRepository uploadRepository;
   @Autowired AnalysisTypeService analysisTypeService;
@@ -140,10 +145,11 @@ public class UploadServiceTest {
     log.info("Testing for analysisId: {}", expectedAnalysisId);
     val jsonPayload = payload.getJsonPayload();
 
-    // Create an analysisId in the IdService database
-    assertFalse(idClient.getAnalysisId(expectedAnalysisId).isPresent());
-    idClient.createAnalysisId(expectedAnalysisId);
-    assertTrue(idClient.getAnalysisId(expectedAnalysisId).isPresent());
+    // Mock the existence of the expectedAnalysisId
+    val mockIdService = Mockito.mock(IdService.class);
+    when(mockIdService.isAnalysisIdExist(expectedAnalysisId)).thenReturn(true);
+    val originalIdService = ReflectionTestUtils.getField(analysisService, ID_SERVICE);
+    ReflectionTestUtils.setField(analysisService, ID_SERVICE, mockIdService);
 
     // Submit1 - should detect that the analysisId already exists in the IdService
     assertSongError(
@@ -156,6 +162,7 @@ public class UploadServiceTest {
     // the payload
     val response2 = uploadService.submit(DEFAULT_STUDY, jsonPayload, true);
     assertEquals(Responses.OK, response2.getStatus());
+    ReflectionTestUtils.setField(analysisService, ID_SERVICE, originalIdService);
   }
 
   @Test
@@ -167,12 +174,11 @@ public class UploadServiceTest {
     val jsonPayload = payload.getJsonPayload();
 
     // Ensure the analysisId doesnt already exist in the IdService
-    assertFalse(idClient.getAnalysisId(expectedAnalysisId).isPresent());
+    assertFalse(idService.isAnalysisIdExist(expectedAnalysisId));
 
     // Submit1 of jsonPayload
-    assertFalse(idClient.getAnalysisId(expectedAnalysisId).isPresent());
     val response1 = uploadService.submit(DEFAULT_STUDY, jsonPayload, false);
-    assertTrue(idClient.getAnalysisId(expectedAnalysisId).isPresent());
+    assertTrue(idService.isAnalysisIdExist(expectedAnalysisId));
     assertEquals(Responses.OK, response1.getStatus());
 
     // Submit2 - should detect that an analysis with the same analysisId was already save in the

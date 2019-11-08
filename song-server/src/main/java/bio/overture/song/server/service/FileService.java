@@ -16,23 +16,27 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
-import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.utils.Responses.OK;
-
 import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.FileRepository;
-import java.util.List;
-import java.util.Optional;
-import javax.transaction.Transactional;
+import bio.overture.song.server.service.id.IdService;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+
+import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
+import static bio.overture.song.core.utils.Responses.OK;
 
 @Service
 @NoArgsConstructor
@@ -49,7 +53,11 @@ public class FileService {
       @NonNull String analysisId, @NonNull String studyId, @NonNull FileEntity file) {
     studyService.checkStudyExist(studyId);
 
-    val id = idService.generateFileId(analysisId, file.getFileName());
+    val result = idService.resolveFileId(analysisId, file.getFileName());
+    val id = checkServerOptional(result, getClass(), ID_NOT_FOUND,
+        "The fileId for analysisId '%s' and fileName '%s' was not found",
+        analysisId, file.getFileName());
+
     file.setObjectId(id);
     file.setStudyId(studyId);
     file.setAnalysisId(analysisId);

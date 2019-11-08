@@ -16,48 +16,31 @@
  */
 package bio.overture.song.server.config;
 
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.NameBasedGenerator;
 import lombok.Data;
-import lombok.val;
-import org.icgc.dcc.id.client.core.IdClient;
-import org.icgc.dcc.id.client.http.HttpIdClient;
-import org.icgc.dcc.id.client.http.webclient.WebClientConfig;
-import org.icgc.dcc.id.client.util.HashIdClient;
+import lombok.SneakyThrows;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.security.MessageDigest;
+import java.util.UUID;
 
 @Configuration
 @Data
 @ConfigurationProperties(prefix = "id")
 public class IdConfig {
-  private static final int DEFAULT_MAX_RETRIES = 10;
-  private static final float DEFAULT_MULTIPLIER = 2;
-  private static final int DEFAULT_INITIAL_BACKOFF_SECONDS = 2;
-
-  private String idUrl;
-  private String authToken;
-  private boolean realIds;
-  private boolean persistInMemory = false;
-  private int maxRetries = DEFAULT_MAX_RETRIES;
-  private float multiplier = DEFAULT_MULTIPLIER;
-  private int initialBackoffSeconds = DEFAULT_INITIAL_BACKOFF_SECONDS;
+  private static final UUID NAMESPACE_UUID =
+      UUID.fromString("6ba7b812-9dad-11d1-80b4-00c04fd430c8");
 
   @Bean
-  public IdClient createIdClient() {
-    val idClientConfig =
-        WebClientConfig.builder()
-            .serviceUrl(idUrl)
-            .authToken(authToken)
-            .release("")
-            .maxRetries(maxRetries)
-            .retryMultiplier(multiplier)
-            .waitBeforeRetrySeconds(initialBackoffSeconds)
-            .build();
+  public NameBasedGenerator nameBasedGenerator() {
+    return createNameBasedGenerator();
+  }
 
-    // [SONG-167]: Temporarily removed cacheId client due to bug in DCC-ID-12:
-    // https://github.com/icgc-dcc/dcc-id/issues/12
-    return realIds ? new HttpIdClient(idClientConfig) : new HashIdClient(persistInMemory);
-    //    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new
-    // HashIdClient(persistInMemory);
+  @SneakyThrows
+  public static NameBasedGenerator createNameBasedGenerator() {
+    return Generators.nameBasedGenerator(NAMESPACE_UUID, MessageDigest.getInstance("SHA-1"));
   }
 }

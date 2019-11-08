@@ -16,6 +16,63 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.model.enums.AnalysisStates;
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.repository.AnalysisRepository;
+import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.repository.SampleRepository;
+import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.service.id.IdService;
+import bio.overture.song.server.utils.TestAnalysis;
+import bio.overture.song.server.utils.generator.AnalysisGenerator;
+import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
+import bio.overture.song.server.utils.generator.PayloadGenerator;
+import bio.overture.song.server.utils.generator.StudyGenerator;
+import bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.stream;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.IntStream.range;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
@@ -41,62 +98,6 @@ import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VA
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Arrays.stream;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.IntStream.range;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.analysis.Analysis;
-import bio.overture.song.server.model.analysis.AnalysisData;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
-import bio.overture.song.server.utils.TestAnalysis;
-import bio.overture.song.server.utils.generator.AnalysisGenerator;
-import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
-import bio.overture.song.server.utils.generator.PayloadGenerator;
-import bio.overture.song.server.utils.generator.StudyGenerator;
-import bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.icgc.dcc.id.client.core.IdClient;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @Slf4j
 @SpringBootTest
@@ -119,7 +120,6 @@ public class AnalysisServiceTest {
   @Autowired private AnalysisRepository analysisRepository;
   @Autowired private FileRepository fileRepository;
   @Autowired private SampleSetRepository sampleSetRepository;
-  @Autowired private IdClient idClient;
   @Autowired private ExportService exportService;
 
   private final RandomGenerator randomGenerator =
@@ -556,10 +556,10 @@ public class AnalysisServiceTest {
     val expectedObjectIdMap = Maps.newHashMap();
     expectedObjectIdMap.put(
         "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
-        "0794ae66-80df-5b70-bc22-e49309bfba2a");
+        "392e3c25-7e00-59c4-b0de-fafad4a781ef");
     expectedObjectIdMap.put(
         "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
-        "a2449e0a-7020-5f2d-8610-9f58aafd467a");
+        "2743b3ec-2556-5d86-9e60-bfc3a72f8eda");
 
     val payload =
         payloadGenerator.generateRandomPayload(
@@ -906,7 +906,7 @@ public class AnalysisServiceTest {
   public void testRevokeAnalysisId() {
 
     // Find an analysisId that is unique and doesnt exist
-    val id = idService.resolveAnalysisId("", false);
+    val id = idService.uniqueCandidateAnalysisId();
     assertFalse(service.isAnalysisExist(id));
 
     // Generate a payload using the analysisId
@@ -924,8 +924,8 @@ public class AnalysisServiceTest {
     val mockIdService = mock(IdService.class);
     doThrow(new IllegalStateException("some error happened during the "))
         .when(mockIdService)
-        .createAnalysisId(id);
-    when(mockIdService.resolveAnalysisId(id, false)).thenReturn(id);
+        .saveAnalysisId(id);
+    when(mockIdService.isAnalysisIdExist(id)).thenReturn(false);
 
     val originalIdService = ReflectionTestUtils.getField(service, ID_SERVICE);
     ReflectionTestUtils.setField(service, ID_SERVICE, mockIdService);
@@ -939,7 +939,7 @@ public class AnalysisServiceTest {
     assertFalse(service.isAnalysisExist(id));
 
     // Ensure the id was not committed to the id server
-    assertFalse(idClient.getAnalysisId(id).isPresent());
+    assertFalse(mockIdService.isAnalysisIdExist(id));
 
     // Plug the original analysisInfoService back into service so other tests can function properly.
     // This is a reset.
