@@ -195,12 +195,6 @@
             <artifactId>springfox-swagger2</artifactId>
         </dependency>
 
-        <!-- DCC - ID -->
-        <dependency>
-            <groupId>org.icgc.dcc</groupId>
-            <artifactId>dcc-id-client</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
