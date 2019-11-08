@@ -69,8 +69,7 @@ public class DonorService {
         getClass(),
         DONOR_ID_IS_CORRUPTED,
         "The input donorId '%s' is corrupted because it does not match the federated donorId '%s'",
-        inputDonorId,
-        result);
+        inputDonorId, id);
     checkDonorDoesNotExist(id);
     return id;
   }
