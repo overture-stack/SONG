@@ -1,3 +1,7 @@
+PG_PASSWORD = "password"
+PG_HOST = "localhost"
+PG_PORT = 8082
+
 
 start-db:
 	@docker-compose up -d --no-deps db
@@ -11,10 +15,10 @@ run-flyway-migration:
 	@cd song-server && mvn flyway:migrate  -Dflyway.url=jdbc:postgresql://localhost:8082/song?stringtype=unspecified -Dflyway.user=postgres -Dflyway.password=password -Dflyway.locations=classpath:db/migration
 
 login-psql:
-	@PGPASSWORD=password psql -h localhost -p 8082  -U postgres song
+	@PGPASSWORD=$(PG_PASSWORD) psql -h $(PG_HOST) -p $(PG_PORT)  -U postgres song
 
 containerized-login-psql:
-	@docker-compose exec -e "PGPASSWORD=password" db psql -h localhost -p 8082  -U postgres song
+	@docker-compose exec -e "PGPASSWORD=$(PG_PASSWORD)" db psql -h $(PG_HOST) -p $(PG_PORT)  -U postgres song
 
 format:
 	@mvn fmt:format
