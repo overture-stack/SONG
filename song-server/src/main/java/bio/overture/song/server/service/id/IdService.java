@@ -37,7 +37,7 @@ public interface IdService {
   /**
    * Generates a random unique analysisId, without persisting
    */
-  String uniqueCandidateAnalysisId();
+  Optional<String> uniqueCandidateAnalysisId();
 
   /**
    *  Idempotent method that creates an analysisId

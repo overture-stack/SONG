@@ -23,15 +23,12 @@ import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import com.google.common.base.Joiner;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 import static com.fasterxml.uuid.Generators.randomBasedGenerator;
 
 @Slf4j
-@Service
 public class LocalIdService implements IdService {
 
   /** Constants */
@@ -42,7 +39,6 @@ public class LocalIdService implements IdService {
   private final NameBasedGenerator nameBasedGenerator;
   private final AnalysisRepository analysisRepository;
 
-  @Autowired
   public LocalIdService(@NonNull NameBasedGenerator nameBasedGenerator,
       @NonNull AnalysisRepository analysisRepository) {
     this.nameBasedGenerator = nameBasedGenerator;
@@ -55,8 +51,8 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public String uniqueCandidateAnalysisId() {
-    return RANDOM_UUID_GENERATOR.generate().toString();
+  public Optional<String> uniqueCandidateAnalysisId() {
+    return Optional.of(RANDOM_UUID_GENERATOR.generate().toString());
   }
 
   @Override

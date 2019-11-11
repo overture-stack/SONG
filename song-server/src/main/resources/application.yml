@@ -74,13 +74,25 @@ swagger:
 security.basic.enabled: false
 
 id:
-  idUrl: "http://localhost:9090"
-  authToken: "idToken"
-  realIds: false
-  persistInMemory: false
-  maxRetries: 10
-  multiplier: 2
-  initialBackoffSeconds: 2
+  useLocal: true
+  federated:
+    auth:
+      url: https://auth.example.org
+      bearer:
+        token: ""
+        credentials:
+          clientId:  someClientId
+          clientSecret: someClientSecret
+
+    uriTemplate:
+      donor:  https://id.example.org/donor/id?projectCode={studyId}&donorSubmittedId={submitterId}&create=true
+      specimen: https://id.example.org/specimen/id?projectCode={studyId}&specimenSubmittedId={submitterId}&create=true
+      sample: https://id.example.org/sample/id?projectCode={studyId}&sampleSubmittedId={submitterId}&create=true
+      file: https://id.example.org/file/id?bundleId={analysisId}&fname={fileName}
+      analysis:
+        existence: https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=false
+        generate: https://id.example.org/analysis/id/generate
+        save: https://id.example.org/analysis/id?submittedAnalysisId={submitterId}&create=true
 
 validation:
   delayMs: 30
@@ -190,9 +202,9 @@ spring:
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost/song?stringtype=unspecified
-  username: 
-  password: 
+  url: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
+  username: postgres
+  password: password
   max-active: 10
   max-idle: 1
   min-idle: 1
