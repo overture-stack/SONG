@@ -147,7 +147,7 @@ spec:
                 branch "test"
            }
            steps {
-             repo = "dcc-snapshot"
+             def repo = "dcc-snapshot"
              rtUpload ( 
 		serverId: 'artifactory-test', 
 		spec: '''{
