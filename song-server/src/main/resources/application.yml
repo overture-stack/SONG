@@ -153,9 +153,6 @@ id.persistInMemory: true
 
 ---
 spring:
-  profiles: secure
----
-spring:
   profiles: fastTest
 
 auth:
