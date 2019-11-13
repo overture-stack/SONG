@@ -147,14 +147,13 @@ spec:
                 branch "test"
            }
            steps {
-             def repo = "dcc-snapshot"
              rtUpload ( 
 		serverId: 'artifactory-test', 
 		spec: '''{
           		"files": [
             			{
               			"pattern": "song-client/target/*.tar.gz",
-              			"target": "$repo/bio-overture/song-client/$version-SNAPSHOT/song-client-$version-dist.tar.gz"
+              			"target": "dcc-snapshot/bio-overture/song-client/$version-SNAPSHOT/song-client-$version-dist.tar.gz"
             			},
                                 {
                                 "pattern": "song-client/target/*-exec.jar",
