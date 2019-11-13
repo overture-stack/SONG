@@ -83,3 +83,13 @@ clean:
 
 containerized-clean:
 	@eval $(RUN_DOCKERIZED_MVN_CMD) mvn clean
+
+default_study:
+	@curl \
+	-vvv \
+	-H "Authorization: Bearer $(SONG_ACCESS_TOKEN)" \
+	-H "Content-Type: application/json" \
+	-H "accept: */*" \
+	-X POST \
+	-d "@test_study" \
+	"$(SONG_SERVER_URL)/studies/$(SONG_STUDY_ID)/"

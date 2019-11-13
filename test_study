@@ -1,0 +1,29 @@
+{
+    "name": "test",
+    "description": "test",
+    "organization": "test",
+    "studyId": "ABC123",
+    "info": {
+        "array": true,
+        "bigDecimal": true,
+        "bigInteger": true,
+        "binary": true,
+        "boolean": true,
+        "containerNode": true,
+        "double": true,
+        "float": true,
+        "floatingPointNumber": true,
+        "int": true,
+        "integralNumber": true,
+        "long": true,
+        "missingNode": true,
+        "nodeType": "ARRAY",
+        "null": true,
+        "number": true,
+        "object": true,
+        "pojo": true,
+        "short": true,
+        "textual": true,
+        "valueNode": true
+    }
+}
