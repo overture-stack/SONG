@@ -33,13 +33,16 @@ public class LocalIdService implements IdService {
 
   /** Constants */
   private static final Joiner COLON = Joiner.on(":");
+
   private static final RandomBasedGenerator RANDOM_UUID_GENERATOR = randomBasedGenerator();
 
   /** Dependencies */
   private final NameBasedGenerator nameBasedGenerator;
+
   private final AnalysisRepository analysisRepository;
 
-  public LocalIdService(@NonNull NameBasedGenerator nameBasedGenerator,
+  public LocalIdService(
+      @NonNull NameBasedGenerator nameBasedGenerator,
       @NonNull AnalysisRepository analysisRepository) {
     this.nameBasedGenerator = nameBasedGenerator;
     this.analysisRepository = analysisRepository;

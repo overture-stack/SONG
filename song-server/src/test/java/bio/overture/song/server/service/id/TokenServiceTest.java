@@ -1,24 +1,5 @@
 package bio.overture.song.server.service.id;
 
-import bio.overture.song.server.service.auth.TokenService;
-import bio.overture.song.server.utils.CustomRequestInterceptor;
-import lombok.SneakyThrows;
-import lombok.val;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.client.ClientHttpRequestExecution;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.mock.http.client.MockClientHttpRequest;
-import org.springframework.retry.support.RetryTemplate;
-import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,6 +8,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import bio.overture.song.server.service.auth.TokenService;
+import bio.overture.song.server.utils.CustomRequestInterceptor;
+import java.io.IOException;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.mock.http.client.MockClientHttpRequest;
+
 @RunWith(MockitoJUnitRunner.class)
 public class TokenServiceTest {
 
@@ -34,7 +30,7 @@ public class TokenServiceTest {
 
   @Test
   @SneakyThrows
-  public void tokenInjection_mockRequest_success(){
+  public void tokenInjection_mockRequest_success() {
     // Setup tokenService behaviour
     when(tokenService.getToken()).thenReturn("mytoken");
 
@@ -51,11 +47,15 @@ public class TokenServiceTest {
     assertFalse(httpRequest.getHeaders().containsKey(AUTHORIZATION));
 
     // Execute interception of the httpRequest
-    interceptor.intercept(httpRequest, null, new ClientHttpRequestExecution(){
-      @Override public ClientHttpResponse execute(HttpRequest request, byte[] body) throws IOException {
-        return null;
-      }
-    });
+    interceptor.intercept(
+        httpRequest,
+        null,
+        new ClientHttpRequestExecution() {
+          @Override
+          public ClientHttpResponse execute(HttpRequest request, byte[] body) throws IOException {
+            return null;
+          }
+        });
 
     // Verify getToken method is called
     verify(tokenService, times(1)).getToken();
@@ -66,5 +66,4 @@ public class TokenServiceTest {
     assertTrue(auths.size() == 1);
     assertEquals(auths.get(0), "Bearer mytoken");
   }
-
 }

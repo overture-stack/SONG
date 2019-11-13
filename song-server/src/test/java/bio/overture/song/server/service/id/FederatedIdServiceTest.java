@@ -33,18 +33,15 @@ import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.NO
 @RunWith(MockitoJUnitRunner.class)
 public class FederatedIdServiceTest {
 
-
-  /**
-   * Constants
-   */
-  enum MODE{
+  /** Constants */
+  enum MODE {
     ERROR,
     GOOD,
     NOT_FOUND;
   }
 
   private static final String DEFAULT_FILE_NAME = "someFileName";
-  private static final String DEFAULT_ANALYSIS_ID = "someAnalysisId" ;
+  private static final String DEFAULT_ANALYSIS_ID = "someAnalysisId";
   private static final String DEFAULT_STUDY_ID = "someStudyId";
   private static final String DEFAULT_SUBMITTER_ID = "someSubId";
   private static final String DEFAULT_ID = "someId";
@@ -54,28 +51,25 @@ public class FederatedIdServiceTest {
   private static final String FILE_URL = "https://example.org/file/id";
   private static final String ANALYSIS_EXISTENCE_URL = "https://example.org/analysis/existence";
   private static final String ANALYSIS_SAVE_URL = "https://example.org/analysis/save";
-  private static final String ANALYSIS_GENERATE_URL= "https://example.org/analysis/generate";
+  private static final String ANALYSIS_GENERATE_URL = "https://example.org/analysis/generate";
 
-  /**
-   * Mocks
-   */
+  /** Mocks */
   @Mock private RestClient restClient;
+
   @Mock private UriResolver uriResolver;
   @InjectMocks private FederatedIdService idService;
 
-  /**
-   * State
-   */
+  /** State */
   private RandomGenerator randomGenerator;
 
   @Before
-  public void beforeTest(){
+  public void beforeTest() {
     randomGenerator = createRandomGenerator(getClass().getSimpleName());
     reset(restClient, uriResolver);
   }
 
   @Test
-  public void getDonor_existing_id(){
+  public void getDonor_existing_id() {
     setupDonor(GOOD);
     val donorResult = idService.getDonorId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID);
     assertTrue(donorResult.isPresent());
@@ -83,20 +77,21 @@ public class FederatedIdServiceTest {
   }
 
   @Test
-  public void getDonor_nonExisting_emptyResult(){
+  public void getDonor_nonExisting_emptyResult() {
     setupDonor(NOT_FOUND);
     val donorResult = idService.getDonorId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID);
     assertFalse(donorResult.isPresent());
   }
 
   @Test
-  public void getDonor_otherError_IdServiceError(){
+  public void getDonor_otherError_IdServiceError() {
     setupDonor(ERROR);
-    assertSongError(() -> idService.getDonorId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID), ID_SERVICE_ERROR);
+    assertSongError(
+        () -> idService.getDonorId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID), ID_SERVICE_ERROR);
   }
 
   @Test
-  public void getSpecimen_existing_id(){
+  public void getSpecimen_existing_id() {
     setupSpecimen(GOOD);
     val specimenResult = idService.getSpecimenId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID);
     assertTrue(specimenResult.isPresent());
@@ -104,20 +99,21 @@ public class FederatedIdServiceTest {
   }
 
   @Test
-  public void getSpecimen_nonExisting_emptyResult(){
+  public void getSpecimen_nonExisting_emptyResult() {
     setupSpecimen(NOT_FOUND);
     val specimenResult = idService.getSpecimenId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID);
     assertFalse(specimenResult.isPresent());
   }
 
   @Test
-  public void getSpecimen_otherError_IdServiceError(){
+  public void getSpecimen_otherError_IdServiceError() {
     setupSpecimen(ERROR);
-    assertSongError(() -> idService.getSpecimenId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID), ID_SERVICE_ERROR);
+    assertSongError(
+        () -> idService.getSpecimenId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID), ID_SERVICE_ERROR);
   }
 
   @Test
-  public void getSample_existing_id(){
+  public void getSample_existing_id() {
     setupSample(GOOD);
     val sampleResult = idService.getSampleId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID);
     assertTrue(sampleResult.isPresent());
@@ -125,20 +121,21 @@ public class FederatedIdServiceTest {
   }
 
   @Test
-  public void getSample_nonExisting_emptyResult(){
+  public void getSample_nonExisting_emptyResult() {
     setupSample(NOT_FOUND);
     val sampleResult = idService.getSampleId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID);
     assertFalse(sampleResult.isPresent());
   }
 
   @Test
-  public void getSample_otherError_IdServiceError(){
+  public void getSample_otherError_IdServiceError() {
     setupSample(ERROR);
-    assertSongError(() -> idService.getSampleId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID), ID_SERVICE_ERROR);
+    assertSongError(
+        () -> idService.getSampleId(DEFAULT_STUDY_ID, DEFAULT_SUBMITTER_ID), ID_SERVICE_ERROR);
   }
 
   @Test
-  public void getFile_existing_id(){
+  public void getFile_existing_id() {
     setupFile(GOOD);
     val fileResult = idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
     assertTrue(fileResult.isPresent());
@@ -146,20 +143,21 @@ public class FederatedIdServiceTest {
   }
 
   @Test
-  public void getFile_nonExisting_emptyResult(){
+  public void getFile_nonExisting_emptyResult() {
     setupFile(NOT_FOUND);
     val fileResult = idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
     assertFalse(fileResult.isPresent());
   }
 
   @Test
-  public void getFile_otherError_IdServiceError(){
+  public void getFile_otherError_IdServiceError() {
     setupFile(ERROR);
-    assertSongError(() -> idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME), ID_SERVICE_ERROR);
+    assertSongError(
+        () -> idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME), ID_SERVICE_ERROR);
   }
 
   @Test
-  public void getAnalysisGenerate_existing_id(){
+  public void getAnalysisGenerate_existing_id() {
     setupAnalysisGenerate(GOOD);
     val analysisGenerateResult = idService.getUniqueCandidateAnalysisId();
     assertTrue(analysisGenerateResult.isPresent());
@@ -167,93 +165,94 @@ public class FederatedIdServiceTest {
   }
 
   @Test
-  public void getAnalysisGenerate_nonExisting_emptyResult(){
+  public void getAnalysisGenerate_nonExisting_emptyResult() {
     setupAnalysisGenerate(NOT_FOUND);
     val analysisGenerateResult = idService.getUniqueCandidateAnalysisId();
     assertFalse(analysisGenerateResult.isPresent());
   }
 
   @Test
-  public void getAnalysisGenerate_otherError_IdServiceError(){
+  public void getAnalysisGenerate_otherError_IdServiceError() {
     setupAnalysisGenerate(ERROR);
     assertSongError(() -> idService.getUniqueCandidateAnalysisId(), ID_SERVICE_ERROR);
   }
 
   @Test
-  public void getAnalysisExistence_existing_id(){
+  public void getAnalysisExistence_existing_id() {
     setupAnalysisExistence(GOOD);
     assertTrue(idService.isAnalysisIdExist(DEFAULT_ANALYSIS_ID));
   }
 
   @Test
-  public void getAnalysisExistence_nonExisting_emptyResult(){
+  public void getAnalysisExistence_nonExisting_emptyResult() {
     setupAnalysisExistence(NOT_FOUND);
     assertFalse(idService.isAnalysisIdExist(DEFAULT_ANALYSIS_ID));
   }
 
   @Test
-  public void getAnalysisExistence_otherError_IdServiceError(){
+  public void getAnalysisExistence_otherError_IdServiceError() {
     setupAnalysisExistence(ERROR);
     assertSongError(() -> idService.isAnalysisIdExist(DEFAULT_ANALYSIS_ID), ID_SERVICE_ERROR);
   }
 
   @Test
-  public void getAnalysisSave_existing_id(){
+  public void getAnalysisSave_existing_id() {
     setupAnalysisSave(GOOD);
     idService.saveAnalysisId(DEFAULT_ANALYSIS_ID);
   }
 
   @Test
-  public void getAnalysisSave_otherError_IdServiceError(){
+  public void getAnalysisSave_otherError_IdServiceError() {
     setupAnalysisSave(ERROR);
     assertSongErrorRunnable(() -> idService.saveAnalysisId(DEFAULT_ANALYSIS_ID), ID_SERVICE_ERROR);
   }
 
-  private void setupDonor(MODE mode){
+  private void setupDonor(MODE mode) {
     baseSetup(mode, DONOR_URL);
     when(uriResolver.expandDonorUri(anyString(), anyString())).thenReturn(DONOR_URL);
   }
 
-  private void setupSpecimen(MODE mode){
+  private void setupSpecimen(MODE mode) {
     baseSetup(mode, SPECIMEN_URL);
     when(uriResolver.expandSpecimenUri(anyString(), anyString())).thenReturn(SPECIMEN_URL);
   }
 
-  private void setupSample(MODE mode){
+  private void setupSample(MODE mode) {
     baseSetup(mode, SAMPLE_URL);
     when(uriResolver.expandSampleUri(anyString(), anyString())).thenReturn(SAMPLE_URL);
   }
 
-  private void setupFile(MODE mode){
+  private void setupFile(MODE mode) {
     baseSetup(mode, FILE_URL);
     when(uriResolver.expandFileUri(anyString(), anyString())).thenReturn(FILE_URL);
   }
 
-  private void setupAnalysisExistence(MODE mode){
+  private void setupAnalysisExistence(MODE mode) {
     baseSetup(mode, ANALYSIS_EXISTENCE_URL);
-    if (mode == GOOD){
-      when(restClient.get(ANALYSIS_EXISTENCE_URL, Object.class)).thenReturn(ResponseEntity.ok(null));
+    if (mode == GOOD) {
+      when(restClient.get(ANALYSIS_EXISTENCE_URL, Object.class))
+          .thenReturn(ResponseEntity.ok(null));
     }
     when(uriResolver.expandAnalysisExistenceUri(anyString())).thenReturn(ANALYSIS_EXISTENCE_URL);
   }
 
-  private void setupAnalysisSave(MODE mode){
+  private void setupAnalysisSave(MODE mode) {
     baseSetup(mode, ANALYSIS_SAVE_URL);
     when(uriResolver.expandAnalysisSaveUri(anyString())).thenReturn(ANALYSIS_SAVE_URL);
   }
 
-  private void setupAnalysisGenerate(MODE mode){
+  private void setupAnalysisGenerate(MODE mode) {
     baseSetup(mode, ANALYSIS_GENERATE_URL);
     when(uriResolver.expandAnalysisGenerateUri()).thenReturn(ANALYSIS_GENERATE_URL);
   }
 
-  private HttpStatusCodeException generateNonNotFoundStatusCodeException () {
-    val nonNotFoundError =  randomGenerator.shuffleList(List.of(HttpStatus.values()))
-        .stream()
-        .filter(HttpStatus::isError)
-        .filter(x -> x.value() != HttpStatus.NOT_FOUND.value())
-        .findFirst()
-        .get();
+  private HttpStatusCodeException generateNonNotFoundStatusCodeException() {
+    val nonNotFoundError =
+        randomGenerator.shuffleList(List.of(HttpStatus.values())).stream()
+            .filter(HttpStatus::isError)
+            .filter(x -> x.value() != HttpStatus.NOT_FOUND.value())
+            .findFirst()
+            .get();
     return new HttpStatusCodeException(nonNotFoundError) {
       @Override
       public HttpStatus getStatusCode() {
@@ -262,22 +261,24 @@ public class FederatedIdServiceTest {
     };
   }
 
-  private void baseSetup(MODE mode, String url){
-    if (mode == GOOD){
+  private void baseSetup(MODE mode, String url) {
+    if (mode == GOOD) {
       when(restClient.get(url, String.class)).thenReturn(ResponseEntity.ok(DEFAULT_ID));
-    } else if (mode == MODE.NOT_FOUND){
-      when(restClient.get(url, String.class)).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-      when(restClient.get(url, Object.class)).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-    } else if (mode == ERROR){
+    } else if (mode == MODE.NOT_FOUND) {
+      when(restClient.get(url, String.class))
+          .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+      when(restClient.get(url, Object.class))
+          .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+    } else if (mode == ERROR) {
       val ex = generateNonNotFoundStatusCodeException();
       when(restClient.get(url, String.class)).thenThrow(ex);
       when(restClient.get(url, Object.class)).thenThrow(ex);
     } else {
-      throw new NotImplementedException("Cannot processes mode == "+mode);
+      throw new NotImplementedException("Cannot processes mode == " + mode);
     }
 
     when(restClient.getString(url)).thenCallRealMethod();
     when(restClient.getObject(url, String.class)).thenCallRealMethod();
+    when(restClient.isFound(url)).thenCallRealMethod();
   }
-
 }

@@ -38,55 +38,62 @@ import static bio.overture.song.core.exceptions.ServerException.checkServer;
 @RequiredArgsConstructor
 public class RestClient {
 
-  /**
-   * Dependencies
-   */
+  /** Dependencies */
   @NonNull private final RestOperations rest;
+
   @NonNull private final RetryOperations retry;
 
-  public Optional<String> getString(String url){
+  public Optional<String> getString(String url) {
     return getObject(url, String.class);
   }
 
-  public <T> Optional <T> getObject(@NonNull String url, @NonNull Class<T> responseType){
+  public <T> Optional<T> getObject(@NonNull String url, @NonNull Class<T> responseType) {
     try {
       val response = get(url, responseType);
-      checkServer(!isNull(response), getClass(), REST_CLIENT_UNEXPECTED_RESPONSE,
+      checkServer(
+          !isNull(response),
+          getClass(),
+          REST_CLIENT_UNEXPECTED_RESPONSE,
           "The request 'GET %s' returned a NULL response, "
               + "but was expecting a 200 status code of type '%s'",
-          url, responseType.getSimpleName());
-      checkServer(!isNull(response.getBody()), getClass(), REST_CLIENT_UNEXPECTED_RESPONSE,
+          url,
+          responseType.getSimpleName());
+      checkServer(
+          !isNull(response.getBody()),
+          getClass(),
+          REST_CLIENT_UNEXPECTED_RESPONSE,
           "The request 'GET %s' returned a NULL body, "
               + "but was expecting a 200 status code of type '%s'",
-          url, responseType.getSimpleName());
+          url,
+          responseType.getSimpleName());
       return Optional.of(response.getBody());
-    } catch (HttpStatusCodeException e){
-      if (NOT_FOUND.equals(e.getStatusCode())){
+    } catch (HttpStatusCodeException e) {
+      if (NOT_FOUND.equals(e.getStatusCode())) {
         return Optional.empty();
       }
       throw e;
     }
   }
 
-  public boolean isFound(@NonNull String url){
-    try{
+  public boolean isFound(@NonNull String url) {
+    try {
       // Any non-error response status code will result in True.
       get(url, Object.class);
       return true;
-    } catch (HttpStatusCodeException e){
+    } catch (HttpStatusCodeException e) {
       // Any notfound error status code will return false, otherwise propagate the error
-      if (NOT_FOUND.equals(e.getStatusCode())){
+      if (NOT_FOUND.equals(e.getStatusCode())) {
         return false;
       }
       throw e;
     }
   }
 
-  public <T> ResponseEntity<T> get(String url, Class<T> responseType){
-    return retry.execute( retryContext -> {
-      val httpEntity = new HttpEntity<>(new HttpHeaders());
-      return rest.exchange(url, HttpMethod.GET, httpEntity, responseType);
-    });
+  public <T> ResponseEntity<T> get(String url, Class<T> responseType) {
+    return retry.execute(
+        retryContext -> {
+          val httpEntity = new HttpEntity<>(new HttpHeaders());
+          return rest.exchange(url, HttpMethod.GET, httpEntity, responseType);
+        });
   }
-
 }

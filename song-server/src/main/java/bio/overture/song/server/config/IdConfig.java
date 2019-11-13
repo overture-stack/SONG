@@ -16,6 +16,10 @@
  */
 package bio.overture.song.server.config;
 
+import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
+import static com.google.common.base.Preconditions.checkState;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import bio.overture.song.server.properties.IdProperties;
 import bio.overture.song.server.repository.AnalysisRepository;
 import bio.overture.song.server.service.auth.StaticTokenService;
@@ -26,6 +30,8 @@ import bio.overture.song.server.service.id.RestClient;
 import bio.overture.song.server.utils.CustomRequestInterceptor;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
+import java.security.MessageDigest;
+import java.util.UUID;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -38,32 +44,23 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
 
-import java.security.MessageDigest;
-import java.util.UUID;
-
-import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
-
 @Slf4j
 @Configuration
 public class IdConfig {
 
-  /**
-   * Constants
-   */
+  /** Constants */
   private static final UUID NAMESPACE_UUID =
       UUID.fromString("6ba7b812-9dad-11d1-80b4-00c04fd430c8");
 
-  /**
-   * Dependencies
-   */
+  /** Dependencies */
   private final IdProperties idProperties;
+
   private final AnalysisRepository analysisRepository;
   private final RetryTemplate retryTemplate;
 
   @Autowired
-  public IdConfig(@NonNull IdProperties idProperties,
+  public IdConfig(
+      @NonNull IdProperties idProperties,
       @NonNull AnalysisRepository analysisRepository,
       @NonNull RetryTemplate retryTemplate) {
     this.idProperties = idProperties;
@@ -76,13 +73,12 @@ public class IdConfig {
     return createNameBasedGenerator();
   }
 
-
   @Bean
-  public IdService idService(@Autowired NameBasedGenerator nameBasedGenerator){
-    if (idProperties.isUseLocal()){
+  public IdService idService(@Autowired NameBasedGenerator nameBasedGenerator) {
+    if (idProperties.isUseLocal()) {
       log.info("Loading LOCAL mode for IdService");
       return new LocalIdService(nameBasedGenerator, analysisRepository);
-    } else{
+    } else {
       log.info("Loading FEDERATED mode for IdService");
       val uriResolver = createUriResolver(idProperties.getFederated().getUriTemplate());
       val restClient = new RestClient(restTemplate(), retryTemplate);
@@ -95,38 +91,39 @@ public class IdConfig {
     return Generators.nameBasedGenerator(NAMESPACE_UUID, MessageDigest.getInstance("SHA-1"));
   }
 
-  private RestTemplate restTemplate(){
+  private RestTemplate restTemplate() {
     val rest = new RestTemplate();
-    if (isStaticAuthMode()){
+    if (isStaticAuthMode()) {
       log.info("Static auth mode enabled for IdService");
       rest.getInterceptors().add(staticAuthInterceptor());
-    } else if(isDynamicAuthMode()) {
+    } else if (isDynamicAuthMode()) {
       log.info("Dynamic auth mode enabled for IdService");
       val message = "Dynamic auth mode has not been implemented yet. This is just a placeholder";
       log.error(message);
       throw new NotImplementedException(message);
-    } else{
+    } else {
       log.info("No auth mode enabled for IdService");
-
     }
     return rest;
   }
 
-  private ClientHttpRequestInterceptor staticAuthInterceptor(){
-    val authService = new StaticTokenService(idProperties.getFederated().getAuth().getBearer().getToken());
+  private ClientHttpRequestInterceptor staticAuthInterceptor() {
+    val authService =
+        new StaticTokenService(idProperties.getFederated().getAuth().getBearer().getToken());
     return new CustomRequestInterceptor(authService);
   }
 
-  private boolean isStaticAuthMode(){
+  private boolean isStaticAuthMode() {
     return !isBlank(idProperties.getFederated().getAuth().getBearer().getToken());
   }
 
-  private boolean isDynamicAuthMode(){
+  private boolean isDynamicAuthMode() {
     val authCredentials = idProperties.getFederated().getAuth().getBearer().getCredentials();
     val isClientIdDefined = !isBlank(authCredentials.getClientId());
     val isClientSecretDefined = !isBlank(authCredentials.getClientSecret());
-    checkState(isClientIdDefined == isClientSecretDefined, "Both clientId and clientSecret must be defined, or undefined");
+    checkState(
+        isClientIdDefined == isClientSecretDefined,
+        "Both clientId and clientSecret must be defined, or undefined");
     return isClientIdDefined;
   }
-
 }

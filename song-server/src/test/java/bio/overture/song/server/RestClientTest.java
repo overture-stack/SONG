@@ -17,6 +17,19 @@
 
 package bio.overture.song.server;
 
+import static bio.overture.song.core.exceptions.ServerErrors.REST_CLIENT_UNEXPECTED_RESPONSE;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import bio.overture.song.server.service.id.RestClient;
 import lombok.val;
 import org.junit.Before;
@@ -30,19 +43,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.REST_CLIENT_UNEXPECTED_RESPONSE;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-
 @RunWith(MockitoJUnitRunner.class)
 public class RestClientTest {
 
@@ -53,42 +53,42 @@ public class RestClientTest {
   @Mock private RestClient restClient;
 
   @Before
-  public void beforeTest(){
+  public void beforeTest() {
     reset(restClient);
   }
 
   @Test
-  public void checkIfFound_exists_true(){
+  public void checkIfFound_exists_true() {
     when(restClient.get(anyString(), any())).thenReturn(ResponseEntity.ok(null));
     when(restClient.isFound(anyString())).thenCallRealMethod();
     assertTrue(restClient.isFound("something"));
   }
 
   @Test
-  public void checkIfFound_nonExistent_false(){
+  public void checkIfFound_nonExistent_false() {
     when(restClient.get(anyString(), any())).thenThrow(new HttpClientErrorException(NOT_FOUND));
     when(restClient.isFound(anyString())).thenCallRealMethod();
     assertFalse(restClient.isFound("something"));
   }
 
   @Test
-  public void checkIfFound_nonNotFoundError_error(){
+  public void checkIfFound_nonNotFoundError_error() {
     when(restClient.get(anyString(), any())).thenThrow(new HttpClientErrorException(CONFLICT));
     when(restClient.isFound(anyString())).thenCallRealMethod();
-    try{
+    try {
       restClient.isFound("something");
       fail("expected error to be thrown");
-    } catch (HttpStatusCodeException e){
-      if (e.getStatusCode().equals(NOT_FOUND)){
+    } catch (HttpStatusCodeException e) {
+      if (e.getStatusCode().equals(NOT_FOUND)) {
         fail("was not expecting error to be a NOT_FOUND error");
       }
-    } catch (Throwable e){
-      fail("was not expecting a non-http error: "+e.getMessage());
+    } catch (Throwable e) {
+      fail("was not expecting a non-http error: " + e.getMessage());
     }
   }
 
   @Test
-  public void getObject_ok_success(){
+  public void getObject_ok_success() {
     val value = "someValue";
     when(restClient.get(URL, String.class)).thenReturn(ResponseEntity.ok(value));
     when(restClient.getObject(URL, String.class)).thenCallRealMethod();
@@ -98,7 +98,7 @@ public class RestClientTest {
   }
 
   @Test
-  public void getObject_notFound_success(){
+  public void getObject_notFound_success() {
     when(restClient.get(URL, String.class)).thenThrow(new HttpClientErrorException(NOT_FOUND));
     when(restClient.getObject(URL, String.class)).thenCallRealMethod();
     val result = restClient.getObject(URL, String.class);
@@ -106,35 +106,32 @@ public class RestClientTest {
   }
 
   @Test
-  public void getObject_nullResponse_REST_CLIENT_UNEXPECTED_RESPONSE(){
+  public void getObject_nullResponse_REST_CLIENT_UNEXPECTED_RESPONSE() {
     when(restClient.get(URL, String.class)).thenReturn(null);
     when(restClient.getObject(URL, String.class)).thenCallRealMethod();
-    assertSongError( () -> restClient.getObject(URL, String.class),
-        REST_CLIENT_UNEXPECTED_RESPONSE);
+    assertSongError(() -> restClient.getObject(URL, String.class), REST_CLIENT_UNEXPECTED_RESPONSE);
   }
 
   @Test
-  public void getObject_nullBody_REST_CLIENT_UNEXPECTED_RESPONSE(){
+  public void getObject_nullBody_REST_CLIENT_UNEXPECTED_RESPONSE() {
     when(restClient.get(URL, String.class)).thenReturn(ResponseEntity.ok(null));
     when(restClient.getObject(URL, String.class)).thenCallRealMethod();
-    assertSongError( () -> restClient.getObject(URL, String.class),
-        REST_CLIENT_UNEXPECTED_RESPONSE);
+    assertSongError(() -> restClient.getObject(URL, String.class), REST_CLIENT_UNEXPECTED_RESPONSE);
   }
 
   @Test
-  public void getObject_nonNotFoundError_Error(){
+  public void getObject_nonNotFoundError_Error() {
     when(restClient.get(URL, String.class)).thenThrow(new HttpClientErrorException(CONFLICT));
     when(restClient.getObject(URL, String.class)).thenCallRealMethod();
-    try{
+    try {
       restClient.getObject(URL, String.class);
       fail("expected error to be thrown");
-    } catch (HttpStatusCodeException e){
-      if (e.getStatusCode().equals(NOT_FOUND)){
+    } catch (HttpStatusCodeException e) {
+      if (e.getStatusCode().equals(NOT_FOUND)) {
         fail("was not expecting error to be a NOT_FOUND error");
       }
-    } catch (Throwable e){
-      fail("was not expecting a non-http error: "+e.getMessage());
+    } catch (Throwable e) {
+      fail("was not expecting a non-http error: " + e.getMessage());
     }
   }
-
 }

@@ -17,17 +17,7 @@
 
 package bio.overture.song.server.service.id;
 
-import bio.overture.song.server.repository.AnalysisRepository;
-import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Optional;
-import java.util.function.BiFunction;
-
+import static bio.overture.song.server.config.IdConfig.createNameBasedGenerator;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -35,7 +25,16 @@ import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static bio.overture.song.server.config.IdConfig.createNameBasedGenerator;
+
+import bio.overture.song.server.repository.AnalysisRepository;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import lombok.val;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LocalIdServiceTest {
@@ -45,13 +44,12 @@ public class LocalIdServiceTest {
   private static final Optional<String> ID_C = Optional.of("b4f5aea1-1f4c-5e12-8557-76dbadb26239");
   private static final String UUID1 = "b7f5aea7-1f4c-5e12-8557-76dbadb26333";
 
-
   @Mock private AnalysisRepository analysisRepository;
 
   private LocalIdService localIdService;
 
   @Before
-  public void beforeTest(){
+  public void beforeTest() {
     this.localIdService = new LocalIdService(createNameBasedGenerator(), analysisRepository);
   }
 
@@ -76,14 +74,14 @@ public class LocalIdServiceTest {
   }
 
   @Test
-  public void testUniqueAnalysisId(){
+  public void testUniqueAnalysisId() {
     val id1 = localIdService.getUniqueCandidateAnalysisId();
     val id2 = localIdService.getUniqueCandidateAnalysisId();
     assertNotEquals(id1, id2);
   }
 
   @Test
-  public void testIsAnalysisIdExist(){
+  public void testIsAnalysisIdExist() {
     reset(analysisRepository);
     when(analysisRepository.existsById(UUID1)).thenReturn(false);
     assertFalse(localIdService.isAnalysisIdExist(UUID1));
@@ -94,7 +92,7 @@ public class LocalIdServiceTest {
   }
 
   @Test
-  public void testSaveAnalysisId(){
+  public void testSaveAnalysisId() {
     reset(analysisRepository);
     localIdService.saveAnalysisId(UUID1);
     verifyZeroInteractions(analysisRepository);

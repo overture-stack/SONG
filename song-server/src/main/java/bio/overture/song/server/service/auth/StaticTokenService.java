@@ -12,5 +12,4 @@ public class StaticTokenService implements TokenService {
   public String getToken() {
     return token;
   }
-
 }

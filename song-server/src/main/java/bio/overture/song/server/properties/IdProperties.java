@@ -19,7 +19,7 @@ public class IdProperties {
 
   @Getter
   @Setter
-  public static class FederatedProperties{
+  public static class FederatedProperties {
     private final UriTemplateProperties uriTemplate = new UriTemplateProperties();
     private final AuthProperties auth = new AuthProperties();
 
@@ -28,7 +28,7 @@ public class IdProperties {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UriTemplateProperties{
+    public static class UriTemplateProperties {
       private String donor;
       private String specimen;
       private String sample;
@@ -37,7 +37,7 @@ public class IdProperties {
 
       @Getter
       @Setter
-      public static class AnalysisTemplateProperties{
+      public static class AnalysisTemplateProperties {
         private String existence;
         private String generate;
         private String save;
@@ -46,22 +46,21 @@ public class IdProperties {
 
     @Getter
     @Setter
-    public static class AuthProperties{
+    public static class AuthProperties {
       private String url;
       private final BearerProperties bearer = new BearerProperties();
 
       @Getter
       @Setter
-      public static class BearerProperties{
+      public static class BearerProperties {
         private String token;
         private final BearerCredentialsProperties credentials = new BearerCredentialsProperties();
 
         @Getter
         @Setter
-        public static class BearerCredentialsProperties{
+        public static class BearerCredentialsProperties {
           private String clientId;
           private String clientSecret;
-
         }
       }
     }

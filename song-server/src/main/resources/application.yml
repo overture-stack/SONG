@@ -74,7 +74,7 @@ swagger:
 security.basic.enabled: false
 
 id:
-  useLocal: false
+  useLocal: true
   federated:
     auth:
       url: https://auth.example.org
@@ -202,9 +202,9 @@ spring:
 # Datasource
 spring.datasource:
   driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
-  username: postgres
-  password: password
+  url: jdbc:postgresql://localhost/song?stringtype=unspecified
+  username: 
+  password: 
   max-active: 10
   max-idle: 1
   min-idle: 1

@@ -1,26 +1,25 @@
 package bio.overture.song.core.utils;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.isDirectory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.Value;
-import lombok.val;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
-import static java.nio.file.Files.exists;
-import static java.nio.file.Files.isDirectory;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.Value;
+import lombok.val;
 
 @Value
 @Builder
@@ -76,7 +75,9 @@ public class ResourceFetcher {
   }
 
   public InputStream inputStream(@NonNull String filename) throws IOException {
-    return Thread.currentThread().getContextClassLoader().getResourceAsStream(getPath(filename).toString());
+    return Thread.currentThread()
+        .getContextClassLoader()
+        .getResourceAsStream(getPath(filename).toString());
   }
 
   @SneakyThrows
@@ -90,7 +91,7 @@ public class ResourceFetcher {
   }
 
   @SneakyThrows
-  public <T> T readObject(@NonNull String filename, @NonNull Class<T> type){
+  public <T> T readObject(@NonNull String filename, @NonNull Class<T> type) {
     return OBJECT_MAPPER.readValue(inputStream(filename), type);
   }
 
