@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -38,7 +39,7 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 @Component
 @Validated
-@Profile("secure")
+@ConditionalOnProperty(value="song.security.enabled", matchIfMissing = true)
 @EnableWebSecurity
 @EnableResourceServer
 @ConfigurationProperties("auth.server")

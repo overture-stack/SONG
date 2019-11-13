@@ -61,7 +61,7 @@ services:
       target: server
     network_mode: host
     environment:
-      SPRING_PROFILES_ACTIVE: "prod,secure,default"
+      SPRING_PROFILES_ACTIVE: "default,local"
       SERVER_PORT: 8080
       AUTH_SERVER_URL: http://localhost:8084/check_token/
       AUTH_SERVER_CLIENTID: 3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
@@ -80,6 +80,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_LOCATIONS: "classpath:db/migration"
+      SPRING_CLOUD_VAULT_ENABLED: "false"
     restart: always
     depends_on:
       - db 
