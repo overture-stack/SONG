@@ -80,7 +80,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_LOCATIONS: "classpath:db/migration"
-      SPRING_CLOUD_VAULT_ENABLED: "false"
     restart: always
     depends_on:
       - db 
