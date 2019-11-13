@@ -3,17 +3,13 @@ package bio.overture.song.server.service.id;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
+import java.util.function.Function;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 
 @RequiredArgsConstructor
 public class FederatedIdService implements IdService {
@@ -21,64 +17,55 @@ public class FederatedIdService implements IdService {
   /**
    * Dependencies
    */
-  @NonNull private final RestTemplate rest;
-  @NonNull private final RetryTemplate retry;
+  @NonNull private final RestClient rest;
   @NonNull private final UriResolver uriResolver;
 
   @Override
-  public Optional<String> resolveFileId(@NonNull String analysisId, @NonNull String fileName) {
-    return getString(uriResolver.expandFileUri(analysisId, fileName));
+  public Optional<String> getFileId(@NonNull String analysisId, @NonNull String fileName) {
+    return handleIdServiceGetRequest(uriResolver.expandFileUri(analysisId, fileName), rest::getString);
   }
 
   @Override
-  public Optional<String> resolveDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
-    return getString(uriResolver.expandDonorUri(studyId, submitterDonorId));
+  public Optional<String> getDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
+    return handleIdServiceGetRequest(uriResolver.expandDonorUri(studyId, submitterDonorId), rest::getString);
   }
 
   @Override
-  public Optional<String> resolveSpecimenId(@NonNull String studyId, @NonNull String submitterSpecimenId) {
-    return getString(uriResolver.expandSpecimenUri(studyId, submitterSpecimenId));
+  public Optional<String> getSpecimenId(@NonNull String studyId, @NonNull String submitterSpecimenId) {
+    return handleIdServiceGetRequest(uriResolver.expandSpecimenUri(studyId, submitterSpecimenId), rest::getString);
   }
 
   @Override
-  public Optional<String> resolveSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
-    return getString(uriResolver.expandSampleUri(studyId, submitterSampleId));
+  public Optional<String> getSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
+    return handleIdServiceGetRequest(uriResolver.expandSampleUri(studyId, submitterSampleId), rest::getString);
   }
 
   @Override
   public boolean isAnalysisIdExist(@NonNull String analysisId) {
-    return get(uriResolver.expandAnalysisExistenceUri(analysisId), Object.class).isPresent();
+    return handleIdServiceGetRequest(uriResolver.expandAnalysisExistenceUri(analysisId), rest::isFound);
   }
 
   @Override
-  public Optional<String> uniqueCandidateAnalysisId() {
-    return getString(uriResolver.expandAnalysisGenerateUri());
+  public Optional<String> getUniqueCandidateAnalysisId() {
+    return  handleIdServiceGetRequest(uriResolver.expandAnalysisGenerateUri(), rest::getString);
   }
 
   @Override
   public void saveAnalysisId(@NonNull String analysisId) {
-    executeGetRequest(uriResolver.expandAnalysisSaveUri(analysisId), Object.class);
+    handleIdServiceGetRequest(uriResolver.expandAnalysisSaveUri(analysisId),
+        url -> rest.get(url, Object.class));
   }
 
-  private Optional<String> getString(String url){
-    return get(url, String.class);
-  }
-
-  private <T> Optional <T> get(@NonNull String url, @NonNull Class<T> responseType){
-    try {
-      return Optional.of(executeGetRequest(url, responseType).getBody());
+  private static <T> T handleIdServiceGetRequest(String url, Function<String, T> restCallback){
+    try{
+      return restCallback.apply(url);
     } catch (HttpStatusCodeException e){
-      if (NOT_FOUND.equals(e.getStatusCode())){
-        return Optional.empty();
-      }
-      throw e;
+      val status = e.getStatusCode();
+      val name = status.name();
+      val code = status.value();
+      throw buildServerException(FederatedIdService.class, ID_SERVICE_ERROR,
+          "The request 'GET %s' failed with HttpStatus '%s[%s]' and message: %s",
+          url, name, code, e.getMessage());
     }
-  }
-
-  private <T> ResponseEntity<T> executeGetRequest(String url, Class<T> responseType){
-    return retry.execute( retryContext -> {
-      val httpEntity = new HttpEntity<>(new HttpHeaders());
-      return rest.exchange(url, HttpMethod.GET, httpEntity, responseType);
-    });
   }
 }

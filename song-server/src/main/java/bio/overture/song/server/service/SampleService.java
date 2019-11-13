@@ -173,7 +173,7 @@ public class SampleService {
     studyService.checkStudyExist(studyId);
     val inputSampleId = sample.getSampleId();
     val sampleSubmitterId = sample.getSampleSubmitterId();
-    val result = idService.resolveSampleId(studyId, sampleSubmitterId);
+    val result = idService.getSampleId(studyId, sampleSubmitterId);
     val id = checkServerOptional(result, getClass(), ID_NOT_FOUND,
         "The sampleId for studyId '%s' and sampleSubmitterId '%s' was not found",
         studyId, sampleSubmitterId);

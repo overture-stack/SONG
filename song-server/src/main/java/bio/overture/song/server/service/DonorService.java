@@ -59,7 +59,7 @@ public class DonorService {
     val inputDonorId = donorWithSpecimens.getDonorId();
     val studyId = donorWithSpecimens.getStudyId();
     val donorSubmitterId = donorWithSpecimens.getDonorSubmitterId();
-    val result = idService.resolveDonorId( studyId, donorSubmitterId);
+    val result = idService.getDonorId( studyId, donorSubmitterId);
     val id = checkServerOptional(result, getClass(), ID_NOT_FOUND,
         "The donorId for studyId '%s' and donorSubmitterId '%s' was not found",
         studyId, donorSubmitterId);

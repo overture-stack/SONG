@@ -58,7 +58,7 @@ public class SpecimenService {
     studyService.checkStudyExist(studyId);
     val inputSpecimenId = specimen.getSpecimenId();
     val specimenSubmitterId = specimen.getSpecimenSubmitterId();
-    val result = idService.resolveSpecimenId(studyId, specimenSubmitterId);
+    val result = idService.getSpecimenId(studyId, specimenSubmitterId);
     val id = checkServerOptional(result, getClass(), ID_NOT_FOUND,
         "The specimenId for studyId '%s' and specimenSubmitterId '%s' was not found",
         studyId, specimenSubmitterId);

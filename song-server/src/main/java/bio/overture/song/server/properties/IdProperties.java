@@ -1,10 +1,12 @@
 package bio.overture.song.server.properties;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriTemplate;
 
 @Getter
 @Setter
@@ -23,6 +25,9 @@ public class IdProperties {
 
     @Getter
     @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class UriTemplateProperties{
       private String donor;
       private String specimen;

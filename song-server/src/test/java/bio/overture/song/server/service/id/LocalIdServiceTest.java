@@ -57,28 +57,28 @@ public class LocalIdServiceTest {
 
   @Test
   public void testDonorId() {
-    twoParamTest(localIdService::resolveDonorId);
+    twoParamTest(localIdService::getDonorId);
   }
 
   @Test
   public void testSpecimenId() {
-    twoParamTest(localIdService::resolveSpecimenId);
+    twoParamTest(localIdService::getSpecimenId);
   }
 
   @Test
   public void testSampleId() {
-    twoParamTest(localIdService::resolveSampleId);
+    twoParamTest(localIdService::getSampleId);
   }
 
   @Test
   public void testFileId() {
-    twoParamTest(localIdService::resolveFileId);
+    twoParamTest(localIdService::getFileId);
   }
 
   @Test
   public void testUniqueAnalysisId(){
-    val id1 = localIdService.uniqueCandidateAnalysisId();
-    val id2 = localIdService.uniqueCandidateAnalysisId();
+    val id1 = localIdService.getUniqueCandidateAnalysisId();
+    val id2 = localIdService.getUniqueCandidateAnalysisId();
     assertNotEquals(id1, id2);
   }
 

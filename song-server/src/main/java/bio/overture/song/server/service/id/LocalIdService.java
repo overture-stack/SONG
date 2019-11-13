@@ -51,7 +51,7 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public Optional<String> uniqueCandidateAnalysisId() {
+  public Optional<String> getUniqueCandidateAnalysisId() {
     return Optional.of(RANDOM_UUID_GENERATOR.generate().toString());
   }
 
@@ -61,23 +61,23 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public Optional<String> resolveFileId(@NonNull String analysisId, @NonNull String fileName) {
+  public Optional<String> getFileId(@NonNull String analysisId, @NonNull String fileName) {
     return generateId(analysisId, fileName);
   }
 
   @Override
-  public Optional<String> resolveDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
+  public Optional<String> getDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
     return generateId(studyId, submitterDonorId);
   }
 
   @Override
-  public Optional<String> resolveSpecimenId(
+  public Optional<String> getSpecimenId(
       @NonNull String studyId, @NonNull String submitterSpecimenId) {
     return generateId(studyId, submitterSpecimenId);
   }
 
   @Override
-  public Optional<String> resolveSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
+  public Optional<String> getSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
     return generateId(studyId, submitterSampleId);
   }
 

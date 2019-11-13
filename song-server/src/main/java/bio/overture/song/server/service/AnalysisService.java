@@ -76,6 +76,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SA
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static bio.overture.song.core.exceptions.ServerErrors.ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
@@ -84,6 +85,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
@@ -544,7 +546,8 @@ public class AnalysisService {
    */
   private String resolveCandidateAnalysisId(String analysisId, final boolean ignoreAnalysisIdCollisions) {
     if (isNullOrEmpty(analysisId)) {
-      return idService.uniqueCandidateAnalysisId();
+      return checkServerOptional(idService.getUniqueCandidateAnalysisId(), getClass(),
+          ID_NOT_FOUND, "Could not generate unique analysisId");
     } else {
       val analysisIdExists = idService.isAnalysisIdExist(analysisId);
       checkServer(

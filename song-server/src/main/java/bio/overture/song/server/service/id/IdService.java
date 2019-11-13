@@ -21,13 +21,13 @@ import java.util.Optional;
 
 public interface IdService {
 
-  Optional<String> resolveFileId(String analysisId, String fileName);
+  Optional<String> getFileId(String analysisId, String fileName);
 
-  Optional<String> resolveDonorId(String studyId, String submitterDonorId);
+  Optional<String> getDonorId(String studyId, String submitterDonorId);
 
-  Optional<String> resolveSpecimenId(String studyId, String submitterSpecimenId);
+  Optional<String> getSpecimenId(String studyId, String submitterSpecimenId);
 
-  Optional<String> resolveSampleId(String studyId, String submitterSampleId);
+  Optional<String> getSampleId(String studyId, String submitterSampleId);
 
   /**
    * Indicates if the submitterAnalysisId exists already
@@ -37,7 +37,7 @@ public interface IdService {
   /**
    * Generates a random unique analysisId, without persisting
    */
-  Optional<String> uniqueCandidateAnalysisId();
+  Optional<String> getUniqueCandidateAnalysisId();
 
   /**
    *  Idempotent method that creates an analysisId

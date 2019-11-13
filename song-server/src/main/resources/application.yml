@@ -74,15 +74,15 @@ swagger:
 security.basic.enabled: false
 
 id:
-  useLocal: true
+  useLocal: false
   federated:
     auth:
       url: https://auth.example.org
       bearer:
-        token: ""
+        token: "sdfsdfsdf"
         credentials:
-          clientId:  someClientId
-          clientSecret: someClientSecret
+          clientId: ""
+          clientSecret: ""
 
     uriTemplate:
       donor:  https://id.example.org/donor/id?projectCode={studyId}&donorSubmittedId={submitterId}&create=true
@@ -92,7 +92,7 @@ id:
       analysis:
         existence: https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=false
         generate: https://id.example.org/analysis/id/generate
-        save: https://id.example.org/analysis/id?submittedAnalysisId={submitterId}&create=true
+        save: https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=true
 
 validation:
   delayMs: 30

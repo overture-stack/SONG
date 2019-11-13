@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Sets.difference;
 import static lombok.AccessLevel.PRIVATE;
 import static bio.overture.song.core.utils.Joiners.COMMA;
 
@@ -81,9 +82,13 @@ public class UriResolver {
     val uriTemplate = new UriTemplate(templateString);
     val requiredSet = Set.of(requiredTemplateVariables);
     val actualSet = Set.copyOf(uriTemplate.getVariableNames());
+    val missingSet = difference(requiredSet, actualSet);
+    val unknownSet = difference(actualSet, requiredSet);
     checkArgument(actualSet.equals(requiredSet),
-        "For the uriTemplateString: '{}', expected only the variables: [{}], but found: [{}] ",
-        templateString, COMMA.join(requiredSet), COMMA.join(actualSet) );
+        "Error processing URI template string: '%s'. %s%s",
+        templateString,
+        missingSet.isEmpty() ? "" : "Missing template variables: ["+COMMA.join(missingSet)+"]. ",
+        unknownSet.isEmpty() ? "" : "Unknown template variables: ["+COMMA.join(unknownSet)+"]. ");
     return uriTemplate;
   }
 

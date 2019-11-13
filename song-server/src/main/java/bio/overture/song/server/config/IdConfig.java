@@ -22,15 +22,19 @@ import bio.overture.song.server.service.auth.StaticTokenService;
 import bio.overture.song.server.service.id.FederatedIdService;
 import bio.overture.song.server.service.id.IdService;
 import bio.overture.song.server.service.id.LocalIdService;
+import bio.overture.song.server.service.id.RestClient;
 import bio.overture.song.server.utils.CustomRequestInterceptor;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
 
@@ -41,6 +45,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
 
+@Slf4j
 @Configuration
 public class IdConfig {
 
@@ -71,32 +76,45 @@ public class IdConfig {
     return createNameBasedGenerator();
   }
 
+
+  @Bean
+  public IdService idService(@Autowired NameBasedGenerator nameBasedGenerator){
+    if (idProperties.isUseLocal()){
+      log.info("Loading LOCAL mode for IdService");
+      return new LocalIdService(nameBasedGenerator, analysisRepository);
+    } else{
+      log.info("Loading FEDERATED mode for IdService");
+      val uriResolver = createUriResolver(idProperties.getFederated().getUriTemplate());
+      val restClient = new RestClient(restTemplate(), retryTemplate);
+      return new FederatedIdService(restClient, uriResolver);
+    }
+  }
+
   @SneakyThrows
   public static NameBasedGenerator createNameBasedGenerator() {
     return Generators.nameBasedGenerator(NAMESPACE_UUID, MessageDigest.getInstance("SHA-1"));
   }
 
-  @Bean
-  public RestTemplate restTemplate(){
+  private RestTemplate restTemplate(){
     val rest = new RestTemplate();
     if (isStaticAuthMode()){
-      val authService = new StaticTokenService(idProperties.getFederated().getAuth().getBearer().getToken());
-      val interceptor = new CustomRequestInterceptor(authService);
-      rest.getInterceptors().add(interceptor);
+      log.info("Static auth mode enabled for IdService");
+      rest.getInterceptors().add(staticAuthInterceptor());
     } else if(isDynamicAuthMode()) {
+      log.info("Dynamic auth mode enabled for IdService");
+      val message = "Dynamic auth mode has not been implemented yet. This is just a placeholder";
+      log.error(message);
+      throw new NotImplementedException(message);
+    } else{
+      log.info("No auth mode enabled for IdService");
+
     }
     return rest;
   }
 
-  @Bean
-  public IdService idService(@Autowired NameBasedGenerator nameBasedGenerator,
-      @Autowired RestTemplate restTemplate){
-    if (idProperties.isUseLocal()){
-      return new LocalIdService(nameBasedGenerator, analysisRepository);
-    } else{
-      val uriResolver = createUriResolver(idProperties.getFederated().getUriTemplate());
-      return new FederatedIdService(restTemplate, retryTemplate, uriResolver);
-    }
+  private ClientHttpRequestInterceptor staticAuthInterceptor(){
+    val authService = new StaticTokenService(idProperties.getFederated().getAuth().getBearer().getToken());
+    return new CustomRequestInterceptor(authService);
   }
 
   private boolean isStaticAuthMode(){
@@ -108,7 +126,7 @@ public class IdConfig {
     val isClientIdDefined = !isBlank(authCredentials.getClientId());
     val isClientSecretDefined = !isBlank(authCredentials.getClientSecret());
     checkState(isClientIdDefined == isClientSecretDefined, "Both clientId and clientSecret must be defined, or undefined");
-    return isClientIdDefined && isClientSecretDefined;
+    return isClientIdDefined;
   }
 
 }
