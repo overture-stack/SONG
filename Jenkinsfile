@@ -142,7 +142,7 @@ spec:
                 }
             }
         }
-        stage('Test') {
+        stage('Test Artifactory') {
            when {
                 branch "test"
            }
