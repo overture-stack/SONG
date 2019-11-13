@@ -158,9 +158,10 @@ spec:
                                 {
                                 "pattern": "song-client/target/*-exec.jar",
                                 "target": "dcc-release/bio-overture/song-client/$version-SNAPSHOT/song-client-$version.jar"
+                                }
          		]
     		}'''
-           )
+             )
           }
        }
     }
