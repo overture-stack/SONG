@@ -47,18 +47,19 @@ public class IdProperties {
     @Getter
     @Setter
     public static class AuthProperties {
-      private String url;
       private final BearerProperties bearer = new BearerProperties();
 
       @Getter
       @Setter
       public static class BearerProperties {
         private String token;
+
         private final BearerCredentialsProperties credentials = new BearerCredentialsProperties();
 
         @Getter
         @Setter
         public static class BearerCredentialsProperties {
+          private String url;
           private String clientId;
           private String clientSecret;
         }

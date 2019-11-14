@@ -17,20 +17,41 @@
 
 package bio.overture.song.server.controller;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.core.utils.RandomGenerator.randomList;
-import static bio.overture.song.core.utils.RandomGenerator.randomStream;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.model.AnalysisType;
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.core.utils.ResourceFetcher;
+import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
+import bio.overture.song.server.service.AnalysisTypeService;
+import bio.overture.song.server.utils.EndpointTester;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import net.javacrumbs.jsonunit.core.Configuration;
+import org.everit.json.schema.Schema;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import javax.transaction.Transactional;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.function.Supplier;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
@@ -45,41 +66,20 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.model.AnalysisType;
-import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.core.utils.ResourceFetcher;
-import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import bio.overture.song.server.service.AnalysisTypeService;
-import bio.overture.song.server.utils.EndpointTester;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.function.Supplier;
-import javax.transaction.Transactional;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import net.javacrumbs.jsonunit.core.Configuration;
-import org.everit.json.schema.Schema;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.RandomGenerator.randomList;
+import static bio.overture.song.core.utils.RandomGenerator.randomStream;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -374,18 +374,22 @@ public class AnalysisTypeControllerTest {
     assertJsonEquals(expected, actual, when(IGNORING_ARRAY_ORDER));
   }
 
+  /**
+   * Assert the flyway migration for legacy variantCall analysisType was run
+   */
   @Test
-  @Ignore
   @SneakyThrows
   public void getLegacyVariantCall_existing_success() {
-    runLegacyVariantCallTest("variantCall");
+    runLegacyAnalysisTypeTest("variantCall");
   }
 
+  /**
+   * Assert the flyway migration for legacy sequencingRead analysisType was run
+   */
   @Test
-  @Ignore
   @SneakyThrows
   public void getLegacySequencingRead_existing_success() {
-    runLegacyVariantCallTest("sequencingRead");
+    runLegacyAnalysisTypeTest("sequencingRead");
   }
 
   /** Test the default size is DEFAULT_LIMIT */
@@ -721,10 +725,9 @@ public class AnalysisTypeControllerTest {
     assertTrue(actualNoAnalysisTypes.isEmpty());
   }
 
-  private void runLegacyVariantCallTest(String name) {
+  private void runLegacyAnalysisTypeTest(String name) {
     val fetcher =
         ResourceFetcher.builder().resourceType(MAIN).dataDir(Paths.get("schemas")).build();
-    val expected = fetcher.readJsonNode(name + ".json");
 
     val results =
         endpointTester

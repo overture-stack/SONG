@@ -17,16 +17,15 @@
 
 package bio.overture.song.server.service.id;
 
+import static com.fasterxml.uuid.Generators.randomBasedGenerator;
+
 import bio.overture.song.server.repository.AnalysisRepository;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import com.google.common.base.Joiner;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Optional;
-
-import static com.fasterxml.uuid.Generators.randomBasedGenerator;
 
 @Slf4j
 public class LocalIdService implements IdService {

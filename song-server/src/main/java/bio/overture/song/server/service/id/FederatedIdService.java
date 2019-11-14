@@ -58,7 +58,7 @@ public class FederatedIdService implements IdService {
   @Override
   public void saveAnalysisId(@NonNull String analysisId) {
     handleIdServiceGetRequest(
-        uriResolver.expandAnalysisSaveUri(analysisId), url -> rest.get(url, Object.class));
+        uriResolver.expandAnalysisSaveUri(analysisId), url -> rest.get(url, String.class));
   }
 
   private static <T> T handleIdServiceGetRequest(String url, Function<String, T> restCallback) {

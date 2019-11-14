@@ -230,7 +230,7 @@ public class FederatedIdServiceTest {
   private void setupAnalysisExistence(MODE mode) {
     baseSetup(mode, ANALYSIS_EXISTENCE_URL);
     if (mode == GOOD) {
-      when(restClient.get(ANALYSIS_EXISTENCE_URL, Object.class))
+      when(restClient.get(ANALYSIS_EXISTENCE_URL, String.class))
           .thenReturn(ResponseEntity.ok(null));
     }
     when(uriResolver.expandAnalysisExistenceUri(anyString())).thenReturn(ANALYSIS_EXISTENCE_URL);
@@ -267,12 +267,9 @@ public class FederatedIdServiceTest {
     } else if (mode == MODE.NOT_FOUND) {
       when(restClient.get(url, String.class))
           .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-      when(restClient.get(url, Object.class))
-          .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
     } else if (mode == ERROR) {
       val ex = generateNonNotFoundStatusCodeException();
       when(restClient.get(url, String.class)).thenThrow(ex);
-      when(restClient.get(url, Object.class)).thenThrow(ex);
     } else {
       throw new NotImplementedException("Cannot processes mode == " + mode);
     }

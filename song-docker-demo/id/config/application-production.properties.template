@@ -4,4 +4,6 @@ spring.datasource.password=${POSTGRES_PASSWORD}
 auth.server.url=${AUTH_SERVER_URL}
 auth.server.clientId=${AUTH_SERVER_CLIENTID}
 auth.server.clientSecret=${AUTH_SERVER_CLIENTSECRET}
+auth.server.prefix=${AUTH_SERVER_PREFIX}
+auth.server.suffix=${AUTH_SERVER_SUFFIX}
 

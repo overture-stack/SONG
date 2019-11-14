@@ -17,6 +17,12 @@
 
 package bio.overture.song.server.service.id;
 
+import static bio.overture.song.core.exceptions.ServerErrors.REST_CLIENT_UNEXPECTED_RESPONSE;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static java.util.Objects.isNull;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -27,13 +33,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.RetryOperations;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
-
-import java.util.Optional;
-
-import static java.util.Objects.isNull;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.REST_CLIENT_UNEXPECTED_RESPONSE;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
 
 @RequiredArgsConstructor
 public class RestClient {
@@ -78,7 +77,7 @@ public class RestClient {
   public boolean isFound(@NonNull String url) {
     try {
       // Any non-error response status code will result in True.
-      get(url, Object.class);
+      get(url, String.class);
       return true;
     } catch (HttpStatusCodeException e) {
       // Any notfound error status code will return false, otherwise propagate the error

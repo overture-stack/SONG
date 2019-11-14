@@ -77,22 +77,22 @@ id:
   useLocal: true
   federated:
     auth:
-      url: https://auth.example.org
       bearer:
-        token: "sdfsdfsdf"
+        token:
+        # Placeholder for issue SONG-491
         credentials:
-          clientId: ""
-          clientSecret: ""
-
+          url:
+          clientId:
+          clientSecret:
     uriTemplate:
-      donor:  https://id.example.org/donor/id?projectCode={studyId}&donorSubmittedId={submitterId}&create=true
-      specimen: https://id.example.org/specimen/id?projectCode={studyId}&specimenSubmittedId={submitterId}&create=true
-      sample: https://id.example.org/sample/id?projectCode={studyId}&sampleSubmittedId={submitterId}&create=true
-      file: https://id.example.org/file/id?bundleId={analysisId}&fname={fileName}
+      donor:    https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
+      specimen: https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
+      sample:   https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
+      file:     https://id.example.org/object/id?analysisId={analysisId}&fileName={fileName}
       analysis:
         existence: https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=false
-        generate: https://id.example.org/analysis/id/generate
-        save: https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=true
+        generate:  https://id.example.org/analysis/unique
+        save:      https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=true
 
 validation:
   delayMs: 30
