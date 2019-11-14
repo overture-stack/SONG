@@ -62,24 +62,11 @@ services:
     network_mode: host
     environment:
       SPRING_PROFILES_ACTIVE: "default,local"
-      SERVER_PORT: 8080
-      AUTH_SERVER_URL: http://localhost:8084/check_token/
-      AUTH_SERVER_CLIENTID: 3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
-      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
-      AUTH_SERVER_SCOPE_STUDY_PREFIX: song.
-      AUTH_SERVER_SCOPE_STUDY_SUFFIX: .WRITE
-      AUTH_SERVER_SCOPE_SYSTEM: song.WRITE
-      SCORE_URL: http://localhost:8087
-      SCORE_ACCESSTOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
-      MANAGEMENT_SERVER_PORT: 8081
-      ID_IDURL: http://localhost:8086
-      ID_AUTHTOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
-      ID_REALIDS: "true"
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
-      SPRING_FLYWAY_ENABLED: "true"
-      SPRING_FLYWAY_LOCATIONS: "classpath:db/migration"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "password"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://localhost:8082/song?stringtype=unspecified"
+    env_file:
+      - local_server.env
     restart: always
     depends_on:
       - db 
@@ -88,6 +75,23 @@ services:
     volumes:
       - "./song-docker-demo/logs/server_logs:/opt/dcc/server_logs"
       - "./song-docker-demo/tools:/opt/dcc/tools"
+  server-maven:
+    image: maven:3.6-jdk-11-slim
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/opt
+    working_dir: /opt
+    env_file:
+      - local_server.env
+    depends_on:
+      - db 
+      - id
+      - auth
+    stdin_open: true
+    tty: true
+    command: ["bash"]
+    entrypoint: [""]
   client:
     build:
       context: ./
