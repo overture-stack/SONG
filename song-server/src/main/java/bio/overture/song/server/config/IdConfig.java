@@ -16,6 +16,10 @@
  */
 package bio.overture.song.server.config;
 
+import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
+import static com.google.common.base.Preconditions.checkState;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import bio.overture.song.server.properties.IdProperties;
 import bio.overture.song.server.properties.IdProperties.FederatedProperties.AuthProperties.BearerProperties;
 import bio.overture.song.server.repository.AnalysisRepository;
@@ -27,6 +31,8 @@ import bio.overture.song.server.service.id.RestClient;
 import bio.overture.song.server.utils.CustomRequestInterceptor;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
+import java.security.MessageDigest;
+import java.util.UUID;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -38,13 +44,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
-
-import java.security.MessageDigest;
-import java.util.UUID;
-
-import static com.google.common.base.Preconditions.checkState;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
 
 @Slf4j
 @Configuration
@@ -111,9 +110,9 @@ public class IdConfig {
     return rest;
   }
 
-  private static ClientHttpRequestInterceptor staticAuthInterceptor(BearerProperties bearerProperties) {
-    val authService =
-        new StaticTokenService(bearerProperties.getToken());
+  private static ClientHttpRequestInterceptor staticAuthInterceptor(
+      BearerProperties bearerProperties) {
+    val authService = new StaticTokenService(bearerProperties.getToken());
     return new CustomRequestInterceptor(authService);
   }
 

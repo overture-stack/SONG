@@ -1,15 +1,14 @@
 package bio.overture.song.server.service.id;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+
+import java.util.Optional;
+import java.util.function.Function;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.web.client.HttpStatusCodeException;
-
-import java.util.Optional;
-import java.util.function.Function;
-
-import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 
 @RequiredArgsConstructor
 public class FederatedIdService implements IdService {
