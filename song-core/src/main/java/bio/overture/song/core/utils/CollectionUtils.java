@@ -1,16 +1,19 @@
 package bio.overture.song.core.utils;
 
-import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static java.util.stream.Collectors.toUnmodifiableSet;
-import static java.util.stream.IntStream.range;
+import lombok.NonNull;
+import lombok.val;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import lombok.NonNull;
+
+import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+import static java.util.stream.IntStream.range;
 
 public class CollectionUtils {
 
@@ -32,5 +35,12 @@ public class CollectionUtils {
 
   public static <T> boolean isArrayBlank(T[] values) {
     return isNull(values) || values.length == 0;
+  }
+
+  // a - b
+  public static <T> List<T> listDifference(@NonNull List<T> a, @NonNull List<T> b){
+    val out = new ArrayList<>(a);
+    out.removeAll(b);
+    return out;
   }
 }

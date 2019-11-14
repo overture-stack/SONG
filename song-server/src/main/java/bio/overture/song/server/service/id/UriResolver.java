@@ -1,18 +1,19 @@
 package bio.overture.song.server.service.id;
 
-import static bio.overture.song.core.utils.Joiners.COMMA;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Sets.difference;
-import static lombok.AccessLevel.PRIVATE;
-
 import bio.overture.song.server.properties.IdProperties;
-import java.util.Map;
-import java.util.Set;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.web.util.UriTemplate;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static lombok.AccessLevel.PRIVATE;
+import static bio.overture.song.core.utils.CollectionUtils.listDifference;
+import static bio.overture.song.core.utils.Joiners.COMMA;
 
 @Builder
 @RequiredArgsConstructor(access = PRIVATE)
@@ -88,20 +89,20 @@ public class UriResolver {
   private static UriTemplate processTemplate(
       String templateString, String... requiredTemplateVariables) {
     val uriTemplate = new UriTemplate(templateString);
-    val requiredSet = Set.of(requiredTemplateVariables);
-    val actualSet = Set.copyOf(uriTemplate.getVariableNames());
-    val missingSet = difference(requiredSet, actualSet);
-    val unknownSet = difference(actualSet, requiredSet);
+    val actualVariables = List.copyOf(uriTemplate.getVariableNames());
+    val requiredVariables = List.of(requiredTemplateVariables);
+    val missingList = listDifference(requiredVariables, actualVariables);
+    val unknownList = listDifference(actualVariables, requiredVariables);
     checkArgument(
-        actualSet.equals(requiredSet),
+        missingList.isEmpty() && unknownList.isEmpty(),
         "Error processing URI template string: '%s'. %s%s",
         templateString,
-        missingSet.isEmpty()
+        missingList.isEmpty()
             ? ""
-            : "Missing template variables: [" + COMMA.join(missingSet) + "]. ",
-        unknownSet.isEmpty()
+            : "Missing template variables: [" + COMMA.join(missingList) + "]. ",
+        unknownList.isEmpty()
             ? ""
-            : "Unknown template variables: [" + COMMA.join(unknownSet) + "]. ");
+            : "Unknown template variables: [" + COMMA.join(unknownList) + "]. ");
     return uriTemplate;
   }
 }
