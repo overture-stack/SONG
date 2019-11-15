@@ -6,7 +6,7 @@ SONG_SERVER_URL="http://localhost:8080"
 SONG_ACCESS_TOKEN="ad83ebde-a55c-11e7-abc4-cec278b6b50a"
 SONG_STUDY_ID="ABC123"
 
-RUN_DOCKERIZED_MVN_CMD = "docker run -v $(shell pwd):/opt -w /opt --rm maven:3.6-jdk-11-slim"
+RUN_DOCKERIZED_MVN_CMD = "docker run -v $(shell pwd):/opt -w /opt --rm maven:3.5-jdk-11-slim"
 
 DOCKER_COMPOSE_NAMESPACE = song
 

@@ -76,7 +76,7 @@ services:
       - "./song-docker-demo/logs/server_logs:/opt/dcc/server_logs"
       - "./song-docker-demo/tools:/opt/dcc/tools"
   server-maven:
-    image: maven:3.6-jdk-11-slim
+    image: maven:3.5-jdk-11-slim
     network_mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
