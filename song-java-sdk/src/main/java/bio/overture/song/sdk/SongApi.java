@@ -22,7 +22,7 @@ import bio.overture.song.core.model.Analysis;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.FileDTO;
-import bio.overture.song.core.model.FileData;
+import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.core.model.SubmitResponse;
@@ -127,7 +127,9 @@ public class SongApi {
   }
 
   public FileUpdateResponse updateFile(
-      @NonNull String studyId, @NonNull String objectId, @NonNull FileData fileUpdateRequest) {
+      @NonNull String studyId,
+      @NonNull String objectId,
+      @NonNull FileUpdateRequest fileUpdateRequest) {
     val url = endpoint.updateFile(studyId, objectId);
     return restClient.put(url, fileUpdateRequest, FileUpdateResponse.class).getBody();
   }
