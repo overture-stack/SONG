@@ -34,9 +34,7 @@ import org.springframework.retry.RetryOperations;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 
-/**
- * Simple REST client that executes HTTP GET requests for a specified url
- */
+/** Simple REST client that executes HTTP GET requests for a specified url */
 @RequiredArgsConstructor
 public class RestClient {
 
@@ -50,8 +48,8 @@ public class RestClient {
   }
 
   /**
-   * Executes a HTTP GET request for a url and returns an entity if it exists, 
-   * otherwise returns an empty Optional
+   * Executes a HTTP GET request for a url and returns an entity if it exists, otherwise returns an
+   * empty Optional
    */
   public <T> Optional<T> getObject(@NonNull String url, @NonNull Class<T> responseType) {
     try {
@@ -82,9 +80,9 @@ public class RestClient {
   }
 
   /**
-   * Indicates if a resource exists. If the response status code is not an error, the result is true.
-   * If the response code is 404 (NOT_FOUND) the result is false. 
-   * Any other response code or exception will throw an exception
+   * Indicates if a resource exists. If the response status code is not an error, the result is
+   * true. If the response code is 404 (NOT_FOUND) the result is false. Any other response code or
+   * exception will throw an exception
    */
   public boolean isFound(@NonNull String url) {
     try {
@@ -101,7 +99,8 @@ public class RestClient {
   }
 
   /**
-   * Executes a HTTP GET request for the url and deserializes the response to the type specified by {@param responseType}
+   * Executes a HTTP GET request for the url and deserializes the response to the type specified by
+   * {@param responseType}
    */
   public <T> ResponseEntity<T> get(String url, Class<T> responseType) {
     return retry.execute(

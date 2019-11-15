@@ -1,23 +1,22 @@
 package bio.overture.song.server.service.id;
 
+import static bio.overture.song.core.utils.CollectionUtils.listDifference;
+import static bio.overture.song.core.utils.Joiners.COMMA;
+import static com.google.common.base.Preconditions.checkArgument;
+import static lombok.AccessLevel.PRIVATE;
+
 import bio.overture.song.server.properties.IdProperties;
+import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.web.util.UriTemplate;
 
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static lombok.AccessLevel.PRIVATE;
-import static bio.overture.song.core.utils.CollectionUtils.listDifference;
-import static bio.overture.song.core.utils.Joiners.COMMA;
-
 /**
- * Dynamically expands URIs. Using the pre-configured URI templates, 
- * the URIs are resolved against the required inputs
+ * Dynamically expands URIs. Using the pre-configured URI templates, the URIs are resolved against
+ * the required inputs
  */
 @Builder
 @RequiredArgsConstructor(access = PRIVATE)
@@ -25,12 +24,14 @@ public class UriResolver {
 
   /** Constants */
   private static final String ANALYSIS_ID = "analysisId";
+
   private static final String FILE_NAME = "fileName";
   private static final String SUBMITTER_ID = "submitterId";
   private static final String STUDY_ID = "studyId";
 
   /** Dependencies */
   @NonNull private final UriTemplate fileUriTemplate;
+
   @NonNull private final UriTemplate donorUriTemplate;
   @NonNull private final UriTemplate specimenUriTemplate;
   @NonNull private final UriTemplate sampleUriTemplate;
@@ -70,9 +71,7 @@ public class UriResolver {
     return analysisSaveUriTemplate.expand(Map.of(ANALYSIS_ID, analysisId)).toString();
   }
 
-  /**
-   * Processes the defined URI templates and instatiates the UriResolver
-   */
+  /** Processes the defined URI templates and instatiates the UriResolver */
   public static UriResolver createUriResolver(
       @NonNull IdProperties.FederatedProperties.UriTemplateProperties uriTemplateProperties) {
     return UriResolver.builder()
@@ -92,8 +91,8 @@ public class UriResolver {
   }
 
   /**
-   * Ensures the uri template string contains the required 
-   * template variables, and returns a UriTemplate object
+   * Ensures the uri template string contains the required template variables, and returns a
+   * UriTemplate object
    */
   private static UriTemplate processTemplate(
       String templateString, String... requiredTemplateVariables) {

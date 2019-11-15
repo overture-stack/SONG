@@ -10,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.web.client.HttpStatusCodeException;
 
-/**
- * Implementation that calls an external service for ID federation
- */
+/** Implementation that calls an external service for ID federation */
 @RequiredArgsConstructor
 public class FederatedIdService implements IdService {
 
@@ -64,9 +62,8 @@ public class FederatedIdService implements IdService {
   }
 
   /**
-   * This method calls the callback function with the input url, 
-   * and if successfull (1xx/2xx/3xx status code) returns the result, 
-   * otherwise throws a ServerException
+   * This method calls the callback function with the input url, and if successfull (1xx/2xx/3xx
+   * status code) returns the result, otherwise throws a ServerException
    */
   private static <T> T handleIdServiceGetRequest(String url, Function<String, T> restCallback) {
     try {
