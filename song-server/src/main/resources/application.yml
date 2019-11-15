@@ -135,6 +135,10 @@ spring:
 id.persistInMemory: true
 dcc-storage.url: http://localhost:8087
 
+song:
+  security:
+    enabled: false
+
 ---
 spring.profiles: dev
 spring:
