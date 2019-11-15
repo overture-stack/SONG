@@ -27,6 +27,11 @@ import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Local implementation of the IdService, that does not require an 
+ * external REST service for registering canonical IDs.
+ * Uses the database for ID resolution. 
+ */
 @Slf4j
 public class LocalIdService implements IdService {
 
@@ -87,3 +92,4 @@ public class LocalIdService implements IdService {
     return Optional.of(nameBasedGenerator.generate(COLON.join(keys)).toString());
   }
 }
+

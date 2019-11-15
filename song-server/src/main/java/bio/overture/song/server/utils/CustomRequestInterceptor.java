@@ -15,9 +15,15 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
+/**
+ * Interceptor that injects the Authorization header into any incomming request
+ */
 @RequiredArgsConstructor
 public class CustomRequestInterceptor implements ClientHttpRequestInterceptor {
 
+	/**
+	 * Dependency
+	 */
   @NonNull private final TokenService tokenService;
 
   @Override

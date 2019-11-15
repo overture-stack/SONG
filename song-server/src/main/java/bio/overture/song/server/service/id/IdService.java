@@ -19,22 +19,27 @@ package bio.overture.song.server.service.id;
 
 import java.util.Optional;
 
+/**
+ * Retrieves a canonical ID that maps to the input business keys.
+ * All methods that retieve a canonical ID value, return an Optional 
+ * which indicates its existence
+ */
 public interface IdService {
 
-  Optional<String> getFileId(String analysisId, String fileName);
+	Optional<String> getFileId(String analysisId, String fileName);
 
-  Optional<String> getDonorId(String studyId, String submitterDonorId);
+	Optional<String> getDonorId(String studyId, String submitterDonorId);
 
-  Optional<String> getSpecimenId(String studyId, String submitterSpecimenId);
+	Optional<String> getSpecimenId(String studyId, String submitterSpecimenId);
 
-  Optional<String> getSampleId(String studyId, String submitterSampleId);
+	Optional<String> getSampleId(String studyId, String submitterSampleId);
 
-  /** Indicates if the submitterAnalysisId exists already */
-  boolean isAnalysisIdExist(String analysisId);
+	/** Indicates if the submitterAnalysisId exists already */
+	boolean isAnalysisIdExist(String analysisId);
 
-  /** Generates a random unique analysisId, without persisting */
-  Optional<String> getUniqueCandidateAnalysisId();
+	/** Generates a random unique analysisId, without persisting */
+	Optional<String> getUniqueCandidateAnalysisId();
 
-  /** Idempotent method that creates an analysisId */
-  void saveAnalysisId(String submitterAnalysisId);
+	/** Idempotent method that creates an analysisId */
+	void saveAnalysisId(String submitterAnalysisId);
 }
