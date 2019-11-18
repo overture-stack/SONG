@@ -76,8 +76,8 @@ spec:
                     t4 = ""
                 }
              rtUpload ( serverId: 'artifactory',
-                        spec: """"{ 
-                            \"files\": [ 
+                        spec: """{
+                            \"files\": [
                                     {
                                     \"pattern\": \"song-client/target/*.tar.gz\",
                                     \"target\": \"${t1}\"
