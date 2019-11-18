@@ -145,15 +145,15 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://song-db/song?stringtype=unspecified
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_LOCATIONS: "classpath:db/migration"
-      ID_USELOCAL: "true"
-      ID_FEDERATED_AUTH_BEARER_TOKEN:              ad83ebde-a55c-11e7-abc4-cec278b6b50a
-      ID_FEDERATED_URITEMPLATE_DONOR:              http://localhost:8086/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
-      ID_FEDERATED_URITEMPLATE_SPECIMEN:           http://localhost:8086/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
-      ID_FEDERATED_URITEMPLATE_SAMPLE:             http://localhost:8086/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
-      ID_FEDERATED_URITEMPLATE_FILE:               http://localhost:8086/object/id?analysisId={analysisId}&fileName={fileName}
-      ID_FEDERATED_URITEMPLATE_ANALYSIS_EXISTENCE: http://localhost:8086/analysis/id?submittedAnalysisId={analysisId}&create=false
-      ID_FEDERATED_URITEMPLATE_ANALYSIS_GENERATE:  http://localhost:8086/analysis/unique
-      ID_FEDERATED_URITEMPLATE_ANALYSIS_SAVE:      http://localhost:8086/analysis/id?submittedAnalysisId={analysisId}&create=true
+      ID_USELOCAL: "false"
+      ID_FEDERATED_AUTH_BEARER_TOKEN:              f69b726d-d40f-4261-b105-1ec7e6bf04d5
+      ID_FEDERATED_URITEMPLATE_DONOR:              http://dcc-id-server:8080/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
+      ID_FEDERATED_URITEMPLATE_SPECIMEN:           http://dcc-id-server:8080/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
+      ID_FEDERATED_URITEMPLATE_SAMPLE:             http://dcc-id-server:8080/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
+      ID_FEDERATED_URITEMPLATE_FILE:               http://dcc-id-server:8080/object/id?analysisId={analysisId}&fileName={fileName}
+      ID_FEDERATED_URITEMPLATE_ANALYSIS_EXISTENCE: http://dcc-id-server:8080/analysis/id?submittedAnalysisId={analysisId}&create=false
+      ID_FEDERATED_URITEMPLATE_ANALYSIS_GENERATE:  http://dcc-id-server:8080/analysis/unique
+      ID_FEDERATED_URITEMPLATE_ANALYSIS_SAVE:      http://dcc-id-server:8080/analysis/id?submittedAnalysisId={analysisId}&create=true
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,address=*:5006,server=y,suspend=n
     restart: always
     ports:
@@ -163,8 +163,38 @@ services:
       - song-db 
       - ego-api
       - score-server
+      - dcc-id-server
     volumes:
       - "./docker/scratch/song-server-logs:/song-server/logs"
+  dcc-id-db:
+    image: icgcdcc/dcc-id-db:3908f82
+    environment:
+      POSTGRES_DB: dcc_identifier
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+  dcc-id-server:
+    image: icgcdcc/dcc-id-server:3908f82
+    environment:
+      AUTH_SERVER_URL: http://ego-api:8080/o/check_token/
+      AUTH_SERVER_CLIENTID: dcc-id
+      AUTH_SERVER_CLIENTSECRET: dccidsecret
+      AUTH_SERVER_PREFIX: id
+      AUTH_SERVER_SUFFIX: WRITE
+      AUTH_CONNECTION_MAXRETRIES: 5
+      AUTH_CONNECTION_INITIALBACKOFF: 15000
+      AUTH_CONNECTION_MULTIPLIER: 2.0
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dcc-id-db/dcc_identifier
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_PROFILES_ACTIVE: secure
+    restart: always
+    depends_on:
+      - dcc-id-db
+      - ego-api
+    expose:
+      - "8080"
+    ports:
+      - "8086:8080"
 
 volumes:
     object-storage-data: {}

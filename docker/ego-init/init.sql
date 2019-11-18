@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.16
--- Dumped by pg_dump version 9.5.16
+-- Dumped from database version 9.5.19
+-- Dumped by pg_dump version 9.5.19
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -11,6 +11,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -353,6 +354,7 @@ COPY public.groupapplication (group_id, application_id) FROM stdin;
 COPY public.grouppermission (id, policy_id, group_id, access_level) FROM stdin;
 3cc299f1-4a2f-4394-869a-1edbca963ef8	7978c66c-7bd6-4d7b-a6e2-418ab6714859	f2885e96-f74e-4f7a-b935-fb48b18e761d	WRITE
 cfb2d93e-7744-4406-a21d-a217f5ee44f0	4b7718ce-ad94-4ec5-b0fb-bf91a520a816	f2885e96-f74e-4f7a-b935-fb48b18e761d	WRITE
+6a0111a4-a9a5-4117-8752-81959641d910	430ebc77-b43d-41d6-8ecf-7eab4ec3e4da	f2885e96-f74e-4f7a-b935-fb48b18e761d	WRITE
 \.
 
 
@@ -363,6 +365,7 @@ cfb2d93e-7744-4406-a21d-a217f5ee44f0	4b7718ce-ad94-4ec5-b0fb-bf91a520a816	f2885e
 COPY public.policy (id, owner, name) FROM stdin;
 7978c66c-7bd6-4d7b-a6e2-418ab6714859	\N	score
 4b7718ce-ad94-4ec5-b0fb-bf91a520a816	\N	song
+430ebc77-b43d-41d6-8ecf-7eab4ec3e4da	\N	id
 \.
 
 
@@ -382,6 +385,7 @@ COPY public.token (id, name, owner, issuedate, isrevoked, description, expirydat
 COPY public.tokenscope (token_id, policy_id, access_level) FROM stdin;
 5408ff40-77d3-4196-b745-e48532e39463	7978c66c-7bd6-4d7b-a6e2-418ab6714859	WRITE
 5408ff40-77d3-4196-b745-e48532e39463	4b7718ce-ad94-4ec5-b0fb-bf91a520a816	WRITE
+5408ff40-77d3-4196-b745-e48532e39463	430ebc77-b43d-41d6-8ecf-7eab4ec3e4da	WRITE
 \.
 
 
