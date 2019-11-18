@@ -65,7 +65,7 @@ spec:
             }
         }
 
-        stage('Test Artifactory') {
+        stage('Upload Artifacts to Artifactory') {
            steps {
                 script {
                   t1 = "dcc-release/bio/overture/song-client/${version}/song-client-${version}-dist.tar.gz" 
@@ -73,18 +73,19 @@ spec:
                 }
              rtUpload ( 
 		serverId: 'artifactory', 
-		spec: '''{
-          		"files": [
+		spec: """"{
+          		\"files\": [
             			{
-              			"pattern": "song-client/target/*.tar.gz",
-              			"target": t1 
+              			\"pattern\": \"song-client/target/*.tar.gz\",
+              			\"target\": ${t1}
             			},
-                                {
-                                "pattern": "song-client/target/*-exec.jar",
-                                "target": t2 
-                                }
+                        {
+                        \"pattern\": \"song-client/target/*-exec.jar\",
+                        \"target\": ${t2} 
+                        }
          		]
-    		}'''
+    		}
+    		"""
              )
           }
        }
