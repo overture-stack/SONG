@@ -44,6 +44,7 @@ services:
       - "8085:9000"
   score-server:
     image: overture/score-server:latest
+    user: "$MY_UID:$MY_GID"
     environment:
       SPRING_PROFILES_ACTIVE: amazon,collaboratory,prod,secure
       SERVER_PORT: 8080
@@ -116,8 +117,9 @@ services:
     ports:
       - "5005:5005"
     volumes:
-      - "./docker/song-client-init:/data"
+      - "./docker/song-example-data:/data"
       - "./docker/scratch/song-client-logs:/song-client/logs"
+      - "./docker/scratch/song-client-output:/song-client/output"
     command: bin/score-client
   song-server:
     build:

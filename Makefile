@@ -12,7 +12,9 @@ MVN_EXE := $(shell which mvn)
 # Variables
 DOCKERFILE_NAME := $(shell if [ $(DEMO_MODE) -eq 1 ]; then echo Dockerfile; else echo Dockerfile.dev; fi)
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-THIS_USER := $$(id -u):$$(id -g)
+MY_UID := $$(id -u)
+MY_GID := $$(id -g)
+THIS_USER := $(MY_UID):$(MY_GID)
 ACCESS_TOKEN := f69b726d-d40f-4261-b105-1ec7e6bf04d5
 PROJECT_NAME := $(shell echo $(ROOT_DIR) | sed 's/.*\///g')
 PROJECT_VERSION := $(shell $(MVN_EXE) -f $(ROOT_DIR) help:evaluate -Dexpression=project.version -q -DforceStdout 2>&1  | tail -1)
@@ -37,7 +39,7 @@ RETRY_CMD := $(DOCKER_DIR)/retry-command.sh
 # Commands
 DOCKER_COMPOSE_CMD := echo "*********** DEMO_MODE = $(DEMO_MODE) **************" \
 	&& echo "*********** FORCE = $(FORCE) **************" \
-	&& DOCKERFILE_NAME=$(DOCKERFILE_NAME) $(DOCKER_COMPOSE_EXE) -f $(ROOT_DIR)/docker-compose.yml
+	&& DOCKERFILE_NAME=$(DOCKERFILE_NAME) MY_UID=$(MY_UID) MY_GID=$(MY_GID) $(DOCKER_COMPOSE_EXE) -f $(ROOT_DIR)/docker-compose.yml
 SONG_CLIENT_CMD := $(DOCKER_COMPOSE_CMD) run --rm -u $(THIS_USER) song-client bin/song-client
 DC_UP_CMD := $(DOCKER_COMPOSE_CMD) up -d --build
 MVN_CMD := $(MVN_EXE) -f $(ROOT_DIR)/pom.xml
@@ -195,33 +197,30 @@ log-song-client:
 
 
 #############################################################
-#  Song targets
-#############################################################
-
-# Publishes the analysis. Used before running the test-download target
-song-publish:
-	@echo $(YELLOW)$(INFO_HEADER) "Publishing analysis" $(END)
-	@$(CURL_EXE) -XPUT --header 'Authorization: Bearer $(ACCESS_TOKEN)' 'http://localhost:8080/studies/ABC123/analysis/publish/735b65fa-f502-11e9-9811-6d6ef1d32823'
-	@echo ""
-
-# UnPublishes the analysis. Used before running the test-download target
-song-unpublish:
-	@echo $(YELLOW)$(INFO_HEADER) "UnPublishing analysis" $(END)
-	@$(CURL_EXE) -XPUT --header 'Authorization: Bearer $(ACCESS_TOKEN)' 'http://localhost:8080/studies/ABC123/analysis/unpublish/735b65fa-f502-11e9-9811-6d6ef1d32823'
-	@echo ""
-
-#############################################################
 #  Client targets
 #############################################################
 
+GET_ANALYSIS_ID_CMD := cat $(SCRATCH_DIR)/analysisId.txt
+test-submit:
+	@echo $(YELLOW)$(INFO_HEADER) "Submitting payload /data/submit/exampleVariantCall.json" $(END)
+	@$(SONG_CLIENT_CMD) submit -f /data/submit/exampleVariantCall.json | jq -r .analysisId > $(SCRATCH_DIR)/analysisId.txt
+	@echo $(YELLOW)$(INFO_HEADER) "Successfully submitted. Cached analysisId: " $$($(GET_ANALYSIS_ID_CMD)) $(END)
+
+test-manifest:
+	@echo $(YELLOW)$(INFO_HEADER) "Creating manifest at /song-client/output" $(END)
+	@$(SONG_CLIENT_CMD) manifest -a $$(cat $(SCRATCH_DIR)/analysisId.txt) -f /song-client/output/manifest.txt -d /data
+	@cat /song-client/output/manifest.txt
+
 # Upload a manifest using the score-client. Affected by DEMO_MODE
-test-upload: start-score-server _ping_score_server
-	@echo $(YELLOW)$(INFO_HEADER) "Uploading test /data/manifest.txt" $(END)
-	@$(SONG_CLIENT_CMD) upload --manifest /data/manifest.txt
+test-score-upload: test-manifest start-score-server _ping_score_server
+	@echo $(YELLOW)$(INFO_HEADER) "Uploading manifest /song-client/output/manifest.txt" $(END)
+	@$(SCORE_CLIENT_CMD) upload --manifest /song-client/output/manifest.txt
 
-# Download an object-id. Affected by DEMO_MODE
-test-download: start-score-server _ping_score_server _ping_song_server song-publish
-	@echo $(YELLOW)$(INFO_HEADER) "Downlaoding test object id" $(END)
-	@$(SONG_CLIENT_CMD) download --object-id 5be58fbb-775b-5259-bbbd-555e07fbdf24 --output-dir /tmp
+test-publish:
+	@echo $(YELLOW)$(INFO_HEADER) "Publishing analysis: $$($(GET_ANALYSIS_ID_CMD))" $(END)
+	@$(SONG_CLIENT_CMD) publish -a $$($(GET_ANALYSIS_ID_CMD))
 
+test-unpublish:
+	@echo $(YELLOW)$(INFO_HEADER) "Unpublishing analysis: $$($(GET_ANALYSIS_ID_CMD))" $(END)
+	@$(SONG_CLIENT_CMD) unpublish -a $$($(GET_ANALYSIS_ID_CMD))
 

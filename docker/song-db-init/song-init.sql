@@ -536,7 +536,6 @@ ALTER TABLE ONLY public.analysis_schema ALTER COLUMN id SET DEFAULT nextval('pub
 --
 
 COPY public.analysis (id, study_id, type, state, analysis_schema_id, analysis_data_id) FROM stdin;
-735b65fa-f502-11e9-9811-6d6ef1d32823	ABC123	\N	UNPUBLISHED	1	1
 \.
 
 
@@ -545,7 +544,6 @@ COPY public.analysis (id, study_id, type, state, analysis_schema_id, analysis_da
 --
 
 COPY public.analysis_data (id, data) FROM stdin;
-1	{"info": {"randomField19": "alternatively, put some extra ANALYSIS fields here"}, "experiment": {"info": {"randomField16": "alternatively, put some extra EXPERIMENT fields here"}, "randomField14": "we can define any EXPERIMENT field. For example, randomField14", "randomField15": "as a second example, we can define another random EXPERIMENT field called randomField15", "variantCallingTool": "silver bullet", "matchedNormalSampleSubmitterId": "sample x24-11a"}, "randomField17": "we can define any ANALYSIS field. For example, randomField17", "randomField18": "as a second example, we can define another random ANALYSIS field called randomField18"}
 \.
 
 
@@ -578,7 +576,6 @@ SELECT pg_catalog.setval('public.analysis_schema_id_seq', 2, true);
 --
 
 COPY public.donor (id, study_id, submitter_id, gender) FROM stdin;
-DO6cbf73d97b258bcaab5263fa193cb53b	ABC123	internal_donor_123456789-00	female
 \.
 
 
@@ -587,8 +584,6 @@ DO6cbf73d97b258bcaab5263fa193cb53b	ABC123	internal_donor_123456789-00	female
 --
 
 COPY public.file (id, analysis_id, study_id, name, size, md5, type, access) FROM stdin;
-5be58fbb-775b-5259-bbbd-555e07fbdf24	735b65fa-f502-11e9-9811-6d6ef1d32823	ABC123	example.vcf.gz	52	9a793e90d0d1e11301ea8da996446e59	VCF	open
-632c29af-c46e-581b-ab43-65e875d86361	735b65fa-f502-11e9-9811-6d6ef1d32823	ABC123	example.vcf.gz.idx	25	c03274816eb4907a92b8e5632cd6eb81	IDX	open
 \.
 
 
@@ -609,12 +604,6 @@ COPY public.flyway_schema_history (installed_rank, version, description, type, s
 --
 
 COPY public.info (id, id_type, info) FROM stdin;
-ABC123	Study	{}
-DO6cbf73d97b258bcaab5263fa193cb53b	Donor	{"randomField4":"we can define any DONOR field. For example, randomField4","randomField5":"as a second example, we can define another random DONOR field called randomField5","randomField6":"alternatively, put some extra DONOR fields here"}
-SP5cabc533f4329c31f2b6adabbf1c9800	Specimen	{"randomField1":"we can define any SPECIMEN field. For example, randomField1","randomField2":"as a second example, we can define another random SPECIMEN field called randomField2","randomField3":"alternatively, put some extra SPECIMEN fields here"}
-SA17e38fb4c5969ce8e34c9c209650d50b	Sample	{"randomField7":"we can define any SAMPLE field. For example, randomField7","randomField8":"as a second example, we can define another random SAMPLE field called randomField8","randomField9":"alternatively, put some extra SAMPLE fields here"}
-5be58fbb-775b-5259-bbbd-555e07fbdf24	File	{"randomField10":"we can define any FILE field. For example, randomField10","randomField11":"as a second example, we can define another random FILE field called randomField11","randomField12":"alternatively, put some extra FILE fields here"}
-632c29af-c46e-581b-ab43-65e875d86361	File	{"randomField10":"we can define any FILE field. For example, randomField10","randomField12":"alternatively, put some extra FILE fields here","randomField13":"as a second example, we can define another random FILE field called randomField13"}
 \.
 
 
@@ -623,7 +612,6 @@ SA17e38fb4c5969ce8e34c9c209650d50b	Sample	{"randomField7":"we can define any SAM
 --
 
 COPY public.sample (id, specimen_id, submitter_id, type) FROM stdin;
-SA17e38fb4c5969ce8e34c9c209650d50b	SP5cabc533f4329c31f2b6adabbf1c9800	internal_sample_98024759826836	Total RNA
 \.
 
 
@@ -632,7 +620,6 @@ SA17e38fb4c5969ce8e34c9c209650d50b	SP5cabc533f4329c31f2b6adabbf1c9800	internal_s
 --
 
 COPY public.sampleset (analysis_id, sample_id) FROM stdin;
-735b65fa-f502-11e9-9811-6d6ef1d32823	SA17e38fb4c5969ce8e34c9c209650d50b
 \.
 
 
@@ -641,7 +628,6 @@ COPY public.sampleset (analysis_id, sample_id) FROM stdin;
 --
 
 COPY public.specimen (id, donor_id, submitter_id, class, type) FROM stdin;
-SP5cabc533f4329c31f2b6adabbf1c9800	DO6cbf73d97b258bcaab5263fa193cb53b	internal_specimen_9b73gk8s02dk	Tumour	Primary tumour - other
 \.
 
 
