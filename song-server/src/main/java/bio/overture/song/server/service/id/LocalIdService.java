@@ -26,8 +26,6 @@ import com.google.common.base.Joiner;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * Local implementation of the IdService, that does not require an external REST service for

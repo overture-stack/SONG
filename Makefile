@@ -30,27 +30,39 @@ DONE_MESSAGE := $(YELLOW)$(INFO_HEADER) "- done\n" $(END)
 # Paths
 DOCKER_DIR := $(ROOT_DIR)/docker
 SCRATCH_DIR := $(DOCKER_DIR)/scratch/
-SONG_CLIENT_LOGS_DIR := $(SCRATCH_DIR)/song-client-logs
-SONG_CLIENT_LOG_FILE := $(SONG_CLIENT_LOGS_DIR)/client.log
 SONG_SERVER_JAR_FILE := $(ROOT_DIR)/song-server/target/song-server-$(PROJECT_VERSION)-exec.jar
 SONG_CLIENT_DIST_FILE := $(ROOT_DIR)/song-client/target/song-client-$(PROJECT_VERSION)-dist.tar.gz
 RETRY_CMD := $(DOCKER_DIR)/retry-command.sh
+SCORE_SERVER_LOGS_DIR := $(SCRATCH_DIR)/score-server-logs
+SCORE_CLIENT_LOGS_DIR := $(SCRATCH_DIR)/score-client-logs
+SONG_SERVER_LOGS_DIR  := $(SCRATCH_DIR)/song-server-logs
+SONG_CLIENT_LOGS_DIR  := $(SCRATCH_DIR)/song-client-logs
+SONG_CLIENT_LOG_FILE := $(SONG_CLIENT_LOGS_DIR)/client.log
+SONG_CLIENT_OUTPUT_DIR := $(SCRATCH_DIR)/song-client-output
+SONG_CLIENT_ANALYSIS_ID_FILE := $(SONG_CLIENT_OUTPUT_DIR)/analysisId.txt
+SONG_CLIENT_SUBMIT_RESPONSE_FILE := $(SONG_CLIENT_OUTPUT_DIR)/submit_response.json
+
+
+OUTPUT_DIRS := $(SONG_CLIENT_OUTPUT_DIR)
+LOG_DIRS := $(SCORE_SERVER_LOGS_DIR) $(SCORE_CLIENT_LOGS_DIR) $(SONG_SERVER_LOGS_DIR) $(SONG_CLIENT_LOGS_DIR)
+
 
 # Commands
 DOCKER_COMPOSE_CMD := echo "*********** DEMO_MODE = $(DEMO_MODE) **************" \
 	&& echo "*********** FORCE = $(FORCE) **************" \
 	&& DOCKERFILE_NAME=$(DOCKERFILE_NAME) MY_UID=$(MY_UID) MY_GID=$(MY_GID) $(DOCKER_COMPOSE_EXE) -f $(ROOT_DIR)/docker-compose.yml
-SONG_CLIENT_CMD := $(DOCKER_COMPOSE_CMD) run --rm -u $(THIS_USER) song-client bin/song-client
+SONG_CLIENT_CMD := $(DOCKER_COMPOSE_CMD) run --rm -u $(THIS_USER) song-client bin/sing
+SCORE_CLIENT_CMD := $(DOCKER_COMPOSE_CMD) run --rm -u $(THIS_USER) score-client bin/score-client
 DC_UP_CMD := $(DOCKER_COMPOSE_CMD) up -d --build
 MVN_CMD := $(MVN_EXE) -f $(ROOT_DIR)/pom.xml
 
 #############################################################
 # Internal Targets
 #############################################################
-$(SONG_CLIENT_LOG_FILE):
-	@mkdir -p $(SONG_CLIENT_LOGS_DIR)
-	@touch $(SONG_CLIENT_LOGS_DIR)/client.log
-	@chmod 777 $(SONG_CLIENT_LOGS_DIR)/client.log
+$(SCORE_CLIENT_LOG_FILE):
+	@mkdir -p $(SCORE_CLIENT_LOGS_DIR)
+	@touch $(SCORE_CLIENT_LOGS_DIR)/client.log
+	@chmod 777 $(SCORE_CLIENT_LOGS_DIR)/client.log
 
 _build-song-client: package
 	@$(DOCKER_COMPOSE_CMD) build song-client
@@ -92,7 +104,7 @@ _destroy-object-storage:
 		echo $(YELLOW)$(INFO_HEADER) "Bucket does not exist. Skipping..." $(END); \
 	fi
 
-_setup: $(SONG_CLIENT_LOG_FILE)
+_setup: init-log-dirs init-output-dirs $(SCORE_CLIENT_LOG_FILE)
 
 #############################################################
 # Help
@@ -150,12 +162,28 @@ clean-score-server:
 # Delete all objects from object storage
 clean-objects: _destroy-object-storage
 
+clean-log-dirs:
+	@echo $(YELLOW)$(INFO_HEADER) "Cleaning log directories" $(END);
+	@rm -rf $(OUTPUT_DIRS)
+
+clean-output-dirs:
+	@echo $(YELLOW)$(INFO_HEADER) "Cleaning output directories" $(END);
+	@rm -rf $(LOG_DIRS)
+
 # Clean everything. Kills all services, maven cleans and removes generated files/directories
-clean: clean-docker clean-mvn
+clean: clean-docker clean-mvn clean-log-dirs clean-output-dirs
 
 #############################################################
 #  Building targets
 #############################################################
+
+init-output-dirs:
+	@echo $(YELLOW)$(INFO_HEADER) "Initializing output directories" $(END);
+	@mkdir -p $(OUTPUT_DIRS)
+
+init-log-dirs:
+	@echo $(YELLOW)$(INFO_HEADER) "Initializing log directories" $(END);
+	@mkdir -p $(LOG_DIRS)
 
 # Package the score-server and score-client using maven. Affected by DEMO_MODE and FORCE
 package: 
@@ -185,6 +213,8 @@ start-song-server: _setup package start-deps _setup-object-storage
 	@echo $(YELLOW)$(INFO_HEADER) "Starting song-server" $(END)
 	@$(DC_UP_CMD) song-server
 
+build-song-client:
+
 # Display logs for song-server
 log-song-server:
 	@echo $(YELLOW)$(INFO_HEADER) "Displaying logs for song-server" $(END)
@@ -200,27 +230,32 @@ log-song-client:
 #  Client targets
 #############################################################
 
-GET_ANALYSIS_ID_CMD := cat $(SCRATCH_DIR)/analysisId.txt
-test-submit:
+GET_ANALYSIS_ID_CMD := cat $(SONG_CLIENT_ANALYSIS_ID_FILE)
+
+get-analysis-id:
+	@echo "The cached analysisId is " $$($(GET_ANALYSIS_ID_CMD))
+
+test-submit: start-song-server _ping_song_server
 	@echo $(YELLOW)$(INFO_HEADER) "Submitting payload /data/submit/exampleVariantCall.json" $(END)
-	@$(SONG_CLIENT_CMD) submit -f /data/submit/exampleVariantCall.json | jq -r .analysisId > $(SCRATCH_DIR)/analysisId.txt
+	@$(SONG_CLIENT_CMD) submit -f /data/submit/exampleVariantCall.json |& tee $(SONG_CLIENT_SUBMIT_RESPONSE_FILE)
+	@cat $(SONG_CLIENT_SUBMIT_RESPONSE_FILE) | grep analysisId | sed 's/.*://' | sed 's/"\|,//g'  > $(SONG_CLIENT_ANALYSIS_ID_FILE)
 	@echo $(YELLOW)$(INFO_HEADER) "Successfully submitted. Cached analysisId: " $$($(GET_ANALYSIS_ID_CMD)) $(END)
 
-test-manifest:
+test-manifest: test-submit
 	@echo $(YELLOW)$(INFO_HEADER) "Creating manifest at /song-client/output" $(END)
-	@$(SONG_CLIENT_CMD) manifest -a $$(cat $(SCRATCH_DIR)/analysisId.txt) -f /song-client/output/manifest.txt -d /data
-	@cat /song-client/output/manifest.txt
+	@$(SONG_CLIENT_CMD) manifest -a $$($(GET_ANALYSIS_ID_CMD))  -f /song-client/output/manifest.txt -d /data/submit
+	@cat $(SONG_CLIENT_OUTPUT_DIR)/manifest.txt
 
 # Upload a manifest using the score-client. Affected by DEMO_MODE
-test-score-upload: test-manifest start-score-server _ping_score_server
+test-score-upload:  test-manifest _ping_score_server 
 	@echo $(YELLOW)$(INFO_HEADER) "Uploading manifest /song-client/output/manifest.txt" $(END)
 	@$(SCORE_CLIENT_CMD) upload --manifest /song-client/output/manifest.txt
 
-test-publish:
+test-publish: _ping_song_server
 	@echo $(YELLOW)$(INFO_HEADER) "Publishing analysis: $$($(GET_ANALYSIS_ID_CMD))" $(END)
 	@$(SONG_CLIENT_CMD) publish -a $$($(GET_ANALYSIS_ID_CMD))
 
-test-unpublish:
+test-unpublish: _ping_song_server
 	@echo $(YELLOW)$(INFO_HEADER) "Unpublishing analysis: $$($(GET_ANALYSIS_ID_CMD))" $(END)
 	@$(SONG_CLIENT_CMD) unpublish -a $$($(GET_ANALYSIS_ID_CMD))
 
