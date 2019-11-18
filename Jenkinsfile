@@ -2,6 +2,8 @@ def commit = "UNKNOWN"
 def version = "UNKNOWN"
 def t1 = "UNKNOWN"
 def t2 = "UNKNOWN"
+def t3 = "UNKNOWN"
+def t4 = "UNKNOWN"
 
 pipeline {
     agent {
@@ -68,18 +70,25 @@ spec:
         stage('Upload Artifacts to Artifactory') {
            steps {
                 script {
-                  t1 = "dcc-release/bio/overture/song-client/${version}/song-client-test-${version}-dist.tar.gz" 
-                  t2 = "dcc-release/bio/overture/song-client/${version}/song-client-test-${version}.jar"
+                    t1 = "dcc-release/bio/overture/song-client/${version}/song-client-test-${version}-dist.tar.gz"
+                    t2 = "dcc-release/bio/overture/song-client/${version}/song-client-test-${version}.jar"
+                    t3 = "dcc-release/bio/overture/song-server/${version}/song-server-test-${version}-dist.tar.gz"
+                    t4 = ""
                 }
              rtUpload ( serverId: 'artifactory',
-                        spec: """"{ \"files\": [ {
+                        spec: """"{ 
+                            \"files\": [ 
+                                    {
                                     \"pattern\": \"song-client/target/*.tar.gz\",
-                                    \"target\": ${t1}
-                                  },
-                                  {
+                                    \"target\": \"${t1}\"
+                                    },
+                                    {
                                     \"pattern\": \"song-client/target/*-exec.jar\",
-                                    \"target\": ${t2} 
-                                  }
+                                    \"target\": \"${t2}\" 
+                                    },
+                                    { \"pattern\": \"song-server/target/*.tar.gz\",
+                                    \"target\": \"${t3}\"
+                                    }
                             ]
                           }
                         """
