@@ -154,7 +154,7 @@ clean-mvn:
 	@$(MVN_CMD) clean
 
 # Just kill and delete the score-server container
-clean-score-server:
+clean-song-server:
 	@echo $(YELLOW)$(INFO_HEADER) "Killing and Cleaning song-server" $(END)
 	@$(DOCKER_COMPOSE_CMD) kill song-server
 	@$(DOCKER_COMPOSE_CMD) rm -f song-server
