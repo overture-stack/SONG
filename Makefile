@@ -121,15 +121,15 @@ help:
 	@grep '^[A-Za-z][A-Za-z0-9_-]\+:.*' $(ROOT_DIR)/Makefile | sed 's/:.*//' | sed 's/^/\t/'
 	@echo
 
-# Outputs the Docker run profile in IntelliJ to debug score-client
-intellij-score-client-config: _build-song-client
+# Outputs the Docker run profile in IntelliJ to debug song-client
+intellij-song-client-config: _build-song-client
 	@echo
 	@echo
-	@echo $(YELLOW)$(INFO_HEADER) In IntelliJ, configure the docker run profile with the following parameters to allow interactive debug on port 5005 $(END)
+	@echo $(YELLOW)$(INFO_HEADER) In IntelliJ, configure the docker run profile with the following parameters to allow interactive debug on port 5005. You may need to add a Thread.sleep(5000) $(END)
 	@echo "$(YELLOW)Image ID:$(END)               $(PROJECT_NAME)_song-client:latest"
 	@echo "$(YELLOW)Command:$(END)                bin/sing submit -f /data/exampleVariantCall.json"
-	@echo "$(YELLOW)Bind Mounts:$(END)            $(DOCKER_DIR)/song-client-init:/data $(SCRATCH_DIR)/song-client/logs:/song-client/logs"
-	@echo "$(YELLOW)Environment Variables:$(END)  CLIENT_ACCESS_TOKEN=f69b726d-d40f-4261-b105-1ec7e6bf04d5; CLIENT_SERVER_URL=http://song-server:8080; CLIENT_STUDY_ID=ABC123; JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n"
+	@echo "$(YELLOW)Bind Mounts:$(END)            $(DOCKER_DIR)/song-example-data:/data/submit $(SONG_CLIENT_LOGS_DIR):/song-client/logs $(SONG_CLIENT_OUTPUT_DIR):/song-client/output"
+	@echo "$(YELLOW)Environment Variables:$(END)  CLIENT_ACCESS_TOKEN=f69b726d-d40f-4261-b105-1ec7e6bf04d5; CLIENT_SERVER_URL=http://song-server:8080; CLIENT_STUDY_ID=ABC123; CLIENT_DEBUG=true; JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n"
 	@echo "$(YELLOW)Run Options:$(END)            --rm --network $(PROJECT_NAME)_default"
 	@echo
 	@echo
