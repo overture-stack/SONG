@@ -18,14 +18,13 @@ package bio.overture.song.server.config;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
+import java.security.MessageDigest;
+import java.util.UUID;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.security.MessageDigest;
-import java.util.UUID;
 
 @Configuration
 @Data

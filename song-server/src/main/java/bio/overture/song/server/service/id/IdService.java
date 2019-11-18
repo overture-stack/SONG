@@ -29,19 +29,12 @@ public interface IdService {
 
   Optional<String> resolveSampleId(String studyId, String submitterSampleId);
 
-  /**
-   * Indicates if the submitterAnalysisId exists already
-   */
+  /** Indicates if the submitterAnalysisId exists already */
   boolean isAnalysisIdExist(String analysisId);
 
-  /**
-   * Generates a random unique analysisId, without persisting
-   */
+  /** Generates a random unique analysisId, without persisting */
   String uniqueCandidateAnalysisId();
 
-  /**
-   *  Idempotent method that creates an analysisId
-   */
+  /** Idempotent method that creates an analysisId */
   void saveAnalysisId(String submitterAnalysisId);
-
 }

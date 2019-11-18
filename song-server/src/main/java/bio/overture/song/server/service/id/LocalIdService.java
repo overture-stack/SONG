@@ -17,18 +17,17 @@
 
 package bio.overture.song.server.service.id;
 
+import static com.fasterxml.uuid.Generators.randomBasedGenerator;
+
 import bio.overture.song.server.repository.AnalysisRepository;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import com.google.common.base.Joiner;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-
-import static com.fasterxml.uuid.Generators.randomBasedGenerator;
 
 @Slf4j
 @Service
@@ -36,14 +35,17 @@ public class LocalIdService implements IdService {
 
   /** Constants */
   private static final Joiner COLON = Joiner.on(":");
+
   private static final RandomBasedGenerator RANDOM_UUID_GENERATOR = randomBasedGenerator();
 
   /** Dependencies */
   private final NameBasedGenerator nameBasedGenerator;
+
   private final AnalysisRepository analysisRepository;
 
   @Autowired
-  public LocalIdService(@NonNull NameBasedGenerator nameBasedGenerator,
+  public LocalIdService(
+      @NonNull NameBasedGenerator nameBasedGenerator,
       @NonNull AnalysisRepository analysisRepository) {
     this.nameBasedGenerator = nameBasedGenerator;
     this.analysisRepository = analysisRepository;
@@ -70,7 +72,8 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public Optional<String> resolveDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
+  public Optional<String> resolveDonorId(
+      @NonNull String studyId, @NonNull String submitterDonorId) {
     return generateId(studyId, submitterDonorId);
   }
 
@@ -81,7 +84,8 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public Optional<String> resolveSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
+  public Optional<String> resolveSampleId(
+      @NonNull String studyId, @NonNull String submitterSampleId) {
     return generateId(studyId, submitterSampleId);
   }
 
