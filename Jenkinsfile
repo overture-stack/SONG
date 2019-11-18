@@ -70,13 +70,11 @@ spec:
         stage('Upload Artifacts to Artifactory') {
            steps {
                 script {
-                    t1 = "dcc-release/bio/overture/song-client/${version}/song-client-test-${version}-dist.tar.gz"
-                    t2 = "dcc-release/bio/overture/song-client/${version}/song-client-test-${version}.jar"
+                    t1 = "dcc-release/bio/overture/song-client/${version}/song-client-${version}-dist.tar.gz"
+                    t2 = "dcc-release/bio/overture/song-client/${version}/song-client-${version}-exec.jar"
                     t3 = "dcc-release/bio/overture/song-server/${version}/song-server-test-${version}-dist.tar.gz"
                     t4 = ""
-                }
-             rtUpload ( serverId: 'artifactory',
-                        spec: """{
+                    fileSpec = """{
                             \"files\": [
                                     {
                                     \"pattern\": \"song-client/target/*.tar.gz\",
@@ -92,6 +90,10 @@ spec:
                             ]
                           }
                         """
+                    print("Upload file specification=${fileSpec}")
+                }
+             rtUpload ( serverId: 'artifactory',
+                        spec: fileSpec
              )
           }
        }
