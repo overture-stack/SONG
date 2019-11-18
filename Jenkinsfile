@@ -66,7 +66,7 @@ spec:
         stage('Test Artifactory') {
            steps {
              rtUpload ( 
-		serverId: 'artifactory-test', 
+		serverId: 'artifactory', 
 		spec: '''{
           		"files": [
             			{
