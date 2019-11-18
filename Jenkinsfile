@@ -1,5 +1,7 @@
 def commit = "UNKNOWN"
 def version = "UNKNOWN"
+def t1 = "UNKNOWN"
+def t2 = "UNKNOWN"
 
 pipeline {
     agent {
@@ -65,17 +67,21 @@ spec:
 
         stage('Test Artifactory') {
            steps {
+                script {
+                  t1 = "dcc-release/bio/overture/song-client/${version}/song-client-${version}-dist.tar.gz" 
+                  t2 = "dcc-release/bio/overture/song-client/${version}/song-client-${version}.jar"
+                }
              rtUpload ( 
 		serverId: 'artifactory', 
 		spec: '''{
           		"files": [
             			{
               			"pattern": "song-client/target/*.tar.gz",
-              			"target": "dcc-release/bio/overture/song-client/${version}/song-client-${version}-dist.tar.gz"
+              			"target": t1 
             			},
                                 {
                                 "pattern": "song-client/target/*-exec.jar",
-                                "target": "dcc-release/bio/overture/song-client/${version}/song-client-${version}.jar"
+                                "target": t2 
                                 }
          		]
     		}'''
