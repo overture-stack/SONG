@@ -905,7 +905,7 @@ public class AnalysisServiceTest {
   public void testRevokeAnalysisId() {
 
     // Find an analysisId that is unique and doesnt exist
-    val id = idService.uniqueCandidateAnalysisId();
+    val id = idService.getUniqueCandidateAnalysisId().get();
     assertFalse(service.isAnalysisExist(id));
 
     // Generate a payload using the analysisId

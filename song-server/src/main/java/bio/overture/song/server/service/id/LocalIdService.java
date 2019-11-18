@@ -29,8 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Local implementation of the IdService, that does not require an external REST service for
+ * registering canonical IDs. Uses the database for ID resolution.
+ */
 @Slf4j
-@Service
 public class LocalIdService implements IdService {
 
   /** Constants */
@@ -43,7 +46,6 @@ public class LocalIdService implements IdService {
 
   private final AnalysisRepository analysisRepository;
 
-  @Autowired
   public LocalIdService(
       @NonNull NameBasedGenerator nameBasedGenerator,
       @NonNull AnalysisRepository analysisRepository) {
@@ -57,8 +59,8 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public String uniqueCandidateAnalysisId() {
-    return RANDOM_UUID_GENERATOR.generate().toString();
+  public Optional<String> getUniqueCandidateAnalysisId() {
+    return Optional.of(RANDOM_UUID_GENERATOR.generate().toString());
   }
 
   @Override
@@ -67,25 +69,23 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public Optional<String> resolveFileId(@NonNull String analysisId, @NonNull String fileName) {
+  public Optional<String> getFileId(@NonNull String analysisId, @NonNull String fileName) {
     return generateId(analysisId, fileName);
   }
 
   @Override
-  public Optional<String> resolveDonorId(
-      @NonNull String studyId, @NonNull String submitterDonorId) {
+  public Optional<String> getDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
     return generateId(studyId, submitterDonorId);
   }
 
   @Override
-  public Optional<String> resolveSpecimenId(
+  public Optional<String> getSpecimenId(
       @NonNull String studyId, @NonNull String submitterSpecimenId) {
     return generateId(studyId, submitterSpecimenId);
   }
 
   @Override
-  public Optional<String> resolveSampleId(
-      @NonNull String studyId, @NonNull String submitterSampleId) {
+  public Optional<String> getSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
     return generateId(studyId, submitterSampleId);
   }
 

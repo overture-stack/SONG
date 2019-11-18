@@ -1,15 +1,13 @@
 package bio.overture.song.core.utils;
 
-import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
-import static java.nio.file.Files.newInputStream;
-import static java.nio.file.Files.readString;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -26,6 +24,7 @@ import lombok.val;
 @Value
 @Builder
 public class ResourceFetcher {
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @NonNull private final ResourceType resourceType;
   @NonNull private final Path dataDir;
@@ -76,16 +75,24 @@ public class ResourceFetcher {
   }
 
   public InputStream inputStream(@NonNull String filename) throws IOException {
-    return newInputStream(getPath(filename));
+    return Thread.currentThread()
+        .getContextClassLoader()
+        .getResourceAsStream(getPath(filename).toString());
   }
 
   @SneakyThrows
   public String content(@NonNull String filename) {
-    return readString(getPath(filename));
+    return Strings.toString(inputStream(filename));
   }
 
+  @SneakyThrows
   public JsonNode readJsonNode(@NonNull String filename) {
-    return getJsonNodeFromClasspath(getPath(filename).toString());
+    return OBJECT_MAPPER.readTree(inputStream(filename));
+  }
+
+  @SneakyThrows
+  public <T> T readObject(@NonNull String filename, @NonNull Class<T> type) {
+    return OBJECT_MAPPER.readValue(inputStream(filename), type);
   }
 
   @RequiredArgsConstructor

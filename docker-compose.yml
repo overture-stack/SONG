@@ -138,22 +138,28 @@ services:
       SCORE_URL: http://score-server:8080
       SCORE_ACCESSTOKEN: f69b726d-d40f-4261-b105-1ec7e6bf04d5
       MANAGEMENT_SERVER_PORT: 8081
-      ID_REALIDS: "false"
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_DATASOURCE_URL: jdbc:postgresql://song-db/song?stringtype=unspecified
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_LOCATIONS: "classpath:db/migration"
-      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,address=*:5006,server=y,suspend=n
-    ports:
-      - "8080:8080"
-      - "5006:5006"
+      ID_USELOCAL: "false"
+      ID_FEDERATED_AUTH_BEARER_TOKEN:              ad83ebde-a55c-11e7-abc4-cec278b6b50a
+      ID_FEDERATED_URITEMPLATE_DONOR:              http://localhost:8086/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
+      ID_FEDERATED_URITEMPLATE_SPECIMEN:           http://localhost:8086/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
+      ID_FEDERATED_URITEMPLATE_SAMPLE:             http://localhost:8086/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
+      ID_FEDERATED_URITEMPLATE_FILE:               http://localhost:8086/object/id?analysisId={analysisId}&fileName={fileName}
+      ID_FEDERATED_URITEMPLATE_ANALYSIS_EXISTENCE: http://localhost:8086/analysis/id?submittedAnalysisId={analysisId}&create=false
+      ID_FEDERATED_URITEMPLATE_ANALYSIS_GENERATE:  http://localhost:8086/analysis/unique
+      ID_FEDERATED_URITEMPLATE_ANALYSIS_SAVE:      http://localhost:8086/analysis/id?submittedAnalysisId={analysisId}&create=true
+    restart: always
     depends_on:
-      - song-db 
-      - score-server
-      - ego-api
+      - db 
+      - id
+      - auth
     volumes:
-      - "./docker/scratch/song-server-logs:/opt/dcc/server_logs"
+      - "./song-docker-demo/logs/server_logs:/opt/dcc/server_logs"
+      - "./song-docker-demo/tools:/opt/dcc/tools"
 
 volumes:
     object-storage-data: {}

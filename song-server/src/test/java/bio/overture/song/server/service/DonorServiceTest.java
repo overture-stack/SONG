@@ -256,7 +256,7 @@ public class DonorServiceTest {
     val randomDonorId = randomGenerator.generateRandomUUIDAsString();
     val randomDonorSubmitterId = randomGenerator.generateRandomUUID().toString();
     val randomDonorGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
-    val result = idService.resolveDonorId(DEFAULT_STUDY_ID, randomDonorSubmitterId);
+    val result = idService.getDonorId(DEFAULT_STUDY_ID, randomDonorSubmitterId);
     assertTrue(result.isPresent());
     val expectedId = result.get();
     assertFalse(service.isDonorExist(expectedId));
@@ -316,7 +316,7 @@ public class DonorServiceTest {
     val studyId = DEFAULT_STUDY_ID;
     val randomGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
     val randomDonorSubmitterId = randomGenerator.generateRandomUUIDAsString();
-    val result = idService.resolveDonorId(studyId, randomDonorSubmitterId);
+    val result = idService.getDonorId(studyId, randomDonorSubmitterId);
     assertTrue(result.isPresent());
     val expectedId = result.get();
 
