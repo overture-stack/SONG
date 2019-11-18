@@ -213,7 +213,7 @@ start-song-server: _setup package start-deps _setup-object-storage
 	@echo $(YELLOW)$(INFO_HEADER) "Starting song-server" $(END)
 	@$(DC_UP_CMD) song-server
 
-build-song-client:
+build-song-client: _build-song-client
 
 # Display logs for song-server
 log-song-server:
