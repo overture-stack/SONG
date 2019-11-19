@@ -45,7 +45,7 @@ spec:
         }
     }
     tools {
-       maven 'DAO'
+       maven 'MVN3'
     }
     stages {
         stage('Prepare') {
