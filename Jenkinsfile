@@ -45,8 +45,8 @@ spec:
         }
     }
     tools {
-       maven 'Maven 3.3.9'
-       jdk 'jdk8'
+       maven 'MVN3'
+       jdk 'OpenJDK 11'
     }
     stages {
         stage('Prepare') {
@@ -86,7 +86,7 @@ spec:
                        snapshotRepo: 'dcc-snapshot'
                )
                rtMavenRun (
-                       tool: MVN3,
+                       tool: 'MVN3',
                        pom: './pom.xml',
                        goals: 'package',
                        // Maven options.
