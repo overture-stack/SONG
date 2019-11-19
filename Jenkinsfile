@@ -2,7 +2,7 @@ def commit = "UNKNOWN"
 def version = "UNKNOWN"
 
 pipeline {
-    agent: any
+    agent:{ any }
     tools {
        maven 'MVN3'
     }
