@@ -52,9 +52,6 @@ spec:
         stage('Upload Artifacts to Artifactory') {
            steps {
               sh 'find /home/jenkins/agent/tools/hudson.model.JDK/OpenJDK_11'
-           }
-
-           steps {
               rtMavenDeployer (
                        id: 'deployer-unique-id',
                        serverId: 'artifactory',
