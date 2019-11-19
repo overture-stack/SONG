@@ -16,23 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.server.model.entity.BusinessKeyView;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
-import bio.overture.song.server.repository.BusinessKeyRepository;
-import bio.overture.song.server.repository.SpecimenRepository;
-import bio.overture.song.server.service.id.IdService;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
@@ -42,6 +25,22 @@ import static bio.overture.song.core.exceptions.ServerException.buildServerExcep
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.utils.Responses.OK;
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+import bio.overture.song.server.model.entity.BusinessKeyView;
+import bio.overture.song.server.model.entity.Specimen;
+import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
+import bio.overture.song.server.repository.BusinessKeyRepository;
+import bio.overture.song.server.repository.SpecimenRepository;
+import bio.overture.song.server.service.id.IdService;
+import java.util.ArrayList;
+import java.util.List;
+import javax.transaction.Transactional;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -58,10 +57,15 @@ public class SpecimenService {
     studyService.checkStudyExist(studyId);
     val inputSpecimenId = specimen.getSpecimenId();
     val specimenSubmitterId = specimen.getSpecimenSubmitterId();
-    val result = idService.resolveSpecimenId(studyId, specimenSubmitterId);
-    val id = checkServerOptional(result, getClass(), ID_NOT_FOUND,
-        "The specimenId for studyId '%s' and specimenSubmitterId '%s' was not found",
-        studyId, specimenSubmitterId);
+    val result = idService.getSpecimenId(studyId, specimenSubmitterId);
+    val id =
+        checkServerOptional(
+            result,
+            getClass(),
+            ID_NOT_FOUND,
+            "The specimenId for studyId '%s' and specimenSubmitterId '%s' was not found",
+            studyId,
+            specimenSubmitterId);
 
     checkServer(
         isNullOrEmpty(inputSpecimenId) || id.equals(inputSpecimenId),

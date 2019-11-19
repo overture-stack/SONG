@@ -74,13 +74,25 @@ swagger:
 security.basic.enabled: false
 
 id:
-  idUrl: "http://localhost:9090"
-  authToken: "idToken"
-  realIds: false
-  persistInMemory: false
-  maxRetries: 10
-  multiplier: 2
-  initialBackoffSeconds: 2
+  useLocal: true
+  federated:
+    auth:
+      bearer:
+        token:
+        # Placeholder for issue SONG-491
+        credentials:
+          url:
+          clientId:
+          clientSecret:
+    uriTemplate:
+      donor:    https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
+      specimen: https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
+      sample:   https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
+      file:     https://id.example.org/object/id?analysisId={analysisId}&fileName={fileName}
+      analysis:
+        existence: https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=false
+        generate:  https://id.example.org/analysis/unique
+        save:      https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=true
 
 validation:
   delayMs: 30
