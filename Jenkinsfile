@@ -62,115 +62,12 @@ spec:
                 }
             }
         }
-        stage('Build & Publish Develop') {
-            when {
-                branch "develop"
-            }
-            steps {
-                container('docker') {
-                    withCredentials([usernamePassword(credentialsId:'OvertureDockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh 'docker login -u $USERNAME -p $PASSWORD'
-                    }
-                    sh "docker build --target=server --network=host -f Dockerfile . -t overture/song-server:edge -t overture/song-server:${commit}"
-                    sh "docker build --target=client --network=host -f Dockerfile . -t overture/song-client:edge -t overture/song-client:${commit}"
-                    sh "docker push overture/song-server:${commit}"
-                    sh "docker push overture/song-server:edge"
-                    sh "docker push overture/song-client:${commit}"
-                    sh "docker push overture/song-client:edge"
-                }
-            }
-        }
-        stage('Release & tag') {
-          when {
-            branch "master"
-          }
-          steps {
-                container('docker') {
-                    withCredentials([usernamePassword(credentialsId: 'OvertureBioGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        sh "git tag ${version}"
-                        sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/overture-stack/song --tags"
-                    }
-                    withCredentials([usernamePassword(credentialsId:'OvertureDockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh 'docker login -u $USERNAME -p $PASSWORD'
-                    }
-                    sh "docker build --target=server --network=host -f Dockerfile . -t overture/song-server:latest -t overture/song-server:${version}"
-                    sh "docker build --target=client --network=host -f Dockerfile . -t overture/song-client:latest -t overture/song-client:${version}"
-                    sh "docker push overture/song-server:${version}"
-                    sh "docker push overture/song-server:latest"
-                    sh "docker push overture/song-client:${version}"
-                    sh "docker push overture/song-client:latest"
-                }
-            }
-        }
 
-        stage('Deploy to Overture QA') {
-            when {
-                  branch "develop"
-            }
-            steps {
-                container('helm') {
-                    withCredentials([file(credentialsId:'4ed1e45c-b552-466b-8f86-729402993e3b', variable: 'KUBECONFIG')]) {
-                        sh 'env'
-                        sh 'helm init --client-only'
-                        sh "helm ls --kubeconfig $KUBECONFIG"
-                        sh "helm repo add overture https://overture-stack.github.io/charts-server/"
-                        sh """
-                            helm upgrade --kubeconfig $KUBECONFIG --install --namespace=overture-qa song-overture-qa \\
-                            overture/song --reuse-values --set-string image.tag=${commit}
-                           """
-                    }
-                }
-            }
-        }
-
-        stage('Deploy to Overture Staging') {
-            when {
-                  branch "master"
-            }
-            steps {
-                container('helm') {
-                    withCredentials([file(credentialsId:'4ed1e45c-b552-466b-8f86-729402993e3b', variable: 'KUBECONFIG')]) {
-                        sh 'env'
-                        sh 'helm init --client-only'
-                        sh "helm ls --kubeconfig $KUBECONFIG"
-                        sh "helm repo add overture https://overture-stack.github.io/charts-server/"
-                        sh """
-                            helm upgrade --kubeconfig $KUBECONFIG --install --namespace=overture-staging song-overture-staging \\
-                            overture/song --reuse-values --set-string image.tag=${version}
-                           """
-                    }
-                }
-            }
-        }
-        
         stage('Upload Artifacts to Artifactory') {
+            when {
+                branch "test"
+            }
            steps {
-                script {
-                    t1 = "dcc-release/bio/overture/song-client/${version}/song-client-${version}-dist.tar.gz"
-                    t2 = "dcc-release/bio/overture/song-client/${version}/song-client-${version}-exec.jar"
-                    t3 = "dcc-release/bio/overture/song-server/${version}/song-server-test-${version}-dist.tar.gz"
-                    t4 = "dcc-release/bio/overture/song-server/${version}/song-client-${version}-exec.jar"
-                    fileSpec = """{
-                            \"files\": [
-                                    {
-                                    \"pattern\": \"song-client/target/*.tar.gz\",
-                                    \"target\": \"${t1}\"
-                                    },
-                                    {
-                                    \"pattern\": \"song-client/target/*-exec.jar\",
-                                    \"target\": \"${t2}\" 
-                                    },
-                                    { \"pattern\": \"song-server/target/*.tar.gz\",
-                                    \"target\": \"${t3}\"
-                                    },
-                                    { \"pattern\": \"song-server/target/*-exec.jar\",
-                                    \"target\": \"${t4}\"
-                                    }
-                            ]
-                          }
-                        """
-                    print("Upload file specification=${fileSpec}")
-                }
                rtMavenResolver (
                        id: 'resolver-unique-id',
                        serverId: 'artifactory',
@@ -185,8 +82,7 @@ spec:
                        snapshotRepo: 'dcc-snapshot'
                )
                rtMavenRun (
-                       // Tool name from Jenkins configuration.
-                       tool: MAVEN_TOOL,
+                       tool: "./mvnw",
                        pom: 'maven-example/pom.xml',
                        goals: 'clean install',
                        // Maven options.
