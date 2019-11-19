@@ -58,7 +58,7 @@ spec:
         stage('Test') {
             steps {
                 container('jdk') {
-                    sh "./mvnw package -Dmaven.test.skip=true'"
+                    sh "./mvnw package -Dmaven.test.skip=true"
                 }
             }
         }
