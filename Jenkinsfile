@@ -82,7 +82,7 @@ spec:
                        snapshotRepo: 'dcc-snapshot'
                )
                rtMavenRun (
-                       tool: MVN3
+                       tool: MVN3,
                        pom: './pom.xml',
                        goals: 'package',
                        // Maven options.
