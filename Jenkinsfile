@@ -81,13 +81,13 @@ spec:
                rtMavenDeployer (
                        id: 'deployer-unique-id',
                        serverId: 'artifactory',
-                       releaseRepo: 'dcc-release',
-                       snapshotRepo: 'dcc-snapshot'
+                       releaseRepo: 'dcc-release-local',
+                       snapshotRepo: 'dcc-snapshot-local'
                )
                rtMavenRun (
                        tool: 'MVN3',
                        pom: './pom.xml',
-                       goals: 'package',
+                       goals: 'clean install',
                        // Maven options.
                        opts: '-Dmaven.test.skip=true -Xms1024m -Xmx4096m',
                        resolverId: 'resolver-unique-id',
