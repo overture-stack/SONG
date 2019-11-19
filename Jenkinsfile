@@ -73,7 +73,7 @@ spec:
                     t1 = "dcc-release/bio/overture/song-client/${version}/song-client-${version}-dist.tar.gz"
                     t2 = "dcc-release/bio/overture/song-client/${version}/song-client-${version}-exec.jar"
                     t3 = "dcc-release/bio/overture/song-server/${version}/song-server-test-${version}-dist.tar.gz"
-                    t4 = ""
+                    t4 = "dcc-release/bio/overture/song-server/${version}/song-client-${version}-exec.jar"
                     fileSpec = """{
                             \"files\": [
                                     {
@@ -85,6 +85,9 @@ spec:
                                     \"target\": \"${t2}\" 
                                     },
                                     { \"pattern\": \"song-server/target/*.tar.gz\",
+                                    \"target\": \"${t3}\"
+                                    },
+                                    { \"pattern\": \"song-server/target/*-exec.jar\",
                                     \"target\": \"${t3}\"
                                     }
                             ]
