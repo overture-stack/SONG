@@ -81,6 +81,9 @@ and click `OK`.
 
 Finally,  start debugging by simply running the **remote debug profile** and it will call the **docker image run profile** before launch. 
 
+#### Executing the dockerized song-client in developement mode
+The script `./docker/tools/song-client-dev` takes the arguments runs the `song-client` service entry specified in the `docker-compose.yml` with them. For example, to ping the song server, run `./docker/tools/song-client ping`
+
 #### Debugging the song-server with IntelliJ
 Since the `song-server` is a server and exposes the 5006 debug port, configuration is much easier. First, start the server with `make clean start-song-server`. Then, create a **remote debug profile** in Intellij with the following configuration:
 ```
@@ -98,6 +101,9 @@ as opposed to the **Docker host** as is done in Developement mode and then runni
 This mode will not run `mvn package` on the Docker host, but instead inside the Docker container.
 This method is very slow, since maven will download dependencies every time a build is triggered, however creates a completely isolated environment for testing.
 This mode can be enabled using the `DEMO_MODE=1` make variable override. For example, to start the song-server, the following command would be run:
+
+#### Executing the dockerized song-client in demo mode
+The script `./docker/tools/song-client-demo` takes the arguments runs the `song-client` service entry specified in the `docker-compose.yml` with them. For example, to ping the song server, run `./docker/tools/song-client ping`
 
 ```bash
 make start-song-server DEMO_MODE=1
