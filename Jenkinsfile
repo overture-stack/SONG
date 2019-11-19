@@ -74,15 +74,15 @@ spec:
                rtMavenResolver (
                        id: 'resolver-unique-id',
                        serverId: 'artifactory',
-                       releaseRepo: 'dcc-release',
-                       snapshotRepo: 'dcc-snapshot'
+                       releaseRepo: 'libs-release',
+                       snapshotRepo: 'libs-snapshot'
                )
 
                rtMavenDeployer (
                        id: 'deployer-unique-id',
                        serverId: 'artifactory',
-                       releaseRepo: 'dcc-release-local',
-                       snapshotRepo: 'dcc-snapshot-local'
+                       releaseRepo: 'libs-release-local',
+                       snapshotRepo: 'libs-snapshot-local'
                )
                rtMavenRun (
                        tool: 'MVN3',
