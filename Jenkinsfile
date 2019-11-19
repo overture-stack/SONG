@@ -58,13 +58,6 @@ spec:
                 }
             }
         }
-        stage('Test') {
-            steps {
-                container('jdk') {
-                    sh "./mvnw package -Dmaven.test.skip=true"
-                }
-            }
-        }
 
         stage('Upload Artifacts to Artifactory') {
            steps {
@@ -83,7 +76,7 @@ spec:
                )
                rtMavenRun (
                        tool: 'MVN3',
-                       pom: 'SONG/pom.xml',
+                       pom: 'pom.xml',
                        goals: 'clean install -Dmaven.repo.local=.m2',
                        // Maven options.
                        opts: '-Dmaven.test.skip=true -Xms1024m -Xmx4096m',
