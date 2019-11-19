@@ -45,20 +45,10 @@ spec:
         }
     }
     tools {
+       jdk   'OpenJDK 11'
        maven 'MVN3'
     }
     stages {
-        stage('Prepare') {
-            steps {
-                script {
-                    commit = sh(returnStdout: true, script: 'git describe --always').trim()
-                }
-                script {
-                    version = readMavenPom().getVersion()
-                }
-            }
-        }
-
         stage('Upload Artifacts to Artifactory') {
            steps {
               rtMavenDeployer (
