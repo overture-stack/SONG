@@ -45,8 +45,7 @@ spec:
         }
     }
     tools {
-       maven 'MVN3'
-       jdk   'OpenJDK 11'
+       maven 'DAO'
     }
     stages {
         stage('Prepare') {
