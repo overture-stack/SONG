@@ -82,6 +82,7 @@ spec:
                        snapshotRepo: 'dcc-snapshot'
                )
                rtMavenRun (
+                       tool: MVN3
                        pom: 'maven-example/pom.xml',
                        goals: 'clean install',
                        // Maven options.
