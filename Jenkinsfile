@@ -61,13 +61,6 @@ spec:
 
         stage('Upload Artifacts to Artifactory') {
            steps {
-               rtMavenResolver (
-                       id: 'resolver-unique-id',
-                       serverId: 'artifactory',
-                       releaseRepo: 'dcc-release',
-                       snapshotRepo: 'dcc-snapshot'
-               )
-
               rtMavenDeployer (
                        id: 'deployer-unique-id',
                        serverId: 'artifactory',
@@ -80,7 +73,6 @@ spec:
                        goals: 'clean install -Dmaven.repo.local=.m2',
                        // Maven options.
                        opts: '-Dmaven.test.skip=true -Xms1024m -Xmx4096m',
-                       resolverId: 'resolver-unique-id',
                        deployerId: 'deployer-unique-id',
                )
           }
