@@ -58,109 +58,38 @@ spec:
         stage('Test') {
             steps {
                 container('jdk') {
-                    sh "./mvnw test"
-                }
-            }
-        }
-        stage('Build & Publish Develop') {
-            when {
-                branch "develop"
-            }
-            steps {
-                container('docker') {
-                    withCredentials([usernamePassword(credentialsId:'OvertureDockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh 'docker login -u $USERNAME -p $PASSWORD'
-                    }
-                    sh "docker build --target=server --network=host -f Dockerfile . -t overture/song-server:edge -t overture/song-server:${commit}"
-                    sh "docker build --target=client --network=host -f Dockerfile . -t overture/song-client:edge -t overture/song-client:${commit}"
-                    sh "docker push overture/song-server:${commit}"
-                    sh "docker push overture/song-server:edge"
-                    sh "docker push overture/song-client:${commit}"
-                    sh "docker push overture/song-client:edge"
-                }
-            }
-        }
-        stage('Release & tag') {
-          when {
-            branch "master"
-          }
-          steps {
-                container('docker') {
-                    withCredentials([usernamePassword(credentialsId: 'OvertureBioGithub', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        sh "git tag ${version}"
-                        sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/overture-stack/song --tags"
-                    }
-                    withCredentials([usernamePassword(credentialsId:'OvertureDockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh 'docker login -u $USERNAME -p $PASSWORD'
-                    }
-                    sh "docker build --target=server --network=host -f Dockerfile . -t overture/song-server:latest -t overture/song-server:${version}"
-                    sh "docker build --target=client --network=host -f Dockerfile . -t overture/song-client:latest -t overture/song-client:${version}"
-                    sh "docker push overture/song-server:${version}"
-                    sh "docker push overture/song-server:latest"
-                    sh "docker push overture/song-client:${version}"
-                    sh "docker push overture/song-client:latest"
+                    sh "./mvnw package -Dmaven.test.skip=true"
                 }
             }
         }
 
-        stage('Deploy to Overture QA') {
+        stage('Upload Artifacts to Artifactory') {
             when {
-                  branch "develop"
-            }
-            steps {
-                container('helm') {
-                    withCredentials([file(credentialsId:'4ed1e45c-b552-466b-8f86-729402993e3b', variable: 'KUBECONFIG')]) {
-                        sh 'env'
-                        sh 'helm init --client-only'
-                        sh "helm ls --kubeconfig $KUBECONFIG"
-                        sh "helm repo add overture https://overture-stack.github.io/charts-server/"
-                        sh """
-                            helm upgrade --kubeconfig $KUBECONFIG --install --namespace=overture-qa song-overture-qa \\
-                            overture/song --reuse-values --set-string image.tag=${commit}
-                           """
-                    }
-                }
-            }
-        }
-
-        stage('Deploy to Overture Staging') {
-            when {
-                  branch "master"
-            }
-            steps {
-                container('helm') {
-                    withCredentials([file(credentialsId:'4ed1e45c-b552-466b-8f86-729402993e3b', variable: 'KUBECONFIG')]) {
-                        sh 'env'
-                        sh 'helm init --client-only'
-                        sh "helm ls --kubeconfig $KUBECONFIG"
-                        sh "helm repo add overture https://overture-stack.github.io/charts-server/"
-                        sh """
-                            helm upgrade --kubeconfig $KUBECONFIG --install --namespace=overture-staging song-overture-staging \\
-                            overture/song --reuse-values --set-string image.tag=${version}
-                           """
-                    }
-                }
-            }
-        }
-        stage('Test Artifactory') {
-           when {
                 branch "test"
-           }
+            }
            steps {
-             rtUpload ( 
-		serverId: 'artifactory-test', 
-		spec: '''{
-          		"files": [
-            			{
-              			"pattern": "song-client/target/*.tar.gz",
-              			"target": "dcc-snapshot/bio-overture/song-client/$version-SNAPSHOT/song-client-$version-dist.tar.gz"
-            			},
-                                {
-                                "pattern": "song-client/target/*-exec.jar",
-                                "target": "$repo/bio-overture/song-client/$version-SNAPSHOT/song-client-$version.jar"
-         		]
-    		}'''
-           )
+               rtMavenResolver (
+                       id: 'resolver-unique-id',
+                       serverId: 'artifactory',
+                       releaseRepo: 'dcc-release',
+                       snapshotRepo: 'dcc-snapshot'
+               )
+
+               rtMavenDeployer (
+                       id: 'deployer-unique-id',
+                       serverId: 'artifactory',
+                       releaseRepo: 'dcc-release',
+                       snapshotRepo: 'dcc-snapshot'
+               )
+               rtMavenRun (
+                       tool: "./mvnw",
+                       pom: 'maven-example/pom.xml',
+                       goals: 'clean install',
+                       // Maven options.
+                       opts: '-Xms1024m -Xmx4096m',
+                       resolverId: 'resolver-unique-id',
+                       deployerId: 'deployer-unique-id',
+               )
           }
        }
     }
