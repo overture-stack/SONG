@@ -83,10 +83,10 @@ spec:
                )
                rtMavenRun (
                        tool: MVN3
-                       pom: 'maven-example/pom.xml',
-                       goals: 'clean install',
+                       pom: './pom.xml',
+                       goals: 'package',
                        // Maven options.
-                       opts: '-Xms1024m -Xmx4096m',
+                       opts: '-Dmaven.test.skip=true -Xms1024m -Xmx4096m',
                        resolverId: 'resolver-unique-id',
                        deployerId: 'deployer-unique-id',
                )
