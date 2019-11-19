@@ -46,7 +46,6 @@ spec:
     }
     tools {
        maven 'MVN3'
-       jdk 'OpenJDK 11'
     }
     stages {
         stage('Prepare') {
