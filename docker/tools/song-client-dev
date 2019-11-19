@@ -1,0 +1,11 @@
+#!/bin/bash
+
+BASH_SCRIPT=`readlink -f ${BASH_SOURCE[0]}`
+BASH_SCRIPT_DIR=$( dirname  "${BASH_SCRIPT}")
+
+DOCKERFILE_NAME=Dockerfile.dev \
+	MY_UID=$(id -u) \
+	MY_GID=$(id -g) \
+	docker-compose \
+	-f ${BASH_SCRIPT_DIR}/../..//docker-compose.yml \
+	run --rm song-client bin/sing $@
