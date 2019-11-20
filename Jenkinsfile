@@ -66,6 +66,7 @@ spec:
 
         stage('Upload Artifact SNAPSHOT') {
             when { branch 'test' }
+            when { branch pattern: "(test-)?develop", comparator: "REGEXP"}
             steps {
                 script {
                     repo = "dcc-snapshot/bio/overture"
@@ -133,7 +134,7 @@ spec:
         }
 
         stage('Upload Artifact Release') {
-            when { branch 'test-release' }
+            when { branch pattern: "(test-)?master", comparator: "REGEXP"}
             steps {
                 script {
                     repo = "dcc-release/bio/overture"
