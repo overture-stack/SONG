@@ -79,7 +79,7 @@ spec:
                     core = "song-core"
                     coreName = "$core-$version-SNAPSHOT"
                     coreTarget = "$repo/$core/$version/$coreName"
-                    
+
                     songTarget="$repo/song/$version/song-$version-SNAPSHOT"
                     fileSet = [files:
                                        [      // song
@@ -124,11 +124,13 @@ spec:
 
                     print("Upload file specification=${files}")
                     print("Please work for me!")
+
+                    rtUpload(serverId: 'artifactory',
+                            spec: files
+                    )
                 }
 
-                rtUpload(serverId: 'artifactory',
-                        spec: files
-                )
+
             }
         }
     }
