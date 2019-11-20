@@ -71,17 +71,17 @@ spec:
                     repo = "dcc-snapshot/bio/overture"
                     client = "song-client"
                     clientName = "$client-$version-SNAPSHOT"
-                    clientTarget = "$repo/$client/$version/$clientName"
+                    clientTarget = "$repo/$client/$version-SNAPSHOT/$clientName"
 
                     server = "song-server"
                     serverName = "$server-$version-SNAPSHOT"
-                    serverTarget = "$repo/$server/$version/$serverName"
+                    serverTarget = "$repo/$server/$version-SNAPSHOT/$serverName"
 
                     core = "song-core"
                     coreName = "$core-$version-SNAPSHOT"
-                    coreTarget = "$repo/$core/$version/$coreName"
+                    coreTarget = "$repo/$core/$version-SNAPSHOT/$coreName"
 
-                    songTarget="$repo/song/$version/song-$version-SNAPSHOT"
+                    songTarget="$repo/song/$version-SNAPSHOT/song-$version-SNAPSHOT"
                     fileSet = [files:
                                        [      // song
                                               [pattern: "pom.xml", target: "${songTarget}.pom"],
