@@ -65,8 +65,7 @@ spec:
         }
 
         stage('Upload Artifact SNAPSHOT') {
-            when { branch 'test' }
-            when { branch pattern: "(test-)?develop", comparator: "REGEXP"}
+            when { branch '*develop' }
             steps {
                 script {
                     repo = "dcc-snapshot/bio/overture"
@@ -134,7 +133,7 @@ spec:
         }
 
         stage('Upload Artifact Release') {
-            when { branch pattern: "(test-)?master", comparator: "REGEXP"}
+            when { branch '*master' }
             steps {
                 script {
                     repo = "dcc-release/bio/overture"
@@ -193,7 +192,6 @@ spec:
                     files = JsonOutput.toJson(fileSet)
 
                     print("Upload file specification=${files}")
-                    print("Please work for me!")
                 }
                 rtUpload(serverId: 'artifactory',
                         spec: files
