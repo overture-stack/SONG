@@ -65,6 +65,7 @@ spec:
         }
 
         stage('Upload Artifact SNAPSHOT') {
+            when { branch 'test' }
             steps {
                 script {
                     repo = "dcc-snapshot/bio/overture"
@@ -83,7 +84,75 @@ spec:
                     songTarget="$repo/song/$version/song-$version-SNAPSHOT"
                     fileSet = [files:
                                        [      // song
-                                              [pattern: "pom.xml", target: "$songTarget.pom"],
+                                              [pattern: "pom.xml", target: "${songTarget}.pom"],
+                                              // song-client
+                                              [pattern: "${client}/target/*.tar.gz",
+                                               target : "${clientTarget}-dist.tar.gz"],
+                                              [pattern: "${client}/target/*-exec.jar",
+                                               target : "${clientTarget}-exec.jar"],
+                                              [pattern        : "$client/target/*.jar",
+                                               target         : "${clientTarget}.jar",
+                                               excludePatterns: ["*-exec.jar"]
+                                              ],
+                                              [pattern: "${client}/pom.xml",
+                                               target : "${clientTarget}.pom"
+                                              ],
+
+                                              // song-server
+                                              [pattern: "${server}/target/*.tar.gz",
+                                               target : "${serverTarget}-dist.tar.gz"],
+                                              [pattern: "${server}/target/*-exec.jar",
+                                               target : "${serverTarget}-exec.jar"],
+                                              [pattern        : "$server/target/*.jar",
+                                               target         : "${serverTarget}.jar",
+                                               excludePatterns: ["*-exec.jar"]
+                                              ],
+                                              [pattern: "${server}/pom.xml",
+                                               target : "${serverTarget}.pom"
+                                              ],
+
+                                              // song-core
+                                              [pattern        : "$core/target/*.jar",
+                                               target         : "${coreTarget}.jar",
+                                               excludePatterns: ["*-exec.jar"]
+                                              ],
+                                              [pattern: "$core/pom.xml",
+                                               target : "${coreTarget}.pom"
+                                              ]
+                                       ]
+                    ]
+                    files = JsonOutput.toJson(fileSet)
+
+                    print("Upload file specification=${files}")
+                    print("Please work for me!")
+                }
+                rtUpload(serverId: 'artifactory',
+                        spec: files
+                )
+            }
+        }
+
+        stage('Upload Artifact Release') {
+            when { branch 'test-release' }
+            steps {
+                script {
+                    repo = "dcc-release/bio/overture"
+                    client = "song-client"
+                    clientName = "$client-$version"
+                    clientTarget = "$repo/$client/$version/$clientName"
+
+                    server = "song-server"
+                    serverName = "$server-$version"
+                    serverTarget = "$repo/$server/$version/$serverName"
+
+                    core = "song-core"
+                    coreName = "$core-$version"
+                    coreTarget = "$repo/$core/$version/$coreName"
+
+                    songTarget="$repo/song/$version/song-$version"
+                    fileSet = [files:
+                                       [      // song
+                                              [pattern: "pom.xml", target: "${songTarget}.pom"],
                                               // song-client
                                               [pattern: "${client}/target/*.tar.gz",
                                                target : "${clientTarget}-dist.tar.gz"],
