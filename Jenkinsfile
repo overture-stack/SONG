@@ -122,6 +122,7 @@ spec:
                     print("Upload file specification=${files}")
                     print("Please work for me!")
                 }
+                steps {
                 rtUpload(serverId: 'artifactory',
                         spec: files
                 )
