@@ -81,7 +81,7 @@ spec:
                     coreTarget = "$repo/$core/$version/$coreName"
                     fileSet = [files:
                                        [      // song
-                                              [pattern: "pom.xml", target: "${repo}/song/song-${version}.pom"],
+                                              [pattern: "pom.xml", target: "${repo}/song/${version}/song-${version}.pom"],
                                               // song-client
                                               [pattern: "${client}/target/*.tar.gz",
                                                target : "${clientTarget}-dist.tar.gz"],
