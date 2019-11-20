@@ -79,9 +79,11 @@ spec:
                     core = "song-core"
                     coreName = "$core-$version-SNAPSHOT"
                     coreTarget = "$repo/$core/$version/$coreName"
+                    
+                    songTarget="$repo/song/$version/song-$version-SNAPSHOT"
                     fileSet = [files:
                                        [      // song
-                                              [pattern: "pom.xml", target: "${repo}/song/${version}/song-${version}.pom"],
+                                              [pattern: "pom.xml", target: "$songTarget.pom"],
                                               // song-client
                                               [pattern: "${client}/target/*.tar.gz",
                                                target : "${clientTarget}-dist.tar.gz"],
