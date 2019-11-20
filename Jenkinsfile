@@ -1,5 +1,6 @@
 def commit = "UNKNOWN"
 def version = "UNKNOWN"
+import groovy.json.JsonOutput
 
 pipeline {
     agent {
@@ -44,26 +45,52 @@ spec:
 """
         }
     }
-    tools {
-       maven 'MVN3'
-    }
     stages {
-        stage('Upload Artifacts to Artifactory') {
+        stage('Prepare') {
+            steps {
+                script {
+                    commit = sh(returnStdout: true, script: 'git describe --always').trim()
+                }
+                script {
+                    version = readMavenPom().getVersion()
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                container('jdk') {
+                    sh "./mvnw package -DskipTests "
+                }
+            }
+        }
+
+        stage('Upload Artifact SNAPSHOT') {
            steps {
-              rtMavenDeployer (
-                       id: 'deployer-unique-id',
-                       serverId: 'artifactory',
-                       releaseRepo: 'dcc-release',
-                       snapshotRepo: 'dcc-snapshot'
-               )
-               rtMavenRun (
-                       tool: 'MVN3',
-                       pom: 'pom.xml',
-                       goals: 'install -Dmaven.repo.local=.m2 -V -U -e -Dsurefire.useFile=false -Dmaven.test.skip=true install',
-                       // Maven options.
-                       opts: '-Xms1024m -Xmx4096m',
-                       deployerId: 'deployer-unique-id',
-               )
+                script {
+                    repo = "dcc-snapshot/bio/overture"
+                    client="song-client"
+                    server="song-server"
+                    clientName = "${client}-${version}"
+                    serverName = "${server}-${version}"
+                    fileSet=[files:
+                                     [
+                                             [pattern: "${client}/target/*.tar.gz",
+                                              target: "${repo}/${client}/${version}/${clientName}-dist.tar.gz"],
+                                             [pattern: "${client}/target/*-exec.jar",
+                                              target:"${repo}/${client}/${version}/${clientName}-exec.jar"],
+                                             [pattern: "${server}/target/*.tar.gz",
+                                              target:  "${repo}/${server}/${version}/${serverName}-dist.tar.gz"],
+                                             [pattern: "${server}/target/*-exec.jar",
+                                              target:  "${repo}/${server}/${version}/${serverName}-exec.jar"]
+                                     ]
+                    ]
+                    files=JsonOutput.toJson(fileSet)
+
+                    print("Upload file specification=${files}")
+                }
+             rtUpload( serverId: 'artifactory',
+                        spec: files
+             )
           }
        }
     }
