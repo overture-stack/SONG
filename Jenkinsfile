@@ -65,6 +65,7 @@ spec:
         }
 
         stage('Upload Artifact SNAPSHOT') {
+            steps {
                 script {
                     repo = "dcc-snapshot/bio/overture"
                     client = "song-client"
@@ -122,7 +123,7 @@ spec:
                     print("Upload file specification=${files}")
                     print("Please work for me!")
                 }
-                steps {
+
                 rtUpload(serverId: 'artifactory',
                         spec: files
                 )
