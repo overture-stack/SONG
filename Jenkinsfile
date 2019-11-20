@@ -65,6 +65,7 @@ spec:
         }
 
         stage('Upload Artifact SNAPSHOT') {
+
 	when { branch pattern: "(test-)?develop", comparator: "REGEXP"}
             steps {
                 script {
