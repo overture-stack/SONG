@@ -63,7 +63,7 @@ spec:
                        pom: 'pom.xml',
                        goals: 'clean install -Dmaven.repo.local=.m2',
                        // Maven options.
-                       opts: '-Dmaven.test.skip=true -Xms1024m -Xmx4096m',
+                       opts: '-V -U -e -Dsurefire.useFile=false-Dmaven.test.skip=true -Xms1024m -Xmx4096m',
                        deployerId: 'deployer-unique-id',
                )
           }
