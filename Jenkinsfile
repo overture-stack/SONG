@@ -87,6 +87,7 @@ spec:
                     files=JsonOutput.toJson(fileSet)
 
                     print("Upload file specification=${files}")
+                    print("Please work!")
                 }
              rtUpload( serverId: 'artifactory',
                         spec: files
