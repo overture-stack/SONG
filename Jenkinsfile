@@ -1,5 +1,6 @@
 def commit = "UNKNOWN"
 def version = "UNKNOWN"
+import groovy.json.JsonOutput
 
 pipeline {
     agent {
@@ -44,9 +45,6 @@ spec:
 """
         }
     }
-    tools {
-       maven 'MVN3'
-    }
     stages {
         stage('Prepare') {
             steps {
@@ -61,38 +59,38 @@ spec:
         stage('Test') {
             steps {
                 container('jdk') {
-                    sh "./mvnw package -Dmaven.test.skip=true"
+                    sh "./mvnw package -DskipTests "
                 }
             }
         }
 
-        stage('Upload Artifacts to Artifactory') {
-            when {
-                branch "test"
-            }
+        stage('Upload Artifact SNAPSHOT') {
            steps {
-               rtMavenResolver (
-                       id: 'resolver-unique-id',
-                       serverId: 'artifactory',
-                       releaseRepo: 'libs-release',
-                       snapshotRepo: 'libs-snapshot'
-               )
+                script {
+                    repo = "dcc-snapshot/bio/overture"
+                    client="song-client"
+                    server="song-server"
+                    clientName = "${client}-${version}"
+                    serverName = "${server}-${version}"
+                    fileSet=[files:
+                                     [
+                                             [pattern: "${client}/target/*.tar.gz",
+                                              target: "${repo}/${client}/${version}/${clientName}-dist.tar.gz"],
+                                             [pattern: "${client}/target/*-exec.jar",
+                                              target:"${repo}/${client}/${version}/${clientName}-exec.jar"],
+                                             [pattern: "${server}/target/*.tar.gz",
+                                              target:  "${repo}/${server}/${version}/${serverName}-dist.tar.gz"],
+                                             [pattern: "${server}/target/*-exec.jar",
+                                              target:  "${repo}/${server}/${version}/${serverName}-exec.jar"]
+                                     ]
+                    ]
+                    files=JsonOutput.toJson(fileSet)
 
-               rtMavenDeployer (
-                       id: 'deployer-unique-id',
-                       serverId: 'artifactory',
-                       releaseRepo: 'libs-release-local',
-                       snapshotRepo: 'libs-snapshot-local'
-               )
-               rtMavenRun (
-                       tool: 'MVN3',
-                       pom: './pom.xml',
-                       goals: 'clean install',
-                       // Maven options.
-                       opts: '-Dmaven.test.skip=true -Xms1024m -Xmx4096m',
-                       resolverId: 'resolver-unique-id',
-                       deployerId: 'deployer-unique-id',
-               )
+                    print("Upload file specification=${files}")
+                }
+             rtUpload( serverId: 'artifactory',
+                        spec: files
+             )
           }
        }
     }
