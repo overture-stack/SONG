@@ -50,7 +50,6 @@ spec:
     stages {
         stage('Upload Artifacts to Artifactory') {
            steps {
-              sh 'ls -l /home/jenkins/agent/tools/hudson.model.JDK/OpenJDK_11/jdk-11.0.1/bin/java'
               rtMavenDeployer (
                        id: 'deployer-unique-id',
                        serverId: 'artifactory',
