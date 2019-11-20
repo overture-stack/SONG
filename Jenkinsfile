@@ -65,17 +65,6 @@ spec:
         }
 
         stage('Upload Artifact SNAPSHOT') {
-            steps {
-                sh """cat > fake.pom <<-EOT                
-<dependency>
-    <groupId>bio.overture</groupId>
-    <artifactId>song</artifactId>
-    <version>$version</version>
-    <type>pom</type>
-</dependency> 
-EOT 
-"""
-                sh "echo 'contents of our fake pomfile';cat fake.pom"
                 script {
                     repo = "dcc-snapshot/bio/overture"
                     client = "song-client"
@@ -91,7 +80,7 @@ EOT
                     coreTarget = "$repo/$core/$version/$coreName"
                     fileSet = [files:
                                        [      // song
-                                              [pattern: "fake.pom", target: "${repo}/song/song-${version}.pom"],
+                                              [pattern: "pom.xml", target: "${repo}/song/song-${version}.pom"],
                                               // song-client
                                               [pattern: "${client}/target/*.tar.gz",
                                                target : "${clientTarget}-dist.tar.gz"],
@@ -101,7 +90,7 @@ EOT
                                                target         : "${clientTarget}.jar",
                                                excludePatterns: ["*-exec.jar"]
                                               ],
-                                              [pattern: "fake.pom",
+                                              [pattern: "${client}/pom.xml",
                                                target : "${clientTarget}.pom"
                                               ],
 
@@ -114,7 +103,7 @@ EOT
                                                target         : "${serverTarget}.jar",
                                                excludePatterns: ["*-exec.jar"]
                                               ],
-                                              [pattern: "fake.pom",
+                                              [pattern: "${server}/pom.xml",
                                                target : "${serverTarget}.pom"
                                               ],
 
@@ -123,7 +112,7 @@ EOT
                                                target         : "${coreTarget}.jar",
                                                excludePatterns: ["*-exec.jar"]
                                               ],
-                                              [pattern: "fake.pom",
+                                              [pattern: "$core/pom.xml",
                                                target : "${coreTarget}.pom"
                                               ]
                                        ]
@@ -131,7 +120,7 @@ EOT
                     files = JsonOutput.toJson(fileSet)
 
                     print("Upload file specification=${files}")
-                    print("Please work! I would appreciate it greatly!")
+                    print("Please work for me!")
                 }
                 rtUpload(serverId: 'artifactory',
                         spec: files
