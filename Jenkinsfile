@@ -65,33 +65,78 @@ spec:
         }
 
         stage('Upload Artifact SNAPSHOT') {
-           steps {
+            steps {
+                sh """cat > fake.pom <<-EOT                
+<dependency>
+    <groupId>bio.overture</groupId>
+    <artifactId>song</artifactId>
+    <version>$version</version>
+    <type>pom</type>
+</dependency> 
+EOT 
+"""
+                sh "echo 'contents of our fake pomfile';cat fake.pom"
                 script {
                     repo = "dcc-snapshot/bio/overture"
-                    client="song-client"
-                    server="song-server"
-                    clientName = "${client}-${version}"
-                    serverName = "${server}-${version}"
-                    fileSet=[files:
-                                     [
-                                             [pattern: "${client}/target/*.tar.gz",
-                                              target: "${repo}/${client}/${version}/${clientName}-dist.tar.gz"],
-                                             [pattern: "${client}/target/*-exec.jar",
-                                              target:"${repo}/${client}/${version}/${clientName}-exec.jar"],
-                                             [pattern: "${server}/target/*.tar.gz",
-                                              target:  "${repo}/${server}/${version}/${serverName}-dist.tar.gz"],
-                                             [pattern: "${server}/target/*-exec.jar",
-                                              target:  "${repo}/${server}/${version}/${serverName}-exec.jar"]
-                                     ]
+                    client = "song-client"
+                    clientName = "$client-$version-SNAPSHOT"
+                    clientTarget = "$repo/$client/$version/$clientName"
+
+                    server = "song-server"
+                    serverName = "$server-$version-SNAPSHOT"
+                    serverTarget = "$repo/$server/$version/$serverName"
+
+                    core = "song-core"
+                    coreName = "$core-$version-SNAPSHOT"
+                    coreTarget = "$repo/$core/$version/$coreName"
+                    fileSet = [files:
+                                       [      // song
+                                              [pattern: "fake.pom", target: "${repo}/song/song-${version}.pom"],
+                                              // song-client
+                                              [pattern: "${client}/target/*.tar.gz",
+                                               target : "${clientTarget}-dist.tar.gz"],
+                                              [pattern: "${client}/target/*-exec.jar",
+                                               target : "${clientTarget}-exec.jar"],
+                                              [pattern        : "$client/target/*.jar",
+                                               target         : "${clientTarget}.jar",
+                                               excludePatterns: ["*-exec.jar"]
+                                              ],
+                                              [pattern: "fake.pom",
+                                               target : "${clientTarget}.pom"
+                                              ],
+
+                                              // song-server
+                                              [pattern: "${server}/target/*.tar.gz",
+                                               target : "${serverTarget}-dist.tar.gz"],
+                                              [pattern: "${server}/target/*-exec.jar",
+                                               target : "${serverTarget}-exec.jar"],
+                                              [pattern        : "$server/target/*.jar",
+                                               target         : "${serverTarget}.jar",
+                                               excludePatterns: ["*-exec.jar"]
+                                              ],
+                                              [pattern: "fake.pom",
+                                               target : "${serverTarget}.pom"
+                                              ],
+
+                                              // song-core
+                                              [pattern        : "$core/target/*.jar",
+                                               target         : "${coreTarget}.jar",
+                                               excludePatterns: ["*-exec.jar"]
+                                              ],
+                                              [pattern: "fake.pom",
+                                               target : "${coreTarget}.pom"
+                                              ]
+                                       ]
                     ]
-                    files=JsonOutput.toJson(fileSet)
+                    files = JsonOutput.toJson(fileSet)
 
                     print("Upload file specification=${files}")
+                    print("Please work! I would appreciate it greatly!")
                 }
-             rtUpload( serverId: 'artifactory',
+                rtUpload(serverId: 'artifactory',
                         spec: files
-             )
-          }
-       }
+                )
+            }
+        }
     }
 }
