@@ -59,9 +59,9 @@ spec:
                rtMavenRun (
                        tool: 'MVN3',
                        pom: 'pom.xml',
-                       goals: 'clean install -Dmaven.repo.local=.m2',
+                       goals: 'install -Dmaven.repo.local=.m2 -V -U -e -Dsurefire.useFile=false -Dmaven.test.skip=true install',
                        // Maven options.
-                       opts: '-V -U -e -Dsurefire.useFile=false-Dmaven.test.skip=true -Xms1024m -Xmx4096m',
+                       opts: '-Xms1024m -Xmx4096m',
                        deployerId: 'deployer-unique-id',
                )
           }
