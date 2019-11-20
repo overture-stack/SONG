@@ -70,8 +70,8 @@ spec:
                     repo = "dcc-snapshot/bio/overture"
                     client="song-client"
                     server="song-server"
-                    clientName = "${client}-${version}"
-                    serverName = "${server}-${version}"
+                    clientName = "${client}-${version}-SNAPSHOT"
+                    serverName = "${server}-${version}-SNAPSHOT"
                     fileSet=[files:
                                      [
                                              [pattern: "${client}/target/*.tar.gz",
