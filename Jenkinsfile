@@ -124,13 +124,10 @@ spec:
 
                     print("Upload file specification=${files}")
                     print("Please work for me!")
-
-                    rtUpload(serverId: 'artifactory',
-                            spec: files
-                    )
                 }
-
-
+                rtUpload(serverId: 'artifactory',
+                        spec: files
+                )
             }
         }
     }
