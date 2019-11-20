@@ -64,9 +64,6 @@ $(SCORE_CLIENT_LOG_FILE):
 	@touch $(SCORE_CLIENT_LOGS_DIR)/client.log
 	@chmod 777 $(SCORE_CLIENT_LOGS_DIR)/client.log
 
-_build-song-client: package
-	@$(DOCKER_COMPOSE_CMD) build song-client
-
 _ping_score_server:
 	@echo $(YELLOW)$(INFO_HEADER) "Pinging score-server on http://localhost:8087" $(END)
 	@$(RETRY_CMD) curl  \
@@ -122,10 +119,10 @@ help:
 	@echo
 
 # Outputs the Docker run profile in IntelliJ to debug song-client
-intellij-song-client-config: _build-song-client
+intellij-song-client-config: 
 	@echo
 	@echo
-	@echo $(YELLOW)$(INFO_HEADER) In IntelliJ, configure the docker run profile with the following parameters to allow interactive debug on port 5005. You may need to add a Thread.sleep(5000) $(END)
+	@echo $(YELLOW)$(INFO_HEADER) In IntelliJ, configure the docker run profile with the following parameters to allow interactive debug on port 5005 $(END)
 	@echo "$(YELLOW)Image ID:$(END)               $(PROJECT_NAME)_song-client:latest"
 	@echo "$(YELLOW)Command:$(END)                bin/sing submit -f /data/exampleVariantCall.json"
 	@echo "$(YELLOW)Bind Mounts:$(END)            $(DOCKER_DIR)/song-example-data:/data/submit $(SONG_CLIENT_LOGS_DIR):/song-client/logs $(SONG_CLIENT_OUTPUT_DIR):/song-client/output"
@@ -213,7 +210,10 @@ start-song-server: _setup package start-deps _setup-object-storage
 	@echo $(YELLOW)$(INFO_HEADER) "Starting song-server" $(END)
 	@$(DC_UP_CMD) song-server
 
-build-song-client: _build-song-client
+build-song-client: 
+	@echo $(YELLOW)$(INFO_HEADER) "Forcefully building song-client container" $(END)
+	@$(MVN_CMD) package -am -pl song-client -DskipTests;
+	@$(DOCKER_COMPOSE_CMD) build song-client
 
 # Display logs for song-server
 log-song-server:
