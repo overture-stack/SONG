@@ -17,22 +17,16 @@
 
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.SubmitResponse;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.repository.UploadRepository;
-import bio.overture.song.server.service.id.IdService;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.val;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Optional;
-
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.Responses.OK;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -44,16 +38,21 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.Responses.OK;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.SubmitResponse;
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.repository.UploadRepository;
+import bio.overture.song.server.service.id.IdService;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
+import lombok.val;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MockedSubmitTest {

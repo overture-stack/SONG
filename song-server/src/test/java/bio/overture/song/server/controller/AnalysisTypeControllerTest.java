@@ -69,7 +69,6 @@ import lombok.val;
 import net.javacrumbs.jsonunit.core.Configuration;
 import org.everit.json.schema.Schema;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -374,18 +373,18 @@ public class AnalysisTypeControllerTest {
     assertJsonEquals(expected, actual, when(IGNORING_ARRAY_ORDER));
   }
 
+  /** Assert the flyway migration for legacy variantCall analysisType was run */
   @Test
-  @Ignore
   @SneakyThrows
   public void getLegacyVariantCall_existing_success() {
-    runLegacyVariantCallTest("variantCall");
+    runLegacyAnalysisTypeTest("variantCall");
   }
 
+  /** Assert the flyway migration for legacy sequencingRead analysisType was run */
   @Test
-  @Ignore
   @SneakyThrows
   public void getLegacySequencingRead_existing_success() {
-    runLegacyVariantCallTest("sequencingRead");
+    runLegacyAnalysisTypeTest("sequencingRead");
   }
 
   /** Test the default size is DEFAULT_LIMIT */
@@ -721,10 +720,9 @@ public class AnalysisTypeControllerTest {
     assertTrue(actualNoAnalysisTypes.isEmpty());
   }
 
-  private void runLegacyVariantCallTest(String name) {
+  private void runLegacyAnalysisTypeTest(String name) {
     val fetcher =
         ResourceFetcher.builder().resourceType(MAIN).dataDir(Paths.get("schemas")).build();
-    val expected = fetcher.readJsonNode(name + ".json");
 
     val results =
         endpointTester

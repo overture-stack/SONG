@@ -247,6 +247,7 @@
                 <artifactId>jaxb-api</artifactId>
                 <version>${jaxb.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>javax.interceptor</groupId>
                 <artifactId>javax.interceptor-api</artifactId>
@@ -258,6 +259,11 @@
                 <groupId>org.icgc.dcc</groupId>
                 <artifactId>dcc-common-core</artifactId>
                 <version>${dcc-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.icgc.dcc</groupId>
+                <artifactId>dcc-id-client</artifactId>
+                <version>${dcc-id.version}</version>
             </dependency>
 
             <!--Json Schema-->
@@ -480,6 +486,7 @@
         <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
         <wiremock.version>2.14.0</wiremock.version>
         <springfox.version>2.9.0</springfox.version>
+        <dcc-id.version>5.2.0</dcc-id.version>
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
         <hibernate-native-json.version>0.4</hibernate-native-json.version>
 
