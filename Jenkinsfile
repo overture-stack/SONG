@@ -1,8 +1,29 @@
-def commit = "UNKNOWN"
-def version = "UNKNOWN"
 import groovy.json.JsonOutput
 
-import groovy.json.JsonOutput
+def version = "UNKNOWN"
+def commit = "UNKNOWN"
+def repo = "UNKNOWN"
+
+def pom(path, target) {
+    return [pattern: "${path}/pom.xml", target: "${target}.pom"]
+}
+
+def jar(path, target) {
+    return [pattern: "${path}/target/*.jar",
+            target         : "${target}.jar",
+            excludePatterns: ["*-exec.jar"]
+            ]
+}
+
+def tar(path, target) {
+    return [pattern: "${path}/target/*.tar.gz",
+            target : "${target}-dist.tar.gz"]
+}
+
+def runjar(path, target) {
+    return [pattern: "${path}/target/*-exec.jar",
+            target : "${target}-exec.jar"]
+}
 
 pipeline {
     agent {
@@ -106,146 +127,71 @@ spec:
             }
         }
 
-        stage('Upload Artifact SNAPSHOT') {
-
-	when { anyOf {
-                  branch 'test-develop' 
-                  branch 'develop' 
-               }
-             }
+        stage('Destination SNAPSHOT') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'test-develop'
+                }
+            }
             steps {
                 script {
                     repo = "dcc-snapshot/bio/overture"
-                    client = "song-client"
-                    clientName = "$client-$version-SNAPSHOT"
-                    clientTarget = "$repo/$client/$version-SNAPSHOT/$clientName"
-
-                    server = "song-server"
-                    serverName = "$server-$version-SNAPSHOT"
-                    serverTarget = "$repo/$server/$version-SNAPSHOT/$serverName"
-
-                    core = "song-core"
-                    coreName = "$core-$version-SNAPSHOT"
-                    coreTarget = "$repo/$core/$version-SNAPSHOT/$coreName"
-
-                    songTarget="$repo/song/$version-SNAPSHOT/song-$version-SNAPSHOT"
-                    fileSet = [files:
-                                       [      // song
-                                              [pattern: "pom.xml", target: "${songTarget}.pom"],
-                                              // song-client
-                                              [pattern: "${client}/target/*.tar.gz",
-                                               target : "${clientTarget}-dist.tar.gz"],
-                                              [pattern: "${client}/target/*-exec.jar",
-                                               target : "${clientTarget}-exec.jar"],
-                                              [pattern        : "$client/target/*.jar",
-                                               target         : "${clientTarget}.jar",
-                                               excludePatterns: ["*-exec.jar"]
-                                              ],
-                                              [pattern: "${client}/pom.xml",
-                                               target : "${clientTarget}.pom"
-                                              ],
-
-                                              // song-server
-                                              [pattern: "${server}/target/*.tar.gz",
-                                               target : "${serverTarget}-dist.tar.gz"],
-                                              [pattern: "${server}/target/*-exec.jar",
-                                               target : "${serverTarget}-exec.jar"],
-                                              [pattern        : "$server/target/*.jar",
-                                               target         : "${serverTarget}.jar",
-                                               excludePatterns: ["*-exec.jar"]
-                                              ],
-                                              [pattern: "${server}/pom.xml",
-                                               target : "${serverTarget}.pom"
-                                              ],
-
-                                              // song-core
-                                              [pattern        : "$core/target/*.jar",
-                                               target         : "${coreTarget}.jar",
-                                               excludePatterns: ["*-exec.jar"]
-                                              ],
-                                              [pattern: "$core/pom.xml",
-                                               target : "${coreTarget}.pom"
-                                              ]
-                                       ]
-                    ]
-                    files = JsonOutput.toJson(fileSet)
-
-                    print("Upload file specification=${files}")
-                    print("Please work for me!")
                 }
-                rtUpload(serverId: 'artifactory',
-                        spec: files
-                )
             }
         }
 
-        stage('Upload Artifact Release') {
-            when { anyOf { 
-		   branch 'master'
-                   branch 'test-master'
-		}} 
+        stage('Destination release') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch 'test-master'
+                }
+            }
             steps {
                 script {
                     repo = "dcc-release/bio/overture"
-                    client = "song-client"
-                    clientName = "$client-$version"
-                    clientTarget = "$repo/$client/$version/$clientName"
-
-                    server = "song-server"
-                    serverName = "$server-$version"
-                    serverTarget = "$repo/$server/$version/$serverName"
-
-                    core = "song-core"
-                    coreName = "$core-$version"
-                    coreTarget = "$repo/$core/$version/$coreName"
-
-                    songTarget="$repo/song/$version/song-$version"
-                    fileSet = [files:
-                                       [      // song
-                                              [pattern: "pom.xml", target: "${songTarget}.pom"],
-                                              // song-client
-                                              [pattern: "${client}/target/*.tar.gz",
-                                               target : "${clientTarget}-dist.tar.gz"],
-                                              [pattern: "${client}/target/*-exec.jar",
-                                               target : "${clientTarget}-exec.jar"],
-                                              [pattern        : "$client/target/*.jar",
-                                               target         : "${clientTarget}.jar",
-                                               excludePatterns: ["*-exec.jar"]
-                                              ],
-                                              [pattern: "${client}/pom.xml",
-                                               target : "${clientTarget}.pom"
-                                              ],
-
-                                              // song-server
-                                              [pattern: "${server}/target/*.tar.gz",
-                                               target : "${serverTarget}-dist.tar.gz"],
-                                              [pattern: "${server}/target/*-exec.jar",
-                                               target : "${serverTarget}-exec.jar"],
-                                              [pattern        : "$server/target/*.jar",
-                                               target         : "${serverTarget}.jar",
-                                               excludePatterns: ["*-exec.jar"]
-                                              ],
-                                              [pattern: "${server}/pom.xml",
-                                               target : "${serverTarget}.pom"
-                                              ],
-
-                                              // song-core
-                                              [pattern        : "$core/target/*.jar",
-                                               target         : "${coreTarget}.jar",
-                                               excludePatterns: ["*-exec.jar"]
-                                              ],
-                                              [pattern: "$core/pom.xml",
-                                               target : "${coreTarget}.pom"
-                                              ]
-                                       ]
-                    ]
-                    files = JsonOutput.toJson(fileSet)
-
-                    print("Upload file specification=${files}")
                 }
-                rtUpload(serverId: 'artifactory',
-                        spec: files
-                )
+            }
+        }
+
+        stage('Upload Artifacts') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch 'test-master'
+                    branch 'develop'
+                    branch 'test-develop'
+                }
+            }
+            steps {
+                script {
+                    
+                    project = "song"
+                    versionName = "$version"
+                    subProjects = ['client', 'core', 'server']
+
+                    files = []
+                    files.add([pattern: "pom.xml", target: "$repo/$project/$versionName/$project-${versionName}.pom"])
+
+                    for (s in subProjects) {
+                        name = "${project}-$s"
+                        target = "$repo/$name/$versionName/$name-$versionName"
+                        files.add(pom(name, target))
+                        files.add(jar(name, target))
+
+                        if (s in ['client', 'server']) {
+                            files.add(runjar(name, target))
+                            files.add(tar(name, target))
+                        }
+                    }
+
+                    fileSet = JsonOutput.toJson([files: files])
+                    pretty = JsonOutput.prettyPrint(fileSet)
+                    print("Uploading files=${pretty}")
+                }
+
+                rtUpload(serverId: 'artifactory', spec: fileSet)
             }
         }
     }
