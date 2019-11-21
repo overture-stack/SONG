@@ -16,25 +16,26 @@
  */
 package bio.overture.song.sdk;
 
-import static java.lang.Boolean.parseBoolean;
-
 import bio.overture.song.core.model.Analysis;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.FileDTO;
-import bio.overture.song.core.model.FileData;
+import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
 import bio.overture.song.sdk.web.Endpoint;
 import bio.overture.song.sdk.web.RestClient;
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.web.client.ResourceAccessException;
+
+import java.util.List;
+
+import static java.lang.Boolean.parseBoolean;
 
 @RequiredArgsConstructor
 public class SongApi {
@@ -127,7 +128,9 @@ public class SongApi {
   }
 
   public FileUpdateResponse updateFile(
-      @NonNull String studyId, @NonNull String objectId, @NonNull FileData fileUpdateRequest) {
+      @NonNull String studyId,
+      @NonNull String objectId,
+      @NonNull FileUpdateRequest fileUpdateRequest) {
     val url = endpoint.updateFile(studyId, objectId);
     return restClient.put(url, fileUpdateRequest, FileUpdateResponse.class).getBody();
   }
