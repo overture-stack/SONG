@@ -104,14 +104,13 @@ public class SongApi {
     return restClient.put(url, String.class).getBody();
   }
 
-  public List<ExportedPayload> exportStudy(@NonNull String studyId, boolean includeAnalysisId) {
-    val url = endpoint.exportStudy(studyId, includeAnalysisId);
+  public List<ExportedPayload> exportStudy(@NonNull String studyId) {
+    val url = endpoint.exportStudy(studyId);
     return restClient.getList(url, ExportedPayload.class).getBody();
   }
 
-  public List<ExportedPayload> exportAnalyses(
-      @NonNull List<String> analysisIds, boolean includeAnalysisId) {
-    val url = endpoint.exportAnalysisIds(analysisIds, includeAnalysisId);
+  public List<ExportedPayload> exportAnalyses(@NonNull List<String> analysisIds) {
+    val url = endpoint.exportAnalysisIds(analysisIds);
     return restClient.getList(url, ExportedPayload.class).getBody();
   }
 

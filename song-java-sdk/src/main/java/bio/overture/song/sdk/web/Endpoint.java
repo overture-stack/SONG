@@ -95,15 +95,12 @@ public class Endpoint {
     return format("%s/studies/%s/files/%s", serverUrl, studyId, objectId);
   }
 
-  public String exportAnalysisIds(@NonNull List<String> analysisIds, boolean includeAnalysisId) {
-    return format(
-        "%s/export/analysis/%s?includeAnalysisId=%s",
-        serverUrl, COMMA.join(analysisIds), includeAnalysisId);
+  public String exportAnalysisIds(@NonNull List<String> analysisIds) {
+    return format("%s/export/analysis/%s", serverUrl, COMMA.join(analysisIds));
   }
 
-  public String exportStudy(@NonNull String studyId, boolean includeAnalysisId) {
-    return format(
-        "%s/export/studies/%s?includeAnalysisId=%s", serverUrl, studyId, includeAnalysisId);
+  public String exportStudy(@NonNull String studyId) {
+    return format("%s/export/studies/%s", serverUrl, studyId);
   }
 
   public String suppress(@NonNull String studyId, @NonNull String analysisId) {
