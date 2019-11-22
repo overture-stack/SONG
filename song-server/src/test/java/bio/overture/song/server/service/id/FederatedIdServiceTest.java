@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
@@ -50,14 +49,12 @@ public class FederatedIdServiceTest {
   private static final String SPECIMEN_URL = "https://example.org/specimen/id";
   private static final String SAMPLE_URL = "https://example.org/sample/id";
   private static final String FILE_URL = "https://example.org/file/id";
-  private static final String ANALYSIS_EXISTENCE_URL = "https://example.org/analysis/existence";
-  private static final String ANALYSIS_SAVE_URL = "https://example.org/analysis/save";
-  private static final String ANALYSIS_GENERATE_URL = "https://example.org/analysis/generate";
 
   /** Mocks */
   @Mock private RestClient restClient;
 
   @Mock private UriResolver uriResolver;
+  @Mock private LocalIdService localIdService;
   @InjectMocks private FederatedIdService idService;
 
   /** State */
@@ -159,10 +156,9 @@ public class FederatedIdServiceTest {
 
   @Test
   public void testUniqueAnalysisId() {
-    val mockIdService = mock(FederatedIdService.class);
-    when(mockIdService.generateAnalysisId()).thenCallRealMethod();
-    val id1 = mockIdService.generateAnalysisId();
-    val id2 = mockIdService.generateAnalysisId();
+    when(localIdService.generateAnalysisId()).thenReturn("AN1", "AN2");
+    val id1 = idService.generateAnalysisId();
+    val id2 = idService.generateAnalysisId();
     assertNotEquals(id1, id2);
   }
 
