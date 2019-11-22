@@ -33,15 +33,6 @@ public class IdProperties {
       private String specimen;
       private String sample;
       private String file;
-      private final AnalysisTemplateProperties analysis = new AnalysisTemplateProperties();
-
-      @Getter
-      @Setter
-      public static class AnalysisTemplateProperties {
-        private String existence;
-        private String generate;
-        private String save;
-      }
     }
 
     @Getter

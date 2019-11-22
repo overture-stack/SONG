@@ -61,8 +61,7 @@ public class UploadService {
   }
 
   @Transactional
-  public SubmitResponse submit(
-      @NonNull String studyId, String payloadString, final boolean ignoreAnalysisIdCollisions) {
+  public SubmitResponse submit(@NonNull String studyId, String payloadString) {
     // Check study exists
     studyService.checkStudyExist(studyId);
 
@@ -79,7 +78,7 @@ public class UploadService {
     checkStudyInPayload(studyId, payload);
 
     // Create the analysis
-    val analysisId = analysisService.create(studyId, payload, ignoreAnalysisIdCollisions);
+    val analysisId = analysisService.create(studyId, payload);
     return SubmitResponse.builder().analysisId(analysisId).status(OK).build();
   }
 

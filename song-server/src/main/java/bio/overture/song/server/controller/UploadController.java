@@ -56,20 +56,6 @@ public class UploadController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @RequestBody @Valid String json_payload) {
-    return uploadService.submit(studyId, json_payload, false);
-  }
-
-  @ApiOperation(
-      value = "ForceSubmit",
-      notes = "Forcefully submit a json payload, ignoring analysisId collisions")
-  @PostMapping(
-      value = "/{studyId}/force",
-      consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
-  @PreAuthorize("@systemSecurity.authorize(authentication)")
-  public SubmitResponse forceSubmit(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId,
-      @RequestBody @Valid String json_payload) {
-    return uploadService.submit(studyId, json_payload, true);
+    return uploadService.submit(studyId, json_payload);
   }
 }

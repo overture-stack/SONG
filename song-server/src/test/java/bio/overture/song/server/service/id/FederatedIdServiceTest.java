@@ -2,13 +2,13 @@ package bio.overture.song.server.service.id;
 
 import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongErrorRunnable;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.ERROR;
 import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.GOOD;
 import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.NOT_FOUND;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.reset;
@@ -48,14 +48,12 @@ public class FederatedIdServiceTest {
   private static final String SPECIMEN_URL = "https://example.org/specimen/id";
   private static final String SAMPLE_URL = "https://example.org/sample/id";
   private static final String FILE_URL = "https://example.org/file/id";
-  private static final String ANALYSIS_EXISTENCE_URL = "https://example.org/analysis/existence";
-  private static final String ANALYSIS_SAVE_URL = "https://example.org/analysis/save";
-  private static final String ANALYSIS_GENERATE_URL = "https://example.org/analysis/generate";
 
   /** Mocks */
   @Mock private RestClient restClient;
 
   @Mock private UriResolver uriResolver;
+  @Mock private LocalIdService localIdService;
   @InjectMocks private FederatedIdService idService;
 
   /** State */
@@ -156,54 +154,11 @@ public class FederatedIdServiceTest {
   }
 
   @Test
-  public void getAnalysisGenerate_existing_id() {
-    setupAnalysisGenerate(GOOD);
-    val analysisGenerateResult = idService.getUniqueCandidateAnalysisId();
-    assertTrue(analysisGenerateResult.isPresent());
-    assertEquals(analysisGenerateResult.get(), DEFAULT_ID);
-  }
-
-  @Test
-  public void getAnalysisGenerate_nonExisting_emptyResult() {
-    setupAnalysisGenerate(NOT_FOUND);
-    val analysisGenerateResult = idService.getUniqueCandidateAnalysisId();
-    assertFalse(analysisGenerateResult.isPresent());
-  }
-
-  @Test
-  public void getAnalysisGenerate_otherError_IdServiceError() {
-    setupAnalysisGenerate(ERROR);
-    assertSongError(() -> idService.getUniqueCandidateAnalysisId(), ID_SERVICE_ERROR);
-  }
-
-  @Test
-  public void getAnalysisExistence_existing_id() {
-    setupAnalysisExistence(GOOD);
-    assertTrue(idService.isAnalysisIdExist(DEFAULT_ANALYSIS_ID));
-  }
-
-  @Test
-  public void getAnalysisExistence_nonExisting_emptyResult() {
-    setupAnalysisExistence(NOT_FOUND);
-    assertFalse(idService.isAnalysisIdExist(DEFAULT_ANALYSIS_ID));
-  }
-
-  @Test
-  public void getAnalysisExistence_otherError_IdServiceError() {
-    setupAnalysisExistence(ERROR);
-    assertSongError(() -> idService.isAnalysisIdExist(DEFAULT_ANALYSIS_ID), ID_SERVICE_ERROR);
-  }
-
-  @Test
-  public void getAnalysisSave_existing_id() {
-    setupAnalysisSave(GOOD);
-    idService.saveAnalysisId(DEFAULT_ANALYSIS_ID);
-  }
-
-  @Test
-  public void getAnalysisSave_otherError_IdServiceError() {
-    setupAnalysisSave(ERROR);
-    assertSongErrorRunnable(() -> idService.saveAnalysisId(DEFAULT_ANALYSIS_ID), ID_SERVICE_ERROR);
+  public void testUniqueAnalysisId() {
+    when(localIdService.generateAnalysisId()).thenReturn("AN1", "AN2");
+    val id1 = idService.generateAnalysisId();
+    val id2 = idService.generateAnalysisId();
+    assertNotEquals(id1, id2);
   }
 
   private void setupDonor(MODE mode) {
@@ -224,25 +179,6 @@ public class FederatedIdServiceTest {
   private void setupFile(MODE mode) {
     baseSetup(mode, FILE_URL);
     when(uriResolver.expandFileUri(anyString(), anyString())).thenReturn(FILE_URL);
-  }
-
-  private void setupAnalysisExistence(MODE mode) {
-    baseSetup(mode, ANALYSIS_EXISTENCE_URL);
-    if (mode == GOOD) {
-      when(restClient.get(ANALYSIS_EXISTENCE_URL, String.class))
-          .thenReturn(ResponseEntity.ok(null));
-    }
-    when(uriResolver.expandAnalysisExistenceUri(anyString())).thenReturn(ANALYSIS_EXISTENCE_URL);
-  }
-
-  private void setupAnalysisSave(MODE mode) {
-    baseSetup(mode, ANALYSIS_SAVE_URL);
-    when(uriResolver.expandAnalysisSaveUri(anyString())).thenReturn(ANALYSIS_SAVE_URL);
-  }
-
-  private void setupAnalysisGenerate(MODE mode) {
-    baseSetup(mode, ANALYSIS_GENERATE_URL);
-    when(uriResolver.expandAnalysisGenerateUri()).thenReturn(ANALYSIS_GENERATE_URL);
   }
 
   private HttpStatusCodeException generateNonNotFoundStatusCodeException() {
@@ -275,6 +211,5 @@ public class FederatedIdServiceTest {
 
     when(restClient.getString(url)).thenCallRealMethod();
     when(restClient.getObject(url, String.class)).thenCallRealMethod();
-    when(restClient.isFound(url)).thenCallRealMethod();
   }
 }

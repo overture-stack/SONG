@@ -24,8 +24,6 @@ import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SE
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static java.lang.Thread.currentThread;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -66,22 +64,6 @@ public class SchemaValidationTests {
   private static final String PATTERN = "pattern";
 
   @Autowired private AnalysisTypeService analysisTypeService;
-
-  @Test
-  public void validate_analysis_id_regex() {
-    for (val legacyAnalysisTypeName : LegacyAnalysisTypeName.values()) {
-      val schema = getLegacySchemaJson(legacyAnalysisTypeName);
-      assertTrue(schema.has(PROPERTIES));
-      val propertiesSchema = schema.path(PROPERTIES);
-      assertTrue(propertiesSchema.has(ANALYSIS_ID));
-      val analysisIdSchema = propertiesSchema.path(ANALYSIS_ID);
-      assertTrue(analysisIdSchema.has(PATTERN));
-      assertThat(getTypes(analysisIdSchema), hasItem(STRING));
-      assertEquals(
-          analysisIdSchema.path(PATTERN).textValue(),
-          "^[a-zA-Z0-9]{1}[a-zA-Z0-9-_]{1,34}[a-zA-Z0-9]{1}$");
-    }
-  }
 
   private Optional<JsonNode> getPath(JsonNode root, String... paths) {
     JsonNode currentNode = root;
@@ -170,7 +152,6 @@ public class SchemaValidationTests {
         log.info("Testing Filename validation: '{}'", filename);
         val isGood = entry.getValue();
         val payload = payloadGenerator.generateRandomPayload(fixtureFilename);
-        payload.setAnalysisId(null);
         payload.getFile().get(0).setFileName(filename);
         val payloadNode = readTree(toJson(payload));
         val errors = validate(legacyAnalysisTypeName, payloadNode);

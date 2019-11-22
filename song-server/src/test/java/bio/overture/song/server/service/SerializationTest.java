@@ -150,7 +150,6 @@ public class SerializationTest {
 
     val expectedPayload =
         Payload.builder()
-            .analysisId(inputJson.path("analysisId").textValue())
             .analysisType(AnalysisTypeId.builder().name("sequencingRead").version(1).build())
             .file(newArrayList(f1, f2))
             .sample(newArrayList(sa))

@@ -19,12 +19,10 @@ package bio.overture.song.sdk.web;
 
 import static bio.overture.song.core.utils.Deserialization.deserializeList;
 import static bio.overture.song.core.utils.Deserialization.deserializePage;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static org.springframework.http.ResponseEntity.status;
 
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.PageDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -32,8 +30,6 @@ import lombok.val;
 import org.springframework.http.ResponseEntity;
 
 public interface RestClient {
-
-  ObjectMapper MAPPER = mapper();
 
   <R> ResponseEntity<R> get(String endpoint, Class<R> responseType) throws ServerException;
 

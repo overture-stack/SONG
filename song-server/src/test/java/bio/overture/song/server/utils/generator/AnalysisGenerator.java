@@ -27,7 +27,6 @@ import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.service.AnalysisService;
-import bio.overture.song.server.utils.TestFiles;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -53,8 +52,7 @@ public class AnalysisGenerator {
     val payload = payloadSupplier.get();
     // Set analysisId to empty to ensure a randomly generated analysisId, and therefore
     // randomly generated objectId (fileIds)
-    payload.setAnalysisId(TestFiles.EMPTY_STRING);
-    val analysisId = service.create(studyId, payload, false);
+    val analysisId = service.create(studyId, payload);
     return service.securedDeepRead(studyId, analysisId);
   }
 
