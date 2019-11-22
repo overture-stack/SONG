@@ -19,6 +19,7 @@ package bio.overture.song.server.converter;
 
 import static org.mapstruct.factory.Mappers.getMapper;
 
+import bio.overture.song.core.model.FileDTO;
 import bio.overture.song.core.model.FileData;
 import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.server.config.ConverterConfig;
@@ -61,6 +62,8 @@ public interface FileConverter {
   }
 
   List<FileEntity> copyFiles(List<FileEntity> files);
+
+  FileDTO convertToFileDTO(FileEntity f);
 
   default StorageObject toStorageObject(FileEntity file) {
     return StorageObject.builder()

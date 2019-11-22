@@ -5,7 +5,7 @@ import static bio.overture.song.core.utils.Joiners.COMMA;
 import static com.google.common.base.Preconditions.checkArgument;
 import static lombok.AccessLevel.PRIVATE;
 
-import bio.overture.song.server.properties.IdProperties;
+import bio.overture.song.server.properties.IdProperties.FederatedProperties.UriTemplateProperties;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
@@ -35,9 +35,6 @@ public class UriResolver {
   @NonNull private final UriTemplate donorUriTemplate;
   @NonNull private final UriTemplate specimenUriTemplate;
   @NonNull private final UriTemplate sampleUriTemplate;
-  @NonNull private final UriTemplate analysisExistenceUriTemplate;
-  @NonNull private final UriTemplate analysisGenerateUriTemplate;
-  @NonNull private final UriTemplate analysisSaveUriTemplate;
 
   public String expandFileUri(@NonNull String analysisId, @NonNull String fileName) {
     return fileUriTemplate.expand(Map.of(ANALYSIS_ID, analysisId, FILE_NAME, fileName)).toString();
@@ -59,21 +56,9 @@ public class UriResolver {
         .toString();
   }
 
-  public String expandAnalysisExistenceUri(@NonNull String analysisId) {
-    return analysisExistenceUriTemplate.expand(Map.of(ANALYSIS_ID, analysisId)).toString();
-  }
-
-  public String expandAnalysisGenerateUri() {
-    return analysisGenerateUriTemplate.expand().toString();
-  }
-
-  public String expandAnalysisSaveUri(@NonNull String analysisId) {
-    return analysisSaveUriTemplate.expand(Map.of(ANALYSIS_ID, analysisId)).toString();
-  }
-
-  /** Processes the defined URI templates and instatiates the UriResolver */
+  /** Processes the defined URI templates and instantiates the UriResolver */
   public static UriResolver createUriResolver(
-      @NonNull IdProperties.FederatedProperties.UriTemplateProperties uriTemplateProperties) {
+      @NonNull UriTemplateProperties uriTemplateProperties) {
     return UriResolver.builder()
         .fileUriTemplate(processTemplate(uriTemplateProperties.getFile(), ANALYSIS_ID, FILE_NAME))
         .donorUriTemplate(processTemplate(uriTemplateProperties.getDonor(), STUDY_ID, SUBMITTER_ID))
@@ -81,12 +66,6 @@ public class UriResolver {
             processTemplate(uriTemplateProperties.getSpecimen(), STUDY_ID, SUBMITTER_ID))
         .sampleUriTemplate(
             processTemplate(uriTemplateProperties.getSample(), STUDY_ID, SUBMITTER_ID))
-        .analysisExistenceUriTemplate(
-            processTemplate(uriTemplateProperties.getAnalysis().getExistence(), ANALYSIS_ID))
-        .analysisGenerateUriTemplate(
-            processTemplate(uriTemplateProperties.getAnalysis().getGenerate()))
-        .analysisSaveUriTemplate(
-            processTemplate(uriTemplateProperties.getAnalysis().getSave(), ANALYSIS_ID))
         .build();
   }
 

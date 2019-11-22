@@ -89,10 +89,6 @@ id:
       specimen: https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
       sample:   https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
       file:     https://id.example.org/object/id?analysisId={analysisId}&fileName={fileName}
-      analysis:
-        existence: https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=false
-        generate:  https://id.example.org/analysis/unique
-        save:      https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=true
 
 validation:
   delayMs: 30

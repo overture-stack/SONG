@@ -2,11 +2,6 @@
   "donor" : "https://example.org?sid={submitterId}&proj={studyId}",
   "specimen" : "https://example.org?sid={submitterId}&proj={studyId}",
   "sample" : "https://example.org?sid={submitterId}&proj={studyId}",
-  "file" : "https://example.org?anid={analysisId}&fname={fileName}",
-  "analysis":{
-    "existence" : "https://example.org?aid={analysisId}",
-    "save" : "https://example.org?aid={analysisId}",
-    "generate" : "https://example.org/generate"
-  }
+  "file" : "https://example.org?anid={analysisId}&fname={fileName}"
 }
 

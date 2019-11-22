@@ -19,7 +19,6 @@ package bio.overture.song.server.service.id;
 
 import static com.fasterxml.uuid.Generators.randomBasedGenerator;
 
-import bio.overture.song.server.repository.AnalysisRepository;
 import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import com.google.common.base.Joiner;
@@ -42,28 +41,13 @@ public class LocalIdService implements IdService {
   /** Dependencies */
   private final NameBasedGenerator nameBasedGenerator;
 
-  private final AnalysisRepository analysisRepository;
-
-  public LocalIdService(
-      @NonNull NameBasedGenerator nameBasedGenerator,
-      @NonNull AnalysisRepository analysisRepository) {
+  public LocalIdService(@NonNull NameBasedGenerator nameBasedGenerator) {
     this.nameBasedGenerator = nameBasedGenerator;
-    this.analysisRepository = analysisRepository;
   }
 
   @Override
-  public boolean isAnalysisIdExist(@NonNull String analysisId) {
-    return analysisRepository.existsById(analysisId);
-  }
-
-  @Override
-  public Optional<String> getUniqueCandidateAnalysisId() {
-    return Optional.of(RANDOM_UUID_GENERATOR.generate().toString());
-  }
-
-  @Override
-  public void saveAnalysisId(@NonNull String submitterAnalysisId) {
-    log.warn("Skipping analysisId creation for {}", getClass().getSimpleName());
+  public String generateAnalysisId() {
+    return RANDOM_UUID_GENERATOR.generate().toString();
   }
 
   @Override

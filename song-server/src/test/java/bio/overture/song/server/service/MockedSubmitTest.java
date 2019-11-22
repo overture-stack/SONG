@@ -29,7 +29,6 @@ import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
@@ -74,7 +73,7 @@ public class MockedSubmitTest {
     doNothing().when(studyService).checkStudyExist(anyString());
 
     // Verify
-    assertSongError(() -> uploadService.submit("anyStudy", "{}", false), MALFORMED_PARAMETER);
+    assertSongError(() -> uploadService.submit("anyStudy", "{}"), MALFORMED_PARAMETER);
   }
 
   @Test
@@ -92,7 +91,7 @@ public class MockedSubmitTest {
                 .build());
 
     // Verify
-    assertSongError(() -> uploadService.submit("anyStudy", payload, false), MALFORMED_PARAMETER);
+    assertSongError(() -> uploadService.submit("anyStudy", payload), MALFORMED_PARAMETER);
   }
 
   @Test
@@ -104,9 +103,9 @@ public class MockedSubmitTest {
 
     // Verify
     assertSongError(
-        () -> uploadService.submit("anyStudy", "anyAnalysisId", false), STUDY_ID_DOES_NOT_EXIST);
+        () -> uploadService.submit("anyStudy", "anyAnalysisId"), STUDY_ID_DOES_NOT_EXIST);
     verify(validationService, never()).validate(isA(JsonNode.class));
-    verify(analysisService, never()).create(anyString(), isA(Payload.class), anyBoolean());
+    verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
   @Test
@@ -115,10 +114,9 @@ public class MockedSubmitTest {
     doNothing().when(studyService).checkStudyExist(anyString());
 
     // Verify
-    assertSongError(
-        () -> uploadService.submit("anyStudy", "non json format", false), PAYLOAD_PARSING);
+    assertSongError(() -> uploadService.submit("anyStudy", "non json format"), PAYLOAD_PARSING);
     verify(validationService, never()).validate(isA(JsonNode.class));
-    verify(analysisService, never()).create(anyString(), isA(Payload.class), anyBoolean());
+    verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
   @Test
@@ -139,9 +137,9 @@ public class MockedSubmitTest {
                 .build());
 
     // Verify
-    assertSongError(() -> uploadService.submit(studyId, invalidPayload, false), SCHEMA_VIOLATION);
+    assertSongError(() -> uploadService.submit(studyId, invalidPayload), SCHEMA_VIOLATION);
     verify(validationService, times(1)).validate(isA(JsonNode.class));
-    verify(analysisService, never()).create(anyString(), isA(Payload.class), anyBoolean());
+    verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
   @Test
@@ -161,9 +159,9 @@ public class MockedSubmitTest {
 
     // Verify
     assertNotEquals(study1, study2);
-    assertSongError(() -> uploadService.submit(study2, payloadString, false), STUDY_ID_MISMATCH);
+    assertSongError(() -> uploadService.submit(study2, payloadString), STUDY_ID_MISMATCH);
     verify(validationService, times(1)).validate(isA(JsonNode.class));
-    verify(analysisService, never()).create(anyString(), isA(Payload.class), anyBoolean());
+    verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
   @Test
@@ -181,13 +179,13 @@ public class MockedSubmitTest {
     when(validationService.validate(isA(JsonNode.class))).thenReturn(Optional.empty());
 
     val payloadString = toJson(payload);
-    when(analysisService.create(study, payload, false)).thenReturn(analysisId);
+    when(analysisService.create(study, payload)).thenReturn(analysisId);
     val expectedSubmitResponse = SubmitResponse.builder().analysisId(analysisId).status(OK).build();
 
     // Verify
-    val actualSubmitResponse = uploadService.submit(study, payloadString, false);
+    val actualSubmitResponse = uploadService.submit(study, payloadString);
     assertEquals(expectedSubmitResponse, actualSubmitResponse);
     verify(validationService, times(1)).validate(isA(JsonNode.class));
-    verify(analysisService, times(1)).create(anyString(), isA(Payload.class), anyBoolean());
+    verify(analysisService, times(1)).create(anyString(), isA(Payload.class));
   }
 }

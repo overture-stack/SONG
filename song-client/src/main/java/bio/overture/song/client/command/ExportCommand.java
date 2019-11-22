@@ -125,12 +125,6 @@ public class ExportCommand extends Command {
       required = true)
   private String outputDir;
 
-  @Parameter(
-      names = {INCLUDE_ANALYSIS_ID_SHORT, INCLUDE_ANALYSIS_ID_LONG},
-      description = "Include the analysisId field when exporting payloads",
-      arity = 1)
-  private boolean includeAnalysisId = true;
-
   /** Dependencies */
   @NonNull private SongApi songApi;
 
@@ -209,7 +203,7 @@ public class ExportCommand extends Command {
   }
 
   private void processStudyMode() {
-    val exportedPayloads = songApi.exportStudy(studyId, includeAnalysisId);
+    val exportedPayloads = songApi.exportStudy(studyId);
     val exportStatus = exportedPayloadsToDisk("Study(" + studyId + ")", exportedPayloads);
     if (exportStatus.hasErrors()) {
       save(exportStatus);
@@ -267,7 +261,7 @@ public class ExportCommand extends Command {
     Status exportStatus = new Status();
     List<ExportedPayload> exportedPayloads = null;
     try {
-      exportedPayloads = songApi.exportAnalyses(analysisIds, includeAnalysisId);
+      exportedPayloads = songApi.exportAnalyses(analysisIds);
     } catch (Throwable t) {
       exportStatus.err("ExportError: %s", t.getMessage());
     }

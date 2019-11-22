@@ -85,14 +85,8 @@ public class ExportServiceTest {
 
   @Test
   @Transactional
-  public void testGroupExportWithAnalysisId() {
-    runGroupExportTest(true);
-  }
-
-  @Test
-  @Transactional
-  public void testGroupExportWithoutAnalysisId() {
-    runGroupExportTest(false);
+  public void testGroupExport() {
+    runGroupExportTest();
   }
 
   @Test
@@ -107,10 +101,10 @@ public class ExportServiceTest {
     runSingleExportTest(false);
   }
 
-  private void runGroupExportTest(boolean includeAnalysisIds) {
+  private void runGroupExportTest() {
     // Generate data and look up for later
-    val testData12 = generateTestData(new int[] {1, 2}, includeAnalysisIds);
-    val testData34 = generateTestData(new int[] {3, 4}, includeAnalysisIds);
+    val testData12 = generateTestData(new int[] {1, 2});
+    val testData34 = generateTestData(new int[] {3, 4});
     val testLookup =
         Stream.of(testData12, testData34)
             .flatMap(Collection::stream)
@@ -122,8 +116,7 @@ public class ExportServiceTest {
     val allStudies = ImmutableSet.of(testData12_studyId, testData34_studyId);
 
     for (val studyId : allStudies) {
-      val actualExportedPayloads =
-          exportService.exportPayloadsForStudy(studyId, includeAnalysisIds);
+      val actualExportedPayloads = exportService.exportPayloadsForStudy(studyId);
       assertEquals(actualExportedPayloads.size(), 1);
       val actualExportedPayload = actualExportedPayloads.get(0);
       assertEquals(studyId, actualExportedPayload.getStudyId());
@@ -142,8 +135,8 @@ public class ExportServiceTest {
 
   private void runSingleExportTest(boolean includeAnalysisIds) {
     // Generate data and look up for later
-    val testData12 = generateTestData(new int[] {1, 2}, includeAnalysisIds);
-    val testData34 = generateTestData(new int[] {3, 4}, includeAnalysisIds);
+    val testData12 = generateTestData(new int[] {1, 2});
+    val testData34 = generateTestData(new int[] {3, 4});
     val testLookup =
         Stream.of(testData12, testData34)
             .flatMap(Collection::stream)
@@ -162,7 +155,7 @@ public class ExportServiceTest {
             .collect(toList());
 
     // Export payload and assert there are 2 results with different studies
-    val actualExportedPayloads = exportService.exportPayload(analysisIds, includeAnalysisIds);
+    val actualExportedPayloads = exportService.exportPayload(analysisIds);
     assertEquals(actualExportedPayloads.size(), 2);
     assertNotEquals(
         actualExportedPayloads.get(0).getStudyId(), actualExportedPayloads.get(1).getStudyId());
@@ -184,7 +177,7 @@ public class ExportServiceTest {
     }
   }
 
-  private List<TData> generateTestData(int[] fixtureNumbers, boolean includeAnalysisIds) {
+  private List<TData> generateTestData(int[] fixtureNumbers) {
     // Generate a random study
     val studyId = studyGenerator.createRandomStudy();
     val output = ImmutableList.<TData>builder();
@@ -193,15 +186,11 @@ public class ExportServiceTest {
       val inputPayloadJson = (ObjectNode) getJsonNodeFromClasspath(inputFilename);
       inputPayloadJson.put("study", studyId);
 
-      val analysisId =
-          uploadService.submit(studyId, toJson(inputPayloadJson), false).getAnalysisId();
+      val analysisId = uploadService.submit(studyId, toJson(inputPayloadJson)).getAnalysisId();
 
       val outputFilename = format("documents/export/variantcall-output%d.json", fixtureNumber);
       val outputExportedPayloadJson = (ObjectNode) getJsonNodeFromClasspath(outputFilename);
       outputExportedPayloadJson.put("study", studyId);
-      if (includeAnalysisIds) {
-        outputExportedPayloadJson.put("analysisId", analysisId);
-      }
 
       output.add(
           new TData()

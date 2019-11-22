@@ -61,22 +61,6 @@ public class UriResolverTest {
     bad.setFile(good.getFile() + "&something={someVar}");
     assertOnlyUnknownVariables(bad, "someVar");
     bad.setFile(good.getFile());
-
-    // Test analysis.existence
-    bad.getAnalysis()
-        .setExistence(good.getAnalysis().getExistence() + "&something={someVar}&sss={someVar2}");
-    assertOnlyUnknownVariables(bad, "someVar", "someVar2");
-    bad.getAnalysis().setExistence(good.getAnalysis().getExistence());
-
-    // Test analysis.save
-    bad.getAnalysis().setSave(good.getAnalysis().getSave() + "&something={someVar}&sss={someVar2}");
-    assertOnlyUnknownVariables(bad, "someVar", "someVar2");
-    bad.getAnalysis().setSave(good.getAnalysis().getSave());
-
-    // Test analysis.generate
-    bad.getAnalysis().setGenerate(good.getAnalysis().getGenerate() + "&something={someVar}");
-    assertOnlyUnknownVariables(bad, "someVar");
-    bad.getAnalysis().setGenerate(good.getAnalysis().getGenerate());
   }
 
   @Test
@@ -103,16 +87,6 @@ public class UriResolverTest {
     bad.setFile("https://example.org/an={analysisId}");
     assertOnlyMissingVariables(bad, "fileName");
     bad.setFile(good.getFile());
-
-    // Test analysis.existence
-    bad.getAnalysis().setExistence("https://example.org/existence");
-    assertOnlyMissingVariables(bad, "analysisId");
-    bad.getAnalysis().setExistence(good.getAnalysis().getExistence());
-
-    // Test analysis.save
-    bad.getAnalysis().setSave("https://example.org/save");
-    assertOnlyMissingVariables(bad, "analysisId");
-    bad.getAnalysis().setSave(good.getAnalysis().getSave());
   }
 
   private static void assertOnlyMissingVariables(UriTemplateProperties p, String... variables) {
@@ -152,12 +126,6 @@ public class UriResolverTest {
     assertEquals(
         "https://example.org?anid=AN01&fname=my-file.vcf.gz",
         ur.expandFileUri("AN01", "my-file.vcf.gz"));
-
-    assertEquals("https://example.org?aid=AN01", ur.expandAnalysisExistenceUri("AN01"));
-
-    assertEquals("https://example.org?aid=AN01", ur.expandAnalysisSaveUri("AN01"));
-
-    assertEquals("https://example.org/generate", ur.expandAnalysisGenerateUri());
   }
 
   private static void assertExceptionThrown(

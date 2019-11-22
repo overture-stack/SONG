@@ -17,6 +17,7 @@ public class FederatedIdService implements IdService {
   /** Dependencies */
   @NonNull private final RestClient rest;
 
+  @NonNull private final IdService localIdService;
   @NonNull private final UriResolver uriResolver;
 
   @Override
@@ -45,20 +46,8 @@ public class FederatedIdService implements IdService {
   }
 
   @Override
-  public boolean isAnalysisIdExist(@NonNull String analysisId) {
-    return handleIdServiceGetRequest(
-        uriResolver.expandAnalysisExistenceUri(analysisId), rest::isFound);
-  }
-
-  @Override
-  public Optional<String> getUniqueCandidateAnalysisId() {
-    return handleIdServiceGetRequest(uriResolver.expandAnalysisGenerateUri(), rest::getString);
-  }
-
-  @Override
-  public void saveAnalysisId(@NonNull String analysisId) {
-    handleIdServiceGetRequest(
-        uriResolver.expandAnalysisSaveUri(analysisId), url -> rest.get(url, String.class));
+  public String generateAnalysisId() {
+    return localIdService.generateAnalysisId();
   }
 
   /**

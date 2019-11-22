@@ -23,7 +23,6 @@ import lombok.ToString;
 public class Payload extends DynamicData {
 
   private String study;
-  private String analysisId;
   private AnalysisTypeId analysisType;
   private List<CompositeEntity> sample;
   private List<FileEntity> file;
