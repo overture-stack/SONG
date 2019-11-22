@@ -17,6 +17,9 @@
 
 package bio.overture.song.core.exceptions;
 
+import lombok.NonNull;
+import org.springframework.http.HttpStatus;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -27,9 +30,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
-
-import lombok.NonNull;
-import org.springframework.http.HttpStatus;
 
 public enum ServerErrors implements ServerError {
   STUDY_ID_DOES_NOT_EXIST(NOT_FOUND),
@@ -92,7 +92,6 @@ public enum ServerErrors implements ServerError {
   SPECIMEN_ALREADY_EXISTS(CONFLICT),
   VARIANT_CALL_CORRUPTED_DUPLICATE(INTERNAL_SERVER_ERROR),
   SEQUENCING_READ_CORRUPTED_DUPLICATE(INTERNAL_SERVER_ERROR),
-  DUPLICATE_ANALYSIS_ATTEMPT(CONFLICT),
   STUDY_ALREADY_EXISTS(CONFLICT),
   MISMATCHING_STORAGE_OBJECT_SIZES(CONFLICT),
   MISMATCHING_STORAGE_OBJECT_CHECKSUMS(CONFLICT),

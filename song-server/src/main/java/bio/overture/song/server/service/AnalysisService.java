@@ -70,7 +70,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOU
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
-import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
@@ -128,20 +127,10 @@ public class AnalysisService {
   @Autowired private final ValidationService validationService;
 
   @Transactional
-  public String create(
-      @NonNull String studyId, @NonNull Payload payload) {
+  public String create(@NonNull String studyId, @NonNull Payload payload) {
     studyService.checkStudyExist(studyId);
 
     val analysisId = idService.generateAnalysisId();
-
-    // Prevent duplicate analyses from being created
-    checkServer(
-        !isAnalysisExist(analysisId),
-        this.getClass(),
-        DUPLICATE_ANALYSIS_ATTEMPT,
-        "Attempted to create a duplicate analysis: %s",
-        analysisId);
-
     val analysisSchema =
         analysisTypeService.getAnalysisSchema(
             payload.getAnalysisType().getName(), payload.getAnalysisType().getVersion());
