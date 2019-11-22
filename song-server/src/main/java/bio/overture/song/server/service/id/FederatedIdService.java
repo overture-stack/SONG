@@ -1,26 +1,24 @@
 package bio.overture.song.server.service.id;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static com.fasterxml.uuid.Generators.randomBasedGenerator;
-
-import com.fasterxml.uuid.impl.RandomBasedGenerator;
-import java.util.Optional;
-import java.util.function.Function;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.web.client.HttpStatusCodeException;
 
+import java.util.Optional;
+import java.util.function.Function;
+
+import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+
 /** Implementation that calls an external service for ID federation */
 @RequiredArgsConstructor
 public class FederatedIdService implements IdService {
 
-  private static final RandomBasedGenerator RANDOM_UUID_GENERATOR = randomBasedGenerator();
-
   /** Dependencies */
   @NonNull private final RestClient rest;
 
+  @NonNull private final IdService localIdService;
   @NonNull private final UriResolver uriResolver;
 
   @Override
@@ -50,7 +48,7 @@ public class FederatedIdService implements IdService {
 
   @Override
   public String generateAnalysisId() {
-    return RANDOM_UUID_GENERATOR.generate().toString();
+    return localIdService.generateAnalysisId();
   }
 
   /**
