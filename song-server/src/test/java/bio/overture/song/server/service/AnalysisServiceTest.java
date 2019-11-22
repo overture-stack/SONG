@@ -16,48 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.testing.SongErrorAssertions.catchThrowable;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
-import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Arrays.stream;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.IntStream.range;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -82,11 +40,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -96,7 +49,49 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.stream;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.IntStream.range;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
+import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 
 @Slf4j
 @SpringBootTest
@@ -178,18 +173,6 @@ public class AnalysisServiceTest {
 
   @Test
   @Transactional
-  public void testIsAnalysisExist() {
-    val payload = payloadGenerator.generateDefaultRandomPayload(VARIANT_CALL);
-    val randomAnalysisId = randomGenerator.generateRandomUUIDAsString();
-    payload.setAnalysisId(randomAnalysisId);
-    assertFalse(service.isAnalysisExist(randomAnalysisId));
-    val actualAnalysisId = service.create(DEFAULT_STUDY_ID, payload, false);
-    assertEquals(actualAnalysisId, randomAnalysisId);
-    assertTrue(service.isAnalysisExist(randomAnalysisId));
-  }
-
-  @Test
-  @Transactional
   public void testCreateAndUpdateVariantCall() {
     val created = analysisGenerator.createRandomAnalysis("documents/variantcall-valid-1.json");
     val analysisId = created.getAnalysisId();
@@ -232,7 +215,7 @@ public class AnalysisServiceTest {
   public void testReadVariantCall() {
     val json = getJsonStringFromClasspath("documents/variantcall-read-test.json");
     val payload = fromJson(json, Payload.class);
-    val analysisId = service.create(DEFAULT_STUDY_ID, payload, false);
+    val analysisId = service.create(DEFAULT_STUDY_ID, payload);
     val a = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
     val aUnsecured = service.unsecuredDeepRead(analysisId);
     assertEquals(a, aUnsecured);
@@ -358,7 +341,7 @@ public class AnalysisServiceTest {
   public void testReadSequencingRead() {
     val json = getJsonStringFromClasspath("documents/sequencingread-read-test.json");
     val payload = fromJson(json, Payload.class);
-    val analysisId = service.create(DEFAULT_STUDY_ID, payload, false);
+    val analysisId = service.create(DEFAULT_STUDY_ID, payload);
     val a = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
     val aUnsecured = service.unsecuredDeepRead(analysisId);
     assertEquals(a, aUnsecured);
@@ -540,42 +523,11 @@ public class AnalysisServiceTest {
 
   @Test
   @Transactional
-  public void testDuplicateAnalysisAttemptError() {
+  public void testNoDuplicateAnalysisAttemptError() {
     val an1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
-    val equivalentPayload = exportService.convertToPayloadDTO(an1, true);
-    assertSongError(
-        () -> service.create(an1.getStudy(), equivalentPayload, true), DUPLICATE_ANALYSIS_ATTEMPT);
-  }
-
-  @Test
-  @Transactional
-  public void testCustomAnalysisId() {
-    val study = DEFAULT_STUDY_ID;
-    val expectedAnalysisId = "AN-1234";
-    val expectedObjectIdMap = Maps.newHashMap();
-    expectedObjectIdMap.put(
-        "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
-        "392e3c25-7e00-59c4-b0de-fafad4a781ef");
-    expectedObjectIdMap.put(
-        "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
-        "2743b3ec-2556-5d86-9e60-bfc3a72f8eda");
-
-    val payload =
-        payloadGenerator.generateRandomPayload(
-            "documents/sequencingread-custom-analysis-id" + ".json");
-    payload.setAnalysisId(expectedAnalysisId);
-    val actualAnalysisId = service.create(study, payload, false);
-    assertEquals(actualAnalysisId, expectedAnalysisId);
-    val analysis = service.securedDeepRead(study, actualAnalysisId);
-    for (val file : analysis.getFile()) {
-      val filename = file.getFileName();
-      assertTrue(expectedObjectIdMap.containsKey(filename));
-      val expectedObjectId = expectedObjectIdMap.get(filename);
-      val actualObjectId = file.getObjectId();
-      val actualFileAnalysisId = file.getAnalysisId();
-      assertEquals(actualObjectId, expectedObjectId);
-      assertEquals(actualFileAnalysisId, actualAnalysisId);
-    }
+    val equivalentPayload = exportService.convertToPayloadDTO(an1);
+    val differentAnalysisId = service.create(an1.getStudy(), equivalentPayload);
+    assertNotEquals(an1, differentAnalysisId);
   }
 
   @Test
@@ -585,11 +537,9 @@ public class AnalysisServiceTest {
     assertFalse(studyService.isStudyExist(nonExistentStudyId));
 
     val payload = payloadGenerator.generateDefaultRandomPayload(VARIANT_CALL);
-    payload.setAnalysisId(null);
 
-    assertNull(payload.getAnalysisId());
     assertSongError(
-        () -> service.create(nonExistentStudyId, payload, false), STUDY_ID_DOES_NOT_EXIST);
+        () -> service.create(nonExistentStudyId, payload), STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
@@ -893,56 +843,6 @@ public class AnalysisServiceTest {
     assertCollectionsMatchExactly(actualAnalysisIds1, expectedAnalysisIds);
 
     actualAnalyses1.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())));
-  }
-
-  /**
-   * Tests that if an error occurs during the create method of the AnalysisService, that any
-   * entities created in the method are rolled back (using transactions) and that the id is not
-   * committed to the id server. This test does not use the @Transactional because we are testing
-   * rolling back of a failed analysisService.create call.
-   */
-  @Test
-  public void testRevokeAnalysisId() {
-
-    // Find an analysisId that is unique and doesnt exist
-    val id = idService.getUniqueCandidateAnalysisId().get();
-    assertFalse(service.isAnalysisExist(id));
-
-    // Generate a payload using the analysisId
-    val payload = payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
-    payload.setAnalysisId(id);
-
-    /**
-     * Mock the idService. This service is called during the create method of AnalysisService and
-     * then it exceptions out. Since the analysisService has way to many dependencies (not good),
-     * mocking it the right way is ridiculous. Instead, we can mock an internal service (i.e
-     * idService) using a runtime surgical tool such as ReflectionTestUtils, to replace the actual
-     * idService with the mocked one to forcefully throw an exception to test the revoke feature.
-     * This is a dirty hack and is characteristic of poor design at the service layer.
-     */
-    val mockIdService = mock(IdService.class);
-    doThrow(new IllegalStateException("some error happened during the "))
-        .when(mockIdService)
-        .saveAnalysisId(id);
-    when(mockIdService.isAnalysisIdExist(id)).thenReturn(false);
-
-    val originalIdService = ReflectionTestUtils.getField(service, ID_SERVICE);
-    ReflectionTestUtils.setField(service, ID_SERVICE, mockIdService);
-    assertFalse(service.isAnalysisExist(id));
-
-    // Ensure the mock is used and that an error was actually thrown
-    val throwable = catchThrowable(() -> service.create(DEFAULT_STUDY_ID, payload, false));
-    assertTrue(throwable instanceof IllegalStateException);
-
-    // Ensure everything was rolled back properly
-    assertFalse(service.isAnalysisExist(id));
-
-    // Ensure the id was not committed to the id server
-    assertFalse(mockIdService.isAnalysisIdExist(id));
-
-    // Plug the original analysisInfoService back into service so other tests can function properly.
-    // This is a reset.
-    ReflectionTestUtils.setField(service, ID_SERVICE, originalIdService);
   }
 
   @Test

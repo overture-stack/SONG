@@ -1,8 +1,17 @@
 package bio.overture.song.server.service.id;
 
-import static bio.overture.song.core.utils.Joiners.COMMA;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
+import bio.overture.song.core.utils.ResourceFetcher;
+import bio.overture.song.server.properties.IdProperties.FederatedProperties.UriTemplateProperties;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.hamcrest.Matcher;
+import org.junit.Test;
+
+import java.nio.file.Paths;
+import java.util.function.Supplier;
+
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -10,17 +19,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
-import bio.overture.song.core.utils.ResourceFetcher;
-import bio.overture.song.server.properties.IdProperties.FederatedProperties.UriTemplateProperties;
-import java.nio.file.Paths;
-import java.util.function.Supplier;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.hamcrest.Matcher;
-import org.junit.Test;
+import static bio.overture.song.core.utils.Joiners.COMMA;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
 
 @Slf4j
 public class UriResolverTest {
@@ -61,22 +62,6 @@ public class UriResolverTest {
     bad.setFile(good.getFile() + "&something={someVar}");
     assertOnlyUnknownVariables(bad, "someVar");
     bad.setFile(good.getFile());
-
-    // Test analysis.existence
-    bad.getAnalysis()
-        .setExistence(good.getAnalysis().getExistence() + "&something={someVar}&sss={someVar2}");
-    assertOnlyUnknownVariables(bad, "someVar", "someVar2");
-    bad.getAnalysis().setExistence(good.getAnalysis().getExistence());
-
-    // Test analysis.save
-    bad.getAnalysis().setSave(good.getAnalysis().getSave() + "&something={someVar}&sss={someVar2}");
-    assertOnlyUnknownVariables(bad, "someVar", "someVar2");
-    bad.getAnalysis().setSave(good.getAnalysis().getSave());
-
-    // Test analysis.generate
-    bad.getAnalysis().setGenerate(good.getAnalysis().getGenerate() + "&something={someVar}");
-    assertOnlyUnknownVariables(bad, "someVar");
-    bad.getAnalysis().setGenerate(good.getAnalysis().getGenerate());
   }
 
   @Test
@@ -103,16 +88,6 @@ public class UriResolverTest {
     bad.setFile("https://example.org/an={analysisId}");
     assertOnlyMissingVariables(bad, "fileName");
     bad.setFile(good.getFile());
-
-    // Test analysis.existence
-    bad.getAnalysis().setExistence("https://example.org/existence");
-    assertOnlyMissingVariables(bad, "analysisId");
-    bad.getAnalysis().setExistence(good.getAnalysis().getExistence());
-
-    // Test analysis.save
-    bad.getAnalysis().setSave("https://example.org/save");
-    assertOnlyMissingVariables(bad, "analysisId");
-    bad.getAnalysis().setSave(good.getAnalysis().getSave());
   }
 
   private static void assertOnlyMissingVariables(UriTemplateProperties p, String... variables) {
@@ -152,12 +127,6 @@ public class UriResolverTest {
     assertEquals(
         "https://example.org?anid=AN01&fname=my-file.vcf.gz",
         ur.expandFileUri("AN01", "my-file.vcf.gz"));
-
-    assertEquals("https://example.org?aid=AN01", ur.expandAnalysisExistenceUri("AN01"));
-
-    assertEquals("https://example.org?aid=AN01", ur.expandAnalysisSaveUri("AN01"));
-
-    assertEquals("https://example.org/generate", ur.expandAnalysisGenerateUri());
   }
 
   private static void assertExceptionThrown(

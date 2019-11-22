@@ -2,7 +2,9 @@ package bio.overture.song.server.service.id;
 
 import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static com.fasterxml.uuid.Generators.randomBasedGenerator;
 
+import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.util.Optional;
 import java.util.function.Function;
 import lombok.NonNull;
@@ -13,6 +15,8 @@ import org.springframework.web.client.HttpStatusCodeException;
 /** Implementation that calls an external service for ID federation */
 @RequiredArgsConstructor
 public class FederatedIdService implements IdService {
+
+  private static final RandomBasedGenerator RANDOM_UUID_GENERATOR = randomBasedGenerator();
 
   /** Dependencies */
   @NonNull private final RestClient rest;
@@ -45,20 +49,8 @@ public class FederatedIdService implements IdService {
   }
 
   @Override
-  public boolean isAnalysisIdExist(@NonNull String analysisId) {
-    return handleIdServiceGetRequest(
-        uriResolver.expandAnalysisExistenceUri(analysisId), rest::isFound);
-  }
-
-  @Override
-  public Optional<String> getUniqueCandidateAnalysisId() {
-    return handleIdServiceGetRequest(uriResolver.expandAnalysisGenerateUri(), rest::getString);
-  }
-
-  @Override
-  public void saveAnalysisId(@NonNull String analysisId) {
-    handleIdServiceGetRequest(
-        uriResolver.expandAnalysisSaveUri(analysisId), url -> rest.get(url, String.class));
+  public String generateAnalysisId() {
+    return RANDOM_UUID_GENERATOR.generate().toString();
   }
 
   /**

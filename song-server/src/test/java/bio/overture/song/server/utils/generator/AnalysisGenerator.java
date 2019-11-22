@@ -17,21 +17,21 @@
 
 package bio.overture.song.server.utils.generator;
 
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.resolveDefaultPayloadFilename;
-import static lombok.AccessLevel.PRIVATE;
-import static org.junit.Assert.assertNotNull;
-
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.service.AnalysisService;
-import bio.overture.song.server.utils.TestFiles;
-import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+
+import java.util.function.Supplier;
+
+import static lombok.AccessLevel.PRIVATE;
+import static org.junit.Assert.assertNotNull;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.resolveDefaultPayloadFilename;
 
 @RequiredArgsConstructor(access = PRIVATE)
 public class AnalysisGenerator {
@@ -53,8 +53,7 @@ public class AnalysisGenerator {
     val payload = payloadSupplier.get();
     // Set analysisId to empty to ensure a randomly generated analysisId, and therefore
     // randomly generated objectId (fileIds)
-    payload.setAnalysisId(TestFiles.EMPTY_STRING);
-    val analysisId = service.create(studyId, payload, false);
+    val analysisId = service.create(studyId, payload);
     return service.securedDeepRead(studyId, analysisId);
   }
 

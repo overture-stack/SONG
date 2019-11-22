@@ -16,21 +16,11 @@
  */
 package bio.overture.song.server.validation;
 
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Splitters.COMMA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.ValidationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
-import java.util.Map;
 import lombok.val;
 import org.icgc.dcc.common.core.util.Splitters;
 import org.junit.Test;
@@ -41,6 +31,17 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.Splitters.COMMA;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -149,63 +150,6 @@ public class ValidationServiceTest {
     }
   }
 
-  @Test
-  public void testAnalysisIdValidation() {
-    val array = new String[] {"_", "-"};
-    for (val schemaType : DEFAULT_TEST_FILE_MAP.keySet()) {
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(37), schemaType, true); // invalidate >36 chars
-      for (val c : array) {
-        runAnalysisIdValidationErrorTest(
-            c + randomGenerator.generateRandomAsciiString(35),
-            schemaType,
-            true); // invalidate char at beginning
-        runAnalysisIdValidationErrorTest(
-            c + randomGenerator.generateRandomAsciiString(36),
-            schemaType,
-            true); // invalidate >36 and char at begining
-        runAnalysisIdValidationErrorTest(
-            randomGenerator.generateRandomAsciiString(35) + c,
-            schemaType,
-            true); // invalidate char at end
-        runAnalysisIdValidationErrorTest(
-            randomGenerator.generateRandomAsciiString(36) + c,
-            schemaType,
-            true); // invalidate >36 and char at end
-      }
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(1), schemaType, true);
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(2), schemaType, true);
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(3), schemaType, false);
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(36), schemaType, false);
-    }
-  }
-
-  private ObjectNode toObjectNode(String schemaType) {
-    val testFileName = DEFAULT_TEST_FILE_MAP.get(schemaType);
-    return (ObjectNode) getJsonFile(testFileName);
-  }
-
-  private void runAnalysisIdValidationErrorTest(
-      String analysisId, String schemaType, boolean shouldBeError) {
-    val payload = toObjectNode(schemaType);
-    payload.put("analysisId", analysisId);
-
-    val results = service.validate(payload);
-
-    if (shouldBeError) {
-      assertTrue(results.isPresent());
-      assertTrue(
-          results
-              .get()
-              .startsWith(format("#/analysisId: string [%s] does not match pattern", analysisId)));
-    } else {
-      assertFalse("Expecting validation not to have an error", results.isPresent());
-    }
-  }
 
   private void runFileMd5sumValidationTest(String md5, String schemaType, boolean shouldBeError) {
     val testFileName = DEFAULT_TEST_FILE_MAP.get(schemaType);

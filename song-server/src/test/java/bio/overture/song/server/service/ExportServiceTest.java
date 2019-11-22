@@ -17,21 +17,6 @@
 
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static java.lang.String.format;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
-import static net.javacrumbs.jsonunit.JsonAssert.when;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -40,10 +25,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
@@ -57,6 +38,26 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.transaction.Transactional;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static java.lang.String.format;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
 @SpringBootTest
@@ -85,14 +86,8 @@ public class ExportServiceTest {
 
   @Test
   @Transactional
-  public void testGroupExportWithAnalysisId() {
-    runGroupExportTest(true);
-  }
-
-  @Test
-  @Transactional
-  public void testGroupExportWithoutAnalysisId() {
-    runGroupExportTest(false);
+  public void testGroupExport() {
+    runGroupExportTest();
   }
 
   @Test
@@ -107,10 +102,10 @@ public class ExportServiceTest {
     runSingleExportTest(false);
   }
 
-  private void runGroupExportTest(boolean includeAnalysisIds) {
+  private void runGroupExportTest() {
     // Generate data and look up for later
-    val testData12 = generateTestData(new int[] {1, 2}, includeAnalysisIds);
-    val testData34 = generateTestData(new int[] {3, 4}, includeAnalysisIds);
+    val testData12 = generateTestData(new int[] {1, 2});
+    val testData34 = generateTestData(new int[] {3, 4});
     val testLookup =
         Stream.of(testData12, testData34)
             .flatMap(Collection::stream)
@@ -122,8 +117,7 @@ public class ExportServiceTest {
     val allStudies = ImmutableSet.of(testData12_studyId, testData34_studyId);
 
     for (val studyId : allStudies) {
-      val actualExportedPayloads =
-          exportService.exportPayloadsForStudy(studyId, includeAnalysisIds);
+      val actualExportedPayloads = exportService.exportPayloadsForStudy(studyId);
       assertEquals(actualExportedPayloads.size(), 1);
       val actualExportedPayload = actualExportedPayloads.get(0);
       assertEquals(studyId, actualExportedPayload.getStudyId());
@@ -142,8 +136,8 @@ public class ExportServiceTest {
 
   private void runSingleExportTest(boolean includeAnalysisIds) {
     // Generate data and look up for later
-    val testData12 = generateTestData(new int[] {1, 2}, includeAnalysisIds);
-    val testData34 = generateTestData(new int[] {3, 4}, includeAnalysisIds);
+    val testData12 = generateTestData(new int[] {1, 2});
+    val testData34 = generateTestData(new int[] {3, 4});
     val testLookup =
         Stream.of(testData12, testData34)
             .flatMap(Collection::stream)
@@ -162,7 +156,7 @@ public class ExportServiceTest {
             .collect(toList());
 
     // Export payload and assert there are 2 results with different studies
-    val actualExportedPayloads = exportService.exportPayload(analysisIds, includeAnalysisIds);
+    val actualExportedPayloads = exportService.exportPayload(analysisIds);
     assertEquals(actualExportedPayloads.size(), 2);
     assertNotEquals(
         actualExportedPayloads.get(0).getStudyId(), actualExportedPayloads.get(1).getStudyId());
@@ -184,7 +178,7 @@ public class ExportServiceTest {
     }
   }
 
-  private List<TData> generateTestData(int[] fixtureNumbers, boolean includeAnalysisIds) {
+  private List<TData> generateTestData(int[] fixtureNumbers) {
     // Generate a random study
     val studyId = studyGenerator.createRandomStudy();
     val output = ImmutableList.<TData>builder();
@@ -194,14 +188,11 @@ public class ExportServiceTest {
       inputPayloadJson.put("study", studyId);
 
       val analysisId =
-          uploadService.submit(studyId, toJson(inputPayloadJson), false).getAnalysisId();
+          uploadService.submit(studyId, toJson(inputPayloadJson)).getAnalysisId();
 
       val outputFilename = format("documents/export/variantcall-output%d.json", fixtureNumber);
       val outputExportedPayloadJson = (ObjectNode) getJsonNodeFromClasspath(outputFilename);
       outputExportedPayloadJson.put("study", studyId);
-      if (includeAnalysisIds) {
-        outputExportedPayloadJson.put("analysisId", analysisId);
-      }
 
       output.add(
           new TData()

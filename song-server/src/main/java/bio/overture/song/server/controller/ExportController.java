@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,10 +42,8 @@ public class ExportController {
   @ApiOperation(value = "ExportStudy", notes = "Exports all the payloads for a study")
   @GetMapping(value = "/studies/{studyId}")
   @ResponseBody
-  public List<ExportedPayload> exportStudy(
-      @PathVariable("studyId") String studyId,
-      @RequestParam(value = "includeAnalysisId", defaultValue = "true") boolean includeAnalysisId) {
-    return exportService.exportPayloadsForStudy(studyId, includeAnalysisId);
+  public List<ExportedPayload> exportStudy(@PathVariable("studyId") String studyId) {
+    return exportService.exportPayloadsForStudy(studyId);
   }
 
   @ApiOperation(value = "ExportAnalysis", notes = "Exports the payload for a list of analysisIds")
@@ -55,8 +52,7 @@ public class ExportController {
   public List<ExportedPayload> exportAnalysis(
       @PathVariable("analysisIds")
           @ApiParam(value = "Comma separated list of analysisIds", required = true)
-          List<String> analysisIds,
-      @RequestParam(value = "includeAnalysisId", defaultValue = "true") boolean includeAnalysisId) {
-    return exportService.exportPayload(analysisIds, includeAnalysisId);
+          List<String> analysisIds) {
+    return exportService.exportPayload(analysisIds);
   }
 }

@@ -22,7 +22,6 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 import bio.overture.song.server.properties.IdProperties;
 import bio.overture.song.server.properties.IdProperties.FederatedProperties.AuthProperties.BearerProperties;
-import bio.overture.song.server.repository.AnalysisRepository;
 import bio.overture.song.server.service.auth.StaticTokenService;
 import bio.overture.song.server.service.id.FederatedIdService;
 import bio.overture.song.server.service.id.IdService;
@@ -56,16 +55,11 @@ public class IdConfig {
   /** Dependencies */
   private final IdProperties idProperties;
 
-  private final AnalysisRepository analysisRepository;
   private final RetryTemplate retryTemplate;
 
   @Autowired
-  public IdConfig(
-      @NonNull IdProperties idProperties,
-      @NonNull AnalysisRepository analysisRepository,
-      @NonNull RetryTemplate retryTemplate) {
+  public IdConfig(@NonNull IdProperties idProperties, @NonNull RetryTemplate retryTemplate) {
     this.idProperties = idProperties;
-    this.analysisRepository = analysisRepository;
     this.retryTemplate = retryTemplate;
   }
 
@@ -78,7 +72,7 @@ public class IdConfig {
   public IdService idService(@Autowired NameBasedGenerator nameBasedGenerator) {
     if (idProperties.isUseLocal()) {
       log.info("Loading LOCAL mode for IdService");
-      return new LocalIdService(nameBasedGenerator, analysisRepository);
+      return new LocalIdService(nameBasedGenerator);
     } else {
       log.info("Loading FEDERATED mode for IdService");
       val uriResolver = createUriResolver(idProperties.getFederated().getUriTemplate());

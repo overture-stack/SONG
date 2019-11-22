@@ -21,7 +21,6 @@ import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.model.AnalysisTypeId;
@@ -65,7 +64,6 @@ public class DeserializationTest {
             Payload.class);
     val rootNode1 = toJsonNode(payload1.getData());
     val experimentNode1 = rootNode1.path("experiment");
-    assertNull(payload1.getAnalysisId());
     assertFalse(experimentNode1.hasNonNull("matchedNormalSampleSubmitterId"));
     assertFalse(experimentNode1.hasNonNull("variantCallingTool"));
     assertFalse(experimentNode1.hasNonNull("random"));
@@ -78,7 +76,6 @@ public class DeserializationTest {
 
     val rootNode2 = toJsonNode(payload2.getData());
     val experimentNode2 = rootNode2.path("experiment");
-    assertNull(payload2.getAnalysisId());
     assertTrue(rootNode2.has("experiment"));
     assertFalse(experimentNode2.has("matchedNormalSampleSubmitterId"));
     assertFalse(experimentNode2.has("variantCallingTool"));
@@ -94,7 +91,6 @@ public class DeserializationTest {
 
     val rootNode1 = toJsonNode(payload1.getData());
     val experimentNode1 = rootNode1.path("experiment");
-    assertNull(payload1.getAnalysisId());
     assertFalse(experimentNode1.has("aligned"));
     assertFalse(experimentNode1.has("alignmentTool"));
     assertFalse(experimentNode1.has("insertSize"));
@@ -111,7 +107,6 @@ public class DeserializationTest {
 
     val rootNode2 = toJsonNode(payload2.getData());
     val experimentNode2 = rootNode2.path("experiment");
-    assertNull(payload2.getAnalysisId());
     assertFalse(experimentNode2.has("aligned"));
     assertFalse(experimentNode2.has("alignmentTool"));
     assertFalse(experimentNode2.hasNonNull("insertSize"));

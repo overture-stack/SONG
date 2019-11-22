@@ -16,48 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_CREATED;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
-import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
-import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
-import static bio.overture.song.core.exceptions.ServerErrors.ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
-import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
-import static bio.overture.song.core.utils.Responses.ok;
-import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
-import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
-import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
-
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.kafka.AnalysisMessage;
@@ -84,12 +42,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -101,6 +53,49 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.icgc.dcc.common.core.util.Joiners.COMMA;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
+import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
+import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
+import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
+import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
+import static bio.overture.song.core.utils.Responses.ok;
+import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
+import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 @Service
@@ -134,21 +129,18 @@ public class AnalysisService {
 
   @Transactional
   public String create(
-      @NonNull String studyId, @NonNull Payload payload, boolean ignoreAnalysisIdCollisions) {
+      @NonNull String studyId, @NonNull Payload payload) {
     studyService.checkStudyExist(studyId);
-    val inputAnalysisId = payload.getAnalysisId();
 
-    // This doesnt commit the id to the id server
-    val candidateAnalysisId =
-        resolveCandidateAnalysisId(inputAnalysisId, ignoreAnalysisIdCollisions);
+    val analysisId = idService.generateAnalysisId();
 
     // Prevent duplicate analyses from being created
     checkServer(
-        !isAnalysisExist(candidateAnalysisId),
+        !isAnalysisExist(analysisId),
         this.getClass(),
         DUPLICATE_ANALYSIS_ATTEMPT,
-        "Attempted to create a duplicate analysis",
-        candidateAnalysisId);
+        "Attempted to create a duplicate analysis: %s",
+        analysisId);
 
     val analysisSchema =
         analysisTypeService.getAnalysisSchema(
@@ -160,23 +152,18 @@ public class AnalysisService {
     val a = new Analysis();
     a.setFile(payload.getFile());
     a.setSample(payload.getSample());
-    a.setAnalysisId(candidateAnalysisId);
+    a.setAnalysisId(analysisId);
     a.setAnalysisState(UNPUBLISHED.name());
     a.setStudy(studyId);
 
     analysisData.setAnalysis(a);
     analysisSchema.associateAnalysis(a);
 
-    saveCompositeEntities(studyId, candidateAnalysisId, a.getSample());
-    saveFiles(candidateAnalysisId, studyId, a.getFile());
+    saveCompositeEntities(studyId, analysisId, a.getSample());
+    saveFiles(analysisId, studyId, a.getFile());
 
-    // Analysis ID registration is delay to the end of the transaction,
-    // in the event there are errors on the SONG server side.
-    // This guards the IdService from registering an analysisId that was not used in SONG.
-    registerAnalysisId(candidateAnalysisId);
-    sendAnalysisMessage(
-        createAnalysisMessage(candidateAnalysisId, studyId, UNPUBLISHED, songServerId));
-    return candidateAnalysisId;
+    sendAnalysisMessage(createAnalysisMessage(analysisId, studyId, UNPUBLISHED, songServerId));
+    return analysisId;
   }
 
   @Transactional
@@ -526,55 +513,6 @@ public class AnalysisService {
 
   private void sendAnalysisMessage(AnalysisMessage message) {
     sender.send(toJson(message));
-  }
-
-  /**
-   * Resolves the analysisId by returning a potential id. An analysisId can only be resolved if it
-   * doesn't already exist. If the user wants to use a custom submitted analysisId but the
-   * analysisId already exists (a collision), the ignoreAnalysisIdCollisions parameter must be set
-   * to true. If it is not, a ServerError is thrown. The following analysisId state stable
-   * summarizes the intended functionality:
-   * +---------+--------+-------------------+----------------------------------------------------+ |
-   * DEFINED | EXISTS | IGNORE_COLLISIONS | OUTPUT ----------------------------------------------+ |
-   * +---------+--------+-------------------+----------------------------------------------------+ |
-   * 0 | x | x | return an uncommitted random unique analysisId ---------------------------------+ |
-   * 1 | 0 | x | return an uncommitted user submitted analysisId --------------------------------+ |
-   * 1 | 1 | 0 | collision detected, throw server error -----------------------------------------+ |
-   * 1 | 1 | 1 | reuse the submitted analysisId -------------------------------------------------+ |
-   * +---------+--------+-------------------+----------------------------------------------------+ |
-   *
-   * @param analysisId can be null/empty
-   * @param ignoreAnalysisIdCollisions
-   * @return
-   */
-  private String resolveCandidateAnalysisId(
-      String analysisId, final boolean ignoreAnalysisIdCollisions) {
-    if (isNullOrEmpty(analysisId)) {
-      return checkServerOptional(
-          idService.getUniqueCandidateAnalysisId(),
-          getClass(),
-          ID_NOT_FOUND,
-          "Could not generate unique analysisId");
-    } else {
-      val analysisIdExists = idService.isAnalysisIdExist(analysisId);
-      checkServer(
-          !analysisIdExists || ignoreAnalysisIdCollisions,
-          this.getClass(),
-          ANALYSIS_ID_COLLISION,
-          "Collision detected for analysisId '%s'. To ignore collisions, rerun with "
-              + "ignoreAnalysisIdCollisions = true",
-          analysisId);
-      return analysisId;
-    }
-  }
-
-  private void registerAnalysisId(@NonNull String analysisId) {
-    checkServer(
-        isNotBlank(analysisId),
-        getClass(),
-        ANALYSIS_ID_NOT_CREATED,
-        "Cannot create a blank analysisId");
-    idService.saveAnalysisId(analysisId);
   }
 
   private static void checkMismatchingFileSizes(
