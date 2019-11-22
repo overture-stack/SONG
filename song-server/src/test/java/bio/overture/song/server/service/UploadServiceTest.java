@@ -16,6 +16,28 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.TestAnalysis.extractBoolean;
+import static bio.overture.song.server.utils.TestAnalysis.extractNode;
+import static bio.overture.song.server.utils.TestAnalysis.extractString;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.Responses;
 import bio.overture.song.server.model.dto.Payload;
@@ -24,6 +46,8 @@ import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Map;
+import javax.transaction.Transactional;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -38,31 +62,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-
-import javax.transaction.Transactional;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestAnalysis.extractBoolean;
-import static bio.overture.song.server.utils.TestAnalysis.extractNode;
-import static bio.overture.song.server.utils.TestAnalysis.extractString;
-import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
-import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
 @SpringBootTest
@@ -137,8 +136,7 @@ public class UploadServiceTest {
   public void submit_CorruptedPayload_PayloadParsingError() {
     val payload = createPayloadWithDifferentAnalysisId();
     val corruptedPayload = payload.getJsonPayload().replace('{', '}');
-    assertSongError(
-        () -> uploadService.submit(DEFAULT_STUDY, corruptedPayload), PAYLOAD_PARSING);
+    assertSongError(() -> uploadService.submit(DEFAULT_STUDY, corruptedPayload), PAYLOAD_PARSING);
   }
 
   @Test

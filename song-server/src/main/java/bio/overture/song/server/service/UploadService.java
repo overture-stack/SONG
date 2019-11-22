@@ -16,20 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.model.SubmitResponse;
-import bio.overture.song.server.model.dto.Payload;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.io.IOException;
-
-import static java.util.Objects.isNull;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
@@ -42,6 +28,19 @@ import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static java.util.Objects.isNull;
+
+import bio.overture.song.core.model.SubmitResponse;
+import bio.overture.song.server.model.dto.Payload;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import javax.transaction.Transactional;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -62,8 +61,7 @@ public class UploadService {
   }
 
   @Transactional
-  public SubmitResponse submit(
-      @NonNull String studyId, String payloadString) {
+  public SubmitResponse submit(@NonNull String studyId, String payloadString) {
     // Check study exists
     studyService.checkStudyExist(studyId);
 

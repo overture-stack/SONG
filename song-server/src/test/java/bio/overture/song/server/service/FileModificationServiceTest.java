@@ -16,31 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.model.FileUpdateRequest;
-import bio.overture.song.core.model.enums.AccessTypes;
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.converter.FileConverter;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.repository.FileRepository;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.transaction.Transactional;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE_REQUEST;
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
 import static bio.overture.song.core.model.FileUpdateRequest.createFileUpdateRequest;
@@ -58,6 +33,30 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import bio.overture.song.core.model.FileUpdateRequest;
+import bio.overture.song.core.model.enums.AccessTypes;
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.converter.FileConverter;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.repository.FileRepository;
+import javax.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @Slf4j
 @SpringBootTest
@@ -129,7 +128,8 @@ public class FileModificationServiceTest {
     analysisService.securedUpdateState(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID, PUBLISHED);
     val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
     assertEquals(resolveAnalysisState(originalAnalysis.getAnalysisState()), PUBLISHED);
-    val originalFile = fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+    val originalFile =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
 
     // No Change
     val noChangeRequest = new FileUpdateRequest();
@@ -154,7 +154,8 @@ public class FileModificationServiceTest {
                         randomGenerator.generateRandomUUIDAsString())
                     .end())
             .build();
-    val originalFile2 = fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+    val originalFile2 =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
     val metadataUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
@@ -169,7 +170,8 @@ public class FileModificationServiceTest {
     // Content Update
     val contentUpdateRequest =
         FileUpdateRequest.builder().fileSize(originalFile2.getFileSize() + 77771L).build();
-    val originalFile3 = fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+    val originalFile3 =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
@@ -187,7 +189,8 @@ public class FileModificationServiceTest {
   public void testFileUpdateWithUnpublishedAnalysis() {
     val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
     assertEquals(resolveAnalysisState(originalAnalysis.getAnalysisState()), UNPUBLISHED);
-    val originalFile = fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+    val originalFile =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
 
     // No Change
     val noChangeRequest = new FileUpdateRequest();
@@ -210,7 +213,8 @@ public class FileModificationServiceTest {
                         randomGenerator.generateRandomUUIDAsString())
                     .end())
             .build();
-    val originalFile2 = fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+    val originalFile2 =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
     val metadataUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
@@ -224,7 +228,8 @@ public class FileModificationServiceTest {
     // Content Update
     val contentUpdateRequest =
         FileUpdateRequest.builder().fileSize(originalFile2.getFileSize() + 77771L).build();
-    val originalFile3 = fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+    val originalFile3 =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
