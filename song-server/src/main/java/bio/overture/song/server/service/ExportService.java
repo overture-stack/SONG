@@ -66,29 +66,26 @@ public class ExportService {
   }
 
   @SneakyThrows
-  public List<ExportedPayload> exportPayload(
-      @NonNull List<String> analysisIds, boolean includeAnalysisId) {
-    val payloadMap = aggregateByStudy(analysisIds, includeAnalysisId);
+  public List<ExportedPayload> exportPayload(@NonNull List<String> analysisIds) {
+    val payloadMap = aggregateByStudy(analysisIds);
     return payloadMap.entrySet().stream()
-        .map(e -> buildExportedPayload(e.getKey(), e.getValue(), includeAnalysisId))
+        .map(e -> buildExportedPayload(e.getKey(), e.getValue()))
         .collect(toImmutableList());
   }
 
   @SneakyThrows
-  public List<ExportedPayload> exportPayloadsForStudy(
-      @NonNull String studyId, boolean includeAnalysisId) {
+  public List<ExportedPayload> exportPayloadsForStudy(@NonNull String studyId) {
     val payloads =
         analysisService.getAnalysis(studyId, ALL_ANALYSIS_STATES).stream()
-            .map(x -> convertToPayloadDTO(x, includeAnalysisId))
-            .map(x -> convertToExportedPayload(x, includeAnalysisId))
+            .map(this::convertToPayloadDTO)
+            .map(ExportService::convertToExportedPayload)
             .collect(toImmutableList());
     return ImmutableList.of(createExportedPayload(studyId, payloads));
   }
 
-  public Payload convertToPayloadDTO(@NonNull Analysis a, boolean includeAnalysisIds) {
+  public Payload convertToPayloadDTO(@NonNull Analysis a) {
     val payload =
         Payload.builder()
-            .analysisId(includeAnalysisIds ? a.getAnalysisId() : null)
             .analysisType(resolveAnalysisTypeId(a.getAnalysisSchema()))
             .study(a.getStudy())
             .sample(payloadConverter.convertToSamplePayloads(a.getSample()))
@@ -98,27 +95,20 @@ public class ExportService {
     return payload;
   }
 
-  private Map<String, List<Payload>> aggregateByStudy(
-      List<String> analysisIds, boolean includeAnalysisId) {
+  private Map<String, List<Payload>> aggregateByStudy(List<String> analysisIds) {
     return analysisService.unsecuredDeepReads(analysisIds).stream()
-        .map(x -> convertToPayloadDTO(x, includeAnalysisId))
+        .map(this::convertToPayloadDTO)
         .collect(groupingBy(Payload::getStudy));
   }
 
-  private static ExportedPayload buildExportedPayload(
-      String studyId, List<Payload> payloads, boolean includeAnalysisId) {
+  private static ExportedPayload buildExportedPayload(String studyId, List<Payload> payloads) {
     val payloadJsons =
-        payloads.stream()
-            .map(x -> convertToExportedPayload(x, includeAnalysisId))
-            .collect(toImmutableList());
+        payloads.stream().map(ExportService::convertToExportedPayload).collect(toImmutableList());
     return createExportedPayload(studyId, payloadJsons);
   }
 
   @SneakyThrows
-  private static JsonNode convertToExportedPayload(@NonNull Payload p, boolean includeAnalysisId) {
-    if (!includeAnalysisId) {
-      p.setAnalysisId(null);
-    }
+  private static JsonNode convertToExportedPayload(@NonNull Payload p) {
     return mapper()
         .addMixIn(Donor.class, PayloadNonEmptyMixin.class)
         .addMixIn(Payload.class, PayloadNonEmptyMixin.class)

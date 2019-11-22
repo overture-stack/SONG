@@ -69,6 +69,7 @@ public class FileModificationServiceTest {
   @Autowired AnalysisService analysisService;
 
   @Autowired FileModificationService fileModificationService;
+  @Autowired FileConverter fileConverter;
 
   @Autowired FileRepository fileRepository;
 
@@ -127,7 +128,8 @@ public class FileModificationServiceTest {
     analysisService.securedUpdateState(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID, PUBLISHED);
     val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
     assertEquals(resolveAnalysisState(originalAnalysis.getAnalysisState()), PUBLISHED);
-    val originalFile = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val originalFile =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
 
     // No Change
     val noChangeRequest = new FileUpdateRequest();
@@ -152,7 +154,8 @@ public class FileModificationServiceTest {
                         randomGenerator.generateRandomUUIDAsString())
                     .end())
             .build();
-    val originalFile2 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val originalFile2 =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
     val metadataUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
@@ -167,7 +170,8 @@ public class FileModificationServiceTest {
     // Content Update
     val contentUpdateRequest =
         FileUpdateRequest.builder().fileSize(originalFile2.getFileSize() + 77771L).build();
-    val originalFile3 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val originalFile3 =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
@@ -185,7 +189,8 @@ public class FileModificationServiceTest {
   public void testFileUpdateWithUnpublishedAnalysis() {
     val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
     assertEquals(resolveAnalysisState(originalAnalysis.getAnalysisState()), UNPUBLISHED);
-    val originalFile = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val originalFile =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
 
     // No Change
     val noChangeRequest = new FileUpdateRequest();
@@ -208,7 +213,8 @@ public class FileModificationServiceTest {
                         randomGenerator.generateRandomUUIDAsString())
                     .end())
             .build();
-    val originalFile2 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val originalFile2 =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
     val metadataUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
@@ -222,7 +228,8 @@ public class FileModificationServiceTest {
     // Content Update
     val contentUpdateRequest =
         FileUpdateRequest.builder().fileSize(originalFile2.getFileSize() + 77771L).build();
-    val originalFile3 = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    val originalFile3 =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);

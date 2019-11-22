@@ -56,6 +56,6 @@ public class UploadController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @RequestBody @Valid String json_payload) {
-    return uploadService.submit(studyId, json_payload, false);
+    return uploadService.submit(studyId, json_payload);
   }
 }

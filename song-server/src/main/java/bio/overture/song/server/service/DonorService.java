@@ -20,8 +20,10 @@ import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXIST
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static bio.overture.song.core.exceptions.ServerErrors.ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.utils.Responses.OK;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
@@ -29,6 +31,7 @@ import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.repository.DonorRepository;
+import bio.overture.song.server.service.id.IdService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,14 +56,23 @@ public class DonorService {
   private String createDonorId(DonorWithSpecimens donorWithSpecimens) {
     studyService.checkStudyExist(donorWithSpecimens.getStudyId());
     val inputDonorId = donorWithSpecimens.getDonorId();
+    val studyId = donorWithSpecimens.getStudyId();
+    val donorSubmitterId = donorWithSpecimens.getDonorSubmitterId();
+    val result = idService.getDonorId(studyId, donorSubmitterId);
     val id =
-        idService.generateDonorId(
-            donorWithSpecimens.getDonorSubmitterId(), donorWithSpecimens.getStudyId());
+        checkServerOptional(
+            result,
+            getClass(),
+            ID_NOT_FOUND,
+            "The donorId for studyId '%s' and donorSubmitterId '%s' was not found",
+            studyId,
+            donorSubmitterId);
+
     checkServer(
         isNullOrEmpty(inputDonorId) || id.equals(inputDonorId),
         getClass(),
         DONOR_ID_IS_CORRUPTED,
-        "The input donorId '%s' is corrupted because it does not match the idServices donorId '%s'",
+        "The input donorId '%s' is corrupted because it does not match the federated donorId '%s'",
         inputDonorId,
         id);
     checkDonorDoesNotExist(id);

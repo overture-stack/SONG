@@ -184,7 +184,6 @@ public class SpecimenServiceTest {
             .build();
     val sampleId = sampleService.create(DEFAULT_STUDY_ID, sample1);
 
-    assertTrue(id.startsWith("SP"));
     assertEquals(status, id);
 
     val check = specimenService.securedRead(DEFAULT_STUDY_ID, id);

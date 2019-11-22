@@ -16,8 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_COLLISION;
-import static bio.overture.song.core.exceptions.ServerErrors.DUPLICATE_ANALYSIS_ATTEMPT;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
@@ -45,6 +43,7 @@ import bio.overture.song.core.utils.Responses;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.repository.UploadRepository;
+import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Map;
@@ -55,7 +54,6 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.id.client.core.IdClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +71,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 @Transactional
 public class UploadServiceTest {
 
+  private static final String ID_SERVICE = "idService";
   private static final String DEFAULT_STUDY = "ABC123";
   private static int ANALYSIS_ID_COUNT = 0;
   private static final String SEQ_READ = "SequencingRead";
@@ -92,7 +91,7 @@ public class UploadServiceTest {
 
   @Autowired StudyService studyService;
 
-  @Autowired IdClient idClient;
+  @Autowired IdService idService;
   @Autowired ValidationService validationService;
   @Autowired UploadRepository uploadRepository;
   @Autowired AnalysisTypeService analysisTypeService;
@@ -104,7 +103,7 @@ public class UploadServiceTest {
   public void testNullSyncSequencingRead() {
     val filename1 = "documents/deserialization/sequencingread-deserialize1.json";
     val jsonPayload = getJsonStringFromClasspath(filename1);
-    val submitResponse = uploadService.submit(DEFAULT_STUDY, jsonPayload, false);
+    val submitResponse = uploadService.submit(DEFAULT_STUDY, jsonPayload);
     assertEquals(Responses.OK, submitResponse.getStatus());
     val analysisId1 = submitResponse.getAnalysisId();
     val a1 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId1);
@@ -119,7 +118,7 @@ public class UploadServiceTest {
 
     val filename2 = "documents/deserialization/sequencingread-deserialize2.json";
     val jsonPayload2 = getJsonStringFromClasspath(filename2);
-    val submitResponse2 = uploadService.submit(DEFAULT_STUDY, jsonPayload2, false);
+    val submitResponse2 = uploadService.submit(DEFAULT_STUDY, jsonPayload2);
     assertEquals(Responses.OK, submitResponse2.getStatus());
     val analysisId2 = submitResponse2.getAnalysisId();
     val a2 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId2);
@@ -133,65 +132,11 @@ public class UploadServiceTest {
   }
 
   @Test
-  public void testAnalysisIdCollision() {
-    // Read test payload.json file, and add analysisId
-    val payload = createPayloadWithDifferentAnalysisId();
-    val expectedAnalysisId = payload.getAnalysisId();
-    log.info("Testing for analysisId: {}", expectedAnalysisId);
-    val jsonPayload = payload.getJsonPayload();
-
-    // Create an analysisId in the IdService database
-    assertFalse(idClient.getAnalysisId(expectedAnalysisId).isPresent());
-    idClient.createAnalysisId(expectedAnalysisId);
-    assertTrue(idClient.getAnalysisId(expectedAnalysisId).isPresent());
-
-    // Submit1 - should detect that the analysisId already exists in the IdService
-    assertSongError(
-        () -> uploadService.submit(DEFAULT_STUDY, jsonPayload, false),
-        ANALYSIS_ID_COLLISION,
-        "Collision was not detected!");
-
-    // Submit2 - same as save1 except ignoreAnalysisIdCollisions = true, which will successfully
-    // submit
-    // the payload
-    val response2 = uploadService.submit(DEFAULT_STUDY, jsonPayload, true);
-    assertEquals(Responses.OK, response2.getStatus());
-  }
-
-  @Test
-  public void testDuplicateAnalysisIdDetection() {
-    // Read test payload.json file, and add analysisId
-    val payload = createPayloadWithDifferentAnalysisId();
-    val expectedAnalysisId = payload.getAnalysisId();
-    log.info("Testing for analysisId: {}", expectedAnalysisId);
-    val jsonPayload = payload.getJsonPayload();
-
-    // Ensure the analysisId doesnt already exist in the IdService
-    assertFalse(idClient.getAnalysisId(expectedAnalysisId).isPresent());
-
-    // Submit1 of jsonPayload
-    assertFalse(idClient.getAnalysisId(expectedAnalysisId).isPresent());
-    val response1 = uploadService.submit(DEFAULT_STUDY, jsonPayload, false);
-    assertTrue(idClient.getAnalysisId(expectedAnalysisId).isPresent());
-    assertEquals(Responses.OK, response1.getStatus());
-
-    // Submit2 - should detect that an analysis with the same analysisId was already save in the
-    // song
-    // database
-    assertSongError(
-        () -> uploadService.submit(DEFAULT_STUDY, jsonPayload, true),
-        DUPLICATE_ANALYSIS_ATTEMPT,
-        "Should not be able to create 2 analysis with the same id (%s)!",
-        expectedAnalysisId);
-  }
-
-  @Test
   @SneakyThrows
   public void submit_CorruptedPayload_PayloadParsingError() {
     val payload = createPayloadWithDifferentAnalysisId();
     val corruptedPayload = payload.getJsonPayload().replace('{', '}');
-    assertSongError(
-        () -> uploadService.submit(DEFAULT_STUDY, corruptedPayload, false), PAYLOAD_PARSING);
+    assertSongError(() -> uploadService.submit(DEFAULT_STUDY, corruptedPayload), PAYLOAD_PARSING);
   }
 
   @Test
@@ -209,10 +154,10 @@ public class UploadServiceTest {
     payload1.setStudy(studyId);
     val previousSampleSubmitterIds =
         payload1.getSample().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
-    val an1 = uploadService.submit(studyId, toJson(payload1), false).getAnalysisId();
+    val an1 = uploadService.submit(studyId, toJson(payload1)).getAnalysisId();
 
     // Export the previously uploaded payload using the analysis id
-    val exportedPayloads = exportService.exportPayload(newArrayList(an1), false);
+    val exportedPayloads = exportService.exportPayload(newArrayList(an1));
     assertEquals(exportedPayloads.size(), 1);
     val exportedPayload = exportedPayloads.get(0);
     assertEquals(exportedPayload.getStudyId(), studyId);
@@ -236,7 +181,7 @@ public class UploadServiceTest {
     assertFalse(hasMatch);
 
     // Save payload 2
-    val an2 = uploadService.submit(studyId, toJson(payload2), false).getAnalysisId();
+    val an2 = uploadService.submit(studyId, toJson(payload2)).getAnalysisId();
 
     // Validate both analysis have the same specimen and donor submitterIds, and studies, but
     // different analysisIds and sample submitterIds
@@ -277,7 +222,7 @@ public class UploadServiceTest {
   @SneakyThrows
   private void test(String fileName) {
     val jsonPayload = getJsonStringFromClasspath(fileName);
-    val response = uploadService.submit(DEFAULT_STUDY, jsonPayload, false);
+    val response = uploadService.submit(DEFAULT_STUDY, jsonPayload);
     assertEquals(Responses.OK, response.getStatus());
   }
 

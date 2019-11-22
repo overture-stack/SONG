@@ -149,64 +149,6 @@ public class ValidationServiceTest {
     }
   }
 
-  @Test
-  public void testAnalysisIdValidation() {
-    val array = new String[] {"_", "-"};
-    for (val schemaType : DEFAULT_TEST_FILE_MAP.keySet()) {
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(37), schemaType, true); // invalidate >36 chars
-      for (val c : array) {
-        runAnalysisIdValidationErrorTest(
-            c + randomGenerator.generateRandomAsciiString(35),
-            schemaType,
-            true); // invalidate char at beginning
-        runAnalysisIdValidationErrorTest(
-            c + randomGenerator.generateRandomAsciiString(36),
-            schemaType,
-            true); // invalidate >36 and char at begining
-        runAnalysisIdValidationErrorTest(
-            randomGenerator.generateRandomAsciiString(35) + c,
-            schemaType,
-            true); // invalidate char at end
-        runAnalysisIdValidationErrorTest(
-            randomGenerator.generateRandomAsciiString(36) + c,
-            schemaType,
-            true); // invalidate >36 and char at end
-      }
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(1), schemaType, true);
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(2), schemaType, true);
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(3), schemaType, false);
-      runAnalysisIdValidationErrorTest(
-          randomGenerator.generateRandomAsciiString(36), schemaType, false);
-    }
-  }
-
-  private ObjectNode toObjectNode(String schemaType) {
-    val testFileName = DEFAULT_TEST_FILE_MAP.get(schemaType);
-    return (ObjectNode) getJsonFile(testFileName);
-  }
-
-  private void runAnalysisIdValidationErrorTest(
-      String analysisId, String schemaType, boolean shouldBeError) {
-    val payload = toObjectNode(schemaType);
-    payload.put("analysisId", analysisId);
-
-    val results = service.validate(payload);
-
-    if (shouldBeError) {
-      assertTrue(results.isPresent());
-      assertTrue(
-          results
-              .get()
-              .startsWith(format("#/analysisId: string [%s] does not match pattern", analysisId)));
-    } else {
-      assertFalse("Expecting validation not to have an error", results.isPresent());
-    }
-  }
-
   private void runFileMd5sumValidationTest(String md5, String schemaType, boolean shouldBeError) {
     val testFileName = DEFAULT_TEST_FILE_MAP.get(schemaType);
 

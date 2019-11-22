@@ -96,7 +96,6 @@ public class SampleServiceTest {
     val id = s.getSampleId();
     assertTrue(sampleService.isSampleExist(id));
 
-    assertTrue(id.startsWith("SA"));
     assertEquals(status, id);
 
     Sample check = sampleService.securedRead(DEFAULT_STUDY_ID, id);

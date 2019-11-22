@@ -33,5 +33,5 @@ public class FileUpdateResponse {
   private AnalysisStates originalAnalysisState;
   private boolean unpublishedAnalysis;
   private String message;
-  private File originalFile;
+  private FileDTO originalFile;
 }

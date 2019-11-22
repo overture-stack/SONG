@@ -107,7 +107,7 @@ public class FileModificationService {
 
     // Build the response
     val response = FileUpdateResponse.builder().unpublishedAnalysis(false);
-    response.originalFile(originalFile);
+    response.originalFile(fileConverter.convertToFileDTO(originalFile));
     response.originalAnalysisState(currentState);
     response.fileUpdateType(fileUpdateType);
 

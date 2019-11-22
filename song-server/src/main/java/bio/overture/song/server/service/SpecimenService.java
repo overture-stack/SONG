@@ -17,11 +17,13 @@
 package bio.overture.song.server.service;
 
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
+import static bio.overture.song.core.exceptions.ServerErrors.ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.utils.Responses.OK;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -30,6 +32,7 @@ import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
 import bio.overture.song.server.repository.BusinessKeyRepository;
 import bio.overture.song.server.repository.SpecimenRepository;
+import bio.overture.song.server.service.id.IdService;
 import java.util.ArrayList;
 import java.util.List;
 import javax.transaction.Transactional;
@@ -53,12 +56,22 @@ public class SpecimenService {
   private String createSpecimenId(String studyId, Specimen specimen) {
     studyService.checkStudyExist(studyId);
     val inputSpecimenId = specimen.getSpecimenId();
-    val id = idService.generateSpecimenId(specimen.getSpecimenSubmitterId(), studyId);
+    val specimenSubmitterId = specimen.getSpecimenSubmitterId();
+    val result = idService.getSpecimenId(studyId, specimenSubmitterId);
+    val id =
+        checkServerOptional(
+            result,
+            getClass(),
+            ID_NOT_FOUND,
+            "The specimenId for studyId '%s' and specimenSubmitterId '%s' was not found",
+            studyId,
+            specimenSubmitterId);
+
     checkServer(
         isNullOrEmpty(inputSpecimenId) || id.equals(inputSpecimenId),
         getClass(),
         SPECIMEN_ID_IS_CORRUPTED,
-        "The input specimenId '%s' is corrupted because it does not match the idServices specimenId '%s'",
+        "The input specimenId '%s' is corrupted because it does not match the federated specimenId '%s'",
         inputSpecimenId,
         id);
     checkSpecimenDoesNotExist(id);

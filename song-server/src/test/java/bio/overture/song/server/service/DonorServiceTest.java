@@ -43,6 +43,7 @@ import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
+import bio.overture.song.server.service.id.IdService;
 import bio.overture.song.server.utils.securestudy.impl.SecureDonorTester;
 import com.google.common.collect.Sets;
 import javax.transaction.Transactional;
@@ -123,7 +124,6 @@ public class DonorServiceTest {
     val status = service.create(d);
     val id = d.getDonorId();
 
-    assertTrue(id.startsWith("DO"));
     assertEquals(status, id);
 
     DonorWithSpecimens check = service.readWithSpecimens(id);
@@ -256,7 +256,9 @@ public class DonorServiceTest {
     val randomDonorId = randomGenerator.generateRandomUUIDAsString();
     val randomDonorSubmitterId = randomGenerator.generateRandomUUID().toString();
     val randomDonorGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
-    val expectedId = idService.generateDonorId(randomDonorSubmitterId, DEFAULT_STUDY_ID);
+    val result = idService.getDonorId(DEFAULT_STUDY_ID, randomDonorSubmitterId);
+    assertTrue(result.isPresent());
+    val expectedId = result.get();
     assertFalse(service.isDonorExist(expectedId));
     SongErrorAssertions.assertSongErrorRunnable(
         () -> service.checkDonorExists(randomDonorId), DONOR_DOES_NOT_EXIST);
@@ -314,7 +316,9 @@ public class DonorServiceTest {
     val studyId = DEFAULT_STUDY_ID;
     val randomGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
     val randomDonorSubmitterId = randomGenerator.generateRandomUUIDAsString();
-    val expectedId = idService.generateDonorId(randomDonorSubmitterId, studyId);
+    val result = idService.getDonorId(studyId, randomDonorSubmitterId);
+    assertTrue(result.isPresent());
+    val expectedId = result.get();
 
     val donorWithSpecimens = new DonorWithSpecimens();
     donorWithSpecimens.setStudyId(studyId);

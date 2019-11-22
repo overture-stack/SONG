@@ -30,7 +30,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -480,8 +479,8 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
     val exportedPayload2 = createExportedPayload(DUMMY_STUDY_ID, payloads2);
     val expectedResponse = List.of(exportedPayload1, exportedPayload2);
 
-    when(songApi.exportStudy(eq(DUMMY_STUDY_ID), anyBoolean())).thenReturn(expectedResponse);
-    when(songApi.exportAnalyses(anyList(), anyBoolean())).thenReturn(expectedResponse);
+    when(songApi.exportStudy(eq(DUMMY_STUDY_ID))).thenReturn(expectedResponse);
+    when(songApi.exportAnalyses(anyList())).thenReturn(expectedResponse);
 
     val outputDir = tmp.newFolder().toPath();
     val studyDir = outputDir.resolve(DUMMY_STUDY_ID);

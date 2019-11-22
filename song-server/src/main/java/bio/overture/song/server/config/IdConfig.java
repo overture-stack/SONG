@@ -16,48 +16,109 @@
  */
 package bio.overture.song.server.config;
 
-import lombok.Data;
+import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
+import static com.google.common.base.Preconditions.checkState;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
+import bio.overture.song.server.properties.IdProperties;
+import bio.overture.song.server.properties.IdProperties.FederatedProperties.AuthProperties.BearerProperties;
+import bio.overture.song.server.service.auth.StaticTokenService;
+import bio.overture.song.server.service.id.FederatedIdService;
+import bio.overture.song.server.service.id.IdService;
+import bio.overture.song.server.service.id.LocalIdService;
+import bio.overture.song.server.service.id.RestClient;
+import bio.overture.song.server.utils.CustomRequestInterceptor;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.NameBasedGenerator;
+import java.security.MessageDigest;
+import java.util.UUID;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.id.client.core.IdClient;
-import org.icgc.dcc.id.client.http.HttpIdClient;
-import org.icgc.dcc.id.client.http.webclient.WebClientConfig;
-import org.icgc.dcc.id.client.util.HashIdClient;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.apache.commons.lang.NotImplementedException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Configuration
-@Data
-@ConfigurationProperties(prefix = "id")
 public class IdConfig {
-  private static final int DEFAULT_MAX_RETRIES = 10;
-  private static final float DEFAULT_MULTIPLIER = 2;
-  private static final int DEFAULT_INITIAL_BACKOFF_SECONDS = 2;
 
-  private String idUrl;
-  private String authToken;
-  private boolean realIds;
-  private boolean persistInMemory = false;
-  private int maxRetries = DEFAULT_MAX_RETRIES;
-  private float multiplier = DEFAULT_MULTIPLIER;
-  private int initialBackoffSeconds = DEFAULT_INITIAL_BACKOFF_SECONDS;
+  /** Constants */
+  private static final UUID NAMESPACE_UUID =
+      UUID.fromString("6ba7b812-9dad-11d1-80b4-00c04fd430c8");
+
+  /** Dependencies */
+  private final IdProperties idProperties;
+
+  private final RetryTemplate retryTemplate;
+
+  @Autowired
+  public IdConfig(@NonNull IdProperties idProperties, @NonNull RetryTemplate retryTemplate) {
+    this.idProperties = idProperties;
+    this.retryTemplate = retryTemplate;
+  }
 
   @Bean
-  public IdClient createIdClient() {
-    val idClientConfig =
-        WebClientConfig.builder()
-            .serviceUrl(idUrl)
-            .authToken(authToken)
-            .release("")
-            .maxRetries(maxRetries)
-            .retryMultiplier(multiplier)
-            .waitBeforeRetrySeconds(initialBackoffSeconds)
-            .build();
+  public IdService idService() {
+    val localIdService = new LocalIdService(createNameBasedGenerator());
+    if (idProperties.isUseLocal()) {
+      log.info("Loading LOCAL mode for IdService");
+      return localIdService;
+    } else {
+      log.info("Loading FEDERATED mode for IdService");
+      val uriResolver = createUriResolver(idProperties.getFederated().getUriTemplate());
+      val restTemplate = restTemplate(idProperties.getFederated().getAuth().getBearer());
+      val restClient = new RestClient(restTemplate, retryTemplate);
+      return new FederatedIdService(restClient, localIdService, uriResolver);
+    }
+  }
 
-    // [SONG-167]: Temporarily removed cacheId client due to bug in DCC-ID-12:
-    // https://github.com/icgc-dcc/dcc-id/issues/12
-    return realIds ? new HttpIdClient(idClientConfig) : new HashIdClient(persistInMemory);
-    //    return realIds ? new CachingIdClient(new HttpIdClient(idUrl, "", authToken)) : new
-    // HashIdClient(persistInMemory);
+  @SneakyThrows
+  public static NameBasedGenerator createNameBasedGenerator() {
+    return Generators.nameBasedGenerator(NAMESPACE_UUID, MessageDigest.getInstance("SHA-1"));
+  }
+
+  private static RestTemplate restTemplate(BearerProperties bearerProperties) {
+    val rest = new RestTemplate();
+    if (isStaticAuthMode(bearerProperties)) {
+      log.info("Static auth mode enabled for IdService");
+      rest.getInterceptors().add(staticAuthInterceptor(bearerProperties));
+      // Placeholder for issue SONG-491
+    } else if (isDynamicAuthMode(bearerProperties)) {
+      log.info("Dynamic auth mode enabled for IdService");
+      val message = "Dynamic auth mode has not been implemented yet. This is just a placeholder";
+      log.error(message);
+      throw new NotImplementedException(message);
+    } else {
+      log.info("No auth mode enabled for IdService");
+    }
+    return rest;
+  }
+
+  private static ClientHttpRequestInterceptor staticAuthInterceptor(
+      BearerProperties bearerProperties) {
+    val authService = new StaticTokenService(bearerProperties.getToken());
+    return new CustomRequestInterceptor(authService);
+  }
+
+  private static boolean isStaticAuthMode(BearerProperties bearerProperties) {
+    return !isBlank(bearerProperties.getToken());
+  }
+
+  // Placeholder for issue SONG-491
+  private static boolean isDynamicAuthMode(BearerProperties bearerProperties) {
+    val authCredentials = bearerProperties.getCredentials();
+    val isUrlDefined = !isBlank(authCredentials.getUrl());
+    val isClientIdDefined = !isBlank(authCredentials.getClientId());
+    val isClientSecretDefined = !isBlank(authCredentials.getClientSecret());
+    checkState(
+        isClientIdDefined == isClientSecretDefined && isClientIdDefined == isUrlDefined,
+        "url, clientId and clientSecret must ALL be defined, or undefined");
+    return isClientIdDefined;
   }
 }
