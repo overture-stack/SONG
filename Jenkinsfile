@@ -1,5 +1,29 @@
-def commit = "UNKNOWN"
+import groovy.json.JsonOutput
+
 def version = "UNKNOWN"
+def commit = "UNKNOWN"
+def repo = "UNKNOWN"
+
+def pom(path, target) {
+    return [pattern: "${path}/pom.xml", target: "${target}.pom"]
+}
+
+def jar(path, target) {
+    return [pattern: "${path}/target/*.jar",
+            target         : "${target}.jar",
+            excludePatterns: ["*-exec.jar"]
+            ]
+}
+
+def tar(path, target) {
+    return [pattern: "${path}/target/*.tar.gz",
+            target : "${target}-dist.tar.gz"]
+}
+
+def runjar(path, target) {
+    return [pattern: "${path}/target/*-exec.jar",
+            target : "${target}-exec.jar"]
+}
 
 pipeline {
     agent {
@@ -58,7 +82,7 @@ spec:
         stage('Test') {
             steps {
                 container('jdk') {
-                    sh "./mvnw test"
+                    sh "./mvnw test package"
                 }
             }
         }
@@ -103,45 +127,72 @@ spec:
             }
         }
 
-        stage('Deploy to Overture QA') {
+        stage('Destination SNAPSHOT') {
             when {
-                  branch "develop"
+                anyOf {
+                    branch 'develop'
+                    branch 'test-develop'
+                }
             }
             steps {
-                container('helm') {
-                    withCredentials([file(credentialsId:'4ed1e45c-b552-466b-8f86-729402993e3b', variable: 'KUBECONFIG')]) {
-                        sh 'env'
-                        sh 'helm init --client-only'
-                        sh "helm ls --kubeconfig $KUBECONFIG"
-                        sh "helm repo add overture https://overture-stack.github.io/charts-server/"
-                        sh """
-                            helm upgrade --kubeconfig $KUBECONFIG --install --namespace=overture-qa song-overture-qa \\
-                            overture/song --reuse-values --set-string image.tag=${commit}
-                           """
-                    }
+                script {
+                    repo = "dcc-snapshot/bio/overture"
                 }
             }
         }
 
-        stage('Deploy to Overture Staging') {
+        stage('Destination release') {
             when {
-                  branch "master"
+                anyOf {
+                    branch 'master'
+                    branch 'test-master'
+                }
             }
             steps {
-                container('helm') {
-                    withCredentials([file(credentialsId:'4ed1e45c-b552-466b-8f86-729402993e3b', variable: 'KUBECONFIG')]) {
-                        sh 'env'
-                        sh 'helm init --client-only'
-                        sh "helm ls --kubeconfig $KUBECONFIG"
-                        sh "helm repo add overture https://overture-stack.github.io/charts-server/"
-                        sh """
-                            helm upgrade --kubeconfig $KUBECONFIG --install --namespace=overture-staging song-overture-staging \\
-                            overture/song --reuse-values --set-string image.tag=${version}
-                           """
-                    }
+                script {
+                    repo = "dcc-release/bio/overture"
                 }
             }
         }
 
+        stage('Upload Artifacts') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch 'test-master'
+                    branch 'develop'
+                    branch 'test-develop'
+                }
+            }
+            steps {
+                script {
+                    
+                    project = "song"
+                    versionName = "$version"
+                    subProjects = ['client', 'core', 'server']
+
+                    files = []
+                    files.add([pattern: "pom.xml", target: "$repo/$project/$versionName/$project-${versionName}.pom"])
+
+                    for (s in subProjects) {
+                        name = "${project}-$s"
+                        target = "$repo/$name/$versionName/$name-$versionName"
+                        files.add(pom(name, target))
+                        files.add(jar(name, target))
+
+                        if (s in ['client', 'server']) {
+                            files.add(runjar(name, target))
+                            files.add(tar(name, target))
+                        }
+                    }
+
+                    fileSet = JsonOutput.toJson([files: files])
+                    pretty = JsonOutput.prettyPrint(fileSet)
+                    print("Uploading files=${pretty}")
+                }
+
+                rtUpload(serverId: 'artifactory', spec: fileSet)
+            }
+        }
     }
 }
