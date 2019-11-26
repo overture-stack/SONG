@@ -237,7 +237,7 @@ get-analysis-id:
 
 test-submit: start-song-server _ping_song_server
 	@echo $(YELLOW)$(INFO_HEADER) "Submitting payload /data/submit/exampleVariantCall.json" $(END)
-	@$(SONG_CLIENT_CMD) submit -f /data/submit/exampleVariantCall.json |& tee $(SONG_CLIENT_SUBMIT_RESPONSE_FILE)
+	@$(SONG_CLIENT_CMD) submit -f /data/submit/exampleVariantCall.json | tee $(SONG_CLIENT_SUBMIT_RESPONSE_FILE)
 	@cat $(SONG_CLIENT_SUBMIT_RESPONSE_FILE) | grep analysisId | sed 's/.*://' | sed 's/"\|,//g'  > $(SONG_CLIENT_ANALYSIS_ID_FILE)
 	@echo $(YELLOW)$(INFO_HEADER) "Successfully submitted. Cached analysisId: " $$($(GET_ANALYSIS_ID_CMD)) $(END)
 
