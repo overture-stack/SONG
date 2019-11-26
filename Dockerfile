@@ -44,4 +44,4 @@ WORKDIR $SONG_HOME
 CMD mkdir -p  $SONG_HOME $SONG_LOGS \
         && java -Dlog.path=$SONG_LOGS \
         -jar $JAR_FILE \
-        --spring.config.location=classpath:/application.yml
+        --spring.config.location=classpath:/bootstrap.properties,classpath:/application.yml
