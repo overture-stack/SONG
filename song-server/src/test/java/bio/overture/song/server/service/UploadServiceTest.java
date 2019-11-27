@@ -16,28 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestAnalysis.extractBoolean;
-import static bio.overture.song.server.utils.TestAnalysis.extractNode;
-import static bio.overture.song.server.utils.TestAnalysis.extractString;
-import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
-import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.Responses;
 import bio.overture.song.server.model.dto.Payload;
@@ -45,9 +23,8 @@ import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.Map;
-import javax.transaction.Transactional;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -62,6 +39,33 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import javax.transaction.Transactional;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;
+import static bio.overture.song.server.utils.TestAnalysis.extractBoolean;
+import static bio.overture.song.server.utils.TestAnalysis.extractNode;
+import static bio.overture.song.server.utils.TestAnalysis.extractString;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 @Slf4j
 @SpringBootTest
@@ -137,6 +141,15 @@ public class UploadServiceTest {
     val payload = createPayloadWithDifferentAnalysisId();
     val corruptedPayload = payload.getJsonPayload().replace('{', '}');
     assertSongError(() -> uploadService.submit(DEFAULT_STUDY, corruptedPayload), PAYLOAD_PARSING);
+  }
+
+  @Test
+  @SneakyThrows
+  public void submit_AnalysisIdInPayload_SchemaValidationError(){
+    val p = createPayloadWithDifferentAnalysisId();
+    val invalidPayload =  (ObjectNode)new ObjectMapper().readTree(p.getJsonPayload());
+    invalidPayload.put(ANALYSIS_ID, p.getAnalysisId());
+    assertSongError(() -> uploadService.submit(DEFAULT_STUDY, invalidPayload.toString()), SCHEMA_VIOLATION);
   }
 
   @Test
@@ -217,13 +230,6 @@ public class UploadServiceTest {
     val analysisId = createUniqueAnalysisId();
     val jsonPayload = toJson(updateAnalysisId(json, analysisId));
     return InternalPayload.builder().analysisId(analysisId).jsonPayload(jsonPayload).build();
-  }
-
-  @SneakyThrows
-  private void test(String fileName) {
-    val jsonPayload = getJsonStringFromClasspath(fileName);
-    val response = uploadService.submit(DEFAULT_STUDY, jsonPayload);
-    assertEquals(Responses.OK, response.getStatus());
   }
 
   @Value
