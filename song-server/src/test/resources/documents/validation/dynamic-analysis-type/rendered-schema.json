@@ -181,6 +181,9 @@
   },
   "required": [ "study", "analysisType","experiment","sample","file", "firstName"],
   "properties": {
+    "analysisId" : {
+      "not" : {}
+    },
     "study" : {
       "type": "string",
       "minLength": 1
