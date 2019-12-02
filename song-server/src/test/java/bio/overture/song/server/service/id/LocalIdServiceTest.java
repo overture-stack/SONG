@@ -17,17 +17,18 @@
 
 package bio.overture.song.server.service.id;
 
-import static bio.overture.song.server.config.IdConfig.createNameBasedGenerator;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
-import java.util.Optional;
-import java.util.function.BiFunction;
 import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.Optional;
+import java.util.function.BiFunction;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static bio.overture.song.server.config.IdConfig.createNameBasedGenerator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LocalIdServiceTest {
@@ -35,7 +36,6 @@ public class LocalIdServiceTest {
   private static final Optional<String> ID_A = Optional.of("8540ebac-66f2-553a-b865-0d3006edd892");
   private static final Optional<String> ID_B = Optional.of("57f844eb-4ab4-5d3d-8dc1-8b7a463e20c1");
   private static final Optional<String> ID_C = Optional.of("b4f5aea1-1f4c-5e12-8557-76dbadb26239");
-  private static final String UUID1 = "b7f5aea7-1f4c-5e12-8557-76dbadb26333";
 
   private LocalIdService localIdService;
 
@@ -60,8 +60,8 @@ public class LocalIdServiceTest {
   }
 
   @Test
-  public void testFileId() {
-    twoParamTest(localIdService::getFileId);
+  public void testObjectId() {
+    twoParamTest(localIdService::getObjectId);
   }
 
   @Test

@@ -25,7 +25,7 @@ import java.util.Optional;
  */
 public interface IdService {
 
-  Optional<String> getFileId(String analysisId, String fileName);
+  Optional<String> getObjectId(String analysisId, String fileName);
 
   Optional<String> getDonorId(String studyId, String submitterDonorId);
 
