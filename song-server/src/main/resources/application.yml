@@ -88,7 +88,6 @@ id:
       donor:    https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
       specimen: https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
       sample:   https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
-      file:     https://id.example.org/object/id?analysisId={analysisId}&fileName={fileName}
 
 validation:
   delayMs: 30

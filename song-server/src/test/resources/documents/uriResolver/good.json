@@ -1,7 +1,6 @@
 {
   "donor" : "https://example.org?sid={submitterId}&proj={studyId}",
   "specimen" : "https://example.org?sid={submitterId}&proj={studyId}",
-  "sample" : "https://example.org?sid={submitterId}&proj={studyId}",
-  "file" : "https://example.org?anid={analysisId}&fname={fileName}"
+  "sample" : "https://example.org?sid={submitterId}&proj={studyId}"
 }
 

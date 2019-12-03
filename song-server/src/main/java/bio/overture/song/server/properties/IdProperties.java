@@ -32,7 +32,6 @@ public class IdProperties {
       private String donor;
       private String specimen;
       private String sample;
-      private String file;
     }
 
     @Getter
