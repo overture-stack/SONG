@@ -74,38 +74,12 @@ public class FileEntity extends Metadata implements Serializable, FileData, File
   @Column(name = TableAttributeNames.ACCESS, nullable = false)
   private String fileAccess;
 
-  public FileEntity(
-      String objectId,
-      String studyId,
-      String analysisId,
-      String fileName,
-      Long fileSize,
-      String fileType,
-      String fileMd5sum,
-      String fileAccess) {
-    this.objectId = objectId;
-    this.studyId = studyId;
-    this.analysisId = analysisId;
-    this.fileName = fileName;
-    this.fileSize = fileSize;
-    setFileType(fileType);
-    this.fileMd5sum = fileMd5sum;
-    setFileAccess(fileAccess);
-  }
-
   public void setFileType(FileTypes type) {
     this.fileType = type.toString();
-  }
-
-  public void setFileType(String type) {
-    setFileType(FileTypes.resolveFileType(type));
   }
 
   public void setFileAccess(@NonNull AccessTypes access) {
     this.fileAccess = access.toString();
   }
 
-  public void setFileAccess(@NonNull String access) {
-    setFileAccess(resolveAccessType(access));
-  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
+ * Copyright (c) 2018-2019. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -61,29 +61,6 @@ public class Specimen extends Metadata {
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
   private String specimenType;
-
-  public Specimen(
-      String specimenId,
-      String donorId,
-      String specimenSubmitterId,
-      String specimenClass,
-      String specimenType) {
-    this.specimenId = specimenId;
-    this.donorId = donorId;
-    this.specimenSubmitterId = specimenSubmitterId;
-    setSpecimenClass(specimenClass);
-    setSpecimenType(specimenType);
-  }
-
-  public void setSpecimenClass(String specimenClass) {
-    validate(SPECIMEN_CLASS, specimenClass);
-    this.specimenClass = specimenClass;
-  }
-
-  public void setSpecimenType(String type) {
-    validate(SPECIMEN_TYPE, type);
-    specimenType = type;
-  }
 
   public void setWithSpecimen(@NonNull Specimen specimenUpdate) {
     setSpecimenSubmitterId(specimenUpdate.getSpecimenSubmitterId());

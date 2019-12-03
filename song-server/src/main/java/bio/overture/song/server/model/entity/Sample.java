@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
+ * Copyright (c) 2018 - 2019. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -57,18 +57,6 @@ public class Sample extends Metadata {
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
   private String sampleType;
-
-  public Sample(String sampleId, String specimenId, String sampleSubmitterId, String sampleType) {
-    this.sampleId = sampleId;
-    this.specimenId = specimenId;
-    this.sampleSubmitterId = sampleSubmitterId;
-    setSampleType(sampleType);
-  }
-
-  public void setSampleType(String type) {
-    validate(SAMPLE_TYPE, type);
-    sampleType = type;
-  }
 
   public void setWithSample(@NonNull Sample u) {
     setSampleId(u.getSampleId());

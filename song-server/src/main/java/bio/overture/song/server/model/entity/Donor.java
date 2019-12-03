@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
+ * Copyright (c) 2018 - 2019. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -67,23 +67,6 @@ public class Donor extends Metadata {
 
   @Column(name = TableAttributeNames.GENDER, nullable = true)
   private String donorGender;
-
-  // NOTE: Since the donorGender field is validated upon setting it, using Lomboks default Builder
-  // when
-  //  the @AllArgsConstructor is used will by pass the validation since the Builder uses the All Arg
-  // Constructor.
-  // By using the setter inside the constructor, the building of a Donor will always be validated
-  public Donor(String donorId, String studyId, String donorSubmitterId, String donorGender) {
-    this.donorId = donorId;
-    this.studyId = studyId;
-    this.donorSubmitterId = donorSubmitterId;
-    setDonorGender(donorGender);
-  }
-
-  public void setDonorGender(String gender) {
-    validate(DONOR_GENDER, gender);
-    this.donorGender = gender;
-  }
 
   public void setWithDonor(@NonNull Donor donorUpdate) {
     setDonorSubmitterId(donorUpdate.getDonorSubmitterId());
