@@ -50,8 +50,8 @@ public class FederatedIdService implements IdService {
 
   // Always generate the objectId locally
   @Override
-  public Optional<String> getObjectId(@NonNull String analysisId, @NonNull String fileName) {
-    return localIdService.getObjectId(analysisId, fileName);
+  public Optional<String> getFileId(@NonNull String analysisId, @NonNull String fileName) {
+    return localIdService.getFileId(analysisId, fileName);
   }
 
 

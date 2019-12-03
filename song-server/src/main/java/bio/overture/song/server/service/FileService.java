@@ -53,7 +53,7 @@ public class FileService {
       @NonNull String analysisId, @NonNull String studyId, @NonNull FileEntity file) {
     studyService.checkStudyExist(studyId);
 
-    val result = idService.getObjectId(analysisId, file.getFileName());
+    val result = idService.getFileId(analysisId, file.getFileName());
     val id =
         checkServerOptional(
             result,

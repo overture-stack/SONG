@@ -52,7 +52,7 @@ public class LocalIdService implements IdService {
   }
 
   @Override
-  public Optional<String> getObjectId(@NonNull String analysisId, @NonNull String fileName) {
+  public Optional<String> getFileId(@NonNull String analysisId, @NonNull String fileName) {
     return generateId(analysisId, fileName);
   }
 

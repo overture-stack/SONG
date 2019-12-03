@@ -60,8 +60,8 @@ public class LocalIdServiceTest {
   }
 
   @Test
-  public void testObjectId() {
-    twoParamTest(localIdService::getObjectId);
+  public void testFileId() {
+    twoParamTest(localIdService::getFileId);
   }
 
   @Test

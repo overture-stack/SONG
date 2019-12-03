@@ -136,14 +136,14 @@ public class FederatedIdServiceTest {
   }
 
   @Test
-  public void testObjectId(){
+  public void testFileId(){
     val expectedObjectId = UUID.randomUUID().toString();
-    when(localIdService.getObjectId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME)).thenReturn(Optional.of(expectedObjectId));
-    val result = idService.getObjectId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
+    when(localIdService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME)).thenReturn(Optional.of(expectedObjectId));
+    val result = idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
     assertTrue(result.isPresent());
     val actualObjectId = result.get();
     assertEquals(actualObjectId, expectedObjectId);
-    verify(localIdService, times(1)).getObjectId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
+    verify(localIdService, times(1)).getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
   }
 
   @Test
