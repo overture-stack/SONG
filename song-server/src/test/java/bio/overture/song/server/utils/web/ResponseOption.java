@@ -17,9 +17,20 @@
 
 package bio.overture.song.server.utils.web;
 
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static bio.overture.song.core.utils.Deserialization.deserializeList;
-import static bio.overture.song.core.utils.Deserialization.deserializePage;
+import bio.overture.song.core.exceptions.ServerError;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.Value;
+import lombok.val;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -27,18 +38,9 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
-
-import bio.overture.song.core.exceptions.ServerError;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.Value;
-import lombok.val;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.Deserialization.deserializeList;
+import static bio.overture.song.core.utils.Deserialization.deserializePage;
 
 @Value
 public class ResponseOption {
@@ -68,6 +70,13 @@ public class ResponseOption {
     return assertOk()
         .assertHasBody()
         .map(x -> internalExtractManyEntitiesFromResponse(x, entityClass));
+  }
+
+  public ResponseOption assertIsError(){
+    assertTrue(format("Was expecting an error (4xx or 5xx status code), "
+        + "however status code was [%s]" ,response.getStatusCode()),
+        response.getStatusCode().isError());
+    return this;
   }
 
   public ResponseOption assertServerError(ServerError serverError) {

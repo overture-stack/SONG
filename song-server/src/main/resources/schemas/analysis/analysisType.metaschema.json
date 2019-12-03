@@ -20,6 +20,9 @@
                 "study" : {
                     "not" : {}
                 },
+                "analysisState" : {
+                    "not" : {}
+                },
                 "analysisType" : {
                     "not" : {}
                 },
