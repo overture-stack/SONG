@@ -17,21 +17,20 @@
 
 package bio.overture.song.server.converter;
 
-import static org.mapstruct.NullValuePropertyMappingStrategy.SET_TO_DEFAULT;
-
 import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import java.util.Collection;
-import java.util.List;
 import lombok.val;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+
+import java.util.Collection;
+import java.util.List;
 
 @Mapper(
     config = ConverterConfig.class,
@@ -62,8 +61,8 @@ public interface PayloadConverter {
   @Mapping(target = "objectId", ignore = true)
   @Mapping(target = "studyId", ignore = true)
   @Mapping(target = "info", ignore = true)
-  @Mapping(target = "fileType", nullValuePropertyMappingStrategy = SET_TO_DEFAULT)
-  @Mapping(target = "fileAccess", nullValuePropertyMappingStrategy = SET_TO_DEFAULT)
+  @Mapping(target = "fileType")
+  @Mapping(target = "fileAccess")
   void updateFile(FileEntity ref, @MappingTarget FileEntity entityToUpdate);
 
   default void updateInfo(Metadata ref, @MappingTarget Metadata metadataToUpdate) {

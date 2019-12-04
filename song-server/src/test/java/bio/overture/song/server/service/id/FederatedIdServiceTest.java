@@ -1,6 +1,25 @@
 package bio.overture.song.server.service.id;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.ERROR;
+import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.GOOD;
+import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.NOT_FOUND;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import bio.overture.song.core.utils.RandomGenerator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
@@ -13,26 +32,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static bio.overture.song.core.exceptions.ServerErrors.ID_SERVICE_ERROR;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.ERROR;
-import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.GOOD;
-import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.NOT_FOUND;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FederatedIdServiceTest {
@@ -136,9 +135,10 @@ public class FederatedIdServiceTest {
   }
 
   @Test
-  public void testFileId(){
+  public void testFileId() {
     val expectedObjectId = UUID.randomUUID().toString();
-    when(localIdService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME)).thenReturn(Optional.of(expectedObjectId));
+    when(localIdService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME))
+        .thenReturn(Optional.of(expectedObjectId));
     val result = idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
     assertTrue(result.isPresent());
     val actualObjectId = result.get();

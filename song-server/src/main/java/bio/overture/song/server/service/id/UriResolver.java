@@ -1,19 +1,18 @@
 package bio.overture.song.server.service.id;
 
+import static bio.overture.song.core.utils.CollectionUtils.listDifference;
+import static bio.overture.song.core.utils.Joiners.COMMA;
+import static com.google.common.base.Preconditions.checkArgument;
+import static lombok.AccessLevel.PRIVATE;
+
 import bio.overture.song.server.properties.IdProperties.FederatedProperties.UriTemplateProperties;
+import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.web.util.UriTemplate;
-
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static lombok.AccessLevel.PRIVATE;
-import static bio.overture.song.core.utils.CollectionUtils.listDifference;
-import static bio.overture.song.core.utils.Joiners.COMMA;
 
 /**
  * Dynamically expands URIs. Using the pre-configured URI templates, the URIs are resolved against
@@ -32,6 +31,7 @@ public class UriResolver {
 
   /** Dependencies */
   @NonNull private final UriTemplate donorUriTemplate;
+
   @NonNull private final UriTemplate specimenUriTemplate;
   @NonNull private final UriTemplate sampleUriTemplate;
 
