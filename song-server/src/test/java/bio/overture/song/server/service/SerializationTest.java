@@ -249,29 +249,6 @@ public class SerializationTest {
   }
 
   @Test
-  public void testInvalidValues() {
-    val id = "DO000123";
-    val submitterId = "123";
-    val studyId = "X23-CA";
-    val gender = "potatoes";
-
-    boolean failed = false;
-    try {
-      val donor =
-          Donor.builder()
-              .donorId(id)
-              .donorSubmitterId(submitterId)
-              .studyId(studyId)
-              .donorGender(gender)
-              .build();
-    } catch (IllegalArgumentException e) {
-      failed = true;
-    }
-
-    assertTrue(failed);
-  }
-
-  @Test
   public void testListFile() throws IOException {
     val singleQuotedJson =
         "{'file':[ { 'objectId': 'FI12345', 'fileName':'dna3.bam', 'fileMd5':'A1B2C3D4E5F6'},"
