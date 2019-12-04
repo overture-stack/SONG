@@ -35,11 +35,9 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.testing.SongErrorAssertions;
@@ -133,55 +131,18 @@ public class FileModificationServiceTest {
 
     // No Change
     val noChangeRequest = new FileUpdateRequest();
-    val noChangeResponse =
-        fileModificationService.securedFileWithAnalysisUpdate(
-            DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
-    assertFalse(noChangeResponse.isUnpublishedAnalysis());
-    assertEquals(noChangeResponse.getFileUpdateType(), NO_UPDATE);
-    assertEquals(noChangeResponse.getOriginalAnalysisState(), PUBLISHED);
-    assertEquals(noChangeResponse.getOriginalFile(), originalFile);
+    Exception exception = null;
+    try {
+      fileModificationService.securedFileWithAnalysisUpdate(
+          DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
+    } catch (ServerException ex) {
+      exception = ex;
+    }
+    assertNotNull(exception);
     assertEquals(
-        noChangeResponse.getMessage(),
-        "Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'NO_UPDATE'");
-
-    // Metadata Update
-    val metadataUpdateRequest =
-        FileUpdateRequest.builder()
-            .info(
-                object()
-                    .with(
-                        randomGenerator.generateRandomUUIDAsString(),
-                        randomGenerator.generateRandomUUIDAsString())
-                    .end())
-            .build();
-    val originalFile2 =
-        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
-    val metadataUpdateResponse =
-        fileModificationService.securedFileWithAnalysisUpdate(
-            DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
-    assertFalse(metadataUpdateResponse.isUnpublishedAnalysis());
-    assertEquals(metadataUpdateResponse.getFileUpdateType(), METADATA_UPDATE);
-    assertEquals(metadataUpdateResponse.getOriginalAnalysisState(), PUBLISHED);
-    assertEquals(metadataUpdateResponse.getOriginalFile(), originalFile2);
-    assertEquals(
-        metadataUpdateResponse.getMessage(),
-        "Original analysisState 'PUBLISHED' was not changed since the fileUpdateType was 'METADATA_UPDATE'");
-
-    // Content Update
-    val contentUpdateRequest =
-        FileUpdateRequest.builder().fileSize(originalFile2.getFileSize() + 77771L).build();
-    val originalFile3 =
-        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
-    val contentUpdateResponse =
-        fileModificationService.securedFileWithAnalysisUpdate(
-            DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
-    assertTrue(contentUpdateResponse.isUnpublishedAnalysis());
-    assertEquals(contentUpdateResponse.getFileUpdateType(), CONTENT_UPDATE);
-    assertEquals(contentUpdateResponse.getOriginalAnalysisState(), PUBLISHED);
-    assertEquals(contentUpdateResponse.getOriginalFile(), originalFile3);
-    assertEquals(
-        contentUpdateResponse.getMessage(),
-        "[WARNING]: Changed analysis from 'PUBLISHED' to 'UNPUBLISHED'");
+        "[FileModificationService::illegal.file.update.request] - The file with objectId "
+            + "'FI1' and analysisId 'AN1' cannot be updated since its analysisState is 'PUBLISHED'",
+        exception.getMessage());
   }
 
   @Test
@@ -197,11 +158,10 @@ public class FileModificationServiceTest {
     val noChangeResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
-    assertFalse(noChangeResponse.isUnpublishedAnalysis());
+    assertTrue(noChangeResponse.isUnpublishedAnalysis());
     assertEquals(noChangeResponse.getFileUpdateType(), NO_UPDATE);
     assertEquals(noChangeResponse.getOriginalAnalysisState(), UNPUBLISHED);
     assertEquals(noChangeResponse.getOriginalFile(), originalFile);
-    assertTrue(noChangeResponse.getMessage().contains("Did not change analysisState since it is"));
 
     // Metadata Update
     val metadataUpdateRequest =
@@ -218,12 +178,10 @@ public class FileModificationServiceTest {
     val metadataUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
-    assertFalse(metadataUpdateResponse.isUnpublishedAnalysis());
+    assertTrue(metadataUpdateResponse.isUnpublishedAnalysis());
     assertEquals(metadataUpdateResponse.getFileUpdateType(), METADATA_UPDATE);
     assertEquals(metadataUpdateResponse.getOriginalAnalysisState(), UNPUBLISHED);
     assertEquals(metadataUpdateResponse.getOriginalFile(), originalFile2);
-    assertTrue(
-        metadataUpdateResponse.getMessage().contains("Did not change analysisState since it is"));
 
     // Content Update
     val contentUpdateRequest =
@@ -233,12 +191,10 @@ public class FileModificationServiceTest {
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
-    assertFalse(contentUpdateResponse.isUnpublishedAnalysis());
+    assertTrue(contentUpdateResponse.isUnpublishedAnalysis());
     assertEquals(contentUpdateResponse.getFileUpdateType(), CONTENT_UPDATE);
     assertEquals(contentUpdateResponse.getOriginalAnalysisState(), UNPUBLISHED);
     assertEquals(contentUpdateResponse.getOriginalFile(), originalFile3);
-    assertTrue(
-        contentUpdateResponse.getMessage().contains("Did not change analysisState since it is"));
   }
 
   @Test
