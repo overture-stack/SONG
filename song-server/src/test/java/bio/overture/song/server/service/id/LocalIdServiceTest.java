@@ -17,18 +17,17 @@
 
 package bio.overture.song.server.service.id;
 
+import static bio.overture.song.server.config.IdConfig.createNameBasedGenerator;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
+import java.util.Optional;
+import java.util.function.BiFunction;
 import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Optional;
-import java.util.function.BiFunction;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static bio.overture.song.server.config.IdConfig.createNameBasedGenerator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LocalIdServiceTest {

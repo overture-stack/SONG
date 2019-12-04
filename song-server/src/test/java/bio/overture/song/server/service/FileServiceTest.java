@@ -16,28 +16,10 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
-import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
-import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
-import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
-import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
-import static com.google.common.collect.Lists.newArrayList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -47,6 +29,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.transaction.Transactional;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
+import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
+import static bio.overture.song.core.model.enums.FileTypes.FAI;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
+import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
+import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
+import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
 
 @Slf4j
 @SpringBootTest
@@ -105,7 +106,7 @@ public class FileServiceTest {
     f.setStudyId(studyId);
 
     f.setFileSize(0L);
-    f.setFileType("FAI");
+    f.setFileType(FAI);
     f.setFileMd5sum("6bb8ee7218e96a59e0ad898b4f5360f1");
     f.setInfo(metadata);
     f.setFileAccess(OPEN);
@@ -158,23 +159,6 @@ public class FileServiceTest {
     val updatedFileId = fileService.save(analysisId, studyId, actualFile);
     val updatedFile = fileService.securedRead(studyId, updatedFileId);
     assertEquals(updatedFile, actualFile);
-  }
-
-  @Test
-  public void testCreateFileUnknownType() {
-    assertExceptionThrownBy(
-        IllegalStateException.class,
-        () ->
-            FileEntity.builder()
-                .fileAccess("controlled")
-                .fileMd5sum(randomGenerator.generateRandomMD5())
-                .fileName(randomGenerator.generateRandomAsciiString(10))
-                .fileSize((long) randomGenerator.generateRandomInt(100, 100000))
-                .analysisId(randomGenerator.generateRandomUUIDAsString())
-                .objectId(randomGenerator.generateRandomUUIDAsString())
-                .studyId(randomGenerator.generateRandomAsciiString(7))
-                .fileType("TGZZZZZ")
-                .build());
   }
 
   @Test

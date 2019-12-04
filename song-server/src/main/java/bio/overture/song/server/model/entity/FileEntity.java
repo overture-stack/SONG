@@ -17,8 +17,6 @@
 
 package bio.overture.song.server.model.entity;
 
-import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
-
 import bio.overture.song.core.model.File;
 import bio.overture.song.core.model.FileData;
 import bio.overture.song.core.model.Metadata;
@@ -32,18 +30,20 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Entity
 @Table(name = TableNames.FILE)
 @Data
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
@@ -74,12 +74,19 @@ public class FileEntity extends Metadata implements Serializable, FileData, File
   @Column(name = TableAttributeNames.ACCESS, nullable = false)
   private String fileAccess;
 
-  public void setFileType(FileTypes type) {
+  public void setFileType(@NonNull String fileType) {
+    this.fileType = fileType;
+  }
+
+  public void setFileType(@NonNull FileTypes type) {
     this.fileType = type.toString();
+  }
+
+  public void setFileAccess(@NonNull String fileAccess) {
+    this.fileAccess = fileAccess;
   }
 
   public void setFileAccess(@NonNull AccessTypes access) {
     this.fileAccess = access.toString();
   }
-
 }

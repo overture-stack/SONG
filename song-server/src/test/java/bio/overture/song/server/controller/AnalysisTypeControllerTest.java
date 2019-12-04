@@ -17,6 +17,35 @@
 
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.RandomGenerator.randomList;
+import static bio.overture.song.core.utils.RandomGenerator.randomStream;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
@@ -30,6 +59,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import javax.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -46,41 +80,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import javax.transaction.Transactional;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.IntStream.range;
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
-import static net.javacrumbs.jsonunit.JsonAssert.when;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.core.utils.RandomGenerator.randomList;
-import static bio.overture.song.core.utils.RandomGenerator.randomStream;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -582,10 +581,7 @@ public class AnalysisTypeControllerTest {
       JsonNode invalidSchema, String expectedMessage, ServerError expectedServerError) {
     val nonExistingName = generateUniqueName();
     val registerRequest =
-        RegisterAnalysisTypeRequest.builder()
-            .name(nonExistingName)
-            .schema(invalidSchema)
-            .build();
+        RegisterAnalysisTypeRequest.builder().name(nonExistingName).schema(invalidSchema).build();
     val songErrorResponse =
         endpointTester
             .registerAnalysisTypePostRequestAnd(registerRequest)
@@ -596,7 +592,6 @@ public class AnalysisTypeControllerTest {
     val actualMessage = songError.getMessage();
     assertEquals(actualMessage, expectedMessage);
   }
-
 
   @Test
   public void register_extraFields_schemaViolation() {
@@ -657,34 +652,35 @@ public class AnalysisTypeControllerTest {
     endpointTester.registerAnalysisTypePostRequestAnd(r).assertServerError(SCHEMA_VIOLATION);
   }
 
-
   @Test
-  public void register_illegalFields_schemaViolation(){
-    Stream.of("analysisId",
-        "analysisState",
-        "study",
-        "analysisType",
-        "analysisTypeId",
-        "sample",
-        "file")
-        .forEach(f -> {
+  public void register_illegalFields_schemaViolation() {
+    Stream.of(
+            "analysisId",
+            "analysisState",
+            "study",
+            "analysisType",
+            "analysisTypeId",
+            "sample",
+            "file")
+        .forEach(
+            f -> {
               // Create an invalid schema using one of the invalid fields
               val inputInvalidSchema =
                   FETCHER.readJsonNode(Paths.get("schema-fixtures/valid.json").toString());
-              val properties  = (ObjectNode)inputInvalidSchema.path("properties");
+              val properties = (ObjectNode) inputInvalidSchema.path("properties");
               val field = properties.putObject(f);
               field.put("type", "string");
 
-              log.info("Testing illegal field: "+f);
+              log.info("Testing illegal field: " + f);
 
               // Test
-              runInvalidRegisterTest(inputInvalidSchema,
-                  "[AnalysisTypeService::schema.violation] - #/properties/"+f+": subject must not be valid against schema {},#: expected type: Boolean, found: JSONObject",
+              runInvalidRegisterTest(
+                  inputInvalidSchema,
+                  "[AnalysisTypeService::schema.violation] - #/properties/"
+                      + f
+                      + ": subject must not be valid against schema {},#: expected type: Boolean, found: JSONObject",
                   SCHEMA_VIOLATION);
-            }
-        );
-
-
+            });
   }
 
   /** Happy Path: test filtering the listing endpoint by multiple versions only */

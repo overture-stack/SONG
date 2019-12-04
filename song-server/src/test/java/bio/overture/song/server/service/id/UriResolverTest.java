@@ -1,17 +1,8 @@
 package bio.overture.song.server.service.id;
 
-import bio.overture.song.core.utils.ResourceFetcher;
-import bio.overture.song.server.properties.IdProperties.FederatedProperties.UriTemplateProperties;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.hamcrest.Matcher;
-import org.junit.Test;
-
-import java.nio.file.Paths;
-import java.util.function.Supplier;
-
+import static bio.overture.song.core.utils.Joiners.COMMA;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,9 +10,17 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static bio.overture.song.core.utils.Joiners.COMMA;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
+
+import bio.overture.song.core.utils.ResourceFetcher;
+import bio.overture.song.server.properties.IdProperties.FederatedProperties.UriTemplateProperties;
+import java.nio.file.Paths;
+import java.util.function.Supplier;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.hamcrest.Matcher;
+import org.junit.Test;
 
 @Slf4j
 public class UriResolverTest {
@@ -57,7 +56,6 @@ public class UriResolverTest {
     bad.setSample(good.getSample() + "&something={someVar}");
     assertOnlyUnknownVariables(bad, "someVar");
     bad.setSample(good.getSample());
-
   }
 
   @Test
@@ -79,7 +77,6 @@ public class UriResolverTest {
     bad.setSample("https://example.org/proj={studyId}");
     assertOnlyMissingVariables(bad, "submitterId");
     bad.setSample(good.getSample());
-
   }
 
   private static void assertOnlyMissingVariables(UriTemplateProperties p, String... variables) {
@@ -115,7 +112,6 @@ public class UriResolverTest {
     assertEquals(
         "https://example.org?sid=subSample123&proj=ABC123-CA",
         ur.expandSampleUri("ABC123-CA", "subSample123"));
-
   }
 
   private static void assertExceptionThrown(
