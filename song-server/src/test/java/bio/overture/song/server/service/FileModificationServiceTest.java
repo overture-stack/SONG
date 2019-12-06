@@ -28,7 +28,6 @@ import static bio.overture.song.core.model.enums.FileUpdateTypes.METADATA_UPDATE
 import static bio.overture.song.core.model.enums.FileUpdateTypes.NO_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.resolveFileUpdateType;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.service.FileModificationService.doUnpublish;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
@@ -37,7 +36,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static org.junit.Assert.*;
 
-import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.testing.SongErrorAssertions;
@@ -85,13 +83,6 @@ public class FileModificationServiceTest {
   }
 
   @Test
-  public void testDoPublish() {
-    assertFalse(doUnpublish(NO_UPDATE));
-    assertFalse(doUnpublish(METADATA_UPDATE));
-    assertTrue(doUnpublish(CONTENT_UPDATE));
-  }
-
-  @Test
   @Transactional
   public void testCheckFileUnrelatedToStudy() {
     val secureFileTester =
@@ -125,31 +116,7 @@ public class FileModificationServiceTest {
   public void testFileUpdateWithPublishedAnalysis() {
     analysisService.securedUpdateState(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID, PUBLISHED);
     val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
-    assertEquals(resolveAnalysisState(originalAnalysis.getAnalysisState()), PUBLISHED);
-    val originalFile =
-        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
-
-    // No Change
-    val noChangeRequest = new FileUpdateRequest();
-    Exception exception = null;
-    try {
-      fileModificationService.securedFileWithAnalysisUpdate(
-          DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
-    } catch (ServerException ex) {
-      exception = ex;
-    }
-    assertNotNull(exception);
-    assertEquals(
-        "[FileModificationService::illegal.file.update.request] - The file with objectId "
-            + "'FI1' and analysisId 'AN1' cannot be updated since its analysisState is 'PUBLISHED'",
-        exception.getMessage());
-  }
-
-  @Test
-  @Transactional
-  public void testFileUpdateWithUnpublishedAnalysis() {
-    val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
-    assertEquals(resolveAnalysisState(originalAnalysis.getAnalysisState()), UNPUBLISHED);
+    assertEquals(PUBLISHED, resolveAnalysisState(originalAnalysis.getAnalysisState()));
     val originalFile =
         fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
 
@@ -158,10 +125,12 @@ public class FileModificationServiceTest {
     val noChangeResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
-    assertTrue(noChangeResponse.isUnpublishedAnalysis());
-    assertEquals(noChangeResponse.getFileUpdateType(), NO_UPDATE);
-    assertEquals(noChangeResponse.getOriginalAnalysisState(), UNPUBLISHED);
-    assertEquals(noChangeResponse.getOriginalFile(), originalFile);
+    assertFalse(noChangeResponse.isUnpublishedAnalysis());
+    assertEquals(NO_UPDATE, noChangeResponse.getFileUpdateType());
+    assertEquals(PUBLISHED, noChangeResponse.getOriginalAnalysisState());
+    assertEquals(originalFile, noChangeResponse.getOriginalFile());
+    assertEquals(
+        "Updated file with objectId 'FI1' and analysisId 'AN1'", noChangeResponse.getMessage());
 
     // Metadata Update
     val metadataUpdateRequest =
@@ -178,10 +147,66 @@ public class FileModificationServiceTest {
     val metadataUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
-    assertTrue(metadataUpdateResponse.isUnpublishedAnalysis());
-    assertEquals(metadataUpdateResponse.getFileUpdateType(), METADATA_UPDATE);
-    assertEquals(metadataUpdateResponse.getOriginalAnalysisState(), UNPUBLISHED);
-    assertEquals(metadataUpdateResponse.getOriginalFile(), originalFile2);
+    assertFalse(metadataUpdateResponse.isUnpublishedAnalysis());
+    assertEquals(METADATA_UPDATE, metadataUpdateResponse.getFileUpdateType());
+    assertEquals(PUBLISHED, metadataUpdateResponse.getOriginalAnalysisState());
+    assertEquals(originalFile2, metadataUpdateResponse.getOriginalFile());
+    assertEquals(
+        "Updated file with objectId 'FI1' and analysisId 'AN1'",
+        metadataUpdateResponse.getMessage());
+
+    // Content Update
+    val contentUpdateRequest =
+        FileUpdateRequest.builder().fileSize(originalFile2.getFileSize() + 77771L).build();
+    SongErrorAssertions.assertSongError(
+        () ->
+            fileModificationService.securedFileWithAnalysisUpdate(
+                DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest),
+        ILLEGAL_FILE_UPDATE_REQUEST);
+  }
+
+  @Test
+  @Transactional
+  public void testFileUpdateWithUnpublishedAnalysis() {
+    val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
+    assertEquals(UNPUBLISHED, resolveAnalysisState(originalAnalysis.getAnalysisState()));
+    val originalFile =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+
+    // No Change
+    val noChangeRequest = new FileUpdateRequest();
+    val noChangeResponse =
+        fileModificationService.securedFileWithAnalysisUpdate(
+            DEFAULT_STUDY_ID, DEFAULT_FILE_ID, noChangeRequest);
+    assertFalse(noChangeResponse.isUnpublishedAnalysis());
+    assertEquals(NO_UPDATE, noChangeResponse.getFileUpdateType());
+    assertEquals(UNPUBLISHED, noChangeResponse.getOriginalAnalysisState());
+    assertEquals(originalFile, noChangeResponse.getOriginalFile());
+    assertEquals(
+        "Updated file with objectId 'FI1' and analysisId 'AN1'", noChangeResponse.getMessage());
+
+    // Metadata Update
+    val metadataUpdateRequest =
+        FileUpdateRequest.builder()
+            .info(
+                object()
+                    .with(
+                        randomGenerator.generateRandomUUIDAsString(),
+                        randomGenerator.generateRandomUUIDAsString())
+                    .end())
+            .build();
+    val originalFile2 =
+        fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+    val metadataUpdateResponse =
+        fileModificationService.securedFileWithAnalysisUpdate(
+            DEFAULT_STUDY_ID, DEFAULT_FILE_ID, metadataUpdateRequest);
+    assertFalse(metadataUpdateResponse.isUnpublishedAnalysis());
+    assertEquals(METADATA_UPDATE, metadataUpdateResponse.getFileUpdateType());
+    assertEquals(UNPUBLISHED, metadataUpdateResponse.getOriginalAnalysisState());
+    assertEquals(originalFile2, metadataUpdateResponse.getOriginalFile());
+    assertEquals(
+        "Updated file with objectId 'FI1' and analysisId 'AN1'",
+        metadataUpdateResponse.getMessage());
 
     // Content Update
     val contentUpdateRequest =
@@ -191,10 +216,13 @@ public class FileModificationServiceTest {
     val contentUpdateResponse =
         fileModificationService.securedFileWithAnalysisUpdate(
             DEFAULT_STUDY_ID, DEFAULT_FILE_ID, contentUpdateRequest);
-    assertTrue(contentUpdateResponse.isUnpublishedAnalysis());
-    assertEquals(contentUpdateResponse.getFileUpdateType(), CONTENT_UPDATE);
-    assertEquals(contentUpdateResponse.getOriginalAnalysisState(), UNPUBLISHED);
-    assertEquals(contentUpdateResponse.getOriginalFile(), originalFile3);
+    assertFalse(contentUpdateResponse.isUnpublishedAnalysis());
+    assertEquals(CONTENT_UPDATE, contentUpdateResponse.getFileUpdateType());
+    assertEquals(UNPUBLISHED, contentUpdateResponse.getOriginalAnalysisState());
+    assertEquals(originalFile3, contentUpdateResponse.getOriginalFile());
+    assertEquals(
+        "Updated file with objectId 'FI1' and analysisId 'AN1'",
+        contentUpdateResponse.getMessage());
   }
 
   @Test
@@ -270,9 +298,9 @@ public class FileModificationServiceTest {
     val goldenFile = converter.copyFile(referenceFile);
 
     val u1 = FileUpdateRequest.builder().fileAccess("controlled").build();
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), METADATA_UPDATE);
+    assertEquals(METADATA_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setInfo(
         object()
@@ -280,63 +308,63 @@ public class FileModificationServiceTest {
                 randomGenerator.generateRandomUUIDAsString(),
                 randomGenerator.generateRandomUUIDAsString())
             .end());
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), METADATA_UPDATE);
+    assertEquals(METADATA_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setFileAccess("open");
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), METADATA_UPDATE);
+    assertEquals(METADATA_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setFileAccess(null);
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), METADATA_UPDATE);
+    assertEquals(METADATA_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setFileSize(19191L);
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setFileMd5sum(randomGenerator.generateRandomMD5());
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setInfo(null);
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setFileAccess(null);
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setFileMd5sum(uniqueMd5);
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setFileMd5sum(null);
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setFileSize(referenceFile.getFileSize());
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), NO_UPDATE);
+    assertEquals(NO_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
 
     u1.setFileSize(null);
-    assertEquals(fileModificationService.updateWithRequest(referenceFile, u1), NO_UPDATE);
+    assertEquals(NO_UPDATE, fileModificationService.updateWithRequest(referenceFile, u1));
     assertNull(u1.getFileAccess());
     assertNull(u1.getFileSize());
     assertNull(u1.getFileMd5sum());
     assertNull(u1.getInfo());
     assertFalse(referenceFile == goldenFile);
-    assertEquals(referenceFile, goldenFile);
+    assertEquals(goldenFile, referenceFile);
   }
 
   @Test
@@ -347,38 +375,38 @@ public class FileModificationServiceTest {
 
     // update access field
     val u1 = FileUpdateRequest.builder().fileAccess("controlled").build();
-    assertEquals(resolveFileUpdateType(f1, u1), METADATA_UPDATE);
+    assertEquals(METADATA_UPDATE, resolveFileUpdateType(f1, u1));
 
     // update info field
     u1.setInfo(object().with("myInfoKey2", "myInfoValue2").end());
-    assertEquals(resolveFileUpdateType(f1, u1), METADATA_UPDATE);
+    assertEquals(METADATA_UPDATE, resolveFileUpdateType(f1, u1));
 
     // update file size
     val u2 = FileUpdateRequest.builder().fileSize(123123L).build();
     u1.setFileSize(123456L);
     // test request u1 with metadata updates
-    assertEquals(resolveFileUpdateType(f1, u1), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, resolveFileUpdateType(f1, u1));
     // test request u2 without any metadata updates
-    assertEquals(resolveFileUpdateType(f1, u2), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, resolveFileUpdateType(f1, u2));
 
     // update file md5
     u2.setFileMd5sum(randomGenerator.generateRandomMD5());
     u1.setFileMd5sum(randomGenerator.generateRandomMD5());
     // test request u1 with metadata updates
-    assertEquals(resolveFileUpdateType(f1, u1), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, resolveFileUpdateType(f1, u1));
     // test request u2 without any metadata updates
-    assertEquals(resolveFileUpdateType(f1, u2), CONTENT_UPDATE);
+    assertEquals(CONTENT_UPDATE, resolveFileUpdateType(f1, u2));
 
     // test nulls
     val u3 = FileUpdateRequest.builder().build();
-    assertEquals(resolveFileUpdateType(f1, u3), NO_UPDATE);
+    assertEquals(NO_UPDATE, resolveFileUpdateType(f1, u3));
     u3.setFileMd5sum(f1.getFileMd5sum());
     u3.setFileSize(f1.getFileSize());
     u3.setFileAccess(f1.getFileAccess());
     u3.setInfo(f1.getInfo());
-    assertEquals(resolveFileUpdateType(f1, u3), NO_UPDATE);
+    assertEquals(NO_UPDATE, resolveFileUpdateType(f1, u3));
 
-    assertEquals(f1, golden);
+    assertEquals(golden, f1);
   }
 
   private FileEntity buildReferenceFile() {
