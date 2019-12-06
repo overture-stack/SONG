@@ -58,7 +58,7 @@ public class FileService {
             result,
             getClass(),
             ID_NOT_FOUND,
-            "The fileId for analysisId '%s' and fileName '%s' was not found",
+            "The objectId for analysisId '%s' and fileName '%s' was not found",
             analysisId,
             file.getFileName());
 

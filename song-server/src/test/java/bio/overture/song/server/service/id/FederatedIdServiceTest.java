@@ -12,10 +12,14 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
@@ -47,7 +51,6 @@ public class FederatedIdServiceTest {
   private static final String DONOR_URL = "https://example.org/donor/id";
   private static final String SPECIMEN_URL = "https://example.org/specimen/id";
   private static final String SAMPLE_URL = "https://example.org/sample/id";
-  private static final String FILE_URL = "https://example.org/file/id";
 
   /** Mocks */
   @Mock private RestClient restClient;
@@ -132,25 +135,15 @@ public class FederatedIdServiceTest {
   }
 
   @Test
-  public void getFile_existing_id() {
-    setupFile(GOOD);
-    val fileResult = idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
-    assertTrue(fileResult.isPresent());
-    assertEquals(fileResult.get(), DEFAULT_ID);
-  }
-
-  @Test
-  public void getFile_nonExisting_emptyResult() {
-    setupFile(NOT_FOUND);
-    val fileResult = idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
-    assertFalse(fileResult.isPresent());
-  }
-
-  @Test
-  public void getFile_otherError_IdServiceError() {
-    setupFile(ERROR);
-    assertSongError(
-        () -> idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME), ID_SERVICE_ERROR);
+  public void testFileId() {
+    val expectedObjectId = UUID.randomUUID().toString();
+    when(localIdService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME))
+        .thenReturn(Optional.of(expectedObjectId));
+    val result = idService.getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
+    assertTrue(result.isPresent());
+    val actualObjectId = result.get();
+    assertEquals(actualObjectId, expectedObjectId);
+    verify(localIdService, times(1)).getFileId(DEFAULT_ANALYSIS_ID, DEFAULT_FILE_NAME);
   }
 
   @Test
@@ -174,11 +167,6 @@ public class FederatedIdServiceTest {
   private void setupSample(MODE mode) {
     baseSetup(mode, SAMPLE_URL);
     when(uriResolver.expandSampleUri(anyString(), anyString())).thenReturn(SAMPLE_URL);
-  }
-
-  private void setupFile(MODE mode) {
-    baseSetup(mode, FILE_URL);
-    when(uriResolver.expandFileUri(anyString(), anyString())).thenReturn(FILE_URL);
   }
 
   private HttpStatusCodeException generateNonNotFoundStatusCodeException() {

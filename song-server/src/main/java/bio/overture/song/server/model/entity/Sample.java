@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
+ * Copyright (c) 2018 - 2019. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,9 +17,6 @@
 
 package bio.overture.song.server.model.entity;
 
-import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
-import static bio.overture.song.server.model.enums.Constants.validate;
-
 import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
@@ -28,18 +25,20 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Entity
 @Table(name = TableNames.SAMPLE)
 @Data
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -57,18 +56,6 @@ public class Sample extends Metadata {
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
   private String sampleType;
-
-  public Sample(String sampleId, String specimenId, String sampleSubmitterId, String sampleType) {
-    this.sampleId = sampleId;
-    this.specimenId = specimenId;
-    this.sampleSubmitterId = sampleSubmitterId;
-    setSampleType(sampleType);
-  }
-
-  public void setSampleType(String type) {
-    validate(SAMPLE_TYPE, type);
-    sampleType = type;
-  }
 
   public void setWithSample(@NonNull Sample u) {
     setSampleId(u.getSampleId());

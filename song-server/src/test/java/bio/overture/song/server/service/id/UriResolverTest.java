@@ -56,11 +56,6 @@ public class UriResolverTest {
     bad.setSample(good.getSample() + "&something={someVar}");
     assertOnlyUnknownVariables(bad, "someVar");
     bad.setSample(good.getSample());
-
-    // Test file
-    bad.setFile(good.getFile() + "&something={someVar}");
-    assertOnlyUnknownVariables(bad, "someVar");
-    bad.setFile(good.getFile());
   }
 
   @Test
@@ -82,11 +77,6 @@ public class UriResolverTest {
     bad.setSample("https://example.org/proj={studyId}");
     assertOnlyMissingVariables(bad, "submitterId");
     bad.setSample(good.getSample());
-
-    // Test file
-    bad.setFile("https://example.org/an={analysisId}");
-    assertOnlyMissingVariables(bad, "fileName");
-    bad.setFile(good.getFile());
   }
 
   private static void assertOnlyMissingVariables(UriTemplateProperties p, String... variables) {
@@ -122,10 +112,6 @@ public class UriResolverTest {
     assertEquals(
         "https://example.org?sid=subSample123&proj=ABC123-CA",
         ur.expandSampleUri("ABC123-CA", "subSample123"));
-
-    assertEquals(
-        "https://example.org?anid=AN01&fname=my-file.vcf.gz",
-        ur.expandFileUri("AN01", "my-file.vcf.gz"));
   }
 
   private static void assertExceptionThrown(
