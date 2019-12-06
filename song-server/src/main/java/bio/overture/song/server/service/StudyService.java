@@ -73,7 +73,7 @@ public class StudyService {
         study);
     studyRepository.save(study);
     infoService.create(id, study.getInfoAsString());
-    return format("{ \"message\": \"Successfully created study '%s'\" }", id);
+    return format("Successfully created study '%s'", id);
   }
 
   public List<String> findAllStudies() {
