@@ -143,8 +143,6 @@ public class FileModificationService {
     response.originalFile(fileConverter.convertToFileDTO(originalFile));
     response.originalAnalysisState(currentState);
     response.fileUpdateType(fileUpdateType);
-    response.message(
-        format("Updated file with objectId '%s' and analysisId '%s'", objectId, analysisId));
 
     return response.build();
   }

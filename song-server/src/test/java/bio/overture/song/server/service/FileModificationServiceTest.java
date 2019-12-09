@@ -130,7 +130,8 @@ public class FileModificationServiceTest {
     assertEquals(PUBLISHED, noChangeResponse.getOriginalAnalysisState());
     assertEquals(originalFile, noChangeResponse.getOriginalFile());
     assertEquals(
-        "Updated file with objectId 'FI1' and analysisId 'AN1'", noChangeResponse.getMessage());
+        "No update for file with objectId 'FI1' and analysisId 'AN1'",
+        noChangeResponse.getMessage());
 
     // Metadata Update
     val metadataUpdateRequest =
@@ -183,7 +184,8 @@ public class FileModificationServiceTest {
     assertEquals(UNPUBLISHED, noChangeResponse.getOriginalAnalysisState());
     assertEquals(originalFile, noChangeResponse.getOriginalFile());
     assertEquals(
-        "Updated file with objectId 'FI1' and analysisId 'AN1'", noChangeResponse.getMessage());
+        "No update for file with objectId 'FI1' and analysisId 'AN1'",
+        noChangeResponse.getMessage());
 
     // Metadata Update
     val metadataUpdateRequest =
