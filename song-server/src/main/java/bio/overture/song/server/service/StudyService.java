@@ -19,6 +19,7 @@ package bio.overture.song.server.service;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
@@ -72,7 +73,7 @@ public class StudyService {
         study);
     studyRepository.save(study);
     infoService.create(id, study.getInfoAsString());
-    return id;
+    return format("Successfully created study '%s'", id);
   }
 
   public List<String> findAllStudies() {

@@ -22,6 +22,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import bio.overture.song.server.model.dto.GenericMessage;
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.model.entity.composites.StudyWithDonors;
 import bio.overture.song.server.service.StudyService;
@@ -78,7 +79,7 @@ public class StudyController {
       consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @ResponseBody
-  public String saveStudy(
+  public GenericMessage saveStudy(
       @PathVariable("studyId") String studyId,
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @RequestBody Study study) {
@@ -89,6 +90,6 @@ public class StudyController {
         "The studyId in the URL '%s' should match the studyId '%s' in the payload",
         studyId,
         study.getStudyId());
-    return studyService.saveStudy(study);
+    return new GenericMessage(studyService.saveStudy(study));
   }
 }
