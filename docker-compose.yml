@@ -89,6 +89,7 @@ services:
       - "./docker/scratch/score-client-logs:/score-client/logs"
       - "./docker/scratch/song-client-output:/song-client/output"
     command: bin/score-client
+    user: "$MY_UID:$MY_GID"
   song-db:
     image: "postgres:9.6"
     environment:
@@ -123,6 +124,7 @@ services:
       - "./docker/scratch/song-client-logs:/song-client/logs"
       - "./docker/scratch/song-client-output:/song-client/output"
     command: bin/sing
+    user: "$MY_UID:$MY_GID"
   song-server:
     build:
       context: ./

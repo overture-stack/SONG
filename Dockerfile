@@ -13,7 +13,6 @@ ENV CLIENT_DIST_DIR    /song-client-dist
 ENV PATH /usr/local/openjdk-11/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$SONG_CLIENT_HOME/bin
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
-RUN groupadd -r song && useradd -r -g song song
 
 RUN tar zxvf song-client.tar.gz -C /tmp \
 	&& rm -rf song-client.tar.gz \
@@ -27,7 +26,6 @@ RUN tar zxvf song-client.tar.gz -C /tmp \
 
 # Set working directory for convenience with interactive usage
 WORKDIR $SONG_CLIENT_HOME
-USER song 
 
 ###############################################################################################################
 
