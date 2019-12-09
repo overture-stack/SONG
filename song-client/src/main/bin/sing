@@ -29,7 +29,7 @@ elif [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]];  then
 #    echo Found Java in JAVA_HOME
     _java="$JAVA_HOME/bin/java"
 else
-    echo "Java not found. Sing requires JDK 1.8"
+    echo "Java not found. Sing requires Java 11."
     exit 1
 fi
 
@@ -42,10 +42,8 @@ if [[ "$_java" ]]; then
     fi
 fi
 
-current_dir=$PWD
-fn=$0
-sing_home=$current_dir/`dirname $fn`/../
-
+here=$(dirname $0)
+sing_home=${here%/bin}
 #         -Dspring.config.location="$sing_home/conf/" \
 
 java --illegal-access=deny \
