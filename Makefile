@@ -51,7 +51,7 @@ LOG_DIRS := $(SCORE_SERVER_LOGS_DIR) $(SCORE_CLIENT_LOGS_DIR) $(SONG_SERVER_LOGS
 DOCKER_COMPOSE_CMD := echo "*********** DEMO_MODE = $(DEMO_MODE) **************" \
 	&& echo "*********** FORCE = $(FORCE) **************" \
 	&& DOCKERFILE_NAME=$(DOCKERFILE_NAME) MY_UID=$(MY_UID) MY_GID=$(MY_GID) $(DOCKER_COMPOSE_EXE) -f $(ROOT_DIR)/docker-compose.yml
-SONG_CLIENT_CMD := $(DOCKER_COMPOSE_CMD) run --rm -u $(THIS_USER) song-client bin/sing
+SONG_CLIENT_CMD := $(DOCKER_COMPOSE_CMD) run --rm -u $(THIS_USER) song-client sing
 SCORE_CLIENT_CMD := $(DOCKER_COMPOSE_CMD) run --rm -u $(THIS_USER) score-client bin/score-client
 DC_UP_CMD := $(DOCKER_COMPOSE_CMD) up -d --build
 MVN_CMD := $(MVN_EXE) -f $(ROOT_DIR)/pom.xml
@@ -238,8 +238,8 @@ get-analysis-id:
 test-submit: start-song-server _ping_song_server
 	@echo $(YELLOW)$(INFO_HEADER) "Submitting payload /data/submit/exampleVariantCall.json" $(END)
 	@$(SONG_CLIENT_CMD) submit -f /data/submit/exampleVariantCall.json | tee $(SONG_CLIENT_SUBMIT_RESPONSE_FILE)
-	@cat $(SONG_CLIENT_SUBMIT_RESPONSE_FILE) | grep analysisId | sed 's/.*://' | sed 's/"\|,//g'  > $(SONG_CLIENT_ANALYSIS_ID_FILE)
-	@echo $(YELLOW)$(INFO_HEADER) "Successfully submitted. Cached analysisId: " $$($(GET_ANALYSIS_ID_CMD)) $(END)
+	@cat $(SONG_CLIENT_SUBMIT_RESPONSE_FILE) | grep analysisId | sed -e 's#.*:[^"]*"\([^"]*\)".*#\1#' > $(SONG_CLIENT_ANALYSIS_ID_FILE)
+	@echo $(YELLOW)$(INFO_HEADER) "Successfully submitted. Cached analysisId: '"$$($(GET_ANALYSIS_ID_CMD))"'" $(END)
 
 test-manifest: test-submit
 	@echo $(YELLOW)$(INFO_HEADER) "Creating manifest at /song-client/output" $(END)
