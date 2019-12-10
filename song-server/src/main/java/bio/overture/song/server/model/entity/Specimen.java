@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Ontario Institute for Cancer Research
+ * Copyright (c) 2018-2019. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,10 +17,6 @@
 
 package bio.overture.song.server.model.entity;
 
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
-import static bio.overture.song.server.model.enums.Constants.validate;
-
 import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
@@ -29,18 +25,20 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Entity
 @Table(name = TableNames.SPECIMEN)
 @Data
 @Builder
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
@@ -61,29 +59,6 @@ public class Specimen extends Metadata {
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
   private String specimenType;
-
-  public Specimen(
-      String specimenId,
-      String donorId,
-      String specimenSubmitterId,
-      String specimenClass,
-      String specimenType) {
-    this.specimenId = specimenId;
-    this.donorId = donorId;
-    this.specimenSubmitterId = specimenSubmitterId;
-    setSpecimenClass(specimenClass);
-    setSpecimenType(specimenType);
-  }
-
-  public void setSpecimenClass(String specimenClass) {
-    validate(SPECIMEN_CLASS, specimenClass);
-    this.specimenClass = specimenClass;
-  }
-
-  public void setSpecimenType(String type) {
-    validate(SPECIMEN_TYPE, type);
-    specimenType = type;
-  }
 
   public void setWithSpecimen(@NonNull Specimen specimenUpdate) {
     setSpecimenSubmitterId(specimenUpdate.getSpecimenSubmitterId());

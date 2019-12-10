@@ -20,6 +20,7 @@ package bio.overture.song.server.utils.web;
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.Deserialization.deserializeList;
 import static bio.overture.song.core.utils.Deserialization.deserializePage;
+import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -68,6 +69,15 @@ public class ResponseOption {
     return assertOk()
         .assertHasBody()
         .map(x -> internalExtractManyEntitiesFromResponse(x, entityClass));
+  }
+
+  public ResponseOption assertIsError() {
+    assertTrue(
+        format(
+            "Was expecting an error (4xx or 5xx status code), " + "however status code was [%s]",
+            response.getStatusCode()),
+        response.getStatusCode().isError());
+    return this;
   }
 
   public ResponseOption assertServerError(ServerError serverError) {

@@ -35,7 +35,6 @@ public class LocalIdServiceTest {
   private static final Optional<String> ID_A = Optional.of("8540ebac-66f2-553a-b865-0d3006edd892");
   private static final Optional<String> ID_B = Optional.of("57f844eb-4ab4-5d3d-8dc1-8b7a463e20c1");
   private static final Optional<String> ID_C = Optional.of("b4f5aea1-1f4c-5e12-8557-76dbadb26239");
-  private static final String UUID1 = "b7f5aea7-1f4c-5e12-8557-76dbadb26333";
 
   private LocalIdService localIdService;
 

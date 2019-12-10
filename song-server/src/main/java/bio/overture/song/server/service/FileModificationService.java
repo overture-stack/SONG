@@ -21,7 +21,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILE_UPDATE
 import static bio.overture.song.core.exceptions.ServerErrors.INVALID_FILE_UPDATE_REQUEST;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.CONTENT_UPDATE;
@@ -64,9 +63,33 @@ public class FileModificationService {
   @Transactional
   public FileUpdateTypes updateWithRequest(
       @NonNull FileEntity originalFile, FileData fileUpdateRequest) {
-    val updatedFile = createUpdateFile(originalFile, fileUpdateRequest);
-    fileService.unsafeUpdate(updatedFile);
-    return resolveFileUpdateType(originalFile, fileUpdateRequest);
+    val analysisId = originalFile.getAnalysisId();
+    val objectId = originalFile.getObjectId();
+    val currentState = analysisService.readState(analysisId);
+    val fileUpdateType = resolveFileUpdateType(originalFile, fileUpdateRequest);
+
+    boolean doUpdate = false;
+    if (fileUpdateType == METADATA_UPDATE) {
+      doUpdate = true;
+    } else if (fileUpdateType == CONTENT_UPDATE) {
+      checkServer(
+          currentState == UNPUBLISHED,
+          getClass(),
+          ILLEGAL_FILE_UPDATE_REQUEST,
+          "The file with objectId '%s' and analysisId '%s' cannot be updated since its analysisState is '%s' and '%s' is required",
+          objectId,
+          analysisId,
+          currentState,
+          UNPUBLISHED);
+      doUpdate = true;
+    }
+
+    if (doUpdate) {
+      val updatedFile = createUpdateFile(originalFile, fileUpdateRequest);
+      fileService.unsafeUpdate(updatedFile);
+    }
+
+    return fileUpdateType;
   }
 
   /**
@@ -100,39 +123,27 @@ public class FileModificationService {
             + "be updated since its analysisState is '%s'",
         objectId,
         analysisId,
-        SUPPRESSED.toString());
+        currentState.toString());
 
     // Update the target file record using the originalFile and the update request
     val fileUpdateType = updateWithRequest(originalFile, fileUpdateRequest);
-
-    // Build the response
     val response = FileUpdateResponse.builder().unpublishedAnalysis(false);
+    if (fileUpdateType == METADATA_UPDATE || fileUpdateType == CONTENT_UPDATE) {
+      response.message(
+          format("Updated file with objectId '%s' and analysisId '%s'", objectId, analysisId));
+    } else if (fileUpdateType == NO_UPDATE) {
+      response.message(
+          format(
+              "No update for file with objectId '%s' and analysisId '%s'", objectId, analysisId));
+    } else {
+      throw new IllegalStateException("Could not process fileUpdateType: " + fileUpdateType);
+    }
+    // Build the response
+
     response.originalFile(fileConverter.convertToFileDTO(originalFile));
     response.originalAnalysisState(currentState);
     response.fileUpdateType(fileUpdateType);
 
-    // Can only transition from PUBLISHED to UNPUBLISHED states.
-    if (currentState == PUBLISHED) {
-      if (doUnpublish(fileUpdateType)) {
-        analysisService.securedUpdateState(studyId, analysisId, UNPUBLISHED);
-        response.unpublishedAnalysis(true);
-        response.message(
-            format(
-                "[WARNING]: Changed analysis from '%s' to '%s'",
-                PUBLISHED.toString(), UNPUBLISHED.toString()));
-      } else {
-        response.message(
-            format(
-                "Original analysisState '%s' was not changed since the fileUpdateType was '%s'",
-                currentState.toString(), fileUpdateType.name()));
-      }
-    } else if (currentState == UNPUBLISHED) { // Can still update an unpublished analysis
-      response.message(
-          format("Did not change analysisState since it is '%s'", currentState.toString()));
-    } else {
-      throw new IllegalStateException(
-          format("Could not process the analysisState '%s'", currentState.toString()));
-    }
     return response.build();
   }
 
@@ -158,22 +169,5 @@ public class FileModificationService {
     val updatedFile = fileConverter.copyFile(baseFile);
     fileConverter.updateEntityFromData(fileUpdateData, updatedFile);
     return updatedFile;
-  }
-
-  /**
-   * Decides whether or not the input {@code fileUpdateType} should unpublish an analysis
-   *
-   * @param fileUpdateType
-   * @return boolean
-   */
-  public static boolean doUnpublish(@NonNull FileUpdateTypes fileUpdateType) {
-    if (fileUpdateType == CONTENT_UPDATE) {
-      return true;
-    } else if (fileUpdateType == METADATA_UPDATE || fileUpdateType == NO_UPDATE) {
-      return false;
-    } else {
-      throw new IllegalStateException(
-          format("The updateType '%s' is unrecognized", fileUpdateType.name()));
-    }
   }
 }

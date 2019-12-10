@@ -21,7 +21,7 @@
     <groupId>bio.overture</groupId>
     <artifactId>song</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.1</version>
+    <version>3.1.0</version>
     <modules>
         <module>song-core</module>
         <module>song-java-sdk</module>

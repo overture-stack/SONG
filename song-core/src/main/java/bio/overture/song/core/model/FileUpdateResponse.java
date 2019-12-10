@@ -30,8 +30,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FileUpdateResponse {
   private FileUpdateTypes fileUpdateType;
-  private AnalysisStates originalAnalysisState;
-  private boolean unpublishedAnalysis;
+  @Deprecated private AnalysisStates originalAnalysisState;
+  @Deprecated private boolean unpublishedAnalysis;
   private String message;
   private FileDTO originalFile;
 }

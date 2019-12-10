@@ -16,6 +16,21 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.SubmitResponse;
+import bio.overture.song.server.model.dto.Payload;
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+
+import static java.util.Objects.isNull;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
@@ -27,20 +42,9 @@ import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.Responses.OK;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-import static java.util.Objects.isNull;
-
-import bio.overture.song.core.model.SubmitResponse;
-import bio.overture.song.server.model.dto.Payload;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import javax.transaction.Transactional;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -82,22 +86,11 @@ public class UploadService {
     return SubmitResponse.builder().analysisId(analysisId).status(OK).build();
   }
 
-  private void checkAnalysisTypeVersion(@NonNull Payload payload) {
-    checkServer(
-        !isNull(payload.getAnalysisType()),
-        getClass(),
-        MALFORMED_PARAMETER,
-        "The analysisType field cannot be null");
-    val analysisTypeId = payload.getAnalysisType();
-    val errors = validator.validateAnalysisTypeVersion(analysisTypeId);
-    checkServer(isNull(errors), getClass(), ANALYSIS_TYPE_INCORRECT_VERSION, errors);
-  }
-
   private JsonNode parsePayload(String payloadString) {
     try {
       val payloadJson = readTree(payloadString);
-      val payload = fromJson(payloadJson, Payload.class);
-      checkAnalysisTypeVersion(payload);
+      val analysisTypeId = parseAnalysisTypeId(payloadJson);
+      checkAnalysisTypeVersion(analysisTypeId);
       return payloadJson;
     } catch (IOException e) {
       log.error(e.getMessage());
@@ -106,6 +99,18 @@ public class UploadService {
           PAYLOAD_PARSING,
           "Unable to read the input payload: " + payloadString.replaceAll("%", "%%"));
     }
+  }
+
+  private void checkAnalysisTypeVersion(@NonNull AnalysisTypeId analysisTypeId) {
+    val errors = validator.validateAnalysisTypeVersion(analysisTypeId);
+    checkServer(isNull(errors), getClass(), ANALYSIS_TYPE_INCORRECT_VERSION, errors);
+  }
+
+  private AnalysisTypeId parseAnalysisTypeId(@NonNull JsonNode payloadJson){
+    checkServer(payloadJson.has(ANALYSIS_TYPE), getClass(), MALFORMED_PARAMETER, "The analysisType field cannot be null");
+    val analysisTypePath = payloadJson.path(ANALYSIS_TYPE);
+    checkServer(analysisTypePath.has(NAME), getClass(), MALFORMED_PARAMETER, "The analysisType name field cannot be null");
+    return fromJson(analysisTypePath, AnalysisTypeId.class);
   }
 
   private void validatePayload(JsonNode payloadJson) {

@@ -17,10 +17,12 @@
 package bio.overture.song.server.service;
 
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestAnalysis.extractBoolean;
 import static bio.overture.song.server.utils.TestAnalysis.extractNode;
 import static bio.overture.song.server.utils.TestAnalysis.extractString;
@@ -45,6 +47,7 @@ import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Map;
 import javax.transaction.Transactional;
@@ -140,6 +143,16 @@ public class UploadServiceTest {
   }
 
   @Test
+  @SneakyThrows
+  public void submit_AnalysisIdInPayload_SchemaValidationError() {
+    val p = createPayloadWithDifferentAnalysisId();
+    val invalidPayload = (ObjectNode) new ObjectMapper().readTree(p.getJsonPayload());
+    invalidPayload.put(ANALYSIS_ID, p.getAnalysisId());
+    assertSongError(
+        () -> uploadService.submit(DEFAULT_STUDY, invalidPayload.toString()), SCHEMA_VIOLATION);
+  }
+
+  @Test
   @Transactional
   public void testSave2PayloadsWithSameSpecimen() {
     // Set up generators
@@ -217,13 +230,6 @@ public class UploadServiceTest {
     val analysisId = createUniqueAnalysisId();
     val jsonPayload = toJson(updateAnalysisId(json, analysisId));
     return InternalPayload.builder().analysisId(analysisId).jsonPayload(jsonPayload).build();
-  }
-
-  @SneakyThrows
-  private void test(String fileName) {
-    val jsonPayload = getJsonStringFromClasspath(fileName);
-    val response = uploadService.submit(DEFAULT_STUDY, jsonPayload);
-    assertEquals(Responses.OK, response.getStatus());
   }
 
   @Value

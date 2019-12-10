@@ -21,12 +21,6 @@ public class FederatedIdService implements IdService {
   @NonNull private final UriResolver uriResolver;
 
   @Override
-  public Optional<String> getFileId(@NonNull String analysisId, @NonNull String fileName) {
-    return handleIdServiceGetRequest(
-        uriResolver.expandFileUri(analysisId, fileName), rest::getString);
-  }
-
-  @Override
   public Optional<String> getDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
     return handleIdServiceGetRequest(
         uriResolver.expandDonorUri(studyId, submitterDonorId), rest::getString);
@@ -45,13 +39,20 @@ public class FederatedIdService implements IdService {
         uriResolver.expandSampleUri(studyId, submitterSampleId), rest::getString);
   }
 
+  /** Always generate the analysisId locally */
   @Override
   public String generateAnalysisId() {
     return localIdService.generateAnalysisId();
   }
 
+  // Always generate the objectId locally
+  @Override
+  public Optional<String> getFileId(@NonNull String analysisId, @NonNull String fileName) {
+    return localIdService.getFileId(analysisId, fileName);
+  }
+
   /**
-   * This method calls the callback function with the input url, and if successfull (1xx/2xx/3xx
+   * This method calls the callback function with the input url, and if successful (1xx/2xx/3xx
    * status code) returns the result, otherwise throws a ServerException
    */
   private static <T> T handleIdServiceGetRequest(String url, Function<String, T> restCallback) {
