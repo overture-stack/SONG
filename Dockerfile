@@ -10,8 +10,7 @@ FROM openjdk:11-jre-stretch as client
 
 ENV SONG_CLIENT_HOME   /song-client
 ENV CLIENT_DIST_DIR    /song-client-dist
-
-ENV TARBALL $DCC_HOME/download.tar.gz
+ENV PATH /usr/local/openjdk-11/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$SONG_CLIENT_HOME/bin
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
 

@@ -8,4 +8,4 @@ DOCKERFILE_NAME=Dockerfile \
 	MY_GID=$(id -g) \
 	docker-compose \
 	-f ${BASH_SCRIPT_DIR}/../../docker-compose.yml \
-	run --rm song-client bin/sing $@
+	run --rm song-client sing $@
