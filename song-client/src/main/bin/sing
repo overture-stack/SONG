@@ -43,8 +43,12 @@ if [[ "$_java" ]]; then
 fi
 
 here=$(dirname $0)
-sing_home=${here%/bin}
-#         -Dspring.config.location="$sing_home/conf/" \
+if [ "$here" == "." ]; then
+	# This is the case, when the user runs this script from the ./bin directory
+	sing_home=../
+else
+	sing_home=${here%/bin}
+fi
 
 java --illegal-access=deny \
 		 -Dlog.name=song \
