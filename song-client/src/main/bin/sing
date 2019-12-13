@@ -29,7 +29,7 @@ elif [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]];  then
 #    echo Found Java in JAVA_HOME
     _java="$JAVA_HOME/bin/java"
 else
-    echo "Java not found. Sing requires JDK 1.8"
+    echo "Java not found. Sing requires Java 11."
     exit 1
 fi
 
@@ -42,11 +42,13 @@ if [[ "$_java" ]]; then
     fi
 fi
 
-current_dir=$PWD
-fn=$0
-sing_home=$current_dir/`dirname $fn`/../
-
-#         -Dspring.config.location="$sing_home/conf/" \
+here=$(dirname $0)
+if [ "$here" == "." ]; then
+	# This is the case, when the user runs this script from the ./bin directory
+	sing_home=../
+else
+	sing_home=${here%/bin}
+fi
 
 java --illegal-access=deny \
 		 -Dlog.name=song \
