@@ -20,7 +20,7 @@
       },
       "donor": {
         "donorSubmitterId": "internal_donor_123456789-03",
-        "donorGender": "male",
+        "donorGender": "Male",
         "age" : 343
       }
     }

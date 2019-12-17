@@ -27,7 +27,7 @@ public class Constants {
   public static final String VARIANT_CALL_TYPE = "variantCall";
   public static final String EMPTY_STRING = "";
   public static final Collection<String> ANALYSIS_STATE = list(AnalysisStates.toStringArray());
-  public static final Collection<String> DONOR_GENDER = list("male", "female", "unspecified");
+  public static final Collection<String> DONOR_GENDER = list("Male", "Female", "Other");
   public static final Collection<String> LIBRARY_STRATEGY =
       list(
           "WGS",

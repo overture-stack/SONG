@@ -38,8 +38,8 @@ public class SchemaConfig {
   @NotNull private Boolean enforceLatest;
 
   @Bean
-  public String analysisPayloadBaseJson() throws IOException {
-    val schemaRelativePath = SCHEMA_ANALYSIS_PATH.resolve("analysisPayload.json").toString();
+  public String analysisBaseJson() throws IOException {
+    val schemaRelativePath = SCHEMA_ANALYSIS_PATH.resolve("analysisBase.json").toString();
     return getResourceContent(schemaRelativePath);
   }
 

@@ -250,7 +250,7 @@ public class AnalysisServiceTest {
 
     val donor00 = sample0.getDonor();
     assertEquals(donor00.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor00.getDonorGender(), "male");
+    assertEquals(donor00.getDonorGender(), "Male");
     assertEquals(donor00.getDonorSubmitterId(), "internal_donor_123456789-00_fs01");
     assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a variantCall donor_fs01");
 
@@ -274,7 +274,7 @@ public class AnalysisServiceTest {
 
     val donor01 = sample1.getDonor();
     assertEquals(donor01.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor01.getDonorGender(), "female");
+    assertEquals(donor01.getDonorGender(), "Female");
     assertEquals(donor01.getDonorSubmitterId(), "internal_donor_123456789-00_fs02");
     assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a variantCall donor_fs02");
     assertInfoKVPair(donor01, "extraDonorInfo_1", "second data for a variantCall donor_fs02");
@@ -383,7 +383,7 @@ public class AnalysisServiceTest {
 
     val donor00 = sample0.getDonor();
     assertEquals(donor00.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor00.getDonorGender(), "male");
+    assertEquals(donor00.getDonorGender(), "Male");
     assertEquals(donor00.getDonorSubmitterId(), "internal_donor_123456789-00_fr01");
     assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a sequencingRead donor_fr01");
 
@@ -407,7 +407,7 @@ public class AnalysisServiceTest {
 
     val donor01 = sample1.getDonor();
     assertEquals(donor01.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor01.getDonorGender(), "female");
+    assertEquals(donor01.getDonorGender(), "Female");
     assertEquals(donor01.getDonorSubmitterId(), "internal_donor_123456789-00_fr02");
     assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a sequencingRead donor_fr02");
     assertInfoKVPair(donor01, "extraDonorInfo_1", "second data for a sequencingRead donor_fr02");

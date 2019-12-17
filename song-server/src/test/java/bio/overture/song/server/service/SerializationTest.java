@@ -137,7 +137,7 @@ public class SerializationTest {
             .build();
 
     val d =
-        Donor.builder().donorGender("male").donorSubmitterId("internal_donor_123456789_01").build();
+        Donor.builder().donorGender("Male").donorSubmitterId("internal_donor_123456789_01").build();
     d.setInfo("ageCategory", "18-25");
     d.setInfo("riskCategory", "3b");
 
