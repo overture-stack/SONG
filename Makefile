@@ -83,6 +83,11 @@ _ping_song_server:
 		'http://localhost:8080/isAlive'
 	@echo ""
 
+_ping_song_db:
+	@echo $(YELLOW)$(INFO_HEADER) "Pinging song-db on localhost:8432" $(END)
+	@$(RETRY_CMD) $(DOCKER_COMPOSE_EXE) exec song-db psql -U postgres song -c 'select 1' 
+	@echo ""
+
 
 _setup-object-storage: 
 	@echo $(YELLOW)$(INFO_HEADER) "Setting up bucket oicr.icgc.test and heliograph" $(END)
@@ -169,6 +174,26 @@ clean-output-dirs:
 
 # Clean everything. Kills all services, maven cleans and removes generated files/directories
 clean: clean-docker clean-mvn clean-log-dirs clean-output-dirs
+
+#############################################################
+#  Flyway and Database Related targets
+#############################################################
+
+refresh-db:
+	@echo $(YELLOW)$(INFO_HEADER) "Refreshing song-db" $(END)
+	@$(DOCKER_COMPOSE_CMD) kill song-db song-server
+	@$(DOCKER_COMPOSE_CMD) rm -f song-db
+	@$(DOCKER_COMPOSE_CMD) up -d song-db
+
+migrate: clean-mvn package refresh-db _ping_song_db
+	@$(MVN_CMD) -X -pl song-server flyway:migrate \
+		-Dflyway.user=postgres \
+		-Dflyway.password=password \
+		-Dflyway.url=jdbc:postgresql://localhost:8432/song?stringtype=unspecified \
+		-Dflyway.locations=classpath:db/migration
+
+login-db:
+	@$(DOCKER_COMPOSE_CMD) exec song-db psql -U postgres song
 
 #############################################################
 #  Building targets

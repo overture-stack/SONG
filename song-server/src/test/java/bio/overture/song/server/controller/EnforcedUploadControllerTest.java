@@ -17,6 +17,14 @@
 
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
@@ -35,16 +43,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.nio.file.Paths;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(secure = false)
@@ -102,13 +100,17 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   public void testInvalidAnalysisType() {
 
     // Test invalid analysisType format
-    val j1 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-analysisType1.json");
+    val j1 =
+        (ObjectNode)
+            DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-analysisType1.json");
     getEndpointTester()
         .submitPostRequestAnd(getStudyId(), j1)
         .assertServerError(MALFORMED_PARAMETER);
 
     // Test invalid analysisType format
-    val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-analysisType2.json");
+    val j2 =
+        (ObjectNode)
+            DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-analysisType2.json");
     getEndpointTester()
         .submitPostRequestAnd(getStudyId(), j2)
         .assertServerError(MALFORMED_PARAMETER);
@@ -121,15 +123,12 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
     val s = (ObjectNode) j.get("sample").get(0);
     s.put("sampleType", "invalid");
 
-    getEndpointTester()
-      .submitPostRequestAnd(getStudyId(), j)
-      .assertServerError(SCHEMA_VIOLATION);
+    getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     // Test invalid sample format
-    val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-sample.json");
-    getEndpointTester()
-        .submitPostRequestAnd(getStudyId(), j2)
-        .assertServerError(SCHEMA_VIOLATION);
+    val j2 =
+        (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-sample.json");
+    getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
   }
 
   @Test
