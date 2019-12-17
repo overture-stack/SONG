@@ -27,7 +27,7 @@
       },
       "donor": {
         "donorSubmitterId": "internal_donor_123456789_01",
-        "donorGender": "male",
+        "donorGender": "Male",
         "ageCategory": "18-25",
         "riskCategory": "3b"
       }

@@ -84,7 +84,7 @@ public class DonorServiceTest {
     val d = service.readWithSpecimens(DEFAULT_DONOR_ID);
     assertNotNull(d);
     assertEquals(d.getDonorId(), DEFAULT_DONOR_ID);
-    assertEquals(d.getDonorGender(), "male");
+    assertEquals(d.getDonorGender(), "Male");
     assertEquals(d.getDonorSubmitterId(), "Subject-X23Alpha7");
     assertEquals(d.getSpecimens().size(), 2);
     assertEquals(getInfoName(d), "donor1");
@@ -115,7 +115,7 @@ public class DonorServiceTest {
     json.put("donorId", "");
     json.put("donorSubmitterId", "Subject X21-Alpha");
     json.put("studyId", studyId);
-    json.put("donorGender", "unspecified");
+    json.put("donorGender", "Other");
     json.put("species", "human");
 
     DonorWithSpecimens d = JsonUtils.mapper().convertValue(json, DonorWithSpecimens.class);
@@ -147,7 +147,7 @@ public class DonorServiceTest {
     d.setDonorId("");
     d.setDonorSubmitterId("Triangle-Arrow-S");
     d.setStudyId(studyId);
-    d.setDonorGender("male");
+    d.setDonorGender("Male");
     val id = service.create(d);
     assertEquals(id, d.getDonorId());
 
@@ -155,7 +155,7 @@ public class DonorServiceTest {
     d2.setDonorId(id);
     d2.setDonorSubmitterId("X21-Beta-17");
     d2.setStudyId(studyId);
-    d2.setDonorGender("female");
+    d2.setDonorGender("Female");
     d2.setInfo(info);
 
     val response = service.update(d2);
@@ -173,21 +173,21 @@ public class DonorServiceTest {
     d.setDonorId("");
     d.setDonorSubmitterId(donorSubmitterId);
     d.setStudyId(studyId);
-    d.setDonorGender("male");
+    d.setDonorGender("Male");
     val donorId = service.save(studyId, d);
     val initialDonor = service.securedRead(studyId, donorId);
-    assertEquals(initialDonor.getDonorGender(), "male");
+    assertEquals(initialDonor.getDonorGender(), "Male");
     assertTrue(service.isDonorExist(donorId));
 
     val dUpdate = new DonorWithSpecimens();
     dUpdate.setDonorSubmitterId(donorSubmitterId);
     dUpdate.setStudyId(studyId);
-    dUpdate.setDonorGender("female");
+    dUpdate.setDonorGender("Female");
     val donorId2 = service.save(studyId, dUpdate);
     assertTrue(service.isDonorExist(donorId2));
     assertEquals(donorId2, donorId);
     val updateDonor = service.securedRead(studyId, donorId2);
-    assertEquals(updateDonor.getDonorGender(), "female");
+    assertEquals(updateDonor.getDonorGender(), "Female");
   }
 
   @Test
@@ -200,7 +200,7 @@ public class DonorServiceTest {
     d.setDonorId("");
     d.setDonorSubmitterId(donorSubmitterId);
     d.setStudyId(studyId);
-    d.setDonorGender("male");
+    d.setDonorGender("Male");
     val donorId = service.create(d);
     assertTrue(service.isDonorExist(donorId));
     SongErrorAssertions.assertSongError(
@@ -210,7 +210,7 @@ public class DonorServiceTest {
     d2.setDonorId("");
     d2.setDonorSubmitterId(randomGenerator.generateRandomUUIDAsString());
     d2.setStudyId(randomStudyId);
-    d2.setDonorGender("female");
+    d2.setDonorGender("Female");
     SongErrorAssertions.assertSongError(
         () -> service.save(randomStudyId, d2), STUDY_ID_DOES_NOT_EXIST);
   }
@@ -224,7 +224,7 @@ public class DonorServiceTest {
     d1.setDonorId("");
     d1.setDonorSubmitterId(randomGenerator.generateRandomUUIDAsString());
     d1.setStudyId(randomStudyId);
-    d1.setDonorGender("female");
+    d1.setDonorGender("Female");
     val id1 = service.create(d1);
     d1.setDonorId(id1);
 
@@ -232,7 +232,7 @@ public class DonorServiceTest {
     d2.setDonorId("");
     d2.setDonorSubmitterId(randomGenerator.generateRandomUUIDAsString());
     d2.setStudyId(randomStudyId);
-    d2.setDonorGender("male");
+    d2.setDonorGender("Male");
     val id2 = service.create(d2);
     d2.setDonorId(id2);
 
@@ -293,7 +293,7 @@ public class DonorServiceTest {
     val donorIdSet = Sets.<String>newHashSet();
     for (int i = 0; i < numDonors; i++) {
       val d = new DonorWithSpecimens();
-      d.setDonorGender("male");
+      d.setDonorGender("Male");
       d.setStudyId(studyId);
       d.setDonorSubmitterId(randomGenerator.generateRandomUUIDAsString());
       val donorId = service.create(d);
@@ -377,7 +377,7 @@ public class DonorServiceTest {
         .donorId(randomDonorId)
         .donorSubmitterId(randomDonorSubmitterId)
         .studyId(randomStudyId)
-        .donorGender("male")
+        .donorGender("Male")
         .build();
   }
 }
