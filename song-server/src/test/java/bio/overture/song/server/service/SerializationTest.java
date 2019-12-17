@@ -180,7 +180,7 @@ public class SerializationTest {
     val donorId = "DO1234";
     val submitter = "1234";
     val study = "X2345-QRP";
-    val gender = "female";
+    val gender = "Female";
 
     val single =
         format(
@@ -204,7 +204,7 @@ public class SerializationTest {
     val json = toJson(donor);
 
     val expected =
-        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null," + "'info':{}}";
+        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertEquals(json, expectedJson);
   }
@@ -216,7 +216,7 @@ public class SerializationTest {
     val json = toJson(donor);
     System.err.printf("json='%s'\n", json);
     val expected =
-        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null," + "'info':{}}";
+        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertEquals(json, expectedJson);
   }
@@ -226,7 +226,7 @@ public class SerializationTest {
     val id = "DO000123";
     val submitterId = "123";
     val studyId = "X23-CA";
-    val gender = "male";
+    val gender = "Male";
     val metadata = "";
 
     val donor =
@@ -242,8 +242,7 @@ public class SerializationTest {
 
     val expected =
         format(
-            "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
-                + "'info':{%s}}",
+            "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s'}",
             id, submitterId, studyId, gender, metadata);
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertEquals(json, expectedJson);

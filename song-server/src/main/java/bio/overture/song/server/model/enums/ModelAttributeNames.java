@@ -59,4 +59,8 @@ public class ModelAttributeNames {
   public static final String SORTORDER = "sortOrder";
   public static final String OFFSET = "offset";
   public static final String LIMIT = "limit";
+  public static final String SAMPLE = "sample" ;
+  public static final String DONOR = "donor";
+  public static final String SPECIMEN = "specimen";
+  public static final String FILE = "file";
 }
