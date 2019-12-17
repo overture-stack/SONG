@@ -5,7 +5,7 @@
     "version" : 1
   },
   "experiment" : {},
-  "sample": [
+  "samples": [
     {
       "sampleSubmitterId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",

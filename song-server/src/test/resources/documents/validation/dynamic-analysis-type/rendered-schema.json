@@ -155,7 +155,7 @@
         }
       }
     },
-    "sample" : {
+    "samples": {
       "sampleTypes" :{
         "type": "string",
         "enum": [
@@ -193,7 +193,7 @@
     "analysisType": {
       "allOf": [{"$ref" :  "#/definitions/analysisType"}]
     },
-    "sample": {
+    "samples": {
       "type": "array",
       "minItems" : 1,
       "items": {

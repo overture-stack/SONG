@@ -4,7 +4,7 @@
     "name" : "sequencingRead",
     "version" : 1
   },
-  "sample" : [
+  "samples": [
     {
       "info" : {
         "tissueCollectionMethod" : "IV"

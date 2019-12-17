@@ -10,7 +10,7 @@
     "matchedNormalSampleSubmitterId": "sample x24-11a",
     "extraInfo": "this is extra info"
   },
-  "sample": [
+  "samples": [
     {
       "sampleSubmitterId": "internal_sample_98024759826836-v0001",
       "sampleType": "Total RNA",

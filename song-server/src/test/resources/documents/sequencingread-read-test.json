@@ -13,7 +13,7 @@
     "libraryStrategy": "WXS",
     "extraExperimentInfo": "some more data for a sequencingRead experiment ex02"
   },
-  "sample": [
+  "samples": [
     {
       "sampleSubmitterId": "internal_sample_98024759826836_fr01",
       "sampleType": "Total RNA",

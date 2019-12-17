@@ -16,7 +16,7 @@
       "marginOfError": "0.01%"
     }
   },
-  "sample": [
+  "samples": [
     {
       "sampleType": "Total RNA",
       "tissueCollectionMethod": "IV",
