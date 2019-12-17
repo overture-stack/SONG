@@ -671,7 +671,8 @@ public class AnalysisServiceTest {
     assertTrue(fileRepository.findAllByAnalysisId(analysisId1).isEmpty());
     assertSongError(() -> service.unsecuredReadFiles(analysisId1), ANALYSIS_MISSING_FILES);
     assertSongError(
-        () -> service.securedReadFiles(analysis1.getStudyId(), analysisId1), ANALYSIS_MISSING_FILES);
+        () -> service.securedReadFiles(analysis1.getStudyId(), analysisId1),
+        ANALYSIS_MISSING_FILES);
 
     val analysis2 = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId2 = analysis2.getAnalysisId();
@@ -679,7 +680,8 @@ public class AnalysisServiceTest {
     assertTrue(fileRepository.findAllByAnalysisId(analysisId2).isEmpty());
     assertSongError(() -> service.unsecuredReadFiles(analysisId2), ANALYSIS_MISSING_FILES);
     assertSongError(
-        () -> service.securedReadFiles(analysis2.getStudyId(), analysisId2), ANALYSIS_MISSING_FILES);
+        () -> service.securedReadFiles(analysis2.getStudyId(), analysisId2),
+        ANALYSIS_MISSING_FILES);
   }
 
   @Test

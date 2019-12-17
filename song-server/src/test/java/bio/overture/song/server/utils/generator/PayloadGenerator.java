@@ -17,6 +17,14 @@
 
 package bio.overture.song.server.utils.generator;
 
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+import static lombok.AccessLevel.PRIVATE;
+import static org.junit.Assert.fail;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.utils.TestFiles;
@@ -25,14 +33,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import static lombok.AccessLevel.PRIVATE;
-import static org.junit.Assert.fail;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
 
 @RequiredArgsConstructor(access = PRIVATE)
 public class PayloadGenerator {
