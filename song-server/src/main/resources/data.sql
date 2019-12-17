@@ -3,8 +3,8 @@ insert into Study (id, name,description,organization) values ('XYZ234','X2-CA','
 insert into Info(id, id_type, info) values ('ABC123',  'Study', '{"name":"study1"}' );
 insert into Info(id, id_type, info) values ('XYZ234',  'Study', '{"name":"study2"}' );
 
-insert into Donor (id, study_id, submitter_id, gender) values ('DO1','ABC123', 'Subject-X23Alpha7', 'male');
-insert into Donor (id, study_id, submitter_id, gender) values ('DO2','XYZ234', 'Zalgon26', 'unspecified');
+insert into Donor (id, study_id, submitter_id, gender) values ('DO1','ABC123', 'Subject-X23Alpha7', 'Male');
+insert into Donor (id, study_id, submitter_id, gender) values ('DO2','XYZ234', 'Zalgon26', 'Other');
 insert into Info(id, id_type, info) values ('DO1',  'Donor', '{"name":"donor1"}' );
 insert into Info(id, id_type, info) values ('DO2',  'Donor', '{"name":"donor2"}' );
 
