@@ -20,6 +20,7 @@ package bio.overture.song.server.repository.specification;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_DATA;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_SCHEMA;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static javax.persistence.criteria.JoinType.LEFT;
 
 import bio.overture.song.server.model.analysis.Analysis;
@@ -89,6 +90,6 @@ public class AnalysisSpecificationBuilder {
 
   private static Predicate equalsStudyPredicate(
       Root<Analysis> root, CriteriaBuilder builder, String study) {
-    return builder.equal(root.get(STUDY), study);
+    return builder.equal(root.get(STUDY_ID), study);
   }
 }

@@ -64,7 +64,7 @@ public class Analysis {
   private String analysisId;
 
   @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
-  private String study;
+  private String studyId;
 
   @Column(name = TableAttributeNames.STATE, nullable = false)
   private String analysisState = UNPUBLISHED.name();

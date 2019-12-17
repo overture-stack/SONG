@@ -17,7 +17,7 @@
             "required": ["experiment"],
             "additionalProperties": true,
             "properties": {
-                "study" : {
+                "studyId" : {
                     "not" : {}
                 },
                 "analysisState" : {

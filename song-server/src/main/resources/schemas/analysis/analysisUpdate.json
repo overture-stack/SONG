@@ -8,7 +8,7 @@
     "analysisId": {
       "not": {}
     },
-    "study": {
+    "studyId": {
       "not": {}
     },
     "analysisState" : {

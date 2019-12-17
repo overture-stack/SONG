@@ -30,6 +30,7 @@ import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static java.util.Objects.isNull;
 
 import bio.overture.song.core.model.AnalysisTypeId;
@@ -137,7 +138,7 @@ public class UploadService {
         UploadService.class,
         STUDY_ID_MISSING,
         "The field '%s' is missing in the payload",
-        STUDY);
+        STUDY_ID);
     checkServer(
         expectedStudyId.equals(payloadStudyId),
         UploadService.class,

@@ -181,12 +181,12 @@
 			}
 		}
 	},
-	"required": [ "study", "analysisType", "sample","file"],
+	"required": [ "studyId", "analysisType", "sample","file"],
 	"properties": {
 		"analysisId" :{
 			"not" : {}
 		},
-		"study" : {
+		"studyId" : {
 			"type": "string",
 			"minLength": 1
 		},

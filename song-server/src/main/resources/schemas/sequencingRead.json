@@ -2,9 +2,9 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://song.icgc.org/messages/uploadSequencingRead",
   "type": "object",
-  "required": [ "study", "analysisType","experiment","sample","file"],
+  "required": [ "studyId", "analysisType","experiment","sample","file"],
   "properties": {
-    "study": {
+    "studyId": {
       "type": "string",
       "minLength": 1
     },
