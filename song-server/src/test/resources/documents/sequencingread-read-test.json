@@ -27,7 +27,7 @@
       },
       "donor": {
         "donorSubmitterId": "internal_donor_123456789-00_fr01",
-        "donorGender": "male",
+        "donorGender": "Male",
         "extraDonorInfo": "some more data for a sequencingRead donor_fr01"
       }
     },

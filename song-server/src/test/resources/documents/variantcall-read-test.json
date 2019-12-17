@@ -23,7 +23,7 @@
       },
       "donor": {
         "donorSubmitterId": "internal_donor_123456789-00_fs01",
-        "donorGender": "male",
+        "donorGender": "Male",
         "extraDonorInfo": "some more data for a variantCall donor_fs01"
       }
     },
