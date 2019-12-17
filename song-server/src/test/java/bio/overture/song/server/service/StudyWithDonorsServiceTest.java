@@ -86,7 +86,7 @@ public class StudyWithDonorsServiceTest {
     // Extract expected donors and verify
     val expectedDonors =
         analysisMap.values().stream()
-            .flatMap(x -> x.getSample().stream())
+            .flatMap(x -> x.getSamples().stream())
             .map(CompositeEntity::getDonor)
             .collect(toSet());
     assertEquals(expectedDonors.size(), numAnalysis);
@@ -98,7 +98,7 @@ public class StudyWithDonorsServiceTest {
     // Extract expected specimens and verify
     val expectedSpecimens =
         analysisMap.values().stream()
-            .flatMap(x -> x.getSample().stream())
+            .flatMap(x -> x.getSamples().stream())
             .map(CompositeEntity::getSpecimen)
             .collect(toSet());
     assertEquals(expectedSpecimens.size(), numAnalysis);
@@ -108,7 +108,7 @@ public class StudyWithDonorsServiceTest {
 
     // Extract expected samples and verify
     val expectedSamples =
-        analysisMap.values().stream().flatMap(x -> x.getSample().stream()).collect(toSet());
+        analysisMap.values().stream().flatMap(x -> x.getSamples().stream()).collect(toSet());
     val expectedSampleSubmitterIds =
         expectedSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
     assertEquals(expectedSamples.size(), numAnalysis);

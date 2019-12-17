@@ -17,29 +17,7 @@
 
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.FileTypes.BAM;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
-import static bio.overture.song.server.model.enums.Constants.ANALYSIS_STATE;
-import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.DONOR;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.FILE;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.INFO;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SAMPLE;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SPECIMEN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
@@ -50,18 +28,34 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.model.enums.Constants;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.utils.TestFiles;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.internal.filter.ValueNode;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Test;
 
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.FileTypes.BAM;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
+import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
+import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
+import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.DONOR;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.FILE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.INFO;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SPECIMEN;
 
 @Slf4j
 public class DeserializationTest {
@@ -129,7 +123,7 @@ public class DeserializationTest {
     val fff  =new ObjectMapper().valueToTree(f1);
 
     val lce = List.of(ce);
-    a.setSample(lce);
+    a.setSamples(lce);
     a.setFile(fileList);
 
     // Assert no info fields when converting from object to tree
@@ -227,7 +221,7 @@ public class DeserializationTest {
 
   private static void assertNoInfoFieldsInAnalysis(JsonNode analysisAsJson){
     assertNoInfoField(analysisAsJson);
-    val jSample1 = analysisAsJson.path(SAMPLE).get(0);
+    val jSample1 = analysisAsJson.path(ModelAttributeNames.SAMPLES).get(0);
     assertNoInfoField(jSample1);
     assertNoInfoField(jSample1.path(DONOR));
     assertNoInfoField(jSample1.path(SPECIMEN));

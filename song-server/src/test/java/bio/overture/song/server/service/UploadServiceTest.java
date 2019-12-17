@@ -166,7 +166,7 @@ public class UploadServiceTest {
     val payload1 = payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
     payload1.setStudyId(studyId);
     val previousSampleSubmitterIds =
-        payload1.getSample().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
+        payload1.getSamples().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
     val an1 = uploadService.submit(studyId, toJson(payload1)).getAnalysisId();
 
     // Export the previously uploaded payload using the analysis id
@@ -182,13 +182,13 @@ public class UploadServiceTest {
 
     // Modify the exported payload with a different sampleSubmmiterId
     payload2
-        .getSample()
+        .getSamples()
         .forEach(x -> x.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString()));
-    payload2.getSample().get(0).setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    payload2.getSamples().get(0).setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
 
     // Assert that none of the sampleSubmmiterIds between payload1 and payload2 match
     val currentSampleSubmitterIds =
-        payload2.getSample().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
+        payload2.getSamples().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
     val hasMatch =
         previousSampleSubmitterIds.stream().anyMatch(currentSampleSubmitterIds::contains);
     assertFalse(hasMatch);
@@ -203,15 +203,15 @@ public class UploadServiceTest {
     assertEquals(a1.getStudyId(), studyId);
     assertEquals(a2.getStudyId(), studyId);
     assertNotEquals(a1.getAnalysisId(), a2.getAnalysisId());
-    assertEquals(a1.getSample().size(), 1);
-    assertEquals(a2.getSample().size(), 1);
+    assertEquals(a1.getSamples().size(), 1);
+    assertEquals(a2.getSamples().size(), 1);
     assertEquals(
-        a1.getSample().get(0).getDonor().getDonorId(),
-        a2.getSample().get(0).getDonor().getDonorId());
+        a1.getSamples().get(0).getDonor().getDonorId(),
+        a2.getSamples().get(0).getDonor().getDonorId());
     assertEquals(
-        a1.getSample().get(0).getSpecimen().getSpecimenId(),
-        a2.getSample().get(0).getSpecimen().getSpecimenId());
-    assertNotEquals(a1.getSample().get(0).getSampleId(), a2.getSample().get(0).getSampleId());
+        a1.getSamples().get(0).getSpecimen().getSpecimenId(),
+        a2.getSamples().get(0).getSpecimen().getSpecimenId());
+    assertNotEquals(a1.getSamples().get(0).getSampleId(), a2.getSamples().get(0).getSampleId());
   }
 
   private String createUniqueAnalysisId() {

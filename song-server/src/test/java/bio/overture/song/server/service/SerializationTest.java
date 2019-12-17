@@ -153,7 +153,7 @@ public class SerializationTest {
         Payload.builder()
             .analysisType(AnalysisTypeId.builder().name("sequencingRead").version(1).build())
             .file(newArrayList(f1, f2))
-            .sample(newArrayList(sa))
+            .samples(newArrayList(sa))
             .studyId(inputJson.path(STUDY_ID).textValue())
             .build();
     val data = RESOURCE_FETCHER.readJsonNode("sequencingRead-expected-data-only.json");
@@ -280,7 +280,7 @@ public class SerializationTest {
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFile().size(), 2);
     assertEquals(
-        payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
+        payload.getSamples().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
 
     val rootNode = JsonUtils.toJsonNode(payload.getData());
     val experimentNode = rootNode.path("experiment");
@@ -298,6 +298,6 @@ public class SerializationTest {
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFile().size(), 2);
     assertEquals(
-        payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
+        payload.getSamples().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
   }
 }

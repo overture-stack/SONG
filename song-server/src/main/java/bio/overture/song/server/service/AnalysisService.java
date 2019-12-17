@@ -139,7 +139,7 @@ public class AnalysisService {
 
     val a = new Analysis();
     a.setFile(payload.getFile());
-    a.setSample(payload.getSample());
+    a.setSamples(payload.getSamples());
     a.setAnalysisId(analysisId);
     a.setAnalysisState(UNPUBLISHED.name());
     a.setStudyId(studyId);
@@ -147,7 +147,7 @@ public class AnalysisService {
     analysisData.setAnalysis(a);
     analysisSchema.associateAnalysis(a);
 
-    saveCompositeEntities(studyId, analysisId, a.getSample());
+    saveCompositeEntities(studyId, analysisId, a.getSamples());
     saveFiles(analysisId, studyId, a.getFile());
 
     sendAnalysisMessage(createAnalysisMessage(analysisId, studyId, UNPUBLISHED, songServerId));
@@ -208,7 +208,7 @@ public class AnalysisService {
         a -> {
           val id = a.getAnalysisId();
           a.setFile(unsecuredReadFiles(id));
-          a.setSample(readSamples(id));
+          a.setSamples(readSamples(id));
         });
     return analyses;
   }
@@ -261,7 +261,7 @@ public class AnalysisService {
         a -> {
           val id = a.getAnalysisId();
           a.setFile(unsecuredReadFiles(id));
-          a.setSample(readSamples(id));
+          a.setSamples(readSamples(id));
         });
     return analyses;
   }
@@ -273,7 +273,7 @@ public class AnalysisService {
   public Analysis unsecuredDeepRead(@NonNull String id) {
     val analysis = shallowRead(id);
     analysis.setFile(unsecuredReadFiles(id));
-    analysis.setSample(readSamples(id));
+    analysis.setSamples(readSamples(id));
     return analysis;
   }
 

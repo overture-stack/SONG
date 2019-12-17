@@ -181,7 +181,7 @@
 			}
 		}
 	},
-	"required": [ "studyId", "analysisType", "sample","file"],
+	"required": [ "studyId", "analysisType", "samples","file"],
 	"properties": {
 		"analysisId" :{
 			"not" : {}
@@ -193,7 +193,7 @@
 		"analysisType": {
 			"allOf": [{"$ref" :  "#/definitions/analysisType"}]
 		},
-		"sample": {
+		"samples": {
 			"type": "array",
 			"minItems" : 1,
 			"items": {

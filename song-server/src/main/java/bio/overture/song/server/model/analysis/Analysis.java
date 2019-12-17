@@ -82,7 +82,7 @@ public class Analysis {
   @JsonIgnore
   private AnalysisData analysisData;
 
-  @Transient private List<CompositeEntity> sample;
+  @Transient private List<CompositeEntity> samples;
 
   @Transient private List<FileEntity> file;
 

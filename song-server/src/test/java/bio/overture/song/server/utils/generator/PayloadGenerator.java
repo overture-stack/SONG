@@ -48,7 +48,7 @@ public class PayloadGenerator {
     val json = TestFiles.getJsonStringFromClasspath(payloadFilename);
     val payload = fromJson(json, Payload.class);
     payload
-        .getSample()
+        .getSamples()
         .forEach(
             x -> {
               x.setSampleSubmitterId(randomGenerator.generateRandomUUID().toString());

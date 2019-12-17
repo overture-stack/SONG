@@ -21,6 +21,6 @@ public class Analysis extends DynamicData {
   private String studyId;
   private AnalysisStates analysisState;
   private AnalysisTypeId analysisType;
-  private List<CompositeSample> sample;
+  private List<CompositeSample> samples;
   private List<FileDTO> file;
 }
