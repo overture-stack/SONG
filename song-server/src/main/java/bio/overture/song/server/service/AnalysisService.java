@@ -142,7 +142,7 @@ public class AnalysisService {
     a.setSample(payload.getSample());
     a.setAnalysisId(analysisId);
     a.setAnalysisState(UNPUBLISHED.name());
-    a.setStudy(studyId);
+    a.setStudyId(studyId);
 
     analysisData.setAnalysis(a);
     analysisSchema.associateAnalysis(a);
@@ -241,7 +241,7 @@ public class AnalysisService {
   }
 
   public void checkAnalysisAndStudyRelated(@NonNull String studyId, @NonNull String id) {
-    val numAnalyses = repository.countAllByStudyAndAnalysisId(studyId, id);
+    val numAnalyses = repository.countAllByStudyIdAndAnalysisId(studyId, id);
     if (numAnalyses < 1) {
       studyService.checkStudyExist(studyId);
       val analysis = shallowRead(id);
@@ -251,7 +251,7 @@ public class AnalysisService {
           "The analysisId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
           id,
           studyId,
-          analysis.getStudy());
+          analysis.getStudyId());
     }
   }
 
@@ -442,7 +442,7 @@ public class AnalysisService {
     analysis.setAnalysisState(state);
     repository.save(analysis);
     sendAnalysisMessage(
-        createAnalysisMessage(id, analysis.getStudy(), analysisState, songServerId));
+        createAnalysisMessage(id, analysis.getStudyId(), analysisState, songServerId));
   }
 
   private boolean confirmUploaded(String fileId) {

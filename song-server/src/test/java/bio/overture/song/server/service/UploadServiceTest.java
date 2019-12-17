@@ -164,7 +164,7 @@ public class UploadServiceTest {
 
     // Create payload1 and save it
     val payload1 = payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
-    payload1.setStudy(studyId);
+    payload1.setStudyId(studyId);
     val previousSampleSubmitterIds =
         payload1.getSample().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
     val an1 = uploadService.submit(studyId, toJson(payload1)).getAnalysisId();
@@ -200,8 +200,8 @@ public class UploadServiceTest {
     // different analysisIds and sample submitterIds
     val a1 = analysisService.unsecuredDeepRead(an1);
     val a2 = analysisService.unsecuredDeepRead(an2);
-    assertEquals(a1.getStudy(), studyId);
-    assertEquals(a2.getStudy(), studyId);
+    assertEquals(a1.getStudyId(), studyId);
+    assertEquals(a2.getStudyId(), studyId);
     assertNotEquals(a1.getAnalysisId(), a2.getAnalysisId());
     assertEquals(a1.getSample().size(), 1);
     assertEquals(a2.getSample().size(), 1);

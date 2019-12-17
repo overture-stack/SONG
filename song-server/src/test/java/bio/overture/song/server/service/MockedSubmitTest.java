@@ -86,7 +86,7 @@ public class MockedSubmitTest {
     val payload =
         JsonUtils.toJson(
             Payload.builder()
-                .study("anyStudy")
+                .studyId("anyStudy")
                 .analysisType(AnalysisTypeId.builder().build())
                 .build());
 
@@ -131,7 +131,7 @@ public class MockedSubmitTest {
     val invalidPayload =
         toJson(
             Payload.builder()
-                .study(studyId)
+                .studyId(studyId)
                 .analysisType(
                     AnalysisTypeId.builder().name(VARIANT_CALL.getAnalysisTypeName()).build())
                 .build());
@@ -152,7 +152,7 @@ public class MockedSubmitTest {
     val payloadString =
         toJson(
             Payload.builder()
-                .study(study1)
+                .studyId(study1)
                 .analysisType(
                     AnalysisTypeId.builder().name(VARIANT_CALL.getAnalysisTypeName()).build())
                 .build());
@@ -171,7 +171,7 @@ public class MockedSubmitTest {
     val analysisId = "analysis123";
     val payload =
         Payload.builder()
-            .study(study)
+            .studyId(study)
             .analysisType(AnalysisTypeId.builder().name(VARIANT_CALL.getAnalysisTypeName()).build())
             .build();
 

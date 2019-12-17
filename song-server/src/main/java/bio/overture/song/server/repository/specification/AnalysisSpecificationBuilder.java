@@ -17,22 +17,22 @@
 
 package bio.overture.song.server.repository.specification;
 
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_DATA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_SCHEMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
-import static javax.persistence.criteria.JoinType.LEFT;
-
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
-import java.util.Collection;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.data.jpa.domain.Specification;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.Collection;
+
+import static javax.persistence.criteria.JoinType.LEFT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_DATA;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_SCHEMA;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 
 @RequiredArgsConstructor
 public class AnalysisSpecificationBuilder {

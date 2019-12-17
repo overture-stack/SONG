@@ -87,7 +87,7 @@ public class ExportService {
     val payload =
         Payload.builder()
             .analysisType(resolveAnalysisTypeId(a.getAnalysisSchema()))
-            .study(a.getStudy())
+            .studyId(a.getStudyId())
             .sample(payloadConverter.convertToSamplePayloads(a.getSample()))
             .file(payloadConverter.convertToFilePayloads(a.getFile()))
             .build();
@@ -98,7 +98,7 @@ public class ExportService {
   private Map<String, List<Payload>> aggregateByStudy(List<String> analysisIds) {
     return analysisService.unsecuredDeepReads(analysisIds).stream()
         .map(this::convertToPayloadDTO)
-        .collect(groupingBy(Payload::getStudy));
+        .collect(groupingBy(Payload::getStudyId));
   }
 
   private static ExportedPayload buildExportedPayload(String studyId, List<Payload> payloads) {

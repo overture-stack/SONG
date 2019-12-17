@@ -1,5 +1,5 @@
 {
-  "study" : "ABC123",
+  "studyId": "ABC123",
   "analysisType" : {
     "name" : "variantCall",
     "version" : 1

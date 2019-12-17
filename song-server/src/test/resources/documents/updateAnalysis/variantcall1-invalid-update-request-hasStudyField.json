@@ -1,5 +1,5 @@
 {
-  "study" : "someStudy",
+  "studyId": "someStudy",
   "analysisType" : {
     "name" : "variantCall",
     "version" : 1

@@ -17,19 +17,6 @@
 
 package bio.overture.song.server.controller;
 
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
-import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
-import static java.util.Objects.isNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -40,7 +27,6 @@ import bio.overture.song.server.utils.EndpointTester;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.nio.file.Paths;
 import lombok.Getter;
 import lombok.val;
 import org.junit.Before;
@@ -48,6 +34,20 @@ import org.springframework.lang.Nullable;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.nio.file.Paths;
+
+import static java.util.Objects.isNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
+import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 
 public abstract class AbstractEnforcedTester {
 

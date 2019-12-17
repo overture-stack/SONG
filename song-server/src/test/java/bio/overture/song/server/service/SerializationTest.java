@@ -20,6 +20,7 @@ import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
@@ -153,7 +154,7 @@ public class SerializationTest {
             .analysisType(AnalysisTypeId.builder().name("sequencingRead").version(1).build())
             .file(newArrayList(f1, f2))
             .sample(newArrayList(sa))
-            .study(inputJson.path("study").textValue())
+            .studyId(inputJson.path(STUDY_ID).textValue())
             .build();
     val data = RESOURCE_FETCHER.readJsonNode("sequencingRead-expected-data-only.json");
     expectedPayload.addData(data);

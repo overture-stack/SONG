@@ -20,6 +20,7 @@ package bio.overture.song.server.service;
 import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static java.lang.String.format;
@@ -184,13 +185,13 @@ public class ExportServiceTest {
     for (val fixtureNumber : fixtureNumbers) {
       val inputFilename = format("documents/export/variantcall-input%d.json", fixtureNumber);
       val inputPayloadJson = (ObjectNode) getJsonNodeFromClasspath(inputFilename);
-      inputPayloadJson.put("study", studyId);
+      inputPayloadJson.put(STUDY_ID, studyId);
 
       val analysisId = uploadService.submit(studyId, toJson(inputPayloadJson)).getAnalysisId();
 
       val outputFilename = format("documents/export/variantcall-output%d.json", fixtureNumber);
       val outputExportedPayloadJson = (ObjectNode) getJsonNodeFromClasspath(outputFilename);
-      outputExportedPayloadJson.put("study", studyId);
+      outputExportedPayloadJson.put(STUDY_ID, studyId);
 
       output.add(
           new TData()

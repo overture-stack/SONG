@@ -657,7 +657,7 @@ public class AnalysisTypeControllerTest {
     Stream.of(
             "analysisId",
             "analysisState",
-            "study",
+            "studyId",
             "analysisType",
             "analysisTypeId",
             "sample",
