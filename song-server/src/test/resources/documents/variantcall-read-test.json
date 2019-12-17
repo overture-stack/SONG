@@ -39,7 +39,7 @@
       },
       "donor": {
         "donorSubmitterId": "internal_donor_123456789-00_fs02",
-        "donorGender": "female",
+        "donorGender": "Female",
         "extraDonorInfo_0": "first data for a variantCall donor_fs02",
         "extraDonorInfo_1": "second data for a variantCall donor_fs02"
       }
