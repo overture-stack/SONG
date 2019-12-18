@@ -251,12 +251,12 @@ public class SerializationTest {
   @Test
   public void testListFile() throws IOException {
     val singleQuotedJson =
-        "{'file':[ { 'objectId': 'FI12345', 'fileName':'dna3.bam', 'fileMd5':'A1B2C3D4E5F6'},"
+        "{'files':[ { 'objectId': 'FI12345', 'fileName':'dna3.bam', 'fileMd5':'A1B2C3D4E5F6'},"
             + "{'objectId': 'FI34567', 'fileName': 'dna7.fasta', 'fileType':'BAM', 'fileSize':1234, 'fileMd5': 'F1E2D3'}]}";
 
     val json = JsonUtils.fromSingleQuoted(singleQuotedJson);
     val root = readTree(json);
-    val files = root.get("file");
+    val files = root.get("files");
     String fileJson = toJson(files);
 
     List<FileEntity> f = Arrays.asList(JsonUtils.fromJson(fileJson, FileEntity[].class));

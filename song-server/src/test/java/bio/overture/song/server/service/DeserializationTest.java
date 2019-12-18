@@ -53,7 +53,6 @@ import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
 import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
 import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.DONOR;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.FILE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.INFO;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.SPECIMEN;
 
@@ -225,7 +224,7 @@ public class DeserializationTest {
     assertNoInfoField(jSample1);
     assertNoInfoField(jSample1.path(DONOR));
     assertNoInfoField(jSample1.path(SPECIMEN));
-    assertNoInfoField(analysisAsJson.path(FILE).get(0));
+    assertNoInfoField(analysisAsJson.path(ModelAttributeNames.FILES).get(0));
 
   }
 

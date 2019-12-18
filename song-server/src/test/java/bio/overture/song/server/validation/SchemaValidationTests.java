@@ -57,11 +57,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles("test")
 public class SchemaValidationTests {
 
-  private static final String ANALYSIS_ID = "analysisId";
-  private static final String PROPERTIES = "properties";
   private static final String TYPE = "type";
-  private static final String STRING = "string";
-  private static final String PATTERN = "pattern";
 
   @Autowired private AnalysisTypeService analysisTypeService;
 
@@ -80,7 +76,7 @@ public class SchemaValidationTests {
   public void validate_file_md5_regex() {
     for (val legacyAnalysisTypeName : LegacyAnalysisTypeName.values()) {
       val schema = getLegacySchemaJson(legacyAnalysisTypeName);
-      val ref = getPath(schema, "properties", "file", "items", "$ref");
+      val ref = getPath(schema, "properties", "files", "items", "$ref");
       assertTrue(ref.isPresent());
       assertEquals(ref.get().textValue(), "#/definitions/file/fileData");
 

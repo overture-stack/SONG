@@ -134,17 +134,17 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   public void testInvalidFile() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("file").get(0);
+    val s = (ObjectNode) j.get("files").get(0);
     s.put("fileType", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s2 = (ObjectNode) j2.get("file").get(0);
+    val s2 = (ObjectNode) j2.get("files").get(0);
     s2.put("fileAccess", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
 
     val j3 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s3 = (ObjectNode) j3.get("file").get(0);
+    val s3 = (ObjectNode) j3.get("files").get(0);
     s3.put("fileMd5sum", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j3).assertServerError(SCHEMA_VIOLATION);
   }

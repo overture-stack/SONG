@@ -15,7 +15,7 @@
         "type": "object"
       }
     },
-    "files": {
+    "file": {
       "fileType": {
         "type": "string",
         "enum": [
@@ -181,7 +181,7 @@
       }
     }
   },
-  "required": [ "studyId", "analysisType","experiment","samples","file", "firstName"],
+  "required": [ "studyId", "analysisType","experiment","samples","files", "firstName"],
   "properties": {
     "analysisId" : {
       "not" : {}

@@ -61,6 +61,6 @@ public class ModelAttributeNames {
   public static final String LIMIT = "limit";
   public static final String DONOR = "donor";
   public static final String SPECIMEN = "specimen";
-  public static final String FILE = "file";
   public static final String SAMPLES = "samples" ;
+  public static final String FILES = "files";
 }

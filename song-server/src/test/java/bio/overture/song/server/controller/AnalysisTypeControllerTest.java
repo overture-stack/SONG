@@ -661,7 +661,7 @@ public class AnalysisTypeControllerTest {
             "analysisType",
             "analysisTypeId",
             "samples",
-            "file")
+            "files")
         .forEach(
             f -> {
               // Create an invalid schema using one of the invalid fields
