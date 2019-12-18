@@ -25,7 +25,7 @@
       "specimenType" : "Normal - solid tissue"
     },
     "donor" : {
-      "donorSubmitterId" : "internal_donor_123456789_00",
+      "submitterDonorId" : "internal_donor_123456789_00",
       "donorGender" : "Male",
       "ageCategory" : "18-25",
       "riskCategory" : "3b"

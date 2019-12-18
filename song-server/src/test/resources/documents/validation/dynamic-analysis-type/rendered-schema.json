@@ -80,11 +80,11 @@
       "donorData": {
         "type": "object",
         "required" : [
-          "donorSubmitterId",
+          "submitterDonorId",
           "donorGender"
         ],
         "properties": {
-          "donorSubmitterId": { "$ref" : "#/definitions/common/submitterId" },
+          "submitterDonorId": { "$ref" : "#/definitions/common/submitterId" },
           "donorGender": { "$ref" : "#/definitions/donor/donorGender"},
           "info": { "$ref" : "#/definitions/common/info"}
         }

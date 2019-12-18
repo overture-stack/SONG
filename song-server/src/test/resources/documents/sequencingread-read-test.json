@@ -26,7 +26,7 @@
         "extraSpecimenInfo_1": "second data for a sequencingRead specimen_fr01"
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-00_fr01",
+        "submitterDonorId": "internal_donor_123456789-00_fr01",
         "donorGender": "Male",
         "extraDonorInfo": "some more data for a sequencingRead donor_fr01"
       }
@@ -42,7 +42,7 @@
         "extraSpecimenInfo": "some more data for a sequencingRead specimen_fr02"
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-00_fr02",
+        "submitterDonorId": "internal_donor_123456789-00_fr02",
         "donorGender": "Female",
         "extraDonorInfo_0": "first data for a sequencingRead donor_fr02",
         "extraDonorInfo_1": "second data for a sequencingRead donor_fr02"

@@ -54,7 +54,7 @@ public class PayloadGenerator {
               x.setSampleSubmitterId(randomGenerator.generateRandomUUID().toString());
               x.getSpecimen()
                   .setSpecimenSubmitterId(randomGenerator.generateRandomUUID().toString());
-              x.getDonor().setDonorSubmitterId(randomGenerator.generateRandomUUID().toString());
+              x.getDonor().setSubmitterDonorId(randomGenerator.generateRandomUUID().toString());
             });
     return payload;
   }

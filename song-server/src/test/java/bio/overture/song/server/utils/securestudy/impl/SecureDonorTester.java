@@ -17,8 +17,6 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
-import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
-
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
@@ -28,9 +26,12 @@ import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
 import com.google.common.collect.Lists;
-import java.util.function.BiConsumer;
 import lombok.NonNull;
 import lombok.val;
+
+import java.util.function.BiConsumer;
+
+import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 
 public class SecureDonorTester extends AbstractSecureTester {
 
@@ -57,7 +58,7 @@ public class SecureDonorTester extends AbstractSecureTester {
             .donorGender(
                 getRandomGenerator().randomElement(Lists.newArrayList(Constants.DONOR_GENDER)))
             .studyId(existingStudyId)
-            .donorSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
+            .submitterDonorId(getRandomGenerator().generateRandomUUIDAsString())
             .build();
 
     val donorCreateRequest = new DonorWithSpecimens();

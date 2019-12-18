@@ -319,7 +319,7 @@ public class SpecimenServiceTest {
     val donor =
         Donor.builder()
             .donorId("")
-            .donorSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .submitterDonorId(randomGenerator.generateRandomUUIDAsString())
             .studyId(studyId)
             .donorGender(randomGenerator.randomElement(newArrayList(DONOR_GENDER)))
             .build();

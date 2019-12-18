@@ -17,17 +17,11 @@
 
 package bio.overture.song.server.model.entity;
 
-import static bio.overture.song.server.model.enums.TableNames.DONOR;
-
 import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +29,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import static bio.overture.song.server.model.enums.TableNames.DONOR;
 
 @Entity
 @Table(name = DONOR)
@@ -63,13 +64,13 @@ public class Donor extends Metadata {
   private String studyId;
 
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
-  private String donorSubmitterId;
+  private String submitterDonorId;
 
   @Column(name = TableAttributeNames.GENDER, nullable = true)
   private String donorGender;
 
   public void setWithDonor(@NonNull Donor donorUpdate) {
-    setDonorSubmitterId(donorUpdate.getDonorSubmitterId());
+    setSubmitterDonorId(donorUpdate.getSubmitterDonorId());
     setDonorGender(donorUpdate.getDonorGender());
     setDonorId(donorUpdate.getDonorId());
     setInfo(donorUpdate.getInfo());

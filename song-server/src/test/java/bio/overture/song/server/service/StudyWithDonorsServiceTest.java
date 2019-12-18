@@ -91,7 +91,7 @@ public class StudyWithDonorsServiceTest {
             .collect(toSet());
     assertEquals(expectedDonors.size(), numAnalysis);
     assertEquals(
-        expectedDonors.stream().map(Donor::getDonorSubmitterId).distinct().count(), numAnalysis);
+        expectedDonors.stream().map(Donor::getSubmitterDonorId).distinct().count(), numAnalysis);
     assertEquals(
         expectedDonors.stream().filter(x -> x.getStudyId().equals(studyId)).count(), numAnalysis);
 

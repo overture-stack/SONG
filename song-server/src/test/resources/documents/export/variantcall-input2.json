@@ -19,7 +19,7 @@
         "ratio" : "1:2"
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-02",
+        "submitterDonorId": "internal_donor_123456789-02",
         "donorGender": "Female",
         "age" : 342
       }

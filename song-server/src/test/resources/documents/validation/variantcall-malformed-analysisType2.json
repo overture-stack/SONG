@@ -14,7 +14,7 @@
         "specimenType": "Primary tumour - other"
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-00",
+        "submitterDonorId": "internal_donor_123456789-00",
         "donorGender": "Female"
       }
     }

@@ -17,6 +17,6 @@ public class Donor extends Metadata {
 
   private String donorId;
   private String studyId;
-  private String donorSubmitterId;
+  private String submitterDonorId;
   private String donorGender;
 }

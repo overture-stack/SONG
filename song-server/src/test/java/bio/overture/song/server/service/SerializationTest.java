@@ -141,7 +141,7 @@ public class SerializationTest {
             .build();
 
     val d =
-        Donor.builder().donorGender("Male").donorSubmitterId("internal_donor_123456789_01").build();
+        Donor.builder().donorGender("Male").submitterDonorId("internal_donor_123456789_01").build();
     d.setInfo("ageCategory", "18-25");
     d.setInfo("riskCategory", "3b");
 
@@ -194,7 +194,7 @@ public class SerializationTest {
     val json = JsonUtils.fromSingleQuoted(single);
     val donor = JsonUtils.fromJson(json, DonorWithSpecimens.class);
     assertEquals(donor.getDonorId(), donorId);
-    assertEquals(donor.getDonorSubmitterId(), submitter);
+    assertEquals(donor.getSubmitterDonorId(), submitter);
     assertEquals(donor.getStudyId(), study);
     assertEquals(donor.getDonorGender(), gender);
     assertEquals(donor.getSpecimens(), Collections.emptyList());
@@ -233,7 +233,7 @@ public class SerializationTest {
     val donor =
         Donor.builder()
             .donorId(id)
-            .donorSubmitterId(submitterId)
+            .submitterDonorId(submitterId)
             .studyId(studyId)
             .donorGender(gender)
             .build();
@@ -281,7 +281,7 @@ public class SerializationTest {
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFiles().size(), 2);
     assertEquals(
-        payload.getSamples().get(0).getDonor().getDonorSubmitterId(),
+        payload.getSamples().get(0).getDonor().getSubmitterDonorId(),
         "internal_donor_123456789-00");
 
     val rootNode = JsonUtils.toJsonNode(payload.getData());
@@ -300,7 +300,7 @@ public class SerializationTest {
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFiles().size(), 2);
     assertEquals(
-        payload.getSamples().get(0).getDonor().getDonorSubmitterId(),
+        payload.getSamples().get(0).getDonor().getSubmitterDonorId(),
         "internal_donor_123456789-00");
   }
 }

@@ -87,7 +87,7 @@ public class DeserializationTest {
         Donor.builder()
             .donorGender("Male")
             .donorId("DO1")
-            .donorSubmitterId("SUB_DO1")
+            .submitterDonorId("SUB_DO1")
             .studyId("ABC123")
             .build();
 
