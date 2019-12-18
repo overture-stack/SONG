@@ -35,14 +35,16 @@
       "info" : {
         "compression" : "gzip"
       },
-      "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize" : 132394,
       "fileType" : "VCF",
       "fileMd5sum" : "d3cec975acc69a42b8cc3b76ec01ec21",
       "fileAccess" : "controlled"
     },
     {
-      "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize" : 2394,
       "fileType" : "IDX",
       "fileMd5sum" : "65ef4aac7bffcb9f3595a69e48ff2f79",

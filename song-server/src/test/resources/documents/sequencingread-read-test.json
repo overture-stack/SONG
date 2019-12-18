@@ -52,6 +52,7 @@
   "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.bam",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 1212121,
       "fileMd5sum": "e2324667df8085eddfe95742047e153f",
       "fileAccess" : "controlled",
@@ -61,6 +62,7 @@
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.bam",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 34343,
       "fileMd5sum": "8b5379a29aac642d6fe1808826bd9e49",
       "fileAccess" : "open",
@@ -69,6 +71,7 @@
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.bam.bai",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 4840,
       "fileMd5sum": "61da923f32863a9c5fa3d2a0e19bdee3",
       "fileAccess" : "open",

@@ -38,6 +38,7 @@
         "required": [
           "fileName",
           "fileSize",
+          "dataType",
           "fileType",
           "fileAccess",
           "fileMd5sum"
@@ -46,6 +47,9 @@
           "fileName": {
             "type": "string",
             "pattern": "^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$"
+          },
+          "dataType" : {
+            "type": "string"
           },
           "fileSize": {
             "type": "integer",

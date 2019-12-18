@@ -48,6 +48,7 @@
   "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 376953,
       "fileMd5sum": "652b2e2b7133229a89650de27ad7fc41",
       "fileAccess" : "controlled",
@@ -57,6 +58,7 @@
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 983820,
       "fileMd5sum": "b8b743a499e461922accad58fdbf25d2",
       "fileAccess" : "open",
@@ -65,6 +67,7 @@
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 4840,
       "fileMd5sum": "2b80298c2f312df7db482105053f889b",
       "fileAccess" : "open",

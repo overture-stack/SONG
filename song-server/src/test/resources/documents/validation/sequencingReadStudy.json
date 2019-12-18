@@ -33,14 +33,16 @@
   } ],
   "files": [ {
     "fileType" : "VCF",
-    "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e00.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+    "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e00.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+    "dataType": "SOME_DATA_TYPE",
     "fileSize" : 132394,
     "fileMd5sum" : "239d930d0ef9a9b9c0e",
     "fileAccess" : "controlled",
     "compression" : "gzip"
   }, {
     "fileType" : "IDX",
-    "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e00.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+    "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e00.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+    "dataType": "SOME_DATA_TYPE",
     "fileSize" : 2394,
     "fileAccess" : "controlled",
     "fileMd5sum" : "22de0f976538a9b7c8d93"
