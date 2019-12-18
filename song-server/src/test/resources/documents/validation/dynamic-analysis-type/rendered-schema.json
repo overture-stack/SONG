@@ -15,7 +15,7 @@
         "type": "object"
       }
     },
-    "file" : {
+    "files": {
       "fileType": {
         "type": "string",
         "enum": [
@@ -209,7 +209,7 @@
         }
       }
     },
-    "file": {
+    "files": {
       "type": "array",
       "minItems" : 1,
       "items": { "$ref" : "#/definitions/file/fileData" }

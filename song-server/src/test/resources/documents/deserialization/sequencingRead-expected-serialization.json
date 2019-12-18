@@ -30,7 +30,7 @@
       }
     }
   ],
-  "file" : [
+  "files": [
     {
       "info" : {
         "compression" : "gzip"
