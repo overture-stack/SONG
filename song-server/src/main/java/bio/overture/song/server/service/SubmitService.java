@@ -16,6 +16,21 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.SubmitResponse;
+import bio.overture.song.server.model.dto.Payload;
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+
+import static java.util.Objects.isNull;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
@@ -30,31 +45,17 @@ import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
-import static java.util.Objects.isNull;
-
-import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.SubmitResponse;
-import bio.overture.song.server.model.dto.Payload;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import javax.transaction.Transactional;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class UploadService {
+public class SubmitService {
 
   private final ValidationService validator;
   private final AnalysisService analysisService;
   private final StudyService studyService;
 
   @Autowired
-  public UploadService(
+  public SubmitService(
       @NonNull ValidationService validator,
       @NonNull AnalysisService analysisService,
       @NonNull StudyService studyService) {
@@ -134,13 +135,13 @@ public class UploadService {
     val payloadStudyId = payload.getStudyId();
     checkServer(
         !isNull(payloadStudyId),
-        UploadService.class,
+        SubmitService.class,
         STUDY_ID_MISSING,
         "The field '%s' is missing in the payload",
         STUDY_ID);
     checkServer(
         expectedStudyId.equals(payloadStudyId),
-        UploadService.class,
+        SubmitService.class,
         STUDY_ID_MISMATCH,
         "The studyId in the URL path '%s' should match the studyId '%s' in the payload",
         expectedStudyId,
