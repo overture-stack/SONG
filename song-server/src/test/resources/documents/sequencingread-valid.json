@@ -17,7 +17,7 @@
   },
   "samples": [
     {
-      "sampleSubmitterId": "internal_sample_98024759826836",
+      "submitterSampleId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",
       "tissueCollectionMethod": "IV",
       "specimen": {

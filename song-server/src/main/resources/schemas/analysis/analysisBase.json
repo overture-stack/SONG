@@ -174,11 +174,11 @@
 			"sampleData": {
 				"type": "object",
 				"required": [
-					"sampleSubmitterId",
+					"submitterSampleId",
 					"sampleType"
 				],
 				"properties": {
-					"sampleSubmitterId": { "$ref" : "#/definitions/common/submitterId" },
+					"submitterSampleId": { "$ref" : "#/definitions/common/submitterId" },
 					"sampleType": { "$ref" : "#/definitions/sample/sampleTypes" },
 					"info": { "$ref" : "#/definitions/common/info"}
 				}

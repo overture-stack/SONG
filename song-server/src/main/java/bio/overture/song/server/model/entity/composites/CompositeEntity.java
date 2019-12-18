@@ -37,7 +37,7 @@ public class CompositeEntity extends Sample {
     val s = new CompositeEntity();
 
     s.setSampleId(sample.getSampleId());
-    s.setSampleSubmitterId(sample.getSampleSubmitterId());
+    s.setSubmitterSampleId(sample.getSubmitterSampleId());
     s.setSampleType(sample.getSampleType());
     s.setInfo(sample.getInfoAsString());
     s.setSpecimenId(sample.getSpecimenId());

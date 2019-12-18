@@ -113,7 +113,7 @@ public class SpecimenServiceTest {
     val sampleInput1 =
         Sample.builder()
             .sampleId(null)
-            .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .submitterSampleId(randomGenerator.generateRandomUUIDAsString())
             .specimenId(specimenId)
             .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)))
             .build();
@@ -121,7 +121,7 @@ public class SpecimenServiceTest {
     val sampleInput2 =
         Sample.builder()
             .sampleId(null)
-            .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .submitterSampleId(randomGenerator.generateRandomUUIDAsString())
             .specimenId(specimenId)
             .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)))
             .build();
@@ -178,7 +178,7 @@ public class SpecimenServiceTest {
     // childless specimen
     val sample1 =
         Sample.builder()
-            .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .submitterSampleId(randomGenerator.generateRandomUUIDAsString())
             .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)))
             .specimenId(id)
             .build();
@@ -220,7 +220,7 @@ public class SpecimenServiceTest {
     // childless specimen
     val sample1 =
         Sample.builder()
-            .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .submitterSampleId(randomGenerator.generateRandomUUIDAsString())
             .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)))
             .specimenId(id)
             .build();
@@ -349,7 +349,7 @@ public class SpecimenServiceTest {
         val sample =
             Sample.builder()
                 .sampleId("")
-                .sampleSubmitterId(randomGenerator.generateRandomUUIDAsString())
+                .submitterSampleId(randomGenerator.generateRandomUUIDAsString())
                 .specimenId(specimenId)
                 .sampleType(randomGenerator.randomElement(newArrayList(SAMPLE_TYPE)))
                 .build();

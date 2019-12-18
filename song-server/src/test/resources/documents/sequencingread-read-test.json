@@ -15,7 +15,7 @@
   },
   "samples": [
     {
-      "sampleSubmitterId": "internal_sample_98024759826836_fr01",
+      "submitterSampleId": "internal_sample_98024759826836_fr01",
       "sampleType": "Total RNA",
       "extraSampleInfo": "some more data for a sequencingRead sample_fr01",
       "specimen": {
@@ -32,7 +32,7 @@
       }
     },
     {
-      "sampleSubmitterId": "internal_sample_98024759826836_fr02",
+      "submitterSampleId": "internal_sample_98024759826836_fr02",
       "sampleType": "Total RNA",
       "extraSampleInfo": "some more data for a sequencingRead sample_fr02",
       "specimen": {

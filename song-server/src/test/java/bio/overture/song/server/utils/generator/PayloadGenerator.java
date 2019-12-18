@@ -51,7 +51,7 @@ public class PayloadGenerator {
         .getSamples()
         .forEach(
             x -> {
-              x.setSampleSubmitterId(randomGenerator.generateRandomUUID().toString());
+              x.setSubmitterSampleId(randomGenerator.generateRandomUUID().toString());
               x.getSpecimen()
                   .setSubmitterSpecimenId(randomGenerator.generateRandomUUID().toString());
               x.getDonor().setSubmitterDonorId(randomGenerator.generateRandomUUID().toString());

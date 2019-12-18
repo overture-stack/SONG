@@ -55,7 +55,7 @@ public class SecureSampleTester extends AbstractSecureTester<String> {
     specimenService.checkSpecimenExist(specimenId);
     val sample =
         Sample.builder()
-            .sampleSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
+            .submitterSampleId(getRandomGenerator().generateRandomUUIDAsString())
             .sampleType(
                 getRandomGenerator().randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)))
             .specimenId(specimenId)

@@ -117,7 +117,7 @@ public class EntityTest {
     val sample1 =
         Sample.builder()
             .sampleId("mySample1")
-            .sampleSubmitterId("mySubmitterSample1")
+            .submitterSampleId("mySubmitterSample1")
             .specimenId("mySpecimen1")
             .sampleType(SAMPLE_TYPES.get(1))
             .build();
@@ -125,7 +125,7 @@ public class EntityTest {
     val sample2 =
         Sample.builder()
             .sampleId("mySample2")
-            .sampleSubmitterId("mySubmitterSample2")
+            .submitterSampleId("mySubmitterSample2")
             .specimenId("mySpecimen2")
             .sampleType(SAMPLE_TYPES.get(3))
             .build();
@@ -136,7 +136,7 @@ public class EntityTest {
 
     val compositeEntity1_same = new CompositeEntity();
     compositeEntity1_same.setSampleType(SAMPLE_TYPES.get(1));
-    compositeEntity1_same.setSampleSubmitterId("mySubmitterSample1");
+    compositeEntity1_same.setSubmitterSampleId("mySubmitterSample1");
     compositeEntity1_same.setSampleId("mySample1");
     compositeEntity1_same.setSpecimenId("mySpecimen1");
     compositeEntity1_same.setSpecimen(specimen1);
@@ -182,7 +182,7 @@ public class EntityTest {
 
     assertEquals(compositeEntity1.getSampleId(), "mySample1");
     assertEquals(compositeEntity1.getSampleType(), SAMPLE_TYPES.get(1));
-    assertEquals(compositeEntity1.getSampleSubmitterId(), "mySubmitterSample1");
+    assertEquals(compositeEntity1.getSubmitterSampleId(), "mySubmitterSample1");
     assertEquals(compositeEntity1.getSpecimenId(), "mySpecimen1");
     assertEquals(compositeEntity1.getSpecimen(), specimen1);
     assertEquals(compositeEntity1.getDonor(), donor1);
@@ -212,7 +212,7 @@ public class EntityTest {
     val sample11 =
         Sample.builder()
             .sampleId("mySample11")
-            .sampleSubmitterId("mySubmitterSample11")
+            .submitterSampleId("mySubmitterSample11")
             .specimenId("mySpecimen11")
             .sampleType(SAMPLE_TYPES.get(2))
             .build();
@@ -220,7 +220,7 @@ public class EntityTest {
     val sample12 =
         Sample.builder()
             .sampleId("mySample12")
-            .sampleSubmitterId("mySubmitterSample12")
+            .submitterSampleId("mySubmitterSample12")
             .specimenId("mySpecimen12")
             .sampleType(SAMPLE_TYPES.get(2))
             .build();
@@ -230,7 +230,7 @@ public class EntityTest {
     val sample21 =
         Sample.builder()
             .sampleId("mySample21")
-            .sampleSubmitterId("mySubmitterSample21")
+            .submitterSampleId("mySubmitterSample21")
             .specimenId("mySpecimen21")
             .sampleType(SAMPLE_TYPES.get(3))
             .build();
@@ -238,7 +238,7 @@ public class EntityTest {
     val sample22 =
         Sample.builder()
             .sampleId("mySample22")
-            .sampleSubmitterId("mySubmitterSample22")
+            .submitterSampleId("mySubmitterSample22")
             .specimenId("mySpecimen22")
             .sampleType(SAMPLE_TYPES.get(3))
             .build();
@@ -347,7 +347,7 @@ public class EntityTest {
     val sample11 =
         Sample.builder()
             .sampleId("mySample11")
-            .sampleSubmitterId("mySubmitterSample11")
+            .submitterSampleId("mySubmitterSample11")
             .specimenId("mySpecimen11")
             .sampleType(SAMPLE_TYPES.get(2))
             .build();
@@ -355,7 +355,7 @@ public class EntityTest {
     val sample12 =
         Sample.builder()
             .sampleId("mySample12")
-            .sampleSubmitterId("mySubmitterSample12")
+            .submitterSampleId("mySubmitterSample12")
             .specimenId("mySpecimen12")
             .sampleType(SAMPLE_TYPES.get(2))
             .build();
@@ -365,7 +365,7 @@ public class EntityTest {
     val sample21 =
         Sample.builder()
             .sampleId("mySample21")
-            .sampleSubmitterId("mySubmitterSample21")
+            .submitterSampleId("mySubmitterSample21")
             .specimenId("mySpecimen21")
             .sampleType(SAMPLE_TYPES.get(3))
             .build();
@@ -373,7 +373,7 @@ public class EntityTest {
     val sample22 =
         Sample.builder()
             .sampleId("mySample22")
-            .sampleSubmitterId("mySubmitterSample22")
+            .submitterSampleId("mySubmitterSample22")
             .specimenId("mySpecimen22")
             .sampleType(SAMPLE_TYPES.get(3))
             .build();
@@ -497,7 +497,7 @@ public class EntityTest {
     val sample11 =
         Sample.builder()
             .sampleId("mySample11")
-            .sampleSubmitterId("mySubmitterSample11")
+            .submitterSampleId("mySubmitterSample11")
             .specimenId("mySpecimen11")
             .sampleType(SAMPLE_TYPES.get(2))
             .build();
@@ -505,7 +505,7 @@ public class EntityTest {
     val sample12 =
         Sample.builder()
             .sampleId("mySample12")
-            .sampleSubmitterId("mySubmitterSample12")
+            .submitterSampleId("mySubmitterSample12")
             .specimenId("mySpecimen12")
             .sampleType(SAMPLE_TYPES.get(2))
             .build();
@@ -515,7 +515,7 @@ public class EntityTest {
     val sample21 =
         Sample.builder()
             .sampleId("mySample21")
-            .sampleSubmitterId("mySubmitterSample21")
+            .submitterSampleId("mySubmitterSample21")
             .specimenId("mySpecimen21")
             .sampleType(SAMPLE_TYPES.get(3))
             .build();
@@ -523,7 +523,7 @@ public class EntityTest {
     val sample22 =
         Sample.builder()
             .sampleId("mySample22")
-            .sampleSubmitterId("mySubmitterSample22")
+            .submitterSampleId("mySubmitterSample22")
             .specimenId("mySpecimen22")
             .sampleType(SAMPLE_TYPES.get(3))
             .build();
@@ -680,14 +680,14 @@ public class EntityTest {
   public void testSample() {
     val sample1 = new Sample();
     sample1.setSampleId("a1");
-    sample1.setSampleSubmitterId("b1");
+    sample1.setSubmitterSampleId("b1");
     sample1.setSampleType(SAMPLE_TYPES.get(0));
     sample1.setSpecimenId("c1");
 
     val sample1_same =
         Sample.builder()
             .sampleId("a1")
-            .sampleSubmitterId("b1")
+            .submitterSampleId("b1")
             .sampleType(SAMPLE_TYPES.get(0))
             .specimenId("c1")
             .build();
@@ -696,7 +696,7 @@ public class EntityTest {
     val sample2 =
         Sample.builder()
             .sampleId("a2")
-            .sampleSubmitterId("b2")
+            .submitterSampleId("b2")
             .sampleType(SAMPLE_TYPES.get(1))
             .specimenId("c2")
             .build();
@@ -708,7 +708,7 @@ public class EntityTest {
 
     // Test getters
     assertEquals(sample1.getSampleId(), "a1");
-    assertEquals(sample1.getSampleSubmitterId(), "b1");
+    assertEquals(sample1.getSubmitterSampleId(), "b1");
     assertEquals(sample1.getSampleType(), SAMPLE_TYPES.get(0));
     assertEquals(sample1.getSpecimenId(), "c1");
     assertInfoKVPair(sample1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");
@@ -889,7 +889,7 @@ public class EntityTest {
     val sample1 =
         Sample.builder()
             .sampleId("mySample1")
-            .sampleSubmitterId("mySubmitterSample1")
+            .submitterSampleId("mySubmitterSample1")
             .specimenId("mySpecimen1")
             .sampleType(SAMPLE_TYPES.get(2))
             .build();
@@ -897,7 +897,7 @@ public class EntityTest {
     val sample2 =
         Sample.builder()
             .sampleId("mySample2")
-            .sampleSubmitterId("mySubmitterSample2")
+            .submitterSampleId("mySubmitterSample2")
             .specimenId("mySpecimen2")
             .sampleType(SAMPLE_TYPES.get(3))
             .build();
@@ -1219,7 +1219,7 @@ public class EntityTest {
     val sample1 =
         Sample.builder()
             .sampleId("mySample1")
-            .sampleSubmitterId("mySubmitterSample1")
+            .submitterSampleId("mySubmitterSample1")
             .specimenId("mySpecimen1")
             .sampleType(SAMPLE_TYPES.get(2))
             .build();
@@ -1227,7 +1227,7 @@ public class EntityTest {
     val sample2 =
         Sample.builder()
             .sampleId("mySample2")
-            .sampleSubmitterId("mySubmitterSample2")
+            .submitterSampleId("mySubmitterSample2")
             .specimenId("mySpecimen2")
             .sampleType(SAMPLE_TYPES.get(3))
             .build();

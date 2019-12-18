@@ -9,7 +9,7 @@
   },
   "samples": [
     {
-      "sampleSubmitterId": "internal_sample_98024759826834",
+      "submitterSampleId": "internal_sample_98024759826834",
       "sampleType": "Total RNA",
       "size" : 54,
       "specimen": {

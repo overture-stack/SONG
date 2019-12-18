@@ -67,7 +67,7 @@ public class RestClientTest {
   private static final Sample EXAMPLE_SAMPLE1 =
       Sample.builder()
           .sampleId("someSampleId_1")
-          .sampleSubmitterId("someSampleSubmitterId_1")
+          .submitterSampleId("someSampleSubmitterId_1")
           .sampleType("someSampleType_1")
           .specimenId("someSpecimenId_1")
           .build();
@@ -75,7 +75,7 @@ public class RestClientTest {
   private static final Sample EXAMPLE_SAMPLE2 =
       Sample.builder()
           .sampleId("someSampleId_2")
-          .sampleSubmitterId("someSampleSubmitterId_2")
+          .submitterSampleId("someSampleSubmitterId_2")
           .sampleType("someSampleType_2")
           .specimenId("someSpecimenId_2")
           .build();

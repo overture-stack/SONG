@@ -11,7 +11,7 @@
       },
       "sampleId" : null,
       "specimenId" : null,
-      "sampleSubmitterId" : "internal_sample_123456789_01",
+      "submitterSampleId" : "internal_sample_123456789_01",
       "sampleType" : "Total RNA",
       "specimen" : {
         "submitterSpecimenId" : "internal_specimen_123456789_01",

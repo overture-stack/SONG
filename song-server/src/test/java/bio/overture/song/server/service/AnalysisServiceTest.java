@@ -16,43 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
-import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Arrays.stream;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.IntStream.range;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -77,11 +40,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -91,6 +49,49 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.stream;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.IntStream.range;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
+import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 
 @Slf4j
 @SpringBootTest
@@ -242,7 +243,7 @@ public class AnalysisServiceTest {
     assertEquals(a.getSamples().size(), 2);
     val sample0 =
         a.getSamples().stream()
-            .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fs01"))
+            .filter(x -> x.getSubmitterSampleId().equals("internal_sample_98024759826836_fs01"))
             .findAny()
             .orElse(null);
     assertEquals(sample0.getSampleType(), "Total RNA");
@@ -265,10 +266,10 @@ public class AnalysisServiceTest {
 
     val sample1 =
         a.getSamples().stream()
-            .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fs02"))
+            .filter(x -> x.getSubmitterSampleId().equals("internal_sample_98024759826836_fs02"))
             .findAny()
             .orElse(null);
-    assertEquals(sample1.getSampleSubmitterId(), "internal_sample_98024759826836_fs02");
+    assertEquals(sample1.getSubmitterSampleId(), "internal_sample_98024759826836_fs02");
     assertEquals(sample1.getSampleType(), "Total RNA");
     assertInfoKVPair(sample1, "extraSampleInfo", "some more data for a variantCall sample_fs02");
 
@@ -374,7 +375,7 @@ public class AnalysisServiceTest {
     assertEquals(a.getSamples().size(), 2);
     val sample0 =
         a.getSamples().stream()
-            .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fr01"))
+            .filter(x -> x.getSubmitterSampleId().equals("internal_sample_98024759826836_fr01"))
             .findFirst()
             .get();
     sampleMap.put(sample0.getSampleId(), sample0);
@@ -398,7 +399,7 @@ public class AnalysisServiceTest {
 
     val sample1 =
         a.getSamples().stream()
-            .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fr02"))
+            .filter(x -> x.getSubmitterSampleId().equals("internal_sample_98024759826836_fr02"))
             .findFirst()
             .get();
     sampleMap.put(sample1.getSampleId(), sample1);

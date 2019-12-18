@@ -105,7 +105,7 @@ public class DeserializationTest {
             .sampleId("SA1")
             .sampleType(SAMPLE_TYPE.stream().findAny().get())
             .specimenId("SP1")
-            .sampleSubmitterId("SUB_SA1")
+            .submitterSampleId("SUB_SA1")
             .build();
 
     val ce = CompositeEntity.create(sa);

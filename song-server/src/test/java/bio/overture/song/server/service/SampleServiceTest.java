@@ -74,7 +74,7 @@ public class SampleServiceTest {
     val id = "SA1";
     val sample = sampleService.securedRead(DEFAULT_STUDY_ID, id);
     assertEquals(sample.getSampleId(), id);
-    assertEquals(sample.getSampleSubmitterId(), "T285-G7-A5");
+    assertEquals(sample.getSubmitterSampleId(), "T285-G7-A5");
     assertEquals(sample.getSampleType(), "DNA");
     assertEquals(getInfoName(sample), "sample1");
   }
@@ -86,7 +86,7 @@ public class SampleServiceTest {
     val s =
         Sample.builder()
             .sampleId("")
-            .sampleSubmitterId("101-IP-A")
+            .submitterSampleId("101-IP-A")
             .specimenId(specimenId)
             .sampleType("Amplified DNA")
             .build();
@@ -113,7 +113,7 @@ public class SampleServiceTest {
         Sample.builder()
             .sampleId("")
             .specimenId(specimenId)
-            .sampleSubmitterId("102-CBP-A")
+            .submitterSampleId("102-CBP-A")
             .sampleType("RNA")
             .build();
 
@@ -125,7 +125,7 @@ public class SampleServiceTest {
     val s2 =
         Sample.builder()
             .sampleId(id)
-            .sampleSubmitterId("Sample 102")
+            .submitterSampleId("Sample 102")
             .specimenId(s.getSpecimenId())
             .sampleType("FFPE RNA")
             .build();
@@ -150,7 +150,7 @@ public class SampleServiceTest {
     val existingStudyId = DEFAULT_STUDY_ID;
 
     val sample = new Sample();
-    sample.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    sample.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
     sample.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
     sample.setSpecimenId(specimenId);
 
@@ -170,7 +170,7 @@ public class SampleServiceTest {
     val sample2 = new Sample();
     sample2.setSpecimenId(specimenId);
     sample2.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
-    sample2.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    sample2.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
     sample2.setSampleId(randomGenerator.generateRandomUUIDAsString());
     assertFalse(sampleService.isSampleExist(sample2.getSampleId()));
     SongErrorAssertions.assertSongError(
@@ -225,7 +225,7 @@ public class SampleServiceTest {
       sample.setSpecimenId(specimenId);
       sample.setSampleType(
           randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
-      sample.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+      sample.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
       val sampleId = sampleService.create(studyId, sample);
       expectedSampleIds.add(sampleId);
     }
@@ -277,7 +277,7 @@ public class SampleServiceTest {
   public void testUpdateSpecimenDNE() {
     val randomSampleId = randomGenerator.generateRandomUUIDAsString();
     val sample = new Sample();
-    sample.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    sample.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
     sample.setSampleId(randomSampleId);
     sample.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
     sample.setSpecimenId(DEFAULT_SPECIMEN_ID);

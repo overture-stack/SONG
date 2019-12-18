@@ -7,7 +7,7 @@
   },
   "samples": [
     {
-      "sampleSubmitterId": "internal_sample_98024759826836",
+      "submitterSampleId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",

@@ -110,7 +110,7 @@ public class StudyWithDonorsServiceTest {
     val expectedSamples =
         analysisMap.values().stream().flatMap(x -> x.getSamples().stream()).collect(toSet());
     val expectedSampleSubmitterIds =
-        expectedSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
+        expectedSamples.stream().map(Sample::getSubmitterSampleId).collect(toSet());
     assertEquals(expectedSamples.size(), numAnalysis);
     assertEquals(expectedSampleSubmitterIds.size(), numAnalysis);
 
@@ -138,7 +138,7 @@ public class StudyWithDonorsServiceTest {
             .flatMap(Collection::stream)
             .collect(toSet());
     val actualSampleSubmitterIds =
-        actualSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
+        actualSamples.stream().map(Sample::getSubmitterSampleId).collect(toSet());
 
     // Verify expected donors and actual donors match
     assertCollectionsMatchExactly(expectedDonors, actualDonors);

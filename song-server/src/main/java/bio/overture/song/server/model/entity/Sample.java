@@ -52,14 +52,14 @@ public class Sample extends Metadata {
   private String specimenId;
 
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
-  private String sampleSubmitterId;
+  private String submitterSampleId;
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
   private String sampleType;
 
   public void setWithSample(@NonNull Sample u) {
     setSampleId(u.getSampleId());
-    setSampleSubmitterId(u.getSampleSubmitterId());
+    setSubmitterSampleId(u.getSubmitterSampleId());
     setSampleType(u.getSampleType());
     setSpecimenId(u.getSpecimenId());
     setInfo(u.getInfo());

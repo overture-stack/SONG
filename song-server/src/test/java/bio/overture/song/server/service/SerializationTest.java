@@ -16,6 +16,21 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.ResourceFetcher;
@@ -25,11 +40,6 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -38,21 +48,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
-import static net.javacrumbs.jsonunit.JsonAssert.when;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Test;
 
 @Slf4j
 public class SerializationTest {
@@ -147,7 +146,7 @@ public class SerializationTest {
     d.setInfo("riskCategory", "3b");
 
     val sa = new CompositeEntity();
-    sa.setSampleSubmitterId("internal_sample_123456789_01");
+    sa.setSubmitterSampleId("internal_sample_123456789_01");
     sa.setSampleType("Total RNA");
     sa.setInfo("tissueCollectionMethod", "IV");
     sa.setSpecimen(sp);

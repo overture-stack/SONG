@@ -155,7 +155,7 @@ public class SubmitServiceTest {
     val payload1 = payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
     payload1.setStudyId(studyId);
     val previousSampleSubmitterIds =
-        payload1.getSamples().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
+        payload1.getSamples().stream().map(Sample::getSubmitterSampleId).collect(toImmutableSet());
     val an1 = submitService.submit(studyId, toJson(payload1)).getAnalysisId();
 
     // Export the previously uploaded payload using the analysis id
@@ -172,12 +172,12 @@ public class SubmitServiceTest {
     // Modify the exported payload with a different sampleSubmmiterId
     payload2
         .getSamples()
-        .forEach(x -> x.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString()));
-    payload2.getSamples().get(0).setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+        .forEach(x -> x.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString()));
+    payload2.getSamples().get(0).setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
 
     // Assert that none of the sampleSubmmiterIds between payload1 and payload2 match
     val currentSampleSubmitterIds =
-        payload2.getSamples().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
+        payload2.getSamples().stream().map(Sample::getSubmitterSampleId).collect(toImmutableSet());
     val hasMatch =
         previousSampleSubmitterIds.stream().anyMatch(currentSampleSubmitterIds::contains);
     assertFalse(hasMatch);
