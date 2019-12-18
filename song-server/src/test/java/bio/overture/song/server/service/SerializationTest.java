@@ -152,7 +152,7 @@ public class SerializationTest {
     val expectedPayload =
         Payload.builder()
             .analysisType(AnalysisTypeId.builder().name("sequencingRead").version(1).build())
-            .file(newArrayList(f1, f2))
+            .files(newArrayList(f1, f2))
             .samples(newArrayList(sa))
             .studyId(inputJson.path(STUDY_ID).textValue())
             .build();
@@ -278,7 +278,7 @@ public class SerializationTest {
     System.out.printf("*** Payload object='%s'\n", payload);
     assertEquals(payload.getAnalysisType().getName(), "sequencingRead");
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
-    assertEquals(payload.getFile().size(), 2);
+    assertEquals(payload.getFiles().size(), 2);
     assertEquals(
         payload.getSamples().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
 
@@ -296,7 +296,7 @@ public class SerializationTest {
     System.out.printf("*** Analysis object='%s'\n", payload);
     assertEquals(payload.getAnalysisType().getName(), "variantCall");
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
-    assertEquals(payload.getFile().size(), 2);
+    assertEquals(payload.getFiles().size(), 2);
     assertEquals(
         payload.getSamples().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
   }

@@ -287,10 +287,10 @@ public class AnalysisServiceTest {
     assertInfoKVPair(
         specimen01, "extraSpecimenInfo", "some more data for a variantCall specimen_fs02");
 
-    assertEquals(a.getFile().size(), 3);
-    val file0 = a.getFile().get(0);
-    val file1 = a.getFile().get(1);
-    val file2 = a.getFile().get(2);
+    assertEquals(a.getFiles().size(), 3);
+    val file0 = a.getFiles().get(0);
+    val file1 = a.getFiles().get(1);
+    val file2 = a.getFiles().get(2);
     assertEquals(file0.getAnalysisId(), analysisId);
     assertEquals(file1.getAnalysisId(), analysisId);
     assertEquals(file2.getAnalysisId(), analysisId);
@@ -305,7 +305,7 @@ public class AnalysisServiceTest {
     val fileName2 =
         "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx";
 
-    for (val file : a.getFile()) {
+    for (val file : a.getFiles()) {
       if (file.getFileName().equals(fileName0)) {
         assertEquals(file.getFileName(), fileName0);
         assertEquals(file.getFileSize().longValue(), 376953L);
@@ -420,10 +420,10 @@ public class AnalysisServiceTest {
     assertInfoKVPair(
         specimen01, "extraSpecimenInfo", "some more data for a sequencingRead specimen_fr02");
 
-    assertEquals(a.getFile().size(), 3);
-    val file0 = a.getFile().get(0);
-    val file1 = a.getFile().get(1);
-    val file2 = a.getFile().get(2);
+    assertEquals(a.getFiles().size(), 3);
+    val file0 = a.getFiles().get(0);
+    val file1 = a.getFiles().get(1);
+    val file2 = a.getFiles().get(2);
     assertEquals(file0.getAnalysisId(), analysisId);
     assertEquals(file1.getAnalysisId(), analysisId);
     assertEquals(file2.getAnalysisId(), analysisId);
@@ -436,7 +436,7 @@ public class AnalysisServiceTest {
     val fileName2 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.bam.bai";
     val fileMap = Maps.<String, FileEntity>newHashMap();
 
-    for (val file : a.getFile()) {
+    for (val file : a.getFiles()) {
       fileMap.put(file.getFileName(), file);
       if (file.getFileName().equals(fileName0)) {
         assertEquals(file.getFileName(), fileName0);
@@ -932,8 +932,8 @@ public class AnalysisServiceTest {
     assertFunctionEqual(l, r, Analysis::getStudyId);
     assertFunctionEqual(l, r, x -> x.getAnalysisData().getData());
 
-    val leftFiles = newHashSet(l.getFile());
-    val rightFiles = newHashSet(r.getFile());
+    val leftFiles = newHashSet(l.getFiles());
+    val rightFiles = newHashSet(r.getFiles());
     assertCollectionsMatchExactly(leftFiles, rightFiles);
 
     val leftSamples = newHashSet(l.getSamples());

@@ -22,5 +22,5 @@ public class Analysis extends DynamicData {
   private AnalysisStates analysisState;
   private AnalysisTypeId analysisType;
   private List<CompositeSample> samples;
-  private List<FileDTO> file;
+  private List<FileDTO> files;
 }

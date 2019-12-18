@@ -115,7 +115,7 @@ public class PublishAnalysisTest {
 
     // Delete any previous files
     fileService.securedDelete(
-        newStudyId, testAnalysis.getFile().stream().map(FileEntity::getObjectId).collect(toList()));
+        newStudyId, testAnalysis.getFiles().stream().map(FileEntity::getObjectId).collect(toList()));
 
     this.testFiles = generateFiles(MAX_FILES, testAnalysis);
     assertEquals(testFiles.size(), MAX_FILES);

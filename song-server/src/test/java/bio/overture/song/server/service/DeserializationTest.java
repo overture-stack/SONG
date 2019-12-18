@@ -124,7 +124,7 @@ public class DeserializationTest {
 
     val lce = List.of(ce);
     a.setSamples(lce);
-    a.setFile(fileList);
+    a.setFiles(fileList);
 
     // Assert no info fields when converting from object to tree
     val root = objectToTree(a);

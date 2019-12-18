@@ -74,17 +74,8 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 @Transactional
 public class UploadServiceTest {
 
-  private static final String ID_SERVICE = "idService";
   private static final String DEFAULT_STUDY = "ABC123";
   private static int ANALYSIS_ID_COUNT = 0;
-  private static final String SEQ_READ = "SequencingRead";
-  private static final String VAR_CALL = "VariantCall";
-  private static final Map<String, String> DEFAULT_TEST_FILE_MAP = newHashMap();
-
-  static {
-    DEFAULT_TEST_FILE_MAP.put(SEQ_READ, "sequencingRead.json");
-    DEFAULT_TEST_FILE_MAP.put(VAR_CALL, "variantCall.json");
-  }
 
   @Autowired UploadService uploadService;
 

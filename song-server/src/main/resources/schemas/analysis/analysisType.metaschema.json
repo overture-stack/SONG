@@ -32,7 +32,7 @@
                 "samples" : {
                     "not" : {}
                 },
-                "file" : {
+                "files" : {
                     "not" : {}
                 },
                 "analysisId" : {

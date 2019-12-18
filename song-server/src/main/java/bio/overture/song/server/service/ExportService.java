@@ -89,7 +89,7 @@ public class ExportService {
             .analysisType(resolveAnalysisTypeId(a.getAnalysisSchema()))
             .studyId(a.getStudyId())
             .samples(payloadConverter.convertToSamplePayloads(a.getSamples()))
-            .file(payloadConverter.convertToFilePayloads(a.getFile()))
+            .files(payloadConverter.convertToFilePayloads(a.getFiles()))
             .build();
     payload.addData(a.getAnalysisData().getData());
     return payload;

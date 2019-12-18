@@ -84,7 +84,7 @@ public class Analysis {
 
   @Transient private List<CompositeEntity> samples;
 
-  @Transient private List<FileEntity> file;
+  @Transient private List<FileEntity> files;
 
   // TODO: need to remove this, and replace anything that needs this with Payload object
   public AnalysisTypeId getAnalysisType() {
