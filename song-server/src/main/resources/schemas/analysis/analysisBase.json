@@ -36,6 +36,7 @@
 			"fileData" :{
 				"type": "object",
 				"required": [
+					"dataType",
 					"fileName",
 					"fileSize",
 					"fileType",
@@ -43,6 +44,9 @@
 					"fileMd5sum"
 				],
 				"properties": {
+					"dataType": {
+						"type": "string"
+					},
 					"fileName": {
 						"type": "string",
 						"pattern": "^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$"

@@ -75,6 +75,7 @@ public class Constants {
           "Primary tumour - lymph node",
           "Metastatic tumour - other",
           "Cell line - derived from xenograft tumour");
+  public static final String SONG_ENUM = "song_enum";
 
   public static Collection<String> list(String... s) {
     return Collections.unmodifiableCollection(Arrays.asList(s));

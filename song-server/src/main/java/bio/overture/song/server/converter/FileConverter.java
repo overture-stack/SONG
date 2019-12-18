@@ -17,21 +17,22 @@
 
 package bio.overture.song.server.converter;
 
-import static org.mapstruct.factory.Mappers.getMapper;
-
 import bio.overture.song.core.model.FileDTO;
 import bio.overture.song.core.model.FileData;
 import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.entity.FileEntity;
-import java.util.List;
 import lombok.val;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+
+import java.util.List;
+
+import static org.mapstruct.factory.Mappers.getMapper;
 
 @Mapper(
     config = ConverterConfig.class,
@@ -44,6 +45,7 @@ public interface FileConverter {
   FileUpdateRequest fileEntityToFileUpdateRequest(FileEntity file);
 
   @Mapping(target = "fileType", ignore = true)
+  @Mapping(target = "dataType", ignore = true)
   @Mapping(target = "objectId", ignore = true)
   @Mapping(target = "studyId", ignore = true)
   @Mapping(target = "analysisId", ignore = true)

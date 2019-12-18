@@ -28,4 +28,6 @@ public interface File extends FileMetadata, FileContent {
   String getFileName();
 
   String getFileType();
+
+  String getDataType();
 }
