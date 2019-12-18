@@ -17,9 +17,6 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
-import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
-import static java.lang.String.format;
-
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -30,9 +27,13 @@ import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
-import java.util.function.BiConsumer;
 import lombok.NonNull;
 import lombok.val;
+
+import java.util.function.BiConsumer;
+
+import static java.lang.String.format;
+import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 
 public class SecureFileTester extends AbstractSecureTester {
 
@@ -69,6 +70,7 @@ public class SecureFileTester extends AbstractSecureTester {
         FileEntity.builder()
             .fileAccess(getRandomGenerator().randomEnum(AccessTypes.class).toString())
             .fileMd5sum(getRandomGenerator().generateRandomMD5())
+            .dataType(getRandomGenerator().generateRandomAsciiString(10))
             .fileType(type)
             .fileSize((long) getRandomGenerator().generateRandomIntRange(1000, 1000000))
             .analysisId(existingAnalysisId)

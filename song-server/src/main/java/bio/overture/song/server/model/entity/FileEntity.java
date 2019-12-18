@@ -25,6 +25,11 @@ import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,12 +37,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.io.Serializable;
 
 @Entity
 @Table(name = TableNames.FILE)

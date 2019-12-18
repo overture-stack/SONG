@@ -16,20 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
-import static net.javacrumbs.jsonunit.JsonAssert.when;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.ResourceFetcher;
@@ -39,6 +25,11 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -47,10 +38,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.Test;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 
 @Slf4j
 public class SerializationTest {
@@ -113,6 +114,7 @@ public class SerializationTest {
         FileEntity.builder()
             .fileAccess("controlled")
             .fileType("VCF")
+            .dataType("SOME_DATA_TYPE")
             .fileName(
                 "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz")
             .fileSize(132394L)
@@ -126,6 +128,7 @@ public class SerializationTest {
             .fileName(
                 "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx")
             .fileSize(2394L)
+            .dataType("SOME_DATA_TYPE")
             .fileAccess("controlled")
             .fileMd5sum("65ef4aac7bffcb9f3595a69e48ff2f79")
             .build();
@@ -203,8 +206,7 @@ public class SerializationTest {
     val donor = new Donor();
     val json = toJson(donor);
 
-    val expected =
-        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null}";
+    val expected = "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertEquals(json, expectedJson);
   }
@@ -215,8 +217,7 @@ public class SerializationTest {
     donor.setDonorId(null);
     val json = toJson(donor);
     System.err.printf("json='%s'\n", json);
-    val expected =
-        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null}";
+    val expected = "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null}";
     val expectedJson = JsonUtils.fromSingleQuoted(expected);
     assertEquals(json, expectedJson);
   }
@@ -280,7 +281,8 @@ public class SerializationTest {
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFiles().size(), 2);
     assertEquals(
-        payload.getSamples().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
+        payload.getSamples().get(0).getDonor().getDonorSubmitterId(),
+        "internal_donor_123456789-00");
 
     val rootNode = JsonUtils.toJsonNode(payload.getData());
     val experimentNode = rootNode.path("experiment");
@@ -298,6 +300,7 @@ public class SerializationTest {
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
     assertEquals(payload.getFiles().size(), 2);
     assertEquals(
-        payload.getSamples().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
+        payload.getSamples().get(0).getDonor().getDonorSubmitterId(),
+        "internal_donor_123456789-00");
   }
 }

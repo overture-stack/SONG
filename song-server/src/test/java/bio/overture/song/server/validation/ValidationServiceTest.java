@@ -17,7 +17,6 @@
 package bio.overture.song.server.validation;
 
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.FILES;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
@@ -166,7 +165,8 @@ public class ValidationServiceTest {
       assertTrue(results.isPresent());
       val errors = Splitters.COMMA.splitToList(results.get());
       errors.forEach(
-          e -> assertTrue(e.matches("^#/files/[0|1]/fileMd5sum: string.*does not match pattern.*")));
+          e ->
+              assertTrue(e.matches("^#/files/[0|1]/fileMd5sum: string.*does not match pattern.*")));
     } else {
       assertFalse(
           format("Expecting validation not to have an error: %s", results.orElse(null)),

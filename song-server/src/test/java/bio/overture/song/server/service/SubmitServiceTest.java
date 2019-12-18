@@ -32,7 +32,6 @@ import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SE
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
 import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
@@ -49,7 +48,6 @@ import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import javax.transaction.Transactional;
 import lombok.Builder;
 import lombok.NonNull;

@@ -16,6 +16,27 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.entity.FileEntity;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.transaction.Transactional;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
@@ -27,26 +48,6 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
-import static com.google.common.collect.Lists.newArrayList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.FileEntity;
-import javax.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @Slf4j
 @SpringBootTest
@@ -73,6 +74,7 @@ public class FileServiceTest {
     val analysisId = "AN1";
     val study = DEFAULT_STUDY_ID;
     val type = "BAM";
+    val dataType = "DATA_TYPE_BAM";
     val size = 122333444455555L;
     val md5 = "20de2982390c60e33452bf8736c3a9f1";
     val file = fileService.securedRead(study, id);
@@ -85,6 +87,7 @@ public class FileServiceTest {
             .studyId(study)
             .fileSize(size)
             .fileType(type)
+            .dataType(dataType)
             .fileMd5sum(md5)
             .fileAccess(OPEN.toString())
             .build();
@@ -105,6 +108,7 @@ public class FileServiceTest {
     f.setStudyId(studyId);
 
     f.setFileSize(0L);
+    f.setDataType(randomGenerator.generateRandomAsciiString(10));
     f.setFileType(FAI);
     f.setFileMd5sum("6bb8ee7218e96a59e0ad898b4f5360f1");
     f.setInfo(metadata);
@@ -180,6 +184,7 @@ public class FileServiceTest {
             .analysisId(analysisId)
             .fileName(name)
             .studyId(study)
+            .dataType(randomGenerator.generateRandomAsciiString(10))
             .fileSize(size)
             .fileType(type)
             .fileMd5sum(md5)
@@ -198,6 +203,7 @@ public class FileServiceTest {
             .fileSize(123456789L)
             .fileType("FAI")
             .fileMd5sum("e1f2a096d90c2cb9e63338e41d805977")
+            .dataType(randomGenerator.generateRandomAsciiString(10))
             .fileAccess(CONTROLLED.toString())
             .build();
     s2.setInfo(metadata);
@@ -271,6 +277,7 @@ public class FileServiceTest {
     return FileEntity.builder()
         .objectId(randomGenerator.generateRandomUUIDAsString())
         .analysisId(analysisId)
+        .dataType(randomGenerator.generateRandomAsciiString(10))
         .fileName(randomGenerator.generateRandomUUIDAsString() + extension)
         .studyId(studyId)
         .fileSize((long) randomGenerator.generateRandomInt())
