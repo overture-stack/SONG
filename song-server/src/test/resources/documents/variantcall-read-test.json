@@ -15,7 +15,7 @@
       "sampleType": "Total RNA",
       "extraSampleInfo": "some more data for a variantCall sample_fs01",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fs01",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk_fs01",
         "specimenClass": "Tumour",
         "specimenType": "Primary tumour - other",
         "extraSpecimenInfo_0": "first for a variantCall specimen_fs01",
@@ -32,7 +32,7 @@
       "sampleType": "Total RNA",
       "extraSampleInfo": "some more data for a variantCall sample_fs02",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fs02",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk_fs02",
         "specimenClass": "Tumour",
         "specimenType": "Primary tumour - other",
         "extraSpecimenInfo": "some more data for a variantCall specimen_fs02"

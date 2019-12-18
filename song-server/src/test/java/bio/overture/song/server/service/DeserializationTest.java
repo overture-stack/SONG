@@ -97,7 +97,7 @@ public class DeserializationTest {
             .specimenClass(SPECIMEN_CLASS.stream().findAny().get())
             .specimenType(SPECIMEN_TYPE.stream().findAny().get())
             .specimenId("SP1")
-            .specimenSubmitterId("SUB_SP1")
+            .submitterSpecimenId("SUB_SP1")
             .build();
 
     val sa =

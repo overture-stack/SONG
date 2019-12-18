@@ -19,7 +19,7 @@
       "sampleType": "Like, totally RNA",
       "tissueCollectionMethod": "IV",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
         "specimenClass": "Normal-ish",
         "specimenType": "Normal - used tissue"
       },

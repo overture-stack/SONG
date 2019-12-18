@@ -47,6 +47,7 @@ import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
@@ -135,7 +136,7 @@ public class SerializationTest {
 
     val sp =
         Specimen.builder()
-            .specimenSubmitterId("internal_specimen_123456789_01")
+            .submitterSpecimenId("internal_specimen_123456789_01")
             .specimenClass("Normal")
             .specimenType("Normal - solid tissue")
             .build();
@@ -187,11 +188,11 @@ public class SerializationTest {
 
     val single =
         format(
-            "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
+            "{'donorId':'%s','submitterDonorId':'%s','studyId':'%s','donorGender':'%s',"
                 + "'roses':'red','violets':'blue'}",
             donorId, submitter, study, gender);
-    val metadata = JsonUtils.fromSingleQuoted("{'roses':'red','violets':'blue'}");
-    val json = JsonUtils.fromSingleQuoted(single);
+    val metadata = fromSingleQuoted("{'roses':'red','violets':'blue'}");
+    val json = fromSingleQuoted(single);
     val donor = JsonUtils.fromJson(json, DonorWithSpecimens.class);
     assertEquals(donor.getDonorId(), donorId);
     assertEquals(donor.getSubmitterDonorId(), submitter);
@@ -204,22 +205,21 @@ public class SerializationTest {
   @Test
   public void testDonorToJson() {
     val donor = new Donor();
-    val json = toJson(donor);
+    val actual = objectToTree(donor);
 
-    val expected = "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null}";
-    val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertEquals(json, expectedJson);
+    val expected = "{'donorId':null,'submitterDonorId':null,'studyId':null,'donorGender':null}";
+    val expectedJson = fromSingleQuoted(expected);
+    assertJsonEquals(expectedJson, actual, when(IGNORING_ARRAY_ORDER));
   }
 
   @Test
   public void testDonorSettings() {
     val donor = new Donor();
     donor.setDonorId(null);
-    val json = toJson(donor);
-    System.err.printf("json='%s'\n", json);
-    val expected = "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null}";
-    val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertEquals(json, expectedJson);
+    val actual = objectToTree(donor);
+    val expected = "{'donorId':null,'submitterDonorId':null,'studyId':null,'donorGender':null}";
+    val expectedJson = fromSingleQuoted(expected);
+    assertJsonEquals(expectedJson, actual, when(IGNORING_ARRAY_ORDER));
   }
 
   @Test
@@ -239,14 +239,14 @@ public class SerializationTest {
             .build();
     donor.setInfo(metadata);
 
-    val json = toJson(donor);
+    val actual = objectToTree(donor);
 
     val expected =
         format(
-            "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s'}",
+            "{'donorId':'%s','submitterDonorId':'%s','studyId':'%s','donorGender':'%s'}",
             id, submitterId, studyId, gender, metadata);
-    val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertEquals(json, expectedJson);
+    val expectedJson = fromSingleQuoted(expected);
+    assertJsonEquals(expectedJson, actual, when(IGNORING_ARRAY_ORDER));
   }
 
   @Test
@@ -255,7 +255,7 @@ public class SerializationTest {
         "{'files':[ { 'objectId': 'FI12345', 'fileName':'dna3.bam', 'fileMd5':'A1B2C3D4E5F6'},"
             + "{'objectId': 'FI34567', 'fileName': 'dna7.fasta', 'fileType':'BAM', 'fileSize':1234, 'fileMd5': 'F1E2D3'}]}";
 
-    val json = JsonUtils.fromSingleQuoted(singleQuotedJson);
+    val json = fromSingleQuoted(singleQuotedJson);
     val root = readTree(json);
     val files = root.get("files");
     String fileJson = toJson(files);

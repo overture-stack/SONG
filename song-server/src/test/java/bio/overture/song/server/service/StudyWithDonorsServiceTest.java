@@ -103,7 +103,7 @@ public class StudyWithDonorsServiceTest {
             .collect(toSet());
     assertEquals(expectedSpecimens.size(), numAnalysis);
     assertEquals(
-        expectedSpecimens.stream().map(Specimen::getSpecimenSubmitterId).distinct().count(),
+        expectedSpecimens.stream().map(Specimen::getSubmitterSpecimenId).distinct().count(),
         numAnalysis);
 
     // Extract expected samples and verify

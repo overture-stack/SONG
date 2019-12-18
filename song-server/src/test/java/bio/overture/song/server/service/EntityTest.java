@@ -99,7 +99,7 @@ public class EntityTest {
     val specimen1 =
         Specimen.builder()
             .specimenId("mySpecimen1")
-            .specimenSubmitterId("mySpecimenSubmitter1")
+            .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
             .specimenClass(SPECIMEN_CLASSES.get(2))
             .specimenType(SPECIMEN_TYPES.get(2))
@@ -108,7 +108,7 @@ public class EntityTest {
     val specimen2 =
         Specimen.builder()
             .specimenId("mySpecimen2")
-            .specimenSubmitterId("mySpecimenSubmitter2")
+            .submitterSpecimenId("mySpecimenSubmitter2")
             .donorId("myDonor2")
             .specimenClass(SPECIMEN_CLASSES.get(1))
             .specimenType(SPECIMEN_TYPES.get(1))
@@ -194,7 +194,7 @@ public class EntityTest {
     val specimen1 =
         Specimen.builder()
             .specimenId("mySpecimen1")
-            .specimenSubmitterId("mySpecimenSubmitter1")
+            .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
             .specimenClass(SPECIMEN_CLASSES.get(2))
             .specimenType(SPECIMEN_TYPES.get(2))
@@ -203,7 +203,7 @@ public class EntityTest {
     val specimen2 =
         Specimen.builder()
             .specimenId("mySpecimen2")
-            .specimenSubmitterId("mySpecimenSubmitter2")
+            .submitterSpecimenId("mySpecimenSubmitter2")
             .donorId("myDonor2")
             .specimenClass(SPECIMEN_CLASSES.get(1))
             .specimenType(SPECIMEN_TYPES.get(1))
@@ -329,7 +329,7 @@ public class EntityTest {
     val specimen1 =
         Specimen.builder()
             .specimenId("mySpecimen1")
-            .specimenSubmitterId("mySpecimenSubmitter1")
+            .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
             .specimenClass(SPECIMEN_CLASSES.get(2))
             .specimenType(SPECIMEN_TYPES.get(2))
@@ -338,7 +338,7 @@ public class EntityTest {
     val specimen2 =
         Specimen.builder()
             .specimenId("mySpecimen2")
-            .specimenSubmitterId("mySpecimenSubmitter2")
+            .submitterSpecimenId("mySpecimenSubmitter2")
             .donorId("myDonor2")
             .specimenClass(SPECIMEN_CLASSES.get(1))
             .specimenType(SPECIMEN_TYPES.get(1))
@@ -383,7 +383,7 @@ public class EntityTest {
     val s1 = new SpecimenWithSamples();
     s1.setDonorId(specimen1.getDonorId());
     s1.setSpecimenClass(specimen1.getSpecimenClass());
-    s1.setSpecimenSubmitterId(specimen1.getSpecimenSubmitterId());
+    s1.setSubmitterSpecimenId(specimen1.getSubmitterSpecimenId());
     s1.setSpecimenId(specimen1.getSpecimenId());
     s1.setSpecimenType(specimen1.getSpecimenType());
 
@@ -427,7 +427,7 @@ public class EntityTest {
     // Test getters
     assertEquals(s1.getDonorId(), specimen1.getDonorId());
     assertEquals(s1.getSpecimenClass(), specimen1.getSpecimenClass());
-    assertEquals(s1.getSpecimenSubmitterId(), specimen1.getSpecimenSubmitterId());
+    assertEquals(s1.getSubmitterSpecimenId(), specimen1.getSubmitterSpecimenId());
     assertEquals(s1.getSpecimenType(), specimen1.getSpecimenType());
     assertEquals(s1.getSpecimenId(), specimen1.getSpecimenId());
     assertThat(s1.getSamples(), containsInAnyOrder(sample11, sample12));
@@ -437,7 +437,7 @@ public class EntityTest {
     val sLeft = new SpecimenWithSamples();
     sLeft.setDonorId(specimen1.getDonorId());
     sLeft.setSpecimenClass(specimen1.getSpecimenClass());
-    sLeft.setSpecimenSubmitterId(specimen1.getSpecimenSubmitterId());
+    sLeft.setSubmitterSpecimenId(specimen1.getSubmitterSpecimenId());
     sLeft.setSpecimenId(specimen1.getSpecimenId());
     sLeft.setSpecimenType(specimen1.getSpecimenType());
     sLeft.setSamples(sampleGroup2);
@@ -445,7 +445,7 @@ public class EntityTest {
     val sRight = new SpecimenWithSamples();
     sRight.setDonorId(specimen1.getDonorId());
     sRight.setSpecimenClass(specimen1.getSpecimenClass());
-    sRight.setSpecimenSubmitterId(specimen1.getSpecimenSubmitterId());
+    sRight.setSubmitterSpecimenId(specimen1.getSubmitterSpecimenId());
     sRight.setSpecimenId(specimen1.getSpecimenId());
     sRight.setSpecimenType(specimen1.getSpecimenType());
     sampleGroup2.forEach(sRight::addSample);
@@ -479,7 +479,7 @@ public class EntityTest {
     val specimen1 =
         Specimen.builder()
             .specimenId("mySpecimen1")
-            .specimenSubmitterId("mySpecimenSubmitter1")
+            .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
             .specimenClass(SPECIMEN_CLASSES.get(2))
             .specimenType(SPECIMEN_TYPES.get(2))
@@ -488,7 +488,7 @@ public class EntityTest {
     val specimen2 =
         Specimen.builder()
             .specimenId("mySpecimen2")
-            .specimenSubmitterId("mySpecimenSubmitter2")
+            .submitterSpecimenId("mySpecimenSubmitter2")
             .donorId("myDonor2")
             .specimenClass(SPECIMEN_CLASSES.get(1))
             .specimenType(SPECIMEN_TYPES.get(1))
@@ -871,7 +871,7 @@ public class EntityTest {
     val specimen1 =
         Specimen.builder()
             .specimenId("mySpecimen1")
-            .specimenSubmitterId("mySpecimenSubmitter1")
+            .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
             .specimenClass(SPECIMEN_CLASSES.get(2))
             .specimenType(SPECIMEN_TYPES.get(2))
@@ -880,7 +880,7 @@ public class EntityTest {
     val specimen2 =
         Specimen.builder()
             .specimenId("mySpecimen2")
-            .specimenSubmitterId("mySpecimenSubmitter2")
+            .submitterSpecimenId("mySpecimenSubmitter2")
             .donorId("myDonor2")
             .specimenClass(SPECIMEN_CLASSES.get(1))
             .specimenType(SPECIMEN_TYPES.get(1))
@@ -1201,7 +1201,7 @@ public class EntityTest {
     val specimen1 =
         Specimen.builder()
             .specimenId("mySpecimen1")
-            .specimenSubmitterId("mySpecimenSubmitter1")
+            .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
             .specimenClass(SPECIMEN_CLASSES.get(2))
             .specimenType(SPECIMEN_TYPES.get(2))
@@ -1210,7 +1210,7 @@ public class EntityTest {
     val specimen2 =
         Specimen.builder()
             .specimenId("mySpecimen2")
-            .specimenSubmitterId("mySpecimenSubmitter2")
+            .submitterSpecimenId("mySpecimenSubmitter2")
             .donorId("myDonor2")
             .specimenClass(SPECIMEN_CLASSES.get(1))
             .specimenType(SPECIMEN_TYPES.get(1))
@@ -1638,13 +1638,13 @@ public class EntityTest {
     s1.setDonorId("a1");
     s1.setSpecimenClass(SPECIMEN_CLASSES.get(0));
     s1.setSpecimenId("b1");
-    s1.setSpecimenSubmitterId("c1");
+    s1.setSubmitterSpecimenId("c1");
     s1.setSpecimenType(SPECIMEN_TYPES.get(0));
 
     val s1_same =
         Specimen.builder()
             .specimenId("b1")
-            .specimenSubmitterId("c1")
+            .submitterSpecimenId("c1")
             .donorId("a1")
             .specimenClass(SPECIMEN_CLASSES.get(0))
             .specimenType(SPECIMEN_TYPES.get(0))
@@ -1655,7 +1655,7 @@ public class EntityTest {
     val s2 =
         Specimen.builder()
             .specimenId("b2")
-            .specimenSubmitterId("c2")
+            .submitterSpecimenId("c2")
             .donorId("a2")
             .specimenClass(SPECIMEN_CLASSES.get(1))
             .specimenType(SPECIMEN_TYPES.get(1))
@@ -1669,7 +1669,7 @@ public class EntityTest {
     // Test getters
     assertEquals(s1.getSpecimenType(), SPECIMEN_TYPES.get(0));
     assertEquals(s1.getSpecimenClass(), SPECIMEN_CLASSES.get(0));
-    assertEquals(s1.getSpecimenSubmitterId(), "c1");
+    assertEquals(s1.getSubmitterSpecimenId(), "c1");
     assertEquals(s1.getSpecimenId(), "b1");
     assertEquals(s1.getDonorId(), "a1");
     assertInfoKVPair(s1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");

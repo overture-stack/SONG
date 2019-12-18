@@ -17,43 +17,6 @@
 
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.exceptions.ServerErrors;
-import bio.overture.song.core.model.enums.AccessTypes;
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.converter.FileConverter;
-import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.analysis.Analysis;
-import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
-import com.google.common.collect.ImmutableList;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import javax.transaction.Transactional;
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.stream.Collectors.toList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
 import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
@@ -69,6 +32,42 @@ import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.SOM
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.resolveLegacyAnalysisTypeName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.exceptions.ServerErrors;
+import bio.overture.song.core.model.enums.AccessTypes;
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.converter.FileConverter;
+import bio.overture.song.server.model.StorageObject;
+import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
+import javax.transaction.Transactional;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @Slf4j
 @SpringBootTest

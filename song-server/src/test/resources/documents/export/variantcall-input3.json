@@ -13,7 +13,7 @@
       "sampleType": "Total RNA",
       "size" : 53,
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk3",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk3",
         "specimenClass": "Tumour",
         "specimenType": "Primary tumour - other",
         "ratio" : "1:3"

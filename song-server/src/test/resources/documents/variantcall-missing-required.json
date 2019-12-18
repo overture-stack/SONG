@@ -10,7 +10,7 @@
     {
       "sampleType": "Total RNA",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
         "specimenClass": "Normal",
         "specimenType": "Normal - solid tissue"
       },

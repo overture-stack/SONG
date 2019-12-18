@@ -56,7 +56,7 @@ public class SecureSpecimenTester extends AbstractSecureTester<String> {
     val specimen =
         Specimen.builder()
             .donorId(donorId)
-            .specimenSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
+            .submitterSpecimenId(getRandomGenerator().generateRandomUUIDAsString())
             .specimenType(
                 getRandomGenerator().randomElement(Lists.newArrayList(Constants.SPECIMEN_TYPE)))
             .specimenClass(

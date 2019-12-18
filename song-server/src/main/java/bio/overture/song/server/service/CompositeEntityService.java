@@ -66,7 +66,7 @@ public class CompositeEntityService {
 
   private String getSampleParent(String studyId, CompositeEntity s) {
     val specimen = s.getSpecimen();
-    String id = specimenService.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
+    String id = specimenService.findByBusinessKey(studyId, specimen.getSubmitterSpecimenId());
     specimen.setDonorId(getSpecimenParent(studyId, s));
     if (isNull(id)) {
       id = specimenService.create(studyId, specimen);

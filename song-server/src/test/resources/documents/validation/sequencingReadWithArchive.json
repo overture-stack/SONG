@@ -21,7 +21,7 @@
       "sampleType": "Total RNA",
       "tissueCollectionMethod": "IV",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_123456789_01",
+        "submitterSpecimenId": "internal_specimen_123456789_01",
         "specimenClass": "Normal",
         "specimenType": "Normal - solid tissue"
       },

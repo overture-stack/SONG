@@ -53,7 +53,7 @@ public class PayloadGenerator {
             x -> {
               x.setSampleSubmitterId(randomGenerator.generateRandomUUID().toString());
               x.getSpecimen()
-                  .setSpecimenSubmitterId(randomGenerator.generateRandomUUID().toString());
+                  .setSubmitterSpecimenId(randomGenerator.generateRandomUUID().toString());
               x.getDonor().setSubmitterDonorId(randomGenerator.generateRandomUUID().toString());
             });
     return payload;

@@ -17,22 +17,21 @@
 
 package bio.overture.song.server.converter;
 
+import static org.mapstruct.NullValuePropertyMappingStrategy.SET_TO_DEFAULT;
+
 import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.config.ConverterConfig;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import java.util.Collection;
+import java.util.List;
 import lombok.val;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-
-import java.util.Collection;
-import java.util.List;
-
-import static org.mapstruct.NullValuePropertyMappingStrategy.SET_TO_DEFAULT;
 
 @Mapper(
     config = ConverterConfig.class,

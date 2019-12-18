@@ -211,7 +211,7 @@ public class SampleServiceTest {
         randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_CLASS)));
     specimen.setSpecimenType(
         randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_TYPE)));
-    specimen.setSpecimenSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    specimen.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
 
     // Create specimen
     val specimenId = specimenService.create(studyId, specimen);

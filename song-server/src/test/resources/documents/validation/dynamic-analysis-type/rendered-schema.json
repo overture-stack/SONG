@@ -135,12 +135,12 @@
       "specimenData": {
         "type": "object",
         "required" : [
-          "specimenSubmitterId",
+          "submitterSpecimenId",
           "specimenClass",
           "specimenType"
         ],
         "properties": {
-          "specimenSubmitterId": { "$ref" : "#/definitions/common/submitterId" },
+          "submitterSpecimenId": { "$ref" : "#/definitions/common/submitterId" },
           "specimenClass": { "$ref" : "#/definitions/specimen/specimenClass" },
           "specimenType": { "$ref" : "#/definitions/specimen/specimenType" },
           "info": { "$ref" : "#/definitions/common/info"}

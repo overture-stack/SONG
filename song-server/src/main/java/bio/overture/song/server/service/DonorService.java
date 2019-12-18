@@ -207,7 +207,7 @@ public class DonorService {
 
   public Optional<String> findByBusinessKey(
       @NonNull String studyId, @NonNull String donorSubmitterId) {
-    return donorRepository.findAllByStudyIdAndDonorSubmitterId(studyId, donorSubmitterId).stream()
+    return donorRepository.findAllByStudyIdAndSubmitterDonorId(studyId, donorSubmitterId).stream()
         .map(Donor::getDonorId)
         .findFirst();
   }

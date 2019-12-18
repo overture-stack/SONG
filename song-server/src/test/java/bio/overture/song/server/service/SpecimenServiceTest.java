@@ -86,7 +86,7 @@ public class SpecimenServiceTest {
     val id = "SP1";
     val s = specimenService.securedRead(DEFAULT_STUDY_ID, id);
     assertEquals(s.getSpecimenId(), id);
-    assertEquals(s.getSpecimenSubmitterId(), "Tissue-Culture 284 Gamma 3");
+    assertEquals(s.getSubmitterSpecimenId(), "Tissue-Culture 284 Gamma 3");
     assertEquals(s.getSpecimenClass(), "Tumour");
     assertEquals(s.getSpecimenType(), "Recurrent tumour - solid tissue");
     assertEquals(getInfoName(s), "specimen1");
@@ -104,7 +104,7 @@ public class SpecimenServiceTest {
         Specimen.builder()
             .specimenId(null)
             .donorId(donorId)
-            .specimenSubmitterId(submitterId)
+            .submitterSpecimenId(submitterId)
             .specimenClass(specimenClass)
             .specimenType(specimenType)
             .build();
@@ -131,7 +131,7 @@ public class SpecimenServiceTest {
 
     val specimen = specimenService.readWithSamples(specimenId);
     assertEquals(specimen.getSpecimenId(), specimenId);
-    assertEquals(specimen.getSpecimenSubmitterId(), submitterId);
+    assertEquals(specimen.getSubmitterSpecimenId(), submitterId);
     assertEquals(specimen.getSpecimenClass(), specimenClass);
     assertEquals(specimen.getSpecimenType(), specimenType);
     assertEquals(specimen.getSamples().size(), 2);
@@ -156,7 +156,7 @@ public class SpecimenServiceTest {
     val s =
         Specimen.builder()
             .specimenId("")
-            .specimenSubmitterId("Specimen 101 Ipsilon Prime")
+            .submitterSpecimenId("Specimen 101 Ipsilon Prime")
             .donorId(donorId)
             .specimenClass("Tumour")
             .specimenType("Cell line - derived from tumour")
@@ -200,7 +200,7 @@ public class SpecimenServiceTest {
     val s =
         Specimen.builder()
             .specimenId("")
-            .specimenSubmitterId("Specimen 102 Chiron-Beta Prime")
+            .submitterSpecimenId("Specimen 102 Chiron-Beta Prime")
             .donorId(donorId)
             .specimenClass("Tumour")
             .specimenType("Metastatic tumour - additional metastatic")
@@ -229,7 +229,7 @@ public class SpecimenServiceTest {
     val s2 =
         Specimen.builder()
             .specimenId(id)
-            .specimenSubmitterId("Specimen 102")
+            .submitterSpecimenId("Specimen 102")
             .donorId(s.getDonorId())
             .specimenClass("Normal")
             .specimenType("Normal - other")
@@ -274,7 +274,7 @@ public class SpecimenServiceTest {
 
     val specimen = new Specimen();
     specimen.setSpecimenType(randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)));
-    specimen.setSpecimenSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    specimen.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
     specimen.setSpecimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)));
     specimen.setDonorId(donorId);
 
@@ -293,7 +293,7 @@ public class SpecimenServiceTest {
     // persisted
     val specimen2 = new Specimen();
     specimen2.setSpecimenType(randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)));
-    specimen2.setSpecimenSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    specimen2.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
     specimen2.setSpecimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)));
     specimen2.setDonorId(donorId);
     specimen2.setSpecimenId(randomGenerator.generateRandomUUIDAsString());
@@ -336,7 +336,7 @@ public class SpecimenServiceTest {
       val specimen =
           Specimen.builder()
               .specimenId("")
-              .specimenSubmitterId(randomGenerator.generateRandomUUIDAsString())
+              .submitterSpecimenId(randomGenerator.generateRandomUUIDAsString())
               .donorId(donorId)
               .specimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)))
               .specimenType(randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)))
@@ -428,7 +428,7 @@ public class SpecimenServiceTest {
     val specimen =
         Specimen.builder()
             .specimenId(randomSpecimenId)
-            .specimenSubmitterId(randomGenerator.generateRandomUUIDAsString())
+            .submitterSpecimenId(randomGenerator.generateRandomUUIDAsString())
             .donorId(DEFAULT_DONOR_ID)
             .specimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)))
             .specimenType(randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)))

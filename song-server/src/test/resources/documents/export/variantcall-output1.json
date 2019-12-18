@@ -15,7 +15,7 @@
         "size" : 5
       },
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
         "specimenClass": "Tumour",
         "specimenType": "Primary tumour - other",
         "info": {

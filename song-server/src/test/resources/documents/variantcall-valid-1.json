@@ -15,7 +15,7 @@
       "sampleSubmitterId": "internal_sample_98024759826836-v0001",
       "sampleType": "Total RNA",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk-v0001",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk-v0001",
         "specimenClass": "Tumour",
         "specimenType": "Primary tumour - other"
       },

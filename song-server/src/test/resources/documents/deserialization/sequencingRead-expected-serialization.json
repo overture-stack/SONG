@@ -14,7 +14,7 @@
       "sampleSubmitterId" : "internal_sample_123456789_01",
       "sampleType" : "Total RNA",
       "specimen" : {
-        "specimenSubmitterId" : "internal_specimen_123456789_01",
+        "submitterSpecimenId" : "internal_specimen_123456789_01",
         "specimenClass" : "Normal",
         "specimenType" : "Normal - solid tissue"
       },

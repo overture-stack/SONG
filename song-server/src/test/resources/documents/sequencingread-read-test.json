@@ -19,7 +19,7 @@
       "sampleType": "Total RNA",
       "extraSampleInfo": "some more data for a sequencingRead sample_fr01",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fr01",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk_fr01",
         "specimenClass": "Tumour",
         "specimenType": "Primary tumour - other",
         "extraSpecimenInfo_0": "first for a sequencingRead specimen_fr01",
@@ -36,7 +36,7 @@
       "sampleType": "Total RNA",
       "extraSampleInfo": "some more data for a sequencingRead sample_fr02",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk_fr02",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk_fr02",
         "specimenClass": "Tumour",
         "specimenType": "Primary tumour - other",
         "extraSpecimenInfo": "some more data for a sequencingRead specimen_fr02"

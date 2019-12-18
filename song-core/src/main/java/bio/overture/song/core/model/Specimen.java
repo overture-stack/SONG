@@ -17,7 +17,7 @@ public class Specimen extends Metadata {
 
   private String specimenId;
   private String donorId;
-  private String specimenSubmitterId;
+  private String submitterSpecimenId;
   private String specimenClass;
   private String specimenType;
 }
