@@ -47,8 +47,6 @@ import org.springframework.context.annotation.Profile;
 public class ValidationConfig {
 
   private static String[] schemaList = {
-    "schemas/sequencingRead.json",
-    "schemas/variantCall.json",
     "schemas/fileUpdateRequest.json",
     "schemas/storageDownloadResponse.json"
   };
@@ -89,11 +87,4 @@ public class ValidationConfig {
     return cache;
   }
 
-  @Bean
-  public Map<String, String> jsonSchemaMap() {
-    return ImmutableMap.<String, String>builder()
-        .put(SEQUENCING_READ_TYPE, "schemas/sequencingRead.json")
-        .put(VARIANT_CALL_TYPE, "schemas/variantCall.json")
-        .build();
-  }
 }

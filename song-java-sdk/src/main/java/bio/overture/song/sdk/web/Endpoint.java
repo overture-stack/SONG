@@ -16,13 +16,14 @@
  */
 package bio.overture.song.sdk.web;
 
-import static bio.overture.song.core.utils.Joiners.COMMA;
-import static java.lang.String.format;
-
 import bio.overture.song.core.web.RequestParamBuilder;
 import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
-import java.util.List;
 import lombok.NonNull;
+
+import java.util.List;
+
+import static java.lang.String.format;
+import static bio.overture.song.core.utils.Joiners.COMMA;
 
 public class Endpoint {
 
@@ -37,7 +38,7 @@ public class Endpoint {
   }
 
   public String submit(@NonNull String studyId) {
-    return format("%s/upload/%s", serverUrl, studyId);
+    return format("%s/submit/%s", serverUrl, studyId);
   }
 
   public String getAnalysisFiles(@NonNull String studyId, @NonNull String analysisId) {

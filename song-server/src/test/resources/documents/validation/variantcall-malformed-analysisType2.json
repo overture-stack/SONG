@@ -1,10 +1,10 @@
 {
-  "study": "ABC123",
+  "studyId": "ABC123",
   "experiment": {
     "variantCallingTool": "silver bullet",
     "matchedNormalSampleSubmitterId": "sample x24-11a"
   },
-  "sample": [
+  "samples": [
     {
       "sampleSubmitterId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",
@@ -19,7 +19,7 @@
       }
     }
   ],
-  "file": [
+  "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
       "fileSize": 376953,

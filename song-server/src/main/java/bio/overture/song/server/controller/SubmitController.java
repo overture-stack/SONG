@@ -17,15 +17,10 @@
 
 package bio.overture.song.server.controller;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import bio.overture.song.core.model.SubmitResponse;
-import bio.overture.song.server.service.UploadService;
+import bio.overture.song.server.service.SubmitService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +32,21 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @Slf4j
 @RestController
-@RequestMapping(path = "/upload")
+@RequestMapping(path = "/submit")
 @RequiredArgsConstructor
-@Api(tags = "Upload", description = "Submit and validate json metadata")
-public class UploadController {
+@Api(tags = "Submit", description = "Submit and validate json metadata")
+public class SubmitController {
 
   /** Dependencies */
-  @Autowired private final UploadService uploadService;
+  @Autowired private final SubmitService submitService;
 
   @ApiOperation(value = "Submit", notes = "Synchronously submit a json payload")
   @PostMapping(
@@ -56,6 +57,6 @@ public class UploadController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @RequestBody @Valid String json_payload) {
-    return uploadService.submit(studyId, json_payload);
+    return submitService.submit(studyId, json_payload);
   }
 }

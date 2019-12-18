@@ -1,12 +1,12 @@
 {
-  "study" : "ABC123",
+  "studyId": "ABC123",
   "analysisType" : {
     "name" : "variantCall",
     "version" : 1
   },
   "experiment": {
   },
-  "sample": [
+  "samples": [
     {
       "sampleType": "Total RNA",
       "specimen": {

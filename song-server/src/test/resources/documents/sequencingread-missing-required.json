@@ -1,5 +1,5 @@
 {
-  "study" : "ABC123",
+  "studyId": "ABC123",
   "analysisType" : {
     "name" : "sequencingRead",
     "version" : 1
@@ -16,7 +16,7 @@
       "marginOfError": "0.01%"
     }
   },
-  "sample": [
+  "samples": [
     {
       "sampleType": "Total RNA",
       "tissueCollectionMethod": "IV",
@@ -32,7 +32,7 @@
       }
     }
   ],
-  "file": [
+  "files": [
     {
       "fileType": "VCF",
       "fileSize": 376953,

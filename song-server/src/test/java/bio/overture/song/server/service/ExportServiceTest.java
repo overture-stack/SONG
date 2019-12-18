@@ -17,21 +17,6 @@
 
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static java.lang.String.format;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
-import static net.javacrumbs.jsonunit.JsonAssert.when;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -40,10 +25,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
@@ -58,6 +39,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static java.lang.String.format;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static bio.overture.song.core.utils.CollectionUtils.mapToImmutableSet;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -65,7 +67,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ExportServiceTest {
 
   @Autowired private StudyService studyService;
-  @Autowired private UploadService uploadService;
+  @Autowired private SubmitService submitService;
   @Autowired private ExportService exportService;
 
   private StudyGenerator studyGenerator;
@@ -184,13 +186,13 @@ public class ExportServiceTest {
     for (val fixtureNumber : fixtureNumbers) {
       val inputFilename = format("documents/export/variantcall-input%d.json", fixtureNumber);
       val inputPayloadJson = (ObjectNode) getJsonNodeFromClasspath(inputFilename);
-      inputPayloadJson.put("study", studyId);
+      inputPayloadJson.put(STUDY_ID, studyId);
 
-      val analysisId = uploadService.submit(studyId, toJson(inputPayloadJson)).getAnalysisId();
+      val analysisId = submitService.submit(studyId, toJson(inputPayloadJson)).getAnalysisId();
 
       val outputFilename = format("documents/export/variantcall-output%d.json", fixtureNumber);
       val outputExportedPayloadJson = (ObjectNode) getJsonNodeFromClasspath(outputFilename);
-      outputExportedPayloadJson.put("study", studyId);
+      outputExportedPayloadJson.put(STUDY_ID, studyId);
 
       output.add(
           new TData()

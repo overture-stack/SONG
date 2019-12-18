@@ -160,7 +160,7 @@ public class AnalysisServiceTest {
     assertEquals(created.getAnalysisId(), analysisId);
     assertEquals(created.getAnalysisState(), "UNPUBLISHED");
     assertEquals(created.getAnalysisSchema().getName(), "sequencingRead");
-    assertEquals(created.getSample().size(), 1);
+    assertEquals(created.getSamples().size(), 1);
     val data = created.getAnalysisData().getData();
 
     assertTrue(data.has("experiment"));
@@ -178,7 +178,7 @@ public class AnalysisServiceTest {
     assertEquals(created.getAnalysisId(), analysisId);
     assertEquals(created.getAnalysisState(), UNPUBLISHED.toString());
     assertEquals(created.getAnalysisSchema().getName(), "variantCall");
-    assertEquals(created.getSample().size(), 1);
+    assertEquals(created.getSamples().size(), 1);
     assertTrue(created.getAnalysisData().getData().has("experiment"));
     assertEquals(extractVariantCallingTool(created.getAnalysisData()), "silver bullet");
     assertTrue(created.getAnalysisData().getData().path("experiment").has("extraInfo"));
@@ -222,7 +222,7 @@ public class AnalysisServiceTest {
     // Asserting Analysis
     assertEquals(a.getAnalysisState(), "UNPUBLISHED");
     assertEquals(a.getAnalysisSchema().getName(), "variantCall");
-    assertEquals(a.getStudy(), DEFAULT_STUDY_ID);
+    assertEquals(a.getStudyId(), DEFAULT_STUDY_ID);
     assertEquals(
         TestAnalysis.extractString(a, "info", "description1"),
         "description1 for this variantCall analysis an01");
@@ -239,9 +239,9 @@ public class AnalysisServiceTest {
         "some more data for a variantCall experiment ex01");
 
     // Asserting Sample
-    assertEquals(a.getSample().size(), 2);
+    assertEquals(a.getSamples().size(), 2);
     val sample0 =
-        a.getSample().stream()
+        a.getSamples().stream()
             .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fs01"))
             .findAny()
             .orElse(null);
@@ -264,7 +264,7 @@ public class AnalysisServiceTest {
         specimen00, "extraSpecimenInfo_1", "second data for a variantCall specimen_fs01");
 
     val sample1 =
-        a.getSample().stream()
+        a.getSamples().stream()
             .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fs02"))
             .findAny()
             .orElse(null);
@@ -287,10 +287,10 @@ public class AnalysisServiceTest {
     assertInfoKVPair(
         specimen01, "extraSpecimenInfo", "some more data for a variantCall specimen_fs02");
 
-    assertEquals(a.getFile().size(), 3);
-    val file0 = a.getFile().get(0);
-    val file1 = a.getFile().get(1);
-    val file2 = a.getFile().get(2);
+    assertEquals(a.getFiles().size(), 3);
+    val file0 = a.getFiles().get(0);
+    val file1 = a.getFiles().get(1);
+    val file2 = a.getFiles().get(2);
     assertEquals(file0.getAnalysisId(), analysisId);
     assertEquals(file1.getAnalysisId(), analysisId);
     assertEquals(file2.getAnalysisId(), analysisId);
@@ -305,7 +305,7 @@ public class AnalysisServiceTest {
     val fileName2 =
         "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx";
 
-    for (val file : a.getFile()) {
+    for (val file : a.getFiles()) {
       if (file.getFileName().equals(fileName0)) {
         assertEquals(file.getFileName(), fileName0);
         assertEquals(file.getFileSize().longValue(), 376953L);
@@ -348,7 +348,7 @@ public class AnalysisServiceTest {
     // Asserting Analysis
     assertEquals(a.getAnalysisState(), "UNPUBLISHED");
     assertEquals(a.getAnalysisSchema().getName(), "sequencingRead");
-    assertEquals(a.getStudy(), DEFAULT_STUDY_ID);
+    assertEquals(a.getStudyId(), DEFAULT_STUDY_ID);
     assertEquals(
         TestAnalysis.extractString(a, "info", "description1"),
         "description1 for this sequencingRead analysis an01");
@@ -371,9 +371,9 @@ public class AnalysisServiceTest {
     val sampleMap = Maps.<String, CompositeEntity>newHashMap();
 
     // Asserting Sample
-    assertEquals(a.getSample().size(), 2);
+    assertEquals(a.getSamples().size(), 2);
     val sample0 =
-        a.getSample().stream()
+        a.getSamples().stream()
             .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fr01"))
             .findFirst()
             .get();
@@ -397,7 +397,7 @@ public class AnalysisServiceTest {
         specimen00, "extraSpecimenInfo_1", "second data for a sequencingRead specimen_fr01");
 
     val sample1 =
-        a.getSample().stream()
+        a.getSamples().stream()
             .filter(x -> x.getSampleSubmitterId().equals("internal_sample_98024759826836_fr02"))
             .findFirst()
             .get();
@@ -420,10 +420,10 @@ public class AnalysisServiceTest {
     assertInfoKVPair(
         specimen01, "extraSpecimenInfo", "some more data for a sequencingRead specimen_fr02");
 
-    assertEquals(a.getFile().size(), 3);
-    val file0 = a.getFile().get(0);
-    val file1 = a.getFile().get(1);
-    val file2 = a.getFile().get(2);
+    assertEquals(a.getFiles().size(), 3);
+    val file0 = a.getFiles().get(0);
+    val file1 = a.getFiles().get(1);
+    val file2 = a.getFiles().get(2);
     assertEquals(file0.getAnalysisId(), analysisId);
     assertEquals(file1.getAnalysisId(), analysisId);
     assertEquals(file2.getAnalysisId(), analysisId);
@@ -436,7 +436,7 @@ public class AnalysisServiceTest {
     val fileName2 = "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.bam.bai";
     val fileMap = Maps.<String, FileEntity>newHashMap();
 
-    for (val file : a.getFile()) {
+    for (val file : a.getFiles()) {
       fileMap.put(file.getFileName(), file);
       if (file.getFileName().equals(fileName0)) {
         assertEquals(file.getFileName(), fileName0);
@@ -489,7 +489,7 @@ public class AnalysisServiceTest {
     val an = analysisGenerator.createDefaultRandomAnalysis(SEQUENCING_READ);
     assertEquals(an.getAnalysisState(), "UNPUBLISHED");
     val id = an.getAnalysisId();
-    val studyId = an.getStudy();
+    val studyId = an.getStudyId();
 
     service.suppress(studyId, id);
     val analysis = service.securedDeepRead(studyId, id);
@@ -525,7 +525,7 @@ public class AnalysisServiceTest {
   public void testNoDuplicateAnalysisAttemptError() {
     val an1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val equivalentPayload = exportService.convertToPayloadDTO(an1);
-    val differentAnalysisId = service.create(an1.getStudy(), equivalentPayload);
+    val differentAnalysisId = service.create(an1.getStudyId(), equivalentPayload);
     assertNotEquals(an1, differentAnalysisId);
   }
 
@@ -671,7 +671,8 @@ public class AnalysisServiceTest {
     assertTrue(fileRepository.findAllByAnalysisId(analysisId1).isEmpty());
     assertSongError(() -> service.unsecuredReadFiles(analysisId1), ANALYSIS_MISSING_FILES);
     assertSongError(
-        () -> service.securedReadFiles(analysis1.getStudy(), analysisId1), ANALYSIS_MISSING_FILES);
+        () -> service.securedReadFiles(analysis1.getStudyId(), analysisId1),
+        ANALYSIS_MISSING_FILES);
 
     val analysis2 = analysisGenerator.createDefaultRandomVariantCallAnalysis();
     val analysisId2 = analysis2.getAnalysisId();
@@ -679,7 +680,8 @@ public class AnalysisServiceTest {
     assertTrue(fileRepository.findAllByAnalysisId(analysisId2).isEmpty());
     assertSongError(() -> service.unsecuredReadFiles(analysisId2), ANALYSIS_MISSING_FILES);
     assertSongError(
-        () -> service.securedReadFiles(analysis2.getStudy(), analysisId2), ANALYSIS_MISSING_FILES);
+        () -> service.securedReadFiles(analysis2.getStudyId(), analysisId2),
+        ANALYSIS_MISSING_FILES);
   }
 
   @Test
@@ -821,7 +823,7 @@ public class AnalysisServiceTest {
                         .boxed()
                         .map(a -> (Analysis) x.createDefaultRandomAnalysis(selectAnalysisType(a))))
             .flatMap(x -> x)
-            .collect(groupingBy(Analysis::getStudy));
+            .collect(groupingBy(Analysis::getStudyId));
 
     val studyId = study2AnalysesMap.keySet().stream().findFirst().get();
     val expectedAnalyses = study2AnalysesMap.get(studyId);
@@ -852,7 +854,7 @@ public class AnalysisServiceTest {
   private void runUnpublishStateTest(LegacyAnalysisTypeName legacyAnalysisTypeName) {
     val a = analysisGenerator.createDefaultRandomAnalysis(legacyAnalysisTypeName);
     val analysisId = a.getAnalysisId();
-    val studyId = a.getStudy();
+    val studyId = a.getStudyId();
 
     // 1: UNPUBLISHED -> UNPUBLISHED
     service.securedUpdateState(studyId, analysisId, UNPUBLISHED);
@@ -904,7 +906,7 @@ public class AnalysisServiceTest {
 
   private Analysis createSRAnalysisWithState(AnalysisGenerator generator, AnalysisStates state) {
     val a = generator.createDefaultRandomSequencingReadAnalysis();
-    service.securedUpdateState(a.getStudy(), a.getAnalysisId(), state);
+    service.securedUpdateState(a.getStudyId(), a.getAnalysisId(), state);
     return service.unsecuredDeepRead(a.getAnalysisId());
   }
 
@@ -915,7 +917,7 @@ public class AnalysisServiceTest {
 
     sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(analysisId);
     assertEquals(sampleSetRepository.findAllBySampleSetPK_AnalysisId(analysisId).size(), 0);
-    analysis.getSample().stream().map(Sample::getSampleId).forEach(sampleRepository::deleteById);
+    analysis.getSamples().stream().map(Sample::getSampleId).forEach(sampleRepository::deleteById);
     assertSongError(() -> service.readSamples(analysisId), ANALYSIS_MISSING_SAMPLES);
   }
 
@@ -927,15 +929,15 @@ public class AnalysisServiceTest {
     assertFunctionEqual(l, r, Analysis::getAnalysisId);
     assertFunctionEqual(l, r, Analysis::getAnalysisState);
     assertFunctionEqual(l, r, x -> x.getAnalysisSchema().getName());
-    assertFunctionEqual(l, r, Analysis::getStudy);
+    assertFunctionEqual(l, r, Analysis::getStudyId);
     assertFunctionEqual(l, r, x -> x.getAnalysisData().getData());
 
-    val leftFiles = newHashSet(l.getFile());
-    val rightFiles = newHashSet(r.getFile());
+    val leftFiles = newHashSet(l.getFiles());
+    val rightFiles = newHashSet(r.getFiles());
     assertCollectionsMatchExactly(leftFiles, rightFiles);
 
-    val leftSamples = newHashSet(l.getSample());
-    val rightSamples = newHashSet(r.getSample());
+    val leftSamples = newHashSet(l.getSamples());
+    val rightSamples = newHashSet(r.getSamples());
     assertCollectionsMatchExactly(leftSamples, rightSamples);
 
     assertEquals(l.getAnalysisData(), r.getAnalysisData());

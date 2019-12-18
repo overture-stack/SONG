@@ -19,7 +19,7 @@ package bio.overture.song.server.utils.generator;
 
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
 import static lombok.AccessLevel.PRIVATE;
@@ -48,7 +48,7 @@ public class PayloadGenerator {
     val json = TestFiles.getJsonStringFromClasspath(payloadFilename);
     val payload = fromJson(json, Payload.class);
     payload
-        .getSample()
+        .getSamples()
         .forEach(
             x -> {
               x.setSampleSubmitterId(randomGenerator.generateRandomUUID().toString());
@@ -92,6 +92,6 @@ public class PayloadGenerator {
   }
 
   public static void updateStudyInPayload(JsonNode payload, String studyId) {
-    ((ObjectNode) payload).put(STUDY, studyId);
+    ((ObjectNode) payload).put(STUDY_ID, studyId);
   }
 }

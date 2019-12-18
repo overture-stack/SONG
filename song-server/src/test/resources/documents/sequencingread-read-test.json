@@ -1,5 +1,5 @@
 {
-  "study" : "ABC123",
+  "studyId": "ABC123",
   "analysisType" : {
     "name" : "sequencingRead",
     "version" : 1
@@ -13,7 +13,7 @@
     "libraryStrategy": "WXS",
     "extraExperimentInfo": "some more data for a sequencingRead experiment ex02"
   },
-  "sample": [
+  "samples": [
     {
       "sampleSubmitterId": "internal_sample_98024759826836_fr01",
       "sampleType": "Total RNA",
@@ -49,7 +49,7 @@
       }
     }
   ],
-  "file": [
+  "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn1.MUSE_1-0rc-vcf.20170711.bam",
       "fileSize": 1212121,

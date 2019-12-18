@@ -7,7 +7,7 @@
     "variantCallingTool": "silver bullet2",
     "matchedNormalSampleSubmitterId": "sample x24-11a2"
   },
-  "sample": [
+  "samples": [
     {
       "sampleSubmitterId": "internal_sample_98024759826832",
       "sampleType": "Total RNA",
@@ -31,7 +31,7 @@
       }
     }
   ],
-  "file": [
+  "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711-2.somatic.snv_mnv.vcf.gz",
       "fileSize": 3769532,

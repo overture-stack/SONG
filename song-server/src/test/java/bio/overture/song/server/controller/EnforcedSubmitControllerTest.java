@@ -17,21 +17,12 @@
 
 package bio.overture.song.server.controller;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.nio.file.Paths;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
@@ -44,11 +35,21 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.nio.file.Paths;
+
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(secure = false)
 @ActiveProfiles({"test"})
 @SpringBootTest(properties = "schemas.enforceLatest=true")
-public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
+public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
 
   /** Dependencies */
   @Autowired private WebApplicationContext webApplicationContext;
@@ -84,13 +85,13 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   public void testInvalidSpecimen() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("sample").get(0).get("specimen");
+    val s = (ObjectNode) j.get("samples").get(0).get("specimen");
     s.put("specimenType", "invalid");
 
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s2 = (ObjectNode) j2.get("sample").get(0).get("specimen");
+    val s2 = (ObjectNode) j2.get("samples").get(0).get("specimen");
     s2.put("specimenClass", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
   }
@@ -120,7 +121,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @SneakyThrows
   public void testInvalidSample() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("sample").get(0);
+    val s = (ObjectNode) j.get("samples").get(0);
     s.put("sampleType", "invalid");
 
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
@@ -134,17 +135,17 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   public void testInvalidFile() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("file").get(0);
+    val s = (ObjectNode) j.get("files").get(0);
     s.put("fileType", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s2 = (ObjectNode) j2.get("file").get(0);
+    val s2 = (ObjectNode) j2.get("files").get(0);
     s2.put("fileAccess", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
 
     val j3 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s3 = (ObjectNode) j3.get("file").get(0);
+    val s3 = (ObjectNode) j3.get("files").get(0);
     s3.put("fileMd5sum", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j3).assertServerError(SCHEMA_VIOLATION);
   }
@@ -152,7 +153,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   public void testInvalidDonor() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("sample").get(0).get("donor");
+    val s = (ObjectNode) j.get("samples").get(0).get("donor");
     s.put("donorGender", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
     // 1) Invalid Gender

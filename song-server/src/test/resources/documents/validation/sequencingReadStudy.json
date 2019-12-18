@@ -1,5 +1,5 @@
 {
-  "study" : "ABC123",
+  "studyId": "ABC123",
   "analysisType" : {
     "name" : "sequencingRead",
     "version" : 1
@@ -15,7 +15,7 @@
       "marginOfError" : "0.01%"
     }
   },
-  "sample" : [ {
+  "samples": [ {
     "sampleSubmitterId" : "internal_sample_123456789_00",
     "sampleType" : "Total RNA",
     "tissueCollectionMethod" : "IV",
@@ -31,7 +31,7 @@
       "riskCategory" : "3b"
     }
   } ],
-  "file" : [ {
+  "files": [ {
     "fileType" : "VCF",
     "fileName" : "a3bc0998a-3521-43fd-fa10-a834f3874e00.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
     "fileSize" : 132394,
