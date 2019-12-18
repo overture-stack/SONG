@@ -84,13 +84,13 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   public void testInvalidSpecimen() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("sample").get(0).get("specimen");
+    val s = (ObjectNode) j.get("samples").get(0).get("specimen");
     s.put("specimenType", "invalid");
 
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s2 = (ObjectNode) j2.get("sample").get(0).get("specimen");
+    val s2 = (ObjectNode) j2.get("samples").get(0).get("specimen");
     s2.put("specimenClass", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
   }
@@ -120,7 +120,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @SneakyThrows
   public void testInvalidSample() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("sample").get(0);
+    val s = (ObjectNode) j.get("samples").get(0);
     s.put("sampleType", "invalid");
 
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
@@ -152,7 +152,7 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   public void testInvalidDonor() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("sample").get(0).get("donor");
+    val s = (ObjectNode) j.get("samples").get(0).get("donor");
     s.put("donorGender", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
     // 1) Invalid Gender

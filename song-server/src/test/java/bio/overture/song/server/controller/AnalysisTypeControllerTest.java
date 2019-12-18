@@ -660,7 +660,7 @@ public class AnalysisTypeControllerTest {
             "studyId",
             "analysisType",
             "analysisTypeId",
-            "sample",
+            "samples",
             "file")
         .forEach(
             f -> {

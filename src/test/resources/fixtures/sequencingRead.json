@@ -1,5 +1,5 @@
 {
-  "study" : "ABC123",
+  "studyId" : "ABC123",
   "analysisType" : {
     "name" : "sequencingRead",
     "version" : 1
@@ -13,7 +13,7 @@
     "referenceGenome": "hs37d5",
     "notes": "N/A"
   },
-  "sample": [
+  "samples": [
     {
       "sampleSubmitterId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",

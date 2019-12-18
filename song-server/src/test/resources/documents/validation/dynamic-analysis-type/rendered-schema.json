@@ -155,7 +155,7 @@
         }
       }
     },
-    "samples": {
+    "sample": {
       "sampleTypes" :{
         "type": "string",
         "enum": [
@@ -181,7 +181,7 @@
       }
     }
   },
-  "required": [ "studyId", "analysisType","experiment","sample","file", "firstName"],
+  "required": [ "studyId", "analysisType","experiment","samples","file", "firstName"],
   "properties": {
     "analysisId" : {
       "not" : {}
