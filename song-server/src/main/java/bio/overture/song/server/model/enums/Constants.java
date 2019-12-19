@@ -16,20 +16,14 @@
  */
 package bio.overture.song.server.model.enums;
 
-import bio.overture.song.core.model.enums.AnalysisStates;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 public class Constants {
 
-  public static final String SEQUENCING_READ_TYPE = "sequencingRead";
-  public static final String VARIANT_CALL_TYPE = "variantCall";
-  public static final String EMPTY_STRING = "";
-  public static final Collection<String> ANALYSIS_STATE = list(AnalysisStates.toStringArray());
-  public static final Collection<String> DONOR_GENDER = list("Male", "Female", "Other");
+  public static final Collection<String> DONOR_GENDER = List.of("Male", "Female", "Other");
   public static final Collection<String> LIBRARY_STRATEGY =
-      list(
+      List.of(
           "WGS",
           "WXS",
           "RNA-Seq",
@@ -40,12 +34,12 @@ public class Constants {
           "Amplicon",
           "Other");
   public static final Collection<String> SAMPLE_TYPE =
-      list("DNA", "FFPE DNA", "Amplified DNA", "RNA", "Total RNA", "FFPE RNA");
+      List.of("DNA", "FFPE DNA", "Amplified DNA", "RNA", "Total RNA", "FFPE RNA");
   public static final Collection<String> SPECIMEN_CLASS =
-      list("Normal", "Tumour", "Adjacent normal");
+      List.of("Normal", "Tumour", "Adjacent normal");
 
   public static final Collection<String> SPECIMEN_TYPE =
-      list(
+      List.of(
           "Normal - solid tissue",
           "Normal - blood derived",
           "Normal - bone marrow",
@@ -75,11 +69,7 @@ public class Constants {
           "Primary tumour - lymph node",
           "Metastatic tumour - other",
           "Cell line - derived from xenograft tumour");
-  public static final String SONG_ENUM = "song_enum";
 
-  public static Collection<String> list(String... s) {
-    return Collections.unmodifiableCollection(Arrays.asList(s));
-  }
 
   public static void validate(Collection<String> c, String s) {
     if (c.contains(s)) {
