@@ -22,13 +22,13 @@ import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORR
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.Constants.DONOR_GENDER;
-import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_SPECIMEN_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
+import static bio.overture.song.server.utils.TestConstants.DONOR_GENDER;
+import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_CLASS;
+import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.securestudy.impl.SecureSpecimenTester.createSecureSpecimenTester;
 import static com.google.common.collect.Lists.newArrayList;
@@ -99,7 +99,7 @@ public class SpecimenServiceTest {
     val studyId = DEFAULT_STUDY_ID;
     val donorId = DEFAULT_DONOR_ID;
     val specimenClass = randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS));
-    val specimenType = randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE));
+    val specimenType = randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION));
     val randomSpecimen =
         Specimen.builder()
             .specimenId(null)
@@ -273,7 +273,8 @@ public class SpecimenServiceTest {
     val existingStudyId = DEFAULT_STUDY_ID;
 
     val specimen = new Specimen();
-    specimen.setSpecimenType(randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)));
+    specimen.setSpecimenType(
+        randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION)));
     specimen.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
     specimen.setSpecimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)));
     specimen.setDonorId(donorId);
@@ -292,7 +293,8 @@ public class SpecimenServiceTest {
     // it would be
     // persisted
     val specimen2 = new Specimen();
-    specimen2.setSpecimenType(randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)));
+    specimen2.setSpecimenType(
+        randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION)));
     specimen2.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
     specimen2.setSpecimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)));
     specimen2.setDonorId(donorId);
@@ -339,7 +341,7 @@ public class SpecimenServiceTest {
               .submitterSpecimenId(randomGenerator.generateRandomUUIDAsString())
               .donorId(donorId)
               .specimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)))
-              .specimenType(randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)))
+              .specimenType(randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION)))
               .build();
       val specimenId = specimenService.create(studyId, specimen);
       expectedSpecimenIds.add(specimenId);
@@ -431,7 +433,7 @@ public class SpecimenServiceTest {
             .submitterSpecimenId(randomGenerator.generateRandomUUIDAsString())
             .donorId(DEFAULT_DONOR_ID)
             .specimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)))
-            .specimenType(randomGenerator.randomElement(newArrayList(SPECIMEN_TYPE)))
+            .specimenType(randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION)))
             .build();
     SongErrorAssertions.assertSongError(
         () -> specimenService.update(specimen), SPECIMEN_DOES_NOT_EXIST);

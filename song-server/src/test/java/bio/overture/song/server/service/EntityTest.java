@@ -17,6 +17,25 @@
 
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
+import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_CLASS;
+import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
+import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.model.Metadata;
 import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.server.model.Upload;
@@ -32,40 +51,18 @@ import bio.overture.song.server.model.entity.composites.StudyWithDonors;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.val;
-import org.junit.Test;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
-import static bio.overture.song.server.model.enums.Constants.LIBRARY_STRATEGY;
-import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
-import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
+import lombok.val;
+import org.junit.Test;
 
 public class EntityTest {
   private static final String DEFAULT_STUDY_ID = "ABC123";
   private static final List<String> SPECIMEN_CLASSES = newArrayList(SPECIMEN_CLASS);
-  private static final List<String> SPECIMEN_TYPES = newArrayList(SPECIMEN_TYPE);
+  private static final List<String> SPECIMEN_TYPES = newArrayList(TUMOUR_NORMAL_DESIGNATION);
   private static final List<String> SAMPLE_TYPES = newArrayList(SAMPLE_TYPE);
   private static final List<String> FILE_TYPES =
       stream(FileTypes.values()).map(FileTypes::toString).collect(toList());
-  private static final List<String> LIBRARY_STRATEGIES = newArrayList(LIBRARY_STRATEGY);
 
   @Test
   public void testNullMetadata() {

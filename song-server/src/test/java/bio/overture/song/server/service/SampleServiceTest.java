@@ -38,7 +38,7 @@ import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.enums.Constants;
+import bio.overture.song.server.utils.TestConstants;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import javax.transaction.Transactional;
@@ -151,7 +151,8 @@ public class SampleServiceTest {
 
     val sample = new Sample();
     sample.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
-    sample.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
+    sample.setSampleType(
+        randomGenerator.randomElement(Lists.newArrayList(TestConstants.SAMPLE_TYPE)));
     sample.setSpecimenId(specimenId);
 
     // Create a sample
@@ -169,7 +170,8 @@ public class SampleServiceTest {
     // persisted
     val sample2 = new Sample();
     sample2.setSpecimenId(specimenId);
-    sample2.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
+    sample2.setSampleType(
+        randomGenerator.randomElement(Lists.newArrayList(TestConstants.SAMPLE_TYPE)));
     sample2.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
     sample2.setSampleId(randomGenerator.generateRandomUUIDAsString());
     assertFalse(sampleService.isSampleExist(sample2.getSampleId()));
@@ -208,9 +210,9 @@ public class SampleServiceTest {
     val specimen = new Specimen();
     specimen.setDonorId(donorId);
     specimen.setSpecimenClass(
-        randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_CLASS)));
+        randomGenerator.randomElement(Lists.newArrayList(TestConstants.SPECIMEN_CLASS)));
     specimen.setSpecimenType(
-        randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_TYPE)));
+        randomGenerator.randomElement(Lists.newArrayList(TestConstants.TUMOUR_NORMAL_DESIGNATION)));
     specimen.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
 
     // Create specimen
@@ -224,7 +226,7 @@ public class SampleServiceTest {
       val sample = new Sample();
       sample.setSpecimenId(specimenId);
       sample.setSampleType(
-          randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
+          randomGenerator.randomElement(Lists.newArrayList(TestConstants.SAMPLE_TYPE)));
       sample.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
       val sampleId = sampleService.create(studyId, sample);
       expectedSampleIds.add(sampleId);
@@ -279,7 +281,8 @@ public class SampleServiceTest {
     val sample = new Sample();
     sample.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
     sample.setSampleId(randomSampleId);
-    sample.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
+    sample.setSampleType(
+        randomGenerator.randomElement(Lists.newArrayList(TestConstants.SAMPLE_TYPE)));
     sample.setSpecimenId(DEFAULT_SPECIMEN_ID);
     SongErrorAssertions.assertSongError(() -> sampleService.update(sample), SAMPLE_DOES_NOT_EXIST);
   }

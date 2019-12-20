@@ -163,12 +163,14 @@
       "sampleTypes" :{
         "type": "string",
         "enum": [
-          "DNA",
-          "FFPE DNA",
+          "Total DNA",
           "Amplified DNA",
-          "RNA",
+          "ctDNA",
+          "Other DNA enrichments",
           "Total RNA",
-          "FFPE RNA"
+          "Ribo-Zero RNA",
+          "polyA+ RNA",
+          "Other RNA fractions"
         ]
       },
       "sampleData": {

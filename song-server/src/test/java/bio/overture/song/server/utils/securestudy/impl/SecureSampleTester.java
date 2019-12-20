@@ -21,10 +21,10 @@ import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXI
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.enums.Constants;
 import bio.overture.song.server.service.SampleService;
 import bio.overture.song.server.service.SpecimenService;
 import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.utils.TestConstants;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import com.google.common.collect.Lists;
 import lombok.NonNull;
@@ -57,7 +57,7 @@ public class SecureSampleTester extends AbstractSecureTester<String> {
         Sample.builder()
             .submitterSampleId(getRandomGenerator().generateRandomUUIDAsString())
             .sampleType(
-                getRandomGenerator().randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)))
+                getRandomGenerator().randomElement(Lists.newArrayList(TestConstants.SAMPLE_TYPE)))
             .specimenId(specimenId)
             .build();
     return sampleService.create(existingStudyId, sample);

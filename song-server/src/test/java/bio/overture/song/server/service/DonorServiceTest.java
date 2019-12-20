@@ -21,9 +21,9 @@ import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIS
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.model.enums.Constants.DONOR_GENDER;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
+import static bio.overture.song.server.utils.TestConstants.DONOR_GENDER;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static bio.overture.song.server.utils.securestudy.impl.SecureDonorTester.createSecureDonorTester;

@@ -16,14 +16,13 @@
  */
 package bio.overture.song.sdk.web;
 
+import static bio.overture.song.core.utils.Joiners.COMMA;
+import static java.lang.String.format;
+
 import bio.overture.song.core.web.RequestParamBuilder;
 import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
-import lombok.NonNull;
-
 import java.util.List;
-
-import static java.lang.String.format;
-import static bio.overture.song.core.utils.Joiners.COMMA;
+import lombok.NonNull;
 
 public class Endpoint {
 

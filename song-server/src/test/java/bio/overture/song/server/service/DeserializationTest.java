@@ -24,12 +24,12 @@ import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
-import static bio.overture.song.server.model.enums.Constants.SAMPLE_TYPE;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_CLASS;
-import static bio.overture.song.server.model.enums.Constants.SPECIMEN_TYPE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.DONOR;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.INFO;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.SPECIMEN;
+import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_CLASS;
+import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -95,7 +95,7 @@ public class DeserializationTest {
         Specimen.builder()
             .donorId("DO1")
             .specimenClass(SPECIMEN_CLASS.stream().findAny().get())
-            .specimenType(SPECIMEN_TYPE.stream().findAny().get())
+            .specimenType(TUMOUR_NORMAL_DESIGNATION.stream().findAny().get())
             .specimenId("SP1")
             .submitterSpecimenId("SUB_SP1")
             .build();
