@@ -72,4 +72,6 @@ public class TableAttributeNames {
   public static final String DATA = "data";
   public static final String ANALYSIS_DATA_ID = "analysis_data_id";
   public static final String DATA_TYPE = "data_type";
+  public static final String TUMOUR_NORMAL_DESIGNATION = "tumour_normal_designation";
+  public static final String TISSUE_SOURCE = "tissue_source";
 }

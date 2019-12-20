@@ -91,6 +91,57 @@
 			}
 		},
 		"specimen": {
+            "specimenTissueSource" : {
+				"type" : "string",
+				"enum" : [
+					"Blood derived",
+					"Blood derived - bone marrow",
+					"Blood derived - peripheral blood",
+					"Bone marrow",
+					"Buccal cell",
+					"Lymph node",
+					"Solid tissue",
+					"Plasma",
+					"Serum",
+					"Urine",
+					"Cerebrospinal fluid",
+					"Sputum",
+					"Other",
+					"Pleural effusion",
+					"Mononuclear cells from bone marrow",
+					"Saliva",
+					"Skin",
+					"Intestine",
+					"Buffy coat",
+					"Stomach",
+					"Esophagus",
+					"Tonsil",
+					"Spleen",
+					"Bone",
+					"Cerebellum",
+					"Endometrium"
+				]
+			},
+			"tumourNormalDesignation": {
+				"type": "string",
+				"enum": [
+					"Normal",
+					"Normal - tissue adjacent to primary tumour",
+					"Primary tumour",
+					"Primary tumour - adjacent to normal",
+					"Primary tumour - additional new primary",
+					"Recurrent tumour",
+					"Metastatic tumour",
+					"Metastatic tumour - metastasis local to lymph node",
+					"Metastatic tumour - metastasis to distant location",
+					"Metastatic tumour - additional metastatic",
+					"Xenograft - derived from primary tumour",
+					"Xenograft - derived from tumour cell line",
+					"Cell line - derived from xenograft tumour",
+					"Cell line - derived from tumour",
+					"Cell line - derived from normal"
+				]
+			},
 			"specimenType": {
 				"type": "string",
 				"enum": [
@@ -136,13 +187,19 @@
 				"type": "object",
 				"required" : [
 					"submitterSpecimenId",
-					"specimenClass",
-					"specimenType"
+					"specimenTissueSource",
+					"tumourNormalDesignation"
 				],
 				"properties": {
 					"submitterSpecimenId": { "$ref" : "#/definitions/common/submitterId" },
-					"specimenClass": { "$ref" : "#/definitions/specimen/specimenClass" },
-					"specimenType": { "$ref" : "#/definitions/specimen/specimenType" },
+					"specimenTissueSource" : { "$ref" : "#/definitions/specimen/specimenTissueSource" },
+					"tumourNormalDesignation" : { "$ref" : "#/definitions/specimen/tumourNormalDesignation" },
+					"specimenClass": {
+						"not" : {}
+					},
+					"specimenType": {
+						"not" : {}
+					},
 					"info": { "$ref" : "#/definitions/common/info"}
 				}
 			}

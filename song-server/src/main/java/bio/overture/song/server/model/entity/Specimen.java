@@ -54,11 +54,19 @@ public class Specimen extends Metadata {
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
   private String submitterSpecimenId;
 
+  @Deprecated
   @Column(name = TableAttributeNames.CLASS, nullable = false)
   private String specimenClass;
 
+  @Deprecated
   @Column(name = TableAttributeNames.TYPE, nullable = false)
   private String specimenType;
+
+  @Column(name = TableAttributeNames.TUMOUR_NORMAL_DESIGNATION, nullable = false)
+  private String tumourNormalDesignation;
+
+  @Column(name = TableAttributeNames.TISSUE_SOURCE, nullable = false)
+  private String specimenTissueSource;
 
   public void setWithSpecimen(@NonNull Specimen specimenUpdate) {
     setSubmitterSpecimenId(specimenUpdate.getSubmitterSpecimenId());
@@ -66,6 +74,8 @@ public class Specimen extends Metadata {
     setSpecimenClass(specimenUpdate.getSpecimenClass());
     setSpecimenType(specimenUpdate.getSpecimenType());
     setSpecimenId(specimenUpdate.getSpecimenId());
+    setTumourNormalDesignation(specimenUpdate.getTumourNormalDesignation());
+    setSpecimenTissueSource(specimenUpdate.getSpecimenTissueSource());
     setInfo(specimenUpdate.getInfo());
   }
 }
