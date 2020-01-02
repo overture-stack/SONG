@@ -78,16 +78,16 @@ public class AnalysisTypeService {
   private final Schema analysisTypeMetaSchema;
 
   private final AnalysisSchemaRepository analysisSchemaRepository;
-  private final String analysisPayloadBaseContent;
+  private final String analysisBaseContent;
 
   @Autowired
   public AnalysisTypeService(
       @NonNull Supplier<Schema> analysisTypeMetaSchemaSupplier,
-      @Qualifier("analysisPayloadBaseJson") @NonNull String analysisPayloadBaseContent,
+      @Qualifier("analysisBaseJson") @NonNull String analysisBaseContent,
       @NonNull AnalysisSchemaRepository analysisSchemaRepository) {
     this.analysisTypeMetaSchema = analysisTypeMetaSchemaSupplier.get();
     this.analysisSchemaRepository = analysisSchemaRepository;
-    this.analysisPayloadBaseContent = analysisPayloadBaseContent;
+    this.analysisBaseContent = analysisBaseContent;
   }
 
   public Schema getAnalysisTypeMetaSchema() {
@@ -211,7 +211,7 @@ public class AnalysisTypeService {
   }
 
   private JsonNode renderPayloadJsonSchema(JsonNode schema) throws IOException {
-    val rendered = (ObjectNode) readTree(analysisPayloadBaseContent);
+    val rendered = (ObjectNode) readTree(analysisBaseContent);
     val baseProperties = (ObjectNode) rendered.path(PROPERTIES);
     val schemaProperties = (ObjectNode) schema.path(PROPERTIES);
     if (schema.has(REQUIRED)) {

@@ -28,7 +28,9 @@
           "TBI",
           "IDX",
           "XML",
-          "TGZ"
+          "TGZ",
+		  "CRAM",
+		  "CRAI"
         ]
       },
       "fileData" :{
@@ -66,9 +68,9 @@
       "donorGender": {
         "type": "string",
         "enum": [
-          "male",
-          "female",
-          "unspecified"
+          "Male",
+          "Female",
+          "Other"
         ]
       },
       "donorData": {

@@ -23,7 +23,7 @@
         "donorId" : null,
         "donorSubmitterId" : "internal_donor_123456789_01",
         "studyId" : null,
-        "donorGender" : "male",
+        "donorGender" : "Male",
         "info" : {
           "ageCategory" : "18-25",
           "riskCategory" : "3b"
