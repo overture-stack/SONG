@@ -1,5 +1,6 @@
 import os,sys
 from jq import jq
+import json
 
 def checkDir(path):
     if not os.path.exists(path) or not os.path.isdir(path):
@@ -23,9 +24,35 @@ def read_file(file):
         data = myfile.read()
     return data
 
+def read_json(json_filepath):
+    checkFile(json_filepath)
+    with open(json_filepath, 'r') as myfile:
+        data = json.load(myfile)
+    return data
+
+def write_json(json_data, json_output_filepath):
+    with open(json_output_filepath, 'w') as outfile:
+        data = json.dump(json_data, outfile)
+
 def write_to_file(file, data):
     with open(file, "w") as text_file:
         text_file.write(data)
+
+"""
+Transformations
+
+- delete specimenClass
+- delete specimenType
+- add specimenTissueSource: Solid tissue
+- add tumourNormalDesignation: Normal
+"""
+def transform_in_place(data):
+    for sample in data['samples']:
+        specimen = sample['specimen']
+        del specimen['specimenClass']
+        del specimen['specimenType']
+        specimen['tumourNormalDesignation'] = 'Normal'
+        specimen['specimenTissueSource'] = 'Solid tissue'
 
 def main():
     dirpaths = sys.argv[1:]
@@ -34,8 +61,11 @@ def main():
     for dirpath in dirpaths:
         files = find(dirpath, lambda f: f.endswith(".json"))
         for file in files:
-            input_data = read_file(file)
-            os.system("cat % \| jq '%s' \| tee %s > /dev/null" % (file, jq_delete_command, file))
+            data = read_json(file)
+            transform_in_place(data)
+            write_json(data, file)
+            print("sdf")
+            # os.system("cat % \| jq '%s' \| tee %s > /dev/null" % (file, jq_delete_command, file))
             # output_data = jq(jq_delete_command).transform(text=input_data, text_output=True)
             # write_to_file(output_data)
 
