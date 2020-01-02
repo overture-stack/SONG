@@ -1,7 +1,7 @@
 {
-  "analysisType" : {
-    "name" : "variantCall",
-    "version" : 1
+  "analysisType": {
+    "name": "variantCall",
+    "version": 1
   },
   "experiment": {
     "variantCallingTool": "silver bullet3",
@@ -11,22 +11,22 @@
     {
       "submitterSampleId": "internal_sample_98024759826833",
       "sampleType": "Total RNA",
-      "info" : {
-        "size" : 53
+      "info": {
+        "size": 53
       },
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk3",
-        "specimenClass": "Tumour",
-        "specimenType": "Primary tumour - other",
         "info": {
           "ratio": "1:3"
-        }
+        },
+        "tumourNormalDesignation": "Primary tumour",
+        "specimenTissueSource": "Solid tissue"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-03",
         "donorGender": "Male",
         "info": {
-          "age" : 343
+          "age": 343
         }
       }
     }
@@ -37,11 +37,10 @@
       "dataType": "SOME_DATA_TYPE",
       "fileSize": 3769533,
       "fileMd5sum": "61a91c4bf04ac2bd3795254104f75a03",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "VCF",
-      "info" : {
-        "colour" : "red3"
-
+      "info": {
+        "colour": "red3"
       }
     },
     {
@@ -49,14 +48,14 @@
       "dataType": "SOME_DATA_TYPE",
       "fileSize": 48403,
       "fileMd5sum": "51a91c4bf04bb54d3795254104f75a03",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "IDX",
-      "info" : {
-        "colour" : "green3"
+      "info": {
+        "colour": "green3"
       }
     }
   ],
-  "institution" : "inst123-3",
+  "institution": "inst123-3",
   "info": {
     "description": "This is extra info in a JSON format-3"
   }

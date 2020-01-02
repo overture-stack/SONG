@@ -1,8 +1,8 @@
 {
   "studyId": "ABC123",
-  "analysisType" : {
-    "name" : "sequencingRead",
-    "version" : 1
+  "analysisType": {
+    "name": "sequencingRead",
+    "version": 1
   },
   "experiment": {
     "aligned": true,
@@ -20,10 +20,10 @@
       "extraSampleInfo": "some more data for a sequencingRead sample_fr01",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk_fr01",
-        "specimenClass": "Tumour",
-        "specimenType": "Primary tumour - other",
         "extraSpecimenInfo_0": "first for a sequencingRead specimen_fr01",
-        "extraSpecimenInfo_1": "second data for a sequencingRead specimen_fr01"
+        "extraSpecimenInfo_1": "second data for a sequencingRead specimen_fr01",
+        "tumourNormalDesignation": "Primary tumour",
+        "specimenTissueSource": "Solid tissue"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00_fr01",
@@ -37,9 +37,9 @@
       "extraSampleInfo": "some more data for a sequencingRead sample_fr02",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk_fr02",
-        "specimenClass": "Tumour",
-        "specimenType": "Primary tumour - other",
-        "extraSpecimenInfo": "some more data for a sequencingRead specimen_fr02"
+        "extraSpecimenInfo": "some more data for a sequencingRead specimen_fr02",
+        "tumourNormalDesignation": "Primary tumour",
+        "specimenTissueSource": "Solid tissue"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00_fr02",
@@ -55,28 +55,28 @@
       "dataType": "SOME_DATA_TYPE",
       "fileSize": 1212121,
       "fileMd5sum": "e2324667df8085eddfe95742047e153f",
-      "fileAccess" : "controlled",
+      "fileAccess": "controlled",
       "fileType": "BAM",
-      "extraFileInfo_0" : "first data for sequencingRead file_fn1",
-      "extraFileInfo_1" : "second data for sequencingRead file_fn1"
+      "extraFileInfo_0": "first data for sequencingRead file_fn1",
+      "extraFileInfo_1": "second data for sequencingRead file_fn1"
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn2.MUSE_1-0rc-vcf.20170711.bam",
       "dataType": "SOME_DATA_TYPE",
       "fileSize": 34343,
       "fileMd5sum": "8b5379a29aac642d6fe1808826bd9e49",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "BAM",
-      "extraFileInfo" : "some more data for sequencingRead file_fn2"
+      "extraFileInfo": "some more data for sequencingRead file_fn2"
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46-fn3.MUSE_1-0rc-vcf.20170711.bam.bai",
       "dataType": "SOME_DATA_TYPE",
       "fileSize": 4840,
       "fileMd5sum": "61da923f32863a9c5fa3d2a0e19bdee3",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "BAI",
-      "extraFileInfo" : "some more data for sequencingRead file_fn3"
+      "extraFileInfo": "some more data for sequencingRead file_fn3"
     }
   ],
   "info": {

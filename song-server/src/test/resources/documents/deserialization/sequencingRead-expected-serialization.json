@@ -1,85 +1,85 @@
 {
   "studyId": "ABC123",
-  "analysisType" : {
-    "name" : "sequencingRead",
-    "version" : 1
+  "analysisType": {
+    "name": "sequencingRead",
+    "version": 1
   },
   "samples": [
     {
-      "info" : {
-        "tissueCollectionMethod" : "IV"
+      "info": {
+        "tissueCollectionMethod": "IV"
       },
-      "sampleId" : null,
-      "specimenId" : null,
-      "submitterSampleId" : "internal_sample_123456789_01",
-      "sampleType" : "Total RNA",
-      "specimen" : {
-        "submitterSpecimenId" : "internal_specimen_123456789_01",
-        "specimenClass" : "Normal",
-        "specimenType" : "Normal - solid tissue"
+      "sampleId": null,
+      "specimenId": null,
+      "submitterSampleId": "internal_sample_123456789_01",
+      "sampleType": "Total RNA",
+      "specimen": {
+        "submitterSpecimenId": "internal_specimen_123456789_01",
+        "tumourNormalDesignation": "Normal",
+        "specimenTissueSource": "Solid tissue"
       },
-      "donor" : {
-        "donorId" : null,
-        "submitterDonorId" : "internal_donor_123456789_01",
-        "studyId" : null,
-        "donorGender" : "Male",
-        "info" : {
-          "ageCategory" : "18-25",
-          "riskCategory" : "3b"
+      "donor": {
+        "donorId": null,
+        "submitterDonorId": "internal_donor_123456789_01",
+        "studyId": null,
+        "donorGender": "Male",
+        "info": {
+          "ageCategory": "18-25",
+          "riskCategory": "3b"
         }
       }
     }
   ],
   "files": [
     {
-      "info" : {
-        "compression" : "gzip"
+      "info": {
+        "compression": "gzip"
       },
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
       "dataType": "SOME_DATA_TYPE",
-      "fileSize" : 132394,
-      "fileType" : "VCF",
-      "fileMd5sum" : "d3cec975acc69a42b8cc3b76ec01ec21",
-      "fileAccess" : "controlled"
+      "fileSize": 132394,
+      "fileType": "VCF",
+      "fileMd5sum": "d3cec975acc69a42b8cc3b76ec01ec21",
+      "fileAccess": "controlled"
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
       "dataType": "SOME_DATA_TYPE",
-      "fileSize" : 2394,
-      "fileType" : "IDX",
-      "fileMd5sum" : "65ef4aac7bffcb9f3595a69e48ff2f79",
-      "fileAccess" : "controlled"
+      "fileSize": 2394,
+      "fileType": "IDX",
+      "fileMd5sum": "65ef4aac7bffcb9f3595a69e48ff2f79",
+      "fileAccess": "controlled"
     }
   ],
-  "experiment" : {
-    "aligned" : true,
-    "alignmentTool" : "MUSE variant call pipeline",
-    "info" : {
-      "marginOfError" : "0.01%"
+  "experiment": {
+    "aligned": true,
+    "alignmentTool": "MUSE variant call pipeline",
+    "info": {
+      "marginOfError": "0.01%"
     },
-    "insertSize" : 900,
-    "libraryStrategy" : "WXS",
-    "pairedEnd" : false,
-    "referenceGenome" : "hs37d5"
+    "insertSize": 900,
+    "libraryStrategy": "WXS",
+    "pairedEnd": false,
+    "referenceGenome": "hs37d5"
   },
-  "pcawg_access" : "controlled",
-  "analysisMethod" : {
-    "analysisType" : {
-      "name" : "Variant calling",
-      "version" : 1
+  "pcawg_access": "controlled",
+  "analysisMethod": {
+    "analysisType": {
+      "name": "Variant calling",
+      "version": 1
     },
-    "software" : "Broad variant call pipeline"
+    "software": "Broad variant call pipeline"
   },
-  "dataCategorization" : {
-    "dataType" : "SGV",
-    "experimentalStrategy" : "WGS"
+  "dataCategorization": {
+    "dataType": "SGV",
+    "experimentalStrategy": "WGS"
   },
-  "referenceGenome" : {
-    "downloadUrl" : "ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz",
-    "genomeBuild" : "GRCh37",
-    "referenceName" : "hs37d5"
+  "referenceGenome": {
+    "downloadUrl": "ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz",
+    "genomeBuild": "GRCh37",
+    "referenceName": "hs37d5"
   },
-  "icgc_study" : [
+  "icgc_study": [
     "PCAWG",
     "EGA"
   ]

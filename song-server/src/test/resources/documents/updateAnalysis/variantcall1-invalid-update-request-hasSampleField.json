@@ -1,7 +1,7 @@
 {
-  "analysisType" : {
-    "name" : "variantCall",
-    "version" : 1
+  "analysisType": {
+    "name": "variantCall",
+    "version": 1
   },
   "experiment": {
     "variantCallingTool": "silver bullet 1",
@@ -13,8 +13,8 @@
       "sampleType": "Total RNA",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
-        "specimenClass": "Tumour",
-        "specimenType": "Primary tumour - other"
+        "tumourNormalDesignation": "Primary tumour",
+        "specimenTissueSource": "Solid tissue"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",

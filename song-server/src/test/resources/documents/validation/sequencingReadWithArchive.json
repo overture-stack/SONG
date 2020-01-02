@@ -1,8 +1,8 @@
 {
   "studyId": "ABC123",
-  "analysisType" : {
-    "name" : "sequencingRead",
-    "version" : 1
+  "analysisType": {
+    "name": "sequencingRead",
+    "version": 1
   },
   "experiment": {
     "libraryStrategy": "WXS",
@@ -22,8 +22,8 @@
       "tissueCollectionMethod": "IV",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_123456789_01",
-        "specimenClass": "Normal",
-        "specimenType": "Normal - solid tissue"
+        "tumourNormalDesignation": "Normal",
+        "specimenTissueSource": "Solid tissue"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789_01",
@@ -72,9 +72,9 @@
       "downloadUrl": "ftp://ftp.sanger.ac.uk/pub/project/PanCancer/genome.fa.gz"
     },
     "analysisMethod": {
-      "analysisType" : {
-        "name" : "Variant calling",
-        "version" : 1
+      "analysisType": {
+        "name": "Variant calling",
+        "version": 1
       },
       "software": "Broad variant call pipeline"
     },

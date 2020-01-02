@@ -10,8 +10,8 @@
       "sampleType": "Total RNA",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
-        "specimenClass": "Tumour",
-        "specimenType": "Primary tumour - other"
+        "tumourNormalDesignation": "Primary tumour",
+        "specimenTissueSource": "Solid tissue"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",
@@ -25,7 +25,7 @@
       "dataType": "SOME_DATA_TYPE",
       "fileSize": 376953,
       "fileMd5sum": "61a91c4bf04ac2bd3795254104f75ad3",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "VCF"
     },
     {
@@ -33,7 +33,7 @@
       "dataType": "SOME_DATA_TYPE",
       "fileSize": 4840,
       "fileMd5sum": "61a91c4bf04bb54d3795254104f75ad3",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "IDX"
     }
   ],

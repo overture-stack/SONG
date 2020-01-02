@@ -1,18 +1,17 @@
 {
   "studyId": "ABC123",
-  "analysisType" : {
-    "name" : "variantCall",
-    "version" : 1
+  "analysisType": {
+    "name": "variantCall",
+    "version": 1
   },
-  "experiment": {
-  },
+  "experiment": {},
   "samples": [
     {
       "sampleType": "Total RNA",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
-        "specimenClass": "Normal",
-        "specimenType": "Normal - solid tissue"
+        "tumourNormalDesignation": "Normal",
+        "specimenTissueSource": "Solid tissue"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",

@@ -1,18 +1,18 @@
 {
   "studyId": "ABC123",
-  "analysisType" : {
-    "name" : "variantCall",
-    "version" : 1
+  "analysisType": {
+    "name": "variantCall",
+    "version": 1
   },
-  "experiment" : {},
+  "experiment": {},
   "samples": [
     {
       "submitterSampleId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
-        "specimenClass": "Tumour",
-        "specimenType": "Primary tumour - other"
+        "tumourNormalDesignation": "Primary tumour",
+        "specimenTissueSource": "Solid tissue"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",
@@ -26,7 +26,7 @@
       "dataType": "SOME_DATA_TYPE",
       "fileSize": 376953,
       "fileMd5sum": "61a91c4bf04ac2bd3795254104f75ad3",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "VCF"
     },
     {
@@ -34,7 +34,7 @@
       "dataType": "SOME_DATA_TYPE",
       "fileSize": 4840,
       "fileMd5sum": "29594b19b079ad5731577e0495ddba63",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "IDX"
     }
   ],
