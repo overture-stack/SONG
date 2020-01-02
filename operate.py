@@ -59,6 +59,9 @@ def transform_in_place(data):
                 del specimen['specimenClass']
                 result = True
 
+            if 'specimenType' in specimen:
+                del specimen['specimenType']
+
             if 'specimenTissueSource' not in specimen:
                 specimen['specimenTissueSource'] = 'Solid tissue'
                 result = True
