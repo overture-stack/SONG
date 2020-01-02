@@ -32,7 +32,7 @@ def read_json(json_filepath):
 
 def write_json(json_data, json_output_filepath):
     with open(json_output_filepath, 'w') as outfile:
-        data = json.dump(json_data, outfile)
+        data = json.dump(json_data, outfile, indent=2)
 
 def write_to_file(file, data):
     with open(file, "w") as text_file:
@@ -49,8 +49,10 @@ Transformations
 def transform_in_place(data):
     for sample in data['samples']:
         specimen = sample['specimen']
-        del specimen['specimenClass']
-        del specimen['specimenType']
+        if 'specimenClass' in specimen:
+            del specimen['specimenClass']
+        if 'specimenType' in specimen:
+            del specimen['specimenType']
         specimen['tumourNormalDesignation'] = 'Normal'
         specimen['specimenTissueSource'] = 'Solid tissue'
 
