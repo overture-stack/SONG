@@ -18,6 +18,8 @@
 package bio.overture.song.server.utils.securestudy.impl;
 
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
+import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Specimen;
@@ -57,12 +59,8 @@ public class SecureSpecimenTester extends AbstractSecureTester<String> {
         Specimen.builder()
             .donorId(donorId)
             .submitterSpecimenId(getRandomGenerator().generateRandomUUIDAsString())
-            .specimenType(
-                getRandomGenerator()
-                    .randomElement(Lists.newArrayList(TestConstants.TUMOUR_NORMAL_DESIGNATION)))
-            .specimenClass(
-                getRandomGenerator()
-                    .randomElement(Lists.newArrayList(TestConstants.SPECIMEN_CLASS)))
+            .tumourNormalDesignation( getRandomGenerator().randomElement(TUMOUR_NORMAL_DESIGNATION))
+            .specimenTissueSource(getRandomGenerator().randomElement(SPECIMEN_TISSUE_SOURCE))
             .build();
     return specimenService.create(existingStudyId, specimen);
   }

@@ -16,6 +16,35 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.entity.Donor;
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.model.entity.Specimen;
+import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import lombok.val;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import javax.transaction.Transactional;
+import java.util.Set;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
@@ -27,38 +56,10 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_SPECIMEN_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.TestConstants.DONOR_GENDER;
 import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_CLASS;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
 import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.securestudy.impl.SecureSpecimenTester.createSecureSpecimenTester;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Donor;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import java.util.Set;
-import javax.transaction.Transactional;
-import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -87,8 +88,8 @@ public class SpecimenServiceTest {
     val s = specimenService.securedRead(DEFAULT_STUDY_ID, id);
     assertEquals(s.getSpecimenId(), id);
     assertEquals(s.getSubmitterSpecimenId(), "Tissue-Culture 284 Gamma 3");
-    assertEquals(s.getSpecimenClass(), "Tumour");
-    assertEquals(s.getSpecimenType(), "Recurrent tumour - solid tissue");
+    assertEquals(s.getTumourNormalDesignation(), "Primary tumour");
+    assertEquals(s.getSpecimenTissueSource(), "Solid tissue");
     assertEquals(getInfoName(s), "specimen1");
   }
 
@@ -98,15 +99,15 @@ public class SpecimenServiceTest {
     val submitterId = randomGenerator.generateRandomUUIDAsString();
     val studyId = DEFAULT_STUDY_ID;
     val donorId = DEFAULT_DONOR_ID;
-    val specimenClass = randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS));
-    val specimenType = randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION));
+    val specimenTissueSource = randomGenerator.randomElement(SPECIMEN_TISSUE_SOURCE);
+    val tumorNormalDesignation = randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION));
     val randomSpecimen =
         Specimen.builder()
             .specimenId(null)
             .donorId(donorId)
             .submitterSpecimenId(submitterId)
-            .specimenClass(specimenClass)
-            .specimenType(specimenType)
+            .tumourNormalDesignation(tumorNormalDesignation)
+            .specimenTissueSource(specimenTissueSource)
             .build();
     randomSpecimen.setInfo("name", "specimen1");
     val specimenId = specimenService.create(DEFAULT_STUDY_ID, randomSpecimen);
@@ -132,8 +133,8 @@ public class SpecimenServiceTest {
     val specimen = specimenService.readWithSamples(specimenId);
     assertEquals(specimen.getSpecimenId(), specimenId);
     assertEquals(specimen.getSubmitterSpecimenId(), submitterId);
-    assertEquals(specimen.getSpecimenClass(), specimenClass);
-    assertEquals(specimen.getSpecimenType(), specimenType);
+    assertEquals(specimen.getSpecimenTissueSource(), specimenTissueSource);
+    assertEquals(specimen.getTumourNormalDesignation(), tumorNormalDesignation);
     assertEquals(specimen.getSamples().size(), 2);
     assertEquals(getInfoName(specimen), "specimen1");
 
@@ -158,8 +159,8 @@ public class SpecimenServiceTest {
             .specimenId("")
             .submitterSpecimenId("Specimen 101 Ipsilon Prime")
             .donorId(donorId)
-            .specimenClass("Tumour")
-            .specimenType("Cell line - derived from tumour")
+            .tumourNormalDesignation("Primary tumour")
+            .specimenTissueSource("Solid tissue")
             .build();
 
     s.setInfo(JsonUtils.fromSingleQuoted("{'ageCategory': 42, 'status': 'deceased'}"));
@@ -202,8 +203,8 @@ public class SpecimenServiceTest {
             .specimenId("")
             .submitterSpecimenId("Specimen 102 Chiron-Beta Prime")
             .donorId(donorId)
-            .specimenClass("Tumour")
-            .specimenType("Metastatic tumour - additional metastatic")
+            .tumourNormalDesignation("Primary tumour")
+            .specimenTissueSource("Solid tissue")
             .build();
 
     specimenService.create(DEFAULT_STUDY_ID, s);
@@ -231,8 +232,8 @@ public class SpecimenServiceTest {
             .specimenId(id)
             .submitterSpecimenId("Specimen 102")
             .donorId(s.getDonorId())
-            .specimenClass("Normal")
-            .specimenType("Normal - other")
+            .tumourNormalDesignation("Normal")
+            .specimenTissueSource("Solid tissue")
             .build();
 
     s2.setInfo(JsonUtils.fromSingleQuoted("{'notes': ['A sharp, B flat']}"));
@@ -263,6 +264,7 @@ public class SpecimenServiceTest {
   public void testCreateStudyDNE() {
     val randomStudyId = randomGenerator.generateRandomUUIDAsString();
     val specimen = new Specimen();
+
     SongErrorAssertions.assertSongError(
         () -> specimenService.create(randomStudyId, specimen), STUDY_ID_DOES_NOT_EXIST);
   }
@@ -273,10 +275,9 @@ public class SpecimenServiceTest {
     val existingStudyId = DEFAULT_STUDY_ID;
 
     val specimen = new Specimen();
-    specimen.setSpecimenType(
-        randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION)));
     specimen.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
-    specimen.setSpecimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)));
+    specimen.setTumourNormalDesignation( randomGenerator.randomElement(TUMOUR_NORMAL_DESIGNATION));
+    specimen.setSpecimenTissueSource(randomGenerator.randomElement(SPECIMEN_TISSUE_SOURCE));
     specimen.setDonorId(donorId);
 
     // Create a specimen
@@ -293,10 +294,9 @@ public class SpecimenServiceTest {
     // it would be
     // persisted
     val specimen2 = new Specimen();
-    specimen2.setSpecimenType(
-        randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION)));
     specimen2.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
-    specimen2.setSpecimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)));
+    specimen.setTumourNormalDesignation( randomGenerator.randomElement(TUMOUR_NORMAL_DESIGNATION));
+    specimen.setSpecimenTissueSource(randomGenerator.randomElement(SPECIMEN_TISSUE_SOURCE));
     specimen2.setDonorId(donorId);
     specimen2.setSpecimenId(randomGenerator.generateRandomUUIDAsString());
     assertFalse(specimenService.isSpecimenExist(specimen2.getSpecimenId()));
@@ -340,8 +340,8 @@ public class SpecimenServiceTest {
               .specimenId("")
               .submitterSpecimenId(randomGenerator.generateRandomUUIDAsString())
               .donorId(donorId)
-              .specimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)))
-              .specimenType(randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION)))
+              .tumourNormalDesignation( randomGenerator.randomElement(TUMOUR_NORMAL_DESIGNATION))
+              .specimenTissueSource(randomGenerator.randomElement(SPECIMEN_TISSUE_SOURCE))
               .build();
       val specimenId = specimenService.create(studyId, specimen);
       expectedSpecimenIds.add(specimenId);
@@ -432,8 +432,8 @@ public class SpecimenServiceTest {
             .specimenId(randomSpecimenId)
             .submitterSpecimenId(randomGenerator.generateRandomUUIDAsString())
             .donorId(DEFAULT_DONOR_ID)
-            .specimenClass(randomGenerator.randomElement(newArrayList(SPECIMEN_CLASS)))
-            .specimenType(randomGenerator.randomElement(newArrayList(TUMOUR_NORMAL_DESIGNATION)))
+            .tumourNormalDesignation( randomGenerator.randomElement(TUMOUR_NORMAL_DESIGNATION))
+            .specimenTissueSource(randomGenerator.randomElement(SPECIMEN_TISSUE_SOURCE))
             .build();
     SongErrorAssertions.assertSongError(
         () -> specimenService.update(specimen), SPECIMEN_DOES_NOT_EXIST);

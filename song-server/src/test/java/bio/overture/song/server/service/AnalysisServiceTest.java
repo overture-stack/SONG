@@ -256,8 +256,8 @@ public class AnalysisServiceTest {
 
     val specimen00 = sample0.getSpecimen();
     assertEquals(specimen00.getDonorId(), donor00.getDonorId());
-    assertEquals(specimen00.getSpecimenClass(), "Tumour");
-    assertEquals(specimen00.getSpecimenType(), "Primary tumour - other");
+    assertEquals(specimen00.getTumourNormalDesignation(), "Primary tumour");
+    assertEquals(specimen00.getSpecimenTissueSource(), "Solid tissue");
     assertEquals(sample0.getSpecimenId(), specimen00.getSpecimenId());
     assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a variantCall specimen_fs01");
     assertInfoKVPair(
@@ -281,8 +281,8 @@ public class AnalysisServiceTest {
 
     val specimen01 = sample1.getSpecimen();
     assertEquals(specimen01.getDonorId(), donor01.getDonorId());
-    assertEquals(specimen01.getSpecimenClass(), "Tumour");
-    assertEquals(specimen01.getSpecimenType(), "Primary tumour - other");
+    assertEquals(specimen01.getTumourNormalDesignation(), "Primary tumour");
+    assertEquals(specimen01.getSpecimenTissueSource(), "Solid tissue");
     assertEquals(sample1.getSpecimenId(), specimen01.getSpecimenId());
     assertInfoKVPair(
         specimen01, "extraSpecimenInfo", "some more data for a variantCall specimen_fs02");
@@ -389,8 +389,8 @@ public class AnalysisServiceTest {
 
     val specimen00 = sample0.getSpecimen();
     assertEquals(specimen00.getDonorId(), donor00.getDonorId());
-    assertEquals(specimen00.getSpecimenClass(), "Tumour");
-    assertEquals(specimen00.getSpecimenType(), "Primary tumour - other");
+    assertEquals(specimen00.getTumourNormalDesignation(), "Primary tumour");
+    assertEquals(specimen00.getSpecimenTissueSource(), "Solid tissue");
     assertEquals(sample0.getSpecimenId(), specimen00.getSpecimenId());
     assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a sequencingRead specimen_fr01");
     assertInfoKVPair(
@@ -414,8 +414,8 @@ public class AnalysisServiceTest {
 
     val specimen01 = sample1.getSpecimen();
     assertEquals(specimen01.getDonorId(), donor01.getDonorId());
-    assertEquals(specimen01.getSpecimenClass(), "Tumour");
-    assertEquals(specimen01.getSpecimenType(), "Primary tumour - other");
+    assertEquals(specimen01.getTumourNormalDesignation(), "Primary tumour");
+    assertEquals(specimen01.getSpecimenTissueSource(), "Solid tissue");
     assertEquals(sample1.getSpecimenId(), specimen01.getSpecimenId());
     assertInfoKVPair(
         specimen01, "extraSpecimenInfo", "some more data for a sequencingRead specimen_fr02");

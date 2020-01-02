@@ -25,6 +25,8 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_SAMPLE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_SPECIMEN_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
+import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.securestudy.impl.SecureSampleTester.createSecureSampleTester;
 import static com.google.common.collect.Lists.newArrayList;
@@ -209,10 +211,8 @@ public class SampleServiceTest {
     val donorId = DEFAULT_DONOR_ID;
     val specimen = new Specimen();
     specimen.setDonorId(donorId);
-    specimen.setSpecimenClass(
-        randomGenerator.randomElement(Lists.newArrayList(TestConstants.SPECIMEN_CLASS)));
-    specimen.setSpecimenType(
-        randomGenerator.randomElement(Lists.newArrayList(TestConstants.TUMOUR_NORMAL_DESIGNATION)));
+    specimen.setSpecimenTissueSource(randomGenerator.randomElement(SPECIMEN_TISSUE_SOURCE));
+    specimen.setTumourNormalDesignation(randomGenerator.randomElement(TUMOUR_NORMAL_DESIGNATION));
     specimen.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
 
     // Create specimen

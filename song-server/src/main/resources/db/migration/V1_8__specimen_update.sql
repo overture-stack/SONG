@@ -30,7 +30,7 @@ CREATE TYPE tissue_source_type as ENUM(
   'Sputum',
   'Other',
   'Pleural effusion',
-  '"Mononuclear cells from bone marrow"',
+  'Mononuclear cells from bone marrow',
   'Saliva',
   'Skin',
   'Intestine',

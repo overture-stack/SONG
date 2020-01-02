@@ -136,8 +136,8 @@ public class SerializationTest {
     val sp =
         Specimen.builder()
             .submitterSpecimenId("internal_specimen_123456789_01")
-            .specimenClass("Normal")
-            .specimenType("Normal - solid tissue")
+            .specimenTissueSource("Solid tissue")
+            .tumourNormalDesignation("Normal")
             .build();
 
     val d =

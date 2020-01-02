@@ -97,10 +97,10 @@ public class DonorServiceTest {
 
   private static void assertEqualSpecimen(Specimen s1, Specimen s2) {
     assertEquals(s1.getDonorId(), s2.getDonorId());
-    assertEquals(s1.getSpecimenClass(), s2.getSpecimenClass());
+    assertEquals(s1.getTumourNormalDesignation(), s2.getTumourNormalDesignation());
+    assertEquals(s1.getSpecimenTissueSource(), s2.getSpecimenTissueSource());
     assertEquals(s1.getSpecimenId(), s2.getSpecimenId());
     assertEquals(s1.getSubmitterSpecimenId(), s2.getSubmitterSpecimenId());
-    assertEquals(s1.getSpecimenType(), s2.getSpecimenType());
     assertEquals(s1.getInfoAsString(), s2.getInfoAsString());
   }
 

@@ -44,7 +44,7 @@ public class TestConstants {
           "polyA+ RNA",
           "Other RNA fractions");
 
-  public static final Collection<String> TUMOUR_NORMAL_DESIGNATION =
+  public static final List<String> TUMOUR_NORMAL_DESIGNATION =
       List.of(
           "Normal",
           "Normal - tissue adjacent to primary tumour",
@@ -62,8 +62,35 @@ public class TestConstants {
           "Cell line - derived from tumour",
           "Cell line - derived from normal");
 
-  public static final Collection<String> SPECIMEN_CLASS =
-      List.of("Normal", "Tumour", "Adjacent normal");
+  public static final List<String> SPECIMEN_TISSUE_SOURCE=
+      List.of(
+          "Blood derived",
+          "Blood derived - bone marrow",
+          "Blood derived - peripheral blood",
+          "Bone marrow",
+          "Buccal cell",
+          "Lymph node",
+          "Solid tissue",
+          "Plasma",
+          "Serum",
+          "Urine",
+          "Cerebrospinal fluid",
+          "Sputum",
+          "Other",
+          "Pleural effusion",
+          "Mononuclear cells from bone marrow",
+          "Saliva",
+          "Skin",
+          "Intestine",
+          "Buffy coat",
+          "Stomach",
+          "Esophagus",
+          "Tonsil",
+          "Spleen",
+          "Bone",
+          "Cerebellum",
+          "Endometrium");
+
 
   public static final Collection<String> DONOR_GENDER = List.of("Male", "Female", "Other");
 }

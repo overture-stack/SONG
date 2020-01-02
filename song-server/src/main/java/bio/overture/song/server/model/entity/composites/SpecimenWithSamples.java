@@ -37,8 +37,8 @@ public class SpecimenWithSamples extends Specimen {
     setSpecimenId(s.getSpecimenId());
     setDonorId(s.getDonorId());
     setSubmitterSpecimenId(s.getSubmitterSpecimenId());
-    setSpecimenClass(s.getSpecimenClass());
-    setSpecimenType(s.getSpecimenType());
+    setSpecimenTissueSource(s.getSpecimenTissueSource());
+    setTumourNormalDesignation(s.getTumourNormalDesignation());
 
     addInfo(s.getInfoAsString());
   }
@@ -49,8 +49,8 @@ public class SpecimenWithSamples extends Specimen {
             .specimenId(getSpecimenId())
             .submitterSpecimenId(getSubmitterSpecimenId())
             .donorId(getDonorId())
-            .specimenClass(getSpecimenClass())
-            .specimenType(getSpecimenType())
+            .tumourNormalDesignation(getTumourNormalDesignation())
+            .specimenTissueSource(getSpecimenTissueSource())
             .build();
     s.setInfo(getInfoAsString());
     return s;
