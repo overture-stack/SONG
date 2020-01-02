@@ -47,29 +47,38 @@ Transformations
 - add tumourNormalDesignation: Normal
 """
 def transform_in_place(data):
-    for sample in data['samples']:
-        specimen = sample['specimen']
-        if 'specimenClass' in specimen:
-            del specimen['specimenClass']
-        if 'specimenType' in specimen:
-            del specimen['specimenType']
-        specimen['tumourNormalDesignation'] = 'Normal'
-        specimen['specimenTissueSource'] = 'Solid tissue'
+    result = False
+    if 'samples' in data:
+        for sample in data['samples']:
+            specimen = sample['specimen']
+            if 'specimenClass' in specimen:
+                if 'tumour' in specimen['specimenClass'].lower():
+                    specimen['tumourNormalDesignation'] = 'Primary tumour'
+                else:
+                    specimen['tumourNormalDesignation'] = 'Normal'
+                del specimen['specimenClass']
+                result = True
+
+            if 'specimenTissueSource' not in specimen:
+                specimen['specimenTissueSource'] = 'Solid tissue'
+                result = True
+    return result
+
+def process_file(filepath):
+    try:
+        data = read_json(filepath)
+        result = transform_in_place(data)
+        if result:
+            write_json(data, filepath)
+    except Exception as e:
+        print ("[ERROR]: error processing "+filepath)
 
 def main():
     dirpaths = sys.argv[1:]
-    jq_delete_command = "del(.samples[].specimen.specimenType)"
-    # jq_delete_command = "."
     for dirpath in dirpaths:
         files = find(dirpath, lambda f: f.endswith(".json"))
-        for file in files:
-            data = read_json(file)
-            transform_in_place(data)
-            write_json(data, file)
-            print("sdf")
-            # os.system("cat % \| jq '%s' \| tee %s > /dev/null" % (file, jq_delete_command, file))
-            # output_data = jq(jq_delete_command).transform(text=input_data, text_output=True)
-            # write_to_file(output_data)
+        [process_file(f) for f in files]
+
 
 def test():
     for root, dirs, files in os.walk("."):
