@@ -1,6 +1,7 @@
 import os,sys
 from jq import jq
 import json
+import collections
 
 def checkDir(path):
     if not os.path.exists(path) or not os.path.isdir(path):
@@ -27,7 +28,7 @@ def read_file(file):
 def read_json(json_filepath):
     checkFile(json_filepath)
     with open(json_filepath, 'r') as myfile:
-        data = json.load(myfile)
+        data = json.load(myfile, object_pairs_hook=collections.OrderedDict)
     return data
 
 def write_json(json_data, json_output_filepath):
