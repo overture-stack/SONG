@@ -16,6 +16,23 @@
  */
 package bio.overture.song.server.service;
 
+import bio.overture.song.server.model.entity.BusinessKeyView;
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.repository.BusinessKeyRepository;
+import bio.overture.song.server.repository.SampleRepository;
+import bio.overture.song.server.service.id.IdService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.List;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.stream.Collectors.toList;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_ALREADY_EXISTS;
@@ -25,22 +42,6 @@ import static bio.overture.song.core.exceptions.ServerException.buildServerExcep
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.utils.Responses.OK;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.stream.Collectors.toList;
-
-import bio.overture.song.server.model.entity.BusinessKeyView;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.repository.BusinessKeyRepository;
-import bio.overture.song.server.repository.SampleRepository;
-import bio.overture.song.server.service.id.IdService;
-import java.util.List;
-import javax.transaction.Transactional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -153,6 +154,7 @@ public class SampleService {
     val sample = unsecuredRead(sampleUpdate.getSampleId());
     sample.setSubmitterSampleId(sampleUpdate.getSubmitterSampleId());
     sample.setSampleType(sampleUpdate.getSampleType());
+    sample.setMatchedNormalSubmitterSampleId(sampleUpdate.getMatchedNormalSubmitterSampleId());
     sample.setInfo(sampleUpdate.getInfo());
     repository.save(sample);
     infoService.update(sample.getSampleId(), sample.getInfoAsString());

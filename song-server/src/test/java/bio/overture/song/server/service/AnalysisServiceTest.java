@@ -16,43 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
-import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Arrays.stream;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.IntStream.range;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -77,11 +40,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -91,6 +49,49 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.stream;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.IntStream.range;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
+import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 
 @Slf4j
 @SpringBootTest
@@ -246,6 +247,7 @@ public class AnalysisServiceTest {
             .findAny()
             .orElse(null);
     assertEquals(sample0.getSampleType(), "Total RNA");
+    assertEquals(sample0.getMatchedNormalSubmitterSampleId(), "MNSS01" );
     assertInfoKVPair(sample0, "extraSampleInfo", "some more data for a variantCall sample_fs01");
 
     val donor00 = sample0.getDonor();
@@ -256,7 +258,8 @@ public class AnalysisServiceTest {
 
     val specimen00 = sample0.getSpecimen();
     assertEquals(specimen00.getDonorId(), donor00.getDonorId());
-    assertEquals(specimen00.getTumourNormalDesignation(), "Primary tumour");
+    assertEquals(specimen00.getTumourNormalDesignation(), "Tumour");
+    assertEquals(specimen00.getSpecimenType(), "Primary tumour");
     assertEquals(specimen00.getSpecimenTissueSource(), "Solid tissue");
     assertEquals(sample0.getSpecimenId(), specimen00.getSpecimenId());
     assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a variantCall specimen_fs01");
@@ -270,6 +273,7 @@ public class AnalysisServiceTest {
             .orElse(null);
     assertEquals(sample1.getSubmitterSampleId(), "internal_sample_98024759826836_fs02");
     assertEquals(sample1.getSampleType(), "Total RNA");
+    assertEquals(sample1.getMatchedNormalSubmitterSampleId(), "MNSS02" );
     assertInfoKVPair(sample1, "extraSampleInfo", "some more data for a variantCall sample_fs02");
 
     val donor01 = sample1.getDonor();
@@ -281,7 +285,8 @@ public class AnalysisServiceTest {
 
     val specimen01 = sample1.getSpecimen();
     assertEquals(specimen01.getDonorId(), donor01.getDonorId());
-    assertEquals(specimen01.getTumourNormalDesignation(), "Primary tumour");
+    assertEquals(specimen01.getTumourNormalDesignation(), "Tumour");
+    assertEquals(specimen01.getSpecimenType(), "Primary tumour");
     assertEquals(specimen01.getSpecimenTissueSource(), "Solid tissue");
     assertEquals(sample1.getSpecimenId(), specimen01.getSpecimenId());
     assertInfoKVPair(
@@ -379,17 +384,21 @@ public class AnalysisServiceTest {
             .get();
     sampleMap.put(sample0.getSampleId(), sample0);
     assertEquals(sample0.getSampleType(), "Total RNA");
+    assertEquals(sample0.getMatchedNormalSubmitterSampleId(), "MNSS01" );
     assertInfoKVPair(sample0, "extraSampleInfo", "some more data for a sequencingRead sample_fr01");
+
 
     val donor00 = sample0.getDonor();
     assertEquals(donor00.getStudyId(), DEFAULT_STUDY_ID);
     assertEquals(donor00.getDonorGender(), "Male");
     assertEquals(donor00.getSubmitterDonorId(), "internal_donor_123456789-00_fr01");
+
     assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a sequencingRead donor_fr01");
 
     val specimen00 = sample0.getSpecimen();
     assertEquals(specimen00.getDonorId(), donor00.getDonorId());
-    assertEquals(specimen00.getTumourNormalDesignation(), "Primary tumour");
+    assertEquals(specimen00.getTumourNormalDesignation(), "Tumour");
+    assertEquals(specimen00.getSpecimenType(), "Primary tumour");
     assertEquals(specimen00.getSpecimenTissueSource(), "Solid tissue");
     assertEquals(sample0.getSpecimenId(), specimen00.getSpecimenId());
     assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a sequencingRead specimen_fr01");
@@ -403,6 +412,7 @@ public class AnalysisServiceTest {
             .get();
     sampleMap.put(sample1.getSampleId(), sample1);
     assertEquals(sample1.getSampleType(), "Total RNA");
+    assertEquals(sample1.getMatchedNormalSubmitterSampleId(), "MNSS02");
     assertInfoKVPair(sample1, "extraSampleInfo", "some more data for a sequencingRead sample_fr02");
 
     val donor01 = sample1.getDonor();
@@ -414,7 +424,8 @@ public class AnalysisServiceTest {
 
     val specimen01 = sample1.getSpecimen();
     assertEquals(specimen01.getDonorId(), donor01.getDonorId());
-    assertEquals(specimen01.getTumourNormalDesignation(), "Primary tumour");
+    assertEquals(specimen01.getSpecimenType(), "Primary tumour");
+    assertEquals(specimen01.getTumourNormalDesignation(), "Tumour");
     assertEquals(specimen01.getSpecimenTissueSource(), "Solid tissue");
     assertEquals(sample1.getSpecimenId(), specimen01.getSpecimenId());
     assertInfoKVPair(

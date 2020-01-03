@@ -54,6 +54,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisS
 import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
 import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
 import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
 
@@ -93,8 +94,9 @@ public class EntityTest {
             .specimenId("mySpecimen1")
             .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
-            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(2))
+            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(1))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(2))
+            .specimenType(SPECIMEN_TYPE.get(2))
             .build();
 
     val specimen2 =
@@ -102,8 +104,9 @@ public class EntityTest {
             .specimenId("mySpecimen2")
             .submitterSpecimenId("mySpecimenSubmitter2")
             .donorId("myDonor2")
-            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(1))
+            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(0))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(1))
+            .specimenType(SPECIMEN_TYPE.get(1))
             .build();
 
     val sample1 =
@@ -190,6 +193,7 @@ public class EntityTest {
             .donorId("myDonor1")
             .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(2))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(2))
+            .specimenType(SPECIMEN_TYPE.get(2))
             .build();
 
     val specimen2 =
@@ -199,6 +203,7 @@ public class EntityTest {
             .donorId("myDonor2")
             .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(1))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(1))
+            .specimenType(SPECIMEN_TYPE.get(1))
             .build();
 
     val sample11 =
@@ -323,8 +328,9 @@ public class EntityTest {
             .specimenId("mySpecimen1")
             .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
-            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(2))
+            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(0))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(2))
+            .specimenType(SPECIMEN_TYPE.get(2))
             .build();
 
     val specimen2 =
@@ -334,6 +340,7 @@ public class EntityTest {
             .donorId("myDonor2")
             .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(1))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(1))
+            .specimenType(SPECIMEN_TYPE.get(1))
             .build();
 
     val sample11 =
@@ -375,6 +382,7 @@ public class EntityTest {
     val s1 = new SpecimenWithSamples();
     s1.setDonorId(specimen1.getDonorId());
     s1.setTumourNormalDesignation(specimen1.getTumourNormalDesignation());
+    s1.setSpecimenType(specimen1.getSpecimenType());
     s1.setSpecimenTissueSource(specimen1.getSpecimenTissueSource());
     s1.setSubmitterSpecimenId(specimen1.getSubmitterSpecimenId());
     s1.setSpecimenId(specimen1.getSpecimenId());
@@ -419,6 +427,7 @@ public class EntityTest {
     // Test getters
     assertEquals(s1.getDonorId(), specimen1.getDonorId());
     assertEquals(s1.getTumourNormalDesignation(), specimen1.getTumourNormalDesignation());
+    assertEquals(s1.getSpecimenType(), specimen1.getSpecimenType());
     assertEquals(s1.getSpecimenTissueSource(), specimen1.getSpecimenTissueSource());
     assertEquals(s1.getSubmitterSpecimenId(), specimen1.getSubmitterSpecimenId());
     assertEquals(s1.getSpecimenId(), specimen1.getSpecimenId());
@@ -429,6 +438,7 @@ public class EntityTest {
     val sLeft = new SpecimenWithSamples();
     sLeft.setDonorId(specimen1.getDonorId());
     sLeft.setTumourNormalDesignation(specimen1.getTumourNormalDesignation());
+    sLeft.setSpecimenType(specimen1.getSpecimenType());
     sLeft.setSpecimenTissueSource(specimen1.getSpecimenTissueSource());
     sLeft.setSubmitterSpecimenId(specimen1.getSubmitterSpecimenId());
     sLeft.setSpecimenId(specimen1.getSpecimenId());
@@ -437,6 +447,7 @@ public class EntityTest {
     val sRight = new SpecimenWithSamples();
     sRight.setDonorId(specimen1.getDonorId());
     sRight.setTumourNormalDesignation(specimen1.getTumourNormalDesignation());
+    sRight.setSpecimenType(specimen1.getSpecimenType());
     sRight.setSpecimenTissueSource(specimen1.getSpecimenTissueSource());
     sRight.setSubmitterSpecimenId(specimen1.getSubmitterSpecimenId());
     sRight.setSpecimenId(specimen1.getSpecimenId());
@@ -475,6 +486,7 @@ public class EntityTest {
             .donorId("myDonor1")
             .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(2))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(2))
+            .specimenType(SPECIMEN_TYPE.get(2))
             .build();
 
     val specimen2 =
@@ -484,6 +496,7 @@ public class EntityTest {
             .donorId("myDonor2")
             .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(1))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(1))
+            .specimenType(SPECIMEN_TYPE.get(1))
             .build();
 
     val sample11 =
@@ -901,6 +914,7 @@ public class EntityTest {
     val s1 = new Specimen();
     s1.setDonorId("a1");
     s1.setTumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(0));
+    s1.setSpecimenType(SPECIMEN_TYPE.get(0));
     s1.setSpecimenId("b1");
     s1.setSubmitterSpecimenId("c1");
     s1.setSpecimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(0));
@@ -912,6 +926,7 @@ public class EntityTest {
             .donorId("a1")
             .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(0))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(0))
+            .specimenType(SPECIMEN_TYPE.get(0))
             .build();
 
     assertEntitiesEqual(s1, s1_same, true);
@@ -923,6 +938,7 @@ public class EntityTest {
             .donorId("a2")
             .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(1))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(1))
+            .specimenType(SPECIMEN_TYPE.get(1))
             .build();
     assertEntitiesNotEqual(s1, s2);
 
@@ -932,6 +948,7 @@ public class EntityTest {
 
     // Test getters
     assertEquals(s1.getTumourNormalDesignation(), TUMOUR_NORMAL_DESIGNATION.get(0));
+    assertEquals(s1.getSpecimenType(), SPECIMEN_TYPE.get(0));
     assertEquals(s1.getSpecimenTissueSource(), SPECIMEN_TISSUE_SOURCE.get(0));
     assertEquals(s1.getSubmitterSpecimenId(), "c1");
     assertEquals(s1.getSpecimenId(), "b1");

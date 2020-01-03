@@ -19,12 +19,13 @@ package bio.overture.song.server.model.entity.composites;
 
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import lombok.val;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Value
 @ToString(callSuper = true)
@@ -39,6 +40,7 @@ public class SpecimenWithSamples extends Specimen {
     setSubmitterSpecimenId(s.getSubmitterSpecimenId());
     setSpecimenTissueSource(s.getSpecimenTissueSource());
     setTumourNormalDesignation(s.getTumourNormalDesignation());
+    setSpecimenType(s.getSpecimenType());
 
     addInfo(s.getInfoAsString());
   }
@@ -50,6 +52,7 @@ public class SpecimenWithSamples extends Specimen {
             .submitterSpecimenId(getSubmitterSpecimenId())
             .donorId(getDonorId())
             .tumourNormalDesignation(getTumourNormalDesignation())
+            .specimenType(getSpecimenType())
             .specimenTissueSource(getSpecimenTissueSource())
             .build();
     s.setInfo(getInfoAsString());

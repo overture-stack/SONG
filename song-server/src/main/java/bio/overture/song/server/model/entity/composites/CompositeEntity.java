@@ -39,6 +39,7 @@ public class CompositeEntity extends Sample {
     s.setSampleId(sample.getSampleId());
     s.setSubmitterSampleId(sample.getSubmitterSampleId());
     s.setSampleType(sample.getSampleType());
+    s.setMatchedNormalSubmitterSampleId(sample.getMatchedNormalSubmitterSampleId());
     s.setInfo(sample.getInfoAsString());
     s.setSpecimenId(sample.getSpecimenId());
 

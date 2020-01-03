@@ -17,11 +17,12 @@
 
 package bio.overture.song.server.utils;
 
-import static lombok.AccessLevel.PRIVATE;
+import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 import java.util.List;
-import lombok.NoArgsConstructor;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
 public class TestConstants {
@@ -44,7 +45,9 @@ public class TestConstants {
           "polyA+ RNA",
           "Other RNA fractions");
 
-  public static final List<String> TUMOUR_NORMAL_DESIGNATION =
+  public static final List<String> TUMOUR_NORMAL_DESIGNATION = List.of("Normal", "Tumour");
+
+  public static final List<String> SPECIMEN_TYPE =
       List.of(
           "Normal",
           "Normal - tissue adjacent to primary tumour",

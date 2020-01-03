@@ -8,8 +8,8 @@ insert into Donor (id, study_id, submitter_id, gender) values ('DO2','XYZ234', '
 insert into Info(id, id_type, info) values ('DO1',  'Donor', '{"name":"donor1"}' );
 insert into Info(id, id_type, info) values ('DO2',  'Donor', '{"name":"donor2"}' );
 
-insert into Specimen (id, donor_id, submitter_id, class, type, tissue_source, tumour_normal_designation) values ('SP1','DO1','Tissue-Culture 284 Gamma 3', null, null, 'Solid tissue', 'Primary tumour');
-insert into Specimen (id, donor_id, submitter_id, class, type, tissue_source, tumour_normal_designation) values ('SP2','DO1','Tissue-Culture 285 Gamma 7', null, null, 'Solid tissue', 'Normal');
+insert into Specimen (id, donor_id, submitter_id, class, legacy_type, tissue_source, tumour_normal_designation, type) values ('SP1','DO1','Tissue-Culture 284 Gamma 3', null, null, 'Solid tissue', 'Tumour', 'Primary tumour');
+insert into Specimen (id, donor_id, submitter_id, class, legacy_type, tissue_source, tumour_normal_designation, type) values ('SP2','DO1','Tissue-Culture 285 Gamma 7', null, null, 'Solid tissue', 'Normal', 'Normal');
 insert into Info(id, id_type, info) values ('SP1',  'Specimen', '{"name":"specimen1"}' );
 insert into Info(id, id_type, info) values ('SP2',  'Specimen', '{"name":"specimen2"}' );
 

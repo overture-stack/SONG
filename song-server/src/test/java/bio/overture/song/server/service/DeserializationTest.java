@@ -54,6 +54,7 @@ import static bio.overture.song.server.model.enums.ModelAttributeNames.INFO;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.SPECIMEN;
 import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
 import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
 import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 
 @Slf4j
@@ -97,6 +98,7 @@ public class DeserializationTest {
             .donorId("DO1")
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.stream().findAny().get())
             .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.stream().findAny().get())
+            .specimenType(SPECIMEN_TYPE.stream().findAny().get())
             .specimenId("SP1")
             .submitterSpecimenId("SUB_SP1")
             .build();
