@@ -15,14 +15,16 @@
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
         "ratio": "1:6",
-        "tumourNormalDesignation": "Primary tumour",
-        "specimenTissueSource": "Solid tissue"
+        "tumourNormalDesignation": "Tumour",
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Primary tumour"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",
         "donorGender": "Female",
         "age": 34
-      }
+      },
+      "matchedNormalSampleSubmitterId": "sample x24-11a"
     }
   ],
   "files": [

@@ -15,13 +15,15 @@
       "sampleType": "Total RNA",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
-        "tumourNormalDesignation": "Primary tumour",
-        "specimenTissueSource": "Solid tissue"
+        "tumourNormalDesignation": "Tumour",
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Primary tumour"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",
         "donorGender": "Female"
-      }
+      },
+      "matchedNormalSampleSubmitterId": ""
     }
   ],
   "files": [

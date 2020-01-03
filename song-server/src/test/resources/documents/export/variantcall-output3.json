@@ -19,8 +19,9 @@
         "info": {
           "ratio": "1:3"
         },
-        "tumourNormalDesignation": "Primary tumour",
-        "specimenTissueSource": "Solid tissue"
+        "tumourNormalDesignation": "Tumour",
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Primary tumour"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-03",
@@ -28,7 +29,8 @@
         "info": {
           "age": 343
         }
-      }
+      },
+      "matchedNormalSampleSubmitterId": "sample x24-11a3"
     }
   ],
   "files": [

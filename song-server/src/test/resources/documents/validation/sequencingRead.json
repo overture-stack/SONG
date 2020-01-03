@@ -23,7 +23,8 @@
       "specimen": {
         "submitterSpecimenId": "internal_specimen_123456789_01",
         "tumourNormalDesignation": "Normal",
-        "specimenTissueSource": "Solid tissue"
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Normal"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789_01",

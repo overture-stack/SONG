@@ -1,5 +1,4 @@
 import os,sys
-from jq import jq
 import json
 import collections
 
@@ -23,7 +22,9 @@ def read_file(file):
     checkFile(file)
     with open(file, 'r') as myfile:
         data = myfile.read()
+        d = collections.OrderedDict()
     return data
+
 
 def read_json(json_filepath):
     checkFile(json_filepath)
@@ -50,21 +51,24 @@ Transformations
 def transform_in_place(data):
     result = False
     if 'samples' in data:
+        variantCallMNSSId = None
+        if 'experiment' in data:
+            experiment = data['experiment']
+            if 'matchedNormalSampleSubmitterId' in experiment:
+                variantCallMNSSId = experiment['matchedNormalSampleSubmitterId']
         for sample in data['samples']:
             specimen = sample['specimen']
-            if 'specimenClass' in specimen:
-                if 'tumour' in specimen['specimenClass'].lower():
-                    specimen['tumourNormalDesignation'] = 'Primary tumour'
+            if 'tumourNormalDesignation' in specimen:
+                if specimen['tumourNormalDesignation'] == 'Primary tumour':
+                    specimen['tumourNormalDesignation'] = 'Tumour'
+                    specimen['specimenType'] = 'Primary tumour'
+                    if variantCallMNSSId is None:
+                        sample['matchedNormalSampleSubmitterId'] = 'MNSS01'
+                    else:
+                        sample['matchedNormalSampleSubmitterId'] = variantCallMNSSId
                 else:
                     specimen['tumourNormalDesignation'] = 'Normal'
-                del specimen['specimenClass']
-                result = True
-
-            if 'specimenType' in specimen:
-                del specimen['specimenType']
-
-            if 'specimenTissueSource' not in specimen:
-                specimen['specimenTissueSource'] = 'Solid tissue'
+                    specimen['specimenType'] = 'Normal'
                 result = True
     return result
 

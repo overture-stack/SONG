@@ -14,8 +14,9 @@
       "sampleType": "Total RNA FTW",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
-        "tumourNormalDesignation": "Normal-ish",
-        "specimenTissueSource": "Solid tissue junkkkk"
+        "tumourNormalDesignation": "Normal",
+        "specimenTissueSource": "Solid tissue junkkkk",
+        "specimenType": "Normal---fff"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",

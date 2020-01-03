@@ -18,14 +18,16 @@
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk_fs01",
         "extraSpecimenInfo_0": "first for a variantCall specimen_fs01",
         "extraSpecimenInfo_1": "second data for a variantCall specimen_fs01",
-        "tumourNormalDesignation": "Primary tumour",
-        "specimenTissueSource": "Solid tissue"
+        "tumourNormalDesignation": "Tumour",
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Primary tumour"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00_fs01",
         "donorGender": "Male",
         "extraDonorInfo": "some more data for a variantCall donor_fs01"
-      }
+      },
+      "matchedNormalSampleSubmitterId": "sample x24-11a"
     },
     {
       "submitterSampleId": "internal_sample_98024759826836_fs02",
@@ -34,15 +36,17 @@
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk_fs02",
         "extraSpecimenInfo": "some more data for a variantCall specimen_fs02",
-        "tumourNormalDesignation": "Primary tumour",
-        "specimenTissueSource": "Solid tissue"
+        "tumourNormalDesignation": "Tumour",
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Primary tumour"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00_fs02",
         "donorGender": "Female",
         "extraDonorInfo_0": "first data for a variantCall donor_fs02",
         "extraDonorInfo_1": "second data for a variantCall donor_fs02"
-      }
+      },
+      "matchedNormalSampleSubmitterId": "sample x24-11a"
     }
   ],
   "files": [
