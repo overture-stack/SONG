@@ -55,7 +55,7 @@ public class Sample extends Metadata {
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
   private String submitterSampleId;
 
-  @Column(name = TableAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID, nullable = true)
+  @Column(name = TableAttributeNames.MATCHED_NORMAL_SUBMITTER_SAMPLE_ID, nullable = true)
   private String matchedNormalSubmitterSampleId;
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)

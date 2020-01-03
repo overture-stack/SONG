@@ -17,12 +17,11 @@
 
 package bio.overture.song.server.utils;
 
-import lombok.NoArgsConstructor;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Collection;
 import java.util.List;
-
-import static lombok.AccessLevel.PRIVATE;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public class TestConstants {
@@ -65,7 +64,7 @@ public class TestConstants {
           "Cell line - derived from tumour",
           "Cell line - derived from normal");
 
-  public static final List<String> SPECIMEN_TISSUE_SOURCE=
+  public static final List<String> SPECIMEN_TISSUE_SOURCE =
       List.of(
           "Blood derived",
           "Blood derived - bone marrow",
@@ -93,7 +92,6 @@ public class TestConstants {
           "Bone",
           "Cerebellum",
           "Endometrium");
-
 
   public static final Collection<String> DONOR_GENDER = List.of("Male", "Female", "Other");
 }

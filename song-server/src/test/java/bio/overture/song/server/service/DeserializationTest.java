@@ -17,6 +17,24 @@
 
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.FileTypes.BAM;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.DONOR;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.INFO;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SPECIMEN;
+import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
+import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.Analysis;
@@ -32,30 +50,11 @@ import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.utils.TestFiles;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.FileTypes.BAM;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.DONOR;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.INFO;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SPECIMEN;
-import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
-import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 
 @Slf4j
 public class DeserializationTest {

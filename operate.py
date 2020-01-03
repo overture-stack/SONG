@@ -48,7 +48,7 @@ Transformations
 - add specimenTissueSource: Solid tissue
 - add tumourNormalDesignation: Normal
 """
-def transform_in_place(data):
+def transform_in_place_old(data):
     result = False
     if 'samples' in data:
         variantCallMNSSId = None
@@ -69,6 +69,16 @@ def transform_in_place(data):
                 else:
                     specimen['tumourNormalDesignation'] = 'Normal'
                     specimen['specimenType'] = 'Normal'
+                result = True
+    return result
+
+def transform_in_place(data):
+    result = False
+    if 'samples' in data:
+        for sample in data['samples']:
+            if 'matchedNormalSampleSubmitterId' in sample:
+                sample['matchedNormalSubmitterSampleId'] = sample['matchedNormalSampleSubmitterId']
+                del sample['matchedNormalSampleSubmitterId']
                 result = True
     return result
 

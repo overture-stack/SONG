@@ -17,6 +17,26 @@
 
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
+import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
+import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
+import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.model.Metadata;
 import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.server.model.Upload;
@@ -32,31 +52,10 @@ import bio.overture.song.server.model.entity.composites.StudyWithDonors;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.val;
-import org.junit.Test;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
-import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
-import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
-import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
+import lombok.val;
+import org.junit.Test;
 
 public class EntityTest {
   private static final String DEFAULT_STUDY_ID = "ABC123";
