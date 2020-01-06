@@ -19,13 +19,12 @@ package bio.overture.song.server.model.entity.composites;
 
 import bio.overture.song.server.model.entity.Donor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import lombok.val;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Value
 @ToString(callSuper = true)

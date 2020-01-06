@@ -25,7 +25,7 @@
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",
-        "donorGender": "Female",
+        "gender": "Female",
         "info": {
           "age": 34
         }

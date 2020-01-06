@@ -25,7 +25,7 @@
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-04",
-        "donorGender": "Male",
+        "gender": "Male",
         "info": {
           "age": 344
         }

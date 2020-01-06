@@ -21,7 +21,7 @@
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-03",
-        "donorGender": "Male",
+        "gender": "Male",
         "age": 343
       },
       "matchedNormalSubmitterSampleId": "sample x24-11a3"

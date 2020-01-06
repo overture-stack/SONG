@@ -21,7 +21,7 @@
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00-v0001",
-        "donorGender": "Female"
+        "gender": "Female"
       },
       "matchedNormalSubmitterSampleId": "sample x24-11a"
     }

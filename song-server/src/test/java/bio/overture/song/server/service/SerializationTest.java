@@ -141,8 +141,7 @@ public class SerializationTest {
             .specimenType("Normal")
             .build();
 
-    val d =
-        Donor.builder().gender("Male").submitterDonorId("internal_donor_123456789_01").build();
+    val d = Donor.builder().gender("Male").submitterDonorId("internal_donor_123456789_01").build();
     d.setInfo("ageCategory", "18-25");
     d.setInfo("riskCategory", "3b");
 
@@ -188,7 +187,7 @@ public class SerializationTest {
 
     val single =
         format(
-            "{'donorId':'%s','submitterDonorId':'%s','studyId':'%s','donorGender':'%s',"
+            "{'donorId':'%s','submitterDonorId':'%s','studyId':'%s','gender':'%s',"
                 + "'roses':'red','violets':'blue'}",
             donorId, submitter, study, gender);
     val metadata = fromSingleQuoted("{'roses':'red','violets':'blue'}");
@@ -207,7 +206,7 @@ public class SerializationTest {
     val donor = new Donor();
     val actual = objectToTree(donor);
 
-    val expected = "{'donorId':null,'submitterDonorId':null,'studyId':null,'donorGender':null}";
+    val expected = "{'donorId':null,'submitterDonorId':null,'studyId':null,'gender':null}";
     val expectedJson = fromSingleQuoted(expected);
     assertJsonEquals(expectedJson, actual, when(IGNORING_ARRAY_ORDER));
   }
@@ -217,7 +216,7 @@ public class SerializationTest {
     val donor = new Donor();
     donor.setDonorId(null);
     val actual = objectToTree(donor);
-    val expected = "{'donorId':null,'submitterDonorId':null,'studyId':null,'donorGender':null}";
+    val expected = "{'donorId':null,'submitterDonorId':null,'studyId':null,'gender':null}";
     val expectedJson = fromSingleQuoted(expected);
     assertJsonEquals(expectedJson, actual, when(IGNORING_ARRAY_ORDER));
   }
@@ -243,7 +242,7 @@ public class SerializationTest {
 
     val expected =
         format(
-            "{'donorId':'%s','submitterDonorId':'%s','studyId':'%s','donorGender':'%s'}",
+            "{'donorId':'%s','submitterDonorId':'%s','studyId':'%s','gender':'%s'}",
             id, submitterId, studyId, gender, metadata);
     val expectedJson = fromSingleQuoted(expected);
     assertJsonEquals(expectedJson, actual, when(IGNORING_ARRAY_ORDER));

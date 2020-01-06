@@ -54,8 +54,7 @@ public class SecureDonorTester extends AbstractSecureTester {
     getStudyService().checkStudyExist(existingStudyId);
     val donor =
         Donor.builder()
-            .gender(
-                getRandomGenerator().randomElement(Lists.newArrayList(TestConstants.GENDER)))
+            .gender(getRandomGenerator().randomElement(Lists.newArrayList(TestConstants.GENDER)))
             .studyId(existingStudyId)
             .submitterDonorId(getRandomGenerator().generateRandomUUIDAsString())
             .build();

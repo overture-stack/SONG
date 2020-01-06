@@ -24,7 +24,7 @@
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00_fs01",
-        "donorGender": "Male",
+        "gender": "Male",
         "extraDonorInfo": "some more data for a variantCall donor_fs01"
       },
       "matchedNormalSubmitterSampleId": "sample x24-11a"
@@ -42,7 +42,7 @@
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00_fs02",
-        "donorGender": "Female",
+        "gender": "Female",
         "extraDonorInfo_0": "first data for a variantCall donor_fs02",
         "extraDonorInfo_1": "second data for a variantCall donor_fs02"
       },

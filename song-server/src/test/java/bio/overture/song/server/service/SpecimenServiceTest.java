@@ -16,35 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.testing.SongErrorAssertions;
-import bio.overture.song.core.utils.JsonUtils;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Donor;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-
-import javax.transaction.Transactional;
-import java.util.Set;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_ID_IS_CORRUPTED;
@@ -61,6 +32,34 @@ import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
 import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.securestudy.impl.SecureSpecimenTester.createSecureSpecimenTester;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import bio.overture.song.core.testing.SongErrorAssertions;
+import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.server.model.entity.Donor;
+import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.model.entity.Specimen;
+import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import java.util.Set;
+import javax.transaction.Transactional;
+import lombok.val;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
