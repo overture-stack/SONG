@@ -1,1 +1,0 @@
-ALTER TABLE file ADD COLUMN data_type VARCHAR(255);
