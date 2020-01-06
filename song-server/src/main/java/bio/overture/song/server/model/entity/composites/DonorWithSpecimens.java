@@ -19,12 +19,13 @@ package bio.overture.song.server.model.entity.composites;
 
 import bio.overture.song.server.model.entity.Donor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import lombok.val;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Value
 @ToString(callSuper = true)
@@ -37,7 +38,7 @@ public class DonorWithSpecimens extends Donor {
     this.setDonorId(d.getDonorId());
     this.setSubmitterDonorId(d.getSubmitterDonorId());
     this.setStudyId(d.getStudyId());
-    this.setDonorGender(d.getDonorGender());
+    this.setGender(d.getGender());
     this.setSubmitterDonorId(d.getSubmitterDonorId());
     this.addInfo(d.getInfoAsString());
   }
@@ -48,7 +49,7 @@ public class DonorWithSpecimens extends Donor {
         Donor.builder()
             .donorId(getDonorId())
             .submitterDonorId(getSubmitterDonorId())
-            .donorGender(getDonorGender())
+            .gender(getGender())
             .studyId(getStudyId())
             .build();
     donor.setInfo(getInfoAsString());

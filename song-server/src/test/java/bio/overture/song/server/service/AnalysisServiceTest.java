@@ -16,43 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
-import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
-import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Arrays.stream;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-import static java.util.stream.IntStream.range;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -77,11 +40,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -91,6 +49,49 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.stream;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.IntStream.range;
+import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
+import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
+import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspath;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.securestudy.impl.SecureAnalysisTester.createSecureAnalysisTester;
 
 @Slf4j
 @SpringBootTest
@@ -251,7 +252,7 @@ public class AnalysisServiceTest {
 
     val donor00 = sample0.getDonor();
     assertEquals(donor00.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor00.getDonorGender(), "Male");
+    assertEquals(donor00.getGender(), "Male");
     assertEquals(donor00.getSubmitterDonorId(), "internal_donor_123456789-00_fs01");
     assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a variantCall donor_fs01");
 
@@ -277,7 +278,7 @@ public class AnalysisServiceTest {
 
     val donor01 = sample1.getDonor();
     assertEquals(donor01.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor01.getDonorGender(), "Female");
+    assertEquals(donor01.getGender(), "Female");
     assertEquals(donor01.getSubmitterDonorId(), "internal_donor_123456789-00_fs02");
     assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a variantCall donor_fs02");
     assertInfoKVPair(donor01, "extraDonorInfo_1", "second data for a variantCall donor_fs02");
@@ -388,7 +389,7 @@ public class AnalysisServiceTest {
 
     val donor00 = sample0.getDonor();
     assertEquals(donor00.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor00.getDonorGender(), "Male");
+    assertEquals(donor00.getGender(), "Male");
     assertEquals(donor00.getSubmitterDonorId(), "internal_donor_123456789-00_fr01");
 
     assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a sequencingRead donor_fr01");
@@ -415,7 +416,7 @@ public class AnalysisServiceTest {
 
     val donor01 = sample1.getDonor();
     assertEquals(donor01.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor01.getDonorGender(), "Female");
+    assertEquals(donor01.getGender(), "Female");
     assertEquals(donor01.getSubmitterDonorId(), "internal_donor_123456789-00_fr02");
     assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a sequencingRead donor_fr02");
     assertInfoKVPair(donor01, "extraDonorInfo_1", "second data for a sequencingRead donor_fr02");

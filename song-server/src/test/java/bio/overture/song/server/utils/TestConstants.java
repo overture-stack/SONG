@@ -93,5 +93,5 @@ public class TestConstants {
           "Cerebellum",
           "Endometrium");
 
-  public static final Collection<String> DONOR_GENDER = List.of("Male", "Female", "Other");
+  public static final Collection<String> GENDER = List.of("Male", "Female", "Other");
 }

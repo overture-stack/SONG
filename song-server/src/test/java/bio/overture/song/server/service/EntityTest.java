@@ -78,14 +78,14 @@ public class EntityTest {
             .donorId("myDonor1")
             .submitterDonorId("myDonorSubmitter1")
             .studyId(DEFAULT_STUDY_ID)
-            .donorGender("male")
+            .gender("male")
             .build();
     val donor2 =
         Donor.builder()
             .donorId("myDonor2")
             .submitterDonorId("myDonorSubmitter2")
             .studyId(DEFAULT_STUDY_ID)
-            .donorGender("female")
+            .gender("female")
             .build();
 
     val specimen1 =
@@ -257,18 +257,18 @@ public class EntityTest {
             .donorId("myDonor1")
             .submitterDonorId("myDonorSubmitter1")
             .studyId(DEFAULT_STUDY_ID)
-            .donorGender("male")
+            .gender("male")
             .build();
     val donor2 =
         Donor.builder()
             .donorId("myDonor2")
             .submitterDonorId("myDonorSubmitter2")
             .studyId(DEFAULT_STUDY_ID)
-            .donorGender("female")
+            .gender("female")
             .build();
 
     val d1 = new DonorWithSpecimens();
-    d1.setDonorGender(donor1.getDonorGender());
+    d1.setGender(donor1.getGender());
     d1.setDonorId(donor1.getDonorId());
     d1.setSubmitterDonorId(donor1.getSubmitterDonorId());
     d1.setStudyId(donor1.getStudyId());
@@ -311,7 +311,7 @@ public class EntityTest {
     assertEntitiesNotEqual(d1, d2);
 
     // Test getters
-    assertEquals(d1.getDonorGender(), donor1.getDonorGender());
+    assertEquals(d1.getGender(), donor1.getGender());
     assertEquals(d1.getSubmitterDonorId(), donor1.getSubmitterDonorId());
     assertEquals(d1.getDonorId(), donor1.getDonorId());
     assertEquals(d1.getStudyId(), donor1.getStudyId());
@@ -550,14 +550,14 @@ public class EntityTest {
             .donorId("myDonor1")
             .submitterDonorId("myDonorSubmitter1")
             .studyId(DEFAULT_STUDY_ID)
-            .donorGender("male")
+            .gender("male")
             .build();
     val donor2 =
         Donor.builder()
             .donorId("myDonor2")
             .submitterDonorId("myDonorSubmitter2")
             .studyId(DEFAULT_STUDY_ID)
-            .donorGender("female")
+            .gender("female")
             .build();
 
     val d1 = new DonorWithSpecimens();
@@ -844,7 +844,7 @@ public class EntityTest {
   @Test
   public void testDonor() {
     val donor1 = new Donor();
-    donor1.setDonorGender("male");
+    donor1.setGender("male");
     donor1.setSubmitterDonorId("myDonorSubmitter1");
     donor1.setDonorId("myDonor1");
     donor1.setStudyId("study1");
@@ -854,7 +854,7 @@ public class EntityTest {
             .donorId("myDonor1")
             .submitterDonorId("myDonorSubmitter1")
             .studyId("study1")
-            .donorGender("male")
+            .gender("male")
             .build();
     assertEntitiesEqual(donor1, donor1_same, true);
 
@@ -863,7 +863,7 @@ public class EntityTest {
             .donorId("myDonor2")
             .submitterDonorId("myDonorSubmitter2")
             .studyId("study2")
-            .donorGender("female")
+            .gender("female")
             .build();
     assertEntitiesNotEqual(donor1, donor2);
 
@@ -873,7 +873,7 @@ public class EntityTest {
 
     // Test getters
     assertEquals(donor1.getStudyId(), "study1");
-    assertEquals(donor1.getDonorGender(), "male");
+    assertEquals(donor1.getGender(), "male");
     assertEquals(donor1.getSubmitterDonorId(), "myDonorSubmitter1");
     assertEquals(donor1.getDonorId(), "myDonor1");
     assertInfoKVPair(donor1, "key1", "f5c9381090a53c54358feb2ba5b7a3d7");

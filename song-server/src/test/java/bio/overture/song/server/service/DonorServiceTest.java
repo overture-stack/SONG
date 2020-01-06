@@ -16,27 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXISTS;
-import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
-import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
-import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
-import static bio.overture.song.server.utils.TestConstants.DONOR_GENDER;
-import static bio.overture.song.server.utils.TestFiles.getInfoName;
-import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static bio.overture.song.server.utils.securestudy.impl.SecureDonorTester.createSecureDonorTester;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.stream.Collectors.toSet;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -46,7 +25,6 @@ import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.service.id.IdService;
 import bio.overture.song.server.utils.securestudy.impl.SecureDonorTester;
 import com.google.common.collect.Sets;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -56,6 +34,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.transaction.Transactional;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toSet;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ALREADY_EXISTS;
+import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
+import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
+import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
+import static bio.overture.song.server.utils.TestConstants.GENDER;
+import static bio.overture.song.server.utils.TestFiles.getInfoName;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static bio.overture.song.server.utils.securestudy.impl.SecureDonorTester.createSecureDonorTester;
 
 @Slf4j
 @SpringBootTest
@@ -84,7 +85,7 @@ public class DonorServiceTest {
     val d = service.readWithSpecimens(DEFAULT_DONOR_ID);
     assertNotNull(d);
     assertEquals(d.getDonorId(), DEFAULT_DONOR_ID);
-    assertEquals(d.getDonorGender(), "Male");
+    assertEquals(d.getGender(), "Male");
     assertEquals(d.getSubmitterDonorId(), "Subject-X23Alpha7");
     assertEquals(d.getSpecimens().size(), 2);
     assertEquals(getInfoName(d), "donor1");
@@ -148,7 +149,7 @@ public class DonorServiceTest {
     d.setDonorId("");
     d.setSubmitterDonorId("Triangle-Arrow-S");
     d.setStudyId(studyId);
-    d.setDonorGender("Male");
+    d.setGender("Male");
     val id = service.create(d);
     assertEquals(id, d.getDonorId());
 
@@ -156,7 +157,7 @@ public class DonorServiceTest {
     d2.setDonorId(id);
     d2.setSubmitterDonorId("X21-Beta-17");
     d2.setStudyId(studyId);
-    d2.setDonorGender("Female");
+    d2.setGender("Female");
     d2.setInfo(info);
 
     val response = service.update(d2);
@@ -174,21 +175,21 @@ public class DonorServiceTest {
     d.setDonorId("");
     d.setSubmitterDonorId(donorSubmitterId);
     d.setStudyId(studyId);
-    d.setDonorGender("Male");
+    d.setGender("Male");
     val donorId = service.save(studyId, d);
     val initialDonor = service.securedRead(studyId, donorId);
-    assertEquals(initialDonor.getDonorGender(), "Male");
+    assertEquals(initialDonor.getGender(), "Male");
     assertTrue(service.isDonorExist(donorId));
 
     val dUpdate = new DonorWithSpecimens();
     dUpdate.setSubmitterDonorId(donorSubmitterId);
     dUpdate.setStudyId(studyId);
-    dUpdate.setDonorGender("Female");
+    dUpdate.setGender("Female");
     val donorId2 = service.save(studyId, dUpdate);
     assertTrue(service.isDonorExist(donorId2));
     assertEquals(donorId2, donorId);
     val updateDonor = service.securedRead(studyId, donorId2);
-    assertEquals(updateDonor.getDonorGender(), "Female");
+    assertEquals(updateDonor.getGender(), "Female");
   }
 
   @Test
@@ -201,7 +202,7 @@ public class DonorServiceTest {
     d.setDonorId("");
     d.setSubmitterDonorId(donorSubmitterId);
     d.setStudyId(studyId);
-    d.setDonorGender("Male");
+    d.setGender("Male");
     val donorId = service.create(d);
     assertTrue(service.isDonorExist(donorId));
     SongErrorAssertions.assertSongError(
@@ -211,7 +212,7 @@ public class DonorServiceTest {
     d2.setDonorId("");
     d2.setSubmitterDonorId(randomGenerator.generateRandomUUIDAsString());
     d2.setStudyId(randomStudyId);
-    d2.setDonorGender("Female");
+    d2.setGender("Female");
     SongErrorAssertions.assertSongError(
         () -> service.save(randomStudyId, d2), STUDY_ID_DOES_NOT_EXIST);
   }
@@ -225,7 +226,7 @@ public class DonorServiceTest {
     d1.setDonorId("");
     d1.setSubmitterDonorId(randomGenerator.generateRandomUUIDAsString());
     d1.setStudyId(randomStudyId);
-    d1.setDonorGender("Female");
+    d1.setGender("Female");
     val id1 = service.create(d1);
     d1.setDonorId(id1);
 
@@ -233,7 +234,7 @@ public class DonorServiceTest {
     d2.setDonorId("");
     d2.setSubmitterDonorId(randomGenerator.generateRandomUUIDAsString());
     d2.setStudyId(randomStudyId);
-    d2.setDonorGender("Male");
+    d2.setGender("Male");
     val id2 = service.create(d2);
     d2.setDonorId(id2);
 
@@ -256,7 +257,7 @@ public class DonorServiceTest {
   public void testDonorCheck() {
     val randomDonorId = randomGenerator.generateRandomUUIDAsString();
     val randomDonorSubmitterId = randomGenerator.generateRandomUUID().toString();
-    val randomDonorGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
+    val randomDonorGender = randomGenerator.randomElement(newArrayList(GENDER));
     val result = idService.getDonorId(DEFAULT_STUDY_ID, randomDonorSubmitterId);
     assertTrue(result.isPresent());
     val expectedId = result.get();
@@ -270,7 +271,7 @@ public class DonorServiceTest {
                 .donorId(null)
                 .submitterDonorId(randomDonorSubmitterId)
                 .studyId(DEFAULT_STUDY_ID)
-                .donorGender(randomDonorGender)
+                .gender(randomDonorGender)
                 .build());
     assertEquals(donorId, expectedId);
     assertTrue(service.isDonorExist(donorId));
@@ -294,7 +295,7 @@ public class DonorServiceTest {
     val donorIdSet = Sets.<String>newHashSet();
     for (int i = 0; i < numDonors; i++) {
       val d = new DonorWithSpecimens();
-      d.setDonorGender("Male");
+      d.setGender("Male");
       d.setStudyId(studyId);
       d.setSubmitterDonorId(randomGenerator.generateRandomUUIDAsString());
       val donorId = service.create(d);
@@ -315,7 +316,7 @@ public class DonorServiceTest {
   @Test
   public void testCreateDonorAlreadyExists() {
     val studyId = DEFAULT_STUDY_ID;
-    val randomGender = randomGenerator.randomElement(newArrayList(DONOR_GENDER));
+    val randomGender = randomGenerator.randomElement(newArrayList(GENDER));
     val randomDonorSubmitterId = randomGenerator.generateRandomUUIDAsString();
     val result = idService.getDonorId(studyId, randomDonorSubmitterId);
     assertTrue(result.isPresent());
@@ -324,7 +325,7 @@ public class DonorServiceTest {
     val donorWithSpecimens = new DonorWithSpecimens();
     donorWithSpecimens.setStudyId(studyId);
     donorWithSpecimens.setSubmitterDonorId(randomDonorSubmitterId);
-    donorWithSpecimens.setDonorGender(randomGender);
+    donorWithSpecimens.setGender(randomGender);
     donorWithSpecimens.setInfo("someKey", "someValue");
     val donorId = service.create(donorWithSpecimens);
     assertEquals(donorId, expectedId);
@@ -378,7 +379,7 @@ public class DonorServiceTest {
         .donorId(randomDonorId)
         .submitterDonorId(randomDonorSubmitterId)
         .studyId(randomStudyId)
-        .donorGender("Male")
+        .gender("Male")
         .build();
   }
 }

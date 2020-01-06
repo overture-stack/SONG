@@ -142,7 +142,7 @@ public class SerializationTest {
             .build();
 
     val d =
-        Donor.builder().donorGender("Male").submitterDonorId("internal_donor_123456789_01").build();
+        Donor.builder().gender("Male").submitterDonorId("internal_donor_123456789_01").build();
     d.setInfo("ageCategory", "18-25");
     d.setInfo("riskCategory", "3b");
 
@@ -197,7 +197,7 @@ public class SerializationTest {
     assertEquals(donor.getDonorId(), donorId);
     assertEquals(donor.getSubmitterDonorId(), submitter);
     assertEquals(donor.getStudyId(), study);
-    assertEquals(donor.getDonorGender(), gender);
+    assertEquals(donor.getGender(), gender);
     assertEquals(donor.getSpecimens(), Collections.emptyList());
     assertEquals(donor.getInfoAsString(), metadata);
   }
@@ -235,7 +235,7 @@ public class SerializationTest {
             .donorId(id)
             .submitterDonorId(submitterId)
             .studyId(studyId)
-            .donorGender(gender)
+            .gender(gender)
             .build();
     donor.setInfo(metadata);
 

@@ -86,7 +86,7 @@ public class DeserializationTest {
 
     val d =
         Donor.builder()
-            .donorGender("Male")
+            .gender("Male")
             .donorId("DO1")
             .submitterDonorId("SUB_DO1")
             .studyId("ABC123")

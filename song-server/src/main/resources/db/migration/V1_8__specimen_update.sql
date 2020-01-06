@@ -77,3 +77,8 @@ ALTER TABLE specimen ALTER COLUMN tumour_normal_designation SET NOT NULL;
 ----------------------------------------------
 ALTER TABLE sample ADD COLUMN matched_normal_submitter_sample_id VARCHAR(255) ;
 
+----------------------------------------------
+-- Add non-null contraint to donor.gender
+----------------------------------------------
+ALTER TABLE donor ALTER COLUMN gender SET NOT NULL;
+

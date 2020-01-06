@@ -17,17 +17,11 @@
 
 package bio.overture.song.server.model.entity;
 
-import static bio.overture.song.server.model.enums.TableNames.DONOR;
-
 import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +29,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import static bio.overture.song.server.model.enums.TableNames.DONOR;
 
 @Entity
 @Table(name = DONOR)
@@ -48,7 +49,7 @@ import lombok.ToString;
   ModelAttributeNames.DONOR_ID,
   ModelAttributeNames.DONOR_SUBMITTER_ID,
   ModelAttributeNames.STUDY_ID,
-  ModelAttributeNames.DONOR_GENDER,
+  ModelAttributeNames.GENDER,
   ModelAttributeNames.SPECIMENS,
   ModelAttributeNames.INFO
 })
@@ -65,12 +66,12 @@ public class Donor extends Metadata {
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
   private String submitterDonorId;
 
-  @Column(name = TableAttributeNames.GENDER, nullable = true)
-  private String donorGender;
+  @Column(name = TableAttributeNames.GENDER, nullable = false)
+  private String gender;
 
   public void setWithDonor(@NonNull Donor donorUpdate) {
     setSubmitterDonorId(donorUpdate.getSubmitterDonorId());
-    setDonorGender(donorUpdate.getDonorGender());
+    setGender(donorUpdate.getGender());
     setDonorId(donorUpdate.getDonorId());
     setInfo(donorUpdate.getInfo());
   }
