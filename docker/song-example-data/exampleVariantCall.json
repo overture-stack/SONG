@@ -29,7 +29,7 @@
       },
       "donor": {
         "donorSubmitterId": "internal_donor_123456789-00",
-        "donorGender": "female",
+        "donorGender": "Female",
         "randomField4" : "we can define any DONOR field. For example, randomField4",
         "randomField5" : "as a second example, we can define another random DONOR field called randomField5",
         "info" : {

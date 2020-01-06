@@ -173,8 +173,8 @@ docker run --rm \
   -e 'CLIENT_PROGRAM_NAME=sing' \
   -e 'CLIENT_DEBUG=true' \
   -e 'CLIENT_ACCESS_TOKEN=myAccessToken' \
-  overture/song-client:latest 
-  bin/sing config
+  overture/song-client:latest \
+  sing config
 ```
 
 ### Notes
