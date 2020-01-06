@@ -28,12 +28,12 @@ import static bio.overture.song.core.model.enums.FileUpdateTypes.METADATA_UPDATE
 import static bio.overture.song.core.model.enums.FileUpdateTypes.NO_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.resolveFileUpdateType;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.JsonNodeBuilders.object;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
 import static com.google.common.collect.Lists.newArrayList;
-import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
 import static org.junit.Assert.*;
 
 import bio.overture.song.core.model.FileUpdateRequest;
