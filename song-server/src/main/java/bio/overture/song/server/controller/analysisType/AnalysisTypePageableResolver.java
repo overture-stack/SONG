@@ -25,12 +25,11 @@ import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.stream;
 import static java.util.Objects.isNull;
 import static lombok.AccessLevel.PRIVATE;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static org.springframework.util.StringUtils.isEmpty;
 
@@ -59,7 +58,7 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
   public static final String DEFAULT_SORT_VARIABLE = VERSION;
   public static final Direction DEFAULT_SORT_ORDER = DESC;
 
-  private static final String ALLOWED_SORT_VARIABLES = COMMA.join(VERSION, NAME);
+  private static final String ALLOWED_SORT_VARIABLES = VERSION + "," + NAME;
   private static final String ALLOWED_DIRECTION_VARIABLES =
       stream(Direction.values())
           .map(Enum::name)

@@ -25,11 +25,10 @@ import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
 import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static com.google.common.base.Throwables.getRootCause;
 import static com.google.common.base.Throwables.getStackTraceAsString;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
-import static org.icgc.dcc.common.core.util.Splitters.NEWLINE;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
 import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.exceptions.ServerException;
@@ -172,7 +171,7 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   private static List<String> getFullStackTraceList(Throwable t) {
-    return NEWLINE.splitToList(getStackTraceAsString(t)).stream()
+    return stream(getStackTraceAsString(t).split("\n"))
         .map(String::trim)
         .collect(toImmutableList());
   }

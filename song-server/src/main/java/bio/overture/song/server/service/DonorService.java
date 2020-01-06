@@ -26,7 +26,7 @@ import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.utils.Responses.OK;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;

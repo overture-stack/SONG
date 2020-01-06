@@ -23,7 +23,7 @@ import static bio.overture.song.core.exceptions.ServerException.buildServerExcep
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static java.lang.Boolean.parseBoolean;
-import static org.icgc.dcc.common.core.util.Joiners.SLASH;
+import static java.lang.String.join;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 
@@ -136,6 +136,6 @@ public class StorageService {
   }
 
   private static String joinUrl(String... path) {
-    return SLASH.join(path);
+    return join("/", path);
   }
 }

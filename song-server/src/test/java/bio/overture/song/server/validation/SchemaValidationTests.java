@@ -23,12 +23,14 @@ import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.Streams.stream;
 import static java.lang.Thread.currentThread;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.utils.Joiners;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -42,8 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.util.Sets;
 import org.everit.json.schema.ValidationException;
-import org.icgc.dcc.common.core.util.Joiners;
-import org.icgc.dcc.common.core.util.stream.Streams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,7 +203,7 @@ public class SchemaValidationTests {
 
   private static Set<String> getTypes(JsonNode node) {
     assertTrue(node.has(TYPE));
-    return Streams.stream(node.path(TYPE).iterator())
+    return stream(node.path(TYPE).iterator())
         .filter(x -> !x.isArray())
         .map(JsonNode::textValue)
         .collect(toImmutableSet());

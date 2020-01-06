@@ -31,11 +31,10 @@ import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
@@ -233,7 +232,8 @@ public class AnalysisTypeService {
       validateWithSchema(metaSchema, analysisTypeSchema);
       buildSchema(analysisTypeSchema);
     } catch (ValidationException e) {
-      throw buildServerException(getClass(), SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
+      throw buildServerException(
+          getClass(), SCHEMA_VIOLATION, String.join(",", e.getAllMessages()));
     } catch (SchemaException e) {
       throw buildServerException(getClass(), MALFORMED_JSON_SCHEMA, e.getMessage());
     }

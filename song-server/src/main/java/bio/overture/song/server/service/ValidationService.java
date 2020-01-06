@@ -24,9 +24,9 @@ import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromP
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.FileData;
@@ -99,7 +99,7 @@ public class ValidationService {
         validateWithSchema(schema, payload);
       }
     } catch (ValidationException e) {
-      errors = COMMA.join(e.getAllMessages());
+      errors = join(",", e.getAllMessages());
       log.error(errors);
     }
     return Optional.ofNullable(errors);

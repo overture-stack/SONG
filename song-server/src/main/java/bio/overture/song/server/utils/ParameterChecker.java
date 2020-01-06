@@ -21,14 +21,14 @@ import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILTER_PARA
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_QUERY_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.UNREGISTERED_TYPE;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.join;
 import static java.lang.reflect.Modifier.fieldModifiers;
 import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Arrays.stream;
 import static lombok.AccessLevel.PRIVATE;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 import bio.overture.song.core.exceptions.ServerError;
 import com.google.common.collect.ImmutableMap;
@@ -74,9 +74,9 @@ public class ParameterChecker {
         error,
         "The %s parameters '%s' must be a subset of the following legal %s parameters '%s' ",
         parameterType,
-        COMMA.join(parameterNames),
+        join(",", parameterNames),
         parameterType,
-        COMMA.join(getFieldNamesFor(type)));
+        join(",", getFieldNamesFor(type)));
   }
 
   public static ParameterChecker createParameterChecker(Class<?>... types) {

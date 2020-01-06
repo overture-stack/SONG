@@ -20,8 +20,8 @@ import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.padEnd;
 import static com.google.common.base.Strings.repeat;
+import static java.lang.String.join;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
-import static org.icgc.dcc.common.core.util.Joiners.WHITESPACE;
 
 import bio.overture.song.core.utils.VersionUtils;
 import bio.overture.song.server.config.ValidationConfig;
@@ -110,7 +110,7 @@ public class ServerBanner {
   }
 
   private String formatArguments() {
-    return "java " + WHITESPACE.join(getJavaArguments()) + " -jar " + getJarName() + " ...";
+    return "java " + join(" ", getJavaArguments()) + " -jar " + getJarName() + " ...";
   }
 
   private List<String> getJavaArguments() {

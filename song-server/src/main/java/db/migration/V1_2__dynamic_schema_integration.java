@@ -10,6 +10,7 @@ import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static db.migration.V1_2__dynamic_schema_integration.NonNullObjectNodeBuilder.createNonNullObjectNode;
 import static java.util.Objects.isNull;
 
+import bio.overture.song.core.utils.Joiners;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +23,6 @@ import lombok.val;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
-import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Slf4j

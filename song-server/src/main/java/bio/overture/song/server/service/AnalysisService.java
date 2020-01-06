@@ -45,11 +45,11 @@ import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.jayway.jsonpath.internal.Utils.join;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.enums.AnalysisStates;
@@ -415,7 +415,7 @@ public class AnalysisService {
         "The following storage objectIds must be uploaded to the storage server before the "
             + "analysisId %s can be published: %s",
         analysisId,
-        COMMA.join(missingFileIds));
+        join(",", missingFileIds));
   }
 
   private List<String> saveCompositeEntities(
@@ -470,7 +470,7 @@ public class AnalysisService {
     try {
       validateWithSchema(schema, request);
     } catch (ValidationException e) {
-      throw buildServerException(getClass(), SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
+      throw buildServerException(getClass(), SCHEMA_VIOLATION, join(",", e.getAllMessages()));
     }
   }
 

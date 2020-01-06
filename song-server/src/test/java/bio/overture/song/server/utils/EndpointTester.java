@@ -26,18 +26,17 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.utils.Joiners;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.MockMvcWebResource;
 import bio.overture.song.server.utils.web.ResponseOption;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.Nullable;
@@ -52,8 +51,6 @@ public class EndpointTester {
   private static final String VERSION = "version";
   private static final String META = "meta";
   private static final String HIDE_SCHEMA = "hideSchema";
-
-  public static final Joiner AMPERSAND = Joiner.on("&");
   private static final String UNRENDERED_ONLY = "unrenderedOnly";
 
   @NonNull private final MockMvc mockMvc;
