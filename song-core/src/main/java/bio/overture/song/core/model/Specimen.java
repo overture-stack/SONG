@@ -20,8 +20,5 @@ public class Specimen extends Metadata {
   private String submitterSpecimenId;
   private String tumourNormalDesignation;
   private String specimenTissueSource;
-
-  @Deprecated private String specimenClass;
-
-  @Deprecated private String specimenType;
+  private String specimenType;
 }
