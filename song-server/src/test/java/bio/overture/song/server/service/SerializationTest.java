@@ -22,7 +22,6 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
@@ -139,7 +138,7 @@ public class SerializationTest {
             .submitterSpecimenId("internal_specimen_123456789_01")
             .specimenTissueSource("Solid tissue")
             .tumourNormalDesignation("Normal")
-            .specimenType(SPECIMEN_TYPE.get(2))
+            .specimenType("Normal")
             .build();
 
     val d =

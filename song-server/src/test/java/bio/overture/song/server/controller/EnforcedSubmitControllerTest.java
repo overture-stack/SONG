@@ -17,21 +17,13 @@
 
 package bio.overture.song.server.controller;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.nio.file.Paths;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
@@ -43,6 +35,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.nio.file.Paths;
+
+import static java.util.Objects.isNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(secure = false)
@@ -114,6 +118,29 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     getEndpointTester()
         .submitPostRequestAnd(getStudyId(), j2)
         .assertServerError(MALFORMED_PARAMETER);
+  }
+
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_TumourAndDefined_Success(){
+    runMatchedNormalTest("variantcall-tumour-valid.json");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_TumourAndUndefined_SchemaViolation(){
+    runMatchedNormalTest("variantcall-tumour-invalid.json",
+        "#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_NormalAndDefined_SchemaViolation(){
+    runMatchedNormalTest("variantcall-normal-invalid.json",
+        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0/matchedNormalSubmitterSampleId: subject must not be valid against schema {}");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_NormalAndUndefined_Success(){
+    runMatchedNormalTest("variantcall-normal-valid.json");
   }
 
   @Test
@@ -266,4 +293,26 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
         .updateAnalysisPutRequestAnd(getStudyId(), analysisId, objectToTree(request))
         .assertOk();
   }
+
+  private void runMatchedNormalTest(String filename){
+    runMatchedNormalTest(filename, null);
+  }
+
+  private void runMatchedNormalTest(@NonNull String filename, String expectedSchemaViolationMessage){
+    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/"+filename);
+    j.put("studyId", getStudyId());
+    if (!isNull(expectedSchemaViolationMessage)){
+      val songError = parseErrorResponse(
+          getEndpointTester()
+              .submitPostRequestAnd(getStudyId(), j)
+              .assertServerError(SCHEMA_VIOLATION)
+              .assertHasBody()
+              .getResponse());
+      val message = songError.getMessage();
+      assertTrue(message.contains(expectedSchemaViolationMessage));
+    } else {
+      getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertOk();
+    }
+  }
+
 }

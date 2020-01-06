@@ -190,7 +190,7 @@ public class EntityTest {
             .specimenId("mySpecimen1")
             .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
-            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(2))
+            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(0))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(2))
             .specimenType(SPECIMEN_TYPE.get(2))
             .build();
@@ -483,7 +483,7 @@ public class EntityTest {
             .specimenId("mySpecimen1")
             .submitterSpecimenId("mySpecimenSubmitter1")
             .donorId("myDonor1")
-            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(2))
+            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.get(0))
             .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.get(2))
             .specimenType(SPECIMEN_TYPE.get(2))
             .build();

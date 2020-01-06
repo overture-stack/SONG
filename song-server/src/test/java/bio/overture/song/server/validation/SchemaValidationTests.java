@@ -101,7 +101,7 @@ public class SchemaValidationTests {
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-invalid-enum.json");
-    assertEquals(errors.size(), 6);
+    assertEquals(errors.size(), 7);
   }
 
   @Test

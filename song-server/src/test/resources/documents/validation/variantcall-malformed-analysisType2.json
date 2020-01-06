@@ -18,7 +18,7 @@
         "submitterDonorId": "internal_donor_123456789-00",
         "donorGender": "Female"
       },
-      "matchedNormalSampleSubmitterId": "sample x24-11a"
+      "matchedNormalSubmitterSampleId": "sample x24-11a"
     }
   ],
   "files": [

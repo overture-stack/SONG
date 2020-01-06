@@ -246,7 +246,7 @@ public class AnalysisServiceTest {
             .findAny()
             .orElse(null);
     assertEquals(sample0.getSampleType(), "Total RNA");
-    assertEquals(sample0.getMatchedNormalSubmitterSampleId(), "MNSS01");
+    assertEquals(sample0.getMatchedNormalSubmitterSampleId(), "sample x24-11a");
     assertInfoKVPair(sample0, "extraSampleInfo", "some more data for a variantCall sample_fs01");
 
     val donor00 = sample0.getDonor();
@@ -272,7 +272,7 @@ public class AnalysisServiceTest {
             .orElse(null);
     assertEquals(sample1.getSubmitterSampleId(), "internal_sample_98024759826836_fs02");
     assertEquals(sample1.getSampleType(), "Total RNA");
-    assertEquals(sample1.getMatchedNormalSubmitterSampleId(), "MNSS02");
+    assertEquals(sample1.getMatchedNormalSubmitterSampleId(), "sample x24-11a");
     assertInfoKVPair(sample1, "extraSampleInfo", "some more data for a variantCall sample_fs02");
 
     val donor01 = sample1.getDonor();
@@ -410,7 +410,7 @@ public class AnalysisServiceTest {
             .get();
     sampleMap.put(sample1.getSampleId(), sample1);
     assertEquals(sample1.getSampleType(), "Total RNA");
-    assertEquals(sample1.getMatchedNormalSubmitterSampleId(), "MNSS02");
+    assertEquals(sample1.getMatchedNormalSubmitterSampleId(), "MNSS01");
     assertInfoKVPair(sample1, "extraSampleInfo", "some more data for a sequencingRead sample_fr02");
 
     val donor01 = sample1.getDonor();

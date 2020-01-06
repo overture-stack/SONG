@@ -1,10 +1,11 @@
 {
+  "studyId": "ABC123",
   "analysisType": {
     "name": "variantCall",
     "version": 1
   },
   "experiment": {
-    "variantCallingTool": "silver bullet 1",
+    "variantCallingTool": "silver bullet",
     "matchedNormalSampleSubmitterId": "sample x24-11a"
   },
   "samples": [
@@ -20,8 +21,25 @@
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",
         "donorGender": "Female"
-      },
-      "matchedNormalSubmitterSampleId": "sample x24-11a"
+      }
+    }
+  ],
+  "files": [
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
+      "dataType": "SOME_DATA_TYPE",
+      "fileSize": 376953,
+      "fileMd5sum": "61a91c4bf04ac2bd3795254104f75ad3",
+      "fileAccess": "open",
+      "fileType": "VCF"
+    },
+    {
+      "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+      "dataType": "SOME_DATA_TYPE",
+      "fileSize": 4840,
+      "fileMd5sum": "61a91c4bf04bb54d3795254104f75ad3",
+      "fileAccess": "open",
+      "fileType": "IDX"
     }
   ],
   "info": {

@@ -1,6 +1,9 @@
 {
   "studyId": "ABC123",
-  "analysisType": "variantCall",
+  "analysisType": {
+    "name": "variantCall",
+    "version": 1
+  },
   "experiment": {
     "variantCallingTool": "silver bullet",
     "matchedNormalSampleSubmitterId": "sample x24-11a"
@@ -11,15 +14,14 @@
       "sampleType": "Total RNA",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
-        "tumourNormalDesignation": "Tumour",
+        "tumourNormalDesignation": "Normal",
         "specimenTissueSource": "Solid tissue",
-        "specimenType": "Primary tumour"
+        "specimenType": "Normal"
       },
       "donor": {
         "submitterDonorId": "internal_donor_123456789-00",
         "donorGender": "Female"
-      },
-      "matchedNormalSubmitterSampleId": "sample x24-11a"
+      }
     }
   ],
   "files": [

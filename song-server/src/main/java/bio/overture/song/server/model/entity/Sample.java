@@ -21,6 +21,10 @@ import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,11 +32,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = TableNames.SAMPLE)
@@ -55,6 +54,7 @@ public class Sample extends Metadata {
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
   private String submitterSampleId;
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   @Column(name = TableAttributeNames.MATCHED_NORMAL_SUBMITTER_SAMPLE_ID, nullable = true)
   private String matchedNormalSubmitterSampleId;
 

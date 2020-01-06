@@ -36,20 +36,20 @@
       "fileData" :{
         "type": "object",
         "required": [
+		  "dataType",
           "fileName",
           "fileSize",
-          "dataType",
           "fileType",
           "fileAccess",
           "fileMd5sum"
         ],
         "properties": {
+          "dataType" : {
+            "type": "string"
+          },
           "fileName": {
             "type": "string",
             "pattern": "^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$"
-          },
-          "dataType" : {
-            "type": "string"
           },
           "fileSize": {
             "type": "integer",
@@ -122,82 +122,47 @@
           "Endometrium"
         ]
       },
-      "tumourNormalDesignation": {
-        "type": "string",
-        "enum": [
-          "Normal",
-          "Normal - tissue adjacent to primary tumour",
-          "Primary tumour",
-          "Primary tumour - adjacent to normal",
-          "Primary tumour - additional new primary",
-          "Recurrent tumour",
-          "Metastatic tumour",
-          "Metastatic tumour - metastasis local to lymph node",
-          "Metastatic tumour - metastasis to distant location",
-          "Metastatic tumour - additional metastatic",
-          "Xenograft - derived from primary tumour",
-          "Xenograft - derived from tumour cell line",
-          "Cell line - derived from xenograft tumour",
-          "Cell line - derived from tumour",
-          "Cell line - derived from normal"
-        ]
-      },
-      "specimenType": {
-        "type": "string",
-        "enum": [
-          "Normal - solid tissue",
-          "Normal - blood derived",
-          "Normal - bone marrow",
-          "Normal - tissue adjacent to primary",
-          "Normal - buccal cell",
-          "Normal - EBV immortalized",
-          "Normal - lymph node",
-          "Normal - other",
-          "Primary tumour - solid tissue",
-          "Primary tumour - blood derived (peripheral blood)",
-          "Primary tumour - blood derived (bone marrow)",
-          "Primary tumour - additional new primary",
-          "Primary tumour - other",
-          "Recurrent tumour - solid tissue",
-          "Recurrent tumour - blood derived (peripheral blood)",
-          "Recurrent tumour - blood derived (bone marrow)",
-          "Recurrent tumour - other",
-          "Metastatic tumour - NOS",
-          "Metastatic tumour - lymph node",
-          "Metastatic tumour - metastasis local to lymph node",
-          "Metastatic tumour - metastasis to distant location",
-          "Metastatic tumour - additional metastatic",
-          "Xenograft - derived from primary tumour",
-          "Xenograft - derived from tumour cell line",
-          "Cell line - derived from tumour",
-          "Primary tumour - lymph node",
-          "Metastatic tumour - other",
-          "Cell line - derived from xenograft tumour"
-        ]
-      },
-      "specimenClass" : {
-        "type": "string",
-        "enum": [
-          "Normal",
-          "Tumour",
-          "Adjacent normal"
-        ]
-      },
+	"specimenType": {
+		"type": "string",
+		"enum": [
+			"Normal",
+			"Normal - tissue adjacent to primary tumour",
+			"Primary tumour",
+			"Primary tumour - adjacent to normal",
+			"Primary tumour - additional new primary",
+			"Recurrent tumour",
+			"Metastatic tumour",
+			"Metastatic tumour - metastasis local to lymph node",
+			"Metastatic tumour - metastasis to distant location",
+			"Metastatic tumour - additional metastatic",
+			"Xenograft - derived from primary tumour",
+			"Xenograft - derived from tumour cell line",
+			"Cell line - derived from xenograft tumour",
+			"Cell line - derived from tumour",
+			"Cell line - derived from normal"
+		]
+	},
+	"tumourNormalDesignation" : {
+		"type": "string",
+		"enum": [
+			"Normal",
+			"Tumour"
+		]
+	},
       "specimenData": {
         "type": "object",
         "required" : [
           "submitterSpecimenId",
           "specimenTissueSource",
-          "tumourNormalDesignation"
+          "tumourNormalDesignation",
+		  "specimenType"
         ],
         "properties": {
           "submitterSpecimenId": { "$ref" : "#/definitions/common/submitterId" },
           "specimenTissueSource" : { "$ref" : "#/definitions/specimen/specimenTissueSource" },
           "tumourNormalDesignation" : { "$ref" : "#/definitions/specimen/tumourNormalDesignation" },
+		  "specimenType" : { "$ref" : "#/definitions/specimen/specimenType" },
           "specimenClass": {
-            "not" : {}
-          },
-          "specimenType": {
             "not" : {}
           },
           "info": { "$ref" : "#/definitions/common/info"}
@@ -269,7 +234,33 @@
         "properties": {
           "specimen": { "$ref" : "#/definitions/specimen/specimenData" },
           "donor": { "$ref" : "#/definitions/donor/donorData" }
-        }
+        },
+		"if" : {
+			"properties" : {
+				"specimen": {
+				  "properties": {
+					"tumourNormalDesignation" : {
+						"const" : "Tumour"
+					}
+				  }
+				}
+			}
+		},
+		"then" : {
+			"properties" : {
+				"matchedNormalSubmitterSampleId" : {
+					"type": "string"
+				}
+			},
+			"required": ["matchedNormalSubmitterSampleId"]
+		},
+		"else" : {
+			"properties" : {
+				"matchedNormalSubmitterSampleId": {
+					"not": {}
+				}
+			}
+		}
       }
     },
     "files": {
