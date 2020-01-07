@@ -51,20 +51,6 @@ public class SpecimenController {
     return specimenService.securedRead(studyId, id);
   }
 
-  /**
-   * [DCC-5726] - updates disabled until back propagation updates due to business key updates is
-   * implemented
-   */
-  //  @PutMapping(value = "/specimens/{id}", consumes = { APPLICATION_JSON_VALUE,
-  // APPLICATION_JSON_UTF8_VALUE })
-  //  @ResponseBody
-  //  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  //  public String update(@PathVariable("studyId") String studyId, @PathVariable("id") String id,
-  //                       @RequestBody Specimen specimen) {
-  //    // TODO: [DCC-5642] Add checkRequest between path ID and Entity's ID
-  //    return specimenService.update(specimen);
-  //  }
-
   @ApiOperation(
       value = "DeleteSpecimens",
       notes = "Deletes specimen data and all dependent samples for specimenIds")

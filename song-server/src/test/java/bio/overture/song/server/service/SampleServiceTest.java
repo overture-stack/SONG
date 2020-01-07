@@ -25,6 +25,9 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_DONOR_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_SAMPLE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_SPECIMEN_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
+import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.securestudy.impl.SecureSampleTester.createSecureSampleTester;
 import static com.google.common.collect.Lists.newArrayList;
@@ -38,7 +41,7 @@ import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.enums.Constants;
+import bio.overture.song.server.utils.TestConstants;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import javax.transaction.Transactional;
@@ -74,7 +77,7 @@ public class SampleServiceTest {
     val id = "SA1";
     val sample = sampleService.securedRead(DEFAULT_STUDY_ID, id);
     assertEquals(sample.getSampleId(), id);
-    assertEquals(sample.getSampleSubmitterId(), "T285-G7-A5");
+    assertEquals(sample.getSubmitterSampleId(), "T285-G7-A5");
     assertEquals(sample.getSampleType(), "DNA");
     assertEquals(getInfoName(sample), "sample1");
   }
@@ -86,7 +89,7 @@ public class SampleServiceTest {
     val s =
         Sample.builder()
             .sampleId("")
-            .sampleSubmitterId("101-IP-A")
+            .submitterSampleId("101-IP-A")
             .specimenId(specimenId)
             .sampleType("Amplified DNA")
             .build();
@@ -113,7 +116,7 @@ public class SampleServiceTest {
         Sample.builder()
             .sampleId("")
             .specimenId(specimenId)
-            .sampleSubmitterId("102-CBP-A")
+            .submitterSampleId("102-CBP-A")
             .sampleType("RNA")
             .build();
 
@@ -125,7 +128,7 @@ public class SampleServiceTest {
     val s2 =
         Sample.builder()
             .sampleId(id)
-            .sampleSubmitterId("Sample 102")
+            .submitterSampleId("Sample 102")
             .specimenId(s.getSpecimenId())
             .sampleType("FFPE RNA")
             .build();
@@ -150,8 +153,9 @@ public class SampleServiceTest {
     val existingStudyId = DEFAULT_STUDY_ID;
 
     val sample = new Sample();
-    sample.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
-    sample.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
+    sample.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
+    sample.setSampleType(
+        randomGenerator.randomElement(Lists.newArrayList(TestConstants.SAMPLE_TYPE)));
     sample.setSpecimenId(specimenId);
 
     // Create a sample
@@ -169,8 +173,9 @@ public class SampleServiceTest {
     // persisted
     val sample2 = new Sample();
     sample2.setSpecimenId(specimenId);
-    sample2.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
-    sample2.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    sample2.setSampleType(
+        randomGenerator.randomElement(Lists.newArrayList(TestConstants.SAMPLE_TYPE)));
+    sample2.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
     sample2.setSampleId(randomGenerator.generateRandomUUIDAsString());
     assertFalse(sampleService.isSampleExist(sample2.getSampleId()));
     SongErrorAssertions.assertSongError(
@@ -207,11 +212,10 @@ public class SampleServiceTest {
     val donorId = DEFAULT_DONOR_ID;
     val specimen = new Specimen();
     specimen.setDonorId(donorId);
-    specimen.setSpecimenClass(
-        randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_CLASS)));
-    specimen.setSpecimenType(
-        randomGenerator.randomElement(Lists.newArrayList(Constants.SPECIMEN_TYPE)));
-    specimen.setSpecimenSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    specimen.setSpecimenTissueSource(randomGenerator.randomElement(SPECIMEN_TISSUE_SOURCE));
+    specimen.setTumourNormalDesignation(randomGenerator.randomElement(TUMOUR_NORMAL_DESIGNATION));
+    specimen.setSpecimenType(randomGenerator.randomElement(SPECIMEN_TYPE));
+    specimen.setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString());
 
     // Create specimen
     val specimenId = specimenService.create(studyId, specimen);
@@ -224,8 +228,8 @@ public class SampleServiceTest {
       val sample = new Sample();
       sample.setSpecimenId(specimenId);
       sample.setSampleType(
-          randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
-      sample.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+          randomGenerator.randomElement(Lists.newArrayList(TestConstants.SAMPLE_TYPE)));
+      sample.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
       val sampleId = sampleService.create(studyId, sample);
       expectedSampleIds.add(sampleId);
     }
@@ -277,9 +281,10 @@ public class SampleServiceTest {
   public void testUpdateSpecimenDNE() {
     val randomSampleId = randomGenerator.generateRandomUUIDAsString();
     val sample = new Sample();
-    sample.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+    sample.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
     sample.setSampleId(randomSampleId);
-    sample.setSampleType(randomGenerator.randomElement(Lists.newArrayList(Constants.SAMPLE_TYPE)));
+    sample.setSampleType(
+        randomGenerator.randomElement(Lists.newArrayList(TestConstants.SAMPLE_TYPE)));
     sample.setSpecimenId(DEFAULT_SPECIMEN_ID);
     SongErrorAssertions.assertSongError(() -> sampleService.update(sample), SAMPLE_DOES_NOT_EXIST);
   }

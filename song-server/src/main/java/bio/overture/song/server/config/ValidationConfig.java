@@ -16,8 +16,6 @@
  */
 package bio.overture.song.server.config;
 
-import static bio.overture.song.server.model.enums.Constants.SEQUENCING_READ_TYPE;
-import static bio.overture.song.server.model.enums.Constants.VARIANT_CALL_TYPE;
 import static bio.overture.song.server.utils.ParameterChecker.createParameterChecker;
 
 import bio.overture.song.core.utils.JsonDocUtils;
@@ -28,7 +26,6 @@ import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.utils.ParameterChecker;
 import bio.overture.song.server.validation.SchemaValidator;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableMap;
 import com.networknt.schema.JsonSchema;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,10 +44,7 @@ import org.springframework.context.annotation.Profile;
 public class ValidationConfig {
 
   private static String[] schemaList = {
-    "schemas/sequencingRead.json",
-    "schemas/variantCall.json",
-    "schemas/fileUpdateRequest.json",
-    "schemas/storageDownloadResponse.json"
+    "schemas/fileUpdateRequest.json", "schemas/storageDownloadResponse.json"
   };
 
   @Value("${validation.delayMs:500}")
@@ -87,13 +81,5 @@ public class ValidationConfig {
       log.info(s);
     }
     return cache;
-  }
-
-  @Bean
-  public Map<String, String> jsonSchemaMap() {
-    return ImmutableMap.<String, String>builder()
-        .put(SEQUENCING_READ_TYPE, "schemas/sequencingRead.json")
-        .put(VARIANT_CALL_TYPE, "schemas/variantCall.json")
-        .build();
   }
 }

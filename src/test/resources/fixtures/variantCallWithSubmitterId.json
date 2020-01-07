@@ -1,5 +1,5 @@
 {
-  "study" : "ABC123",
+  "studyId" : "ABC123",
   "analysisType" : {
     "name" : "variantCall",
     "version" : 1
@@ -9,22 +9,22 @@
     "variantCallingTool": "silver bullet",
     "matchedNormalSampleSubmitterId": "sample x24-11a"
   },
-  "sample": [
+  "samples": [
     {
-      "sampleSubmitterId": "internal_sample_98024759826836",
+      "submitterSampleId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
         "specimenClass": "Tumour",
         "specimenType": "Primary tumour - other"
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-00",
-        "donorGender": "female"
+        "submitterDonorId": "internal_donor_123456789-00",
+        "gender": "Female"
       }
     }
   ],
-  "file": [
+  "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
       "fileSize": 376953,

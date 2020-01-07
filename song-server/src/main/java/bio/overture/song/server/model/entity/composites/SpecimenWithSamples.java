@@ -36,8 +36,9 @@ public class SpecimenWithSamples extends Specimen {
   public void setSpecimen(Specimen s) {
     setSpecimenId(s.getSpecimenId());
     setDonorId(s.getDonorId());
-    setSpecimenSubmitterId(s.getSpecimenSubmitterId());
-    setSpecimenClass(s.getSpecimenClass());
+    setSubmitterSpecimenId(s.getSubmitterSpecimenId());
+    setSpecimenTissueSource(s.getSpecimenTissueSource());
+    setTumourNormalDesignation(s.getTumourNormalDesignation());
     setSpecimenType(s.getSpecimenType());
 
     addInfo(s.getInfoAsString());
@@ -47,10 +48,11 @@ public class SpecimenWithSamples extends Specimen {
     val s =
         Specimen.builder()
             .specimenId(getSpecimenId())
-            .specimenSubmitterId(getSpecimenSubmitterId())
+            .submitterSpecimenId(getSubmitterSpecimenId())
             .donorId(getDonorId())
-            .specimenClass(getSpecimenClass())
+            .tumourNormalDesignation(getTumourNormalDesignation())
             .specimenType(getSpecimenType())
+            .specimenTissueSource(getSpecimenTissueSource())
             .build();
     s.setInfo(getInfoAsString());
     return s;

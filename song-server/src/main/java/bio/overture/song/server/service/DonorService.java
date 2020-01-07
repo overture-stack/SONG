@@ -57,7 +57,7 @@ public class DonorService {
     studyService.checkStudyExist(donorWithSpecimens.getStudyId());
     val inputDonorId = donorWithSpecimens.getDonorId();
     val studyId = donorWithSpecimens.getStudyId();
-    val donorSubmitterId = donorWithSpecimens.getDonorSubmitterId();
+    val donorSubmitterId = donorWithSpecimens.getSubmitterDonorId();
     val result = idService.getDonorId(studyId, donorSubmitterId);
     val id =
         checkServerOptional(
@@ -207,7 +207,7 @@ public class DonorService {
 
   public Optional<String> findByBusinessKey(
       @NonNull String studyId, @NonNull String donorSubmitterId) {
-    return donorRepository.findAllByStudyIdAndDonorSubmitterId(studyId, donorSubmitterId).stream()
+    return donorRepository.findAllByStudyIdAndSubmitterDonorId(studyId, donorSubmitterId).stream()
         .map(Donor::getDonorId)
         .findFirst();
   }
@@ -215,7 +215,7 @@ public class DonorService {
   public String save(@NonNull String studyId, @NonNull Donor donor) {
     donor.setStudyId(studyId);
 
-    val donorIdResult = findByBusinessKey(studyId, donor.getDonorSubmitterId());
+    val donorIdResult = findByBusinessKey(studyId, donor.getSubmitterDonorId());
     val donorWithSpecimens = new DonorWithSpecimens();
     donorWithSpecimens.setDonor(donor);
     String donorId;

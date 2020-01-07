@@ -111,11 +111,12 @@ public class PublishAnalysisTest {
         analysisGenerator.createDefaultRandomAnalysis(
             randomGenerator.randomEnum(LegacyAnalysisTypeName.class));
     this.testAnalysisId = testAnalysis.getAnalysisId();
-    this.testStudyId = testAnalysis.getStudy();
+    this.testStudyId = testAnalysis.getStudyId();
 
     // Delete any previous files
     fileService.securedDelete(
-        newStudyId, testAnalysis.getFile().stream().map(FileEntity::getObjectId).collect(toList()));
+        newStudyId,
+        testAnalysis.getFiles().stream().map(FileEntity::getObjectId).collect(toList()));
 
     this.testFiles = generateFiles(MAX_FILES, testAnalysis);
     assertEquals(testFiles.size(), MAX_FILES);
@@ -346,8 +347,9 @@ public class PublishAnalysisTest {
     }
     val file =
         FileEntity.builder()
-            .studyId(a.getStudy())
+            .studyId(a.getStudyId())
             .analysisId(a.getAnalysisId())
+            .dataType(randomGenerator.generateRandomAsciiString(10))
             .fileType(fileType)
             .fileAccess(randomGenerator.randomEnum(AccessTypes.class).toString())
             .fileMd5sum(randomGenerator.generateRandomMD5())
@@ -355,7 +357,7 @@ public class PublishAnalysisTest {
             .fileSize((long) randomGenerator.generateRandomIntRange(1, 100000))
             .objectId(randomGenerator.generateRandomUUIDAsString())
             .build();
-    fileService.create(a.getAnalysisId(), a.getStudy(), file);
+    fileService.create(a.getAnalysisId(), a.getStudyId(), file);
     return file;
   }
 

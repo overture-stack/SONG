@@ -1,11 +1,10 @@
 {
-  "study" : "ABC123",
-  "analysisType" : {
-    "name" : "sequencingRead",
-    "version" : 1
+  "studyId": "ABC123",
+  "analysisType": {
+    "name": "sequencingRead",
+    "version": 1
   },
   "experiment": {
-
     "libraryStrategy": "WXS",
     "pairedEnd": false,
     "insertSize": 900,
@@ -16,25 +15,27 @@
       "marginOfError": "0.01%"
     }
   },
-  "sample": [
+  "samples": [
     {
       "sampleType": "Total RNA",
       "tissueCollectionMethod": "IV",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
-        "specimenClass": "Normal",
-        "specimenType": "Normal - solid tissue"
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
+        "tumourNormalDesignation": "Normal",
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Normal"
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-00",
-        "donorGender": "Female",
+        "submitterDonorId": "internal_donor_123456789-00",
+        "gender": "Female",
         "ageCategory": "18-25"
       }
     }
   ],
-  "file": [
+  "files": [
     {
       "fileType": "VCF",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 376953,
       "fileMd5sum": "61a91c4bf04ac2bd3795254104f75ad3",
       "compression": "gzip"
@@ -42,6 +43,7 @@
     {
       "fileType": "IDX",
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 4840,
       "fileMd5sum": "29594b19b079ad5731577e0495ddba63"
     }

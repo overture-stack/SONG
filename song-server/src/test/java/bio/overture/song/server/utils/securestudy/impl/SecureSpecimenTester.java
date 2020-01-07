@@ -18,15 +18,16 @@
 package bio.overture.song.server.utils.securestudy.impl;
 
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_DOES_NOT_EXIST;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
+import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
+import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.enums.Constants;
 import bio.overture.song.server.service.DonorService;
 import bio.overture.song.server.service.SpecimenService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
-import com.google.common.collect.Lists;
 import lombok.NonNull;
 import lombok.val;
 
@@ -56,11 +57,10 @@ public class SecureSpecimenTester extends AbstractSecureTester<String> {
     val specimen =
         Specimen.builder()
             .donorId(donorId)
-            .specimenSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
-            .specimenType(
-                getRandomGenerator().randomElement(Lists.newArrayList(Constants.SPECIMEN_TYPE)))
-            .specimenClass(
-                getRandomGenerator().randomElement(Lists.newArrayList(Constants.SPECIMEN_CLASS)))
+            .submitterSpecimenId(getRandomGenerator().generateRandomUUIDAsString())
+            .tumourNormalDesignation(getRandomGenerator().randomElement(TUMOUR_NORMAL_DESIGNATION))
+            .specimenTissueSource(getRandomGenerator().randomElement(SPECIMEN_TISSUE_SOURCE))
+            .specimenType(getRandomGenerator().randomElement(SPECIMEN_TYPE))
             .build();
     return specimenService.create(existingStudyId, specimen);
   }

@@ -137,9 +137,9 @@ public class EndpointTester {
     return getAnalysisTypeVersionGetRequestAnd(analysisTypeName, null, false);
   }
 
-  // POST /upload/{study}
+  // POST /submit/{study}
   public ResponseOption submitPostRequestAnd(@NonNull String studyId, JsonNode payload) {
-    return initWebRequest().endpoint("upload/%s", studyId).body(payload).postAnd();
+    return initWebRequest().endpoint("submit/%s", studyId).body(payload).postAnd();
   }
 
   // PUT /studies/{}/analysis/publish/{aid}

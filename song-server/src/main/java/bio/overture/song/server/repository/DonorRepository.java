@@ -24,7 +24,7 @@ public interface DonorRepository extends JpaRepository<Donor, String> {
 
   List<Donor> findAllByStudyId(String studyId);
 
-  List<Donor> findAllByStudyIdAndDonorSubmitterId(String studyId, String submitterId);
+  List<Donor> findAllByStudyIdAndSubmitterDonorId(String studyId, String submitterId);
 
   long countAllByStudyIdAndDonorId(String studyId, String donorId);
 }

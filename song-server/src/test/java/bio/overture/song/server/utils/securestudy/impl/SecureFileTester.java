@@ -69,6 +69,7 @@ public class SecureFileTester extends AbstractSecureTester {
         FileEntity.builder()
             .fileAccess(getRandomGenerator().randomEnum(AccessTypes.class).toString())
             .fileMd5sum(getRandomGenerator().generateRandomMD5())
+            .dataType(getRandomGenerator().generateRandomAsciiString(10))
             .fileType(type)
             .fileSize((long) getRandomGenerator().generateRandomIntRange(1000, 1000000))
             .analysisId(existingAnalysisId)

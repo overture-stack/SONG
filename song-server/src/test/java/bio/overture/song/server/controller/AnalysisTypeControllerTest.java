@@ -657,11 +657,11 @@ public class AnalysisTypeControllerTest {
     Stream.of(
             "analysisId",
             "analysisState",
-            "study",
+            "studyId",
             "analysisType",
             "analysisTypeId",
-            "sample",
-            "file")
+            "samples",
+            "files")
         .forEach(
             f -> {
               // Create an invalid schema using one of the invalid fields

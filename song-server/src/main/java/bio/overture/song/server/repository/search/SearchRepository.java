@@ -59,7 +59,7 @@ public class SearchRepository {
 
   private static Analysis createAnalysis(String studyId, String id, String state) {
     val a = new Analysis();
-    a.setStudy(studyId);
+    a.setStudyId(studyId);
     a.setAnalysisId(id);
     a.setAnalysisState(state);
     return a;
