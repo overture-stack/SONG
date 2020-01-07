@@ -17,10 +17,10 @@
 package bio.overture.song.server.validation;
 
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -125,7 +125,7 @@ public class ValidationServiceTest {
 
       assertTrue(results.isPresent());
 
-      val errors = asList(results.get().split(","));
+      val errors = COMMA.splitToList(results.get());
       assertEquals(2, errors.size());
       for (val error : errors) {
         assertTrue(
@@ -162,7 +162,7 @@ public class ValidationServiceTest {
 
     if (shouldBeError) {
       assertTrue(results.isPresent());
-      val errors = asList(results.get().split(","));
+      val errors = COMMA.splitToList(results.get());
       errors.forEach(
           e ->
               assertTrue(e.matches("^#/files/[0|1]/fileMd5sum: string.*does not match pattern.*")));

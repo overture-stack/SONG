@@ -17,6 +17,7 @@
 
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.core.utils.Separators.SLASH;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
@@ -26,7 +27,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.utils.Joiners;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.MockMvcWebResource;
 import bio.overture.song.server.utils.web.ResponseOption;
@@ -154,7 +154,7 @@ public class EndpointTester {
   public ResponseOption getAnalysisTypeVersionGetRequestAnd(
       @NonNull String analysisTypeName, @Nullable Integer version, boolean unrenderedOnly) {
     return initWebRequest()
-        .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeName))
+        .endpoint(SLASH.join(SCHEMAS, analysisTypeName))
         .optionalQuerySingleParam(VERSION, version)
         .optionalQuerySingleParam(UNRENDERED_ONLY, unrenderedOnly)
         .getAnd();
@@ -162,7 +162,7 @@ public class EndpointTester {
 
   // GET /schemas/meta
   public ResponseOption getMetaSchemaGetRequestAnd() {
-    return initWebRequest().endpoint(Joiners.PATH.join(SCHEMAS, META)).getAnd();
+    return initWebRequest().endpoint(SLASH.join(SCHEMAS, META)).getAnd();
   }
 
   public static EndpointTester createEndpointTester(MockMvc mockMvc, boolean enableLogging) {

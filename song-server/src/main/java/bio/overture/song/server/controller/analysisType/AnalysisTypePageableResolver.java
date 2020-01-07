@@ -22,6 +22,7 @@ import static bio.overture.song.core.exceptions.ServerException.buildServerExcep
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
 import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
@@ -58,7 +59,7 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
   public static final String DEFAULT_SORT_VARIABLE = VERSION;
   public static final Direction DEFAULT_SORT_ORDER = DESC;
 
-  private static final String ALLOWED_SORT_VARIABLES = VERSION + "," + NAME;
+  private static final String ALLOWED_SORT_VARIABLES = COMMA.join(VERSION, NAME);
   private static final String ALLOWED_DIRECTION_VARIABLES =
       stream(Direction.values())
           .map(Enum::name)

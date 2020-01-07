@@ -19,8 +19,8 @@ package bio.overture.song.server.utils.web;
 
 import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
 import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
-import static bio.overture.song.core.utils.Joiners.PATH;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.Separators.SLASH;
 import static bio.overture.song.core.web.QueryParam.createQueryParam;
 import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
 import static com.google.common.collect.Lists.newArrayList;
@@ -186,7 +186,7 @@ public abstract class AbstractWebResource<W extends AbstractWebResource<W>> {
   }
 
   private String getUrl() {
-    val prefix = isBlank(serverUrl) ? endpoint : PATH.join(serverUrl, endpoint);
+    val prefix = isBlank(serverUrl) ? endpoint : SLASH.join(serverUrl, endpoint);
     return prefix + getQuery().map(x -> "?" + x).orElse("");
   }
 

@@ -34,7 +34,6 @@ import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
 import static com.google.common.collect.Lists.newArrayList;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;

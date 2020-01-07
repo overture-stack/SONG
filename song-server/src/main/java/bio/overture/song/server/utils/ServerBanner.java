@@ -16,11 +16,11 @@
  */
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.core.utils.Separators.WHITESPACE;
 import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.padEnd;
 import static com.google.common.base.Strings.repeat;
-import static java.lang.String.join;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
 import bio.overture.song.core.utils.VersionUtils;
@@ -110,7 +110,7 @@ public class ServerBanner {
   }
 
   private String formatArguments() {
-    return "java " + join(" ", getJavaArguments()) + " -jar " + getJarName() + " ...";
+    return "java " + WHITESPACE.join(getJavaArguments()) + " -jar " + getJarName() + " ...";
   }
 
   private List<String> getJavaArguments() {

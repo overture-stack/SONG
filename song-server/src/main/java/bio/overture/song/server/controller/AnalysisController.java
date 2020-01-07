@@ -16,6 +16,7 @@
  */
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -81,7 +82,7 @@ public class AnalysisController {
       @ApiParam(value = "Non-empty comma separated list of analysis states to filter by")
           @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
           String analysisStates) {
-    return analysisService.getAnalysis(studyId, ImmutableSet.copyOf(",".split(analysisStates)));
+    return analysisService.getAnalysis(studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)));
   }
 
   /** [DCC-5726] - non-dynamic updates disabled until hibernate is properly integrated */

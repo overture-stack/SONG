@@ -23,6 +23,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.GATEWAY_SERVICE_NOT
 import static bio.overture.song.core.exceptions.ServerErrors.GATEWAY_TIMED_OUT;
 import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
 import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
+import static bio.overture.song.core.utils.Separators.NEWLINE;
 import static com.google.common.base.Throwables.getRootCause;
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -171,7 +172,7 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   private static List<String> getFullStackTraceList(Throwable t) {
-    return stream(getStackTraceAsString(t).split("\n"))
+    return NEWLINE.splitToList(getStackTraceAsString(t)).stream()
         .map(String::trim)
         .collect(toImmutableList());
   }

@@ -2,6 +2,7 @@ package db.migration;
 
 import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.config.SchemaConfig.SCHEMA_ANALYSIS_PATH;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
@@ -10,7 +11,6 @@ import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static db.migration.V1_2__dynamic_schema_integration.NonNullObjectNodeBuilder.createNonNullObjectNode;
 import static java.util.Objects.isNull;
 
-import bio.overture.song.core.utils.Joiners;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -141,7 +141,7 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
       try {
         validateWithSchema(LEGACY_VARIANT_CALL_SCHEMA, analysisData);
       } catch (ValidationException e) {
-        log.error("Variant Call Errors:   {}", Joiners.COMMA.join(e.getAllMessages()));
+        log.error("Variant Call Errors:   {}", COMMA.join(e.getAllMessages()));
         throw e;
       }
       jdbcTemplate.update(
@@ -175,7 +175,7 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
       try {
         validateWithSchema(LEGACY_SEQUENCING_READ_SCHEMA, analysisData);
       } catch (ValidationException e) {
-        log.error("SequncingRead validationErrors:   {}", Joiners.COMMA.join(e.getAllMessages()));
+        log.error("SequncingRead validationErrors:   {}", COMMA.join(e.getAllMessages()));
         throw e;
       }
       jdbcTemplate.update(

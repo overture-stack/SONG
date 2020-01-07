@@ -18,6 +18,7 @@ package bio.overture.song.server.validation;
 
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
@@ -30,7 +31,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.utils.Joiners;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -175,7 +175,7 @@ public class SchemaValidationTests {
     try {
       schema.validate(convertToJSONObject(payloadJson));
     } catch (ValidationException e) {
-      log.error(String.format("Error: %s ", Joiners.COMMA.join(e.getAllMessages())));
+      log.error(String.format("Error: %s ", COMMA.join(e.getAllMessages())));
       errors.addAll(e.getAllMessages());
     }
     return errors;

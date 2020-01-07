@@ -22,8 +22,8 @@ import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.Separators.SLASH;
 import static java.lang.Boolean.parseBoolean;
-import static java.lang.String.join;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 
@@ -136,6 +136,6 @@ public class StorageService {
   }
 
   private static String joinUrl(String... path) {
-    return join("/", path);
+    return SLASH.join(path);
   }
 }

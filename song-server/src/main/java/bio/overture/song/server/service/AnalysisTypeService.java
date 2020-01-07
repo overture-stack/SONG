@@ -25,6 +25,7 @@ import static bio.overture.song.core.exceptions.ServerException.buildServerExcep
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
@@ -232,8 +233,7 @@ public class AnalysisTypeService {
       validateWithSchema(metaSchema, analysisTypeSchema);
       buildSchema(analysisTypeSchema);
     } catch (ValidationException e) {
-      throw buildServerException(
-          getClass(), SCHEMA_VIOLATION, String.join(",", e.getAllMessages()));
+      throw buildServerException(getClass(), SCHEMA_VIOLATION, COMMA.join(e.getAllMessages()));
     } catch (SchemaException e) {
       throw buildServerException(getClass(), MALFORMED_JSON_SCHEMA, e.getMessage());
     }

@@ -19,10 +19,10 @@ package bio.overture.song.server.service;
 
 import static bio.overture.song.core.exceptions.ServerErrors.LEGACY_ENTITY_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
-import static java.lang.String.join;
 
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.converter.LegacyEntityConverter;
@@ -103,7 +103,7 @@ public class LegacyEntityService {
   private String buildLegacyEntityPageFilter(Set<String> filteredFieldNames) {
     String filter = SQUIGGLY_ALL_FILTER;
     if (!filteredFieldNames.isEmpty()) {
-      filter = format("%s,content[%s]", SQUIGGLY_ALL_FILTER, join(",", filteredFieldNames));
+      filter = format("%s,content[%s]", SQUIGGLY_ALL_FILTER, COMMA.join(filteredFieldNames));
     }
     return filter;
   }

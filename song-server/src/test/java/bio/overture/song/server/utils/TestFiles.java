@@ -19,6 +19,7 @@ package bio.overture.song.server.utils;
 
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.Separators.PATH;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
@@ -26,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.model.Metadata;
-import bio.overture.song.core.utils.Joiners;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.InputStream;
 import java.net.URL;
@@ -55,7 +55,7 @@ public class TestFiles {
   }
 
   public static Path getTestResourceFilePath(String filename) {
-    return Paths.get(Joiners.PATH.join(getTestResourceUrl().getPath(), filename));
+    return Paths.get(PATH.join(getTestResourceUrl().getPath(), filename));
   }
 
   @SneakyThrows
