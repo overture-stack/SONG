@@ -19,6 +19,8 @@ package bio.overture.song.server.utils;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import java.util.Collection;
+import java.util.List;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
@@ -30,4 +32,66 @@ public class TestConstants {
   public static final String DEFAULT_SAMPLE_ID = "SA1";
   public static final String DEFAULT_SPECIMEN_ID = "SP1";
   public static final String DEFAULT_DONOR_ID = "DO1";
+
+  public static final Collection<String> SAMPLE_TYPE =
+      List.of(
+          "Total DNA",
+          "Amplified DNA",
+          "ctDNA",
+          "Other DNA enrichments",
+          "Total RNA",
+          "Ribo-Zero RNA",
+          "polyA+ RNA",
+          "Other RNA fractions");
+
+  public static final List<String> TUMOUR_NORMAL_DESIGNATION = List.of("Normal", "Tumour");
+
+  public static final List<String> SPECIMEN_TYPE =
+      List.of(
+          "Normal",
+          "Normal - tissue adjacent to primary tumour",
+          "Primary tumour",
+          "Primary tumour - adjacent to normal",
+          "Primary tumour - additional new primary",
+          "Recurrent tumour",
+          "Metastatic tumour",
+          "Metastatic tumour - metastasis local to lymph node",
+          "Metastatic tumour - metastasis to distant location",
+          "Metastatic tumour - additional metastatic",
+          "Xenograft - derived from primary tumour",
+          "Xenograft - derived from tumour cell line",
+          "Cell line - derived from xenograft tumour",
+          "Cell line - derived from tumour",
+          "Cell line - derived from normal");
+
+  public static final List<String> SPECIMEN_TISSUE_SOURCE =
+      List.of(
+          "Blood derived",
+          "Blood derived - bone marrow",
+          "Blood derived - peripheral blood",
+          "Bone marrow",
+          "Buccal cell",
+          "Lymph node",
+          "Solid tissue",
+          "Plasma",
+          "Serum",
+          "Urine",
+          "Cerebrospinal fluid",
+          "Sputum",
+          "Other",
+          "Pleural effusion",
+          "Mononuclear cells from bone marrow",
+          "Saliva",
+          "Skin",
+          "Intestine",
+          "Buffy coat",
+          "Stomach",
+          "Esophagus",
+          "Tonsil",
+          "Spleen",
+          "Bone",
+          "Cerebellum",
+          "Endometrium");
+
+  public static final Collection<String> GENDER = List.of("Male", "Female", "Other");
 }

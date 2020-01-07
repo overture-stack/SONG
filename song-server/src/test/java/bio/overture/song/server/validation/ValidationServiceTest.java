@@ -111,7 +111,7 @@ public class ValidationServiceTest {
       val testFileName = testDataEntry.getValue();
 
       val payload = getJsonFile(testFileName);
-      val fileNodes = newArrayList(payload.path("file"));
+      val fileNodes = newArrayList(payload.path("files"));
       assertTrue(fileNodes.size() > 1);
       val fileNode0 =
           ((ObjectNode) fileNodes.get(0))
@@ -131,7 +131,7 @@ public class ValidationServiceTest {
       for (val error : errors) {
         assertTrue(
             error.matches(
-                "^#/file/[0|1]/fileMd5sum: string \\[[^\\]]+\\] does not match pattern.*"));
+                "^#/files/[0|1]/fileMd5sum: string \\[[^\\]]+\\] does not match pattern.*"));
       }
     }
   }
@@ -153,7 +153,7 @@ public class ValidationServiceTest {
     val testFileName = DEFAULT_TEST_FILE_MAP.get(schemaType);
 
     val payload = getJsonFile(testFileName);
-    val fileNodes = newArrayList(payload.path("file"));
+    val fileNodes = newArrayList(payload.path("files"));
     assertFalse(fileNodes.isEmpty());
     for (val fileNode : fileNodes) {
       ((ObjectNode) fileNode).put("fileMd5sum", md5);
@@ -165,7 +165,8 @@ public class ValidationServiceTest {
       assertTrue(results.isPresent());
       val errors = Splitters.COMMA.splitToList(results.get());
       errors.forEach(
-          e -> assertTrue(e.matches("^#/file/[0|1]/fileMd5sum: string.*does not match pattern.*")));
+          e ->
+              assertTrue(e.matches("^#/files/[0|1]/fileMd5sum: string.*does not match pattern.*")));
     } else {
       assertFalse(
           format("Expecting validation not to have an error: %s", results.orElse(null)),

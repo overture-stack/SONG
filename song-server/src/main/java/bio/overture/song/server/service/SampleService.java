@@ -151,8 +151,9 @@ public class SampleService {
 
   String update(@NonNull Sample sampleUpdate) {
     val sample = unsecuredRead(sampleUpdate.getSampleId());
-    sample.setSampleSubmitterId(sampleUpdate.getSampleSubmitterId());
+    sample.setSubmitterSampleId(sampleUpdate.getSubmitterSampleId());
     sample.setSampleType(sampleUpdate.getSampleType());
+    sample.setMatchedNormalSubmitterSampleId(sampleUpdate.getMatchedNormalSubmitterSampleId());
     sample.setInfo(sampleUpdate.getInfo());
     repository.save(sample);
     infoService.update(sample.getSampleId(), sample.getInfoAsString());
@@ -171,7 +172,7 @@ public class SampleService {
   private String createSampleId(String studyId, Sample sample) {
     studyService.checkStudyExist(studyId);
     val inputSampleId = sample.getSampleId();
-    val sampleSubmitterId = sample.getSampleSubmitterId();
+    val sampleSubmitterId = sample.getSubmitterSampleId();
     val result = idService.getSampleId(studyId, sampleSubmitterId);
     val id =
         checkServerOptional(

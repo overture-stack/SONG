@@ -29,7 +29,7 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static java.util.Objects.isNull;
 
 import bio.overture.song.core.model.AnalysisTypeId;
@@ -47,14 +47,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class UploadService {
+public class SubmitService {
 
   private final ValidationService validator;
   private final AnalysisService analysisService;
   private final StudyService studyService;
 
   @Autowired
-  public UploadService(
+  public SubmitService(
       @NonNull ValidationService validator,
       @NonNull AnalysisService analysisService,
       @NonNull StudyService studyService) {
@@ -131,16 +131,16 @@ public class UploadService {
 
   @SneakyThrows
   private static void checkStudyInPayload(String expectedStudyId, Payload payload) {
-    val payloadStudyId = payload.getStudy();
+    val payloadStudyId = payload.getStudyId();
     checkServer(
         !isNull(payloadStudyId),
-        UploadService.class,
+        SubmitService.class,
         STUDY_ID_MISSING,
         "The field '%s' is missing in the payload",
-        STUDY);
+        STUDY_ID);
     checkServer(
         expectedStudyId.equals(payloadStudyId),
-        UploadService.class,
+        SubmitService.class,
         STUDY_ID_MISMATCH,
         "The studyId in the URL path '%s' should match the studyId '%s' in the payload",
         expectedStudyId,

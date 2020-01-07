@@ -62,6 +62,7 @@ public interface PayloadConverter {
   @Mapping(target = "objectId", ignore = true)
   @Mapping(target = "studyId", ignore = true)
   @Mapping(target = "info", ignore = true)
+  @Mapping(target = "dataType", nullValuePropertyMappingStrategy = SET_TO_DEFAULT)
   @Mapping(target = "fileType", nullValuePropertyMappingStrategy = SET_TO_DEFAULT)
   @Mapping(target = "fileAccess", nullValuePropertyMappingStrategy = SET_TO_DEFAULT)
   void updateFile(FileEntity ref, @MappingTarget FileEntity entityToUpdate);

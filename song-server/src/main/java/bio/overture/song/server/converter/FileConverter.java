@@ -44,6 +44,7 @@ public interface FileConverter {
   FileUpdateRequest fileEntityToFileUpdateRequest(FileEntity file);
 
   @Mapping(target = "fileType", ignore = true)
+  @Mapping(target = "dataType", ignore = true)
   @Mapping(target = "objectId", ignore = true)
   @Mapping(target = "studyId", ignore = true)
   @Mapping(target = "analysisId", ignore = true)

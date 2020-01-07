@@ -88,11 +88,6 @@ public class SongApi {
     }
   }
 
-  /**
-   * TODO: [DCC-5641] the ResponseEntity from AnalysisController is not returned, since
-   * RestTemplate.put is a void method. need to find RestTemplate implementation that returns a
-   * response
-   */
   public String publish(
       @NonNull String studyId, @NonNull String analysisId, boolean ignoreUndefinedMd5) {
     val url = endpoint.publish(studyId, analysisId, ignoreUndefinedMd5);

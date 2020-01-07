@@ -19,4 +19,5 @@ public class FileDTO extends Metadata implements File {
   private String fileMd5sum;
   private Long fileSize;
   private String fileAccess;
+  private String dataType;
 }

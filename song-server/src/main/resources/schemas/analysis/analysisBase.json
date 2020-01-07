@@ -36,6 +36,7 @@
 			"fileData" :{
 				"type": "object",
 				"required": [
+					"dataType",
 					"fileName",
 					"fileSize",
 					"fileType",
@@ -43,6 +44,9 @@
 					"fileMd5sum"
 				],
 				"properties": {
+					"dataType": {
+						"type": "string"
+					},
 					"fileName": {
 						"type": "string",
 						"pattern": "^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$"
@@ -65,7 +69,7 @@
 			}
 		},
 		"donor" : {
-			"donorGender": {
+			"gender": {
 				"type": "string",
 				"enum": [
 					"Male",
@@ -76,69 +80,91 @@
 			"donorData": {
 				"type": "object",
 				"required" : [
-					"donorSubmitterId",
-					"donorGender"
+					"submitterDonorId",
+					"gender"
 				],
 				"properties": {
-					"donorSubmitterId": { "$ref" : "#/definitions/common/submitterId" },
-					"donorGender": { "$ref" : "#/definitions/donor/donorGender"},
+					"submitterDonorId": { "$ref" : "#/definitions/common/submitterId" },
+					"gender": { "$ref" : "#/definitions/donor/gender"},
 					"info": { "$ref" : "#/definitions/common/info"}
 				}
 			}
 		},
 		"specimen": {
+            "specimenTissueSource" : {
+				"type" : "string",
+				"enum" : [
+					"Blood derived",
+					"Blood derived - bone marrow",
+					"Blood derived - peripheral blood",
+					"Bone marrow",
+					"Buccal cell",
+					"Lymph node",
+					"Solid tissue",
+					"Plasma",
+					"Serum",
+					"Urine",
+					"Cerebrospinal fluid",
+					"Sputum",
+					"Other",
+					"Pleural effusion",
+					"Mononuclear cells from bone marrow",
+					"Saliva",
+					"Skin",
+					"Intestine",
+					"Buffy coat",
+					"Stomach",
+					"Esophagus",
+					"Tonsil",
+					"Spleen",
+					"Bone",
+					"Cerebellum",
+					"Endometrium"
+				]
+			},
 			"specimenType": {
 				"type": "string",
 				"enum": [
-					"Normal - solid tissue",
-					"Normal - blood derived",
-					"Normal - bone marrow",
-					"Normal - tissue adjacent to primary",
-					"Normal - buccal cell",
-					"Normal - EBV immortalized",
-					"Normal - lymph node",
-					"Normal - other",
-					"Primary tumour - solid tissue",
-					"Primary tumour - blood derived (peripheral blood)",
-					"Primary tumour - blood derived (bone marrow)",
+					"Normal",
+					"Normal - tissue adjacent to primary tumour",
+					"Primary tumour",
+					"Primary tumour - adjacent to normal",
 					"Primary tumour - additional new primary",
-					"Primary tumour - other",
-					"Recurrent tumour - solid tissue",
-					"Recurrent tumour - blood derived (peripheral blood)",
-					"Recurrent tumour - blood derived (bone marrow)",
-					"Recurrent tumour - other",
-					"Metastatic tumour - NOS",
-					"Metastatic tumour - lymph node",
+					"Recurrent tumour",
+					"Metastatic tumour",
 					"Metastatic tumour - metastasis local to lymph node",
 					"Metastatic tumour - metastasis to distant location",
 					"Metastatic tumour - additional metastatic",
 					"Xenograft - derived from primary tumour",
 					"Xenograft - derived from tumour cell line",
+					"Cell line - derived from xenograft tumour",
 					"Cell line - derived from tumour",
-					"Primary tumour - lymph node",
-					"Metastatic tumour - other",
-					"Cell line - derived from xenograft tumour"
+					"Cell line - derived from normal"
 				]
 			},
-			"specimenClass" : {
+			"tumourNormalDesignation" : {
 				"type": "string",
 				"enum": [
 					"Normal",
-					"Tumour",
-					"Adjacent normal"
+					"Tumour"
 				]
 			},
 			"specimenData": {
 				"type": "object",
 				"required" : [
-					"specimenSubmitterId",
-					"specimenClass",
+					"submitterSpecimenId",
+					"specimenTissueSource",
+					"tumourNormalDesignation",
 					"specimenType"
 				],
 				"properties": {
-					"specimenSubmitterId": { "$ref" : "#/definitions/common/submitterId" },
-					"specimenClass": { "$ref" : "#/definitions/specimen/specimenClass" },
-					"specimenType": { "$ref" : "#/definitions/specimen/specimenType" },
+					"submitterSpecimenId": { "$ref" : "#/definitions/common/submitterId" },
+					"specimenTissueSource" : { "$ref" : "#/definitions/specimen/specimenTissueSource" },
+					"tumourNormalDesignation" : { "$ref" : "#/definitions/specimen/tumourNormalDesignation" },
+					"specimenType" : { "$ref" : "#/definitions/specimen/specimenType" },
+					"specimenClass": {
+						"not" : {}
+					},
 					"info": { "$ref" : "#/definitions/common/info"}
 				}
 			}
@@ -159,46 +185,50 @@
 			"sampleTypes" :{
 				"type": "string",
 				"enum": [
-					"DNA",
-					"FFPE DNA",
+					"Total DNA",
 					"Amplified DNA",
-					"RNA",
+					"ctDNA",
+					"Other DNA enrichments",
 					"Total RNA",
-					"FFPE RNA"
+					"Ribo-Zero RNA",
+					"polyA+ RNA",
+					"Other RNA fractions"
 				]
 			},
 			"sampleData": {
 				"type": "object",
 				"required": [
-					"sampleSubmitterId",
+					"submitterSampleId",
 					"sampleType"
 				],
 				"properties": {
-					"sampleSubmitterId": { "$ref" : "#/definitions/common/submitterId" },
+					"submitterSampleId": { "$ref" : "#/definitions/common/submitterId" },
 					"sampleType": { "$ref" : "#/definitions/sample/sampleTypes" },
 					"info": { "$ref" : "#/definitions/common/info"}
 				}
 			}
 		}
 	},
-	"required": [ "study", "analysisType", "sample","file"],
+	"required": [ "studyId", "analysisType", "samples","files"],
 	"properties": {
 		"analysisId" :{
 			"not" : {}
 		},
-		"study" : {
+		"studyId" : {
 			"type": "string",
 			"minLength": 1
 		},
 		"analysisType": {
 			"allOf": [{"$ref" :  "#/definitions/analysisType"}]
 		},
-		"sample": {
+		"samples": {
 			"type": "array",
 			"minItems" : 1,
 			"items": {
 				"type": "object",
-				"allOf" : [ {"$ref" : "#/definitions/sample/sampleData" } ],
+				"allOf" : [
+					{"$ref" : "#/definitions/sample/sampleData" }
+				],
 				"required": [
 					"specimen",
 					"donor"
@@ -206,10 +236,36 @@
 				"properties": {
 					"specimen": { "$ref" : "#/definitions/specimen/specimenData" },
 					"donor": { "$ref" : "#/definitions/donor/donorData" }
+				},
+				"if" : {
+					"properties" : {
+						"specimen": {
+                          "properties": {
+							"tumourNormalDesignation" : {
+								"const" : "Tumour"
+							}
+						  }
+						}
+					}
+				},
+				"then" : {
+					"properties" : {
+						"matchedNormalSubmitterSampleId" : {
+							"type": "string"
+						}
+					},
+					"required": ["matchedNormalSubmitterSampleId"]
+				},
+				"else" : {
+					"properties" : {
+						"matchedNormalSubmitterSampleId": {
+							"not": {}
+						}
+					}
 				}
 			}
 		},
-		"file": {
+		"files": {
 			"type": "array",
 			"minItems" : 1,
 			"items": { "$ref" : "#/definitions/file/fileData" }

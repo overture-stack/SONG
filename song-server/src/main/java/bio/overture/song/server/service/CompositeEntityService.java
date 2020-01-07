@@ -50,7 +50,7 @@ public class CompositeEntityService {
    * easier.
    */
   public String save(String studyId, CompositeEntity s) {
-    String id = sampleService.findByBusinessKey(studyId, s.getSampleSubmitterId());
+    String id = sampleService.findByBusinessKey(studyId, s.getSubmitterSampleId());
     if (isNull(id)) {
       val sampleCreateRequest = buildPersistentSample(s);
       s.setSpecimenId(getSampleParent(studyId, s));
@@ -66,7 +66,7 @@ public class CompositeEntityService {
 
   private String getSampleParent(String studyId, CompositeEntity s) {
     val specimen = s.getSpecimen();
-    String id = specimenService.findByBusinessKey(studyId, specimen.getSpecimenSubmitterId());
+    String id = specimenService.findByBusinessKey(studyId, specimen.getSubmitterSpecimenId());
     specimen.setDonorId(getSpecimenParent(studyId, s));
     if (isNull(id)) {
       id = specimenService.create(studyId, specimen);

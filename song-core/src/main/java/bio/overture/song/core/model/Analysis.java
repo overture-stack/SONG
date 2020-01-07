@@ -18,9 +18,9 @@ import lombok.ToString;
 public class Analysis extends DynamicData {
 
   private String analysisId;
-  private String study;
+  private String studyId;
   private AnalysisStates analysisState;
   private AnalysisTypeId analysisType;
-  private List<CompositeSample> sample;
-  private List<FileDTO> file;
+  private List<CompositeSample> samples;
+  private List<FileDTO> files;
 }

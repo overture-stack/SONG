@@ -270,7 +270,7 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
             .analysisId(DUMMY_ANALYSIS_ID)
             .analysisState(UNPUBLISHED)
             .analysisType(ANALYSIS_TYPE_ID1)
-            .study(DUMMY_STUDY_ID)
+            .studyId(DUMMY_STUDY_ID)
             .build();
     when(songApi.getAnalysis(DUMMY_STUDY_ID, DUMMY_ANALYSIS_ID)).thenReturn(expectedAnalysis);
     assertOutputJson(objectToTree(expectedAnalysis), "search", "-a", DUMMY_ANALYSIS_ID);
@@ -289,7 +289,7 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
                 .analysisId(DUMMY_ANALYSIS_ID)
                 .analysisState(UNPUBLISHED)
                 .analysisType(ANALYSIS_TYPE_ID1)
-                .study(DUMMY_STUDY_ID)
+                .studyId(DUMMY_STUDY_ID)
                 .build());
 
     when(songApi.idSearch(DUMMY_STUDY_ID, expectedSample.getSampleId(), null, null, null))

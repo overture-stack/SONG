@@ -52,14 +52,19 @@ public class Sample extends Metadata {
   private String specimenId;
 
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
-  private String sampleSubmitterId;
+  private String submitterSampleId;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @Column(name = TableAttributeNames.MATCHED_NORMAL_SUBMITTER_SAMPLE_ID, nullable = true)
+  private String matchedNormalSubmitterSampleId;
 
   @Column(name = TableAttributeNames.TYPE, nullable = false)
   private String sampleType;
 
   public void setWithSample(@NonNull Sample u) {
     setSampleId(u.getSampleId());
-    setSampleSubmitterId(u.getSampleSubmitterId());
+    setMatchedNormalSubmitterSampleId(u.getMatchedNormalSubmitterSampleId());
+    setSubmitterSampleId(u.getSubmitterSampleId());
     setSampleType(u.getSampleType());
     setSpecimenId(u.getSpecimenId());
     setInfo(u.getInfo());

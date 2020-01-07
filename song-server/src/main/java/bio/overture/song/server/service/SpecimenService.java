@@ -56,7 +56,7 @@ public class SpecimenService {
   private String createSpecimenId(String studyId, Specimen specimen) {
     studyService.checkStudyExist(studyId);
     val inputSpecimenId = specimen.getSpecimenId();
-    val specimenSubmitterId = specimen.getSpecimenSubmitterId();
+    val specimenSubmitterId = specimen.getSubmitterSpecimenId();
     val result = idService.getSpecimenId(studyId, specimenSubmitterId);
     val id =
         checkServerOptional(

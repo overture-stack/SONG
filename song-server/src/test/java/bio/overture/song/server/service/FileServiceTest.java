@@ -73,6 +73,7 @@ public class FileServiceTest {
     val analysisId = "AN1";
     val study = DEFAULT_STUDY_ID;
     val type = "BAM";
+    val dataType = "DATA_TYPE_BAM";
     val size = 122333444455555L;
     val md5 = "20de2982390c60e33452bf8736c3a9f1";
     val file = fileService.securedRead(study, id);
@@ -85,6 +86,7 @@ public class FileServiceTest {
             .studyId(study)
             .fileSize(size)
             .fileType(type)
+            .dataType(dataType)
             .fileMd5sum(md5)
             .fileAccess(OPEN.toString())
             .build();
@@ -105,6 +107,7 @@ public class FileServiceTest {
     f.setStudyId(studyId);
 
     f.setFileSize(0L);
+    f.setDataType(randomGenerator.generateRandomAsciiString(10));
     f.setFileType(FAI);
     f.setFileMd5sum("6bb8ee7218e96a59e0ad898b4f5360f1");
     f.setInfo(metadata);
@@ -180,6 +183,7 @@ public class FileServiceTest {
             .analysisId(analysisId)
             .fileName(name)
             .studyId(study)
+            .dataType(randomGenerator.generateRandomAsciiString(10))
             .fileSize(size)
             .fileType(type)
             .fileMd5sum(md5)
@@ -198,6 +202,7 @@ public class FileServiceTest {
             .fileSize(123456789L)
             .fileType("FAI")
             .fileMd5sum("e1f2a096d90c2cb9e63338e41d805977")
+            .dataType(randomGenerator.generateRandomAsciiString(10))
             .fileAccess(CONTROLLED.toString())
             .build();
     s2.setInfo(metadata);
@@ -271,6 +276,7 @@ public class FileServiceTest {
     return FileEntity.builder()
         .objectId(randomGenerator.generateRandomUUIDAsString())
         .analysisId(analysisId)
+        .dataType(randomGenerator.generateRandomAsciiString(10))
         .fileName(randomGenerator.generateRandomUUIDAsString() + extension)
         .studyId(studyId)
         .fileSize((long) randomGenerator.generateRandomInt())

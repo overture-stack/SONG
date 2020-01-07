@@ -86,31 +86,31 @@ public class StudyWithDonorsServiceTest {
     // Extract expected donors and verify
     val expectedDonors =
         analysisMap.values().stream()
-            .flatMap(x -> x.getSample().stream())
+            .flatMap(x -> x.getSamples().stream())
             .map(CompositeEntity::getDonor)
             .collect(toSet());
     assertEquals(expectedDonors.size(), numAnalysis);
     assertEquals(
-        expectedDonors.stream().map(Donor::getDonorSubmitterId).distinct().count(), numAnalysis);
+        expectedDonors.stream().map(Donor::getSubmitterDonorId).distinct().count(), numAnalysis);
     assertEquals(
         expectedDonors.stream().filter(x -> x.getStudyId().equals(studyId)).count(), numAnalysis);
 
     // Extract expected specimens and verify
     val expectedSpecimens =
         analysisMap.values().stream()
-            .flatMap(x -> x.getSample().stream())
+            .flatMap(x -> x.getSamples().stream())
             .map(CompositeEntity::getSpecimen)
             .collect(toSet());
     assertEquals(expectedSpecimens.size(), numAnalysis);
     assertEquals(
-        expectedSpecimens.stream().map(Specimen::getSpecimenSubmitterId).distinct().count(),
+        expectedSpecimens.stream().map(Specimen::getSubmitterSpecimenId).distinct().count(),
         numAnalysis);
 
     // Extract expected samples and verify
     val expectedSamples =
-        analysisMap.values().stream().flatMap(x -> x.getSample().stream()).collect(toSet());
+        analysisMap.values().stream().flatMap(x -> x.getSamples().stream()).collect(toSet());
     val expectedSampleSubmitterIds =
-        expectedSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
+        expectedSamples.stream().map(Sample::getSubmitterSampleId).collect(toSet());
     assertEquals(expectedSamples.size(), numAnalysis);
     assertEquals(expectedSampleSubmitterIds.size(), numAnalysis);
 
@@ -138,7 +138,7 @@ public class StudyWithDonorsServiceTest {
             .flatMap(Collection::stream)
             .collect(toSet());
     val actualSampleSubmitterIds =
-        actualSamples.stream().map(Sample::getSampleSubmitterId).collect(toSet());
+        actualSamples.stream().map(Sample::getSubmitterSampleId).collect(toSet());
 
     // Verify expected donors and actual donors match
     assertCollectionsMatchExactly(expectedDonors, actualDonors);

@@ -42,7 +42,7 @@ import org.springframework.web.context.WebApplicationContext;
 @AutoConfigureMockMvc(secure = false)
 @ActiveProfiles({"test"})
 @SpringBootTest(properties = "schemas.enforceLatest=false")
-public class NonEnforcedUploadControllerTest extends AbstractEnforcedTester {
+public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
 
   @Autowired private WebApplicationContext webApplicationContext;
   @Autowired private StudyService studyService;

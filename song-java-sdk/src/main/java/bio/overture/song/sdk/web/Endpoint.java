@@ -37,7 +37,7 @@ public class Endpoint {
   }
 
   public String submit(@NonNull String studyId) {
-    return format("%s/upload/%s", serverUrl, studyId);
+    return format("%s/submit/%s", serverUrl, studyId);
   }
 
   public String getAnalysisFiles(@NonNull String studyId, @NonNull String analysisId) {

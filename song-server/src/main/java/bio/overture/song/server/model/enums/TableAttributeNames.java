@@ -66,9 +66,14 @@ public class TableAttributeNames {
   public static final String VARIANT_CALLING_TOOL = "variant_calling_tool";
   public static final String MATCHED_NORMAL_SAMPLE_SUBMITTER_ID =
       "matched_normal_sample_submitter_id";
+  public static final String MATCHED_NORMAL_SUBMITTER_SAMPLE_ID =
+      "matched_normal_submitter_sample_id";
   public static final String SCHEMA = "schema";
   public static final String VERSION = "version";
   public static final String ANALYSIS_SCHEMA_ID = "analysis_schema_id";
   public static final String DATA = "data";
   public static final String ANALYSIS_DATA_ID = "analysis_data_id";
+  public static final String DATA_TYPE = "data_type";
+  public static final String TUMOUR_NORMAL_DESIGNATION = "tumour_normal_designation";
+  public static final String TISSUE_SOURCE = "tissue_source";
 }

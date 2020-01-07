@@ -64,7 +64,7 @@ public class Analysis {
   private String analysisId;
 
   @Column(name = TableAttributeNames.STUDY_ID, nullable = false)
-  private String study;
+  private String studyId;
 
   @Column(name = TableAttributeNames.STATE, nullable = false)
   private String analysisState = UNPUBLISHED.name();
@@ -82,9 +82,9 @@ public class Analysis {
   @JsonIgnore
   private AnalysisData analysisData;
 
-  @Transient private List<CompositeEntity> sample;
+  @Transient private List<CompositeEntity> samples;
 
-  @Transient private List<FileEntity> file;
+  @Transient private List<FileEntity> files;
 
   // TODO: need to remove this, and replace anything that needs this with Payload object
   public AnalysisTypeId getAnalysisType() {

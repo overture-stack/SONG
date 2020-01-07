@@ -17,6 +17,7 @@ public class Sample extends Metadata {
 
   private String sampleId;
   private String specimenId;
-  private String sampleSubmitterId;
+  private String submitterSampleId;
   private String sampleType;
+  private String matchedNormalSubmitterSampleId;
 }
