@@ -17,23 +17,9 @@
 
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
-import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_SERVICE_ERROR;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.utils.Booleans.convertToBoolean;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static org.icgc.dcc.common.core.util.Joiners.SLASH;
-import static bio.overture.song.core.utils.Separators.SLASH;
-import static java.lang.Boolean.parseBoolean;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
-
 import bio.overture.song.core.exceptions.BooleanConversionException;
 import bio.overture.song.server.model.StorageObject;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.net.URL;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +31,20 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.URL;
+import java.util.List;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpMethod.GET;
+import static bio.overture.song.core.exceptions.ServerErrors.INVALID_STORAGE_DOWNLOAD_RESPONSE;
+import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_OBJECT_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.STORAGE_SERVICE_ERROR;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.Booleans.convertToBoolean;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.Separators.SLASH;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -144,7 +144,7 @@ public class StorageService {
   }
 
   private static String joinUrl(String... path) {
-    return SLASH.join(path);
+    return SLASH.join(List.of(path));
   }
 
   private static Boolean extractBooleanResponse(String value) {
