@@ -6,7 +6,7 @@
   },
   "experiment": {
     "variantCallingTool": "silver bullet",
-    "matchedNormalSampleSubmitterId": "sample x24-11a",
+    "matchedNormalSampleSubmitterId": "sample-x24-11a",
     "notes": "we can put anything we want as extra JSON fields"
   },
   "samples": [

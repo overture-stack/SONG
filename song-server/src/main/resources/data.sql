@@ -13,9 +13,9 @@ insert into Specimen (id, donor_id, submitter_id, class, legacy_type, tissue_sou
 insert into Info(id, id_type, info) values ('SP1',  'Specimen', '{"name":"specimen1"}' );
 insert into Info(id, id_type, info) values ('SP2',  'Specimen', '{"name":"specimen2"}' );
 
-insert into Sample (id, specimen_id, submitter_id, type) values ('SA1', 'SP1', 'T285-G7-A5','DNA');
-insert into Sample (id, specimen_id, submitter_id, type) values ('SA11', 'SP1', 'T285-G7-B9','DNA');
-insert into Sample (id, specimen_id, submitter_id, type) values ('SA21', 'SP2', 'T285-G7N','DNA');
+insert into Sample (id, specimen_id, submitter_id, type) values ('SA1', 'SP1', 'T285-G7-A5','Total DNA');
+insert into Sample (id, specimen_id, submitter_id, type) values ('SA11', 'SP1', 'T285-G7-B9','Total DNA');
+insert into Sample (id, specimen_id, submitter_id, type) values ('SA21', 'SP2', 'T285-G7N','Total DNA');
 insert into Info(id, id_type, info) values ('SA1',  'Sample', '{"name":"sample1"}' );
 insert into Info(id, id_type, info) values ('SA11', 'Sample', '{"name":"sample2"}' );
 insert into Info(id, id_type, info) values ('SA21', 'Sample', '{"name":"sample3"}' );

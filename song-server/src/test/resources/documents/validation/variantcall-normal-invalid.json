@@ -6,13 +6,13 @@
   },
   "experiment": {
     "variantCallingTool": "silver bullet",
-    "matchedNormalSampleSubmitterId": "sample x24-11a"
+    "matchedNormalSampleSubmitterId": "sample-x24-11a"
   },
   "samples": [
     {
       "submitterSampleId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",
-      "matchedNormalSubmitterSampleId": "sample x24-11a",
+      "matchedNormalSubmitterSampleId": "sample-x24-11a",
       "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
         "tumourNormalDesignation": "Normal",

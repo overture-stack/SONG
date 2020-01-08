@@ -7,7 +7,7 @@
   "analysisId": "VariantCall-X24Alpha",
   "experiment": {
     "variantCallingTool": "silver bullet",
-    "matchedNormalSampleSubmitterId": "sample x24-11a"
+    "matchedNormalSampleSubmitterId": "sample-x24-11a"
   },
   "samples": [
     {

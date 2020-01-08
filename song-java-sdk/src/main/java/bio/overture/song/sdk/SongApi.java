@@ -16,8 +16,7 @@
  */
 package bio.overture.song.sdk;
 
-import static java.lang.Boolean.parseBoolean;
-
+import bio.overture.song.core.exceptions.BooleanConversionException;
 import bio.overture.song.core.model.Analysis;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.ExportedPayload;
@@ -29,12 +28,15 @@ import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
 import bio.overture.song.sdk.web.Endpoint;
 import bio.overture.song.sdk.web.RestClient;
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.web.client.ResourceAccessException;
+
+import java.util.List;
+
+import static bio.overture.song.core.utils.Booleans.convertToBoolean;
 
 @RequiredArgsConstructor
 public class SongApi {
@@ -82,8 +84,8 @@ public class SongApi {
   public boolean isAlive() {
     val url = endpoint.isAlive();
     try {
-      return parseBoolean(restClient.get(url, String.class).getBody());
-    } catch (ResourceAccessException e) {
+      return convertToBoolean(restClient.get(url, String.class).getBody());
+    } catch (BooleanConversionException | ResourceAccessException e) {
       return false;
     }
   }

@@ -5,7 +5,7 @@
   },
   "experiment": {
     "variantCallingTool": "silver bullet3",
-    "matchedNormalSampleSubmitterId": "sample x24-11a3"
+    "matchedNormalSampleSubmitterId": "sample-x24-11a3"
   },
   "samples": [
     {
@@ -30,7 +30,7 @@
           "age": 343
         }
       },
-      "matchedNormalSubmitterSampleId": "sample x24-11a3"
+      "matchedNormalSubmitterSampleId": "sample-x24-11a3"
     }
   ],
   "files": [

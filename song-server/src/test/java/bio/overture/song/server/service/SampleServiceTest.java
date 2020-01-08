@@ -78,7 +78,7 @@ public class SampleServiceTest {
     val sample = sampleService.securedRead(DEFAULT_STUDY_ID, id);
     assertEquals(sample.getSampleId(), id);
     assertEquals(sample.getSubmitterSampleId(), "T285-G7-A5");
-    assertEquals(sample.getSampleType(), "DNA");
+    assertEquals(sample.getSampleType(), "Total DNA");
     assertEquals(getInfoName(sample), "sample1");
   }
 
@@ -117,7 +117,7 @@ public class SampleServiceTest {
             .sampleId("")
             .specimenId(specimenId)
             .submitterSampleId("102-CBP-A")
-            .sampleType("RNA")
+            .sampleType("Total RNA")
             .build();
 
     sampleService.create(DEFAULT_STUDY_ID, s);
@@ -130,7 +130,7 @@ public class SampleServiceTest {
             .sampleId(id)
             .submitterSampleId("Sample 102")
             .specimenId(s.getSpecimenId())
-            .sampleType("FFPE RNA")
+            .sampleType("Total RNA")
             .build();
     s2.setInfo(metadata);
     sampleService.update(s2);
