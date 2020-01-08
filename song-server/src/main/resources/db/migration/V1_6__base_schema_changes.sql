@@ -4,11 +4,10 @@
 ALTER TABLE file ADD COLUMN data_type VARCHAR(255);
 
 ------------------------------------------------------
--- Update sample_type enum
+-- Update sample_type enum and backup old version as legacy
 ------------------------------------------------------
-ALTER TYPE sample_type RENAME TO _sample_type;
+ALTER TYPE sample_type RENAME TO legacy_sample_type;
 
--- Legacy values are kept so they are not deleted. May or mayn not be used by the service
 CREATE TYPE sample_type as ENUM(
     'Total DNA',
     'Amplified DNA',
@@ -17,19 +16,10 @@ CREATE TYPE sample_type as ENUM(
     'Total RNA',
     'Ribo-Zero RNA',
     'polyA+ RNA',
-    'Other RNA fractions',
-    'DNA', -- Legacy
-    'FFPE DNA', -- Legacy
-    'RNA', -- Legacy
-    'FFPE RNA' -- Legacy
+    'Other RNA fractions'
 );
-ALTER TABLE sample RENAME COLUMN type TO _type;
+ALTER TABLE sample RENAME COLUMN type TO legacy_type;
 ALTER TABLE sample ADD COLUMN type sample_type;
-
-UPDATE sample SET type=CAST(CAST(_type AS VARCHAR) AS sample_type);
-
-ALTER TABLE sample DROP COLUMN _type;
-DROP TYPE _sample_type CASCADE;
 
 --------------------------------------
 -- Update specimen_type and backup the old version as legacy
@@ -56,7 +46,6 @@ CREATE TYPE specimen_type as ENUM(
           );
 ALTER TABLE specimen RENAME COLUMN type TO legacy_type;
 ALTER TABLE specimen ADD COLUMN type specimen_type;
-UPDATE specimen SET type=CAST(CAST(legacy_type AS VARCHAR) AS specimen_type);
 
 --------------------------------------
 -- Add new field called tissue_source with tissue_source_type enum
@@ -89,6 +78,7 @@ CREATE TYPE tissue_source_type as ENUM(
   'Cerebellum',
   'Endometrium'
 );
+
 ALTER TABLE specimen ADD COLUMN tissue_source tissue_source_type;
 
 
