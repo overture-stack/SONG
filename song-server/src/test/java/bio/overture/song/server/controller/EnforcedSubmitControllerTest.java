@@ -24,8 +24,8 @@ import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 import static java.util.Objects.isNull;
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.ResourceFetcher;

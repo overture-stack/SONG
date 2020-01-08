@@ -6,7 +6,7 @@
   },
   "experiment": {
     "variantCallingTool": "silver bullet ex01",
-    "matchedNormalSampleSubmitterId": "sample x24-11a",
+    "matchedNormalSampleSubmitterId": "sample-x24-11a",
     "extraExperimentInfo": "some more data for a variantCall experiment ex01"
   },
   "samples": [
@@ -27,7 +27,7 @@
         "gender": "Male",
         "extraDonorInfo": "some more data for a variantCall donor_fs01"
       },
-      "matchedNormalSubmitterSampleId": "sample x24-11a"
+      "matchedNormalSubmitterSampleId": "sample-x24-11a"
     },
     {
       "submitterSampleId": "internal_sample_98024759826836_fs02",
@@ -46,7 +46,7 @@
         "extraDonorInfo_0": "first data for a variantCall donor_fs02",
         "extraDonorInfo_1": "second data for a variantCall donor_fs02"
       },
-      "matchedNormalSubmitterSampleId": "sample x24-11a"
+      "matchedNormalSubmitterSampleId": "sample-x24-11a"
     }
   ],
   "files": [

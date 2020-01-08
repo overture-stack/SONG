@@ -1,8 +1,8 @@
 package bio.overture.song.client;
 
 import static bio.overture.song.client.cli.ClientMain.createClientMain;
+import static bio.overture.song.core.utils.Booleans.convertToBoolean;
 import static bio.overture.song.core.utils.JsonDocUtils.getInputStreamClasspath;
-import static java.lang.Boolean.parseBoolean;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.newInputStream;
 import static java.util.Objects.isNull;
@@ -62,6 +62,6 @@ public class Main {
 
   private static boolean getBoolean(boolean value, String envVar) {
     val envValue = System.getenv(envVar);
-    return isNull(envValue) ? value : parseBoolean(envValue);
+    return isNull(envValue) ? value : convertToBoolean(envValue);
   }
 }

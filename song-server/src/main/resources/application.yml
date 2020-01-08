@@ -138,7 +138,9 @@ spring:
       validation-timeout: 250
 
 id.persistInMemory: true
-dcc-storage.url: http://localhost:8087
+
+# This url should not exist
+score.url: http://localhost:0
 
 ---
 spring.profiles: dev
