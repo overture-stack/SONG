@@ -20,10 +20,10 @@ package bio.overture.song.server.service;
 import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.groupingBy;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.enums.AnalysisStates;

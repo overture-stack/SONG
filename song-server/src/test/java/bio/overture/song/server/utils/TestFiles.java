@@ -19,6 +19,7 @@ package bio.overture.song.server.utils;
 
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.Separators.PATH;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
@@ -35,7 +36,6 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.icgc.dcc.common.core.util.Joiners;
 
 @Slf4j
 public class TestFiles {
@@ -55,7 +55,7 @@ public class TestFiles {
   }
 
   public static Path getTestResourceFilePath(String filename) {
-    return Paths.get(Joiners.PATH.join(getTestResourceUrl().getPath(), filename));
+    return Paths.get(PATH.join(getTestResourceUrl().getPath(), filename));
   }
 
   @SneakyThrows

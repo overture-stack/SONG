@@ -17,7 +17,7 @@
 
 package bio.overture.song.core.utils;
 
-import static bio.overture.song.core.utils.Joiners.NEWLINE;
+import static bio.overture.song.core.utils.Separators.NEWLINE;
 import static bio.overture.song.core.utils.Streams.stream;
 import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.toUnmodifiableList;

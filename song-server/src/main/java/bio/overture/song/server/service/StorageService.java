@@ -25,6 +25,8 @@ import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.Booleans.convertToBoolean;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static org.icgc.dcc.common.core.util.Joiners.SLASH;
+import static bio.overture.song.core.utils.Separators.SLASH;
+import static java.lang.Boolean.parseBoolean;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.GET;
 

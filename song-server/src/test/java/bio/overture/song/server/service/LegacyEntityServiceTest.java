@@ -22,14 +22,14 @@ import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_QUERY_PARAM
 import static bio.overture.song.core.exceptions.ServerErrors.LEGACY_ENTITY_NOT_FOUND;
 import static bio.overture.song.core.utils.JsonUtils.convertValue;
 import static bio.overture.song.server.service.LegacyEntityService.createLegacyEntityService;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Streams.stream;
 import static java.lang.Math.pow;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.lessThan;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;

@@ -153,10 +153,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.icgc.dcc</groupId>
-            <artifactId>dcc-common-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -194,13 +190,6 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
         </dependency>
-
-        <!-- DCC - ID -->
-		<dependency>
-			<groupId>org.icgc.dcc</groupId>
-			<artifactId>dcc-id-client</artifactId>
-		</dependency>
-
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
@@ -240,7 +229,11 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
-
+       <dependency>
+           <groupId>org.glassfish.jaxb</groupId>
+           <artifactId>jaxb-runtime</artifactId>
+           <version>2.3.1</version>
+      </dependency>
     </dependencies>
 
     <build>

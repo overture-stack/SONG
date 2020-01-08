@@ -33,10 +33,10 @@ import static bio.overture.song.server.utils.generator.AnalysisGenerator.createA
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.resolveLegacyAnalysisTypeName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;

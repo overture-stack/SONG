@@ -25,17 +25,17 @@ import static bio.overture.song.core.exceptions.ServerException.buildServerExcep
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
