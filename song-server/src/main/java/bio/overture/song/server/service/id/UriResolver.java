@@ -1,7 +1,7 @@
 package bio.overture.song.server.service.id;
 
 import static bio.overture.song.core.utils.CollectionUtils.listDifference;
-import static bio.overture.song.core.utils.Joiners.COMMA;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static com.google.common.base.Preconditions.checkArgument;
 import static lombok.AccessLevel.PRIVATE;
 

@@ -19,6 +19,7 @@ package bio.overture.song.server.service;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
@@ -26,7 +27,6 @@ import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.FileData;

@@ -42,14 +42,6 @@
             <url>https://jitpack.io</url>
         </repository>
         <repository>
-            <id>dcc-releases</id>
-            <url>https://artifacts.oicr.on.ca/artifactory/dcc-release</url>
-        </repository>
-        <repository>
-            <id>dcc-snapshot</id>
-            <url>https://artifacts.oicr.on.ca/artifactory/dcc-snapshot</url>
-        </repository>
-        <repository>
             <id>Atlassian 3rd Party</id>
             <url>https://maven.atlassian.com/3rdparty/</url>
         </repository>
@@ -243,27 +235,14 @@
                 <version>${java-assist.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${jaxb.version}</version>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
             </dependency>
 
             <dependency>
                 <groupId>javax.interceptor</groupId>
                 <artifactId>javax.interceptor-api</artifactId>
                 <version>${javax.interceptor-api.version}</version>
-            </dependency>
-
-            <!--ICGC Libs-->
-            <dependency>
-                <groupId>org.icgc.dcc</groupId>
-                <artifactId>dcc-common-core</artifactId>
-                <version>${dcc-common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.icgc.dcc</groupId>
-                <artifactId>dcc-id-client</artifactId>
-                <version>${dcc-id.version}</version>
             </dependency>
 
             <!--Json Schema-->
@@ -474,7 +453,6 @@
         <!--<spring-data-commons.version>1.12.11.RELEASE</spring-data-commons.version>-->
         <spring-framework.version>5.1.9.RELEASE</spring-framework.version>
         <spring-cloud.version>Greenwich.SR3</spring-cloud.version>
-        <dcc-common.version>4.3.8</dcc-common.version>
         <postgresql.version>42.2.2</postgresql.version>
         <junit.version>4.12</junit.version>
         <slf4j.version>1.7.25</slf4j.version>
@@ -486,7 +464,6 @@
         <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
         <wiremock.version>2.14.0</wiremock.version>
         <springfox.version>2.9.0</springfox.version>
-        <dcc-id.version>5.2.0</dcc-id.version>
         <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
         <hibernate-native-json.version>0.4</hibernate-native-json.version>
 

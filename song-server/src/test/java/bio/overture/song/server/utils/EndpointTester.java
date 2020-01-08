@@ -17,6 +17,7 @@
 
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.core.utils.Separators.SLASH;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
@@ -30,14 +31,12 @@ import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.MockMvcWebResource;
 import bio.overture.song.server.utils.web.ResponseOption;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.icgc.dcc.common.core.util.Joiners;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.Nullable;
@@ -52,8 +51,6 @@ public class EndpointTester {
   private static final String VERSION = "version";
   private static final String META = "meta";
   private static final String HIDE_SCHEMA = "hideSchema";
-
-  public static final Joiner AMPERSAND = Joiner.on("&");
   private static final String UNRENDERED_ONLY = "unrenderedOnly";
 
   @NonNull private final MockMvc mockMvc;
@@ -157,7 +154,7 @@ public class EndpointTester {
   public ResponseOption getAnalysisTypeVersionGetRequestAnd(
       @NonNull String analysisTypeName, @Nullable Integer version, boolean unrenderedOnly) {
     return initWebRequest()
-        .endpoint(Joiners.PATH.join(SCHEMAS, analysisTypeName))
+        .endpoint(SLASH.join(SCHEMAS, analysisTypeName))
         .optionalQuerySingleParam(VERSION, version)
         .optionalQuerySingleParam(UNRENDERED_ONLY, unrenderedOnly)
         .getAnd();
@@ -165,7 +162,7 @@ public class EndpointTester {
 
   // GET /schemas/meta
   public ResponseOption getMetaSchemaGetRequestAnd() {
-    return initWebRequest().endpoint(Joiners.PATH.join(SCHEMAS, META)).getAnd();
+    return initWebRequest().endpoint(SLASH.join(SCHEMAS, META)).getAnd();
   }
 
   public static EndpointTester createEndpointTester(MockMvc mockMvc, boolean enableLogging) {

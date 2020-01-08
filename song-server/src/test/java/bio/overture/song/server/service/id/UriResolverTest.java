@@ -1,7 +1,7 @@
 package bio.overture.song.server.service.id;
 
-import static bio.overture.song.core.utils.Joiners.COMMA;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.service.id.UriResolver.createUriResolver;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;

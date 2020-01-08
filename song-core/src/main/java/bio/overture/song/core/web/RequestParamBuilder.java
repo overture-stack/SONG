@@ -2,7 +2,7 @@ package bio.overture.song.core.web;
 
 import static bio.overture.song.core.utils.CollectionUtils.isArrayBlank;
 import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
-import static bio.overture.song.core.utils.Joiners.AMPERSAND;
+import static bio.overture.song.core.utils.Separators.AMPERSAND;
 import static bio.overture.song.core.web.QueryParam.createQueryParam;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.isNull;

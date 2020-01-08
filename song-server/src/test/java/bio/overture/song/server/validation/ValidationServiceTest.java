@@ -17,10 +17,10 @@
 package bio.overture.song.server.validation;
 
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Splitters.COMMA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import lombok.val;
-import org.icgc.dcc.common.core.util.Splitters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,7 +162,7 @@ public class ValidationServiceTest {
 
     if (shouldBeError) {
       assertTrue(results.isPresent());
-      val errors = Splitters.COMMA.splitToList(results.get());
+      val errors = COMMA.splitToList(results.get());
       errors.forEach(
           e ->
               assertTrue(e.matches("^#/files/[0|1]/fileMd5sum: string.*does not match pattern.*")));

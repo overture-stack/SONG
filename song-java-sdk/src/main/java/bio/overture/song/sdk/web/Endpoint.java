@@ -16,7 +16,7 @@
  */
 package bio.overture.song.sdk.web;
 
-import static bio.overture.song.core.utils.Joiners.COMMA;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static java.lang.String.format;
 
 import bio.overture.song.core.web.RequestParamBuilder;
