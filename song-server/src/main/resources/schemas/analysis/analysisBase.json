@@ -260,9 +260,10 @@
 				"else" : {
 					"properties" : {
 						"matchedNormalSubmitterSampleId": {
-							"not": {}
+							"const" : null
 						}
-					}
+					},
+					"required": ["matchedNormalSubmitterSampleId"]
 				}
 			}
 		},

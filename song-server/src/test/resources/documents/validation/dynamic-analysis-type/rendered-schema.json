@@ -91,7 +91,8 @@
         }
       }
     },
-    "specimen": {
+    "matchedNormalSubmitterSampleId": null,
+	  "specimen": {
       "specimenTissueSource" : {
         "type" : "string",
         "enum" : [
@@ -229,23 +230,23 @@
         "type": "object",
         "allOf" : [ {"$ref" : "#/definitions/sample/sampleData" } ],
         "required": [
-          "specimen",
+	  "specimen",
           "donor"
         ],
         "properties": {
-          "specimen": { "$ref" : "#/definitions/specimen/specimenData" },
+	  "specimen": { "$ref" : "#/definitions/specimen/specimenData" },
           "donor": { "$ref" : "#/definitions/donor/donorData" }
         },
 		"if" : {
 			"properties" : {
-				"specimen": {
-				  "properties": {
-					"tumourNormalDesignation" : {
-						"const" : "Tumour"
-					}
-				  }
-				}
-			}
+              "specimen": {
+                "properties": {
+                  "tumourNormalDesignation" : {
+                    "const" : "Tumour"
+                  }
+                }
+              }
+            }
 		},
 		"then" : {
 			"properties" : {

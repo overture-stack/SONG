@@ -17,23 +17,12 @@
 
 package bio.overture.song.server.controller;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static java.util.Objects.isNull;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.nio.file.Paths;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -46,6 +35,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.nio.file.Paths;
+
+import static java.util.Objects.isNull;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
+import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(secure = false)
@@ -125,21 +126,35 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
   }
 
   @Test
-  public void matchedNormalFieldInclusionValidation_TumourAndUndefined_SchemaViolation() {
+  public void matchedNormalFieldInclusionValidation_TumourAndMissing_SchemaViolation() {
     runMatchedNormalTest(
-        "variantcall-tumour-invalid.json",
+        "variantcall-tumour-missing-invalid.json",
         "#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
   }
 
   @Test
-  public void matchedNormalFieldInclusionValidation_NormalAndDefined_SchemaViolation() {
+  public void matchedNormalFieldInclusionValidation_TumourAnduNull_SchemaViolation() {
     runMatchedNormalTest(
-        "variantcall-normal-invalid.json",
+        "variantcall-tumour-null-invalid.json",
+        "#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_NormalAndMissing_SchemaViolation() {
+    runMatchedNormalTest(
+        "variantcall-normal-missing-invalid.json",
+        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_NormalAndNonNull_SchemaViolation() {
+    runMatchedNormalTest(
+        "variantcall-normal-nonnull-invalid.json",
         "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0/matchedNormalSubmitterSampleId: subject must not be valid against schema {}");
   }
 
   @Test
-  public void matchedNormalFieldInclusionValidation_NormalAndUndefined_Success() {
+  public void matchedNormalFieldInclusionValidation_NormalAndNull_Success() {
     runMatchedNormalTest("variantcall-normal-valid.json");
   }
 

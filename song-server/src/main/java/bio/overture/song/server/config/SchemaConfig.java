@@ -1,15 +1,6 @@
 package bio.overture.song.server.config;
 
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
-import static bio.overture.song.server.utils.Resources.getResourceContent;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.function.Supplier;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -23,6 +14,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.function.Supplier;
+
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
+import static bio.overture.song.server.utils.Resources.getResourceContent;
+
 @Getter
 @Setter
 @Validated
@@ -34,6 +35,7 @@ public class SchemaConfig {
   public static final Path SCHEMA_PATH = Paths.get("schemas");
   public static final Path SCHEMA_ANALYSIS_PATH = SCHEMA_PATH.resolve("analysis");
   private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
+  private static final Schema ANALYSIS_TYPE_ID_SCHEMA = buildAnalysisTypeIdSchema();
 
   @NotNull private Boolean enforceLatest;
 
@@ -58,9 +60,29 @@ public class SchemaConfig {
     return () -> ANALYSIS_TYPE_META_SCHEMA;
   }
 
+  @Bean
+  @SneakyThrows
+  public Supplier<Schema> analysisTypeIdSchemaSupplier() {
+    return () -> ANALYSIS_TYPE_ID_SCHEMA;
+  }
+
   private static JsonNode getSchemaAsJson(String schemaFilename) throws IOException {
     val schemaRelativePath = SCHEMA_ANALYSIS_PATH.resolve(schemaFilename);
     return readTree(getResourceContent(schemaRelativePath.toString()));
+  }
+
+  @SneakyThrows
+  private static Schema buildAnalysisTypeIdSchema(){
+    val filename = "analysisTypeId.json";
+    val jsonSchema = convertToJSONObject(getSchemaAsJson(filename));
+    return SchemaLoader.builder()
+        .schemaClient(SchemaClient.classPathAwareClient())
+        .draftV7Support()
+        .schemaJson(jsonSchema)
+        .build()
+        .load()
+        .build();
+
   }
 
   @SneakyThrows
