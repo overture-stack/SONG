@@ -16,12 +16,7 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
+import static bio.overture.song.core.exceptions.ServerErrors.*;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
@@ -33,8 +28,12 @@ import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static java.util.Objects.isNull;
 
 import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.Sample;
+import bio.overture.song.core.model.Specimen;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.repository.BusinessKeyRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import javax.transaction.Transactional;
@@ -52,15 +51,24 @@ public class SubmitService {
   private final ValidationService validator;
   private final AnalysisService analysisService;
   private final StudyService studyService;
+  private final SampleService sampleService;
+  private final SpecimenService specimenService;
+  private final DonorService donorService;
 
   @Autowired
   public SubmitService(
       @NonNull ValidationService validator,
       @NonNull AnalysisService analysisService,
-      @NonNull StudyService studyService) {
+      @NonNull StudyService studyService,
+      @NonNull SampleService sampleService,
+      @NonNull SpecimenService specimenService,
+      @NonNull DonorService donorService) {
     this.validator = validator;
     this.analysisService = analysisService;
     this.studyService = studyService;
+    this.sampleService = sampleService;
+    this.specimenService = specimenService;
+    this.donorService = donorService;
   }
 
   @Transactional
@@ -79,6 +87,9 @@ public class SubmitService {
 
     // Check that the Payload's studyId matches the request studyId
     checkStudyInPayload(studyId, payload);
+
+    // Check that the Payload's submitterId relationships don't contradict previously submitted data
+    checkSubmitterIdConsistency(studyId, payload);
 
     // Create the analysis
     val analysisId = analysisService.create(studyId, payload);
@@ -99,6 +110,46 @@ public class SubmitService {
           "Unable to read the input payload: " + payloadString.replaceAll("%", "%%"));
     }
   }
+
+  private void checkSubmitterIdConsistency(String studyId, Payload payload) {
+    for(val sample: payload.getSamples()) {
+      checkSampleIdConsistency(studyId, sample);
+    }
+  }
+
+  private void checkSampleIdConsistency(String studyId, CompositeEntity payloadSample) {
+    val submitterSampleId = payloadSample.getSubmitterSampleId();
+    val submitterSpecimenId = payloadSample.getSpecimen().getSubmitterSpecimenId();
+    val submitterDonorId = payloadSample.getDonor().getSubmitterDonorId();
+
+    // verify that if we already have a a sample with this id, that the submitterSpecimenId matches what we have.
+    val sampleId = sampleService.findByBusinessKey(studyId,  submitterSampleId);
+    // if the sample doesn't already exist, nothing to check.
+    if (sampleId != null) {
+      val sample = sampleService.securedRead(studyId, sampleId);
+      val specimen = specimenService.securedRead(studyId, sample.getSpecimenId());
+
+      checkServer(specimen.getSubmitterSpecimenId().equals(submitterSpecimenId), getClass(),
+        SAMPLE_TO_SPECIMEN_ID_MISMATCH,
+        "Existing sample (sampleId='%s') has specimenId='%s', but this submission says it has "
+          + "specimenId='%s' instead. Please re-submit with the correct specimenId.",
+        submitterSampleId, specimen.getSubmitterSpecimenId(), submitterSpecimenId);
+    }
+
+    val specimenId = specimenService.findByBusinessKey(studyId, submitterSpecimenId);
+
+    if (specimenId != null) {
+      val specimen = specimenService.securedRead(studyId, specimenId);
+      val donor = donorService.securedRead(studyId, specimen.getDonorId());
+
+      checkServer(donor.getSubmitterDonorId().equals(submitterDonorId), getClass(),
+        SPECIMEN_TO_DONOR_ID_MISMATCH,
+        "Existing specimen (specimenId='%s') has donorId='%s', "
+          + "but this submission says it has donorId='%s' instead. Pleaser re-submit with the correct donorId.",
+        submitterSpecimenId, donor.getSubmitterDonorId(), submitterDonorId);
+    }
+  }
+
 
   private void checkAnalysisTypeVersion(@NonNull AnalysisTypeId analysisTypeId) {
     val errors = validator.validateAnalysisTypeVersion(analysisTypeId);

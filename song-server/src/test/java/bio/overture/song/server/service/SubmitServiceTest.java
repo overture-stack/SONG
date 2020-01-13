@@ -31,8 +31,7 @@ import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspat
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.google.common.collect.Lists.newArrayList;
+
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -41,9 +40,7 @@ import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.Responses;
-import bio.overture.song.core.utils.Strings;
 import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -150,9 +147,11 @@ public class SubmitServiceTest {
     val studyId=randomStudy();
     val payload=randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val result = idMismatchTests(studyId, analysisId, true, true, true);
-    assertFalse(result.startsWith("ERR:"));
-    assertEquals(analysisId, result);
+    val payload2 = getModifiedPayload(payload, true, true, true);
+
+    val result = submitAnalysis(studyId, payload2);
+    assertFalse("No error results expected", result.startsWith("ERR:"));
+    assertEquals("Existing analysisId expected", analysisId, result);
   }
 
   @Test
@@ -163,8 +162,10 @@ public class SubmitServiceTest {
     val studyId=randomStudy();
     val payload=randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val result = idMismatchTests(studyId, analysisId, true, true, false);
-    assertTrue(result.startsWith("ERR: Donor Id Mismatch"));
+    val payload2 = getModifiedPayload(payload, true, true, false);
+    val result = submitAnalysis(studyId, payload2);
+    assertTrue("Donor Id mismatch expected",
+      result.startsWith("ERR: [SubmitService::specimen.to.donor.id.mismatch]"));
   }
 
   @Test
@@ -175,8 +176,10 @@ public class SubmitServiceTest {
     val studyId=randomStudy();
     val payload=randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val result = idMismatchTests(studyId, analysisId, true, false, true);
-    assertTrue(result.startsWith("ERR: Specimen Id Mismatch"));
+    val payload2 = getModifiedPayload(payload, true, false, true);
+    val result = submitAnalysis(studyId, payload2);
+    assertTrue("Specimen Id mismatch expected",
+      result.startsWith("ERR: [SubmitService::sample.to.specimen.id.mismatch]"));
   }
 
   @Test
@@ -187,8 +190,10 @@ public class SubmitServiceTest {
     val studyId=randomStudy();
     val payload=randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val result = idMismatchTests(studyId, analysisId, true, false, false);
-    assertTrue(result.startsWith("ERR: Specimen Id and Donor Id Mismatch"));
+    val payload2 = getModifiedPayload(payload, true, false, false);
+    val result = submitAnalysis(studyId, payload2);
+    assertTrue("Specimen Id mismatch expected",
+      result.startsWith("ERR: [SubmitService::sample.to.specimen.id.mismatch]"));
   }
 
   @Test
@@ -199,9 +204,10 @@ public class SubmitServiceTest {
     val studyId=randomStudy();
     val payload=randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val result = idMismatchTests(studyId, analysisId, false, true, true);
-    assertFalse(result.startsWith("ERR"));
-    assertNotEquals(analysisId, result);
+    val payload2 = getModifiedPayload(payload, false, true, true);
+    val result = submitAnalysis(studyId, payload);
+    assertFalse("No error results expected", result.startsWith("ERR"));
+    assertNotEquals("New analysisId expected", analysisId, result);
   }
 
   @Test
@@ -212,8 +218,23 @@ public class SubmitServiceTest {
     val studyId=randomStudy();
     val payload=randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val result = idMismatchTests(studyId, analysisId, false, true, false);
-    assertTrue(result.startsWith("ERR: Donor Id Mismatch"));
+    assertFalse("Initial submit analysis should not have errors", analysisId.startsWith("ERR:"));
+    val payload2 = getModifiedPayload(payload, false, true, false);
+
+    val sample1 = payload.getSamples().get(0);
+    val sample2 = payload2.getSamples().get(0);
+
+    assertNotEquals("Payloads should have different submitter sample ids",
+     sample1.getSubmitterSampleId(),sample2.getSubmitterSampleId());
+    assertEquals("Payloads should have same specimenIds", sample1.getSpecimen().getSubmitterSpecimenId(),
+      sample2.getSpecimen().getSubmitterSpecimenId());
+    assertNotEquals("Payloads should have different donors", sample1.getDonor().getSubmitterDonorId(),
+      sample2.getDonor().getSubmitterDonorId());
+
+    val result = submitAnalysis(studyId, payload2);
+    assertTrue("Donor Id mismatch expected",
+      result.startsWith("ERR: [SubmitService::specimen.to.donor.id.mismatch]"));
+
   }
 
   @Test
@@ -224,9 +245,11 @@ public class SubmitServiceTest {
     val studyId=randomStudy();
     val payload=randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val result = idMismatchTests(studyId, analysisId, false, false, true);
-    assertFalse(result.startsWith("ERR"));
-    assertNotEquals(analysisId, result);
+    val payload2 = getModifiedPayload(payload, false, false, true);
+    val result = submitAnalysis(studyId, payload2);
+    assertFalse("No error results expected", result.startsWith("ERR"));
+    assertNotEquals("New AnalysisId expected", analysisId, result);
+
   }
 
   @Test
@@ -237,9 +260,10 @@ public class SubmitServiceTest {
     val studyId=randomStudy();
     val payload=randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val result = idMismatchTests(studyId, analysisId, false, false, false);
-    assertFalse(result.startsWith("ERR"));
-    assertNotEquals(analysisId, result);
+    val payload2 = getModifiedPayload(payload, false, false, false);
+    val result = submitAnalysis(studyId, payload2);
+    assertFalse("No error results expected", result.startsWith("ERR"));
+    assertNotEquals("New analysisId expected", analysisId, result);
   }
 
   private String randomStudy() {
@@ -251,23 +275,18 @@ public class SubmitServiceTest {
     return payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
   }
 
-  private String submitAnalysis(String studyId, Payload payload1) {
-    payload1.setStudyId(studyId);
-    return submitService.submit(studyId, toJson(payload1)).getAnalysisId();
-  }
-  private String idMismatchTests(String studyId, String analysisId, boolean sameSample, boolean sameSpecimen,
+  private Payload getModifiedPayload(Payload payload, boolean sameSample, boolean sameSpecimen,
     boolean sameDonor) {
-    val exportedPayloads = exportService.exportPayload(newArrayList(analysisId));
-    val exportedPayload = exportedPayloads.get(0);
-    val jsonPayload = exportedPayload.getPayloads().get(0);
+    val payload2 = fromJson(toJson(payload), Payload.class);
+    val samplePayload = modifySample(payload2, sameSample);
+    val specimenPayload = modifySpecimen(samplePayload, sameSpecimen);
+    val donorPayload = modifyDonor(specimenPayload, sameDonor);
+    return donorPayload;
+  }
 
-    val payload = modifyDonor(
-      modifySpecimen(
-        modifySample(fromJson(jsonPayload, Payload.class), sameSample),
-        sameSpecimen),
-      sameDonor);
-
+  private String submitAnalysis(String studyId, Payload payload) {
     String actual;
+    payload.setStudyId(studyId);
     try {
       actual = submitService.submit(studyId, toJson(payload)).getAnalysisId();
     } catch(Throwable throwable) {
@@ -294,7 +313,7 @@ public class SubmitServiceTest {
   private Payload modifyDonor(Payload payload, Boolean sameDonor) {
     if (!sameDonor) {
       payload.getSamples().forEach(
-        sample -> sample.getSpecimen().setDonorId(randomGenerator.generateRandomUUIDAsString()));
+        sample -> sample.getDonor().setSubmitterDonorId(randomGenerator.generateRandomUUIDAsString()));
     }
     return payload;
   }
