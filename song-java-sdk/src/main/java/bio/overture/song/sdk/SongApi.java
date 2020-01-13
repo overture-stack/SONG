@@ -16,6 +16,8 @@
  */
 package bio.overture.song.sdk;
 
+import static bio.overture.song.core.utils.Booleans.convertToBoolean;
+
 import bio.overture.song.core.exceptions.BooleanConversionException;
 import bio.overture.song.core.model.Analysis;
 import bio.overture.song.core.model.AnalysisType;
@@ -28,15 +30,12 @@ import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.sdk.model.ListAnalysisTypesRequest;
 import bio.overture.song.sdk.web.Endpoint;
 import bio.overture.song.sdk.web.RestClient;
+import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.web.client.ResourceAccessException;
-
-import java.util.List;
-
-import static bio.overture.song.core.utils.Booleans.convertToBoolean;
 
 @RequiredArgsConstructor
 public class SongApi {
