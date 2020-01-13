@@ -143,7 +143,7 @@ public class SubmitServiceTest {
   @Transactional
   public void testSaveIdMismatchAllSame() {
     // existing sample (same sample id, specimen id, donor id)
-    // should give us the same analysisId
+    // should give us a new analysis for our existing data
     val studyId=randomStudy();
     val payload=randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
@@ -151,7 +151,7 @@ public class SubmitServiceTest {
 
     val result = submitAnalysis(studyId, payload2);
     assertFalse("No error results expected", result.startsWith("ERR:"));
-    assertEquals("Existing analysisId expected", analysisId, result);
+    assertNotEquals("New analysisId expected", analysisId, result);
   }
 
   @Test
