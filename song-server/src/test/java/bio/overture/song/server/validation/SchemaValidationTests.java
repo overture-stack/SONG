@@ -16,34 +16,17 @@
  */
 package bio.overture.song.server.validation;
 
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static java.lang.Thread.currentThread;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
-import java.io.InputStream;
-import java.util.Optional;
-import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.util.Sets;
 import org.everit.json.schema.ValidationException;
-import org.icgc.dcc.common.core.util.Joiners;
-import org.icgc.dcc.common.core.util.stream.Streams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,17 +34,31 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.Streams.stream;
+import static java.lang.Thread.currentThread;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.Separators.COMMA;
+import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
+
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public class SchemaValidationTests {
 
-  private static final String ANALYSIS_ID = "analysisId";
-  private static final String PROPERTIES = "properties";
   private static final String TYPE = "type";
-  private static final String STRING = "string";
-  private static final String PATTERN = "pattern";
 
   @Autowired private AnalysisTypeService analysisTypeService;
 
@@ -80,7 +77,7 @@ public class SchemaValidationTests {
   public void validate_file_md5_regex() {
     for (val legacyAnalysisTypeName : LegacyAnalysisTypeName.values()) {
       val schema = getLegacySchemaJson(legacyAnalysisTypeName);
-      val ref = getPath(schema, "properties", "file", "items", "$ref");
+      val ref = getPath(schema, "properties", "files", "items", "$ref");
       assertTrue(ref.isPresent());
       assertEquals(ref.get().textValue(), "#/definitions/file/fileData");
 
@@ -93,37 +90,37 @@ public class SchemaValidationTests {
   @Test
   public void validate_submit_sequencing_read_happy_path() throws Exception {
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-valid.json");
-    assertEquals(errors.size(), 0);
+    assertEquals(0, errors.size());
   }
 
   @Test
   public void validate_submit_sequencing_read_missing_required() throws Exception {
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-missing-required.json");
-    assertEquals(errors.size(), 4);
+    assertEquals(4, errors.size());
   }
 
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-invalid-enum.json");
-    assertEquals(errors.size(), 6);
+    assertEquals(7, errors.size());
   }
 
   @Test
   public void validate_submit_variant_call_happy_path() throws Exception {
     val errors = validate(VARIANT_CALL, "documents/variantcall-valid.json");
-    assertEquals(errors.size(), 0);
+    assertEquals(0, errors.size());
   }
 
   @Test
   public void validate_submit_variant_call_missing_required() throws Exception {
     val errors = validate(VARIANT_CALL, "documents/variantcall-missing-required.json");
-    assertEquals(errors.size(), 4);
+    assertEquals(4, errors.size());
   }
 
   @Test
   public void validate_submit_variant_call_invalid_enum() throws Exception {
     val errors = validate(VARIANT_CALL, "documents/variantcall-invalid-enum.json");
-    assertEquals(errors.size(), 6);
+    assertEquals(6, errors.size());
   }
 
   @Test
@@ -152,7 +149,7 @@ public class SchemaValidationTests {
         log.info("Testing Filename validation: '{}'", filename);
         val isGood = entry.getValue();
         val payload = payloadGenerator.generateRandomPayload(fixtureFilename);
-        payload.getFile().get(0).setFileName(filename);
+        payload.getFiles().get(0).setFileName(filename);
         val payloadNode = readTree(toJson(payload));
         val errors = validate(legacyAnalysisTypeName, payloadNode);
 
@@ -179,7 +176,7 @@ public class SchemaValidationTests {
     try {
       schema.validate(convertToJSONObject(payloadJson));
     } catch (ValidationException e) {
-      log.error(String.format("Error: %s ", Joiners.COMMA.join(e.getAllMessages())));
+      log.error(String.format("Error: %s ", COMMA.join(e.getAllMessages())));
       errors.addAll(e.getAllMessages());
     }
     return errors;
@@ -203,7 +200,7 @@ public class SchemaValidationTests {
 
   private static Set<String> getTypes(JsonNode node) {
     assertTrue(node.has(TYPE));
-    return Streams.stream(node.path(TYPE).iterator())
+    return stream(node.path(TYPE).iterator())
         .filter(x -> !x.isArray())
         .map(JsonNode::textValue)
         .collect(toImmutableSet());

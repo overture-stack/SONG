@@ -19,9 +19,9 @@ package bio.overture.song.server.service;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
 
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.repository.StudyRepository;

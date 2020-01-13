@@ -20,10 +20,10 @@ package bio.overture.song.server.service;
 import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.groupingBy;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 
 import bio.overture.song.core.model.ExportedPayload;
 import bio.overture.song.core.model.enums.AnalysisStates;
@@ -87,9 +87,9 @@ public class ExportService {
     val payload =
         Payload.builder()
             .analysisType(resolveAnalysisTypeId(a.getAnalysisSchema()))
-            .study(a.getStudy())
-            .sample(payloadConverter.convertToSamplePayloads(a.getSample()))
-            .file(payloadConverter.convertToFilePayloads(a.getFile()))
+            .studyId(a.getStudyId())
+            .samples(payloadConverter.convertToSamplePayloads(a.getSamples()))
+            .files(payloadConverter.convertToFilePayloads(a.getFiles()))
             .build();
     payload.addData(a.getAnalysisData().getData());
     return payload;
@@ -98,7 +98,7 @@ public class ExportService {
   private Map<String, List<Payload>> aggregateByStudy(List<String> analysisIds) {
     return analysisService.unsecuredDeepReads(analysisIds).stream()
         .map(this::convertToPayloadDTO)
-        .collect(groupingBy(Payload::getStudy));
+        .collect(groupingBy(Payload::getStudyId));
   }
 
   private static ExportedPayload buildExportedPayload(String studyId, List<Payload> payloads) {

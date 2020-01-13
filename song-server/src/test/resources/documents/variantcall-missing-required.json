@@ -1,22 +1,23 @@
 {
-  "study" : "ABC123",
-  "analysisType" : {
-    "name" : "variantCall",
-    "version" : 1
+  "studyId": "ABC123",
+  "analysisType": {
+    "name": "variantCall",
+    "version": 1
   },
-  "experiment": {
-  },
-  "sample": [
+  "experiment": {},
+  "samples": [
     {
       "sampleType": "Total RNA",
-      "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
-        "specimenClass": "Normal",
-        "specimenType": "Normal - solid tissue"
+      "matchedNormalSubmitterSampleId": null,
+	  "specimen": {
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
+        "tumourNormalDesignation": "Normal",
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Normal"
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-00",
-        "donorGender": "female"
+        "submitterDonorId": "internal_donor_123456789-00",
+        "gender": "Female"
       }
     }
   ]

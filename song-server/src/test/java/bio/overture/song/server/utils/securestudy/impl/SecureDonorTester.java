@@ -22,9 +22,9 @@ import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIS
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
-import bio.overture.song.server.model.enums.Constants;
 import bio.overture.song.server.service.DonorService;
 import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.utils.TestConstants;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
 import com.google.common.collect.Lists;
@@ -54,10 +54,9 @@ public class SecureDonorTester extends AbstractSecureTester {
     getStudyService().checkStudyExist(existingStudyId);
     val donor =
         Donor.builder()
-            .donorGender(
-                getRandomGenerator().randomElement(Lists.newArrayList(Constants.DONOR_GENDER)))
+            .gender(getRandomGenerator().randomElement(Lists.newArrayList(TestConstants.GENDER)))
             .studyId(existingStudyId)
-            .donorSubmitterId(getRandomGenerator().generateRandomUUIDAsString())
+            .submitterDonorId(getRandomGenerator().generateRandomUUIDAsString())
             .build();
 
     val donorCreateRequest = new DonorWithSpecimens();

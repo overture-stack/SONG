@@ -16,8 +16,9 @@
  */
 package bio.overture.song.sdk;
 
-import static java.lang.Boolean.parseBoolean;
+import static bio.overture.song.core.utils.Booleans.convertToBoolean;
 
+import bio.overture.song.core.exceptions.BooleanConversionException;
 import bio.overture.song.core.model.Analysis;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.ExportedPayload;
@@ -82,17 +83,12 @@ public class SongApi {
   public boolean isAlive() {
     val url = endpoint.isAlive();
     try {
-      return parseBoolean(restClient.get(url, String.class).getBody());
-    } catch (ResourceAccessException e) {
+      return convertToBoolean(restClient.get(url, String.class).getBody());
+    } catch (BooleanConversionException | ResourceAccessException e) {
       return false;
     }
   }
 
-  /**
-   * TODO: [DCC-5641] the ResponseEntity from AnalysisController is not returned, since
-   * RestTemplate.put is a void method. need to find RestTemplate implementation that returns a
-   * response
-   */
   public String publish(
       @NonNull String studyId, @NonNull String analysisId, boolean ignoreUndefinedMd5) {
     val url = endpoint.publish(studyId, analysisId, ignoreUndefinedMd5);

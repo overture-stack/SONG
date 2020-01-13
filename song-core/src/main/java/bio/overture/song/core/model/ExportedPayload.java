@@ -17,21 +17,22 @@
 
 package bio.overture.song.core.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.Data;
+import lombok.val;
 
-@Value
+@Data
 @JsonPropertyOrder({"studyId", "payloads"})
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExportedPayload {
-  @NonNull private String studyId;
-  @NonNull private List<JsonNode> payloads;
+  private String studyId;
+  private List<JsonNode> payloads;
 
   public static ExportedPayload createExportedPayload(String studyId, List<JsonNode> payloads) {
-    return new ExportedPayload(studyId, payloads);
+    val p = new ExportedPayload();
+    p.setStudyId(studyId);
+    p.setPayloads(payloads);
+    return p;
   }
 }

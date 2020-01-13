@@ -39,17 +39,17 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Responses.ok;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static org.icgc.dcc.common.core.util.Joiners.COMMA;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableMap;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.enums.AnalysisStates;
@@ -138,17 +138,17 @@ public class AnalysisService {
     analysisDataRepository.save(analysisData);
 
     val a = new Analysis();
-    a.setFile(payload.getFile());
-    a.setSample(payload.getSample());
+    a.setFiles(payload.getFiles());
+    a.setSamples(payload.getSamples());
     a.setAnalysisId(analysisId);
     a.setAnalysisState(UNPUBLISHED.name());
-    a.setStudy(studyId);
+    a.setStudyId(studyId);
 
     analysisData.setAnalysis(a);
     analysisSchema.associateAnalysis(a);
 
-    saveCompositeEntities(studyId, analysisId, a.getSample());
-    saveFiles(analysisId, studyId, a.getFile());
+    saveCompositeEntities(studyId, analysisId, a.getSamples());
+    saveFiles(analysisId, studyId, a.getFiles());
 
     sendAnalysisMessage(createAnalysisMessage(analysisId, studyId, UNPUBLISHED, songServerId));
     return analysisId;
@@ -207,8 +207,8 @@ public class AnalysisService {
     analyses.forEach(
         a -> {
           val id = a.getAnalysisId();
-          a.setFile(unsecuredReadFiles(id));
-          a.setSample(readSamples(id));
+          a.setFiles(unsecuredReadFiles(id));
+          a.setSamples(readSamples(id));
         });
     return analyses;
   }
@@ -241,7 +241,7 @@ public class AnalysisService {
   }
 
   public void checkAnalysisAndStudyRelated(@NonNull String studyId, @NonNull String id) {
-    val numAnalyses = repository.countAllByStudyAndAnalysisId(studyId, id);
+    val numAnalyses = repository.countAllByStudyIdAndAnalysisId(studyId, id);
     if (numAnalyses < 1) {
       studyService.checkStudyExist(studyId);
       val analysis = shallowRead(id);
@@ -251,7 +251,7 @@ public class AnalysisService {
           "The analysisId '%s' is not related to the input studyId '%s'. It is actually related to studyId '%s'",
           id,
           studyId,
-          analysis.getStudy());
+          analysis.getStudyId());
     }
   }
 
@@ -260,8 +260,8 @@ public class AnalysisService {
     analyses.forEach(
         a -> {
           val id = a.getAnalysisId();
-          a.setFile(unsecuredReadFiles(id));
-          a.setSample(readSamples(id));
+          a.setFiles(unsecuredReadFiles(id));
+          a.setSamples(readSamples(id));
         });
     return analyses;
   }
@@ -272,8 +272,8 @@ public class AnalysisService {
    */
   public Analysis unsecuredDeepRead(@NonNull String id) {
     val analysis = shallowRead(id);
-    analysis.setFile(unsecuredReadFiles(id));
-    analysis.setSample(readSamples(id));
+    analysis.setFiles(unsecuredReadFiles(id));
+    analysis.setSamples(readSamples(id));
     return analysis;
   }
 
@@ -318,7 +318,7 @@ public class AnalysisService {
     val a = unsecuredDeepRead(id);
     val analysisSchema = a.getAnalysisSchema();
     checkAnalysisTypeVersion(analysisSchema);
-    val files = a.getFile();
+    val files = a.getFiles();
     checkMissingFiles(id, files);
     val file2storageObjectMap = getStorageObjectsForFiles(files);
     checkMismatchingFileSizes(id, file2storageObjectMap);
@@ -442,7 +442,7 @@ public class AnalysisService {
     analysis.setAnalysisState(state);
     repository.save(analysis);
     sendAnalysisMessage(
-        createAnalysisMessage(id, analysis.getStudy(), analysisState, songServerId));
+        createAnalysisMessage(id, analysis.getStudyId(), analysisState, songServerId));
   }
 
   private boolean confirmUploaded(String fileId) {

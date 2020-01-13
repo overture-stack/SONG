@@ -16,12 +16,12 @@
  */
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.core.utils.Separators.WHITESPACE;
 import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.padEnd;
 import static com.google.common.base.Strings.repeat;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
-import static org.icgc.dcc.common.core.util.Joiners.WHITESPACE;
 
 import bio.overture.song.core.utils.VersionUtils;
 import bio.overture.song.server.config.ValidationConfig;

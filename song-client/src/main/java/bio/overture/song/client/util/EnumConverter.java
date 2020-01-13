@@ -1,6 +1,6 @@
 package bio.overture.song.client.util;
 
-import static bio.overture.song.core.utils.Joiners.COMMA;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static java.lang.String.format;
 
 import com.beust.jcommander.IStringConverter;

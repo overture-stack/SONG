@@ -1,49 +1,54 @@
 {
-  "analysisType" : {
-    "name" : "variantCall",
-    "version" : 1
+  "analysisType": {
+    "name": "variantCall",
+    "version": 1
   },
   "experiment": {
     "variantCallingTool": "silver bullet3",
-    "matchedNormalSampleSubmitterId": "sample x24-11a3"
+    "matchedNormalSampleSubmitterId": "sample-x24-11a3"
   },
-  "sample": [
+  "samples": [
     {
-      "sampleSubmitterId": "internal_sample_98024759826833",
+      "submitterSampleId": "internal_sample_98024759826833",
       "sampleType": "Total RNA",
-      "size" : 53,
-      "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk3",
-        "specimenClass": "Tumour",
-        "specimenType": "Primary tumour - other",
-        "ratio" : "1:3"
+      "size": 53,
+      "matchedNormalSubmitterSampleId": null,
+	  "specimen": {
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk3",
+        "ratio": "1:3",
+        "tumourNormalDesignation": "Tumour",
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Primary tumour"
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-03",
-        "donorGender": "male",
-        "age" : 343
-      }
+        "submitterDonorId": "internal_donor_123456789-03",
+        "gender": "Male",
+        "age": 343
+      },
+      "matchedNormalSubmitterSampleId": "sample-x24-11a3"
     }
   ],
-  "file": [
+  "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711-3.somatic.snv_mnv.vcf.gz",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 3769533,
       "fileMd5sum": "61a91c4bf04ac2bd3795254104f75a03",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "VCF",
-      "colour" : "red3"
+      "colour": "red3"
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711-3.somatic.snv_mnv.vcf.gz.idx",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 48403,
       "fileMd5sum": "51a91c4bf04bb54d3795254104f75a03",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "IDX",
-      "colour" : "green3"
+      "colour": "green3"
     }
   ],
-  "institution" : "inst123-3",
+  "institution": "inst123-3",
   "info": {
     "description": "This is extra info in a JSON format-3"
   }

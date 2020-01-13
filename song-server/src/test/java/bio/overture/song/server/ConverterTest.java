@@ -19,7 +19,7 @@ package bio.overture.song.server;
 
 import static bio.overture.song.core.model.FileUpdateRequest.createFileUpdateRequest;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
+import static bio.overture.song.server.utils.JsonNodeBuilders.object;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;

@@ -16,7 +16,7 @@
  */
 package bio.overture.song.sdk.web;
 
-import static bio.overture.song.core.utils.Joiners.COMMA;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static java.lang.String.format;
 
 import bio.overture.song.core.web.RequestParamBuilder;
@@ -37,7 +37,7 @@ public class Endpoint {
   }
 
   public String submit(@NonNull String studyId) {
-    return format("%s/upload/%s", serverUrl, studyId);
+    return format("%s/submit/%s", serverUrl, studyId);
   }
 
   public String getAnalysisFiles(@NonNull String studyId, @NonNull String analysisId) {

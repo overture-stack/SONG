@@ -16,10 +16,12 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.utils.JsonUtils.fromSingleQuoted;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
@@ -112,6 +114,7 @@ public class SerializationTest {
         FileEntity.builder()
             .fileAccess("controlled")
             .fileType("VCF")
+            .dataType("SOME_DATA_TYPE")
             .fileName(
                 "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz")
             .fileSize(132394L)
@@ -125,24 +128,25 @@ public class SerializationTest {
             .fileName(
                 "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx")
             .fileSize(2394L)
+            .dataType("SOME_DATA_TYPE")
             .fileAccess("controlled")
             .fileMd5sum("65ef4aac7bffcb9f3595a69e48ff2f79")
             .build();
 
     val sp =
         Specimen.builder()
-            .specimenSubmitterId("internal_specimen_123456789_01")
-            .specimenClass("Normal")
-            .specimenType("Normal - solid tissue")
+            .submitterSpecimenId("internal_specimen_123456789_01")
+            .specimenTissueSource("Solid tissue")
+            .tumourNormalDesignation("Normal")
+            .specimenType("Normal")
             .build();
 
-    val d =
-        Donor.builder().donorGender("male").donorSubmitterId("internal_donor_123456789_01").build();
+    val d = Donor.builder().gender("Male").submitterDonorId("internal_donor_123456789_01").build();
     d.setInfo("ageCategory", "18-25");
     d.setInfo("riskCategory", "3b");
 
     val sa = new CompositeEntity();
-    sa.setSampleSubmitterId("internal_sample_123456789_01");
+    sa.setSubmitterSampleId("internal_sample_123456789_01");
     sa.setSampleType("Total RNA");
     sa.setInfo("tissueCollectionMethod", "IV");
     sa.setSpecimen(sp);
@@ -151,9 +155,9 @@ public class SerializationTest {
     val expectedPayload =
         Payload.builder()
             .analysisType(AnalysisTypeId.builder().name("sequencingRead").version(1).build())
-            .file(newArrayList(f1, f2))
-            .sample(newArrayList(sa))
-            .study(inputJson.path("study").textValue())
+            .files(newArrayList(f1, f2))
+            .samples(newArrayList(sa))
+            .studyId(inputJson.path(STUDY_ID).textValue())
             .build();
     val data = RESOURCE_FETCHER.readJsonNode("sequencingRead-expected-data-only.json");
     expectedPayload.addData(data);
@@ -179,20 +183,20 @@ public class SerializationTest {
     val donorId = "DO1234";
     val submitter = "1234";
     val study = "X2345-QRP";
-    val gender = "female";
+    val gender = "Female";
 
     val single =
         format(
-            "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
+            "{'donorId':'%s','submitterDonorId':'%s','studyId':'%s','gender':'%s',"
                 + "'roses':'red','violets':'blue'}",
             donorId, submitter, study, gender);
-    val metadata = JsonUtils.fromSingleQuoted("{'roses':'red','violets':'blue'}");
-    val json = JsonUtils.fromSingleQuoted(single);
+    val metadata = fromSingleQuoted("{'roses':'red','violets':'blue'}");
+    val json = fromSingleQuoted(single);
     val donor = JsonUtils.fromJson(json, DonorWithSpecimens.class);
     assertEquals(donor.getDonorId(), donorId);
-    assertEquals(donor.getDonorSubmitterId(), submitter);
+    assertEquals(donor.getSubmitterDonorId(), submitter);
     assertEquals(donor.getStudyId(), study);
-    assertEquals(donor.getDonorGender(), gender);
+    assertEquals(donor.getGender(), gender);
     assertEquals(donor.getSpecimens(), Collections.emptyList());
     assertEquals(donor.getInfoAsString(), metadata);
   }
@@ -200,24 +204,21 @@ public class SerializationTest {
   @Test
   public void testDonorToJson() {
     val donor = new Donor();
-    val json = toJson(donor);
+    val actual = objectToTree(donor);
 
-    val expected =
-        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null," + "'info':{}}";
-    val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertEquals(json, expectedJson);
+    val expected = "{'donorId':null,'submitterDonorId':null,'studyId':null,'gender':null}";
+    val expectedJson = fromSingleQuoted(expected);
+    assertJsonEquals(expectedJson, actual, when(IGNORING_ARRAY_ORDER));
   }
 
   @Test
   public void testDonorSettings() {
     val donor = new Donor();
     donor.setDonorId(null);
-    val json = toJson(donor);
-    System.err.printf("json='%s'\n", json);
-    val expected =
-        "{'donorId':null,'donorSubmitterId':null,'studyId':null,'donorGender':null," + "'info':{}}";
-    val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertEquals(json, expectedJson);
+    val actual = objectToTree(donor);
+    val expected = "{'donorId':null,'submitterDonorId':null,'studyId':null,'gender':null}";
+    val expectedJson = fromSingleQuoted(expected);
+    assertJsonEquals(expectedJson, actual, when(IGNORING_ARRAY_ORDER));
   }
 
   @Test
@@ -225,38 +226,37 @@ public class SerializationTest {
     val id = "DO000123";
     val submitterId = "123";
     val studyId = "X23-CA";
-    val gender = "male";
+    val gender = "Male";
     val metadata = "";
 
     val donor =
         Donor.builder()
             .donorId(id)
-            .donorSubmitterId(submitterId)
+            .submitterDonorId(submitterId)
             .studyId(studyId)
-            .donorGender(gender)
+            .gender(gender)
             .build();
     donor.setInfo(metadata);
 
-    val json = toJson(donor);
+    val actual = objectToTree(donor);
 
     val expected =
         format(
-            "{'donorId':'%s','donorSubmitterId':'%s','studyId':'%s','donorGender':'%s',"
-                + "'info':{%s}}",
+            "{'donorId':'%s','submitterDonorId':'%s','studyId':'%s','gender':'%s'}",
             id, submitterId, studyId, gender, metadata);
-    val expectedJson = JsonUtils.fromSingleQuoted(expected);
-    assertEquals(json, expectedJson);
+    val expectedJson = fromSingleQuoted(expected);
+    assertJsonEquals(expectedJson, actual, when(IGNORING_ARRAY_ORDER));
   }
 
   @Test
   public void testListFile() throws IOException {
     val singleQuotedJson =
-        "{'file':[ { 'objectId': 'FI12345', 'fileName':'dna3.bam', 'fileMd5':'A1B2C3D4E5F6'},"
+        "{'files':[ { 'objectId': 'FI12345', 'fileName':'dna3.bam', 'fileMd5':'A1B2C3D4E5F6'},"
             + "{'objectId': 'FI34567', 'fileName': 'dna7.fasta', 'fileType':'BAM', 'fileSize':1234, 'fileMd5': 'F1E2D3'}]}";
 
-    val json = JsonUtils.fromSingleQuoted(singleQuotedJson);
+    val json = fromSingleQuoted(singleQuotedJson);
     val root = readTree(json);
-    val files = root.get("file");
+    val files = root.get("files");
     String fileJson = toJson(files);
 
     List<FileEntity> f = Arrays.asList(JsonUtils.fromJson(fileJson, FileEntity[].class));
@@ -278,9 +278,10 @@ public class SerializationTest {
     System.out.printf("*** Payload object='%s'\n", payload);
     assertEquals(payload.getAnalysisType().getName(), "sequencingRead");
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
-    assertEquals(payload.getFile().size(), 2);
+    assertEquals(payload.getFiles().size(), 2);
     assertEquals(
-        payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
+        payload.getSamples().get(0).getDonor().getSubmitterDonorId(),
+        "internal_donor_123456789-00");
 
     val rootNode = JsonUtils.toJsonNode(payload.getData());
     val experimentNode = rootNode.path("experiment");
@@ -296,8 +297,9 @@ public class SerializationTest {
     System.out.printf("*** Analysis object='%s'\n", payload);
     assertEquals(payload.getAnalysisType().getName(), "variantCall");
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);
-    assertEquals(payload.getFile().size(), 2);
+    assertEquals(payload.getFiles().size(), 2);
     assertEquals(
-        payload.getSample().get(0).getDonor().getDonorSubmitterId(), "internal_donor_123456789-00");
+        payload.getSamples().get(0).getDonor().getSubmitterDonorId(),
+        "internal_donor_123456789-00");
   }
 }

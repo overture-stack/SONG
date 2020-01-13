@@ -31,10 +31,9 @@ import static bio.overture.song.server.utils.TestFiles.getJsonStringFromClasspat
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -49,7 +48,6 @@ import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.Map;
 import javax.transaction.Transactional;
 import lombok.Builder;
 import lombok.NonNull;
@@ -72,21 +70,12 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles({"test", "async-test"})
 @Transactional
-public class UploadServiceTest {
+public class SubmitServiceTest {
 
-  private static final String ID_SERVICE = "idService";
   private static final String DEFAULT_STUDY = "ABC123";
   private static int ANALYSIS_ID_COUNT = 0;
-  private static final String SEQ_READ = "SequencingRead";
-  private static final String VAR_CALL = "VariantCall";
-  private static final Map<String, String> DEFAULT_TEST_FILE_MAP = newHashMap();
 
-  static {
-    DEFAULT_TEST_FILE_MAP.put(SEQ_READ, "sequencingRead.json");
-    DEFAULT_TEST_FILE_MAP.put(VAR_CALL, "variantCall.json");
-  }
-
-  @Autowired UploadService uploadService;
+  @Autowired SubmitService submitService;
 
   @Autowired AnalysisService analysisService;
 
@@ -100,13 +89,13 @@ public class UploadServiceTest {
   @Autowired AnalysisTypeService analysisTypeService;
 
   private final RandomGenerator randomGenerator =
-      createRandomGenerator(UploadServiceTest.class.getSimpleName());
+      createRandomGenerator(SubmitServiceTest.class.getSimpleName());
 
   @Test
   public void testNullSyncSequencingRead() {
     val filename1 = "documents/deserialization/sequencingread-deserialize1.json";
     val jsonPayload = getJsonStringFromClasspath(filename1);
-    val submitResponse = uploadService.submit(DEFAULT_STUDY, jsonPayload);
+    val submitResponse = submitService.submit(DEFAULT_STUDY, jsonPayload);
     assertEquals(Responses.OK, submitResponse.getStatus());
     val analysisId1 = submitResponse.getAnalysisId();
     val a1 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId1);
@@ -121,7 +110,7 @@ public class UploadServiceTest {
 
     val filename2 = "documents/deserialization/sequencingread-deserialize2.json";
     val jsonPayload2 = getJsonStringFromClasspath(filename2);
-    val submitResponse2 = uploadService.submit(DEFAULT_STUDY, jsonPayload2);
+    val submitResponse2 = submitService.submit(DEFAULT_STUDY, jsonPayload2);
     assertEquals(Responses.OK, submitResponse2.getStatus());
     val analysisId2 = submitResponse2.getAnalysisId();
     val a2 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId2);
@@ -139,7 +128,7 @@ public class UploadServiceTest {
   public void submit_CorruptedPayload_PayloadParsingError() {
     val payload = createPayloadWithDifferentAnalysisId();
     val corruptedPayload = payload.getJsonPayload().replace('{', '}');
-    assertSongError(() -> uploadService.submit(DEFAULT_STUDY, corruptedPayload), PAYLOAD_PARSING);
+    assertSongError(() -> submitService.submit(DEFAULT_STUDY, corruptedPayload), PAYLOAD_PARSING);
   }
 
   @Test
@@ -149,7 +138,7 @@ public class UploadServiceTest {
     val invalidPayload = (ObjectNode) new ObjectMapper().readTree(p.getJsonPayload());
     invalidPayload.put(ANALYSIS_ID, p.getAnalysisId());
     assertSongError(
-        () -> uploadService.submit(DEFAULT_STUDY, invalidPayload.toString()), SCHEMA_VIOLATION);
+        () -> submitService.submit(DEFAULT_STUDY, invalidPayload.toString()), SCHEMA_VIOLATION);
   }
 
   @Test
@@ -164,10 +153,10 @@ public class UploadServiceTest {
 
     // Create payload1 and save it
     val payload1 = payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
-    payload1.setStudy(studyId);
+    payload1.setStudyId(studyId);
     val previousSampleSubmitterIds =
-        payload1.getSample().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
-    val an1 = uploadService.submit(studyId, toJson(payload1)).getAnalysisId();
+        payload1.getSamples().stream().map(Sample::getSubmitterSampleId).collect(toImmutableSet());
+    val an1 = submitService.submit(studyId, toJson(payload1)).getAnalysisId();
 
     // Export the previously uploaded payload using the analysis id
     val exportedPayloads = exportService.exportPayload(newArrayList(an1));
@@ -182,36 +171,36 @@ public class UploadServiceTest {
 
     // Modify the exported payload with a different sampleSubmmiterId
     payload2
-        .getSample()
-        .forEach(x -> x.setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString()));
-    payload2.getSample().get(0).setSampleSubmitterId(randomGenerator.generateRandomUUIDAsString());
+        .getSamples()
+        .forEach(x -> x.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString()));
+    payload2.getSamples().get(0).setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString());
 
     // Assert that none of the sampleSubmmiterIds between payload1 and payload2 match
     val currentSampleSubmitterIds =
-        payload2.getSample().stream().map(Sample::getSampleSubmitterId).collect(toImmutableSet());
+        payload2.getSamples().stream().map(Sample::getSubmitterSampleId).collect(toImmutableSet());
     val hasMatch =
         previousSampleSubmitterIds.stream().anyMatch(currentSampleSubmitterIds::contains);
     assertFalse(hasMatch);
 
     // Save payload 2
-    val an2 = uploadService.submit(studyId, toJson(payload2)).getAnalysisId();
+    val an2 = submitService.submit(studyId, toJson(payload2)).getAnalysisId();
 
     // Validate both analysis have the same specimen and donor submitterIds, and studies, but
     // different analysisIds and sample submitterIds
     val a1 = analysisService.unsecuredDeepRead(an1);
     val a2 = analysisService.unsecuredDeepRead(an2);
-    assertEquals(a1.getStudy(), studyId);
-    assertEquals(a2.getStudy(), studyId);
+    assertEquals(a1.getStudyId(), studyId);
+    assertEquals(a2.getStudyId(), studyId);
     assertNotEquals(a1.getAnalysisId(), a2.getAnalysisId());
-    assertEquals(a1.getSample().size(), 1);
-    assertEquals(a2.getSample().size(), 1);
+    assertEquals(a1.getSamples().size(), 1);
+    assertEquals(a2.getSamples().size(), 1);
     assertEquals(
-        a1.getSample().get(0).getDonor().getDonorId(),
-        a2.getSample().get(0).getDonor().getDonorId());
+        a1.getSamples().get(0).getDonor().getDonorId(),
+        a2.getSamples().get(0).getDonor().getDonorId());
     assertEquals(
-        a1.getSample().get(0).getSpecimen().getSpecimenId(),
-        a2.getSample().get(0).getSpecimen().getSpecimenId());
-    assertNotEquals(a1.getSample().get(0).getSampleId(), a2.getSample().get(0).getSampleId());
+        a1.getSamples().get(0).getSpecimen().getSpecimenId(),
+        a2.getSamples().get(0).getSpecimen().getSpecimenId());
+    assertNotEquals(a1.getSamples().get(0).getSampleId(), a2.getSamples().get(0).getSampleId());
   }
 
   private String createUniqueAnalysisId() {

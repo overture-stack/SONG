@@ -39,7 +39,7 @@ import lombok.val;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-@JsonInclude(JsonInclude.Include.NON_ABSENT)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Metadata {
 
   private final Map<String, Object> info = new TreeMap<>();
@@ -59,6 +59,7 @@ public class Metadata {
   }
 
   @JsonGetter
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   public JsonNode getInfo() {
     return JsonUtils.toJsonNode(info);
   }

@@ -23,5 +23,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface AnalysisRepository
     extends JpaRepository<Analysis, String>, JpaSpecificationExecutor<Analysis> {
 
-  long countAllByStudyAndAnalysisId(String studyId, String analysisId);
+  long countAllByStudyIdAndAnalysisId(String studyId, String analysisId);
 }

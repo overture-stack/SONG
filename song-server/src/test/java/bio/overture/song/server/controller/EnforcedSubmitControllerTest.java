@@ -23,7 +23,7 @@ import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.nio.file.Paths;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
@@ -38,11 +38,13 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.file.Paths;
 
+import static java.util.Objects.isNull;
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 
@@ -50,7 +52,7 @@ import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 @AutoConfigureMockMvc(secure = false)
 @ActiveProfiles({"test"})
 @SpringBootTest(properties = "schemas.enforceLatest=true")
-public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
+public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
 
   /** Dependencies */
   @Autowired private WebApplicationContext webApplicationContext;
@@ -86,13 +88,13 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   public void testInvalidSpecimen() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("sample").get(0).get("specimen");
+    val s = (ObjectNode) j.get("samples").get(0).get("specimen");
     s.put("specimenType", "invalid");
 
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s2 = (ObjectNode) j2.get("sample").get(0).get("specimen");
+    val s2 = (ObjectNode) j2.get("samples").get(0).get("specimen");
     s2.put("specimenClass", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
   }
@@ -102,50 +104,89 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   public void testInvalidAnalysisType() {
 
     // Test invalid analysisType format
-    val j1 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-analysisType1.json");
+    val j1 =
+        (ObjectNode)
+            DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-analysisType1.json");
     getEndpointTester()
         .submitPostRequestAnd(getStudyId(), j1)
         .assertServerError(MALFORMED_PARAMETER);
 
     // Test invalid analysisType format
-    val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-analysisType2.json");
+    val j2 =
+        (ObjectNode)
+            DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-analysisType2.json");
     getEndpointTester()
         .submitPostRequestAnd(getStudyId(), j2)
         .assertServerError(MALFORMED_PARAMETER);
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_TumourAndDefined_Success() {
+    runMatchedNormalTest("variantcall-tumour-valid.json");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_TumourAndMissing_SchemaViolation() {
+    runMatchedNormalTest(
+        "variantcall-tumour-missing-invalid.json",
+        "#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_TumourAndNull_SchemaViolation() {
+    runMatchedNormalTest(
+        "variantcall-tumour-null-invalid.json",
+        "#/samples/0/matchedNormalSubmitterSampleId: expected type: String, found:");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_NormalAndMissing_SchemaViolation() {
+    runMatchedNormalTest(
+        "variantcall-normal-missing-invalid.json",
+        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_NormalAndNonNull_SchemaViolation() {
+    runMatchedNormalTest(
+        "variantcall-normal-nonnull-invalid.json",
+        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0/matchedNormalSubmitterSampleId:");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_NormalAndNull_Success() {
+    runMatchedNormalTest("variantcall-normal-valid.json");
   }
 
   @Test
   @SneakyThrows
   public void testInvalidSample() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("sample").get(0);
+    val s = (ObjectNode) j.get("samples").get(0);
     s.put("sampleType", "invalid");
 
-    getEndpointTester()
-      .submitPostRequestAnd(getStudyId(), j)
-      .assertServerError(SCHEMA_VIOLATION);
+    getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     // Test invalid sample format
-    val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-sample.json");
-    getEndpointTester()
-        .submitPostRequestAnd(getStudyId(), j2)
-        .assertServerError(SCHEMA_VIOLATION);
+    val j2 =
+        (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-sample.json");
+    getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
   }
 
   @Test
   public void testInvalidFile() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("file").get(0);
+    val s = (ObjectNode) j.get("files").get(0);
     s.put("fileType", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s2 = (ObjectNode) j2.get("file").get(0);
+    val s2 = (ObjectNode) j2.get("files").get(0);
     s2.put("fileAccess", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
 
     val j3 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s3 = (ObjectNode) j3.get("file").get(0);
+    val s3 = (ObjectNode) j3.get("files").get(0);
     s3.put("fileMd5sum", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j3).assertServerError(SCHEMA_VIOLATION);
   }
@@ -153,8 +194,8 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
   @Test
   public void testInvalidDonor() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("sample").get(0).get("donor");
-    s.put("donorGender", "invalid");
+    val s = (ObjectNode) j.get("samples").get(0).get("donor");
+    s.put("gender", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
     // 1) Invalid Gender
   }
@@ -266,5 +307,28 @@ public class EnforcedUploadControllerTest extends AbstractEnforcedTester {
     getEndpointTester()
         .updateAnalysisPutRequestAnd(getStudyId(), analysisId, objectToTree(request))
         .assertOk();
+  }
+
+  private void runMatchedNormalTest(String filename) {
+    runMatchedNormalTest(filename, null);
+  }
+
+  private void runMatchedNormalTest(
+      @NonNull String filename, String expectedSchemaViolationMessage) {
+    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/" + filename);
+    j.put("studyId", getStudyId());
+    if (!isNull(expectedSchemaViolationMessage)) {
+      val songError =
+          parseErrorResponse(
+              getEndpointTester()
+                  .submitPostRequestAnd(getStudyId(), j)
+                  .assertServerError(SCHEMA_VIOLATION)
+                  .assertHasBody()
+                  .getResponse());
+      val message = songError.getMessage();
+      assertTrue(message.contains(expectedSchemaViolationMessage));
+    } else {
+      getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertOk();
+    }
   }
 }

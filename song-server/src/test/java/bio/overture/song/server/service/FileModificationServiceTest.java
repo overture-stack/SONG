@@ -28,13 +28,16 @@ import static bio.overture.song.core.model.enums.FileUpdateTypes.METADATA_UPDATE
 import static bio.overture.song.core.model.enums.FileUpdateTypes.NO_UPDATE;
 import static bio.overture.song.core.model.enums.FileUpdateTypes.resolveFileUpdateType;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.server.utils.JsonNodeBuilders.object;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_FILE_ID;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_STUDY_ID;
 import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.createSecureFileTester;
 import static com.google.common.collect.Lists.newArrayList;
-import static org.icgc.dcc.common.core.json.JsonNodeBuilders.object;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.enums.AccessTypes;
@@ -418,6 +421,7 @@ public class FileModificationServiceTest {
             .objectId("FI1")
             .studyId("ABC123")
             .fileName("myFilename.bam")
+            .dataType("someDataType")
             .fileAccess("open")
             .fileMd5sum(uniqueMd5)
             .fileSize(777777L)

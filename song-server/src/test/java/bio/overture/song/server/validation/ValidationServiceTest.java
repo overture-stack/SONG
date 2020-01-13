@@ -16,23 +16,12 @@
  */
 package bio.overture.song.server.validation;
 
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.Splitters.COMMA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.ValidationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
-import java.util.Map;
 import lombok.val;
-import org.icgc.dcc.common.core.util.Splitters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +30,17 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.Separators.COMMA;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -84,21 +84,39 @@ public class ValidationServiceTest {
   }
 
   @Test
-  public void testValidateVariantCallMissingAnalysisType() {
+  public void testValidateVariantCallNullAnalysisType() {
     val payload = getJsonFile("variantCall.json");
     ((ObjectNode) payload).put("analysisType", (String) null);
     val results = service.validate(payload);
     assertTrue(results.isPresent());
-    assertTrue(results.get().contains("Missing the 'analysisType' field"));
+    assertTrue(results.get().contains("#/analysisType: expected type: JSONObject, found:"));
+  }
+
+  @Test
+  public void testValidateVariantCallMissingAnalysisType() {
+    val payload = getJsonFile("variantCall.json");
+    ((ObjectNode) payload).remove("analysisType");
+    val results = service.validate(payload);
+    assertTrue(results.isPresent());
+    assertTrue(results.get().contains("#: required key [analysisType] not found"));
+  }
+
+  @Test
+  public void testValidateSequencingReadNullAnalysisType() {
+    val payload = getJsonFile("sequencingRead.json");
+    ((ObjectNode) payload).put("analysisType", (String) null);
+    val results = service.validate(payload);
+    assertTrue(results.isPresent());
+    assertTrue(results.get().contains("#/analysisType: expected type: JSONObject, found:"));
   }
 
   @Test
   public void testValidateSequencingReadMissingAnalysisType() {
     val payload = getJsonFile("sequencingRead.json");
-    ((ObjectNode) payload).put("analysisType", (String) null);
+    ((ObjectNode) payload).remove("analysisType");
     val results = service.validate(payload);
     assertTrue(results.isPresent());
-    assertTrue(results.get().contains("Missing the 'analysisType' field"));
+    assertTrue(results.get().contains("#: required key [analysisType] not found"));
   }
 
   @Test
@@ -111,7 +129,7 @@ public class ValidationServiceTest {
       val testFileName = testDataEntry.getValue();
 
       val payload = getJsonFile(testFileName);
-      val fileNodes = newArrayList(payload.path("file"));
+      val fileNodes = newArrayList(payload.path("files"));
       assertTrue(fileNodes.size() > 1);
       val fileNode0 =
           ((ObjectNode) fileNodes.get(0))
@@ -131,7 +149,7 @@ public class ValidationServiceTest {
       for (val error : errors) {
         assertTrue(
             error.matches(
-                "^#/file/[0|1]/fileMd5sum: string \\[[^\\]]+\\] does not match pattern.*"));
+                "^#/files/[0|1]/fileMd5sum: string \\[[^\\]]+\\] does not match pattern.*"));
       }
     }
   }
@@ -153,7 +171,7 @@ public class ValidationServiceTest {
     val testFileName = DEFAULT_TEST_FILE_MAP.get(schemaType);
 
     val payload = getJsonFile(testFileName);
-    val fileNodes = newArrayList(payload.path("file"));
+    val fileNodes = newArrayList(payload.path("files"));
     assertFalse(fileNodes.isEmpty());
     for (val fileNode : fileNodes) {
       ((ObjectNode) fileNode).put("fileMd5sum", md5);
@@ -163,9 +181,10 @@ public class ValidationServiceTest {
 
     if (shouldBeError) {
       assertTrue(results.isPresent());
-      val errors = Splitters.COMMA.splitToList(results.get());
+      val errors = COMMA.splitToList(results.get());
       errors.forEach(
-          e -> assertTrue(e.matches("^#/file/[0|1]/fileMd5sum: string.*does not match pattern.*")));
+          e ->
+              assertTrue(e.matches("^#/files/[0|1]/fileMd5sum: string.*does not match pattern.*")));
     } else {
       assertFalse(
           format("Expecting validation not to have an error: %s", results.orElse(null)),

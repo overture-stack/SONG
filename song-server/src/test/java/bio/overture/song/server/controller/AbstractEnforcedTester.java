@@ -22,7 +22,7 @@ import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 import static java.util.Objects.isNull;
@@ -126,7 +126,7 @@ public abstract class AbstractEnforcedTester {
 
   protected JsonNode buildTestEnforcePayload(@Nullable Boolean isLatestVersion) {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    j.put(STUDY, studyId);
+    j.put(STUDY_ID, studyId);
     val analysisTypeNode = (ObjectNode) j.path(ANALYSIS_TYPE);
     analysisTypeNode.put(NAME, latestAnalysisType.getName());
     if (isNull(isLatestVersion)) {

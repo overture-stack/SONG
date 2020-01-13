@@ -18,7 +18,7 @@
 package bio.overture.song.server.model.enums;
 
 import static java.lang.String.format;
-import static org.icgc.dcc.common.core.util.stream.Streams.stream;
+import static java.util.Arrays.stream;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

@@ -1,26 +1,27 @@
 {
-  "study" : "ABC123",
+  "studyId" : "ABC123",
   "analysisType" : {
-    "name" : "variantCall",
-    "version" : 1
+    "name" : "variantCall"
   },
   "experiment": {
     "variantCallingTool": "silver bullet",
-    "matchedNormalSampleSubmitterId": "sample x24-11a",
+    "matchedNormalSampleSubmitterId": "sample-x24-11a",
     "randomField14" : "we can define any EXPERIMENT field. For example, randomField14",
     "randomField15" : "as a second example, we can define another random EXPERIMENT field called randomField15",
     "info" : {
         "randomField16" : "alternatively, put some extra EXPERIMENT fields here"
     }
   },
-  "sample": [
+  "samples": [
     {
-      "sampleSubmitterId": "internal_sample_98024759826836",
+      "submitterSampleId": "internal_sample_98024759826836",
       "sampleType": "Total RNA",
+      "matchedNormalSubmitterSampleId": "sample-x24-11a",
       "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk",
-        "specimenClass": "Tumour",
-        "specimenType": "Primary tumour - other",
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
+        "specimenType": "Primary tumour",
+        "specimenTissueSource": "Solid tissue",
+        "tumourNormalDesignation": "Tumour",
         "randomField1" : "we can define any SPECIMEN field. For example, randomField1",
         "randomField2" : "as a second example, we can define another random SPECIMEN field called randomField2",
         "info" : {
@@ -28,8 +29,8 @@
         }
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-00",
-        "donorGender": "female",
+        "submitterDonorId": "internal_donor_123456789-00",
+        "gender": "Female",
         "randomField4" : "we can define any DONOR field. For example, randomField4",
         "randomField5" : "as a second example, we can define another random DONOR field called randomField5",
         "info" : {
@@ -43,8 +44,9 @@
       }
     }
   ],
-  "file": [
+  "files": [
     {
+	  "dataType": "Variant Calling Data",
       "fileName": "example.vcf.gz",
       "fileSize": 52,
       "fileMd5sum": "9a793e90d0d1e11301ea8da996446e59",
@@ -57,6 +59,7 @@
       }
     },
     {
+	  "dataType": "Variant Calling Index",
       "fileName": "example.vcf.gz.idx",
       "fileSize": 25,
       "fileMd5sum": "c03274816eb4907a92b8e5632cd6eb81",

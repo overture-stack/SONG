@@ -22,8 +22,8 @@ import lombok.ToString;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class Payload extends DynamicData {
 
-  private String study;
+  private String studyId;
   private AnalysisTypeId analysisType;
-  private List<CompositeEntity> sample;
-  private List<FileEntity> file;
+  private List<CompositeEntity> samples;
+  private List<FileEntity> files;
 }

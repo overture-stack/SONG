@@ -33,10 +33,10 @@ import static bio.overture.song.server.utils.generator.AnalysisGenerator.createA
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.resolveLegacyAnalysisTypeName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableList;
-import static org.icgc.dcc.common.core.util.stream.Collectors.toImmutableSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -111,11 +111,12 @@ public class PublishAnalysisTest {
         analysisGenerator.createDefaultRandomAnalysis(
             randomGenerator.randomEnum(LegacyAnalysisTypeName.class));
     this.testAnalysisId = testAnalysis.getAnalysisId();
-    this.testStudyId = testAnalysis.getStudy();
+    this.testStudyId = testAnalysis.getStudyId();
 
     // Delete any previous files
     fileService.securedDelete(
-        newStudyId, testAnalysis.getFile().stream().map(FileEntity::getObjectId).collect(toList()));
+        newStudyId,
+        testAnalysis.getFiles().stream().map(FileEntity::getObjectId).collect(toList()));
 
     this.testFiles = generateFiles(MAX_FILES, testAnalysis);
     assertEquals(testFiles.size(), MAX_FILES);
@@ -346,8 +347,9 @@ public class PublishAnalysisTest {
     }
     val file =
         FileEntity.builder()
-            .studyId(a.getStudy())
+            .studyId(a.getStudyId())
             .analysisId(a.getAnalysisId())
+            .dataType(randomGenerator.generateRandomAsciiString(10))
             .fileType(fileType)
             .fileAccess(randomGenerator.randomEnum(AccessTypes.class).toString())
             .fileMd5sum(randomGenerator.generateRandomMD5())
@@ -355,7 +357,7 @@ public class PublishAnalysisTest {
             .fileSize((long) randomGenerator.generateRandomIntRange(1, 100000))
             .objectId(randomGenerator.generateRandomUUIDAsString())
             .build();
-    fileService.create(a.getAnalysisId(), a.getStudy(), file);
+    fileService.create(a.getAnalysisId(), a.getStudyId(), file);
     return file;
   }
 

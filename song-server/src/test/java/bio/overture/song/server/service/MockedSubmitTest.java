@@ -65,7 +65,7 @@ public class MockedSubmitTest {
   @Mock private UploadRepository uploadRepository;
 
   /** DUT */
-  @InjectMocks private UploadService uploadService;
+  @InjectMocks private SubmitService submitService;
 
   @Test
   public void submit_MissingAnalysisType_MalformedParameter() {
@@ -73,7 +73,7 @@ public class MockedSubmitTest {
     doNothing().when(studyService).checkStudyExist(anyString());
 
     // Verify
-    assertSongError(() -> uploadService.submit("anyStudy", "{}"), MALFORMED_PARAMETER);
+    assertSongError(() -> submitService.submit("anyStudy", "{}"), MALFORMED_PARAMETER);
   }
 
   @Test
@@ -86,12 +86,12 @@ public class MockedSubmitTest {
     val payload =
         JsonUtils.toJson(
             Payload.builder()
-                .study("anyStudy")
+                .studyId("anyStudy")
                 .analysisType(AnalysisTypeId.builder().build())
                 .build());
 
     // Verify
-    assertSongError(() -> uploadService.submit("anyStudy", payload), MALFORMED_PARAMETER);
+    assertSongError(() -> submitService.submit("anyStudy", payload), MALFORMED_PARAMETER);
   }
 
   @Test
@@ -103,7 +103,7 @@ public class MockedSubmitTest {
 
     // Verify
     assertSongError(
-        () -> uploadService.submit("anyStudy", "anyAnalysisId"), STUDY_ID_DOES_NOT_EXIST);
+        () -> submitService.submit("anyStudy", "anyAnalysisId"), STUDY_ID_DOES_NOT_EXIST);
     verify(validationService, never()).validate(isA(JsonNode.class));
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
@@ -114,7 +114,7 @@ public class MockedSubmitTest {
     doNothing().when(studyService).checkStudyExist(anyString());
 
     // Verify
-    assertSongError(() -> uploadService.submit("anyStudy", "non json format"), PAYLOAD_PARSING);
+    assertSongError(() -> submitService.submit("anyStudy", "non json format"), PAYLOAD_PARSING);
     verify(validationService, never()).validate(isA(JsonNode.class));
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
@@ -131,13 +131,13 @@ public class MockedSubmitTest {
     val invalidPayload =
         toJson(
             Payload.builder()
-                .study(studyId)
+                .studyId(studyId)
                 .analysisType(
                     AnalysisTypeId.builder().name(VARIANT_CALL.getAnalysisTypeName()).build())
                 .build());
 
     // Verify
-    assertSongError(() -> uploadService.submit(studyId, invalidPayload), SCHEMA_VIOLATION);
+    assertSongError(() -> submitService.submit(studyId, invalidPayload), SCHEMA_VIOLATION);
     verify(validationService, times(1)).validate(isA(JsonNode.class));
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
@@ -152,14 +152,14 @@ public class MockedSubmitTest {
     val payloadString =
         toJson(
             Payload.builder()
-                .study(study1)
+                .studyId(study1)
                 .analysisType(
                     AnalysisTypeId.builder().name(VARIANT_CALL.getAnalysisTypeName()).build())
                 .build());
 
     // Verify
     assertNotEquals(study1, study2);
-    assertSongError(() -> uploadService.submit(study2, payloadString), STUDY_ID_MISMATCH);
+    assertSongError(() -> submitService.submit(study2, payloadString), STUDY_ID_MISMATCH);
     verify(validationService, times(1)).validate(isA(JsonNode.class));
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
@@ -171,7 +171,7 @@ public class MockedSubmitTest {
     val analysisId = "analysis123";
     val payload =
         Payload.builder()
-            .study(study)
+            .studyId(study)
             .analysisType(AnalysisTypeId.builder().name(VARIANT_CALL.getAnalysisTypeName()).build())
             .build();
 
@@ -183,7 +183,7 @@ public class MockedSubmitTest {
     val expectedSubmitResponse = SubmitResponse.builder().analysisId(analysisId).status(OK).build();
 
     // Verify
-    val actualSubmitResponse = uploadService.submit(study, payloadString);
+    val actualSubmitResponse = submitService.submit(study, payloadString);
     assertEquals(expectedSubmitResponse, actualSubmitResponse);
     verify(validationService, times(1)).validate(isA(JsonNode.class));
     verify(analysisService, times(1)).create(anyString(), isA(Payload.class));

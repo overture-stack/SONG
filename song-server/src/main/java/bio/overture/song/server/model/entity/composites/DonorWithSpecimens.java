@@ -35,10 +35,10 @@ public class DonorWithSpecimens extends Donor {
   @JsonIgnore
   public void setDonor(Donor d) {
     this.setDonorId(d.getDonorId());
-    this.setDonorSubmitterId(d.getDonorSubmitterId());
+    this.setSubmitterDonorId(d.getSubmitterDonorId());
     this.setStudyId(d.getStudyId());
-    this.setDonorGender(d.getDonorGender());
-    this.setDonorSubmitterId(d.getDonorSubmitterId());
+    this.setGender(d.getGender());
+    this.setSubmitterDonorId(d.getSubmitterDonorId());
     this.addInfo(d.getInfoAsString());
   }
 
@@ -47,8 +47,8 @@ public class DonorWithSpecimens extends Donor {
     val donor =
         Donor.builder()
             .donorId(getDonorId())
-            .donorSubmitterId(getDonorSubmitterId())
-            .donorGender(getDonorGender())
+            .submitterDonorId(getSubmitterDonorId())
+            .gender(getGender())
             .studyId(getStudyId())
             .build();
     donor.setInfo(getInfoAsString());

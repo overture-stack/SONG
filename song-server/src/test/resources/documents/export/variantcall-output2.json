@@ -1,60 +1,64 @@
 {
-  "analysisType" : {
-    "name" : "variantCall",
-    "version" : 1
+  "analysisType": {
+    "name": "variantCall",
+    "version": 1
   },
   "experiment": {
     "variantCallingTool": "silver bullet2",
-    "matchedNormalSampleSubmitterId": "sample x24-11a2"
+    "matchedNormalSampleSubmitterId": "sample-x24-11a2"
   },
-  "sample": [
+  "samples": [
     {
-      "sampleSubmitterId": "internal_sample_98024759826832",
+      "submitterSampleId": "internal_sample_98024759826832",
       "sampleType": "Total RNA",
-      "info" : {
-        "size" : 52
+      "info": {
+        "size": 52
       },
-      "specimen": {
-        "specimenSubmitterId": "internal_specimen_9b73gk8s02dk2",
-        "specimenClass": "Tumour",
-        "specimenType": "Primary tumour - other",
+      "matchedNormalSubmitterSampleId": null,
+	  "specimen": {
+        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk2",
         "info": {
           "ratio": "1:2"
-        }
+        },
+        "tumourNormalDesignation": "Tumour",
+        "specimenTissueSource": "Solid tissue",
+        "specimenType": "Primary tumour"
       },
       "donor": {
-        "donorSubmitterId": "internal_donor_123456789-02",
-        "donorGender": "female",
+        "submitterDonorId": "internal_donor_123456789-02",
+        "gender": "Female",
         "info": {
-          "age" : 342
+          "age": 342
         }
-      }
+      },
+      "matchedNormalSubmitterSampleId": "sample-x24-11a2"
     }
   ],
-  "file": [
+  "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711-2.somatic.snv_mnv.vcf.gz",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 3769532,
       "fileMd5sum": "61a91c4bf04ac2bd3795254104f75a02",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "VCF",
-      "info" : {
-        "colour" : "red2"
-
+      "info": {
+        "colour": "red2"
       }
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711-2.somatic.snv_mnv.vcf.gz.idx",
+      "dataType": "SOME_DATA_TYPE",
       "fileSize": 48402,
       "fileMd5sum": "51a91c4bf04bb54d3795254104f75a02",
-      "fileAccess" : "open",
+      "fileAccess": "open",
       "fileType": "IDX",
-      "info" : {
-        "colour" : "green2"
+      "info": {
+        "colour": "green2"
       }
     }
   ],
-  "institution" : "inst123-2",
+  "institution": "inst123-2",
   "info": {
     "description": "This is extra info in a JSON format-2"
   }

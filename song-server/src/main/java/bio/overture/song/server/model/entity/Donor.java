@@ -48,7 +48,7 @@ import lombok.ToString;
   ModelAttributeNames.DONOR_ID,
   ModelAttributeNames.DONOR_SUBMITTER_ID,
   ModelAttributeNames.STUDY_ID,
-  ModelAttributeNames.DONOR_GENDER,
+  ModelAttributeNames.GENDER,
   ModelAttributeNames.SPECIMENS,
   ModelAttributeNames.INFO
 })
@@ -63,14 +63,14 @@ public class Donor extends Metadata {
   private String studyId;
 
   @Column(name = TableAttributeNames.SUBMITTER_ID, nullable = false)
-  private String donorSubmitterId;
+  private String submitterDonorId;
 
-  @Column(name = TableAttributeNames.GENDER, nullable = true)
-  private String donorGender;
+  @Column(name = TableAttributeNames.GENDER, nullable = false)
+  private String gender;
 
   public void setWithDonor(@NonNull Donor donorUpdate) {
-    setDonorSubmitterId(donorUpdate.getDonorSubmitterId());
-    setDonorGender(donorUpdate.getDonorGender());
+    setSubmitterDonorId(donorUpdate.getSubmitterDonorId());
+    setGender(donorUpdate.getGender());
     setDonorId(donorUpdate.getDonorId());
     setInfo(donorUpdate.getInfo());
   }

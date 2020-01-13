@@ -20,7 +20,7 @@ package bio.overture.song.sdk.errors;
 import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
 import static bio.overture.song.core.exceptions.SongError.createSongError;
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static bio.overture.song.core.utils.Joiners.NEWLINE;
+import static bio.overture.song.core.utils.Separators.NEWLINE;
 import static java.util.Objects.isNull;
 
 import bio.overture.song.core.exceptions.ServerException;

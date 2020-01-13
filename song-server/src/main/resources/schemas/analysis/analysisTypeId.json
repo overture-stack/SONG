@@ -1,0 +1,21 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"id": "analysisTypeId",
+	"type": "object",
+	"required": [ "analysisType" ],
+	"properties": {
+		"analysisType": {
+			"type": "object",
+			"required": ["name"],
+			"properties": {
+				"name" : {
+					"type" : "string"
+				},
+				"version": {
+					"type" : ["integer","null"]
+				}
+			}
+		}
+
+	}
+}
