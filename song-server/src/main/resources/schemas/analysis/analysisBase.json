@@ -241,18 +241,18 @@
 				"if" : {
 					"properties" : {
 						"specimen": {
-                          "properties": {
-							"tumourNormalDesignation" : {
-								"const" : "Tumour"
+							"properties": {
+								"tumourNormalDesignation" : {
+									"const" : "Tumour"
+								}
 							}
-						  }
 						}
 					}
 				},
 				"then" : {
 					"properties" : {
-						"matchedNormalSubmitterSampleId": { 
-							"$ref" : "#/definitions/common/submitterId" 
+						"matchedNormalSubmitterSampleId" : {
+							"$ref" : "#/definitions/common/submitterId"
 						}
 					},
 					"required": ["matchedNormalSubmitterSampleId"]
@@ -260,9 +260,10 @@
 				"else" : {
 					"properties" : {
 						"matchedNormalSubmitterSampleId": {
-							"not": {}
+							"const" : null
 						}
-					}
+					},
+					"required": ["matchedNormalSubmitterSampleId"]
 				}
 			}
 		},

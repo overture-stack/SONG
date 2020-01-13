@@ -18,7 +18,8 @@
       "submitterSampleId": "internal_sample_98024759826836",
       "sampleType": "Like, totally RNA",
       "tissueCollectionMethod": "IV",
-      "specimen": {
+      "matchedNormalSubmitterSampleId": null,
+	  "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
         "tumourNormalDesignation": "Normal-ish",
         "specimenTissueSource": "Solid tissue junkkkk",
