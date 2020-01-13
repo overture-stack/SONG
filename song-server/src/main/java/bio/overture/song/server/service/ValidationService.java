@@ -27,6 +27,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
@@ -72,11 +74,11 @@ public class ValidationService {
     this.analysisTypeIdSchema = analysisTypeIdSchemaSupplier.get();
   }
 
-  public void validate(@NonNull JsonNode payload) {
-    val analysisTypeResult = extractAnalysisTypeFromPayload(payload);
-    if (!analysisTypeResult.isPresent()) {
+  public Optional<String> validate(@NonNull JsonNode payload) {
+    String errors = null;
+    try{
       validateWithSchema(analysisTypeIdSchema, payload);
-    } else {
+      val analysisTypeResult = extractAnalysisTypeFromPayload(payload);
       val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
       val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
       log.info(
@@ -86,7 +88,11 @@ public class ValidationService {
 
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);
+    } catch (ValidationException e){
+      errors = COMMA.join(e.getAllMessages());
+      log.error(errors);
     }
+    return Optional.ofNullable(errors);
   }
 
   public void update(@NonNull String uploadId, String errorMessages) {

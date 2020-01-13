@@ -34,7 +34,7 @@ public class SchemaConfig {
 
   public static final Path SCHEMA_PATH = Paths.get("schemas");
   public static final Path SCHEMA_ANALYSIS_PATH = SCHEMA_PATH.resolve("analysis");
-  private static final Schema ANALYSIS_TYPE_META_SCHEMA = buildAnalysisTypeMetaSchema();
+  private static final Schema ANALYSIS_TYPE_REGISTRATION_SCHEMA = buildAnalysisTypeRegistrationSchema();
   private static final Schema ANALYSIS_TYPE_ID_SCHEMA = buildAnalysisTypeIdSchema();
 
   @NotNull private Boolean enforceLatest;
@@ -56,8 +56,8 @@ public class SchemaConfig {
   // workaround is to create a bean that is a callback to the schema
   @Bean
   @SneakyThrows
-  public Supplier<Schema> analysisTypeMetaSchemaSupplier() {
-    return () -> ANALYSIS_TYPE_META_SCHEMA;
+  public Supplier<Schema> analysisTypeRegistrationSchemaSupplier() {
+    return () -> ANALYSIS_TYPE_REGISTRATION_SCHEMA;
   }
 
   @Bean
@@ -86,8 +86,8 @@ public class SchemaConfig {
   }
 
   @SneakyThrows
-  private static Schema buildAnalysisTypeMetaSchema() {
-    val filename = "analysisType.metaschema.json";
+  private static Schema buildAnalysisTypeRegistrationSchema() {
+    val filename = "analysisTypeRegistration.json";
     val jsonSchema = convertToJSONObject(getSchemaAsJson(filename));
     return SchemaLoader.builder()
         .schemaClient(SchemaClient.classPathAwareClient())

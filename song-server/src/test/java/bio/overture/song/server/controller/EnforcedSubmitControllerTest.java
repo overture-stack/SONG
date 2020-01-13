@@ -133,10 +133,10 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
   }
 
   @Test
-  public void matchedNormalFieldInclusionValidation_TumourAnduNull_SchemaViolation() {
+  public void matchedNormalFieldInclusionValidation_TumourAndNull_SchemaViolation() {
     runMatchedNormalTest(
         "variantcall-tumour-null-invalid.json",
-        "#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
+        "#/samples/0/matchedNormalSubmitterSampleId: expected type: String, found:");
   }
 
   @Test
@@ -150,7 +150,7 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
   public void matchedNormalFieldInclusionValidation_NormalAndNonNull_SchemaViolation() {
     runMatchedNormalTest(
         "variantcall-normal-nonnull-invalid.json",
-        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0/matchedNormalSubmitterSampleId: subject must not be valid against schema {}");
+        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0/matchedNormalSubmitterSampleId:");
   }
 
   @Test

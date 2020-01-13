@@ -91,8 +91,7 @@
         }
       }
     },
-    "matchedNormalSubmitterSampleId": null,
-	  "specimen": {
+    "specimen": {
       "specimenTissueSource" : {
         "type" : "string",
         "enum" : [
@@ -124,32 +123,32 @@
           "Endometrium"
         ]
       },
-	"specimenType": {
-		"type": "string",
-		"enum": [
-			"Normal",
-			"Normal - tissue adjacent to primary tumour",
-			"Primary tumour",
-			"Primary tumour - adjacent to normal",
-			"Primary tumour - additional new primary",
-			"Recurrent tumour",
-			"Metastatic tumour",
-			"Metastatic tumour - metastasis local to lymph node",
-			"Metastatic tumour - metastasis to distant location",
-			"Metastatic tumour - additional metastatic",
-			"Xenograft - derived from primary tumour",
-			"Xenograft - derived from tumour cell line",
-			"Cell line - derived from xenograft tumour",
-			"Cell line - derived from tumour",
-			"Cell line - derived from normal"
-		]
-	},
-	"tumourNormalDesignation" : {
-		"type": "string",
-		"enum": [
-			"Normal",
-			"Tumour"
-		]
+      "specimenType": {
+        "type": "string",
+        "enum": [
+          "Normal",
+          "Normal - tissue adjacent to primary tumour",
+          "Primary tumour",
+          "Primary tumour - adjacent to normal",
+          "Primary tumour - additional new primary",
+          "Recurrent tumour",
+          "Metastatic tumour",
+          "Metastatic tumour - metastasis local to lymph node",
+          "Metastatic tumour - metastasis to distant location",
+          "Metastatic tumour - additional metastatic",
+          "Xenograft - derived from primary tumour",
+          "Xenograft - derived from tumour cell line",
+          "Cell line - derived from xenograft tumour",
+          "Cell line - derived from tumour",
+          "Cell line - derived from normal"
+        ]
+      },
+      "tumourNormalDesignation" : {
+        "type": "string",
+        "enum": [
+          "Normal",
+          "Tumour"
+        ]
 	},
       "specimenData": {
         "type": "object",
@@ -230,48 +229,46 @@
         "type": "object",
         "allOf" : [ {"$ref" : "#/definitions/sample/sampleData" } ],
         "required": [
-	  "specimen",
+          "specimen",
           "donor"
         ],
         "properties": {
-	  "specimen": { "$ref" : "#/definitions/specimen/specimenData" },
+          "specimen": { "$ref" : "#/definitions/specimen/specimenData" },
           "donor": { "$ref" : "#/definitions/donor/donorData" }
         },
-		"if" : {
-			"properties" : {
-              "specimen": {
-                "properties": {
-                  "tumourNormalDesignation" : {
-                    "const" : "Tumour"
-                  }
+        "if" : {
+          "properties" : {
+            "specimen": {
+              "properties": {
+                "tumourNormalDesignation" : {
+                  "const" : "Tumour"
                 }
               }
             }
-		},
-		"then" : {
-			"properties" : {
-				"matchedNormalSubmitterSampleId" : {
-                  "$ref" : "#/definitions/common/submitterId"
-                }
-			},
-			"required": ["matchedNormalSubmitterSampleId"]
-		},
-		"else" : {
-			"properties" : {
-				"matchedNormalSubmitterSampleId": {
-					"not": {}
-				}
-			}
-		}
+          }
+        },
+        "then" : {
+          "properties" : {
+            "matchedNormalSubmitterSampleId" : {
+              "$ref" : "#/definitions/common/submitterId"
+            }
+          },
+          "required": ["matchedNormalSubmitterSampleId"]
+        },
+        "else" : {
+          "properties" : {
+            "matchedNormalSubmitterSampleId": {
+              "const": null
+            }
+          },
+          "required": ["matchedNormalSubmitterSampleId"]
+        }
       }
     },
     "files": {
       "type": "array",
       "minItems" : 1,
       "items": { "$ref" : "#/definitions/file/fileData" }
-    },
-    "firstName" : {
-      "type" : "string"
     },
     "experiment" : {
       "type" : "object",
@@ -280,6 +277,9 @@
           "type" : "string"
         }
       }
+    },
+    "firstName" : {
+      "type" : "string"
     }
   }
 }
