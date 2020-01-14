@@ -16,29 +16,12 @@
  */
 package bio.overture.song.server.validation;
 
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
-import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.google.common.collect.Streams.stream;
-import static java.lang.Thread.currentThread;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.server.service.AnalysisTypeService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
-import java.io.InputStream;
-import java.util.Optional;
-import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -50,6 +33,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.Streams.stream;
+import static java.lang.Thread.currentThread;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.utils.Separators.COMMA;
+import static bio.overture.song.server.utils.JsonObjects.convertToJSONObject;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
+import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
+import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 
 @Slf4j
 @SpringBootTest
@@ -89,37 +90,37 @@ public class SchemaValidationTests {
   @Test
   public void validate_submit_sequencing_read_happy_path() throws Exception {
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-valid.json");
-    assertEquals(errors.size(), 0);
+    assertEquals(0, errors.size());
   }
 
   @Test
   public void validate_submit_sequencing_read_missing_required() throws Exception {
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-missing-required.json");
-    assertEquals(errors.size(), 4);
+    assertEquals(4, errors.size());
   }
 
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-invalid-enum.json");
-    assertEquals(errors.size(), 7);
+    assertEquals(7, errors.size());
   }
 
   @Test
   public void validate_submit_variant_call_happy_path() throws Exception {
     val errors = validate(VARIANT_CALL, "documents/variantcall-valid.json");
-    assertEquals(errors.size(), 0);
+    assertEquals(0, errors.size());
   }
 
   @Test
   public void validate_submit_variant_call_missing_required() throws Exception {
     val errors = validate(VARIANT_CALL, "documents/variantcall-missing-required.json");
-    assertEquals(errors.size(), 4);
+    assertEquals(4, errors.size());
   }
 
   @Test
   public void validate_submit_variant_call_invalid_enum() throws Exception {
     val errors = validate(VARIANT_CALL, "documents/variantcall-invalid-enum.json");
-    assertEquals(errors.size(), 6);
+    assertEquals(6, errors.size());
   }
 
   @Test

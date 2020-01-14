@@ -21,6 +21,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import java.util.Iterator;
 import java.util.List;
+import lombok.Getter;
+import lombok.NonNull;
 
 /** Joiners and Splitters for commonly used separators. */
 public enum Separators {
@@ -39,10 +41,13 @@ public enum Separators {
   PIPE("|"),
   AMPERSAND("&"),
   PATH(System.lineSeparator());
+
+  @Getter private String separator;
   private Splitter splitter;
   private Joiner joiner;
 
-  Separators(String separator) {
+  Separators(@NonNull String separator) {
+    this.separator = separator;
     splitter = Splitter.on(separator);
     joiner = Joiner.on(separator);
   }

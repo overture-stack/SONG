@@ -14,7 +14,8 @@
       "info": {
         "size": 5
       },
-      "specimen": {
+      "matchedNormalSubmitterSampleId": null,
+	  "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
         "info": {
           "ratio": "1:6"

@@ -16,35 +16,36 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
-import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
-
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.FileData;
-import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
 import bio.overture.song.server.validation.ValidationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
+import static bio.overture.song.core.utils.JsonUtils.mapper;
+import static bio.overture.song.core.utils.Separators.COMMA;
+import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
+import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
+import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
 
 @Slf4j
 @Service
@@ -57,48 +58,37 @@ public class ValidationService {
   private final AnalysisTypeService analysisTypeService;
   private final UploadRepository uploadRepository;
   private final boolean enforceLatest;
+  private final Schema analysisTypeIdSchema;
 
   @Autowired
   public ValidationService(
       @Value("${schemas.enforceLatest}") boolean enforceLatest,
       @NonNull SchemaValidator validator,
       @NonNull AnalysisTypeService analysisTypeService,
+      @NonNull Supplier<Schema> analysisTypeIdSchemaSupplier,
       @NonNull UploadRepository uploadRepository) {
     this.validator = validator;
     this.analysisTypeService = analysisTypeService;
     this.uploadRepository = uploadRepository;
     this.enforceLatest = enforceLatest;
-  }
-
-  @Async
-  public void asyncValidate(@NonNull String uploadId, @NonNull JsonNode payload) {
-    syncValidate(uploadId, payload);
-  }
-
-  public void syncValidate(@NonNull String uploadId, @NonNull JsonNode payload) {
-    log.info("Validating payload for upload Id=" + uploadId + "payload=" + payload);
-    val errors = validate(payload);
-    update(uploadId, errors.orElse(null));
+    this.analysisTypeIdSchema = analysisTypeIdSchemaSupplier.get();
   }
 
   public Optional<String> validate(@NonNull JsonNode payload) {
     String errors = null;
-    try {
+    try{
+      validateWithSchema(analysisTypeIdSchema, payload);
       val analysisTypeResult = extractAnalysisTypeFromPayload(payload);
-      if (!analysisTypeResult.isPresent()) {
-        errors = format("Missing the '%s' field", ANALYSIS_TYPE);
-      } else {
-        val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
-        val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
-        log.info(
-            format(
-                "Found Analysis type: name=%s  version=%s",
-                analysisType.getName(), analysisType.getVersion()));
+      val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
+      val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
+      log.info(
+          format(
+              "Found Analysis type: name=%s  version=%s",
+              analysisType.getName(), analysisType.getVersion()));
 
-        val schema = buildSchema(analysisType.getSchema());
-        validateWithSchema(schema, payload);
-      }
-    } catch (ValidationException e) {
+      val schema = buildSchema(analysisType.getSchema());
+      validateWithSchema(schema, payload);
+    } catch (ValidationException e){
       errors = COMMA.join(e.getAllMessages());
       log.error(errors);
     }
@@ -115,7 +105,7 @@ public class ValidationService {
 
   // TODO: transition to everit json schema library
   public Optional<String> validate(FileData fileData) {
-    val json = JsonUtils.mapper().valueToTree(fileData);
+    val json = mapper().valueToTree(fileData);
     val resp = validator.validate(FILE_DATA_SCHEMA_ID, json);
     return processResponse(resp);
   }

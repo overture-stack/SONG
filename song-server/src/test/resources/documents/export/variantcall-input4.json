@@ -12,7 +12,8 @@
       "submitterSampleId": "internal_sample_98024759826834",
       "sampleType": "Total RNA",
       "size": 54,
-      "specimen": {
+      "matchedNormalSubmitterSampleId": null,
+	  "specimen": {
         "submitterSpecimenId": "internal_specimen_9b73gk8s02dk4",
         "ratio": "1:4",
         "tumourNormalDesignation": "Tumour",

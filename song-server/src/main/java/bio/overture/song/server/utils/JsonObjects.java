@@ -1,16 +1,18 @@
 package bio.overture.song.server.utils;
 
-import static bio.overture.song.server.utils.Resources.getResourceContent;
-
 import bio.overture.song.core.utils.JsonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import java.nio.file.Path;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import static bio.overture.song.server.utils.Resources.getResourceContent;
 
 public class JsonObjects {
 
@@ -26,5 +28,10 @@ public class JsonObjects {
       throws IOException, JSONException {
     val content = getResourceContent(filePath.toString());
     return convertToJSONObject(content);
+  }
+
+  @SneakyThrows
+  public static JsonNode convertToJsonNode(@NonNull JSONObject j){
+    return JsonUtils.readTree(j.toString());
   }
 }

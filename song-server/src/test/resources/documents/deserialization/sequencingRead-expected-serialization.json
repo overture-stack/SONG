@@ -13,7 +13,8 @@
       "specimenId": null,
       "submitterSampleId": "internal_sample_123456789_01",
       "sampleType": "Total RNA",
-      "specimen": {
+      "matchedNormalSubmitterSampleId": null,
+	  "specimen": {
         "submitterSpecimenId": "internal_specimen_123456789_01",
         "tumourNormalDesignation": "Normal",
         "specimenTissueSource": "Solid tissue",
