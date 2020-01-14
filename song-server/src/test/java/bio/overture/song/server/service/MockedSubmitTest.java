@@ -31,20 +31,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.Donor;
+import bio.overture.song.server.model.entity.Specimen;
+import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.List;
 import java.util.Optional;
 import lombok.val;
 import org.junit.Test;
@@ -63,6 +62,9 @@ public class MockedSubmitTest {
   @Mock private ValidationService validationService;
   @Mock private IdService idService;
   @Mock private UploadRepository uploadRepository;
+  @Mock private SampleService sampleService;
+  @Mock private SpecimenService specimenService;
+  @Mock private DonorService donorService;
 
   /** DUT */
   @InjectMocks private SubmitService submitService;
@@ -169,9 +171,16 @@ public class MockedSubmitTest {
     // Setup
     val study = "study1";
     val analysisId = "analysis123";
+    val sample = new CompositeEntity();
+    sample.setDonor(new Donor());
+    sample.setSpecimen(new Specimen());
+    sample.getSpecimen().setSubmitterSpecimenId("abcd");
+    sample.getDonor().setSubmitterDonorId("DO1234");
+    val samples = List.of(sample);
     val payload =
         Payload.builder()
             .studyId(study)
+            .samples(samples)
             .analysisType(AnalysisTypeId.builder().name(VARIANT_CALL.getAnalysisTypeName()).build())
             .build();
 
