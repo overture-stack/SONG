@@ -18,9 +18,9 @@
 	<parent>
 		<artifactId>song</artifactId>
 		<groupId>bio.overture</groupId>
-		<version>4.0.0-SNAPSHOT</version>
+		<version>4.0.1-SNAPSHOT</version>
 	</parent>
-	<modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.1</modelVersion>
 
 	<artifactId>song-client</artifactId>
 
@@ -35,12 +35,12 @@
 		<dependency>
 			<groupId>bio.overture</groupId>
 			<artifactId>song-java-sdk</artifactId>
-			<version>4.0.0-SNAPSHOT</version>
+			<version>4.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>bio.overture</groupId>
 			<artifactId>song-core</artifactId>
-			<version>4.0.0-SNAPSHOT</version>
+			<version>4.0.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- CLI -->
