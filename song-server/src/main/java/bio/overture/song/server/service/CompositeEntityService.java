@@ -17,6 +17,9 @@
 
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_TO_SPECIMEN_ID_MISMATCH;
+import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_TO_DONOR_ID_MISMATCH;
+import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static java.util.Objects.isNull;
 
 import bio.overture.song.server.model.entity.Sample;
@@ -50,14 +53,32 @@ public class CompositeEntityService {
    * easier.
    */
   public String save(String studyId, CompositeEntity s) {
-    String id = sampleService.findByBusinessKey(studyId, s.getSubmitterSampleId());
+    val submitterSampleId = s.getSubmitterSampleId();
+
+    val submitterSpecimenId = s.getSpecimen().getSubmitterSpecimenId();
+    String id = sampleService.findByBusinessKey(studyId, submitterSampleId);
+
+    s.setSpecimenId(getSampleParent(studyId, s));
+
     if (isNull(id)) {
       val sampleCreateRequest = buildPersistentSample(s);
-      s.setSpecimenId(getSampleParent(studyId, s));
+
       sampleCreateRequest.setSpecimenId(s.getSpecimenId());
       id = sampleService.create(studyId, sampleCreateRequest);
       s.setSampleId(id);
     } else {
+      val sample = sampleService.securedRead(studyId, id);
+      val specimen = specimenService.securedRead(studyId, sample.getSpecimenId());
+
+      checkServer(
+          specimen.getSubmitterSpecimenId().equals(submitterSpecimenId),
+          getClass(),
+          SAMPLE_TO_SPECIMEN_ID_MISMATCH,
+          "Existing sample (sampleId='%s') has specimenId='%s', but this submission says it has "
+              + "specimenId='%s' instead. Please re-submit with the correct specimenId.",
+          submitterSampleId,
+          specimen.getSubmitterSpecimenId(),
+          submitterSpecimenId);
       s.setSampleId(id);
       sampleService.update(s);
     }
@@ -67,11 +88,24 @@ public class CompositeEntityService {
   private String getSampleParent(String studyId, CompositeEntity s) {
     val specimen = s.getSpecimen();
     String id = specimenService.findByBusinessKey(studyId, specimen.getSubmitterSpecimenId());
-    specimen.setDonorId(getSpecimenParent(studyId, s));
+
     if (isNull(id)) {
+      specimen.setDonorId(getSpecimenParent(studyId, s));
       id = specimenService.create(studyId, specimen);
     } else {
+      val existingSpecimen = specimenService.securedRead(studyId, id);
+      val existingDonor = donorService.securedRead(studyId, existingSpecimen.getDonorId());
+      checkServer(
+          s.getDonor().getSubmitterDonorId().equals(existingDonor.getSubmitterDonorId()),
+          getClass(),
+          SPECIMEN_TO_DONOR_ID_MISMATCH,
+          "Existing specimen (specimenId='%s') donorId='%s', but this submission says it has "
+              + "donorId='%s' instead. Please re-submit with the correct donorId.",
+          existingSpecimen.getSubmitterSpecimenId(),
+          existingDonor.getSubmitterDonorId(),
+          s.getDonor().getSubmitterDonorId());
       specimen.setSpecimenId(id);
+      specimen.setDonorId(getSpecimenParent(studyId, s));
       specimenService.update(specimen);
     }
     return id;
