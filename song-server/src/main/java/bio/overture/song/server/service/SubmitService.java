@@ -47,24 +47,15 @@ public class SubmitService {
   private final ValidationService validator;
   private final AnalysisService analysisService;
   private final StudyService studyService;
-  private final SampleService sampleService;
-  private final SpecimenService specimenService;
-  private final DonorService donorService;
 
   @Autowired
   public SubmitService(
-      @NonNull ValidationService validator,
-      @NonNull AnalysisService analysisService,
-      @NonNull StudyService studyService,
-      @NonNull SampleService sampleService,
-      @NonNull SpecimenService specimenService,
-      @NonNull DonorService donorService) {
+    @NonNull ValidationService validator,
+    @NonNull AnalysisService analysisService,
+    @NonNull StudyService studyService) {
     this.validator = validator;
     this.analysisService = analysisService;
     this.studyService = studyService;
-    this.sampleService = sampleService;
-    this.specimenService = specimenService;
-    this.donorService = donorService;
   }
 
   @Transactional
