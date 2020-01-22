@@ -53,6 +53,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
@@ -683,13 +684,30 @@ public class AnalysisServiceTest {
         () -> service.securedReadFiles(analysis1.getStudyId(), analysisId1),
         ANALYSIS_MISSING_FILES);
 
-    val analysis2 = analysisGenerator.createDefaultRandomVariantCallAnalysis();
+    Analysis analysis2 = null;
+    var notValid = true;
+    int retries = 0;
+    while (notValid) {
+      try {
+        analysis2 = analysisGenerator.createDefaultRandomVariantCallAnalysis();
+        notValid = false;
+      } catch (ServerException err) {
+        System.err.println(err);
+        if (retries > 100) {
+          analysis2 = null;
+          notValid = false;
+        }
+      }
+    }
+
     val analysisId2 = analysis2.getAnalysisId();
     fileRepository.deleteAllByAnalysisId(analysisId2);
     assertTrue(fileRepository.findAllByAnalysisId(analysisId2).isEmpty());
     assertSongError(() -> service.unsecuredReadFiles(analysisId2), ANALYSIS_MISSING_FILES);
+
+    val finalAnalysis = analysis2;
     assertSongError(
-        () -> service.securedReadFiles(analysis2.getStudyId(), analysisId2),
+        () -> service.securedReadFiles(finalAnalysis.getStudyId(), analysisId2),
         ANALYSIS_MISSING_FILES);
   }
 

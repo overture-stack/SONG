@@ -16,12 +16,7 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISSING;
+import static bio.overture.song.core.exceptions.ServerErrors.*;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
@@ -55,9 +50,9 @@ public class SubmitService {
 
   @Autowired
   public SubmitService(
-      @NonNull ValidationService validator,
-      @NonNull AnalysisService analysisService,
-      @NonNull StudyService studyService) {
+    @NonNull ValidationService validator,
+    @NonNull AnalysisService analysisService,
+    @NonNull StudyService studyService) {
     this.validator = validator;
     this.analysisService = analysisService;
     this.studyService = studyService;
