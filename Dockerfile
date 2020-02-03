@@ -11,6 +11,12 @@ FROM openjdk:11-jre-stretch as client
 ENV SONG_CLIENT_HOME   /song-client
 ENV CLIENT_DIST_DIR    /song-client-dist
 ENV PATH /usr/local/openjdk-11/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$SONG_CLIENT_HOME/bin
+ENV SONG_USER song
+ENV SONG_UID 9999
+
+RUN useradd -r -u $SONG_UID $SONG_USER  \
+    && mkdir $SONG_CLIENT_HOME \
+    && chown -R $SONG_USER $SONG_CLIENT_HOME
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
 
@@ -34,7 +40,14 @@ FROM openjdk:11-jre as server
 # Paths
 ENV SONG_HOME /song-server
 ENV SONG_LOGS $SONG_HOME/logs
+ENV SONG_USER song
+ENV SONG_UID 9999
 ENV JAR_FILE            /song-server.jar
+
+RUN useradd -r -u $SONG_UID $SONG_USER  \
+    && mkdir $SONG_HOME \
+    && chown -R $SONG_USER $SONG_HOME
+
 
 COPY --from=builder /srv/song-server/target/song-server-*-exec.jar $JAR_FILE
 
