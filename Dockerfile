@@ -11,13 +11,14 @@ FROM openjdk:11-jre-stretch as client
 ENV SONG_CLIENT_HOME   /song-client
 ENV CLIENT_DIST_DIR    /song-client-dist
 ENV PATH /usr/local/openjdk-11/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$SONG_CLIENT_HOME/bin
-ENV APP_USER song
-ENV APP_UID 9999
-ENV APP_GID 9999
+ENV SONG_USER song
+ENV SONG_UID 9999
+ENV SONG_GID 9999
 
-RUN useradd -r -u $APP_UID $APP_USER  \
+RUN groupadd -r -g $SONG_GID $SONG_USER  \
+    && useradd -r -u $SONG_UID -g $SONG_GID $SONG_USER  \
     && mkdir $SONG_CLIENT_HOME \
-    && chown -R $APP_USER:$APP_GROUP $SONG_CLIENT_HOME
+    && chown -R $SONG_UID:$SONG_GID $SONG_CLIENT_HOME
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
 
@@ -41,19 +42,22 @@ FROM openjdk:11-jre as server
 # Paths
 ENV SONG_HOME /song-server
 ENV SONG_LOGS $SONG_HOME/logs
-ENV APP_USER song
-ENV APP_UID 9999
-ENV APP_GID 9999
+ENV SONG_USER song
+ENV SONG_UID 9999
+ENV SONG_GID 9999
 ENV JAR_FILE            /song-server.jar
 
-RUN useradd -r -u $APP_UID $APP_USER  \
+RUN groupadd -r -g $SONG_GID $SONG_USER  \
+    && useradd -r -u $SONG_UID -g $SONG_GID $SONG_USER  \
     && mkdir $SONG_HOME \
-    && chown -R $APP_UID:$APP_GID $SONG_HOME
+    && chown -R $SONG_UID:$SONG_GID $SONG_HOME
 
 
 COPY --from=builder /srv/song-server/target/song-server-*-exec.jar $JAR_FILE
 
 WORKDIR $SONG_HOME
+
+USER $SONG_USER
 
 CMD mkdir -p  $SONG_HOME $SONG_LOGS \
         && java -Dlog.path=$SONG_LOGS \
