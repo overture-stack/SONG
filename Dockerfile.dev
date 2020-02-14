@@ -34,7 +34,9 @@ USER $SONG_USER
 # Set working directory for convenience with interactive usage
 WORKDIR $SONG_CLIENT_HOME
 
-###############################################################################################################
+###############################
+# Song Server
+###############################
 FROM adoptopenjdk/openjdk11:jre-11.0.6_10-alpine as server
 
 # Paths

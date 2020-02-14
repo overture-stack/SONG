@@ -1,3 +1,6 @@
+###############################
+# Maven builder
+###############################
 # -alpine-slim image does not support --release flag
 FROM adoptopenjdk/openjdk11:jdk-11.0.6_10-alpine as builder
 
@@ -6,7 +9,9 @@ COPY . /srv
 WORKDIR /srv
 RUN ./mvnw clean package -DskipTests
 
-###############################################################################################################
+###############################
+# Song Client
+###############################
 FROM adoptopenjdk/openjdk11:jre-11.0.6_10-alpine as client
 
 ENV SONG_CLIENT_HOME   /song-client
@@ -40,7 +45,9 @@ USER $SONG_USER
 # Set working directory for convenience with interactive usage
 WORKDIR $SONG_CLIENT_HOME
 
-###############################################################################################################
+###############################
+# Song Server
+###############################
 FROM adoptopenjdk/openjdk11:jre-11.0.6_10-alpine as server
 
 # Paths
