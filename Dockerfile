@@ -23,7 +23,7 @@ ENV SONG_UID 9999
 ENV SONG_GID 9999
 
 RUN addgroup -S -g $SONG_GID $SONG_USER  \
-    && adduser -S -u $SONG_UID -g $SONG_GID $SONG_USER  \
+    && adduser -S -u $SONG_UID -G $SONG_USER $SONG_USER  \
     && mkdir $SONG_CLIENT_HOME \
     && chown -R $SONG_UID:$SONG_GID $SONG_CLIENT_HOME \
 	&& apk add bash
@@ -40,7 +40,7 @@ RUN tar zxvf song-client.tar.gz -C /tmp \
 	&& chown -R $SONG_UID:$SONG_GID $CLIENT_DIST_DIR/logs \
 	&& mv $CLIENT_DIST_DIR/* $SONG_CLIENT_HOME 
 
-USER $SONG_USER
+USER $SONG_UID
 
 # Set working directory for convenience with interactive usage
 WORKDIR $SONG_CLIENT_HOME
@@ -59,13 +59,13 @@ ENV SONG_UID 9999
 ENV SONG_GID 9999
 
 RUN addgroup -S -g $SONG_GID $SONG_USER  \
-    && adduser -S -u $SONG_UID -g $SONG_GID $SONG_USER  \
+    && adduser -S -u $SONG_UID -G $SONG_USER $SONG_USER  \
     && mkdir -p $SONG_HOME $SONG_LOGS \
     && chown -R $SONG_UID:$SONG_GID $SONG_HOME
 
 COPY --from=builder /srv/song-server/target/song-server-*-exec.jar $JAR_FILE
 
-USER $SONG_USER
+USER $SONG_UID
 
 WORKDIR $SONG_HOME
 
