@@ -17,56 +17,6 @@
 
 package bio.overture.song.server.controller;
 
-import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.model.AnalysisType;
-import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.core.utils.ResourceFetcher;
-import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
-import bio.overture.song.server.repository.AnalysisSchemaRepository;
-import bio.overture.song.server.service.AnalysisTypeService;
-import bio.overture.song.server.utils.EndpointTester;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import net.javacrumbs.jsonunit.core.Configuration;
-import org.everit.json.schema.Schema;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
-import javax.transaction.Transactional;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.IntStream.range;
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
-import static net.javacrumbs.jsonunit.JsonAssert.when;
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_ANALYSIS_TYPE_NAME;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
@@ -83,6 +33,55 @@ import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypeController.REGISTRATION;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.model.AnalysisType;
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.utils.RandomGenerator;
+import bio.overture.song.core.utils.ResourceFetcher;
+import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
+import bio.overture.song.server.repository.AnalysisSchemaRepository;
+import bio.overture.song.server.service.AnalysisTypeService;
+import bio.overture.song.server.utils.EndpointTester;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import javax.transaction.Transactional;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import net.javacrumbs.jsonunit.core.Configuration;
+import org.everit.json.schema.Schema;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -374,7 +373,8 @@ public class AnalysisTypeControllerTest {
     val expected = readTree(analysisTypeRegistrationSchemaSupplier.get().toString());
 
     // Assert the actual retrieved resource matches the expected
-    val actual = endpointTester.getRegistrationSchemaGetRequestAnd().extractOneEntity(JsonNode.class);
+    val actual =
+        endpointTester.getRegistrationSchemaGetRequestAnd().extractOneEntity(JsonNode.class);
     assertJsonEquals(expected, actual, when(IGNORING_ARRAY_ORDER));
   }
 
@@ -606,8 +606,7 @@ public class AnalysisTypeControllerTest {
 
   @Test
   public void register_nameRegistration_illegalAnalysisTypeName() {
-    val inputValidSchema =
-        FETCHER.readJsonNode(Paths.get("schema-fixtures/valid.json").toString());
+    val inputValidSchema = FETCHER.readJsonNode(Paths.get("schema-fixtures/valid.json").toString());
 
     val name = REGISTRATION;
     val registerRequest =
@@ -620,7 +619,9 @@ public class AnalysisTypeControllerTest {
             .getResponse();
     val songError = parseErrorResponse(songErrorResponse);
     val actualMessage = songError.getMessage();
-    assertEquals(actualMessage, "[AnalysisTypeService::illegal.analysis.type.name] - Cannot register an analysisType with name 'registration'");
+    assertEquals(
+        actualMessage,
+        "[AnalysisTypeService::illegal.analysis.type.name] - Cannot register an analysisType with name 'registration'");
   }
 
   @Test

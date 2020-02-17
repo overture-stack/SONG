@@ -16,6 +16,18 @@
  */
 package bio.overture.song.server.controller.analysisType;
 
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
@@ -25,6 +37,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,21 +53,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Set;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
 
 @RestController
 @RequestMapping(path = "/schemas")
@@ -95,12 +94,13 @@ public class AnalysisTypeController {
   }
 
   @SneakyThrows
-  @GetMapping("/"+REGISTRATION)
+  @GetMapping("/" + REGISTRATION)
   @ApiOperation(
       value = "GetRegistrationSchema",
       notes = "Retrieves the meta-schema used to validate AnalysisType schemas during registration")
   public String getAnalysisTypeRegistrationSchema() {
-    return toPrettyJson(readTree(analysisTypeService.getAnalysisTypeRegistrationSchema().toString()));
+    return toPrettyJson(
+        readTree(analysisTypeService.getAnalysisTypeRegistrationSchema().toString()));
   }
 
   @PreAuthorize("@systemSecurity.authorize(authentication)")

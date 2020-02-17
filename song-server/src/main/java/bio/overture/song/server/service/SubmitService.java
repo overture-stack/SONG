@@ -50,9 +50,9 @@ public class SubmitService {
 
   @Autowired
   public SubmitService(
-    @NonNull ValidationService validator,
-    @NonNull AnalysisService analysisService,
-    @NonNull StudyService studyService) {
+      @NonNull ValidationService validator,
+      @NonNull AnalysisService analysisService,
+      @NonNull StudyService studyService) {
     this.validator = validator;
     this.analysisService = analysisService;
     this.studyService = studyService;
