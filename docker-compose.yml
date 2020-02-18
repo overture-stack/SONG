@@ -170,6 +170,7 @@ services:
       - dcc-id-server
     volumes:
       - "./docker/scratch/song-server-logs:/song-server/logs"
+    user: song
   dcc-id-db:
     image: icgcdcc/dcc-id-db:3908f82
     environment:

@@ -16,28 +16,6 @@
  */
 package bio.overture.song.server.service;
 
-import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.FileData;
-import bio.overture.song.server.model.enums.UploadStates;
-import bio.overture.song.server.repository.UploadRepository;
-import bio.overture.song.server.validation.SchemaValidator;
-import bio.overture.song.server.validation.ValidationResponse;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.everit.json.schema.Schema;
-import org.everit.json.schema.ValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import static java.lang.String.format;
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
@@ -46,6 +24,27 @@ import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.utils.JsonParser.extractAnalysisTypeFromPayload;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static java.lang.String.format;
+import static java.util.Objects.isNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
+import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.FileData;
+import bio.overture.song.server.model.enums.UploadStates;
+import bio.overture.song.server.repository.UploadRepository;
+import bio.overture.song.server.validation.SchemaValidator;
+import bio.overture.song.server.validation.ValidationResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
+import java.util.function.Supplier;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -76,7 +75,7 @@ public class ValidationService {
 
   public Optional<String> validate(@NonNull JsonNode payload) {
     String errors = null;
-    try{
+    try {
       validateWithSchema(analysisTypeIdSchema, payload);
       val analysisTypeResult = extractAnalysisTypeFromPayload(payload);
       val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
@@ -88,7 +87,7 @@ public class ValidationService {
 
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);
-    } catch (ValidationException e){
+    } catch (ValidationException e) {
       errors = COMMA.join(e.getAllMessages());
       log.error(errors);
     }
