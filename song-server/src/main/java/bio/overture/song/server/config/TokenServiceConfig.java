@@ -35,6 +35,7 @@ public class TokenServiceConfig {
   @Bean
   public RemoteTokenServices remoteTokenServices(
       @Value("${auth.server.url}") String checkTokenUrl,
+      @Value("${auth.server.tokenName:token}") String tokenName,
       @Value("${auth.server.clientId}") String clientId,
       @Value("${auth.server.clientSecret}") String clientSecret) {
     val remoteTokenServices = new RetryTokenServices();
@@ -42,7 +43,7 @@ public class TokenServiceConfig {
     remoteTokenServices.setClientId(clientId);
     remoteTokenServices.setClientSecret(clientSecret);
     remoteTokenServices.setAccessTokenConverter(accessTokenConverter());
-
+    remoteTokenServices.setTokenName(tokenName);
     return remoteTokenServices;
   }
 
