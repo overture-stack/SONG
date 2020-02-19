@@ -169,7 +169,7 @@ spec:
                     
                     project = "song"
                     versionName = "$version"
-                    subProjects = ['client', 'core', 'server']
+                    subProjects = ['client', 'core', 'server', 'java-sdk']
 
                     files = []
                     files.add([pattern: "pom.xml", target: "$repo/$project/$versionName/$project-${versionName}.pom"])

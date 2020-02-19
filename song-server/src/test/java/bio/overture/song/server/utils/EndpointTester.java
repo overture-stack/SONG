@@ -17,12 +17,23 @@
 
 package bio.overture.song.server.utils;
 
+import static bio.overture.song.core.utils.Separators.SLASH;
+import static bio.overture.song.server.controller.analysisType.AnalysisTypeController.REGISTRATION;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
+import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.utils.web.MockMvcWebResource;
 import bio.overture.song.server.utils.web.ResponseOption;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -31,18 +42,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.Nullable;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Collection;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static bio.overture.song.core.utils.Separators.SLASH;
-import static bio.overture.song.server.controller.analysisType.AnalysisTypeController.REGISTRATION;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.LIMIT;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.OFFSET;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SORT;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SORTORDER;
-import static bio.overture.song.server.utils.SongErrorResultMatcher.songErrorContent;
 
 @RequiredArgsConstructor
 public class EndpointTester {

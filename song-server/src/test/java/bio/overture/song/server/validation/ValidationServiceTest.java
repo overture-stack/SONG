@@ -16,11 +16,21 @@
  */
 package bio.overture.song.server.validation;
 
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
+import static bio.overture.song.core.utils.Separators.COMMA;
+import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.ValidationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
+import java.util.Map;
 import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,17 +40,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)

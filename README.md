@@ -177,6 +177,34 @@ docker run --rm \
   sing config
 ```
 
+By default, the `song-client` is run as the root user. To run as a non-root user, add the switch `-u song` which will run the command as a predefined `song` user:
+```bash
+docker run --rm \
+  -u song \
+  -e 'CLIENT_SERVER_URL=http://localhost:8080' \
+  -e 'CLIENT_STUDY_ID=ABC123-CA' \
+  -e 'CLIENT_PROGRAM_NAME=sing' \
+  -e 'CLIENT_DEBUG=true' \
+  -e 'CLIENT_ACCESS_TOKEN=myAccessToken' \
+  overture/song-client:latest \
+  sing config
+```
+or run it as your current user: 
+
+```bash
+docker run --rm \
+  -u $(id -u):$(id -g) \
+  -e 'CLIENT_SERVER_URL=http://localhost:8080' \
+  -e 'CLIENT_STUDY_ID=ABC123-CA' \
+  -e 'CLIENT_PROGRAM_NAME=sing' \
+  -e 'CLIENT_DEBUG=true' \
+  -e 'CLIENT_ACCESS_TOKEN=myAccessToken' \
+  overture/song-client:latest \
+  sing config
+```
+Running as the host user is useful when the `song-client` needs to write to a mounted volume
+
+
 ### Notes
 
 When running with the secure profile enabled, an oauth2 server is needed. 
