@@ -27,7 +27,9 @@ RUN tar zxvf song-client.tar.gz -C /tmp \
 	&& touch $CLIENT_DIST_DIR/logs/client.log \
 	&& chmod 777 $CLIENT_DIST_DIR/logs/client.log \
 	&& mv $CLIENT_DIST_DIR/* $SONG_CLIENT_HOME \
-	&& chown -R $SONG_UID:$SONG_GID $SONG_CLIENT_HOME
+	&& chown -R $SONG_UID:$SONG_GID $SONG_CLIENT_HOME \
+	&& chmod -R 777 $SONG_CLIENT_HOME/logs
+
 
 # Set working directory for convenience with interactive usage
 WORKDIR $SONG_CLIENT_HOME
