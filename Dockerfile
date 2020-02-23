@@ -18,14 +18,16 @@ ENV SONG_CLIENT_HOME   /song-client
 ENV CLIENT_DIST_DIR    /song-client-dist
 ENV JAVA_HOME /opt/java/openjdk
 ENV PATH $PATH:$SONG_CLIENT_HOME/bin
+
+ENV SONG_HOME /home/song
 ENV SONG_USER song
 ENV SONG_UID 9999
 ENV SONG_GID 9999
 
 RUN addgroup -S -g $SONG_GID $SONG_USER  \
     && adduser -S -u $SONG_UID -G $SONG_USER $SONG_USER  \
-    && mkdir $SONG_CLIENT_HOME \
-    && chown -R $SONG_UID:$SONG_GID $SONG_CLIENT_HOME \
+    && mkdir -p $SONG_CLIENT_HOME $SONG_HOME \
+    && chown -R $SONG_UID:$SONG_GID $SONG_CLIENT_HOME $SONG_HOME \
 	&& apk add bash
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
@@ -38,8 +40,9 @@ RUN tar zxvf song-client.tar.gz -C /tmp \
 	&& touch $CLIENT_DIST_DIR/logs/client.log \
 	&& chmod 777 $CLIENT_DIST_DIR/logs/client.log \
 	&& mv $CLIENT_DIST_DIR/* $SONG_CLIENT_HOME \
-	&& chown -R $SONG_UID:$SONG_GID $SONG_CLIENT_HOME \
-	&& chmod -R 777 $SONG_CLIENT_HOME/logs
+	&& chown -R $SONG_UID:$SONG_GID $SONG_CLIENT_HOME
+
+USER $SONG_UID
 
 # Set working directory for convenience with interactive usage
 WORKDIR $SONG_CLIENT_HOME
