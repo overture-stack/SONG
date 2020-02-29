@@ -42,7 +42,7 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @Data
 public class ValidationConfig {
-
+  private static String[] validationUrls = {"http://localhost:2020"};
   private static String[] schemaList = {
     "schemas/fileUpdateRequest.json", "schemas/storageDownloadResponse.json"
   };

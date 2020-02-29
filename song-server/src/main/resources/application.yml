@@ -97,6 +97,8 @@ validation:
   queue:
     capacity: 100
 
+verifierUrls: ["http://localhost:8080", "http://localhost"]
+
 auth:
 
   # Connection retries in case of connection failure

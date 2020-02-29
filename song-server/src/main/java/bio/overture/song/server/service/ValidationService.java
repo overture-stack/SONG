@@ -48,6 +48,10 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+/**
+ * * ValidationService ensures that a given JSON payload conforms to the correct schema
+ * representation
+ */
 public class ValidationService {
 
   private static final String FILE_DATA_SCHEMA_ID = "fileData";

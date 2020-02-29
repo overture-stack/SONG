@@ -25,6 +25,7 @@ import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
+import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
 import bio.overture.song.core.model.AnalysisTypeId;
@@ -32,6 +33,8 @@ import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.server.model.dto.Payload;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -43,19 +46,21 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class SubmitService {
-
   private final ValidationService validator;
   private final AnalysisService analysisService;
   private final StudyService studyService;
+  private final List<VerificationService> verificationServices;
 
   @Autowired
   public SubmitService(
       @NonNull ValidationService validator,
       @NonNull AnalysisService analysisService,
-      @NonNull StudyService studyService) {
+      @NonNull StudyService studyService,
+      @NonNull List<VerificationService> verificationServices) {
     this.validator = validator;
     this.analysisService = analysisService;
     this.studyService = studyService;
+    this.verificationServices = verificationServices;
   }
 
   @Transactional
@@ -68,6 +73,9 @@ public class SubmitService {
 
     // Validate JSON Payload
     validatePayload(payloadJson);
+
+    // Verify that our external verifiers agree that the payload is okay
+    verifyPayload(payloadJson);
 
     // Deserialize JSON payload to Payload DTO
     val payload = fromJson(payloadJson, Payload.class);
@@ -122,6 +130,23 @@ public class SubmitService {
       val message = error.get();
       throw buildServerException(getClass(), SCHEMA_VIOLATION, message);
     }
+  }
+
+  private void verifyPayload(JsonNode payloadJson) {
+    // Verify payload with our list of external verifiers, if any
+    List<String> errs = new ArrayList<>();
+    for (val v : verificationServices) {
+      if (v != null) {
+        errs.addAll(v.verify(payloadJson));
+      } else {
+        log.error("Configuration Error: Null verification service object detected ... skipping it");
+      }
+    }
+    if (errs.isEmpty()) {
+      return;
+    }
+    val message = format("Validation Errors: %s", errs.toString());
+    throw buildServerException(getClass(), PAYLOAD_VERIFICATION_FAILED, message);
   }
 
   @SneakyThrows
