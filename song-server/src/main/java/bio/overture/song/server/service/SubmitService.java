@@ -25,6 +25,7 @@ import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
+import static bio.overture.song.server.service.VerificationService.verifyPayload;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
@@ -77,7 +78,7 @@ public class SubmitService {
     validatePayload(payloadJson);
 
     // Verify that our external verifiers agree that the payload is okay
-    verifyPayload(payloadString);
+    verifyPayload(payloadString, verificationServices);
 
     // Deserialize JSON payload to Payload DTO
     val payload = fromJson(payloadJson, Payload.class);
@@ -131,33 +132,6 @@ public class SubmitService {
     if (error.isPresent()) {
       val message = error.get();
       throw buildServerException(getClass(), SCHEMA_VIOLATION, message);
-    }
-  }
-
-  private void verifyPayload(String payloadString) {
-    // Verify payload against our external verifier services
-    List<String> issues = new ArrayList<>();
-    for (val v : verificationServices) {
-      if (v == null) {
-        log.error("Configuration Error: Null verification service object detected ... skipping it");
-        continue;
-      }
-
-      val result = v.verify(payloadString);
-      val status = result.getStatus();
-      if (status.equals(VerifierStatus.VERIFIER_ERROR)) {
-        throw buildServerException(getClass(), BAD_REPLY_FROM_GATEWAY, "Verifier threw exception: "+
-          result.getDetails().toString());
-      } else if(status.equals(VerifierStatus.ISSUES)) {
-        issues.addAll(result.getDetails());
-      } else if (! status.equals(VerifierStatus.OK)) {
-        throw buildServerException(getClass(), UNKNOWN_ERROR, "Unhandled enumeration case in verifyPayload");
-      }
-    }
-
-    if (!issues.isEmpty()) {
-      val message = format("Payload verification issues: %s", issues.toString());
-      throw buildServerException(getClass(), PAYLOAD_VERIFICATION_FAILED, message);
     }
   }
 

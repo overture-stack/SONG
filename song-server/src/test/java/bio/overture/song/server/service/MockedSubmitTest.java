@@ -205,7 +205,7 @@ public class MockedSubmitTest {
   @Test
   public void test_verification_issues1() {
     val validationFailedMessage =
-      "[SubmitService::payload.verification.failed] - Payload verification issues: ";
+      "[VerificationService::payload.verification.failed] - Payload verification issues: ";
     val study = "study1";
     val payload = samplePayload(study);
     val payloadString = toJson(payload);
@@ -224,7 +224,7 @@ public class MockedSubmitTest {
   @Test
   public void test_verification_multiple_issues() {
     val validationFailedMessage =
-      "[SubmitService::payload.verification.failed] - Payload verification issues: ";
+      "[VerificationService::payload.verification.failed] - Payload verification issues: ";
     val study = "study1";
     val payload = samplePayload(study);
     val payloadString = toJson(payload);
@@ -244,8 +244,6 @@ public class MockedSubmitTest {
 
   @Test
   public void test_verification_no_issues() {
-    val validationFailedMessage =
-      "[SubmitService::payload.verification.failed] - Payload verification issues: ";
     val study = "study1";
     val payload = samplePayload(study);
     val payloadString = toJson(payload);
@@ -274,7 +272,7 @@ public class MockedSubmitTest {
 
     val reply = testValidateFailures(verificationService, payloadString, true);
 
-    val expectedPrefix="[SubmitService::bad.reply.from.gateway] - Verifier threw exception: [";
+    val expectedPrefix="[VerificationService::bad.reply.from.gateway] - Verifier threw exception: [";
     assertEquals(expectedPrefix+ message +"]", reply);
   }
 

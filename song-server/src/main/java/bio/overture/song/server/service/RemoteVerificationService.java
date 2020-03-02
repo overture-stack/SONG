@@ -2,10 +2,10 @@ package bio.overture.song.server.service;
 
 import bio.overture.song.server.model.dto.VerifierReply;
 
-public interface RemoteVerificationService extends VerificationService {
-  VerifierReply getReply(String request);
+public abstract class RemoteVerificationService extends VerificationService {
+  abstract VerifierReply getReply(String request);
 
-  default VerifierReply verify(String json) {
+  public VerifierReply verify(String json) {
     return getReply(json);
   }
 }

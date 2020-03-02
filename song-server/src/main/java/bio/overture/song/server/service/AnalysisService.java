@@ -46,6 +46,7 @@ import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static bio.overture.song.server.service.VerificationService.verifyPayload;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.lang.String.format;
@@ -124,6 +125,7 @@ public class AnalysisService {
   @Autowired private final AnalysisDataRepository analysisDataRepository;
   @Autowired private final AnalysisTypeService analysisTypeService;
   @Autowired private final ValidationService validationService;
+  @Autowired private final List<VerificationService> verificationServices;
 
   @Transactional
   public String create(@NonNull String studyId, @NonNull Payload payload) {
@@ -174,6 +176,9 @@ public class AnalysisService {
 
     // Validate the updateAnalysisRequest against the scheme
     validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
+
+    val payload = toJson(updateAnalysisRequest);
+    verifyPayload(payload, verificationServices);
 
     // Now that the request is validated, fetch the old analysis
     val oldAnalysis = get(analysisId, true, true);
