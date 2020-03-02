@@ -31,6 +31,8 @@ import static java.util.Objects.isNull;
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.dto.VerifierReply;
+import bio.overture.song.server.model.enums.VerifierStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,7 +77,7 @@ public class SubmitService {
     validatePayload(payloadJson);
 
     // Verify that our external verifiers agree that the payload is okay
-    verifyPayload(payloadJson);
+    verifyPayload(payloadString);
 
     // Deserialize JSON payload to Payload DTO
     val payload = fromJson(payloadJson, Payload.class);
@@ -132,21 +134,31 @@ public class SubmitService {
     }
   }
 
-  private void verifyPayload(JsonNode payloadJson) {
-    // Verify payload with our list of external verifiers, if any
-    List<String> errs = new ArrayList<>();
+  private void verifyPayload(String payloadString) {
+    // Verify payload against our external verifier services
+    List<String> issues = new ArrayList<>();
     for (val v : verificationServices) {
-      if (v != null) {
-        errs.addAll(v.verify(payloadJson));
-      } else {
+      if (v == null) {
         log.error("Configuration Error: Null verification service object detected ... skipping it");
+        continue;
+      }
+
+      val result = v.verify(payloadString);
+      val status = result.getStatus();
+      if (status.equals(VerifierStatus.VERIFIER_ERROR)) {
+        throw buildServerException(getClass(), BAD_REPLY_FROM_GATEWAY, "Verifier threw exception: "+
+          result.getDetails().toString());
+      } else if(status.equals(VerifierStatus.ISSUES)) {
+        issues.addAll(result.getDetails());
+      } else if (! status.equals(VerifierStatus.OK)) {
+        throw buildServerException(getClass(), UNKNOWN_ERROR, "Unhandled enumeration case in verifyPayload");
       }
     }
-    if (errs.isEmpty()) {
-      return;
+
+    if (!issues.isEmpty()) {
+      val message = format("Payload verification issues: %s", issues.toString());
+      throw buildServerException(getClass(), PAYLOAD_VERIFICATION_FAILED, message);
     }
-    val message = format("Validation Errors: %s", errs.toString());
-    throw buildServerException(getClass(), PAYLOAD_VERIFICATION_FAILED, message);
   }
 
   @SneakyThrows

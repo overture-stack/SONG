@@ -1,12 +1,11 @@
 package bio.overture.song.server.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
+import bio.overture.song.server.model.dto.VerifierReply;
 
 public interface RemoteVerificationService extends VerificationService {
-  List<String> getReply(String request);
+  VerifierReply getReply(String request);
 
-  default List<String> verify(JsonNode jsonNode) {
-    return getReply(jsonNode.toString());
+  default VerifierReply verify(String json) {
+    return getReply(json);
   }
 }

@@ -1,5 +1,6 @@
 package bio.overture.song.server.service;
 
+import bio.overture.song.server.model.dto.VerifierReply;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 
@@ -8,5 +9,5 @@ import java.util.List;
  * JSON Schema
  */
 public interface VerificationService {
-  List<String> verify(JsonNode jsonNode);
+  VerifierReply verify(String json);
 }
