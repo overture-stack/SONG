@@ -42,7 +42,7 @@ public class StudySecurity {
       val auth = (ExpiringOauth2Authentication) authentication;
 
       if (auth.getExpiry() == 0 ) {
-        log.info("Expired token detected; authorization denied.", studyId);
+        log.info("Expired token detected; authorization denied.");
         return false;
       }
       log.info("Token is not expired; authorization continues.");
