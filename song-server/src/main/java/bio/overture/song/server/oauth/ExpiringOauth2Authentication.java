@@ -1,15 +1,9 @@
 package bio.overture.song.server.oauth;
 
 import lombok.Getter;
-import lombok.Setter;
-import lombok.val;
-import org.hibernate.validator.internal.metadata.aggregated.rule.OverridingMethodMustNotAlterParameterConstraints;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.web.servlet.tags.EvalTag;
-
-import javax.swing.*;
 
 @Getter
 public class ExpiringOauth2Authentication extends OAuth2Authentication {
