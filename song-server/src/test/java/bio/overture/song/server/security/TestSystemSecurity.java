@@ -11,15 +11,14 @@ import java.util.TreeMap;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestStudySecurity {
-  String TEST_STUDY = "TEST-CA";
+public class TestSystemSecurity {
 
   @Test
-  public void testValidStudyScopeOK() {
+  public void testValidStudyScopeFails() {
     val m = new TreeMap<String, Object>();
     m.put("exp", 10);
     m.put("scope", Set.of("PROGRAMDATA-TEST-CA.READ"));
-    test_authorize(m, true);
+    test_authorize(m, false);
   }
 
   @Test
@@ -46,7 +45,7 @@ public class TestStudySecurity {
     test_authorize(m, true);
   }
   @Test
-  public void testValidGlobalScopeFails() {
+  public void testExpiredValidGlobalScopeFails() {
     val m = new TreeMap<String, Object>();
     m.put("exp", 0);
     m.put("scope", Set.of("DCC.READ"));
@@ -54,12 +53,10 @@ public class TestStudySecurity {
   }
 
   public void test_authorize(Map<String, ?> map, boolean expected) {
-    val prefix = "PROGRAMDATA-";
-    val suffix = ".READ";
     val scope = "DCC.READ";
-    val studySecurity = new StudySecurity(prefix, suffix, scope);
+    val systemSecurity = new SystemSecurity(scope);
     val authentication = new AccessTokenConverterWithExpiry().extractAuthentication(map);
 
-    assertEquals(expected, studySecurity.authorize(authentication, TEST_STUDY));
+    assertEquals(expected, systemSecurity.authorize(authentication));
   }
 }
