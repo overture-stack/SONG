@@ -39,7 +39,7 @@ public class DefaultRetryListener extends RetryListenerSupport {
   public <T, E extends Throwable> void onError(
       RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
     if (retryOnAllErrors) {
-      log.info("Retrying after detecting error: {}", throwable.getMessage());
+      log.debug("Retrying after detecting error: {}", throwable.getMessage());
     } else {
       if (isClientException(throwable)) {
         log.debug(
@@ -48,7 +48,7 @@ public class DefaultRetryListener extends RetryListenerSupport {
       }
 
       if (!(isConnectionTimeout(throwable) || isServiceUnavailable(throwable))) {
-        log.info(
+        log.debug(
             "Detected a connection exception, but it's not the connection timeoutMs or 503 Service Unavailable. "
                 + "Do not retry.");
         context.setExhaustedOnly();

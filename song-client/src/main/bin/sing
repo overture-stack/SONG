@@ -50,6 +50,17 @@ else
 	sing_home=${here%/bin}
 fi
 
+if [ ! -d $sing_home/logs ]; then
+	echo "The logs directory $sing_home/logs does not exist!"
+	exit 1;
+elif [ ! -w $sing_home/logs ]; then
+	echo "The logs directory $sing_home/logs is not writtable!"
+	exit 2;
+else
+	touch $sing_home/logs/song.log $sing_home/logs/song.audit.log
+	chmod 700 $sing_home/logs/song.log $sing_home/logs/song.audit.log
+fi
+
 java --illegal-access=deny \
 		 -Dlog.name=song \
 		 -Dlog.path=$sing_home/logs \
