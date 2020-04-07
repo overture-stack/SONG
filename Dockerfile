@@ -27,11 +27,13 @@ RUN adduser $SONG_USER >& /dev/null || true \
 	&& apk add bash==5.0.11-r1
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
+COPY --from=builder /srv/song-client/src/main/resources/logback-docker.xml /tmp/logback.xml
 
 RUN tar zxvf song-client.tar.gz -C /tmp \
 	&& rm -rf song-client.tar.gz \
     && mv -f /tmp/song-client-*  /tmp/song-client-dist  \
     && cp -r /tmp/song-client-dist $CLIENT_DIST_DIR \
+	&& cp -f  /tmp/logback.xml $CLIENT_DIST_DIR/conf/logback.xml \
 	&& mkdir -p $CLIENT_DIST_DIR/logs \
 	&& mv $CLIENT_DIST_DIR/* $SONG_CLIENT_HOME \
 	&& chown -R $SONG_USER:$SONG_USER $SONG_CLIENT_HOME
