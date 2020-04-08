@@ -55,7 +55,7 @@ sing_logs=$sing_home/logs
 if [ ! -d $sing_logs ]; then
 	mkdir  -p $sing_logs
 elif [ ! -w $sing_logs ]; then
-	echo "The logs directory $sing_logs is not writtable!"
+	echo "The logs directory $sing_logs is not writeable!"
 	exit 2;
 else
 	touch $sing_logs/song.log $sing_logs/song.audit.log
