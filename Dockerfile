@@ -17,23 +17,26 @@ FROM adoptopenjdk/openjdk11:jre-11.0.6_10-alpine as client
 ENV CLIENT_DIST_DIR   /song-client-dist
 ENV JAVA_HOME /opt/java/openjdk
 ENV SONG_HOME   /song-client
+ENV SONG_UID 9999
+ENV SONG_GID 9999
 ENV SONG_USER song
 ENV SONG_LOGS $SONG_HOME/logs
 ENV PATH $PATH:$SONG_HOME/bin
 
-RUN adduser $SONG_USER >& /dev/null || true \
-	&& mkdir -p $SONG_HOME \
-	&& chown -R $SONG_USER:$SONG_USER $SONG_HOME \
+RUN addgroup -S -g $SONG_GID $SONG_USER  \
+    && adduser -S -u $SONG_UID -G $SONG_USER $SONG_USER  \
+    && mkdir -p $SONG_HOME $SONG_LOGS \
+    && chown -R $SONG_UID:$SONG_GID $SONG_HOME \ 
 	&& apk add bash==5.0.11-r1
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
-# COPY --from=builder /srv/song-client/src/main/resources/logback-docker.xml /tmp/logback.xml
-	# && cp -f  /tmp/logback.xml $CLIENT_DIST_DIR/conf/logback.xml \
+
 RUN tar zxvf song-client.tar.gz -C /tmp \
 	&& rm -rf song-client.tar.gz \
     && mv -f /tmp/song-client-*  /tmp/song-client-dist  \
     && cp -r /tmp/song-client-dist $CLIENT_DIST_DIR \
 	&& mv $CLIENT_DIST_DIR/* $SONG_HOME \
+	&& rm -rf $CLIENT_DIST_DIR \
 	&& mkdir -p $SONG_LOGS \
 	&& chmod 777 -R $SONG_LOGS \
 	&& chown -R $SONG_USER:$SONG_USER $SONG_HOME

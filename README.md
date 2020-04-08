@@ -204,6 +204,35 @@ docker run --rm \
 ```
 Running as the host user is useful when the `song-client` needs to write to a mounted volume
 
+#### Outputting data from the song-client via Docker
+
+Some song-client commands (such as `sing manifest` and `sing export`) output a file to a path.
+When running the docker container, it maybe preferable to output the file to the docker host's filesystem, instead of the containers file system. 
+To do this, a directory from the docker host must be mounted into the song-client docker container.
+
+For example, the following  command will generate an manifest file called `output-manifest.txt` in the directory `./mydir`:
+
+```bash
+
+# Ensure the current user owns mydir inorder to write to it from within the container
+mkdir -p ./mydir
+
+docker run --rm \
+  -u $(id -u):$(id -g) \
+  -v $PWD/mydir:/data \
+  -e 'CLIENT_SERVER_URL=http://localhost:8080' \
+  -e 'CLIENT_STUDY_ID=ABC123-CA' \
+  -e 'CLIENT_PROGRAM_NAME=sing' \
+  -e 'CLIENT_DEBUG=true' \
+  -e 'CLIENT_ACCESS_TOKEN=myAccessToken' \
+  overture/song-client:latest \
+  sing manifest -a someAnalysisId -d /data -f /data/output-manifest.txt
+```
+
+
+
+
+
 
 ### Notes
 

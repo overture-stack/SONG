@@ -50,20 +50,21 @@ else
 	sing_home=${here%/bin}
 fi
 
-if [ ! -d $sing_home/logs ]; then
-	echo "The logs directory $sing_home/logs does not exist!"
-	exit 1;
-elif [ ! -w $sing_home/logs ]; then
-	echo "The logs directory $sing_home/logs is not writtable!"
+sing_logs=$sing_home/logs
+
+if [ ! -d $sing_logs ]; then
+	mkdir  -p $sing_logs
+elif [ ! -w $sing_logs ]; then
+	echo "The logs directory $sing_logs is not writtable!"
 	exit 2;
 else
-	touch $sing_home/logs/song.log $sing_home/logs/song.audit.log
-	chmod 700 $sing_home/logs/song.log $sing_home/logs/song.audit.log
+	touch $sing_logs/song.log $sing_logs/song.audit.log
+	chmod 664 $sing_logs/song.log $sing_logs/song.audit.log
 fi
 
 java --illegal-access=deny \
 		 -Dlog.name=song \
-		 -Dlog.path=$sing_home/logs \
+		 -Dlog.path=$sing_logs \
 		 -Dlogback.configurationFile=$sing_home/conf/logback.xml \
          -jar $sing_home/lib/song-client.jar \
          "$sing_home/conf/application.yml" \
