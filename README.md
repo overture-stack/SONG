@@ -210,7 +210,7 @@ Some song-client commands (such as `sing manifest` and `sing export`) output a f
 When running the docker container, it maybe preferable to output the file to the docker host's filesystem, instead of the containers file system. 
 To do this, a directory from the docker host must be mounted into the song-client docker container.
 
-For example, the following  command will generate an manifest file called `output-manifest.txt` in the directory `./mydir`:
+For example, the following  command will generate a manifest file called `output-manifest.txt` in the directory `./mydir`:
 
 ```bash
 
