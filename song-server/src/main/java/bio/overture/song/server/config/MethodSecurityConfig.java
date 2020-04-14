@@ -17,7 +17,9 @@
 package bio.overture.song.server.config;
 
 import bio.overture.song.server.security.StudyScopeStrategy;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,14 +28,21 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler;
+import org.springframework.stereotype.Component;
 
 @Profile("secure")
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
-  /**
-   * Refer:
+  @Value("${auth.server.prefix}")
+  private String scopePrefix;
+
+  @Value("${auth.server.suffix}")
+  private String scopeSuffix;
+
+    /**
+     * Refer:
    * http://stackoverflow.com/questions/29328124/no-bean-resolver-registered-in-the-context-to-resolve-access-to-bean
    *
    * The following lines are a workaround suggested here:
@@ -53,8 +62,8 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
   }
 
   @Bean
-  public StudyScopeStrategy studySecurity() {
-    return new StudyScopeStrategy();
+  public StudyScopeStrategy studyScopeStrategy(){
+    return new StudyScopeStrategy(scopePrefix, scopeSuffix);
   }
 
 }
