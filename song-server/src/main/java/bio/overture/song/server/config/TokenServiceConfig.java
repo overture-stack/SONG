@@ -16,6 +16,7 @@
  */
 package bio.overture.song.server.config;
 
+import bio.overture.song.server.oauth.AccessTokenConverterWithExpiry;
 import bio.overture.song.server.oauth.RetryTokenServices;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -48,7 +49,7 @@ public class TokenServiceConfig {
 
   @Bean
   public AccessTokenConverter accessTokenConverter() {
-    return new DefaultAccessTokenConverter();
+    return new AccessTokenConverterWithExpiry();
   }
 
 }

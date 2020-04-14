@@ -10,9 +10,8 @@ import static org.junit.Assert.assertTrue;
 public class TestStudyScopeStrategy {
   @Test
   public void testVerify() {
-    val s = new StudyScopeStrategy();
-    s.scopePrefix="song";
-    s.scopeSuffix="READ";
+    val s = new StudyScopeStrategy("song", "READ");
+
     // same case matches for user scope and system scope
     assertTrue(testVerify(s, "ABC123","song.ABC123.READ"));
     assertTrue(testVerify(s, "ABC123", "song.READ"));

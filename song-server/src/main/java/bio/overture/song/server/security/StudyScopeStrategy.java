@@ -17,29 +17,33 @@
 package bio.overture.song.server.security;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 import static org.icgc.dcc.common.core.util.Joiners.DOT;
+import static bio.overture.song.server.security.TokenChecker.isExpired;
 
 @Slf4j
+@RequiredArgsConstructor
 public class StudyScopeStrategy {
 
-  @Value("${auth.server.prefix}")
-  protected String scopePrefix;
-
-  @Value("${auth.server.suffix}")
-  protected String scopeSuffix;
-
+  @NonNull private final String scopePrefix;
+  @NonNull private final String scopeSuffix;
 
   public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
+    if (isExpired(authentication)) {
+      return false;
+    }
     log.info("Checking authorization with study id {}", studyId);
 
     // if not OAuth2, then no scopes available at all

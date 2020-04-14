@@ -13,47 +13,34 @@ services:
       POSTGRES_DB: song
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-  id-db:
-    build: ./song-docker-demo/id-db
-    network_mode: host
+  ego-api:
+    image: "overture/ego:latest"
     environment:
-      PGPORT: 8088
-      POSTGRES_DB: dcc_identifier
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ego-postgres:5432/ego?stringtype=unspecified
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_LOCATIONS: "classpath:flyway/sql,classpath:db/migration"
+      SPRING_PROFILES: demo, auth
+    expose:
+      - "8080"
+    ports:
+      - "8084:8080"
+    command: java -jar /srv/ego/install/ego.jar
     depends_on:
-      - base-db
-    volumes:
-      - "id-db-data:/var/lib/postgresql/data/pgdata"
-  auth:
-    build: ./song-docker-demo/auth
-    network_mode: host
+      - ego-postgres
+  ego-postgres:
+    image: postgres:9.5
     environment:
-      AUTH_PORT: 8084
+      - POSTGRES_DB=ego
+      - POSTGRES_PASSWORD=password
+    expose:
+      - "5432"
     volumes:
-      - "auth-data:/opt/dcc/auth_data"
-  id:
-    build: ./song-docker-demo/id
-    network_mode: host
-    environment:
-      ID_PORT: 8086
-      ID_JMX_PORT: 10017
-      ID_MANAGEMENT_PORT: 8089
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: 8088
-      POSTGRES_DB: dcc_identifier
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      AUTH_SERVER_URL: http://localhost:8084/check_token/
-      AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
-      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
-    depends_on:
-      - base-ubuntu
-      - id-db
-      - auth
-    volumes:
-      - "./song-docker-demo/logs/id_logs:/opt/dcc/id_logs"
-      - "./song-docker-demo/tools:/opt/dcc/tools"
+      - "./song-docker-demo/ego:/docker-entrypoint-initdb.d"
+    ports:
+      - "9444:5432"
   server:
     build:
       context: ./
@@ -62,17 +49,15 @@ services:
     network_mode: host
     environment:
       SERVER_PORT: 8080
-      AUTH_SERVER_URL: http://localhost:8084/check_token/
-      AUTH_SERVER_CLIENTID: 3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
-      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
-      AUTH_SERVER_PREFIX: collab
-      AUTH_SERVER_SUFFIX: upload
+      AUTH_SERVER_URL: http://localhost:8084/o/check_token/
+      AUTH_SERVER_CLIENTID: song
+      AUTH_SERVER_CLIENTSECRET: songsecret
+      AUTH_SERVER_PREFIX: song
+      AUTH_SERVER_SUFFIX: WRITE
       SCORE_URL: http://localhost:8087
-      SCORE_ACCESSTOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+      SCORE_ACCESSTOKEN: f69b726d-d40f-4261-b105-1ec7e6bf04d5
       MANAGEMENT_SERVER_PORT: 8081
-      ID_IDURL: http://localhost:8086
-      ID_AUTHTOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
-      ID_REALIDS: "true"
+      ID_REALIDS: "false"
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:8082/song?stringtype=unspecified
@@ -81,8 +66,7 @@ services:
     restart: always
     depends_on:
       - db 
-      - id
-      - auth
+      - ego-api
     volumes:
       - "./song-docker-demo/logs/server_logs:/opt/dcc/server_logs"
       - "./song-docker-demo/tools:/opt/dcc/tools"
@@ -93,7 +77,7 @@ services:
       target: client
     network_mode: host
     environment:
-      AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+      AUTH_TOKEN: f69b726d-d40f-4261-b105-1ec7e6bf04d5
       SERVER_URL: http://localhost:8080
       CLIENT_STUDY_ID: ABC123
       CLIENT_DEBUG_ENABLED: "false"
@@ -125,9 +109,11 @@ services:
       OBJECT_STORAGE_URL: http://localhost:8085
       OBJECT_STORAGE_ACCESS_KEY: minio
       OBJECT_STORAGE_SECRET_KEY: minio123
-      AUTH_SERVER_URL: http://localhost:8084/check_token/
-      AUTH_SERVER_CLIENTID:  3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP
-      AUTH_SERVER_CLIENTSECRET: v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e
+      AUTH_SERVER_URL: http://localhost:8084/o/check_token/
+      AUTH_SERVER_CLIENTID:  score
+      AUTH_SERVER_CLIENTSECRET: scoresecret
+      AUTH_SERVER_UPLOADSCOPE: score.WRITE
+      AUTH_SERVER_DOWNLOADSCOPE: score.READ
       SERVER_URL: http://localhost:8080
       STORAGE_SERVER_PORT: 8087
       STORAGE_SERVER_JMX_PORT: 10018
@@ -139,7 +125,7 @@ services:
       - base-ubuntu
       - object-storage
       - server
-      - auth
+      - ego-api
     volumes:
       - "./song-docker-demo/logs/storage_server_logs:/opt/dcc/storage_server_logs"
       - "./song-docker-demo/tools:/opt/dcc/tools"
@@ -147,7 +133,7 @@ services:
   storage-client:
     build: ./song-docker-demo/storage-client
     environment:
-      AUTH_TOKEN: ad83ebde-a55c-11e7-abc4-cec278b6b50a
+      AUTH_TOKEN: f69b726d-d40f-4261-b105-1ec7e6bf04d5
       SERVER_URL: http://localhost:8080
       STORAGE_SERVER_URL: http://localhost:8087
     depends_on:
@@ -159,5 +145,3 @@ services:
 
 volumes:
     db-data: {}
-    id-db-data: {}
-    auth-data: {}
