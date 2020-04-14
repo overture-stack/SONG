@@ -108,7 +108,7 @@ spec:
           when {
 		    anyOf {
 				branch "master"
-				tag '1.5.0.1'
+				branch 'hotfix-1.5.0'
 			}
           }
           steps {
@@ -149,7 +149,7 @@ spec:
                 anyOf {
                     branch 'master'
                     branch 'test-master'
-					tag '1.5.0.1'
+					branch 'hotfix-1.5.0'
                 }
             }
             steps {
@@ -166,7 +166,7 @@ spec:
                     branch 'test-master'
                     branch 'develop'
                     branch 'test-develop'
-					tag '1.5.0.1'
+					branch 'hotfix-1.5.0'
                 }
             }
             steps {
