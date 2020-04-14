@@ -62,7 +62,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
   }
 
   @Bean
-  public StudyScopeStrategy studyScopeStrategy(){
+  public StudyScopeStrategy studySecurity(){
     return new StudyScopeStrategy(scopePrefix, scopeSuffix);
   }
 

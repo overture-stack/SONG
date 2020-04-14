@@ -66,7 +66,6 @@ services:
     restart: always
     depends_on:
       - db 
-      - id
       - ego-api
     volumes:
       - "./song-docker-demo/logs/server_logs:/opt/dcc/server_logs"
@@ -146,4 +145,3 @@ services:
 
 volumes:
     db-data: {}
-    id-db-data: {}

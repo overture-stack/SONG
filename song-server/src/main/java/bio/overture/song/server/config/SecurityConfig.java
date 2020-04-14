@@ -32,9 +32,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 @EnableResourceServer
 public class SecurityConfig extends ResourceServerConfigurerAdapter {
 
-  @Value("${auth.server.suffix}")
-  private String uploadScope;
-
   @Autowired
   private SwaggerConfig swaggerConfig;
 
