@@ -16,7 +16,7 @@ import lombok.val;
 @Builder
 public class ErrorMessage {
   @NonNull private final String name;
-  @NonNull private final String message;
+  private final String message;
   @NonNull private final List<String> stackTrace;
   private final long timestamp;
   @NonNull private final Date date;
