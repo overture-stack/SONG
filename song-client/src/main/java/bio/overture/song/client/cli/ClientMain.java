@@ -93,7 +93,9 @@ public class ClientMain {
     int exitCode = FAILURE_STATUS;
     try {
       command.run();
-      exitCode = SUCCESS_STATUS;
+      if (!command.getStatus().hasErrors()) {
+        exitCode = SUCCESS_STATUS;
+      }
     } catch (ResourceAccessException e) {
       val errorMessage = processResourceAccessException(e);
       log.error(errorMessage);
@@ -105,11 +107,11 @@ public class ClientMain {
     } catch (IOException e) {
       val em = fromException(e);
       log.error(em.toPrettyJson());
-      command.err("IO Error[%s]: %s", em.getTimestamp(), e.getMessage());
+      command.err("IO Error[%s]: %s", e.getClass().getSimpleName(), em.getTimestamp(), e.getMessage());
     } catch (Throwable e) {
       val em = fromException(e);
       log.error(em.toPrettyJson());
-      command.err("Unknown error[%s]: %s", em.getTimestamp(), e.getMessage());
+      command.err("Unknown error[%s @ %s]: %s", e.getClass().getSimpleName(), em.getTimestamp(), e.getMessage());
     } finally {
       command.report();
       exit(exitCode);

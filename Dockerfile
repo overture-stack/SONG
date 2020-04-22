@@ -26,8 +26,8 @@ ENV PATH $PATH:$SONG_HOME/bin
 RUN addgroup -S -g $SONG_GID $SONG_USER  \
     && adduser -S -u $SONG_UID -G $SONG_USER $SONG_USER  \
     && mkdir -p $SONG_HOME $SONG_LOGS \
-    && chown -R $SONG_UID:$SONG_GID $SONG_HOME \ 
-	&& apk add bash==5.0.11-r1
+    && chown -R $SONG_UID:$SONG_GID $SONG_HOME \
+	&& apk add bash==5.0.11-r1 jq
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
 
