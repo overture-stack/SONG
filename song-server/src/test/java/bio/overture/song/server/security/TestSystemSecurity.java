@@ -1,15 +1,14 @@
 package bio.overture.song.server.security;
 
-import bio.overture.song.server.oauth.AccessTokenConverterWithExpiry;
-import lombok.val;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
+import bio.overture.song.server.oauth.AccessTokenConverterWithExpiry;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import static org.junit.Assert.assertEquals;
+import lombok.val;
+import org.junit.Test;
 
 public class TestSystemSecurity {
 
@@ -44,6 +43,7 @@ public class TestSystemSecurity {
     m.put("scope", Set.of("DCC.READ"));
     test_authorize(m, true);
   }
+
   @Test
   public void testExpiredValidGlobalScopeFails() {
     val m = new TreeMap<String, Object>();

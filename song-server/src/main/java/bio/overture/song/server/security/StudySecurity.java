@@ -20,9 +20,6 @@ import static bio.overture.song.server.security.TokenChecker.isExpired;
 import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
 
 import java.util.Set;
-
-import bio.overture.song.server.oauth.ExpiringOauth2Authentication;
-import javafx.beans.binding.ListExpression;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;

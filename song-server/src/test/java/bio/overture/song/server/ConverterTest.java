@@ -70,6 +70,7 @@ public class ConverterTest {
             referenceFile.getFileSize(),
             referenceFile.getFileMd5sum(),
             referenceFile.getFileAccess(),
+            referenceFile.getDataType(),
             referenceFile.getInfo());
     val outputFileUpdateRequest = fileConverter.fileEntityToFileUpdateRequest(referenceFile);
     assertEquals(outputFileUpdateRequest, referenceUpdateRequest);
@@ -142,6 +143,7 @@ public class ConverterTest {
             .studyId("ABC123")
             .fileName("myFilename.bam")
             .fileAccess("open")
+            .dataType("someDataType")
             .fileMd5sum(UNIQUE_MD5_1)
             .fileSize(777777L)
             .fileType("BAM")

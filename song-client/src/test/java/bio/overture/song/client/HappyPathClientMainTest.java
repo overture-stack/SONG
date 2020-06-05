@@ -416,6 +416,7 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   public void testUpdateFile() {
     Long size = 9999L;
     val access = "open";
+    val dataType = "someDataType";
     val info = "{\"firstName\" : \"John\"}";
     val md5 = randomGenerator.generateRandomMD5();
     val expectedUpdateRequest =
@@ -423,6 +424,7 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
             .fileSize(size)
             .fileAccess(access)
             .fileMd5sum(md5)
+            .dataType(dataType)
             .info(mapper().readTree(info))
             .build();
     val expectedUpdateResponse =
@@ -437,6 +439,8 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
         DUMMY_OBJECT_ID,
         "-s",
         size.toString(),
+        "-d",
+        dataType,
         "-m",
         md5,
         "-a",
@@ -452,6 +456,8 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
         size.toString(),
         "--md5",
         md5,
+        "--datatype",
+        dataType,
         "--access ",
         access,
         "--info",

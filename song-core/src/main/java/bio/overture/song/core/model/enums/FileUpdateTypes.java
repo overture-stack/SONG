@@ -59,6 +59,11 @@ public enum FileUpdateTypes {
     return isUnchanged(FileMetadata::getFileAccess, originalFile, fileUpdataData);
   }
 
+  private static boolean isUnchangedDataType(
+      FileMetadata originalFile, FileMetadata fileUpdataData) {
+    return isUnchanged(FileMetadata::getDataType, originalFile, fileUpdataData);
+  }
+
   private static boolean isUnchangedInfo(FileMetadata originalFile, FileMetadata fileUpdataData) {
     return isUnchanged(FileMetadata::getInfo, originalFile, fileUpdataData);
   }
@@ -70,6 +75,7 @@ public enum FileUpdateTypes {
 
   private static boolean isChangedMetadata(FileMetadata originalFile, FileMetadata fileUpdateData) {
     return !(isUnchangedAccess(originalFile, fileUpdateData)
+        && isUnchangedDataType(originalFile, fileUpdateData)
         && isUnchangedInfo(originalFile, fileUpdateData));
   }
 }
