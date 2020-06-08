@@ -27,12 +27,15 @@ import static java.lang.Integer.MIN_VALUE;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 import lombok.val;
 import org.junit.Test;
 
@@ -42,6 +45,18 @@ public class RandomGeneratorTest {
 
   private static long generateRandomSeed() {
     return RANDOM.nextLong();
+  }
+
+  @Test
+  public void testRandomElementIgnoring() {
+    val input = IntStream.range(-1000, 1000).boxed().collect(toUnmodifiableList());
+    val randomGenerator = createRandomGenerator("rand1-seed1", generateRandomSeed());
+    for (val x : input) {
+      val ignoreSet = new HashSet<>(input);
+      ignoreSet.remove(x);
+      val output = randomGenerator.randomElementIgnoring(input, ignoreSet);
+      assertEquals(x, output);
+    }
   }
 
   @Test
