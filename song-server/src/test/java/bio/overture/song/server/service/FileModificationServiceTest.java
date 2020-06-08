@@ -38,6 +38,7 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -53,6 +54,7 @@ import bio.overture.song.server.repository.FileRepository;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -120,6 +122,44 @@ public class FileModificationServiceTest {
             fileModificationService.securedFileWithAnalysisUpdate(
                 DEFAULT_STUDY_ID, DEFAULT_FILE_ID, dummyRequest),
         ILLEGAL_FILE_UPDATE_REQUEST);
+  }
+
+  @Test
+  @Transactional
+  public void updateDataType_PublishedOrUnpublished_Success(){
+
+    Stream.of(PUBLISHED, UNPUBLISHED).forEach(analysisState -> {
+      analysisService.securedUpdateState(DEFAULT_STUDY_ID, DEFAULT_ANALYSIS_ID, analysisState);
+      val originalAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
+      assertEquals(analysisState, resolveAnalysisState(originalAnalysis.getAnalysisState()));
+
+      val newDataType = randomGenerator.generateRandomUUIDAsString();
+      val originalFile =
+          fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+      assertNotEquals(newDataType, originalFile.getDataType());
+
+      // Create update request
+      val changeRequest = new FileUpdateRequest();
+      changeRequest.setDataType(newDataType);
+
+      // Do the file update
+      val changeResponse = fileModificationService.securedFileWithAnalysisUpdate(
+          DEFAULT_STUDY_ID, DEFAULT_FILE_ID, changeRequest);
+
+      // assert its a matadata update
+      assertEquals(METADATA_UPDATE, changeResponse.getFileUpdateType());
+      assertEquals(originalFile, changeResponse.getOriginalFile());
+      assertEquals(analysisState, changeResponse.getOriginalAnalysisState());
+
+      // Assert no change to analysis state
+      val unUpdatedAnalysis = analysisService.unsecuredDeepRead(DEFAULT_ANALYSIS_ID);
+      assertEquals(analysisState, resolveAnalysisState(unUpdatedAnalysis.getAnalysisState()));
+
+      val updatedFile =
+          fileConverter.convertToFileDTO(fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID));
+      assertEquals(newDataType, updatedFile.getDataType());
+    });
+
   }
 
   @Test
