@@ -33,7 +33,9 @@ import lombok.val;
 @Parameters(separators = "=", commandDescription = "Submit a payload to create an analysis")
 public class SubmitCommand extends Command {
 
-  @Parameter(names = {"-f", "--file"}, required = true)
+  @Parameter(
+      names = {"-f", "--file"},
+      required = true)
   private String fileName;
 
   @NonNull private CustomRestClientConfig clientConfig;

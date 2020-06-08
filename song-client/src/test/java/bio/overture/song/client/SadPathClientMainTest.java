@@ -17,63 +17,19 @@
 
 package bio.overture.song.client;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
 import bio.overture.song.client.cli.ClientMain;
 import bio.overture.song.client.config.CustomRestClientConfig;
-import bio.overture.song.core.model.Analysis;
-import bio.overture.song.core.model.AnalysisType;
-import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.Donor;
-import bio.overture.song.core.model.FileDTO;
-import bio.overture.song.core.model.FileUpdateRequest;
-import bio.overture.song.core.model.FileUpdateResponse;
-import bio.overture.song.core.model.PageDTO;
-import bio.overture.song.core.model.Sample;
-import bio.overture.song.core.model.Specimen;
-import bio.overture.song.core.model.SubmitResponse;
-import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.sdk.ManifestClient;
 import bio.overture.song.sdk.SongApi;
-import bio.overture.song.sdk.Toolbox;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import lombok.Lombok;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.IntStream;
-
-import static com.google.common.base.Preconditions.checkState;
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static bio.overture.song.core.model.ExportedPayload.createExportedPayload;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.utils.JsonUtils.mapper;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
@@ -96,5 +52,4 @@ public class SadPathClientMainTest extends AbstractClientMainTest {
     val e1 = executeMain("ping");
     assertTrue(getExitCode() == 1);
   }
-
 }
