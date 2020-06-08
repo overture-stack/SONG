@@ -279,7 +279,7 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
 
   @Test
   public void testIdSearch() {
-    val expectedFile = FileDTO.builder().objectId("FI1").build();
+    val expectedFile = new FileDTO().setObjectId("FI1");
     val expectedSample = Sample.builder().sampleId("SA1").build();
     val expectedSpecimen = Specimen.builder().specimenId("SP1").build();
     val expectedDonor = Donor.builder().donorId("DO1").build();
@@ -338,11 +338,10 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
             .map(fn -> touchFile(inputDir, fn))
             .map(
                 f ->
-                    FileDTO.builder()
-                        .fileName(f.getName())
-                        .objectId(randomGenerator.generateRandomUUIDAsString())
-                        .fileMd5sum(randomGenerator.generateRandomMD5())
-                        .build())
+                    new FileDTO()
+                        .setFileName(f.getName())
+                        .setObjectId(randomGenerator.generateRandomUUIDAsString())
+                        .setFileMd5sum(randomGenerator.generateRandomMD5()))
             .collect(toUnmodifiableList());
 
     // Mock api to return expected FileDTOs
