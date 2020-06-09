@@ -70,11 +70,10 @@ public class ManifestClientTest {
             .map(fn -> touchFile(inputDir, fn))
             .map(
                 f ->
-                    FileDTO.builder()
-                        .fileName(f.getName())
-                        .objectId(randomGenerator.generateRandomUUIDAsString())
-                        .fileMd5sum(randomGenerator.generateRandomMD5())
-                        .build())
+                    new FileDTO()
+                        .setFileName(f.getName())
+                        .setObjectId(randomGenerator.generateRandomUUIDAsString())
+                        .setFileMd5sum(randomGenerator.generateRandomMD5()))
             .collect(toUnmodifiableList());
 
     // Mock api to return expected FileDTOs

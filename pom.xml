@@ -21,7 +21,7 @@
     <groupId>bio.overture</groupId>
     <artifactId>song</artifactId>
     <packaging>pom</packaging>
-    <version>4.2.1</version>
+    <version>4.2.2</version>
     <modules>
         <module>song-core</module>
         <module>song-java-sdk</module>
@@ -370,6 +370,19 @@
                         <showWarnings>true</showWarnings>
                         <forceJavacCompilerUse>true</forceJavacCompilerUse>
                         <verbose>true</verbose>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${mapstruct.version}</version>
+                            </path>
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>${lombok.version}</version>
+							</path>
+                            <!-- other annotation processors -->
+                        </annotationProcessorPaths>
                     </configuration>
                     <dependencies>
                         <dependency>

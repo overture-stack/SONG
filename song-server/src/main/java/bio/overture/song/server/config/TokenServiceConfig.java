@@ -17,19 +17,14 @@
 package bio.overture.song.server.config;
 
 import bio.overture.song.server.oauth.AccessTokenConverterWithExpiry;
-import bio.overture.song.server.oauth.ExpiringOauth2Authentication;
 import bio.overture.song.server.oauth.RetryTokenServices;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
-
-import java.util.Map;
 
 @NoArgsConstructor
 @Configuration
@@ -55,6 +50,4 @@ public class TokenServiceConfig {
   public AccessTokenConverter accessTokenConverter() {
     return new AccessTokenConverterWithExpiry();
   }
-
 }
-

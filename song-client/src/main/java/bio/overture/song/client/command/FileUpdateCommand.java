@@ -51,6 +51,9 @@ public class FileUpdateCommand extends Command {
   @Parameter(names = {"-m", "--md5"})
   private String fileMd5;
 
+  @Parameter(names = {"-d", "--datatype"})
+  private String dataType;
+
   @Parameter(
       names = {"-a", "--access"},
       converter = AccessTypeConverter.class)
@@ -72,6 +75,7 @@ public class FileUpdateCommand extends Command {
             .fileSize(fileSize)
             .fileAccess(isNull(fileAccess) ? null : fileAccess.toString())
             .fileMd5sum(fileMd5)
+            .dataType(dataType)
             .info(fileInfoString)
             .build();
 

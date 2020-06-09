@@ -23,6 +23,9 @@
             "controlled"
           ]
         },
+        "dataType": {
+          "type": "string"
+        },
         "fileMd5sum": {
           "type": "string",
           "pattern": "^[a-fA-F0-9]{32}$"

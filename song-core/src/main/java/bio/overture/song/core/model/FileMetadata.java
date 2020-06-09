@@ -23,5 +23,7 @@ public interface FileMetadata {
 
   String getFileAccess();
 
+  String getDataType();
+
   JsonNode getInfo();
 }
