@@ -64,8 +64,11 @@ def run():
     here = path.abspath(path.dirname(__file__))
 
     # Get the long description from the README file
-    with open_(path.join(here, 'docs/index.rst'), encoding='utf-8') as file_:
-        long_description = file_.read()
+    index_path = path.join(here, 'docs/index.rst') 
+    long_description=""
+    if path.exists(index_path):
+        with open_(index_path, encoding='utf-8') as file_:
+            long_description = file_.read()
 
     if sys.version_info < REQUIRED_PY_VERSION:
         raise Exception(
