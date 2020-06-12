@@ -30,6 +30,7 @@ from __future__ import print_function, absolute_import
 # To use a consistent encoding
 from codecs import open as open_
 from os import path
+import os
 import sys
 import xml.etree.ElementTree as ET
 from datetime import datetime as dt
@@ -41,14 +42,27 @@ REQUIRED_PY_VERSION = (3, 6, 0)
 # ------------- Version extraction ----------------
 # Extract the version from the root pom.xml file
 # -------------------------------------------------
-pom_loc = '../pom.xml'
-def get_version_from_pom():
+def get_version_from_pom(pom_loc):
     tree = ET.parse(pom_loc)
     root = tree.getroot()
     for child in root:
         if 'version' in child.tag:
             print("version is: "+child.text)
             return child.text
+
+def writeToFile(content, path):
+    parent_dest_dir = os.path.dirname(path)
+    if parent_dest_dir != "" and not parent_dest_dir.startswith('./'):
+        os.makedirs(parent_dest_dir, exist_ok=True)
+    with open(path, "w") as f_output:
+        f_output.write(content)
+
+def read_file_contents(path):
+    contents = ""
+    with open(path, "r") as fh:
+        for line in fh.readlines():
+            contents += line
+    return contents
 
 def get_required_py_version_string():
     return ".".join([str(i) for i in REQUIRED_PY_VERSION])
@@ -57,18 +71,34 @@ def get_current_py_version_string():
     v = sys.version_info
     return ".".join([str(v.major), str(v.minor), str(v.micro)])
 
+def resolve_version():
+    here = path.abspath(path.dirname(__file__))
+    pom_loc = '../pom.xml'
+    pom_path = path.join(here, pom_loc) 
+    version_path = path.join(here, 'VERSION') 
+    if path.isfile(pom_path):
+        temp = get_version_from_pom(pom_path)
+        writeToFile(temp, version_path)
+    
+    # This step is needed to persist the VERSION file in the distribution
+    if path.isfile(version_path):
+        return read_file_contents(version_path)
+    else:
+        raise Exception("VERSION file does not exist")
+
+def resolve_description():
+    here = path.abspath(path.dirname(__file__))
+    description_path = path.join(here, 'README.md') 
+    if path.isfile(description_path):
+        return read_file_contents(description_path)
+    else:
+        raise Exception("The file %s does not exist" % description_path)
+
 def run():
     """
     Run the setup program
     """
     here = path.abspath(path.dirname(__file__))
-
-    # Get the long description from the README file
-    index_path = path.join(here, 'docs/index.rst') 
-    long_description=""
-    if path.exists(index_path):
-        with open_(index_path, encoding='utf-8') as file_:
-            long_description = file_.read()
 
     if sys.version_info < REQUIRED_PY_VERSION:
         raise Exception(
@@ -81,9 +111,10 @@ def run():
         # single-sourcing the version across setup.py and the project code,
         # see
         # https://packaging.python.org/en/latest/single_source_version.html
-        version=get_version_from_pom(),
+        version=resolve_version(),
         description="A Python library interface to the SONG REST Server",
-        long_description=long_description,
+        long_description=resolve_description(),
+        long_description_content_type='text/markdown',
 
         # The project's main homepage.
         url='https://github.com/overture-stack/SONG',
