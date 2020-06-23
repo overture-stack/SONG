@@ -86,7 +86,6 @@ public class AnalysisTypeController {
       @ApiParam(
               value = "Optionally, retrieve a specific version of the analysisType",
               type = "integer",
-              defaultValue = "false",
               required = false)
           @RequestParam(value = "version", required = false)
           Integer version) {
