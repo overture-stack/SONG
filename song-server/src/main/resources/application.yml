@@ -54,6 +54,13 @@ spring:
     hikari:
       connection-timeout: 500
 
+logging:
+  level:
+    io:
+      swagger:
+        models:
+          parameters:
+            AbstractSerializableParameter: ERROR
 
 # Hibernate SQL Debugging
 #spring.jpa.properties.hibernate.format_sql: true
