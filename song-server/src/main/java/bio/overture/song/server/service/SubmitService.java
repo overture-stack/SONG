@@ -58,7 +58,6 @@ public class SubmitService {
     this.studyService = studyService;
   }
 
-  @Transactional
   public SubmitResponse submit(@NonNull String studyId, String payloadString) {
     // Check study exists
     studyService.checkStudyExist(studyId);

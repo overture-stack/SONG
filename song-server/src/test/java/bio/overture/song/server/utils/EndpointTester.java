@@ -150,6 +150,14 @@ public class EndpointTester {
         .putAnd();
   }
 
+  // GET /studies/{}/analysis/{aid}
+  public ResponseOption getAnalysisGetRequestAnd(
+      @NonNull String studyId, @NonNull String analysisId) {
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/%s", studyId, analysisId)
+        .getAnd();
+  }
+
   // GET /schemas/<name>?version=<integer>&unrenderedOnly=<boolean>
   public ResponseOption getAnalysisTypeVersionGetRequestAnd(
       @NonNull String analysisTypeName, @Nullable Integer version, boolean unrenderedOnly) {

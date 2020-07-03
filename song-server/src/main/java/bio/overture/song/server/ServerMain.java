@@ -19,8 +19,10 @@ package bio.overture.song.server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /** Application entry point. */
+@EnableTransactionManagement
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class ServerMain {
 

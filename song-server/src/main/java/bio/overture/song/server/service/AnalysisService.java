@@ -125,33 +125,34 @@ public class AnalysisService {
   @Autowired private final AnalysisTypeService analysisTypeService;
   @Autowired private final ValidationService validationService;
 
-  @Transactional
   public String create(@NonNull String studyId, @NonNull Payload payload) {
-    studyService.checkStudyExist(studyId);
-
-    val analysisId = idService.generateAnalysisId();
-    val analysisSchema =
-        analysisTypeService.getAnalysisSchema(
-            payload.getAnalysisType().getName(), payload.getAnalysisType().getVersion());
-
-    val analysisData = AnalysisData.builder().data(toJsonNode(payload.getData())).build();
-    analysisDataRepository.save(analysisData);
-
-    val a = new Analysis();
-    a.setFiles(payload.getFiles());
-    a.setSamples(payload.getSamples());
-    a.setAnalysisId(analysisId);
-    a.setAnalysisState(UNPUBLISHED.name());
-    a.setStudyId(studyId);
-
-    analysisData.setAnalysis(a);
-    analysisSchema.associateAnalysis(a);
-
-    saveCompositeEntities(studyId, analysisId, a.getSamples());
-    saveFiles(analysisId, studyId, a.getFiles());
-
-    sendAnalysisMessage(createAnalysisMessage(analysisId, studyId, UNPUBLISHED, songServerId));
+    val analysisId = transactionalCreate(studyId, payload);
+    sendAnalysisMessage(studyId, analysisId, UNPUBLISHED);
     return analysisId;
+  }
+
+  /**
+   *  SONG-645 - transactionalPublish placed here so that when the transaction is complete,
+   *  the kafka message is sent. Previously, the message was send before the transaction was committed.
+   *  Likewise for create, suppress, and unpublish
+   */
+  public ResponseEntity<String> publish(
+      @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
+    transactionalPublish(studyId,id,ignoreUndefinedMd5);
+    sendAnalysisMessage(studyId, id, PUBLISHED);
+    return ok("AnalysisId %s successfully published", id);
+  }
+
+  public ResponseEntity<String> unpublish(@NonNull String studyId, @NonNull String id) {
+    transactionalUnpublish(studyId, id);
+    sendAnalysisMessage(studyId, id, UNPUBLISHED);
+    return ok("AnalysisId %s successfully unpublished", id);
+  }
+
+  public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String id) {
+    transactionalSuppress(studyId, id);
+    sendAnalysisMessage(studyId, id, SUPPRESSED);
+    return ok("AnalysisId %s was suppressed", id);
   }
 
   @Transactional
@@ -310,42 +311,6 @@ public class AnalysisService {
     return files;
   }
 
-  @Transactional
-  public ResponseEntity<String> publish(
-      @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
-    checkAnalysisAndStudyRelated(studyId, id);
-
-    val a = unsecuredDeepRead(id);
-    val analysisSchema = a.getAnalysisSchema();
-    checkAnalysisTypeVersion(analysisSchema);
-    val files = a.getFiles();
-    checkMissingFiles(id, files);
-    val file2storageObjectMap = getStorageObjectsForFiles(files);
-    checkMismatchingFileSizes(id, file2storageObjectMap);
-    checkMismatchingFileMd5sums(id, file2storageObjectMap, ignoreUndefinedMd5);
-    checkedUpdateState(id, PUBLISHED);
-    return ok("AnalysisId %s successfully published", id);
-  }
-
-  @Transactional
-  public ResponseEntity<String> unpublish(@NonNull String studyId, @NonNull String id) {
-    checkAnalysisAndStudyRelated(studyId, id);
-    checkNotSuppressed(
-        id,
-        "Cannot change the analysis state for analysisId '%s' from '%s' to '%s'",
-        id,
-        SUPPRESSED,
-        UNPUBLISHED);
-    checkedUpdateState(id, UNPUBLISHED);
-    return ok("AnalysisId %s successfully unpublished", id);
-  }
-
-  @Transactional
-  public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String id) {
-    checkAnalysisAndStudyRelated(studyId, id);
-    checkedUpdateState(id, SUPPRESSED);
-    return ok("AnalysisId %s was suppressed", id);
-  }
 
   public List<CompositeEntity> readSamples(String id) {
     val samples =
@@ -384,6 +349,67 @@ public class AnalysisService {
         .map(Analysis::getAnalysisState)
         .map(AnalysisStates::resolveAnalysisState)
         .get();
+  }
+
+  @Transactional
+  protected void transactionalPublish(
+      @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
+    checkAnalysisAndStudyRelated(studyId, id);
+
+    val a = unsecuredDeepRead(id);
+    val analysisSchema = a.getAnalysisSchema();
+    checkAnalysisTypeVersion(analysisSchema);
+    val files = a.getFiles();
+    checkMissingFiles(id, files);
+    val file2storageObjectMap = getStorageObjectsForFiles(files);
+    checkMismatchingFileSizes(id, file2storageObjectMap);
+    checkMismatchingFileMd5sums(id, file2storageObjectMap, ignoreUndefinedMd5);
+    checkedUpdateState(id, PUBLISHED);
+  }
+
+  @Transactional
+  protected void transactionalUnpublish(@NonNull String studyId, @NonNull String id) {
+    checkAnalysisAndStudyRelated(studyId, id);
+    checkNotSuppressed(
+        id,
+        "Cannot change the analysis state for analysisId '%s' from '%s' to '%s'",
+        id,
+        SUPPRESSED,
+        UNPUBLISHED);
+    checkedUpdateState(id, UNPUBLISHED);
+  }
+
+  @Transactional
+  protected void transactionalSuppress(@NonNull String studyId, @NonNull String id) {
+    checkAnalysisAndStudyRelated(studyId, id);
+    checkedUpdateState(id, SUPPRESSED);
+  }
+
+  @Transactional
+  protected String transactionalCreate(@NonNull String studyId, @NonNull Payload payload) {
+    studyService.checkStudyExist(studyId);
+
+    val analysisId = idService.generateAnalysisId();
+    val analysisSchema =
+        analysisTypeService.getAnalysisSchema(
+            payload.getAnalysisType().getName(), payload.getAnalysisType().getVersion());
+
+    val analysisData = AnalysisData.builder().data(toJsonNode(payload.getData())).build();
+    analysisDataRepository.save(analysisData);
+
+    val a = new Analysis();
+    a.setFiles(payload.getFiles());
+    a.setSamples(payload.getSamples());
+    a.setAnalysisId(analysisId);
+    a.setAnalysisState(UNPUBLISHED.name());
+    a.setStudyId(studyId);
+
+    analysisData.setAnalysis(a);
+    analysisSchema.associateAnalysis(a);
+
+    saveCompositeEntities(studyId, analysisId, a.getSamples());
+    saveFiles(analysisId, studyId, a.getFiles());
+    return analysisId;
   }
 
   private void checkAnalysisTypeVersion(AnalysisSchema a) {
@@ -441,8 +467,11 @@ public class AnalysisService {
     val analysis = shallowRead(id);
     analysis.setAnalysisState(state);
     repository.save(analysis);
+  }
+
+  private void sendAnalysisMessage(String studyId, String analysisId, AnalysisStates analysisState){
     sendAnalysisMessage(
-        createAnalysisMessage(id, analysis.getStudyId(), analysisState, songServerId));
+        createAnalysisMessage(analysisId, analysisId, analysisState, songServerId));
   }
 
   private boolean confirmUploaded(String fileId) {
