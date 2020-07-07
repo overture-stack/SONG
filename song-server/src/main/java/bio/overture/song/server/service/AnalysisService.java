@@ -7,19 +7,17 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.NonNull;
-import org.springframework.http.ResponseEntity;
-
-import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import lombok.NonNull;
+import org.springframework.http.ResponseEntity;
 
 public interface AnalysisService {
 
   String create(String studyId, Payload payload);
 
-  void updateAnalysis( String studyId, String analysisId, JsonNode updateAnalysisRequest);
+  void updateAnalysis(String studyId, String analysisId, JsonNode updateAnalysisRequest);
 
   List<Analysis> getAnalysis(String studyId, Set<String> analysisStates);
 
@@ -37,7 +35,7 @@ public interface AnalysisService {
 
   List<FileEntity> unsecuredReadFiles(String id);
 
-  ResponseEntity<String> publish( String studyId, String id, boolean ignoreUndefinedMd5);
+  ResponseEntity<String> publish(String studyId, String id, boolean ignoreUndefinedMd5);
 
   ResponseEntity<String> unpublish(String studyId, String id);
 
@@ -60,5 +58,4 @@ public interface AnalysisService {
     checkAnalysisAndStudyRelated(studyId, id);
     return unsecuredDeepRead(id);
   }
-
 }

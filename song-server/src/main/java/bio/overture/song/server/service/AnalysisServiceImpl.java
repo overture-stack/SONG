@@ -36,11 +36,9 @@ import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAna
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
@@ -53,8 +51,6 @@ import static java.util.Objects.isNull;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.kafka.AnalysisMessage;
-import bio.overture.song.server.kafka.Sender;
 import bio.overture.song.server.model.SampleSet;
 import bio.overture.song.server.model.SampleSetPK;
 import bio.overture.song.server.model.StorageObject;
@@ -90,7 +86,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -102,8 +97,7 @@ public class AnalysisServiceImpl implements AnalysisService {
   private static final Joiner SPACED_COMMA = Joiner.on(" , ");
   private static final Set<String> DEFAULT_ANALYSIS_STATES = ImmutableSet.of(PUBLISHED.toString());
 
-  @Autowired
-  private final String analysisUpdateBaseJson;
+  @Autowired private final String analysisUpdateBaseJson;
 
   @Autowired private final AnalysisRepository repository;
   @Autowired private final FileInfoService fileInfoService;
@@ -192,7 +186,8 @@ public class AnalysisServiceImpl implements AnalysisService {
    * @param analysisStates only return analyses that have values from this non-empty list
    * @return returns a List of analysis with the child entities.
    */
-  @Override public List<Analysis> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
+  @Override
+  public List<Analysis> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
     studyService.checkStudyExist(studyId);
     val finalStates = resolveSelectedAnalysisStates(analysisStates);
     val analyses =
@@ -215,7 +210,8 @@ public class AnalysisServiceImpl implements AnalysisService {
    * @return returns a list of analysis with child entities in response to the search request. If
    *     nothing is found, an empty list is returned.
    */
-  @Override public List<Analysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request) {
+  @Override
+  public List<Analysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request) {
     val analysisList =
         searchRepository.idSearch(studyId, request).stream()
             .map(Analysis::getAnalysisId)
@@ -227,15 +223,18 @@ public class AnalysisServiceImpl implements AnalysisService {
     return analysisList;
   }
 
-  @Override public boolean isAnalysisExist(@NonNull String id) {
+  @Override
+  public boolean isAnalysisExist(@NonNull String id) {
     return repository.existsById(id);
   }
 
-  @Override public void checkAnalysisExists(String id) {
+  @Override
+  public void checkAnalysisExists(String id) {
     validateAnalysisExistence(isAnalysisExist(id), id);
   }
 
-  @Override public void checkAnalysisAndStudyRelated(@NonNull String studyId, @NonNull String id) {
+  @Override
+  public void checkAnalysisAndStudyRelated(@NonNull String studyId, @NonNull String id) {
     val numAnalyses = repository.countAllByStudyIdAndAnalysisId(studyId, id);
     if (numAnalyses < 1) {
       studyService.checkStudyExist(studyId);
@@ -250,7 +249,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
   }
 
-  @Override public List<Analysis> unsecuredDeepReads(@NonNull Collection<String> ids) {
+  @Override
+  public List<Analysis> unsecuredDeepReads(@NonNull Collection<String> ids) {
     val analyses = repository.findAll(new AnalysisSpecificationBuilder(true, true).buildByIds(ids));
     analyses.forEach(
         a -> {
@@ -265,16 +265,16 @@ public class AnalysisServiceImpl implements AnalysisService {
    * Unsecurely reads an analysis WITH all of its files, samples and info, but does not verify if
    * the studyId used in the request is allowed to read this analysis
    */
-  @Override public Analysis unsecuredDeepRead(@NonNull String id) {
+  @Override
+  public Analysis unsecuredDeepRead(@NonNull String id) {
     val analysis = shallowRead(id);
     analysis.setFiles(unsecuredReadFiles(id));
     analysis.setSamples(readSamples(id));
     return analysis;
   }
 
-
-
-  @Override public List<FileEntity> unsecuredReadFiles(@NonNull String id) {
+  @Override
+  public List<FileEntity> unsecuredReadFiles(@NonNull String id) {
     val files =
         fileRepository.findAllByAnalysisId(id).stream()
             .peek(f -> f.setInfo(fileInfoService.readNullableInfo(f.getObjectId())))
@@ -293,7 +293,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     return files;
   }
 
-  @Override @Transactional
+  @Override
+  @Transactional
   public ResponseEntity<String> publish(
       @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
@@ -324,14 +325,16 @@ public class AnalysisServiceImpl implements AnalysisService {
     return ok("AnalysisId %s successfully unpublished", id);
   }
 
-  @Override @Transactional
+  @Override
+  @Transactional
   public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
     checkedUpdateState(id, SUPPRESSED);
     return ok("AnalysisId %s was suppressed", id);
   }
 
-  @Override public List<CompositeEntity> readSamples(String id) {
+  @Override
+  public List<CompositeEntity> readSamples(String id) {
     val samples =
         sampleSetRepository.findAllBySampleSetPK_AnalysisId(id).stream()
             .map(SampleSet::getSampleSetPK)
@@ -361,7 +364,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     checkedUpdateState(id, analysisState);
   }
 
-  @Override public AnalysisStates readState(@NonNull String id) {
+  @Override
+  public AnalysisStates readState(@NonNull String id) {
     checkAnalysisExists(id);
     return repository
         .findById(id)

@@ -32,7 +32,6 @@ import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.server.model.dto.Payload;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
-
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

@@ -1,5 +1,11 @@
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
+
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.kafka.Sender;
 import bio.overture.song.server.model.analysis.Analysis;
@@ -8,6 +14,9 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,19 +25,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
-
 @Component
 @Primary
-public class AnalysisServiceSender implements AnalysisService{
+public class AnalysisServiceSender implements AnalysisService {
 
   private final String songServerId;
   private final Sender sender;
@@ -44,9 +43,7 @@ public class AnalysisServiceSender implements AnalysisService{
     this.internalAnalysisService = analysisServiceImpl;
   }
 
-  /**
-   * Decorated methods
-   */
+  /** Decorated methods */
   @Override
   public String create(String studyId, Payload payload) {
     val id = internalAnalysisService.create(studyId, payload);
@@ -75,63 +72,74 @@ public class AnalysisServiceSender implements AnalysisService{
     return resp;
   }
 
-  /**
-   * Delegated methods
-   */
-  @Override public void updateAnalysis(String studyId, String analysisId,
-      JsonNode updateAnalysisRequest) {
+  /** Delegated methods */
+  @Override
+  public void updateAnalysis(String studyId, String analysisId, JsonNode updateAnalysisRequest) {
     internalAnalysisService.updateAnalysis(studyId, analysisId, updateAnalysisRequest);
   }
 
-  @Override public List<Analysis> getAnalysis(String studyId, Set<String> analysisStates) {
+  @Override
+  public List<Analysis> getAnalysis(String studyId, Set<String> analysisStates) {
     return internalAnalysisService.getAnalysis(studyId, analysisStates);
   }
 
-  @Override public List<Analysis> idSearch(String studyId, IdSearchRequest request) {
+  @Override
+  public List<Analysis> idSearch(String studyId, IdSearchRequest request) {
     return internalAnalysisService.idSearch(studyId, request);
   }
 
-  @Override public boolean isAnalysisExist(String id) {
+  @Override
+  public boolean isAnalysisExist(String id) {
     return internalAnalysisService.isAnalysisExist(id);
   }
 
-  @Override public void checkAnalysisExists(String id) {
+  @Override
+  public void checkAnalysisExists(String id) {
     internalAnalysisService.checkAnalysisExists(id);
   }
 
-  @Override public void checkAnalysisAndStudyRelated(String studyId, String id) {
+  @Override
+  public void checkAnalysisAndStudyRelated(String studyId, String id) {
     internalAnalysisService.checkAnalysisAndStudyRelated(studyId, id);
   }
 
-  @Override public List<Analysis> unsecuredDeepReads(Collection<String> ids) {
+  @Override
+  public List<Analysis> unsecuredDeepReads(Collection<String> ids) {
     return internalAnalysisService.unsecuredDeepReads(ids);
   }
 
-  @Override public Analysis unsecuredDeepRead(String id) {
+  @Override
+  public Analysis unsecuredDeepRead(String id) {
     return internalAnalysisService.unsecuredDeepRead(id);
   }
 
-  @Override public List<FileEntity> unsecuredReadFiles(String id) {
+  @Override
+  public List<FileEntity> unsecuredReadFiles(String id) {
     return internalAnalysisService.unsecuredReadFiles(id);
   }
 
-  @Override public List<CompositeEntity> readSamples(String id) {
+  @Override
+  public List<CompositeEntity> readSamples(String id) {
     return internalAnalysisService.readSamples(id);
   }
 
-  @Override public AnalysisStates readState(String id) {
+  @Override
+  public AnalysisStates readState(String id) {
     return internalAnalysisService.readState(id);
   }
 
-  @Override public List<FileEntity> securedReadFiles(@NonNull String studyId, String id) {
+  @Override
+  public List<FileEntity> securedReadFiles(@NonNull String studyId, String id) {
     return internalAnalysisService.securedReadFiles(studyId, id);
   }
 
-  @Override public Analysis securedDeepRead(@NonNull String studyId, String id) {
+  @Override
+  public Analysis securedDeepRead(@NonNull String studyId, String id) {
     return internalAnalysisService.securedDeepRead(studyId, id);
   }
 
-  private void sendAnalysisMessage(String studyId, String analysisId, AnalysisStates analysisState) {
+  private void sendAnalysisMessage(
+      String studyId, String analysisId, AnalysisStates analysisState) {
     val message = createAnalysisMessage(analysisId, studyId, analysisState, songServerId);
     sender.send(toJson(message));
   }

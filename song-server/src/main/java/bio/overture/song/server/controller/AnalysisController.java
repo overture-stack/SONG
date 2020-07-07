@@ -16,6 +16,12 @@
  */
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.utils.Separators.COMMA;
+import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
@@ -25,11 +31,11 @@ import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,14 +48,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 
 @RestController
 @RequestMapping("/studies/{studyId}/analysis")
@@ -75,8 +73,7 @@ public class AnalysisController {
   private final AnalysisService analysisService;
 
   @Autowired
-  public AnalysisController(
-      @NonNull AnalysisService analysisService) {
+  public AnalysisController(@NonNull AnalysisService analysisService) {
     this.analysisService = analysisService;
   }
 

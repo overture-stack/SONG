@@ -59,7 +59,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.transaction.Transactional;
-
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.util.Arrays;
