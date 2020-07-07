@@ -59,6 +59,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.transaction.Transactional;
+
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.util.Arrays;
@@ -78,7 +79,7 @@ public class FileModificationServiceTest {
 
   @Autowired FileService fileService;
   @Autowired StudyService studyService;
-  @Autowired AnalysisService analysisService;
+  @Autowired AnalysisServiceImpl analysisService;
 
   @Autowired FileModificationService fileModificationService;
   @Autowired FileConverter fileConverter;

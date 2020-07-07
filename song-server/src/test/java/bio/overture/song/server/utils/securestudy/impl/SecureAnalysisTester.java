@@ -17,18 +17,19 @@
 
 package bio.overture.song.server.utils.securestudy.impl;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;
-import java.util.function.BiConsumer;
 import lombok.NonNull;
 import lombok.val;
+
+import java.util.function.BiConsumer;
+
+import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 
 /**
  * Utility test class that tests study security associated with analysis entities. Ensures that the

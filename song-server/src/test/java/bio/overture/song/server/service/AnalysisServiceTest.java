@@ -107,7 +107,7 @@ public class AnalysisServiceTest {
       stream(AnalysisStates.values()).map(AnalysisStates::toString).collect(toImmutableSet());
 
   @Autowired FileService fileService;
-  @Autowired AnalysisService service;
+  @Autowired AnalysisServiceImpl service;
   @Autowired IdService idService;
   @Autowired private StudyService studyService;
   @Autowired private SampleRepository sampleRepository;

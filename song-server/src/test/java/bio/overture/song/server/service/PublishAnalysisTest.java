@@ -81,7 +81,7 @@ public class PublishAnalysisTest {
   private static final int MIN_SIZE = 1 << 3;
   private static final List<FileEntity> EMPTY_FILE_LIST = ImmutableList.of();
 
-  @Autowired private AnalysisService service;
+  @Autowired private AnalysisServiceImpl service;
 
   @Autowired private FileService fileService;
 
