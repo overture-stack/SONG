@@ -32,6 +32,7 @@ import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
 import bio.overture.song.server.repository.BusinessKeyRepository;
 import bio.overture.song.server.repository.SpecimenRepository;
+import bio.overture.song.server.service.InfoService.SpecimenInfoService;
 import bio.overture.song.server.service.id.IdService;
 import java.util.ArrayList;
 import java.util.List;

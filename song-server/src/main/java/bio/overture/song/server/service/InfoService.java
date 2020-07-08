@@ -44,7 +44,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-abstract class InfoService {
+public abstract class InfoService {
 
   private final InfoTypes type;
   private final InfoRepository infoRepository;
@@ -119,60 +119,60 @@ abstract class InfoService {
     val searchRequest = ids.stream().map(this::buildPK).collect(toList());
     return infoRepository.findAllByInfoPKIn(searchRequest);
   }
-}
 
-@Service
-class StudyInfoService extends InfoService {
-  @Autowired
-  StudyInfoService(InfoRepository repo) {
-    super(InfoTypes.STUDY, repo);
+  @Service
+  public static class StudyInfoService extends InfoService {
+    @Autowired
+    StudyInfoService(InfoRepository repo) {
+      super(InfoTypes.STUDY, repo);
+    }
   }
-}
 
-@Service
-class DonorInfoService extends InfoService {
-  @Autowired
-  DonorInfoService(InfoRepository repo) {
-    super(InfoTypes.DONOR, repo);
+  @Service
+  public static class DonorInfoService extends InfoService {
+    @Autowired
+    DonorInfoService(InfoRepository repo) {
+      super(InfoTypes.DONOR, repo);
+    }
   }
-}
 
-@Service
-class SpecimenInfoService extends InfoService {
-  @Autowired
-  SpecimenInfoService(InfoRepository repo) {
-    super(InfoTypes.SPECIMEN, repo);
+  @Service
+  public static class SpecimenInfoService extends InfoService {
+    @Autowired
+    SpecimenInfoService(InfoRepository repo) {
+      super(InfoTypes.SPECIMEN, repo);
+    }
   }
-}
 
-@Service
-class SampleInfoService extends InfoService {
-  @Autowired
-  SampleInfoService(InfoRepository repo) {
-    super(InfoTypes.SAMPLE, repo);
+  @Service
+  public static class SampleInfoService extends InfoService {
+    @Autowired
+    SampleInfoService(InfoRepository repo) {
+      super(InfoTypes.SAMPLE, repo);
+    }
   }
-}
 
-@Service
-class FileInfoService extends InfoService {
-  @Autowired
-  FileInfoService(InfoRepository repo) {
-    super(InfoTypes.FILE, repo);
+  @Service
+  public static class FileInfoService extends InfoService {
+    @Autowired
+    FileInfoService(InfoRepository repo) {
+      super(InfoTypes.FILE, repo);
+    }
   }
-}
 
-@Service
-class VariantCallInfoService extends InfoService {
-  @Autowired
-  VariantCallInfoService(InfoRepository repo) {
-    super(InfoTypes.VARIANT_CALL, repo);
+  @Service
+  public static class VariantCallInfoService extends InfoService {
+    @Autowired
+    VariantCallInfoService(InfoRepository repo) {
+      super(InfoTypes.VARIANT_CALL, repo);
+    }
   }
-}
 
-@Service
-class SequencingReadInfoService extends InfoService {
-  @Autowired
-  SequencingReadInfoService(InfoRepository repo) {
-    super(SEQUENCING_READ, repo);
+  @Service
+  public static class SequencingReadInfoService extends InfoService {
+    @Autowired
+    SequencingReadInfoService(InfoRepository repo) {
+      super(SEQUENCING_READ, repo);
+    }
   }
 }

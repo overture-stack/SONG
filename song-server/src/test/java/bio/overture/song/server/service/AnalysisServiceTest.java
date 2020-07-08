@@ -67,6 +67,7 @@ import bio.overture.song.server.repository.AnalysisRepository;
 import bio.overture.song.server.repository.FileRepository;
 import bio.overture.song.server.repository.SampleRepository;
 import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.service.analysis.AnalysisServiceImpl;
 import bio.overture.song.server.service.id.IdService;
 import bio.overture.song.server.utils.TestAnalysis;
 import bio.overture.song.server.utils.generator.AnalysisGenerator;

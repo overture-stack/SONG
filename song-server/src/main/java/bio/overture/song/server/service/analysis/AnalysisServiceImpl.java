@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package bio.overture.song.server.service;
+package bio.overture.song.server.service.analysis;
 
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
@@ -67,6 +67,13 @@ import bio.overture.song.server.repository.SampleSetRepository;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.repository.search.SearchRepository;
 import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
+import bio.overture.song.server.service.AnalysisTypeService;
+import bio.overture.song.server.service.CompositeEntityService;
+import bio.overture.song.server.service.FileService;
+import bio.overture.song.server.service.InfoService.FileInfoService;
+import bio.overture.song.server.service.StorageService;
+import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.service.ValidationService;
 import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;

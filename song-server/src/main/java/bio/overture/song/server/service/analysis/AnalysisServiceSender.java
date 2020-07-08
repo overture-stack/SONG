@@ -1,4 +1,4 @@
-package bio.overture.song.server.service;
+package bio.overture.song.server.service.analysis;
 
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;

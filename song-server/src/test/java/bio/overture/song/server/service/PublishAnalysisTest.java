@@ -51,6 +51,7 @@ import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.service.analysis.AnalysisServiceImpl;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.google.common.collect.ImmutableList;
 import java.util.List;

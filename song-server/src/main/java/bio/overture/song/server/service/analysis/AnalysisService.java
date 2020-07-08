@@ -1,4 +1,4 @@
-package bio.overture.song.server.service;
+package bio.overture.song.server.service.analysis;
 
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.model.analysis.Analysis;

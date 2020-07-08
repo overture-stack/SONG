@@ -30,6 +30,7 @@ import static java.util.Objects.isNull;
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.service.analysis.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import lombok.NonNull;

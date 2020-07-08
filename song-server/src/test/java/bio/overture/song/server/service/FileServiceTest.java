@@ -37,6 +37,7 @@ import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.service.analysis.AnalysisService;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;

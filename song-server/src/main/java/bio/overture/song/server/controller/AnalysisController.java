@@ -25,7 +25,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
-import bio.overture.song.server.service.AnalysisService;
+import bio.overture.song.server.service.analysis.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
