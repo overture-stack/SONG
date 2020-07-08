@@ -160,19 +160,4 @@ public abstract class InfoService {
     }
   }
 
-  @Service
-  public static class VariantCallInfoService extends InfoService {
-    @Autowired
-    VariantCallInfoService(InfoRepository repo) {
-      super(InfoTypes.VARIANT_CALL, repo);
-    }
-  }
-
-  @Service
-  public static class SequencingReadInfoService extends InfoService {
-    @Autowired
-    SequencingReadInfoService(InfoRepository repo) {
-      super(SEQUENCING_READ, repo);
-    }
-  }
 }
