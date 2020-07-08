@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package bio.overture.song.server.service;
+package bio.overture.song.server.service.analysis;
 
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
@@ -36,11 +36,9 @@ import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAna
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
@@ -53,8 +51,6 @@ import static java.util.Objects.isNull;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.kafka.AnalysisMessage;
-import bio.overture.song.server.kafka.Sender;
 import bio.overture.song.server.model.SampleSet;
 import bio.overture.song.server.model.SampleSetPK;
 import bio.overture.song.server.model.StorageObject;
@@ -71,6 +67,13 @@ import bio.overture.song.server.repository.SampleSetRepository;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.repository.search.SearchRepository;
 import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
+import bio.overture.song.server.service.AnalysisTypeService;
+import bio.overture.song.server.service.CompositeEntityService;
+import bio.overture.song.server.service.FileService;
+import bio.overture.song.server.service.InfoService.FileInfoService;
+import bio.overture.song.server.service.StorageService;
+import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.service.ValidationService;
 import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -90,25 +93,18 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AnalysisService {
+public class AnalysisServiceImpl implements AnalysisService {
 
   private static final Joiner SPACED_COMMA = Joiner.on(" , ");
   private static final Set<String> DEFAULT_ANALYSIS_STATES = ImmutableSet.of(PUBLISHED.toString());
 
-  @Value("${song.id}")
-  private String songServerId;
-
-  @Autowired
-  @Qualifier("analysisUpdateBaseJson")
-  private final String analysisUpdateBaseJson;
+  @Autowired private final String analysisUpdateBaseJson;
 
   @Autowired private final AnalysisRepository repository;
   @Autowired private final FileInfoService fileInfoService;
@@ -117,7 +113,6 @@ public class AnalysisService {
   @Autowired private final FileService fileService;
   @Autowired private final StorageService storageService;
   @Autowired private final SearchRepository searchRepository;
-  @Autowired private final Sender sender;
   @Autowired private final StudyService studyService;
   @Autowired private final SampleSetRepository sampleSetRepository;
   @Autowired private final FileRepository fileRepository;
@@ -125,6 +120,7 @@ public class AnalysisService {
   @Autowired private final AnalysisTypeService analysisTypeService;
   @Autowired private final ValidationService validationService;
 
+  @Override
   @Transactional
   public String create(@NonNull String studyId, @NonNull Payload payload) {
     studyService.checkStudyExist(studyId);
@@ -150,10 +146,10 @@ public class AnalysisService {
     saveCompositeEntities(studyId, analysisId, a.getSamples());
     saveFiles(analysisId, studyId, a.getFiles());
 
-    sendAnalysisMessage(createAnalysisMessage(analysisId, studyId, UNPUBLISHED, songServerId));
     return analysisId;
   }
 
+  @Override
   @Transactional
   public void updateAnalysis(
       @NonNull String studyId,
@@ -197,6 +193,7 @@ public class AnalysisService {
    * @param analysisStates only return analyses that have values from this non-empty list
    * @return returns a List of analysis with the child entities.
    */
+  @Override
   public List<Analysis> getAnalysis(@NonNull String studyId, @NonNull Set<String> analysisStates) {
     studyService.checkStudyExist(studyId);
     val finalStates = resolveSelectedAnalysisStates(analysisStates);
@@ -220,6 +217,7 @@ public class AnalysisService {
    * @return returns a list of analysis with child entities in response to the search request. If
    *     nothing is found, an empty list is returned.
    */
+  @Override
   public List<Analysis> idSearch(@NonNull String studyId, @NonNull IdSearchRequest request) {
     val analysisList =
         searchRepository.idSearch(studyId, request).stream()
@@ -232,14 +230,17 @@ public class AnalysisService {
     return analysisList;
   }
 
+  @Override
   public boolean isAnalysisExist(@NonNull String id) {
     return repository.existsById(id);
   }
 
+  @Override
   public void checkAnalysisExists(String id) {
     validateAnalysisExistence(isAnalysisExist(id), id);
   }
 
+  @Override
   public void checkAnalysisAndStudyRelated(@NonNull String studyId, @NonNull String id) {
     val numAnalyses = repository.countAllByStudyIdAndAnalysisId(studyId, id);
     if (numAnalyses < 1) {
@@ -255,6 +256,7 @@ public class AnalysisService {
     }
   }
 
+  @Override
   public List<Analysis> unsecuredDeepReads(@NonNull Collection<String> ids) {
     val analyses = repository.findAll(new AnalysisSpecificationBuilder(true, true).buildByIds(ids));
     analyses.forEach(
@@ -270,6 +272,7 @@ public class AnalysisService {
    * Unsecurely reads an analysis WITH all of its files, samples and info, but does not verify if
    * the studyId used in the request is allowed to read this analysis
    */
+  @Override
   public Analysis unsecuredDeepRead(@NonNull String id) {
     val analysis = shallowRead(id);
     analysis.setFiles(unsecuredReadFiles(id));
@@ -277,20 +280,7 @@ public class AnalysisService {
     return analysis;
   }
 
-  /**
-   * Securely reads an analysis WITH all of its files, samples and info, and verifies the input
-   * studyId is related to the requested analysisId
-   */
-  public Analysis securedDeepRead(@NonNull String studyId, String id) {
-    checkAnalysisAndStudyRelated(studyId, id);
-    return unsecuredDeepRead(id);
-  }
-
-  public List<FileEntity> securedReadFiles(@NonNull String studyId, String id) {
-    checkAnalysisAndStudyRelated(studyId, id);
-    return unsecuredReadFiles(id);
-  }
-
+  @Override
   public List<FileEntity> unsecuredReadFiles(@NonNull String id) {
     val files =
         fileRepository.findAllByAnalysisId(id).stream()
@@ -310,6 +300,7 @@ public class AnalysisService {
     return files;
   }
 
+  @Override
   @Transactional
   public ResponseEntity<String> publish(
       @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
@@ -327,6 +318,7 @@ public class AnalysisService {
     return ok("AnalysisId %s successfully published", id);
   }
 
+  @Override
   @Transactional
   public ResponseEntity<String> unpublish(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
@@ -340,6 +332,7 @@ public class AnalysisService {
     return ok("AnalysisId %s successfully unpublished", id);
   }
 
+  @Override
   @Transactional
   public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
@@ -347,6 +340,7 @@ public class AnalysisService {
     return ok("AnalysisId %s was suppressed", id);
   }
 
+  @Override
   public List<CompositeEntity> readSamples(String id) {
     val samples =
         sampleSetRepository.findAllBySampleSetPK_AnalysisId(id).stream()
@@ -377,6 +371,7 @@ public class AnalysisService {
     checkedUpdateState(id, analysisState);
   }
 
+  @Override
   public AnalysisStates readState(@NonNull String id) {
     checkAnalysisExists(id);
     return repository
@@ -441,8 +436,6 @@ public class AnalysisService {
     val analysis = shallowRead(id);
     analysis.setAnalysisState(state);
     repository.save(analysis);
-    sendAnalysisMessage(
-        createAnalysisMessage(id, analysis.getStudyId(), analysisState, songServerId));
   }
 
   private boolean confirmUploaded(String fileId) {
@@ -497,10 +490,6 @@ public class AnalysisService {
 
     validateAnalysisExistence(analysisResult.isPresent(), id);
     return analysisResult.get();
-  }
-
-  private void sendAnalysisMessage(AnalysisMessage message) {
-    sender.send(toJson(message));
   }
 
   private static void checkMismatchingFileSizes(

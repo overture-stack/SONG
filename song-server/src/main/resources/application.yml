@@ -67,6 +67,9 @@ logging:
 #logging.level.org.hibernate.SQL: DEBUG
 #logging.level.org.hibernate.type.descriptor.sql: TRACE
 
+# Spring JPA Transaction logging
+#logging.level.org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+
 # When you are desperate, use this...
 #logging.level.org.hibernate: TRACE
 

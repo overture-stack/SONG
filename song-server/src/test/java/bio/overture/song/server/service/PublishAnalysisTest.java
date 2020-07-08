@@ -51,6 +51,7 @@ import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.service.analysis.AnalysisServiceImpl;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -81,7 +82,7 @@ public class PublishAnalysisTest {
   private static final int MIN_SIZE = 1 << 3;
   private static final List<FileEntity> EMPTY_FILE_LIST = ImmutableList.of();
 
-  @Autowired private AnalysisService service;
+  @Autowired private AnalysisServiceImpl service;
 
   @Autowired private FileService fileService;
 

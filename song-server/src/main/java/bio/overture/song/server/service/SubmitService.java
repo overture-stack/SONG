@@ -30,9 +30,9 @@ import static java.util.Objects.isNull;
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.service.analysis.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
-import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +58,6 @@ public class SubmitService {
     this.studyService = studyService;
   }
 
-  @Transactional
   public SubmitResponse submit(@NonNull String studyId, String payloadString) {
     // Check study exists
     studyService.checkStudyExist(studyId);

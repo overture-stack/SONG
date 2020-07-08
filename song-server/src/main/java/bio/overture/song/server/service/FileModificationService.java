@@ -35,6 +35,7 @@ import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.core.model.enums.FileUpdateTypes;
 import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.service.analysis.AnalysisService;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.val;

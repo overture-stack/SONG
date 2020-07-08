@@ -21,8 +21,8 @@ import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOU
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.service.analysis.AnalysisService;
 import bio.overture.song.server.utils.generator.LegacyAnalysisTypeName;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import bio.overture.song.server.utils.securestudy.SecureTestData;

@@ -25,6 +25,7 @@ import static java.lang.Thread.currentThread;
 
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.repository.StudyRepository;
+import bio.overture.song.server.service.InfoService.StudyInfoService;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.NonNull;

@@ -53,6 +53,7 @@ import bio.overture.song.core.utils.Streams;
 import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.service.analysis.AnalysisServiceImpl;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -78,7 +79,7 @@ public class FileModificationServiceTest {
 
   @Autowired FileService fileService;
   @Autowired StudyService studyService;
-  @Autowired AnalysisService analysisService;
+  @Autowired AnalysisServiceImpl analysisService;
 
   @Autowired FileModificationService fileModificationService;
   @Autowired FileConverter fileConverter;

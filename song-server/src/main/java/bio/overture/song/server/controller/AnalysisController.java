@@ -25,14 +25,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
-import bio.overture.song.server.service.AnalysisService;
+import bio.overture.song.server.service.analysis.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/studies/{studyId}/analysis")
 @Api(
     tags = "Analysis",
@@ -71,7 +70,12 @@ public class AnalysisController {
           + "}";
 
   /** Dependencies */
-  @Autowired private final AnalysisService analysisService;
+  private final AnalysisService analysisService;
+
+  @Autowired
+  public AnalysisController(@NonNull AnalysisService analysisService) {
+    this.analysisService = analysisService;
+  }
 
   @ApiOperation(
       value = "GetAnalysesForStudy",
