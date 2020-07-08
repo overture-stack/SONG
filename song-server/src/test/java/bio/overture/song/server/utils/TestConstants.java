@@ -17,11 +17,19 @@
 
 package bio.overture.song.server.utils;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static lombok.AccessLevel.PRIVATE;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @NoArgsConstructor(access = PRIVATE)
 public class TestConstants {
@@ -33,65 +41,111 @@ public class TestConstants {
   public static final String DEFAULT_SPECIMEN_ID = "SP1";
   public static final String DEFAULT_DONOR_ID = "DO1";
 
-  public static final Collection<String> SAMPLE_TYPE =
-      List.of(
-          "Total DNA",
-          "Amplified DNA",
-          "ctDNA",
-          "Other DNA enrichments",
-          "Total RNA",
-          "Ribo-Zero RNA",
-          "polyA+ RNA",
-          "Other RNA fractions");
+  @Getter
+  @RequiredArgsConstructor
+  public enum SampleTypes  implements  Constant{
+    TOTAL_DNA("Total DNA"),
+    AMPLIFIED_DNA("Amplified DNA"),
+    CTDNA("ctDNA"),
+    OTHER_DNA_ENRICHMENTS("Other DNA enrichments"),
+    TOTAL_RNA("Total RNA"),
+    RIBOZERO_RNA("Ribo-Zero RNA"),
+    POLYA_RNA("polyA+ RNA"),
+    OTHER_RNA_FRACTIONS("Other RNA fractions");
 
-  public static final List<String> TUMOUR_NORMAL_DESIGNATION = List.of("Normal", "Tumour");
+    @NonNull private final String text;
+  }
 
-  public static final List<String> SPECIMEN_TYPE =
-      List.of(
-          "Normal",
-          "Normal - tissue adjacent to primary tumour",
-          "Primary tumour",
-          "Primary tumour - adjacent to normal",
-          "Primary tumour - additional new primary",
-          "Recurrent tumour",
-          "Metastatic tumour",
-          "Metastatic tumour - metastasis local to lymph node",
-          "Metastatic tumour - metastasis to distant location",
-          "Metastatic tumour - additional metastatic",
-          "Xenograft - derived from primary tumour",
-          "Xenograft - derived from tumour cell line",
-          "Cell line - derived from xenograft tumour",
-          "Cell line - derived from tumour",
-          "Cell line - derived from normal");
+  @Getter
+  @RequiredArgsConstructor
+  public enum TumourNormalDesignations implements  Constant{
+    NORMAL("Normal"),
+    TUMOUR("Tumour");
+    @NonNull private final String text;
+  }
 
-  public static final List<String> SPECIMEN_TISSUE_SOURCE =
-      List.of(
-          "Blood derived",
-          "Blood derived - bone marrow",
-          "Blood derived - peripheral blood",
-          "Bone marrow",
-          "Buccal cell",
-          "Lymph node",
-          "Solid tissue",
-          "Plasma",
-          "Serum",
-          "Urine",
-          "Cerebrospinal fluid",
-          "Sputum",
-          "Other",
-          "Pleural effusion",
-          "Mononuclear cells from bone marrow",
-          "Saliva",
-          "Skin",
-          "Intestine",
-          "Buffy coat",
-          "Stomach",
-          "Esophagus",
-          "Tonsil",
-          "Spleen",
-          "Bone",
-          "Cerebellum",
-          "Endometrium");
+  @Getter
+  @RequiredArgsConstructor
+  public enum SpecimenTypes implements Constant{
+    NORMAL(                                             "Normal"),
+    NORMAL_TISSUE_ADJACENT_TO_PRIMARY_TUMOUR(           "Normal - tissue adjacent to primary tumour"),
+    PRIMARY_TUMOUR(                                     "Primary tumour"),
+    PRIMARY_TUMOUR_ADJACENT_TO_NORMAL(                  "Primary tumour - adjacent to normal"),
+    PRIMARY_TUMOUR_ADDITIONAL_NEW_PRIMARY(              "Primary tumour - additional new primary"),
+    RECURRENT_TUMOUR(                                   "Recurrent tumour"),
+    METASTATIC_TUMOUR(                                  "Metastatic tumour"),
+    METASTATIC_TUMOUR_METASTASIS_LOCAL_TO_LYMPH_NODE(   "Metastatic tumour - metastasis local to lymph node"),
+    METASTATIC_TUMOUR_METASTASIS_TO_DISTANT_LOCATION(   "Metastatic tumour - metastasis to distant location"),
+    METASTATIC_TUMOUR_ADDITIONAL_METASTATIC(            "Metastatic tumour - additional metastatic"),
+    XENOGRAFT_DERIVED_FROM_PRIMARY_TUMOUR(              "Xenograft - derived from primary tumour"),
+    XENOGRAFT_DERIVED_FROM_TUMOUR_CELL_LINE(            "Xenograft - derived from tumour cell line"),
+    CELL_LINE_DERIVED_FROM_XENOGRAFT_TUMOUR(            "Cell line - derived from xenograft tumour"),
+    CELL_LINE_DERIVED_FROM_TUMOUR(                      "Cell line - derived from tumour"),
+    CELL_LINE_DERIVED_FROM_NORMAL(                      "Cell line - derived from normal");
 
-  public static final Collection<String> GENDER = List.of("Male", "Female", "Other");
+    @NonNull private final String text;
+  }
+
+
+  @Getter
+  @RequiredArgsConstructor
+  public enum SpecimenTissueSources implements Constant{
+    BLOOD_DERIVED(                         "Blood derived"),
+    BLOOD_DERIVED_BONE_MARROW(             "Blood derived - bone marrow"),
+    BLOOD_DERIVED_PERIPHERAL_BLOOD(        "Blood derived - peripheral blood"),
+    BONE_MARROW(                           "Bone marrow"),
+    BUCCAL_CELL(                           "Buccal cell"),
+    LYMPH_NODE(                            "Lymph node"),
+    SOLID_TISSUE(                          "Solid tissue"),
+    PLASMA(                                "Plasma"),
+    SERUM(                                 "Serum"),
+    URINE(                                 "Urine"),
+    CEREBROSPINAL_FLUID(                   "Cerebrospinal fluid"),
+    SPUTUM(                                "Sputum"),
+    OTHER(                                 "Other"),
+    PLEURAL_EFFUSION(                      "Pleural effusion"),
+    MONONUCLEAR_CELLS_FROM_BONE_MARROW(    "Mononuclear cells from bone marrow"),
+    SALIVA(                                "Saliva"),
+    SKIN(                                  "Skin"),
+    INTESTINE(                             "Intestine"),
+    BUFFY_COAT(                            "Buffy coat"),
+    STOMACH(                               "Stomach"),
+    ESOPHAGUS(                             "Esophagus"),
+    TONSIL(                                "Tonsil"),
+    SPLEEN(                                "Spleen"),
+    BONE(                                  "Bone"),
+    CEREBELLUM(                            "Cerebellum"),
+    ENDOMETRIUM(                           "Endometrium");
+
+    @NonNull private final String text;
+  }
+
+  @Getter
+  @RequiredArgsConstructor
+  public enum Genders implements Constant{
+    MALE("Male"),
+    FEMALE("Female"),
+    OTHER("Other");
+
+    @NonNull private final String text;
+  }
+
+  public interface Constant{
+    String getText();
+  }
+
+  public static final Collection<String> SAMPLE_TYPE = getStringList(SampleTypes.values());
+
+  public static final List<String> TUMOUR_NORMAL_DESIGNATION = getStringList(TumourNormalDesignations.values());
+
+  public static final List<String> SPECIMEN_TYPE = getStringList(SpecimenTypes.values());
+
+  public static final List<String> SPECIMEN_TISSUE_SOURCE = getStringList(SpecimenTissueSources.values());
+
+  public static final Collection<String> GENDER = getStringList(Genders.values());
+
+  private static <T extends Constant> List<String> getStringList(T[] constants){
+    return stream(constants).map(Constant::getText).collect(toUnmodifiableList());
+  }
+
 }
