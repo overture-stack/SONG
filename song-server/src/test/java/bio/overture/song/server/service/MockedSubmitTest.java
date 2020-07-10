@@ -41,6 +41,7 @@ import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.UploadRepository;
+import bio.overture.song.server.service.analysis.AnalysisService;
 import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;

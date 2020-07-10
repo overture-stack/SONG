@@ -27,6 +27,7 @@ import static bio.overture.song.core.utils.Responses.OK;
 import bio.overture.song.server.converter.FileConverter;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.FileRepository;
+import bio.overture.song.server.service.InfoService.FileInfoService;
 import bio.overture.song.server.service.id.IdService;
 import java.util.List;
 import java.util.Optional;

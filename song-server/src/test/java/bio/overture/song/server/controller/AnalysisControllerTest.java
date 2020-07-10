@@ -28,6 +28,7 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
@@ -41,8 +42,9 @@ import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
-import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.service.analysis.AnalysisService;
+import bio.overture.song.server.service.analysis.AnalysisServiceSender;
 import bio.overture.song.server.utils.EndpointTester;
 import bio.overture.song.server.utils.generator.AnalysisGenerator;
 import bio.overture.song.server.utils.generator.StudyGenerator;
@@ -81,6 +83,7 @@ public class AnalysisControllerTest {
   // errors
   @Autowired private WebApplicationContext webApplicationContext;
   @Autowired private StudyService studyService;
+
   @Autowired private AnalysisService analysisService;
 
   /** State */
@@ -127,6 +130,16 @@ public class AnalysisControllerTest {
                 .name("variantCall")
                 .build())
         .assertOk();
+  }
+
+  @Test
+  public void testCorrectImplementation() {
+    val expectedClass = AnalysisServiceSender.class;
+    assertTrue(
+        format(
+            "Expected class is %s, but actual was %s",
+            expectedClass.getSimpleName(), analysisService.getClass().getSimpleName()),
+        expectedClass.isInstance(analysisService));
   }
 
   @Test

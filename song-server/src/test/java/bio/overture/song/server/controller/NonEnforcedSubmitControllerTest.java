@@ -24,8 +24,8 @@ import static junit.framework.TestCase.assertTrue;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
-import bio.overture.song.server.service.AnalysisService;
 import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.service.analysis.AnalysisService;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
