@@ -38,6 +38,8 @@ import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.service.StudyService;
+import bio.overture.song.server.utils.generator.PayloadGenerator;
+import bio.overture.song.server.utils.generator.StudyGenerator;
 import java.util.Set;
 import lombok.val;
 import org.junit.Test;
@@ -55,8 +57,18 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(properties = "schemas.enforceLatest=false")
 public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
 
+  /** Dependencies */
   @Autowired private WebApplicationContext webApplicationContext;
+
   @Autowired private StudyService studyService;
+
+  private final RandomGenerator randomGenerator =
+      createRandomGenerator(CorruptionSubmitControllerTest.class.getSimpleName());
+
+  /** State */
+  private PayloadGenerator payloadGenerator;
+
+  private StudyGenerator studyGenerator;
 
   @Override
   protected WebApplicationContext getWebApplicationContext() {
@@ -68,12 +80,16 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
     return studyService;
   }
 
-  private final RandomGenerator randomGenerator =
-      createRandomGenerator(CorruptionSubmitControllerTest.class.getSimpleName());
-
   @Override
   protected boolean isLoggingEnabled() {
     return false;
+  }
+
+  @Override
+  public void beforeEachTest() {
+    this.payloadGenerator = createPayloadGenerator(randomGenerator);
+    this.studyGenerator = createStudyGenerator(getStudyService(), randomGenerator);
+    super.beforeEachTest();
   }
 
   @Test
@@ -153,12 +169,10 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
   }
 
   private String randomStudy() {
-    val studyGenerator = createStudyGenerator(studyService, randomGenerator);
     return studyGenerator.createRandomStudy();
   }
 
   private Payload randomPayload() {
-    val payloadGenerator = createPayloadGenerator(randomGenerator);
     return payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
   }
 
