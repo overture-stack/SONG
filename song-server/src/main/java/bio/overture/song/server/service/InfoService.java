@@ -23,7 +23,6 @@ import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.server.model.entity.Info.createInfo;
 import static bio.overture.song.server.model.entity.InfoPK.createInfoPK;
-import static bio.overture.song.server.model.enums.InfoTypes.SEQUENCING_READ;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -159,5 +158,4 @@ public abstract class InfoService {
       super(InfoTypes.FILE, repo);
     }
   }
-
 }

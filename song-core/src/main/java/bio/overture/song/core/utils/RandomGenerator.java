@@ -28,7 +28,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.hash.Hashing;
-
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -251,8 +250,8 @@ public class RandomGenerator {
   }
 
   /**
-   * Select a random element from a collection, ignoring a set of values. This is useful for selecting
-   * random and different enum values
+   * Select a random element from a collection, ignoring a set of values. This is useful for
+   * selecting random and different enum values
    *
    * @param collection input collection to select from
    * @param ignoreSet set of values to exclude from randomization

@@ -118,9 +118,7 @@ public class AnalysisServiceTest {
   @Autowired private ExportService exportService;
 
   private final RandomGenerator randomGenerator =
-      createRandomGenerator(
-          AnalysisServiceTest.class.getSimpleName(),
-          1539118165994L); // createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
+      createRandomGenerator(AnalysisServiceTest.class.getSimpleName());
 
   private PayloadGenerator payloadGenerator;
   private AnalysisGenerator analysisGenerator;
