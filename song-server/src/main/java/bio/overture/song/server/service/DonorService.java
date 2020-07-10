@@ -22,7 +22,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPT
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.ID_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_DONOR_DATA;
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_SPECIMEN_DATA;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
@@ -30,9 +29,7 @@ import static bio.overture.song.core.utils.Responses.OK;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.server.model.entity.Donor;
-import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
 import bio.overture.song.server.repository.DonorRepository;
 import bio.overture.song.server.service.InfoService.DonorInfoService;

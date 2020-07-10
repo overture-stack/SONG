@@ -24,7 +24,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_TO_DONOR_I
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static java.util.Objects.isNull;
 
-import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
@@ -102,7 +101,8 @@ public class CompositeEntityService {
 
   private String getSampleParent(String studyId, CompositeEntity s) {
     val inputSpecimen = s.getSpecimen();
-    String specimenId = specimenService.findByBusinessKey(studyId, inputSpecimen.getSubmitterSpecimenId());
+    String specimenId =
+        specimenService.findByBusinessKey(studyId, inputSpecimen.getSubmitterSpecimenId());
 
     if (isNull(specimenId)) {
       inputSpecimen.setDonorId(getSpecimenParent(studyId, s));
@@ -122,8 +122,6 @@ public class CompositeEntityService {
       inputSpecimen.setSpecimenId(specimenId);
       inputSpecimen.setDonorId(getSpecimenParent(studyId, s));
       checkSameSpecimen(existingSpecimen, inputSpecimen);
-
-
     }
     return specimenId;
   }

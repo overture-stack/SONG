@@ -28,22 +28,17 @@ import static bio.overture.song.server.utils.TestConstants.GENDER;
 import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
 import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
 import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
-import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 import static bio.overture.song.server.utils.TestConstants.TumourNormalDesignations.NORMAL;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 
 import bio.overture.song.core.exceptions.ServerError;
-import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.service.StudyService;
 import java.util.Set;
-
-import bio.overture.song.server.utils.TestConstants;
-import bio.overture.song.server.utils.TestConstants.TumourNormalDesignations;
 import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -136,7 +131,11 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
    * data to be inconsistent with the previous, and submits it again. This simulates the case a
    * second request is made where immutable data is mutated.
    */
-  private void runTest(boolean mutatedSample, boolean mutatedSpecimen, boolean mutatedDonor, ServerError expectedError) {
+  private void runTest(
+      boolean mutatedSample,
+      boolean mutatedSpecimen,
+      boolean mutatedDonor,
+      ServerError expectedError) {
     val studyGenerator = createStudyGenerator(getStudyService(), randomGenerator);
     val studyId = studyGenerator.createRandomStudy();
     val payload = randomPayload();
@@ -148,7 +147,9 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
 
     val payload2 = modifyPayload(payload, mutatedSample, mutatedSpecimen, mutatedDonor);
 
-    getEndpointTester().submitPostRequestAnd(studyId, objectToTree(payload2)).assertServerError(expectedError);
+    getEndpointTester()
+        .submitPostRequestAnd(studyId, objectToTree(payload2))
+        .assertServerError(expectedError);
   }
 
   private String randomStudy() {
