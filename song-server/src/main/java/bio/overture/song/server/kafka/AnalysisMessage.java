@@ -33,6 +33,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 @Value
+//Note: although the AllArgs and NoArgs combination below seems odd,
+// it allows Jackson to deserialize to an immutable object without using any additional annotations.
 @AllArgsConstructor
 @NoArgsConstructor(force = true, access = PRIVATE)
 public class AnalysisMessage {
