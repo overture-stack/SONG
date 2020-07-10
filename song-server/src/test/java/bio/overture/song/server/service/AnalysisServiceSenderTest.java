@@ -99,7 +99,7 @@ public class AnalysisServiceSenderTest {
   public void testAnalysisSuppressed(){
     when(internalAnalysisService.suppress(studyId, analysisId)).thenReturn(DUMMY_RESPONSE);
     val analysisServiceSender = createTestAnalysisServiceSender(SUPPRESSED);
-    val response = analysisServiceSender.unpublish(studyId, analysisId);
+    val response = analysisServiceSender.suppress(studyId, analysisId);
     assertEquals(DUMMY_RESPONSE, response);
   }
 

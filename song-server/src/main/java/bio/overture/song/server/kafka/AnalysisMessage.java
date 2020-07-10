@@ -21,13 +21,22 @@ import static bio.overture.song.core.utils.Checkers.checkNotBlank;
 import static lombok.AccessLevel.PRIVATE;
 
 import bio.overture.song.core.model.enums.AnalysisStates;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 @Value
-@RequiredArgsConstructor(access = PRIVATE)
+@AllArgsConstructor
+@NoArgsConstructor(force = true, access = PRIVATE)
 public class AnalysisMessage {
+
   @NonNull private final String analysisId;
   @NonNull private final String studyId;
   @NonNull private final String state;

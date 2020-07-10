@@ -47,28 +47,28 @@ public class AnalysisServiceSender implements AnalysisService {
   @Override
   public String create(String studyId, Payload payload) {
     val id = internalAnalysisService.create(studyId, payload);
-    sendAnalysisMessage(id, studyId, UNPUBLISHED);
+    sendAnalysisMessage(studyId, id, UNPUBLISHED);
     return id;
   }
 
   @Override
   public ResponseEntity<String> publish(String studyId, String id, boolean ignoreUndefinedMd5) {
     val resp = internalAnalysisService.publish(studyId, id, ignoreUndefinedMd5);
-    sendAnalysisMessage(id, studyId, PUBLISHED);
+    sendAnalysisMessage(studyId, id, PUBLISHED);
     return resp;
   }
 
   @Override
   public ResponseEntity<String> unpublish(String studyId, String id) {
     val resp = internalAnalysisService.unpublish(studyId, id);
-    sendAnalysisMessage(id, studyId, UNPUBLISHED);
+    sendAnalysisMessage(studyId, id, UNPUBLISHED);
     return resp;
   }
 
   @Override
   public ResponseEntity<String> suppress(String studyId, String id) {
     val resp = internalAnalysisService.suppress(studyId, id);
-    sendAnalysisMessage(id, studyId, SUPPRESSED);
+    sendAnalysisMessage(studyId, id, SUPPRESSED);
     return resp;
   }
 
