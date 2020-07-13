@@ -179,16 +179,6 @@ public class DonorServiceTest {
     val initialDonor = service.securedRead(studyId, donorId);
     assertEquals(initialDonor.getGender(), "Male");
     assertTrue(service.isDonorExist(donorId));
-
-    val dUpdate = new DonorWithSpecimens();
-    dUpdate.setSubmitterDonorId(donorSubmitterId);
-    dUpdate.setStudyId(studyId);
-    dUpdate.setGender("Female");
-    val donorId2 = service.save(studyId, dUpdate);
-    assertTrue(service.isDonorExist(donorId2));
-    assertEquals(donorId2, donorId);
-    val updateDonor = service.securedRead(studyId, donorId2);
-    assertEquals(updateDonor.getGender(), "Female");
   }
 
   @Test

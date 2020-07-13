@@ -72,6 +72,11 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     return studyService;
   }
 
+  @Override
+  protected boolean isLoggingEnabled() {
+    return false;
+  }
+
   @Test
   public void enforceLatestSubmit_NonLatest_AnalysisTypeIncorrectVersion() {
     // Create a valid payload containing the non-latest version
