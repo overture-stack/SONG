@@ -77,11 +77,13 @@ public abstract class AbstractEnforcedTester {
   private boolean initialized;
   private JsonNode variantCallSchema;
 
+  protected abstract boolean isLoggingEnabled();
+
   @Before
   public void beforeEachTest() {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(getWebApplicationContext()).build();
     this.randomGenerator = createRandomGenerator(getClass().getSimpleName());
-    this.endpointTester = createEndpointTester(mockMvc, true);
+    this.endpointTester = createEndpointTester(mockMvc, isLoggingEnabled());
     lazyInit();
   }
 

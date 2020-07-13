@@ -58,6 +58,11 @@ public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
     return studyService;
   }
 
+  @Override
+  protected boolean isLoggingEnabled() {
+    return false;
+  }
+
   @Test
   @SneakyThrows
   public void nonEnforcedLatestUpdate_NonLatest_Success() {

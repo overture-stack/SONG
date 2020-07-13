@@ -28,6 +28,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.hash.Hashing;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
@@ -249,15 +250,15 @@ public class RandomGenerator {
   }
 
   /**
-   * Select a random element from a list, ignoring a set of values. This is useful for selecting
-   * random and different enum values
+   * Select a random element from a collection, ignoring a set of values. This is useful for
+   * selecting random and different enum values
    *
-   * @param list input list to select from
+   * @param collection input collection to select from
    * @param ignoreSet set of values to exclude from randomization
    */
-  public <T> T randomElementIgnoring(List<T> list, Set<T> ignoreSet) {
+  public <T> T randomElementIgnoring(Collection<T> collection, Set<T> ignoreSet) {
     val filteredList =
-        list.stream().filter(x -> !ignoreSet.contains(x)).collect(toUnmodifiableList());
+        collection.stream().filter(x -> !ignoreSet.contains(x)).collect(toUnmodifiableList());
     log.debug(
         "Selecting RandomElementIgnoring for RandomGenerator[{}] with seed '{}' and callCount '{}'",
         id,

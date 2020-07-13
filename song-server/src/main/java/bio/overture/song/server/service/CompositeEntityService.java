@@ -17,12 +17,15 @@
 
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_SAMPLE_DATA;
+import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_SPECIMEN_DATA;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_TO_SPECIMEN_ID_MISMATCH;
 import static bio.overture.song.core.exceptions.ServerErrors.SPECIMEN_TO_DONOR_ID_MISMATCH;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static java.util.Objects.isNull;
 
 import bio.overture.song.server.model.entity.Sample;
+import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,26 +77,38 @@ public class CompositeEntityService {
           specimen.getSubmitterSpecimenId().equals(submitterSpecimenId),
           getClass(),
           SAMPLE_TO_SPECIMEN_ID_MISMATCH,
-          "Existing sample (sampleId='%s') has specimenId='%s', but this submission says it has "
-              + "specimenId='%s' instead. Please re-submit with the correct specimenId.",
+          "Existing sample (submitterSampleId='%s') has submitterSpecimenId='%s', but this submission says it has "
+              + "submitterSpecimenId='%s' instead. Please re-submit with the correct submitterSpecimenId.",
           submitterSampleId,
           specimen.getSubmitterSpecimenId(),
           submitterSpecimenId);
       s.setSampleId(id);
-      sampleService.update(s);
+      checkSameSample(sample, s);
     }
     return id;
   }
 
-  private String getSampleParent(String studyId, CompositeEntity s) {
-    val specimen = s.getSpecimen();
-    String id = specimenService.findByBusinessKey(studyId, specimen.getSubmitterSpecimenId());
+  private void checkSameSample(Sample existing, CompositeEntity input) {
+    val newSample = new Sample();
+    newSample.setWithSample(input);
+    checkServer(
+        existing.equals(newSample),
+        getClass(),
+        MISMATCHING_SAMPLE_DATA,
+        "Input Sample data does not match the existing Sample data for submitterSampleId '%s'. Ensure the data matches.",
+        existing.getSubmitterSampleId());
+  }
 
-    if (isNull(id)) {
-      specimen.setDonorId(getSpecimenParent(studyId, s));
-      id = specimenService.create(studyId, specimen);
+  private String getSampleParent(String studyId, CompositeEntity s) {
+    val inputSpecimen = s.getSpecimen();
+    String specimenId =
+        specimenService.findByBusinessKey(studyId, inputSpecimen.getSubmitterSpecimenId());
+
+    if (isNull(specimenId)) {
+      inputSpecimen.setDonorId(getSpecimenParent(studyId, s));
+      specimenId = specimenService.create(studyId, inputSpecimen);
     } else {
-      val existingSpecimen = specimenService.securedRead(studyId, id);
+      val existingSpecimen = specimenService.securedRead(studyId, specimenId);
       val existingDonor = donorService.securedRead(studyId, existingSpecimen.getDonorId());
       checkServer(
           s.getDonor().getSubmitterDonorId().equals(existingDonor.getSubmitterDonorId()),
@@ -104,11 +119,20 @@ public class CompositeEntityService {
           existingSpecimen.getSubmitterSpecimenId(),
           existingDonor.getSubmitterDonorId(),
           s.getDonor().getSubmitterDonorId());
-      specimen.setSpecimenId(id);
-      specimen.setDonorId(getSpecimenParent(studyId, s));
-      specimenService.update(specimen);
+      inputSpecimen.setSpecimenId(specimenId);
+      inputSpecimen.setDonorId(getSpecimenParent(studyId, s));
+      checkSameSpecimen(existingSpecimen, inputSpecimen);
     }
-    return id;
+    return specimenId;
+  }
+
+  private void checkSameSpecimen(Specimen existing, Specimen input) {
+    checkServer(
+        existing.equals(input),
+        getClass(),
+        MISMATCHING_SPECIMEN_DATA,
+        "Input Specimen data does not match the existing Specimen data for submitterSpecimenId '%s'. Ensure the data matches.",
+        existing.getSubmitterSpecimenId());
   }
 
   private String getSpecimenParent(String studyId, CompositeEntity s) {

@@ -21,6 +21,7 @@ import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIS
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_ID_IS_CORRUPTED;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.ID_NOT_FOUND;
+import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_DONOR_DATA;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.exceptions.ServerException.checkServerOptional;
@@ -220,14 +221,23 @@ public class DonorService {
     val donorWithSpecimens = new DonorWithSpecimens();
     donorWithSpecimens.setDonor(donor);
     String donorId;
-    if (!donorIdResult.isPresent()) {
+    if (donorIdResult.isEmpty()) {
       donorId = create(donorWithSpecimens);
     } else {
       donorId = donorIdResult.get();
-      val updateDonor = donorWithSpecimens.createDonor();
-      updateDonor.setDonorId(donorId);
-      update(updateDonor);
+      val existingDonor = unsecuredRead(donorId);
+      donor.setDonorId(donorId);
+      checkSameDonor(existingDonor, donor);
     }
     return donorId;
+  }
+
+  private void checkSameDonor(Donor existing, Donor input) {
+    checkServer(
+        existing.equals(input),
+        getClass(),
+        MISMATCHING_DONOR_DATA,
+        "Input Donor data does not match the existing Donor data for submitterDonorId '%s'. Ensure the data matches.",
+        existing.getSubmitterDonorId());
   }
 }
