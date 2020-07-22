@@ -1,8 +1,7 @@
 package bio.overture.song.server.model;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class JWTUser {
@@ -16,5 +15,4 @@ public class JWTUser {
   private String preferredLanguage;
   private String type;
   private List<String> groups;
-
 }

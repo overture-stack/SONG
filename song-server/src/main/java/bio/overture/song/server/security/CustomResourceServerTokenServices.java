@@ -1,5 +1,6 @@
 package bio.overture.song.server.security;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.util.Strings;
 import org.springframework.retry.support.RetryTemplate;
@@ -11,8 +12,6 @@ import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
-import java.util.UUID;
-
 @RequiredArgsConstructor
 public class CustomResourceServerTokenServices implements ResourceServerTokenServices {
 
@@ -23,31 +22,30 @@ public class CustomResourceServerTokenServices implements ResourceServerTokenSer
   @Override
   public OAuth2Authentication loadAuthentication(String accessToken)
       throws AuthenticationException, InvalidTokenException {
-    if (isApiKey(accessToken)){
-      return retryTemplate.execute(x ->apiKeyTokenServices.loadAuthentication(accessToken));
+    if (isApiKey(accessToken)) {
+      return retryTemplate.execute(x -> apiKeyTokenServices.loadAuthentication(accessToken));
     }
-    //If not apiKey, then assume JWT
+    // If not apiKey, then assume JWT
     return jwtTokenStore.readAuthentication(accessToken);
   }
 
   @Override
   public OAuth2AccessToken readAccessToken(String accessToken) {
-    if (isApiKey(accessToken)){
+    if (isApiKey(accessToken)) {
       return retryTemplate.execute(x -> apiKeyTokenServices.readAccessToken(accessToken));
     }
     return jwtTokenStore.readAccessToken(accessToken);
   }
 
-  private static boolean isApiKey(String value){
-    if (Strings.isNullOrEmpty(value)){
+  private static boolean isApiKey(String value) {
+    if (Strings.isNullOrEmpty(value)) {
       return false;
     }
-    try{
+    try {
       UUID.fromString(value);
-    } catch (IllegalArgumentException e){
+    } catch (IllegalArgumentException e) {
       return false;
     }
     return true;
-
   }
 }
