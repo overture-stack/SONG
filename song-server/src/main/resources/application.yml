@@ -224,3 +224,12 @@ spring:
     bootstrap-servers: localhost:9092
     template:
       default-topic: song-analysis
+
+---
+spring.profiles: jwt
+spring:
+  profiles:
+    include: [secure]
+auth:
+  jwt:
+    public-key-url: http://localhost:8084/oauth/token/public_key

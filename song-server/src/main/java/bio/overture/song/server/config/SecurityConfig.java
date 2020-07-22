@@ -16,10 +16,9 @@
  */
 package bio.overture.song.server.config;
 
+import bio.overture.song.server.security.JWTAuthFilter;
 import bio.overture.song.server.security.StudySecurity;
 import bio.overture.song.server.security.SystemSecurity;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -31,8 +30,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
@@ -51,7 +57,9 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
   @Override
   @SneakyThrows
   public void configure(HttpSecurity http) {
-    http.authorizeRequests()
+    http
+        .addFilterAfter(new JWTAuthFilter(), BasicAuthenticationFilter.class)
+        .authorizeRequests()
         .antMatchers("/health")
         .permitAll()
         .antMatchers("/isAlive")
@@ -110,4 +118,5 @@ public class SecurityConfig extends ResourceServerConfigurerAdapter {
       private String suffix;
     }
   }
+
 }
