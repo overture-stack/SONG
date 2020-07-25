@@ -34,13 +34,11 @@ public class JWTConfig {
 
   @Bean
   @Primary
-  public CustomResourceServerTokenServices customResourceServerTokenServices(
-      @Autowired JwtTokenStore jwtTokenStore) {
-    return new CustomResourceServerTokenServices(remoteTokenServices, jwtTokenStore, retryTemplate);
+  public CustomResourceServerTokenServices customResourceServerTokenServices() {
+    return new CustomResourceServerTokenServices(remoteTokenServices, buildJwtTokenStore(), retryTemplate);
   }
 
-  @Bean
-  public JwtTokenStore jwtTokenStore() {
+  private JwtTokenStore buildJwtTokenStore() {
     return new JwtTokenStore(buildJwtTokenConverter());
   }
 
