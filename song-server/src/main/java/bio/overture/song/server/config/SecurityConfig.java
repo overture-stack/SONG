@@ -18,6 +18,8 @@ package bio.overture.song.server.config;
 
 import bio.overture.song.server.security.StudySecurity;
 import bio.overture.song.server.security.SystemSecurity;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -31,9 +33,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
