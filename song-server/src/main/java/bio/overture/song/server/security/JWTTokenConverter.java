@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import bio.overture.song.server.oauth.ExpiringOauth2Authentication;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +26,12 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 @Slf4j
 public class JWTTokenConverter extends JwtAccessTokenConverter {
 
+  private static final ObjectMapper MAPPER = JsonUtils.mapper();
   private static final String CONTEXT = "context";
   private static final String USER = "user";
   private static final String APPLICATION = "application";
   private static final String SCOPE = "scope";
+  private static final String EXP = "exp";
   private static final String CONTEXT_USER_FIELD_NAME = CONTEXT + "." + USER;
   private static final String CONTEXT_APPLICATION_FIELD_NAME = CONTEXT + "." + APPLICATION;
   private static final String CONTEXT_SCOPE_FIELD_NAME = CONTEXT + "." + SCOPE;
@@ -66,7 +69,7 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
   }
 
   private static Long parseExpirationTimestamp(Map<String, ?> map){
-    val exp = map.get("exp");
+    val exp = map.get(EXP);
     return (exp instanceof Long) ? (Long) exp : 0;
   }
 
@@ -129,7 +132,7 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
     val context = parseContextMap(map);
     if (context.containsKey(principleKey)) {
       val principle = context.get(principleKey);
-      return Optional.of(JsonUtils.mapper().convertValue(principle, principleClass));
+      return Optional.of(MAPPER.convertValue(principle, principleClass));
     }
     return Optional.empty();
   }
