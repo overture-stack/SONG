@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 
 @NoArgsConstructor
 @Configuration
-@Profile("secure")
+@Profile({"secure", "!jwt"})
 public class TokenServiceConfig {
 
   @Bean
