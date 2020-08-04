@@ -62,7 +62,7 @@ public abstract class AbstractWebResource<W extends AbstractWebResource<W>> {
   private String endpoint;
   private Set<QueryParam> queryParams = newHashSet();
   private Object body;
-  private HttpHeaders headers;
+  private final HttpHeaders headers = new HttpHeaders();
   private boolean enableLogging = false;
   private boolean pretty = false;
 
@@ -92,8 +92,13 @@ public abstract class AbstractWebResource<W extends AbstractWebResource<W>> {
     return thisInstance();
   }
 
+  public W header(String headerName, String headerValue) {
+    this.headers.add(headerName, headerValue);
+    return thisInstance();
+  }
+
   public W headers(HttpHeaders httpHeaders) {
-    this.headers = httpHeaders;
+    this.headers.addAll(httpHeaders);
     return thisInstance();
   }
 

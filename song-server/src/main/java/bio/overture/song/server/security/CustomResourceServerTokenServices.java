@@ -1,8 +1,9 @@
 package bio.overture.song.server.security;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.assertj.core.util.Strings;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -38,7 +39,7 @@ public class CustomResourceServerTokenServices implements ResourceServerTokenSer
   }
 
   private static boolean isApiKey(String value) {
-    if (Strings.isNullOrEmpty(value)) {
+    if (isNullOrEmpty(value)) {
       return false;
     }
     try {

@@ -285,6 +285,12 @@
                 <artifactId>java-uuid-generator</artifactId>
                 <version>${java-uuid-generator.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+
 
             <!--Logging-->
             <dependency>
@@ -299,6 +305,18 @@
             </dependency>
 
             <!--Testing-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring-framework.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-test</artifactId>
+                <version>${spring-framework.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers</artifactId>
@@ -485,6 +503,7 @@
         <spring-security-oauth2.version>2.3.5.RELEASE</spring-security-oauth2.version>
         <hibernate-native-json.version>0.4</hibernate-native-json.version>
         <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
+        <jwt.version>0.9.1</jwt.version>
 
         <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>

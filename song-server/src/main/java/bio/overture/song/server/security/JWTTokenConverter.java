@@ -8,14 +8,13 @@ import static bio.overture.song.server.oauth.ExpiringOauth2Authentication.from;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.JWTApplication;
 import bio.overture.song.server.model.JWTUser;
+import bio.overture.song.server.oauth.ExpiringOauth2Authentication;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
-import bio.overture.song.server.oauth.ExpiringOauth2Authentication;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +52,8 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
 
     val expirationTimestamp = parseExpirationTimestamp(map);
     val secondsUntilExpiry = calcSecondsUntilExpiry(expirationTimestamp);
-    ExpiringOauth2Authentication authentication = from(super.extractAuthentication(mutatedMap), secondsUntilExpiry);
+    ExpiringOauth2Authentication authentication =
+        from(super.extractAuthentication(mutatedMap), secondsUntilExpiry);
 
     // TODO: rtisma --- this is also a hack. the resourceIds maps to the "aud" field. This should be
     // empty inorder for the OAuth2AuthenticationManager to process properly
@@ -68,7 +68,7 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
     return diff > 0 ? diff : 0;
   }
 
-  private static Long parseExpirationTimestamp(Map<String, ?> map){
+  private static Long parseExpirationTimestamp(Map<String, ?> map) {
     val exp = map.get(EXP);
     return (exp instanceof Long) ? (Long) exp : 0;
   }
