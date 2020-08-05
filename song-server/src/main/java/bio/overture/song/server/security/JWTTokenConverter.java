@@ -1,23 +1,22 @@
 package bio.overture.song.server.security;
 
+import static bio.overture.song.core.exceptions.ServerErrors.FORBIDDEN_TOKEN;
+import static bio.overture.song.core.exceptions.ServerException.buildServerException;
+import static bio.overture.song.core.utils.Joiners.WHITESPACE;
+import static bio.overture.song.server.oauth.ExpiringOauth2Authentication.from;
+import static java.lang.System.currentTimeMillis;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import bio.overture.song.server.oauth.ExpiringOauth2Authentication;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.lang.System.currentTimeMillis;
-import static bio.overture.song.core.exceptions.ServerErrors.FORBIDDEN_TOKEN;
-import static bio.overture.song.core.exceptions.ServerException.buildServerException;
-import static bio.overture.song.core.utils.Joiners.WHITESPACE;
-import static bio.overture.song.server.oauth.ExpiringOauth2Authentication.from;
 
 @Slf4j
 public class JWTTokenConverter extends JwtAccessTokenConverter {
@@ -81,11 +80,10 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
       mutatedMap.put(SCOPE, WHITESPACE.join(egoScopes));
     } else {
       val timestamp = currentTimeMillis();
-      log.error("[@{}] JWTToken is missing '{}' field", timestamp,CONTEXT_SCOPE_FIELD_NAME);
+      log.error("[@{}] JWTToken is missing '{}' field", timestamp, CONTEXT_SCOPE_FIELD_NAME);
       throw buildServerException(
           JWTTokenConverter.class, FORBIDDEN_TOKEN, "[@%s] Token is not authorized", timestamp);
     }
     return mutatedMap;
   }
-
 }

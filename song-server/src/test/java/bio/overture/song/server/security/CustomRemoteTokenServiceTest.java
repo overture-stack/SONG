@@ -1,7 +1,14 @@
 package bio.overture.song.server.security;
 
+import static bio.overture.song.server.utils.jwt.JwtContext.buildJwtContext;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import bio.overture.song.server.JWTTestConfig;
 import bio.overture.song.server.utils.jwt.JWTGenerator;
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -12,14 +19,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-
-import java.util.List;
-import java.util.UUID;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static bio.overture.song.server.utils.jwt.JwtContext.buildJwtContext;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
@@ -32,16 +31,16 @@ public class CustomRemoteTokenServiceTest {
   private RetryTemplate retryTemplate = new RetryTemplate();
   private JWTGenerator jwtGenerator;
 
-
   @Before
-  public void beforeTest(){
+  public void beforeTest() {
     val c = new JWTTestConfig();
     jwtGenerator = new JWTGenerator(c.keyPair());
-    customResourceServerTokenServices = new CustomResourceServerTokenServices(remoteTokenServices, tokenStore, retryTemplate);
+    customResourceServerTokenServices =
+        new CustomResourceServerTokenServices(remoteTokenServices, tokenStore, retryTemplate);
   }
 
   @Test
-  public void accessTokenResolution_apiKey_success(){
+  public void accessTokenResolution_apiKey_success() {
     when(remoteTokenServices.loadAuthentication(API_KEY)).thenReturn(null);
     when(remoteTokenServices.readAccessToken(API_KEY)).thenReturn(null);
     customResourceServerTokenServices.loadAuthentication(API_KEY);
@@ -51,8 +50,9 @@ public class CustomRemoteTokenServiceTest {
   }
 
   @Test
-  public void accessTokenResolution_jwt_success(){
-    val jwtString  = jwtGenerator.generateJwtWithContext(buildJwtContext(List.of("song.WRITE")), false);
+  public void accessTokenResolution_jwt_success() {
+    val jwtString =
+        jwtGenerator.generateJwtWithContext(buildJwtContext(List.of("song.WRITE")), false);
     when(tokenStore.readAuthentication(jwtString)).thenReturn(null);
     when(tokenStore.readAccessToken(jwtString)).thenReturn(null);
     customResourceServerTokenServices.loadAuthentication(jwtString);
@@ -60,5 +60,4 @@ public class CustomRemoteTokenServiceTest {
     verify(tokenStore, times(1)).readAuthentication(jwtString);
     verify(tokenStore, times(1)).readAccessToken(jwtString);
   }
-
 }
