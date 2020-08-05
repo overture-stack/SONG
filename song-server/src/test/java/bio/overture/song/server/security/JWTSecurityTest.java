@@ -3,23 +3,16 @@ package bio.overture.song.server.security;
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.config.SecurityConfig;
-import bio.overture.song.server.model.JWTApplication;
-import bio.overture.song.server.model.JWTUser;
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.EndpointTester;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import bio.overture.song.server.utils.jwt.JWTGenerator;
-import bio.overture.song.server.utils.jwt.JWTGenerator.ApplicationContext;
-import bio.overture.song.server.utils.jwt.JWTGenerator.UserContext;
+import bio.overture.song.server.utils.jwt.JwtContext;
 import bio.overture.song.server.utils.web.ResponseOption;
-import com.google.common.base.Function;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
@@ -41,7 +34,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
@@ -53,13 +45,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static bio.overture.song.core.exceptions.ServerErrors.FORBIDDEN_TOKEN;
-import static bio.overture.song.core.utils.JsonUtils.convertValue;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.security.JWTSecurityTest.ContextOptions.APP;
-import static bio.overture.song.server.security.JWTSecurityTest.ContextOptions.MISSING_CONTEXT;
-import static bio.overture.song.server.security.JWTSecurityTest.ContextOptions.MISSING_PRINCIPLE;
-import static bio.overture.song.server.security.JWTSecurityTest.ContextOptions.USER;
-import static bio.overture.song.server.security.JWTSecurityTest.RandomContext.createRandomContext;
 import static bio.overture.song.server.security.JWTSecurityTest.ScopeOptions.EMPTY_SCOPE;
 import static bio.overture.song.server.security.JWTSecurityTest.ScopeOptions.INVALID_STUDY;
 import static bio.overture.song.server.security.JWTSecurityTest.ScopeOptions.INVALID_SYSTEM;
@@ -70,8 +56,7 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 import static bio.overture.song.server.utils.jwt.JWTGenerator.DEFAULT_ID;
 import static bio.overture.song.server.utils.jwt.JWTGenerator.DEFAULT_ISSUER;
 import static bio.overture.song.server.utils.jwt.JWTGenerator.DEFAULT_SUBJECT;
-import static bio.overture.song.server.utils.jwt.JWTGenerator.generateDummyAppContext;
-import static bio.overture.song.server.utils.jwt.JWTGenerator.generateDummyUserContext;
+import static bio.overture.song.server.utils.jwt.JwtContext.buildJwtContext;
 
 /**
  * Test JWT authorization using controller interaction with Spring Security loaded.
@@ -122,28 +107,12 @@ public class JWTSecurityTest {
    * Validate the JWT format for users on non expired JWTs
    */
   @Test
-  public void validUserJWTFormat_nonExpired_success(){
+  public void validJWTFormat_nonExpired_success(){
     val scopes = Set.of(resolveSystemScope(), "score.WRITE");
-    val userContext = generateDummyUserContext(scopes);
-    val userJwt = jwtGenerator.generateValidUserJwt(userContext);
-    val claims = jwtGenerator.verifyAndGetClaims(userJwt).getBody();
-    validateNonTimeClaims(userContext, claims);
-
-    val now = new Date();
-    assertTrue(claims.getIssuedAt().before(now));
-    assertTrue(claims.getExpiration().after(now));
-  }
-
-  /**
-   * Validate the JWT format for applications on non expired JWTs
-   */
-  @Test
-  public void validAppJWTFormat_nonExpired_success(){
-    val scopes = Set.of("score.WRITE", resolveSystemScope());
-    val appContext = generateDummyAppContext(scopes);
-    val appJwt = jwtGenerator.generateValidAppJwt(appContext);
-    val claims = jwtGenerator.verifyAndGetClaims(appJwt).getBody();
-    validateNonTimeClaims(appContext, claims);
+    val jwtContext = buildJwtContext(scopes);
+    val jwt = jwtGenerator.generateJwtWithContext(jwtContext, false);
+    val claims = jwtGenerator.verifyAndGetClaims(jwt).getBody();
+    validateNonTimeClaims(jwtContext, claims);
 
     val now = new Date();
     assertTrue(claims.getIssuedAt().before(now));
@@ -156,29 +125,11 @@ public class JWTSecurityTest {
   @Test
   public void validUserJWTFormat_expired_success(){
     val scopes = Set.of("score.WRITE", resolveSystemScope());
-    val userContext = generateDummyUserContext(scopes);
-    val userJwt = jwtGenerator.generateExpiredUserJwt(userContext);
-    val claims = validateExpiredAndGetClaims(userJwt);
+    val jwtContext = buildJwtContext(scopes);
+    val jwt = jwtGenerator.generateJwtWithContext(jwtContext, true);
+    val claims = validateExpiredAndGetClaims(jwt);
 
-    validateNonTimeClaims(userContext, claims);
-
-    val now = new Date();
-    assertTrue(claims.getIssuedAt().before(now));
-    assertTrue(claims.getExpiration().before(now));
-    assertTrue(claims.getExpiration().after(claims.getIssuedAt()));
-  }
-
-  /**
-   * Validate the JWT format for applications on expired JWTs
-   */
-  @Test
-  public void validAppJWTFormat_expired_success(){
-    val scopes = Set.of("score.WRITE", resolveSystemScope());
-    val appContext = generateDummyAppContext(scopes);
-    val appJwt = jwtGenerator.generateExpiredAppJwt(appContext);
-    val claims = validateExpiredAndGetClaims(appJwt);
-
-    validateNonTimeClaims(appContext, claims);
+    validateNonTimeClaims(jwtContext, claims);
 
     val now = new Date();
     assertTrue(claims.getIssuedAt().before(now));
@@ -187,93 +138,50 @@ public class JWTSecurityTest {
   }
 
   @Test
-  public void authorizedRequest_validUserNonExpired_Success(){
-    runSuccessTest(USER, VALID_SYSTEM, false);
-    runSuccessTest(USER, VALID_STUDY, false);
+  public void authorizedRequest_validScopesNonExpired_Success(){
+    runSuccessTest(true, VALID_SYSTEM, false);
+    runSuccessTest(true, VALID_STUDY, false);
   }
 
   @Test
-  public void authorizedRequest_validUserExpired_Forbidden(){
-    runForbiddenErrorTest(USER, VALID_SYSTEM, true);
-    runForbiddenErrorTest(USER, VALID_STUDY, true);
-  }
-
-  @Test
-  public void authorizedRequest_validApplicationNonExpired_Success(){
-    runSuccessTest(APP, VALID_SYSTEM, false);
-    runSuccessTest(APP, VALID_STUDY, false);
-  }
-
-  @Test
-  public void authorizedRequest_validApplicationExpired_Forbidden(){
-    runForbiddenErrorTest(APP, VALID_SYSTEM, true);
-    runForbiddenErrorTest(APP, VALID_STUDY, true);
+  public void authorizedRequest_validScopesExpired_Forbidden(){
+    runForbiddenErrorTest(true, VALID_SYSTEM, true);
+    runForbiddenErrorTest(true, VALID_STUDY, true);
   }
 
   // Test where context is not user or application
   @Test
   public void authorizedRequest_missingContextNonExpired_Forbidden(){
-    runForbiddenErrorTest(MISSING_CONTEXT, VALID_SYSTEM, false);
-  }
-
-  @Test
-  public void authorizedRequest_missingPrincipleNonExpired_Forbidden(){
-    runForbiddenErrorTest(MISSING_PRINCIPLE, VALID_SYSTEM, false);
-    runForbiddenErrorTest(MISSING_PRINCIPLE, VALID_STUDY, false);
-    runForbiddenErrorTest(MISSING_PRINCIPLE, INVALID_SYSTEM, false);
-    runForbiddenErrorTest(MISSING_PRINCIPLE, INVALID_STUDY, false);
-    runForbiddenErrorTest(MISSING_PRINCIPLE, EMPTY_SCOPE, false);
-  }
-
-  @Test
-  public void authorizedRequest_missingScopeNonExpired_Forbidden(){
-    runForbiddenErrorTest(USER, EMPTY_SCOPE, false);
-    runForbiddenErrorTest(APP, EMPTY_SCOPE, false);
+    runForbiddenErrorTest(false, VALID_SYSTEM, false);
+    runForbiddenErrorTest(false, INVALID_SYSTEM, false);
   }
 
   @Test
   public void authorizedRequest_missingContextExpired_Forbidden(){
-    runForbiddenErrorTest(MISSING_CONTEXT, VALID_SYSTEM, true);
-    runForbiddenErrorTest(MISSING_CONTEXT, INVALID_SYSTEM, true);
+    runForbiddenErrorTest(false, VALID_SYSTEM, true);
+    runForbiddenErrorTest(false, INVALID_SYSTEM, true);
   }
 
   @Test
-  public void authorizedRequest_missingPrincipleExpired_Forbidden(){
-    runForbiddenErrorTest(MISSING_PRINCIPLE, VALID_SYSTEM, true);
-    runForbiddenErrorTest(MISSING_PRINCIPLE, VALID_STUDY, true);
-    runForbiddenErrorTest(MISSING_PRINCIPLE, INVALID_SYSTEM, true);
-    runForbiddenErrorTest(MISSING_PRINCIPLE, INVALID_STUDY, true);
-    runForbiddenErrorTest(MISSING_PRINCIPLE, EMPTY_SCOPE, true);
+  public void authorizedRequest_missingScopeNonExpired_Forbidden(){
+    runForbiddenErrorTest(true, EMPTY_SCOPE, false);
   }
 
   @Test
   public void authorizedRequest_missingScopeExpired_Forbidden(){
-    runForbiddenErrorTest(APP, EMPTY_SCOPE, true);
-    runForbiddenErrorTest(USER, EMPTY_SCOPE, true);
+    runForbiddenErrorTest(true, EMPTY_SCOPE, true);
   }
 
   @Test
-  public void authorizedRequest_invalidUserNonExpired_Forbidden(){
-    runForbiddenErrorTest(USER, INVALID_SYSTEM, false);
-    runForbiddenErrorTest(USER, INVALID_STUDY, false);
+  public void authorizedRequest_invalidScopesNonExpired_Forbidden(){
+    runForbiddenErrorTest(true, INVALID_SYSTEM, false);
+    runForbiddenErrorTest(true, INVALID_STUDY, false);
   }
 
   @Test
-  public void authorizedRequest_invalidUserExpired_Forbidden(){
-    runForbiddenErrorTest(USER, INVALID_SYSTEM, true);
-    runForbiddenErrorTest(USER, INVALID_STUDY, true);
-  }
-
-  @Test
-  public void authorizedRequest_invalidApplicationNonExpired_Forbidden(){
-    runForbiddenErrorTest(APP, INVALID_SYSTEM, false);
-    runForbiddenErrorTest(APP, INVALID_STUDY, false);
-  }
-
-  @Test
-  public void authorizedRequest_invalidApplicationExpired_Forbidden(){
-    runForbiddenErrorTest(APP, INVALID_SYSTEM, true);
-    runForbiddenErrorTest(APP, INVALID_STUDY, true);
+  public void authorizedRequest_invalidScopesExpired_Forbidden(){
+    runForbiddenErrorTest(true, INVALID_SYSTEM, true);
+    runForbiddenErrorTest(true, INVALID_STUDY, true);
   }
 
   @Test
@@ -298,33 +206,20 @@ public class JWTSecurityTest {
     return studyScopeConfig.getPrefix()+studyId+studyScopeConfig.getSuffix();
   }
 
-  private String generateConstrainedJWTString (ContextOptions contextOption, ScopeOptions scopeOptions, String studyId,  boolean expired){
+  private String generateConstrainedJWTString (boolean hasContext, ScopeOptions scopeOptions, String studyId,  boolean expired){
     val nonExistentStudyId = studyGenerator.generateNonExistingStudyId();
-    Object context = null;
-    Function<Collection<String>, Object> function = null;
-    if (contextOption == USER){
-      function = JWTGenerator::generateDummyUserContext;
-    } else if (contextOption == APP){
-      function = JWTGenerator::generateDummyAppContext;
-    } else if (contextOption == MISSING_PRINCIPLE){
-      context = createRandomContext();
-    } else if (contextOption == MISSING_CONTEXT){
-      context = null;
-    } else {
-      fail("shouldnt be here");
-    }
-
-    if (contextOption == APP || contextOption== USER){
+    JwtContext context = null;
+    if (hasContext){
       if (scopeOptions == VALID_SYSTEM){
-        context = function.apply(List.of(resolveSystemScope(), "score.WRITE", "id.READ"));
+        context = buildJwtContext(List.of(resolveSystemScope(), "score.WRITE", "id.READ"));
       }else if (scopeOptions == VALID_STUDY){
-        context = function.apply(List.of(resolveStudyScope(studyId), "score.WRITE", "id.READ"));
+        context = buildJwtContext(List.of(resolveStudyScope(studyId), "score.WRITE", "id.READ"));
       }else if (scopeOptions == INVALID_STUDY){
-        context = function.apply(List.of(resolveStudyScope(nonExistentStudyId), "score.WRITE", "id.READ"));
+        context = buildJwtContext(List.of(resolveStudyScope(nonExistentStudyId), "score.WRITE", "id.READ"));
       }else if (scopeOptions == INVALID_SYSTEM){
-        context = function.apply(List.of("song.READ", "id.READ"));
+        context = buildJwtContext(List.of("song.READ", "id.READ"));
       }else if (scopeOptions == EMPTY_SCOPE){
-        context = function.apply(List.of());
+        context = buildJwtContext(List.of());
       } else{
         fail("shouldnt be here");
       }
@@ -339,12 +234,12 @@ public class JWTSecurityTest {
     return jwtString;
   }
 
-  private void runSuccessTest(ContextOptions contextOption, ScopeOptions scopeOptions, boolean expired){
-    runErrorTest(contextOption, scopeOptions, expired, null);
+  private void runSuccessTest(boolean hasContext, ScopeOptions scopeOptions, boolean expired){
+    runErrorTest(hasContext, scopeOptions, expired, null);
   }
 
-  private void runForbiddenErrorTest(ContextOptions contextOption, ScopeOptions scopeOptions, boolean expired){
-    runErrorTest(contextOption, scopeOptions, expired, FORBIDDEN_TOKEN.getHttpStatus());
+  private void runForbiddenErrorTest(boolean hasContext, ScopeOptions scopeOptions, boolean expired){
+    runErrorTest(hasContext, scopeOptions, expired, FORBIDDEN_TOKEN.getHttpStatus());
   }
 
   /**
@@ -352,9 +247,9 @@ public class JWTSecurityTest {
    * This means, there is no wrapping or exceptions, and so they need to be caught manually. Testing of controller advice
    * is out of scope for this test.
    */
-  private void runErrorTest(ContextOptions contextOption, ScopeOptions scopeOptions, boolean expired, HttpStatus expectedHttpStatus){
+  private void runErrorTest(boolean hasContext, ScopeOptions scopeOptions, boolean expired, HttpStatus expectedHttpStatus){
     val studyId = studyGenerator.generateNonExistingStudyId();
-    val jwtString = generateConstrainedJWTString(contextOption, scopeOptions, studyId, expired);
+    val jwtString = generateConstrainedJWTString(hasContext, scopeOptions, studyId, expired);
     if (isNull(expectedHttpStatus)){
       createAuthRequestAnd(jwtString, studyId)
           .assertOk();
@@ -390,7 +285,7 @@ public class JWTSecurityTest {
   }
 
   @SuppressWarnings("unchecked")
-  private static void validateNonTimeClaims(ApplicationContext expectedAppContext, Claims actualClaims){
+  private static void validateNonTimeClaims(JwtContext expectedJwtContext, Claims actualClaims){
     assertEmpty(actualClaims.getAudience());
     assertEquals(DEFAULT_ISSUER, actualClaims.getIssuer());
     assertEquals(DEFAULT_ID, actualClaims.getId());
@@ -398,53 +293,13 @@ public class JWTSecurityTest {
     assertTrue(actualClaims.containsKey("context"));
     val contextMap = (Map<String, Object>)actualClaims.get("context");
 
-    // Validate user data
-    assertTrue(contextMap.containsKey("application"));
-    val actualApplication = convertValue(contextMap.get("application"), JWTApplication.class);
-    assertEquals(expectedAppContext.getApplication(), actualApplication);
-
     assertTrue(contextMap.containsKey("scope"));
     val actualScopes = (Collection<String>)contextMap.get("scope");
-    assertEquals(new ArrayList<>(expectedAppContext.getScope()), actualScopes);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static void validateNonTimeClaims(UserContext expectedUserContext, Claims actualClaims){
-    assertEmpty(actualClaims.getAudience());
-    assertEquals(DEFAULT_ISSUER, actualClaims.getIssuer());
-    assertEquals(DEFAULT_ID, actualClaims.getId());
-    assertEquals(DEFAULT_SUBJECT, actualClaims.getSubject());
-    assertTrue(actualClaims.containsKey("context"));
-    val contextMap = (Map<String, Object>)actualClaims.get("context");
-
-    // Validate user data
-    assertTrue(contextMap.containsKey("user"));
-    val actualUser = convertValue(contextMap.get("user"), JWTUser.class);
-    assertEquals(expectedUserContext.getUser(), actualUser);
-
-    assertTrue(contextMap.containsKey("scope"));
-    val actualScopes = (Collection<String>)contextMap.get("scope");
-    assertEquals(new ArrayList<>(expectedUserContext.getScope()), actualScopes);
+    assertEquals(new ArrayList<>(expectedJwtContext.getContext().getScope()), actualScopes);
   }
 
   private static void assertEmpty(String value){
     assertTrue(isNullOrEmpty(value));
-  }
-
-  @Data
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class RandomContext{
-    private String randomId;
-    private String randomName;
-
-    public static RandomContext createRandomContext(){
-      return new RandomContext(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-    }
-  }
-
-  enum ContextOptions{
-    USER,APP, MISSING_PRINCIPLE, MISSING_CONTEXT;
   }
 
   enum ScopeOptions{

@@ -19,7 +19,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static bio.overture.song.server.utils.jwt.JWTGenerator.generateDummyUserContext;
+import static bio.overture.song.server.utils.jwt.JwtContext.buildJwtContext;
 
 @Slf4j
 @RunWith(MockitoJUnitRunner.class)
@@ -52,7 +52,7 @@ public class CustomRemoteTokenServiceTest {
 
   @Test
   public void accessTokenResolution_jwt_success(){
-    val jwtString  = jwtGenerator.generateValidUserJwt(generateDummyUserContext(List.of("song.WRITE")));
+    val jwtString  = jwtGenerator.generateJwtWithContext(buildJwtContext(List.of("song.WRITE")), false);
     when(tokenStore.readAuthentication(jwtString)).thenReturn(null);
     when(tokenStore.readAccessToken(jwtString)).thenReturn(null);
     customResourceServerTokenServices.loadAuthentication(jwtString);
