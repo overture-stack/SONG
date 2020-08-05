@@ -49,7 +49,6 @@ public class JWTConfig {
   }
 
   public JWTTokenConverter jwtTokenConverter(@Autowired PublicKeyFetcher publicKeyFetcher) {
-    //    return new JWTTokenConverter(getPublicKey());
     return new JWTTokenConverter(publicKeyFetcher.getPublicKey());
   }
 
@@ -59,18 +58,4 @@ public class JWTConfig {
     return new DefaultPublicKeyFetcher(publicKeyUrl, new RestTemplate(), retryTemplate);
   }
 
-  // TODO: rtisma --- ideally, this public key fetching is more dynamic. For instance, if EGO
-  // changes its public key,
-  // this song server needs to be rebooted, meaning downtime. Would be better if the public key is
-  // cached, and
-  // when a request fails, try to update cache and if there is a new value, update cache and try
-  // again, otherwise
-  // error out as normal.
-  private String getPublicKey() {
-    val rest = new RestTemplate();
-    // TODO: [rtisma] add error handling
-    ResponseEntity<String> response =
-        retryTemplate.execute(x -> rest.getForEntity(publicKeyUrl, String.class));
-    return response.getBody();
-  }
 }
