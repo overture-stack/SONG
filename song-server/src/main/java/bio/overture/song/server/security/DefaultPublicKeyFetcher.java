@@ -13,7 +13,6 @@ public class DefaultPublicKeyFetcher implements PublicKeyFetcher {
   @NonNull private final RestTemplate restTemplate;
   @NonNull private final RetryTemplate retryTemplate;
 
-  //  // TODO: [rtisma] add error handling
   @Override
   public String getPublicKey() {
     val resp = retryTemplate.execute(x -> restTemplate.getForEntity(url, String.class));

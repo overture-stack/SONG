@@ -79,7 +79,7 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
       return (Map<String, ?>) map.get(CONTEXT);
     }
     val timestamp = System.currentTimeMillis();
-    log.error("[@{}] JWTToken is missing '{}' field", CONTEXT, timestamp);
+    log.error("[@{}] JWTToken is missing '{}' field", timestamp, CONTEXT);
     throw buildServerException(
         JWTTokenConverter.class, UNAUTHORIZED_TOKEN, "[@%s] Token is not authorized", timestamp);
   }
@@ -93,7 +93,7 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
       mutatedMap.put(SCOPE, WHITESPACE.join(egoScopes));
     } else {
       val timestamp = System.currentTimeMillis();
-      log.error("[@{}] JWTToken is missing '{}' field", CONTEXT_SCOPE_FIELD_NAME, timestamp);
+      log.error("[@{}] JWTToken is missing '{}' field", timestamp,CONTEXT_SCOPE_FIELD_NAME);
       throw buildServerException(
           JWTTokenConverter.class, UNAUTHORIZED_TOKEN, "[@%s] Token is not authorized", timestamp);
     }
@@ -108,9 +108,9 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
               val timestamp = System.currentTimeMillis();
               log.error(
                   "[@{}] JWT Token must have at least one field of: {}, {}",
+                  timestamp,
                   CONTEXT_USER_FIELD_NAME,
-                  CONTEXT_APPLICATION_FIELD_NAME,
-                  timestamp);
+                  CONTEXT_APPLICATION_FIELD_NAME);
               throw buildServerException(
                   JWTTokenConverter.class,
                   UNAUTHORIZED_TOKEN,

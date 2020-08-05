@@ -2,11 +2,14 @@ package bio.overture.song.server.utils.jwt;
 
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toMap;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static java.util.Objects.isNull;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static org.mockito.Mockito.verify;
 
 import bio.overture.song.server.model.JWTApplication;
 import bio.overture.song.server.model.JWTUser;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwt;
@@ -47,25 +50,37 @@ public class JWTGenerator {
   }
 
   public String generateValidUserJwt(@NonNull UserContext userContext) {
-    return generate(HOURS.toMillis(5), userContext);
+    return generateJwtWithContext(userContext,false);
   }
 
   public String generateValidAppJwt(@NonNull ApplicationContext applicationContext) {
-    return generate(HOURS.toMillis(5), applicationContext);
+    return generateJwtWithContext(applicationContext, false);
   }
 
   public String generateExpiredUserJwt(@NonNull UserContext userContext) {
-    return generate(0, userContext);
+    return generateJwtWithContext(userContext,true);
   }
 
   public String generateExpiredAppJwt(@NonNull ApplicationContext applicationContext) {
-    return generate(0, applicationContext);
+    return generateJwtWithContext(applicationContext, true);
+  }
+
+  public String generateJwtNoContext( boolean expired){
+    return generate(calcTTLMs(expired), null);
+  }
+
+  public String generateJwtWithContext(@NonNull Object context, boolean expired){
+    return generate(calcTTLMs(expired), context);
   }
 
   @SneakyThrows
   public Jws<Claims> verifyAndGetClaims(String jwtString) {
     val publicKey = keyPair.getPublic();
     return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(jwtString);
+  }
+
+  private static long calcTTLMs(boolean expired){
+    return expired ? 0 : HOURS.toMillis(5);
   }
 
   @SneakyThrows
@@ -82,20 +97,22 @@ public class JWTGenerator {
     }
 
     val decodedPrivateKey = keyPair.getPrivate();
-    val jwtString = Jwts.builder()
+    val jwtBuilder = Jwts.builder()
         .setId(DEFAULT_ID)
         .setIssuedAt(new Date(nowMs))
         .setSubject(DEFAULT_SUBJECT)
         .setIssuer(DEFAULT_ISSUER)
         .setExpiration(new Date(expiry))
-        .addClaims(toMap(toJson(new JwtContext(context))))
-        .signWith(SIGNATURE_ALGORITHM, decodedPrivateKey)
-        .compact();
-    return jwtString;
+        .signWith(SIGNATURE_ALGORITHM, decodedPrivateKey);
+    if (!isNull(context)){
+        jwtBuilder.addClaims(toMap(toJson(new JwtContext(context))));
+    }
+    return jwtBuilder.compact();
   }
 
   @Data
   @AllArgsConstructor
+  @JsonInclude(NON_EMPTY)
   public static class JwtContext {
     private Object context;
   }
@@ -104,6 +121,7 @@ public class JWTGenerator {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonInclude(NON_EMPTY)
   public static class UserContext {
     private Collection<String> scope;
     private JWTUser user;
@@ -113,6 +131,7 @@ public class JWTGenerator {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
+  @JsonInclude(NON_EMPTY)
   public static class ApplicationContext {
     private Collection<String> scope;
     private JWTApplication application;
