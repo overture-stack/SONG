@@ -4,6 +4,7 @@ import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toMap;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static java.util.Objects.isNull;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static org.mockito.Mockito.verify;
 
@@ -77,6 +78,36 @@ public class JWTGenerator {
   public Jws<Claims> verifyAndGetClaims(String jwtString) {
     val publicKey = keyPair.getPublic();
     return Jwts.parser().setSigningKey(publicKey).parseClaimsJws(jwtString);
+  }
+
+  public static ApplicationContext generateDummyAppContext(Collection<String> scopes) {
+    return ApplicationContext.builder()
+        .scope(scopes)
+        .application(
+            JWTApplication.builder()
+                .name("my-example-application")
+                .status("APPROVED")
+                .clientId(UUID.randomUUID().toString())
+                .type("ADMIN")
+                .build())
+        .build();
+  }
+
+  public static UserContext generateDummyUserContext(Collection<String> scopes) {
+    return UserContext.builder()
+        .scope(scopes)
+        .user(
+            JWTUser.builder()
+                .email("john.doe@example.com")
+                .name("john.doe@example.com")
+                .status("APPROVED")
+                .firstName("John")
+                .lastName("Doe")
+                .createdAt(System.currentTimeMillis() - DAYS.toMillis(1))
+                .preferredLanguage("ENGLISH")
+                .type("ADMIN")
+                .build())
+        .build();
   }
 
   private static long calcTTLMs(boolean expired){

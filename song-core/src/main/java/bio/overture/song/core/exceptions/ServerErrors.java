@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.GATEWAY_TIMEOUT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -72,6 +73,7 @@ public enum ServerErrors implements ServerError {
   SEQUENCING_READ_NOT_FOUND(NOT_FOUND),
   VARIANT_CALL_NOT_FOUND(NOT_FOUND),
   UNAUTHORIZED_TOKEN(UNAUTHORIZED),
+  FORBIDDEN_TOKEN(FORBIDDEN),
   GATEWAY_IS_DOWN(GATEWAY_TIMEOUT),
   GATEWAY_TIMED_OUT(GATEWAY_TIMEOUT),
   BAD_REPLY_FROM_GATEWAY(BAD_GATEWAY),

@@ -1,5 +1,6 @@
 package bio.overture.song.server.security;
 
+import static bio.overture.song.core.exceptions.ServerErrors.FORBIDDEN_TOKEN;
 import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.utils.Joiners.WHITESPACE;
@@ -81,7 +82,7 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
     val timestamp = System.currentTimeMillis();
     log.error("[@{}] JWTToken is missing '{}' field", timestamp, CONTEXT);
     throw buildServerException(
-        JWTTokenConverter.class, UNAUTHORIZED_TOKEN, "[@%s] Token is not authorized", timestamp);
+        JWTTokenConverter.class, FORBIDDEN_TOKEN, "[@%s] Token is not authorized", timestamp);
   }
 
   @SuppressWarnings("unchecked")
@@ -95,7 +96,7 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
       val timestamp = System.currentTimeMillis();
       log.error("[@{}] JWTToken is missing '{}' field", timestamp,CONTEXT_SCOPE_FIELD_NAME);
       throw buildServerException(
-          JWTTokenConverter.class, UNAUTHORIZED_TOKEN, "[@%s] Token is not authorized", timestamp);
+          JWTTokenConverter.class, FORBIDDEN_TOKEN, "[@%s] Token is not authorized", timestamp);
     }
     return mutatedMap;
   }
@@ -113,7 +114,7 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
                   CONTEXT_APPLICATION_FIELD_NAME);
               throw buildServerException(
                   JWTTokenConverter.class,
-                  UNAUTHORIZED_TOKEN,
+                  FORBIDDEN_TOKEN,
                   "[@%s] Token is not authorized",
                   timestamp);
             });
