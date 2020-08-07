@@ -3,8 +3,10 @@ package bio.overture.song.server.security;
 import static bio.overture.song.core.exceptions.ServerErrors.FORBIDDEN_TOKEN;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.utils.Joiners.WHITESPACE;
+import static bio.overture.song.server.utils.Scopes.extractExpiry;
 import static bio.overture.song.server.oauth.ExpiringOauth2Authentication.from;
 import static java.lang.System.currentTimeMillis;
+import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import bio.overture.song.server.oauth.ExpiringOauth2Authentication;
@@ -23,7 +25,6 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
 
   private static final String CONTEXT = "context";
   private static final String SCOPE = "scope";
-  private static final String EXP = "exp";
   private static final String CONTEXT_SCOPE_FIELD_NAME = CONTEXT + "." + SCOPE;
 
   @SneakyThrows
@@ -38,10 +39,8 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
     // TODO: rtisma --- this is a hack since EGO does not implement jwts correctly
     val mutatedMap = mutateMap(map);
 
-    val expirationTimestamp = parseExpirationTimestamp(map);
-    val secondsUntilExpiry = calcSecondsUntilExpiry(expirationTimestamp);
-    ExpiringOauth2Authentication authentication =
-        from(super.extractAuthentication(mutatedMap), secondsUntilExpiry);
+    final long secondsUntilExpiry = calcSecondsUntilExpiry(map);
+    val authentication = from(super.extractAuthentication(mutatedMap), secondsUntilExpiry);
 
     // TODO: rtisma --- this is also a hack. the resourceIds maps to the "aud" field. This should be
     // empty inorder for the OAuth2AuthenticationManager to process properly
@@ -50,14 +49,10 @@ public class JWTTokenConverter extends JwtAccessTokenConverter {
     return authentication;
   }
 
-  private static long calcSecondsUntilExpiry(Long expirationTimestamp) {
-    val diff = expirationTimestamp - MILLISECONDS.toSeconds(currentTimeMillis());
-    return diff > 0 ? diff : 0;
-  }
-
-  private static Long parseExpirationTimestamp(Map<String, ?> map) {
-    val exp = map.get(EXP);
-    return (exp instanceof Long) ? (Long) exp : 0;
+  private static long calcSecondsUntilExpiry(Map<String, ?> map) {
+    final long expirationTimestamp = extractExpiry(map);
+    final long diff = expirationTimestamp - MILLISECONDS.toSeconds(currentTimeMillis());
+    return max(diff, 0L);
   }
 
   @SuppressWarnings("unchecked")
