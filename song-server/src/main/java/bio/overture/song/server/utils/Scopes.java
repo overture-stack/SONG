@@ -8,7 +8,6 @@ import java.util.Set;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
 
 @NoArgsConstructor(access = PRIVATE)
 public class Scopes {
@@ -25,12 +24,12 @@ public class Scopes {
     return grantedScopes;
   }
 
-  public static long extractExpiry(Map<String, ?> map){
+  public static long extractExpiry(Map<String, ?> map) {
     Object exp = map.get(EXP);
-    if (exp instanceof Integer){
-      return (Integer)exp;
-    } else if (exp instanceof Long){
-      return (Long)exp;
+    if (exp instanceof Integer) {
+      return (Integer) exp;
+    } else if (exp instanceof Long) {
+      return (Long) exp;
     }
     return 0L;
   }

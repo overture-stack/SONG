@@ -3,13 +3,12 @@ package bio.overture.song.server.security;
 import static bio.overture.song.core.exceptions.ServerErrors.FORBIDDEN_TOKEN;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.utils.Joiners.WHITESPACE;
-import static bio.overture.song.server.utils.Scopes.extractExpiry;
 import static bio.overture.song.server.oauth.ExpiringOauth2Authentication.from;
-import static java.lang.System.currentTimeMillis;
+import static bio.overture.song.server.utils.Scopes.extractExpiry;
 import static java.lang.Math.max;
+import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import bio.overture.song.server.oauth.ExpiringOauth2Authentication;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

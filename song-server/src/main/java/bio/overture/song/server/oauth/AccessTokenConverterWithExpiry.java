@@ -4,8 +4,6 @@ import static bio.overture.song.server.oauth.ExpiringOauth2Authentication.from;
 import static bio.overture.song.server.utils.Scopes.extractExpiry;
 
 import java.util.Map;
-
-import bio.overture.song.server.utils.Scopes;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 
@@ -23,5 +21,4 @@ public class AccessTokenConverterWithExpiry extends DefaultAccessTokenConverter 
     long expiryInSeconds = extractExpiry(map);
     return from(super.extractAuthentication(map), expiryInSeconds);
   }
-
 }

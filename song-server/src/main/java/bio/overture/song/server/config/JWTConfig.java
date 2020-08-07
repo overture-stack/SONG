@@ -5,14 +5,12 @@ import bio.overture.song.server.security.DefaultPublicKeyFetcher;
 import bio.overture.song.server.security.JWTTokenConverter;
 import bio.overture.song.server.security.PublicKeyFetcher;
 import lombok.NonNull;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.ResponseEntity;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
@@ -57,5 +55,4 @@ public class JWTConfig {
   public PublicKeyFetcher publicKeyFetcher() {
     return new DefaultPublicKeyFetcher(publicKeyUrl, new RestTemplate(), retryTemplate);
   }
-
 }
