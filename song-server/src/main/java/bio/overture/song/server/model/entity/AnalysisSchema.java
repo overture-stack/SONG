@@ -5,7 +5,7 @@ import static bio.overture.song.server.model.enums.TableAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.TableAttributeNames.SCHEMA;
 import static bio.overture.song.server.model.enums.TableAttributeNames.VERSION;
 import static bio.overture.song.server.repository.CustomJsonType.CUSTOM_JSON_TYPE_PKG_PATH;
-import static org.assertj.core.util.Sets.newHashSet;
+import static com.google.common.collect.Sets.newHashSet;
 
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.enums.ModelAttributeNames;

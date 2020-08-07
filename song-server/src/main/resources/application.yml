@@ -152,6 +152,20 @@ id.persistInMemory: true
 # This url should not exist
 score.url: http://localhost:0
 
+auth:
+  server:
+    url: "http://localhost:8084/check_token/"
+    clientId: "3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP"
+    clientSecret: "v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e"
+    tokenName: "token"
+    enableStrictSSL: false
+    enableHttpLogging: false
+    scope:
+      study:
+        prefix: "song."
+        suffix: ".WRITE"
+      system: "song.WRITE"
+
 ---
 spring.profiles: dev
 spring:
@@ -224,3 +238,12 @@ spring:
     bootstrap-servers: localhost:9092
     template:
       default-topic: song-analysis
+
+---
+spring.profiles: jwt
+spring:
+  profiles:
+    include: [secure]
+auth:
+  jwt:
+    public-key-url: http://localhost:8084/oauth/token/public_key

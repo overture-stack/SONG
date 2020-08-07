@@ -21,19 +21,13 @@ import static bio.overture.song.core.utils.Checkers.checkNotBlank;
 import static lombok.AccessLevel.PRIVATE;
 
 import bio.overture.song.core.model.enums.AnalysisStates;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 @Value
-//Note: although the AllArgs and NoArgs combination below seems odd,
+// Note: although the AllArgs and NoArgs combination below seems odd,
 // it allows Jackson to deserialize to an immutable object without using any additional annotations.
 @AllArgsConstructor
 @NoArgsConstructor(force = true, access = PRIVATE)
