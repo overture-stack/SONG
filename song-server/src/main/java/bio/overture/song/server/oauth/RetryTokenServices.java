@@ -18,12 +18,14 @@ package bio.overture.song.server.oauth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 
+@Profile("!jwt")
 public class RetryTokenServices extends RemoteTokenServices {
 
   @Autowired private RetryTemplate retryTemplate;

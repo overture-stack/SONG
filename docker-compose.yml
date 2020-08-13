@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   ego-api:
-    image: "overture/ego:latest"
+    image: "overture/ego:3.1.0"
     environment:
       SERVER_PORT: 8080
       SPRING_DATASOURCE_URL: jdbc:postgresql://ego-postgres:5432/ego?stringtype=unspecified
@@ -18,7 +18,7 @@ services:
     depends_on:
       - ego-postgres
   ego-postgres:
-    image: postgres:9.5
+    image: postgres:11.1
     environment:
       - POSTGRES_DB=ego
       - POSTGRES_PASSWORD=password
@@ -43,7 +43,7 @@ services:
     ports:
       - "8085:9000"
   score-server:
-    image: overture/score-server:latest
+    image: overture/score-server:5.0.0
     user: "$MY_UID:$MY_GID"
     environment:
       SPRING_PROFILES_ACTIVE: amazon,collaboratory,prod,secure
@@ -57,11 +57,16 @@ services:
       S3_ACCESSKEY: minio
       S3_SECRETKEY: minio123
       S3_SIGV4ENABLED: "true"
-      AUTH_SERVER_URL: http://ego-api:8080/o/check_token/
+      AUTH_SERVER_URL: http://ego-api:8080/o/check_api_key/
       AUTH_SERVER_CLIENTID: score
       AUTH_SERVER_CLIENTSECRET: scoresecret
-      AUTH_SERVER_UPLOADSCOPE: score.WRITE
-      AUTH_SERVER_DOWNLOADSCOPE: score.READ
+      AUTH_SERVER_TOKENNAME: apiKey
+      AUTH_SERVER_SCOPE_DOWNLOAD_SYSTEM: score.READ
+      AUTH_SERVER_SCOPE_DOWNLOAD_STUDY_PREFIX: score.
+      AUTH_SERVER_SCOPE_DOWNLOAD_STUDY_SUFFIX: .READ
+      AUTH_SERVER_SCOPE_UPLOAD_SYSTEM: score.WRITE
+      AUTH_SERVER_SCOPE_UPLOAD_STUDY_PREFIX: score.
+      AUTH_SERVER_SCOPE_UPLOAD_STUDY_SUFFIX: .WRITE
       SERVER_SSL_ENABLED: "false"
       UPLOAD_PARTSIZE: 1073741824
       UPLOAD_CONNECTION_TIMEOUT: 1200000
@@ -78,8 +83,9 @@ services:
       - ego-api
     volumes:
       - "./docker/scratch/score-server-logs:/score-server/logs"
+
   score-client:
-    image: overture/score:latest
+    image: overture/score:5.0.0
     environment:
       ACCESSTOKEN: f69b726d-d40f-4261-b105-1ec7e6bf04d5
       METADATA_URL: http://song-server:8080
@@ -90,8 +96,9 @@ services:
       - "./docker/scratch/song-client-output:/song-client/output"
     command: bin/score-client
     user: "$MY_UID:$MY_GID"
+
   song-db:
-    image: "postgres:9.6"
+    image: postgres:11.1
     environment:
       POSTGRES_DB: song
       POSTGRES_USER: postgres
@@ -100,6 +107,7 @@ services:
       - "8432:5432"
     volumes:
       - "./docker/song-db-init:/docker-entrypoint-initdb.d"
+
   aws-cli:
     image: "mesosphere/aws-cli:latest"
     environment:
@@ -108,6 +116,7 @@ services:
       AWS_DEFAULT_REGION: us-east-1
     volumes:
       - "./docker/object-storage-init/data/oicr.icgc.test/data:/score-data:ro"
+
   song-client:
     build:
       context: ./
@@ -127,6 +136,7 @@ services:
       - "./docker/scratch/song-client-output:/song-client/output"
     command: bin/sing
     user: "$MY_UID:$MY_GID"
+
   song-server:
     build:
       context: ./

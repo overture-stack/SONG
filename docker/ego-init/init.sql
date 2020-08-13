@@ -374,7 +374,7 @@ COPY public.policy (id, owner, name) FROM stdin;
 --
 
 COPY public.token (id, name, owner, issuedate, isrevoked, description, expirydate) FROM stdin;
-5408ff40-77d3-4196-b745-e48532e39463	f69b726d-d40f-4261-b105-1ec7e6bf04d5	c6608c3e-1181-4957-99c4-094493391096	2019-10-22 15:39:19.683	f	\N	3020-10-21 15:39:19.683
+5408ff40-77d3-4196-b745-e48532e39463	f69b726d-d40f-4261-b105-1ec7e6bf04d5	c6608c3e-1181-4957-99c4-094493391096	2019-10-22 15:39:19.683	f	\N	2060-10-21 15:39:19.683
 \.
 
 
