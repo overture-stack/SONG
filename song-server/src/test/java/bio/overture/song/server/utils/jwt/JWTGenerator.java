@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@Profile({"test", "jwt"})
+@Profile("test & jwt")
 public class JWTGenerator {
 
   public static final String DEFAULT_ISSUER = "ego";
