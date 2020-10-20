@@ -253,9 +253,14 @@ public class AnalysisTypeService {
     analysisSchema.setVersion(version);
     log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, version);
     val resolvedSchemaJson = resolveSchemaJsonView(analysisSchema.getSchema(), false, false);
+
+    val resolvedAnalysisSchema = analysisSchemaRepository.findByNameAndVersion(analysisTypeName, version);
+    val createdAt = resolvedAnalysisSchema.isPresent() ? resolvedAnalysisSchema.get().getCreatedAt() : null;
+
     return AnalysisType.builder()
         .name(analysisTypeName)
         .version(version)
+        .createdAt(createdAt)
         .schema(resolvedSchemaJson)
         .build();
   }
@@ -278,6 +283,7 @@ public class AnalysisTypeService {
     return AnalysisType.builder()
         .name(analysisSchema.getName())
         .version(analysisSchema.getVersion())
+        .createdAt(analysisSchema.getCreatedAt())
         .schema(resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema))
         .build();
   }
