@@ -886,12 +886,6 @@ public class AnalysisServiceTest {
   }
 
   @Test
-  public void testUpdatedAnalysisChangesUpdatedAt() {
-    // Don't have a good way of running the updated method... need a payload and I don't know how
-    // that works
-  }
-
-  @Test
   public void testUnpublishAnalysisChangesUpdatedAt() {
     val createdAnalysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
 
