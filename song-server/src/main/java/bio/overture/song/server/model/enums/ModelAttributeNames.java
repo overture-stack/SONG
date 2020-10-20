@@ -63,4 +63,5 @@ public class ModelAttributeNames {
   public static final String SPECIMEN = "specimen";
   public static final String SAMPLES = "samples";
   public static final String FILES = "files";
+  public static final String ANALYSIS = "analysis";
 }
