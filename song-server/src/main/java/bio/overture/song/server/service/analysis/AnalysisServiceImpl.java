@@ -170,7 +170,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
 
     // Now that the request is validated, fetch the old analysis
-    val oldAnalysis = get(analysisId, true, true);
+    val oldAnalysis = get(analysisId, true, true, false);
 
     // Update the association between the old schema and new schema entities for the requested
     // analysis
@@ -197,14 +197,13 @@ public class AnalysisServiceImpl implements AnalysisService {
     val finalStates = resolveSelectedAnalysisStates(analysisStates);
     val analyses =
         repository.findAll(
-            new AnalysisSpecificationBuilder(true, true)
+            new AnalysisSpecificationBuilder(true, true, true)
                 .buildByStudyAndAnalysisStates(studyId, finalStates));
     analyses.forEach(
         a -> {
           val id = a.getAnalysisId();
           a.setFiles(unsecuredReadFiles(id));
           a.setSamples(readSamples(id));
-          a.populatePublishTimes();
         });
     return analyses;
   }
@@ -266,10 +265,9 @@ public class AnalysisServiceImpl implements AnalysisService {
    */
   @Override
   public Analysis unsecuredDeepRead(@NonNull String id) {
-    val analysis = shallowRead(id);
+    val analysis = get(id, false, false, true);
     analysis.setFiles(unsecuredReadFiles(id));
     analysis.setSamples(readSamples(id));
-    analysis.populatePublishTimes();
     return analysis;
   }
 
@@ -460,7 +458,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   /** Reads an analysis WITHOUT any files, samples or info */
   private Analysis shallowRead(String id) {
-    return get(id, false, false);
+    return get(id, false, false, false);
   }
 
   private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema) {
@@ -490,14 +488,22 @@ public class AnalysisServiceImpl implements AnalysisService {
     return jsonSchema;
   }
 
-  private Analysis get(@NonNull String id, boolean fetchAnalysisSchema, boolean fetchAnalysisData) {
+  private Analysis get(
+      @NonNull String id,
+      boolean fetchAnalysisSchema,
+      boolean fetchAnalysisData,
+      boolean fetchStateHistory) {
     val analysisResult =
         repository.findOne(
-            new AnalysisSpecificationBuilder(fetchAnalysisSchema, fetchAnalysisData).buildById(id));
+            new AnalysisSpecificationBuilder(
+                    fetchAnalysisSchema, fetchAnalysisData, fetchStateHistory)
+                .buildById(id));
 
     validateAnalysisExistence(analysisResult.isPresent(), id);
     val analysis = analysisResult.get();
-    analysis.populatePublishTimes();
+    if(fetchStateHistory) {
+      analysis.populatePublishTimes();
+    }
     return analysis;
   }
 

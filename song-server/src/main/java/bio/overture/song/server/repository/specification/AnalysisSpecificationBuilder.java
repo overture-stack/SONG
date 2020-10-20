@@ -38,6 +38,7 @@ public class AnalysisSpecificationBuilder {
 
   private final boolean fetchAnalysisSchema;
   private final boolean fetchAnalysisData;
+  private final boolean fetchAnalysisStateHistory;
 
   public Specification<Analysis> buildByStudyAndAnalysisStates(
       @NonNull String study, @NonNull Collection<String> analysisStates) {
@@ -68,6 +69,9 @@ public class AnalysisSpecificationBuilder {
     }
     if (fetchAnalysisData) {
       root.fetch(ANALYSIS_DATA, LEFT);
+    }
+    if (fetchAnalysisStateHistory) {
+      root.fetch(ModelAttributeNames.ANALYSIS_STATE_HISTORY, LEFT);
     }
     return root;
   }

@@ -74,7 +74,7 @@ public class Analysis {
 
   @NotNull
   @JsonIgnore
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   @JoinColumn(name = TableAttributeNames.ANALYSIS_SCHEMA_ID, nullable = false)
@@ -93,7 +93,7 @@ public class Analysis {
       mappedBy = ModelAttributeNames.ANALYSIS,
       cascade = CascadeType.ALL,
       orphanRemoval = true,
-      fetch = FetchType.EAGER)
+      fetch = FetchType.LAZY)
   private Set<AnalysisStateChange> analysisStateHistory = newHashSet();
 
   @Transient private List<CompositeEntity> samples;
