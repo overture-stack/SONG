@@ -56,14 +56,12 @@ import bio.overture.song.server.model.SampleSetPK;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.analysis.AnalysisStateChange;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.repository.AnalysisDataRepository;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.repository.*;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.repository.search.SearchRepository;
 import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
@@ -80,11 +78,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -118,6 +115,7 @@ public class AnalysisServiceImpl implements AnalysisService {
   @Autowired private final FileRepository fileRepository;
   @Autowired private final AnalysisDataRepository analysisDataRepository;
   @Autowired private final AnalysisTypeService analysisTypeService;
+  @Autowired private final AnalysisStateChangeRepository analysisStateChangeRepository;
   @Autowired private final ValidationService validationService;
 
   @Override
@@ -206,6 +204,7 @@ public class AnalysisServiceImpl implements AnalysisService {
           val id = a.getAnalysisId();
           a.setFiles(unsecuredReadFiles(id));
           a.setSamples(readSamples(id));
+          a.populatePublishTimes();
         });
     return analyses;
   }
@@ -258,14 +257,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   @Override
   public List<Analysis> unsecuredDeepReads(@NonNull Collection<String> ids) {
-    val analyses = repository.findAll(new AnalysisSpecificationBuilder(true, true).buildByIds(ids));
-    analyses.forEach(
-        a -> {
-          val id = a.getAnalysisId();
-          a.setFiles(unsecuredReadFiles(id));
-          a.setSamples(readSamples(id));
-        });
-    return analyses;
+    return ids.stream().map(this::unsecuredDeepRead).collect(Collectors.toList());
   }
 
   /**
@@ -277,6 +269,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     val analysis = shallowRead(id);
     analysis.setFiles(unsecuredReadFiles(id));
     analysis.setSamples(readSamples(id));
+    analysis.populatePublishTimes();
     return analysis;
   }
 
@@ -432,9 +425,23 @@ public class AnalysisServiceImpl implements AnalysisService {
   }
 
   private void checkedUpdateState(String id, AnalysisStates analysisState) {
-    val state = analysisState.name();
+    // Fetch Analysis
     val analysis = shallowRead(id);
-    analysis.setAnalysisState(state);
+
+    // Create state history
+    val initialState = shallowRead(id).getAnalysisState();
+    val updatedState = analysisState.name();
+    val stateChange =
+        AnalysisStateChange.builder()
+            .analysis(analysis)
+            .initialState(initialState)
+            .updatedState(updatedState)
+            .updatedAt(LocalDateTime.now())
+            .build();
+    analysisStateChangeRepository.save(stateChange);
+
+    // Update analysis state
+    analysis.setAnalysisState(updatedState);
     repository.save(analysis);
   }
 
@@ -489,7 +496,9 @@ public class AnalysisServiceImpl implements AnalysisService {
             new AnalysisSpecificationBuilder(fetchAnalysisSchema, fetchAnalysisData).buildById(id));
 
     validateAnalysisExistence(analysisResult.isPresent(), id);
-    return analysisResult.get();
+    val analysis = analysisResult.get();
+    analysis.populatePublishTimes();
+    return analysis;
   }
 
   private static void checkMismatchingFileSizes(
