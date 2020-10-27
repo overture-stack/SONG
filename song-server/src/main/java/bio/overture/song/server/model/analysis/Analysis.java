@@ -22,6 +22,7 @@ import static bio.overture.song.core.utils.JsonUtils.toMap;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.JsonUtils;
@@ -122,8 +123,8 @@ public class Analysis {
       val publishHistory =
           history.stream()
               .filter(stateChange -> stateChange.getUpdatedState().equals(PUBLISHED.name()))
-              .map(stateChange -> stateChange.getUpdatedAt())
-              .collect(toImmutableList());
+              .map(AnalysisStateChange::getUpdatedAt)
+              .collect(toUnmodifiableList());
 
       if (!publishHistory.isEmpty()) {
         val firstPublish = publishHistory.stream().min(LocalDateTime::compareTo).get();
