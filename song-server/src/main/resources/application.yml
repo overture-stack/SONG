@@ -29,6 +29,11 @@ score:
   # Require both upload and download scopes
   accessToken: "ad83ebde-a55c-11e7-abc4-cec278b6b50a"
   url: "http://localhost:8087"
+  clientCredentials:
+    enabled: false
+    id: oauth
+    secret: oauthsecret
+    tokenUrl: http://ego-api:8080/oauth/token
 
 # Hibernate
 spring:
