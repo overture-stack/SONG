@@ -106,6 +106,7 @@ public class AnalysisTypeService {
     return AnalysisType.builder()
         .name(name)
         .version(resolvedVersion)
+        .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
         .build();
   }
@@ -153,6 +154,7 @@ public class AnalysisTypeService {
     return AnalysisType.builder()
         .name(analysisTypeId.getName())
         .version(analysisTypeId.getVersion())
+        .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
         .build();
   }
@@ -255,12 +257,18 @@ public class AnalysisTypeService {
     log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, version);
     val resolvedSchemaJson = resolveSchemaJsonView(analysisSchema.getSchema(), false, false);
 
-    val createdAt = analysisSchemaRepository
+    val createdAt =
+        analysisSchemaRepository
             .findByNameAndVersion(analysisTypeName, version)
             .map(AnalysisSchema::getCreatedAt)
-            .orElseThrow(() -> buildServerException(getClass(), ServerErrors.UNKNOWN_ERROR,
-                    "Cannot find analysisType with name=%s and version=%s",
-                    analysisTypeName, version));
+            .orElseThrow(
+                () ->
+                    buildServerException(
+                        getClass(),
+                        ServerErrors.UNKNOWN_ERROR,
+                        "Cannot find analysisType with name=%s and version=%s",
+                        analysisTypeName,
+                        version));
 
     return AnalysisType.builder()
         .name(analysisTypeName)
