@@ -20,7 +20,6 @@ package bio.overture.song.server.model.analysis;
 import static bio.overture.song.core.model.enums.AnalysisStates.*;
 import static bio.overture.song.core.utils.JsonUtils.toMap;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
