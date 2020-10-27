@@ -34,6 +34,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -44,7 +46,7 @@ import org.springframework.http.ResponseEntity;
 @Value
 public class ResponseOption {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
   @NonNull private final ResponseEntity<String> response;
 
