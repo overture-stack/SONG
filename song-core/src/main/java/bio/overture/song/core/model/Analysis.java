@@ -1,6 +1,7 @@
 package bio.overture.song.core.model;
 
 import bio.overture.song.core.model.enums.AnalysisStates;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,4 +24,10 @@ public class Analysis extends DynamicData {
   private AnalysisTypeId analysisType;
   private List<CompositeSample> samples;
   private List<FileDTO> files;
+
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
+
+  private LocalDateTime firstPublishedAt;
+  private LocalDateTime publishedAt;
 }
