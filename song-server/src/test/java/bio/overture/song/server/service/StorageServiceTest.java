@@ -80,7 +80,6 @@ public class StorageServiceTest {
             .retryTemplate(retryTemplate)
             .storageUrl(testStorageUrl)
             .validationService(validationService)
-            .scoreAuthorizationHeader(DEFAULT_ACCESS_TOKEN)
             .build();
   }
 
