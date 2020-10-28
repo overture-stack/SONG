@@ -47,28 +47,28 @@ public class AnalysisServiceSender implements AnalysisService {
   @Override
   public String create(String studyId, Payload payload) {
     val id = internalAnalysisService.create(studyId, payload);
-    sendAnalysisMessage(studyId, id, UNPUBLISHED);
+    sendAnalysisMessage(studyId, id, UNPUBLISHED, "CREATE");
     return id;
   }
 
   @Override
   public ResponseEntity<String> publish(String studyId, String id, boolean ignoreUndefinedMd5) {
     val resp = internalAnalysisService.publish(studyId, id, ignoreUndefinedMd5);
-    sendAnalysisMessage(studyId, id, PUBLISHED);
+    sendAnalysisMessage(studyId, id, PUBLISHED, "PUBLISH");
     return resp;
   }
 
   @Override
   public ResponseEntity<String> unpublish(String studyId, String id) {
     val resp = internalAnalysisService.unpublish(studyId, id);
-    sendAnalysisMessage(studyId, id, UNPUBLISHED);
+    sendAnalysisMessage(studyId, id, UNPUBLISHED, "UNPUBLISH");
     return resp;
   }
 
   @Override
   public ResponseEntity<String> suppress(String studyId, String id) {
     val resp = internalAnalysisService.suppress(studyId, id);
-    sendAnalysisMessage(studyId, id, SUPPRESSED);
+    sendAnalysisMessage(studyId, id, SUPPRESSED, "SUPPRESS");
     return resp;
   }
 
@@ -139,8 +139,9 @@ public class AnalysisServiceSender implements AnalysisService {
   }
 
   private void sendAnalysisMessage(
-      String studyId, String analysisId, AnalysisStates analysisState) {
-    val message = createAnalysisMessage(analysisId, studyId, analysisState, songServerId);
+      String studyId, String analysisId, AnalysisStates analysisState, String action) {
+    val analysis = internalAnalysisService.unsecuredDeepRead(analysisId);
+    val message = createAnalysisMessage(analysisId, studyId, analysisState, action, analysis, songServerId);
     sender.send(toJson(message));
   }
 }
