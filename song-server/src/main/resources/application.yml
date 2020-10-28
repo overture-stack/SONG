@@ -29,11 +29,6 @@ score:
   # Require both upload and download scopes
   accessToken: "ad83ebde-a55c-11e7-abc4-cec278b6b50a"
   url: "http://localhost:8087"
-  clientCredentials:
-    enabled: false
-    id: oauth
-    secret: oauthsecret
-    tokenUrl: http://ego-api:8080/oauth/token
 
 # Hibernate
 spring:
@@ -252,3 +247,13 @@ spring:
 auth:
   jwt:
     public-key-url: http://localhost:8084/oauth/token/public_key
+
+---
+spring.profiles: storageClientCred
+score:
+  url: "http://localhost:8087"
+  clientCredentials:
+    id: oauth
+    secret: oauthsecret
+    tokenUrl: http://ego-api:8080/oauth/token
+    systemScope: "score.WRITE" # Storage scope needs to include both READ and WRITE

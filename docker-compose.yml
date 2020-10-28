@@ -145,7 +145,7 @@ services:
       target: server
     environment:
       SERVER_PORT: 8080
-      SPRING_PROFILES_ACTIVE: "prod,secure,default,jwt"
+      SPRING_PROFILES_ACTIVE: "prod,secure,default,jwt,storageClientCred"
       AUTH_JWT_PUBLICKEYURL: http://ego-api:8080/oauth/token/public_key
       AUTH_SERVER_URL: http://ego-api:8080/o/check_api_key/
       AUTH_SERVER_CLIENTID: song
@@ -155,11 +155,10 @@ services:
       AUTH_SERVER_SCOPE_STUDY_SUFFIX: .WRITE
       AUTH_SERVER_SCOPE_SYSTEM: song.WRITE
       SCORE_URL: http://score-server:8080
-      SCORE_ACCESSTOKEN: "NO LONGER NEEDED"
-      SCORE_CLIENTCREDENTIALS_ENABLED: "true"
       SCORE_CLIENTCREDENTIALS_ID: oauth
       SCORE_CLIENTCREDENTIALS_SECRET: oauthsecret
       SCORE_CLIENTCREDENTIALS_TOKENURL: http://ego-api:8080/oauth/token
+      SCORE_CLIENTCREDENTIALS_SYSTEMSCOPE: "score.WRITE"
       MANAGEMENT_SERVER_PORT: 8081
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password

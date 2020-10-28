@@ -27,16 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 import org.springframework.web.client.RestTemplate;
 
 @NoArgsConstructor
 @Configuration
-public class StorageConfig {
+@Profile("!storageClientCred")
+public class StorageDefaultConfig {
 
   @Autowired private RetryTemplate retryTemplate;
 
@@ -48,36 +47,17 @@ public class StorageConfig {
   @Value("#{'Bearer '.concat('${score.accessToken}')}")
   private String scoreAuthorizationHeader;
 
-  // TODO encapsulate with a POJO maybe?
-  @Value("${score.clientCredentials.enabled}")
-  private Boolean clientCredentialsEnabled;
-
-  @Value("${score.clientCredentials.id}")
-  private String clientCredentialsId;
-
-  @Value("${score.clientCredentials.secret}")
-  private String clientCredentialsSecret;
-
-  @Value("${score.clientCredentials.tokenUrl}")
-  private String clientCredentialsTokenUrl;
-
   @Bean
   public StorageService storageService() {
-    RestTemplate restTemplate;
-    if (clientCredentialsEnabled) {
-      restTemplate = oauthClientCredentialTemplate();
-    } else {
-      restTemplate = accessTokenInjectedTemplate();
-    }
     return StorageService.builder()
-        .restTemplate(restTemplate)
+        .restTemplate(tokenInjectedRestTemplate())
         .retryTemplate(retryTemplate)
         .storageUrl(storageUrl)
         .validationService(validationService)
         .build();
   }
 
-  private RestTemplate accessTokenInjectedTemplate() {
+  private RestTemplate tokenInjectedRestTemplate() {
     val restTemplate = new RestTemplate();
 
     ClientHttpRequestInterceptor accessTokenAuthIntercept =
@@ -89,17 +69,5 @@ public class StorageConfig {
     restTemplate.getInterceptors().add(accessTokenAuthIntercept);
 
     return restTemplate;
-  }
-
-  private RestTemplate oauthClientCredentialTemplate() {
-    ClientCredentialsResourceDetails resource = new ClientCredentialsResourceDetails();
-
-    resource.setAccessTokenUri(clientCredentialsTokenUrl);
-    resource.setClientId(clientCredentialsId);
-    resource.setClientSecret(clientCredentialsSecret);
-
-    DefaultOAuth2ClientContext clientContext = new DefaultOAuth2ClientContext();
-
-    return new OAuth2RestTemplate(resource, clientContext);
   }
 }
