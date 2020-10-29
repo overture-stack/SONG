@@ -141,7 +141,8 @@ public class AnalysisServiceSender implements AnalysisService {
   private void sendAnalysisMessage(
       String studyId, String analysisId, AnalysisStates analysisState, String action) {
     val analysis = internalAnalysisService.unsecuredDeepRead(analysisId);
-    val message = createAnalysisMessage(analysisId, studyId, analysisState, action, analysis, songServerId);
+    val message =
+        createAnalysisMessage(analysisId, studyId, analysisState, action, analysis, songServerId);
     sender.send(toJson(message));
   }
 }

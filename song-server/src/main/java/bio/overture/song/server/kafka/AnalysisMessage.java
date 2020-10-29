@@ -21,6 +21,7 @@ import static bio.overture.song.core.utils.Checkers.checkNotBlank;
 import static lombok.AccessLevel.PRIVATE;
 
 import bio.overture.song.core.model.enums.AnalysisStates;
+import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.Analysis;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -38,12 +39,18 @@ public class AnalysisMessage {
   @NonNull private final String studyId;
   @NonNull private final String state;
   @NonNull private final String action;
-  @NonNull private final Analysis analysis;
   @NonNull private final String songServerId;
+  @NonNull private final Analysis analysis;
 
   public static AnalysisMessage createAnalysisMessage(
-      String analysisId, String studyId, AnalysisStates analysisStates, String action, Analysis analysis, String songServerId) {
+      String analysisId,
+      String studyId,
+      AnalysisStates analysisStates,
+      String action,
+      Analysis analysis,
+      String songServerId) {
     checkNotBlank(analysisId);
-    return new AnalysisMessage(analysisId, studyId, analysisStates.toString(), action, analysis, songServerId);
+    return new AnalysisMessage(
+        analysisId, studyId, analysisStates.toString(), action, songServerId, analysis);
   }
 }

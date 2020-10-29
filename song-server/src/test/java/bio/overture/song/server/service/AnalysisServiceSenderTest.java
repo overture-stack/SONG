@@ -94,7 +94,7 @@ public class AnalysisServiceSenderTest {
   }
 
   private AnalysisMessage createExpectedAnalysisMessage(AnalysisStates state) {
-    return createAnalysisMessage(analysisId, studyId, state, SONG_ID);
+    return createAnalysisMessage(analysisId, studyId, state, SONG_ID, null, "test.server");
   }
 
   @RequiredArgsConstructor
