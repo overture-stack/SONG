@@ -32,11 +32,11 @@ import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.analysis.Analysis;
@@ -72,6 +72,9 @@ import org.springframework.web.context.WebApplicationContext;
 @AutoConfigureMockMvc(secure = false)
 @SpringBootTest(properties = "schemas.enforceLatest=false")
 public class AnalysisControllerTest {
+
+  private static final Class<bio.overture.song.core.model.Analysis> ANALYSIS_DTO_CLASS =
+      bio.overture.song.core.model.Analysis.class;
 
   private static final ResourceFetcher RESOURCE_FETCHER =
       ResourceFetcher.builder()
@@ -146,11 +149,14 @@ public class AnalysisControllerTest {
   public void updateAnalysis_schemaNotUpdatedAndDataNotUpdated_SuccessNoUpdate() {
     // Execute an update request with the exact same data
     updateAnalysisWithFixture(
-        studyId, variantAnalysis.getAnalysisId(), "variantcall1-no-update-request.json");
+        studyId,
+        variantAnalysis.getAnalysisId(),
+        "variantcall1-no-update-request.json");
 
     // Check there were no updates
     assertAnalysisIdHasSameData(
-        variantAnalysis.getAnalysisId(), "variantcall1-no-update-analysis-data.json");
+        variantAnalysis.getAnalysisId(),
+        "variantcall1-no-update-analysis-data.json");
   }
 
   @Test
@@ -168,11 +174,14 @@ public class AnalysisControllerTest {
   public void updateAnalysis_schemaNotUpdatedAndDataUpdatedAndValid_Success() {
     // Do not update the schema version but update the data
     updateAnalysisWithFixture(
-        studyId, variantAnalysis.getAnalysisId(), "variantcall1-valid-update-request.json");
+        studyId,
+        variantAnalysis.getAnalysisId(),
+        "variantcall1-valid-update-request.json");
 
     // Assert the updated data matches what was expected
     assertAnalysisIdHasSameData(
-        variantAnalysis.getAnalysisId(), "variantcall1-valid-update-analysis-data.json");
+        variantAnalysis.getAnalysisId(),
+        "variantcall1-valid-update-analysis-data.json");
   }
 
   @Test
@@ -190,11 +199,15 @@ public class AnalysisControllerTest {
   public void updateAnalysis_schemaUpdatedAndDataNotUpdatedAndValid_Success() {
     // update the data for variantCall:1
     updateAnalysisWithFixture(
-        studyId, variantAnalysis.getAnalysisId(), "variantcall1-valid-update-request.json");
+        studyId,
+        variantAnalysis.getAnalysisId(),
+        "variantcall1-valid-update-request.json");
 
     // update the data for variantCall:2
     updateAnalysisWithFixture(
-        studyId, variantAnalysis.getAnalysisId(), "variantcall2-valid-update-request.json");
+        studyId,
+        variantAnalysis.getAnalysisId(),
+        "variantcall2-valid-update-request.json");
 
     // Assert the 3rd update is not an update of data, but just the analysisType version
     assertJsonEquals(
@@ -204,11 +217,14 @@ public class AnalysisControllerTest {
 
     // update the data for variantCall:3 (this update is almost the same as the previous)
     updateAnalysisWithFixture(
-        studyId, variantAnalysis.getAnalysisId(), "variantcall3-valid-update-request.json");
+        studyId,
+        variantAnalysis.getAnalysisId(),
+        "variantcall3-valid-update-request.json");
 
     // assert the update is valid for variantCall:3
     assertAnalysisIdHasSameData(
-        variantAnalysis.getAnalysisId(), "variantcall2-valid-update-analysis-data.json");
+        variantAnalysis.getAnalysisId(),
+        "variantcall2-valid-update-analysis-data.json");
   }
 
   @Test
@@ -226,11 +242,14 @@ public class AnalysisControllerTest {
   public void updateAnalysis_schemaUpdatedAndDataUpdatedAndValid_Success() {
     // Update the schema version and update the data correctly
     updateAnalysisWithFixture(
-        studyId, variantAnalysis.getAnalysisId(), "variantcall2-valid-update-request.json");
+        studyId,
+        variantAnalysis.getAnalysisId(),
+        "variantcall2-valid-update-request.json");
 
     // Assert the updated analysisData matches what is expected
     assertAnalysisIdHasSameData(
-        variantAnalysis.getAnalysisId(), "variantcall2-valid-update-analysis-data.json");
+        variantAnalysis.getAnalysisId(),
+        "variantcall2-valid-update-analysis-data.json");
   }
 
   @Test
@@ -342,6 +361,36 @@ public class AnalysisControllerTest {
               assertUpdateAnalysisError(
                   studyId, variantAnalysis.getAnalysisId(), f, SCHEMA_VIOLATION);
             });
+  }
+
+  @Test
+  public void getAnalysis_containsDateInfo() {
+    val actualAnalysis =
+        endpointTester
+            .getAnalysisByIdAnd(
+                this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId())
+            .extractOneEntity(ANALYSIS_DTO_CLASS);
+    assertEquals(this.variantAnalysis.getCreatedAt(), actualAnalysis.getCreatedAt());
+    assertEquals(this.variantAnalysis.getUpdatedAt(), actualAnalysis.getUpdatedAt());
+    assertNull(actualAnalysis.getPublishedAt());
+    assertNull(actualAnalysis.getFirstPublishedAt());
+  }
+
+  @Test
+  public void suppressAnalysis_updatesDateInfo() {
+    val initialUpdatedAt = this.variantAnalysis.getUpdatedAt();
+    endpointTester
+        .suppressAnalysisByIdAnd(
+            this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId())
+        .assertOk();
+    val actualAnalysis =
+        endpointTester
+            .getAnalysisByIdAnd(
+                this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId())
+            .extractOneEntity(ANALYSIS_DTO_CLASS);
+    assertEquals(this.variantAnalysis.getCreatedAt(), actualAnalysis.getCreatedAt());
+    assertTrue(initialUpdatedAt.isBefore(actualAnalysis.getUpdatedAt()));
+    assertEquals(AnalysisStates.SUPPRESSED, actualAnalysis.getAnalysisState());
   }
 
   private void assertAnalysisIdHasSameData(String analysisId, String analysisDataFixtureFilename) {

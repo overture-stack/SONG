@@ -17,9 +17,7 @@
 
 package bio.overture.song.server.repository.specification;
 
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_DATA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_SCHEMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
 import static javax.persistence.criteria.JoinType.LEFT;
 
 import bio.overture.song.server.model.analysis.Analysis;
@@ -38,6 +36,7 @@ public class AnalysisSpecificationBuilder {
 
   private final boolean fetchAnalysisSchema;
   private final boolean fetchAnalysisData;
+  private final boolean fetchAnalysisStateHistory;
 
   public Specification<Analysis> buildByStudyAndAnalysisStates(
       @NonNull String study, @NonNull Collection<String> analysisStates) {
@@ -68,6 +67,9 @@ public class AnalysisSpecificationBuilder {
     }
     if (fetchAnalysisData) {
       root.fetch(ANALYSIS_DATA, LEFT);
+    }
+    if (fetchAnalysisStateHistory) {
+      root.fetch(ANALYSIS_STATE_HISTORY, LEFT);
     }
     return root;
   }

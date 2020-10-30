@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
+
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -51,7 +53,7 @@ public class JsonUtils {
     val specialModule = new SimpleModule();
     specialModule.addDeserializer(String.class, SpecialStringJsonDeserializer.instance);
 
-    val mapper = new ObjectMapper().registerModule(specialModule);
+    val mapper = new ObjectMapper().registerModule(specialModule).registerModule(new JavaTimeModule());
 
     mapper.disable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
     mapper.disable(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS);
