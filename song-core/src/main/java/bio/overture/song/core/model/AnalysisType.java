@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,6 +18,7 @@ public class AnalysisType {
 
   @NotNull private String name;
   @NotNull private Integer version;
+  private LocalDateTime createdAt;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private JsonNode schema;
