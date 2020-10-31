@@ -34,9 +34,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -50,10 +54,22 @@ public class JsonUtils {
   protected static final ObjectMapper mapper = mapper();
 
   public static ObjectMapper mapper() {
+    val mapper = new ObjectMapper();
+
+    /* Register Moduless */
     val specialModule = new SimpleModule();
     specialModule.addDeserializer(String.class, SpecialStringJsonDeserializer.instance);
 
-    val mapper = new ObjectMapper().registerModule(specialModule).registerModule(new JavaTimeModule());
+    val isoDateFormatter = DateTimeFormatter.ISO_DATE_TIME;
+    val dateTimeDeserializer = new LocalDateTimeDeserializer(isoDateFormatter);
+    val dateTimeSerializer = new LocalDateTimeSerializer(isoDateFormatter);
+
+    val javaTimeModule = new JavaTimeModule();
+    javaTimeModule.addDeserializer(LocalDateTime.class, dateTimeDeserializer);
+    javaTimeModule.addSerializer(LocalDateTime.class, dateTimeSerializer);
+
+    mapper.registerModule(specialModule);
+    mapper.registerModule(javaTimeModule);
 
     mapper.disable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
     mapper.disable(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS);
