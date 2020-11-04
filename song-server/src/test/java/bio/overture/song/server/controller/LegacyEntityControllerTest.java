@@ -15,6 +15,7 @@ import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,77 +36,67 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles({"test", "secure"})
 @SpringBootTest
 public class LegacyEntityControllerTest {
-  private final ObjectMapper mapper;
-
   @Autowired private MockMvc mvc;
 
   @MockBean private LegacyEntityService service;
 
-  private static final LegacyDto someValidLegacyDto = LegacyDto.builder().gnosId("gnosId1").build();
+  private static final List<LegacyEntity> entities = List.of(
+      new LegacyEntity("id1", "gnosId1", "file1", "project1", "controlled"),
+      new LegacyEntity("id2", "gnosId1", "file2", "project1", "controlled"),
+      new LegacyEntity("id3", "gnosId1", "file3", "project1", "controlled"),
+      new LegacyEntity("id4", "gnosId1", "file4", "project1", "controlled")
+  );
 
-  private static final LegacyEntity entity0 =
-      new LegacyEntity("id1", "gnosId1", "file1", "project1", "controlled");
-  private static final LegacyEntity entity1 =
-      new LegacyEntity("id2", "gnosId1", "file2", "project1", "controlled");
-  private static final LegacyEntity entity2 =
-      new LegacyEntity("id3", "gnosId1", "file3", "project1", "controlled");
-  private static final LegacyEntity entity3 =
-      new LegacyEntity("id4", "gnosId1", "file4", "project1", "controlled");
+  @Before
+  public void setup() {
+    val gnosId1LegacyDto = LegacyDto.builder().gnosId("gnosId1").build();
 
-  public LegacyEntityControllerTest() {
-    mapper = JsonUtils.mapper();
+    val page0Size1Request = PageRequest.of(0, 1, Sort.Direction.ASC, "id");
+    val page0Size2Request = PageRequest.of(0, 2, Sort.Direction.ASC, "id");
+    val page1Size2Request = PageRequest.of(1, 2, Sort.Direction.ASC, "id");
+
+    val page0Size1 = createPageOf(entities.get(0));
+    val page0Size2 = createPageOf(entities.get(0), entities.get(1));
+    val page1Size2 = createPageOf(entities.get(2), entities.get(3));
+
+    val mapper = JsonUtils.mapper();
+
+    given(service.find(any(), eq(gnosId1LegacyDto), eq(page0Size2Request)))
+            .willReturn(mapper.valueToTree(page0Size2));
+    given(service.find(any(), eq(gnosId1LegacyDto), eq(page1Size2Request)))
+            .willReturn(mapper.valueToTree(page1Size2));
+    given(service.find(any(), eq(gnosId1LegacyDto), eq(page0Size1Request)))
+            .willReturn(mapper.valueToTree(page0Size1));
   }
 
   @Test
   @SneakyThrows
   public void testPageablePagingWorks() {
-    val givenPage0 = PageRequest.of(0, 2, Sort.Direction.ASC, "id");
-    val givenPage1 = PageRequest.of(1, 2, Sort.Direction.ASC, "id");
-
-    val page0 = createPageOf(entity0, entity1);
-    val page1 = createPageOf(entity2, entity3);
-
-    given(service.find(any(), eq(someValidLegacyDto), eq(givenPage0)))
-        .willReturn(mapper.valueToTree(page0));
-    given(service.find(any(), eq(someValidLegacyDto), eq(givenPage1)))
-        .willReturn(mapper.valueToTree(page1));
-
     mvc.perform(get("/entities?gnosId=gnosId1&size=2&page=0"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0]").value(entity0))
-        .andExpect(jsonPath("$.content[1]").value(entity1))
+        .andExpect(jsonPath("$.content[0]").value(entities.get(0)))
+        .andExpect(jsonPath("$.content[1]").value(entities.get(1)))
         .andExpect(jsonPath("$.content[2]").doesNotExist());
 
     mvc.perform(get("/entities?gnosId=gnosId1&size=2&page=1"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0]").value(entity2))
-        .andExpect(jsonPath("$.content[1]").value(entity3))
+        .andExpect(jsonPath("$.content[0]").value(entities.get(2)))
+        .andExpect(jsonPath("$.content[1]").value(entities.get(3)))
         .andExpect(jsonPath("$.content[2]").doesNotExist());
   }
 
   @Test
   @SneakyThrows
   public void testPageableSizingWorks() {
-    val page0Size1Request = PageRequest.of(0, 1, Sort.Direction.ASC, "id");
-    val page0Size2Request = PageRequest.of(0, 2, Sort.Direction.ASC, "id");
-
-    val page0Size1 = createPageOf(entity0);
-    val page0Size2 = createPageOf(entity0, entity1);
-
-    given(service.find(any(), eq(someValidLegacyDto), eq(page0Size1Request)))
-        .willReturn(mapper.valueToTree(page0Size1));
-    given(service.find(any(), eq(someValidLegacyDto), eq(page0Size2Request)))
-        .willReturn(mapper.valueToTree(page0Size2));
-
     mvc.perform(get("/entities?gnosId=gnosId1&size=1&page=0"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0]").value(entity0))
+        .andExpect(jsonPath("$.content[0]").value(entities.get(0)))
         .andExpect(jsonPath("$.content[1]").doesNotExist());
 
     mvc.perform(get("/entities?gnosId=gnosId1&size=2&page=0"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content[0]").value(entity0))
-        .andExpect(jsonPath("$.content[1]").value(entity1))
+        .andExpect(jsonPath("$.content[0]").value(entities.get(0)))
+        .andExpect(jsonPath("$.content[1]").value(entities.get(1)))
         .andExpect(jsonPath("$.content[2]").doesNotExist());
   }
 
