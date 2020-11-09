@@ -295,7 +295,7 @@ ALTER TABLE public.userpermission OWNER TO postgres;
 --
 
 COPY public.egoapplication (name, clientid, clientsecret, redirecturi, description, status, id, type) FROM stdin;
-oauth2-resource	oauth	oauthsecret	http://example.com	song	APPROVED	77f1ef78-7495-4b4a-982a-6b9532dc69fb	CLIENT
+song-to-score	songToScore	songToScoreSecret	http://example.com	song-to-score	APPROVED	77f1ef78-7495-4b4a-982a-6b9532dc69fb	CLIENT
 \.
 
 

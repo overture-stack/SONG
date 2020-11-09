@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   ego-api:
-    image: "overture/ego:3.3.0"
+    image: "overture/ego:33d702e" # TODO - Replace with latest rc 3.4.0
     environment:
       SERVER_PORT: 8080
       SPRING_DATASOURCE_URL: jdbc:postgresql://ego-postgres:5432/ego?stringtype=unspecified
@@ -155,8 +155,8 @@ services:
       AUTH_SERVER_SCOPE_STUDY_SUFFIX: .WRITE
       AUTH_SERVER_SCOPE_SYSTEM: song.WRITE
       SCORE_URL: http://score-server:8080
-      SCORE_CLIENTCREDENTIALS_ID: oauth
-      SCORE_CLIENTCREDENTIALS_SECRET: oauthsecret
+      SCORE_CLIENTCREDENTIALS_ID: songToScore
+      SCORE_CLIENTCREDENTIALS_SECRET: songToScoreSecret
       SCORE_CLIENTCREDENTIALS_TOKENURL: http://ego-api:8080/oauth/token
       SCORE_CLIENTCREDENTIALS_SYSTEMSCOPE: "score.WRITE"
       MANAGEMENT_SERVER_PORT: 8081
