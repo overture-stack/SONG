@@ -249,7 +249,7 @@ auth:
     public-key-url: http://localhost:8084/oauth/token/public_key
 
 ---
-spring.profiles: storageClientCred
+spring.profiles: score-client-cred
 score:
   url: "http://localhost:8087"
   clientCredentials:

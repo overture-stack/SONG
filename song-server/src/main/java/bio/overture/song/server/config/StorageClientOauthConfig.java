@@ -1,11 +1,11 @@
 package bio.overture.song.server.config;
 
+import bio.overture.song.server.properties.StorageClientOauthProperties;
 import bio.overture.song.server.service.StorageService;
 import bio.overture.song.server.service.ValidationService;
 import java.util.List;
-import lombok.NoArgsConstructor;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -16,29 +16,23 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 import org.springframework.web.client.RestTemplate;
 
-@NoArgsConstructor
 @Configuration
-@Profile("storageClientCred")
-public class StorageClientCredConfig {
+@Profile("score-client-cred")
+public class StorageClientOauthConfig {
 
-  @Autowired private RetryTemplate retryTemplate;
+  private final StorageClientOauthProperties storageClientOauthProperties;
+  private final RetryTemplate retryTemplate;
+  private final ValidationService validationService;
 
-  @Autowired private ValidationService validationService;
-
-  @Value("${score.url}")
-  private String storageUrl;
-
-  @Value("${score.clientCredentials.id}")
-  private String clientId;
-
-  @Value("${score.clientCredentials.secret}")
-  private String clientSecret;
-
-  @Value("${score.clientCredentials.tokenUrl}")
-  private String tokenUrl;
-
-  @Value("${score.clientCredentials.systemScope}")
-  private String systemScope;
+  @Autowired
+  public StorageClientOauthConfig(
+      StorageClientOauthProperties storageClientOauthProperties,
+      RetryTemplate retryTemplate,
+      ValidationService validationService) {
+    this.storageClientOauthProperties = storageClientOauthProperties;
+    this.retryTemplate = retryTemplate;
+    this.validationService = validationService;
+  }
 
   @Primary
   @Bean
@@ -46,20 +40,22 @@ public class StorageClientCredConfig {
     return StorageService.builder()
         .restTemplate(oauth2ClientCredentialsRestTempalate())
         .retryTemplate(retryTemplate)
-        .storageUrl(storageUrl)
+        .storageUrl(storageClientOauthProperties.getUrl())
         .validationService(validationService)
         .build();
   }
 
   private RestTemplate oauth2ClientCredentialsRestTempalate() {
-    ClientCredentialsResourceDetails resource = new ClientCredentialsResourceDetails();
+    val clientCredentials = storageClientOauthProperties.getClientCredentials();
 
-    resource.setAccessTokenUri(tokenUrl);
-    resource.setClientId(clientId);
-    resource.setClientSecret(clientSecret);
-    resource.setScope(List.of(systemScope));
+    val resource = new ClientCredentialsResourceDetails();
 
-    DefaultOAuth2ClientContext clientContext = new DefaultOAuth2ClientContext();
+    resource.setAccessTokenUri(clientCredentials.getTokenUrl());
+    resource.setClientId(clientCredentials.getId());
+    resource.setClientSecret(clientCredentials.getSecret());
+    resource.setScope(List.of(clientCredentials.getSystemScope()));
+
+    val clientContext = new DefaultOAuth2ClientContext();
 
     return new OAuth2RestTemplate(resource, clientContext);
   }

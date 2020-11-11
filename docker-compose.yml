@@ -145,7 +145,7 @@ services:
       target: server
     environment:
       SERVER_PORT: 8080
-      SPRING_PROFILES_ACTIVE: "prod,secure,default,jwt,storageClientCred"
+      SPRING_PROFILES_ACTIVE: "prod,secure,default,jwt,score-client-cred"
       AUTH_JWT_PUBLICKEYURL: http://ego-api:8080/oauth/token/public_key
       AUTH_SERVER_URL: http://ego-api:8080/o/check_api_key/
       AUTH_SERVER_CLIENTID: song
