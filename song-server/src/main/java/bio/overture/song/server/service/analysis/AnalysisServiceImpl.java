@@ -501,7 +501,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     validateAnalysisExistence(analysisResult.isPresent(), id);
     val analysis = analysisResult.get();
-    if(fetchStateHistory) {
+    if (fetchStateHistory) {
       analysis.populatePublishTimes();
     }
     return analysis;
