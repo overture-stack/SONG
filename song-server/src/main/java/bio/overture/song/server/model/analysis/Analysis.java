@@ -20,7 +20,6 @@ package bio.overture.song.server.model.analysis;
 import static bio.overture.song.core.model.enums.AnalysisStates.*;
 import static bio.overture.song.core.utils.JsonUtils.toMap;
 import static bio.overture.song.server.service.AnalysisTypeService.resolveAnalysisTypeId;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 import bio.overture.song.core.model.AnalysisTypeId;
@@ -34,14 +33,14 @@ import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 
 @Data
 @Entity
@@ -94,7 +93,8 @@ public class Analysis {
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.LAZY)
-  private Set<AnalysisStateChange> analysisStateHistory = newHashSet();
+  @SortNatural
+  private Set<AnalysisStateChange> analysisStateHistory = new TreeSet<>();
 
   @Transient private List<CompositeEntity> samples;
 
