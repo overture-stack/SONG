@@ -42,6 +42,7 @@ public class AnalysisSpecificationBuilder {
       @NonNull String study, @NonNull Collection<String> analysisStates) {
     return (fromUser, query, builder) -> {
       val root = setupFetchStrategy(fromUser);
+      query.distinct(true);
       return builder.and(
           equalsStudyPredicate(root, builder, study), whereStatesInPredicate(root, analysisStates));
     };
