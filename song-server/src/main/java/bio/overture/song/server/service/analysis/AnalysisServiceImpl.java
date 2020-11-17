@@ -181,6 +181,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     // Update the analysisData for the requested analysis
     val newData = buildUpdateRequestData(updateAnalysisRequest);
     oldAnalysis.getAnalysisData().setData(newData);
+    oldAnalysis.setUpdatedAt(LocalDateTime.now());
   }
 
   /**
