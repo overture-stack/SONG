@@ -3,9 +3,14 @@ package bio.overture.song.server.service.analysis;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
+import static bio.overture.song.core.model.enums.AnalysisActions.PUBLISH;
+import static bio.overture.song.core.model.enums.AnalysisActions.SUPPRESS;
+import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 
+import bio.overture.song.core.model.enums.AnalysisActions;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.kafka.Sender;
 import bio.overture.song.server.model.analysis.Analysis;
@@ -47,28 +52,28 @@ public class AnalysisServiceSender implements AnalysisService {
   @Override
   public String create(String studyId, Payload payload) {
     val id = internalAnalysisService.create(studyId, payload);
-    sendAnalysisMessage(studyId, id, UNPUBLISHED, "CREATE");
+    sendAnalysisMessage(studyId, id, UNPUBLISHED, CREATE);
     return id;
   }
 
   @Override
   public ResponseEntity<String> publish(String studyId, String id, boolean ignoreUndefinedMd5) {
     val resp = internalAnalysisService.publish(studyId, id, ignoreUndefinedMd5);
-    sendAnalysisMessage(studyId, id, PUBLISHED, "PUBLISH");
+    sendAnalysisMessage(studyId, id, PUBLISHED, PUBLISH);
     return resp;
   }
 
   @Override
   public ResponseEntity<String> unpublish(String studyId, String id) {
     val resp = internalAnalysisService.unpublish(studyId, id);
-    sendAnalysisMessage(studyId, id, UNPUBLISHED, "UNPUBLISH");
+    sendAnalysisMessage(studyId, id, UNPUBLISHED, UNPUBLISH);
     return resp;
   }
 
   @Override
   public ResponseEntity<String> suppress(String studyId, String id) {
     val resp = internalAnalysisService.suppress(studyId, id);
-    sendAnalysisMessage(studyId, id, SUPPRESSED, "SUPPRESS");
+    sendAnalysisMessage(studyId, id, SUPPRESSED, SUPPRESS);
     return resp;
   }
 
@@ -139,10 +144,9 @@ public class AnalysisServiceSender implements AnalysisService {
   }
 
   private void sendAnalysisMessage(
-      String studyId, String analysisId, AnalysisStates analysisState, String action) {
+      String studyId, String analysisId, AnalysisStates analysisState, AnalysisActions action) {
     val analysis = internalAnalysisService.unsecuredDeepRead(analysisId);
-    val message =
-        createAnalysisMessage(analysisId, studyId, analysisState, action, analysis, songServerId);
+    val message = createAnalysisMessage(action, analysis, songServerId);
     sender.send(toJson(message));
   }
 }
