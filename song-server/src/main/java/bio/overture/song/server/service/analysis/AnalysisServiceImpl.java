@@ -204,6 +204,7 @@ public class AnalysisServiceImpl implements AnalysisService {
           val id = a.getAnalysisId();
           a.setFiles(unsecuredReadFiles(id));
           a.setSamples(readSamples(id));
+          a.populatePublishTimes();
         });
     return analyses;
   }
