@@ -265,7 +265,7 @@ public class AnalysisServiceImpl implements AnalysisService {
    */
   @Override
   public Analysis unsecuredDeepRead(@NonNull String id) {
-    val analysis = get(id, false, false, true);
+    val analysis = get(id, true, true, true);
     analysis.setFiles(unsecuredReadFiles(id));
     analysis.setSamples(readSamples(id));
     return analysis;
