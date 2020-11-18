@@ -22,7 +22,7 @@ public enum AnalysisActions {
         return this.name();
     }
 
-    public static AnalysisActions resolveAnalysisState(@NonNull String analysisAction) {
+    public static AnalysisActions resolveAnalysisActions(@NonNull String analysisAction) {
         return Streams.stream(values())
                 .filter(x -> x.toString().equals(analysisAction))
                 .findFirst()
