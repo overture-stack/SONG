@@ -132,6 +132,7 @@ public class EndpointTester {
         .endpoint("studies/%s/analysis/suppress/%s", studyId, analysisId)
         .putAnd();
   }
+
   public ResponseOption unpublishAnalysisByIdAnd(
       @NonNull String studyId, @NonNull String analysisId) {
     return initWebRequest()

@@ -1,21 +1,29 @@
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
+import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
+import static bio.overture.song.core.model.enums.AnalysisActions.PUBLISH;
+import static bio.overture.song.core.model.enums.AnalysisActions.SUPPRESS;
+import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
+import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 
-import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.core.model.enums.AnalysisActions;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.kafka.AnalysisMessage;
 import bio.overture.song.server.kafka.Sender;
+import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.analysis.AnalysisData;
 import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import bio.overture.song.server.service.analysis.AnalysisServiceSender;
+import bio.overture.song.server.utils.generator.AnalysisGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -45,66 +53,86 @@ public class AnalysisServiceSenderTest {
 
   private String analysisId;
 
+  private AnalysisGenerator analysisGenerator;
+  private Analysis analysis;
+
   @Before
   public void beforeTest() {
     this.studyId = RANDOM_GENERATOR.generateRandomAsciiString(10);
     this.analysisId = RANDOM_GENERATOR.generateRandomUUIDAsString();
+
+    analysisGenerator = createAnalysisGenerator(studyId, internalAnalysisService, RANDOM_GENERATOR);
+    val analysisSchema =
+        AnalysisSchema.builder()
+            .name("test-schema")
+            .version(1)
+            .schema(new ObjectMapper().createObjectNode())
+            .build();
+    val analysisData = AnalysisData.builder().data(new ObjectMapper().createObjectNode()).build();
+    this.analysis =
+        Analysis.builder()
+            .analysisId(this.analysisId)
+            .studyId(this.studyId)
+            .analysisState(UNPUBLISHED.name())
+            .analysisSchema(analysisSchema)
+            .analysisData(analysisData)
+            .build();
     this.studyId = RANDOM_GENERATOR.generateRandomAsciiString(15);
   }
 
   @Test
   public void testAnalysisCreate() {
-    when(internalAnalysisService.create(studyId, DUMMY_PAYLOAD)).thenReturn(analysisId);
-    val analysisServiceSender = createTestAnalysisServiceSender(UNPUBLISHED);
-    val actualAnalysisId = analysisServiceSender.create(studyId, DUMMY_PAYLOAD);
-    assertEquals(analysisId, actualAnalysisId);
+    when(internalAnalysisService.create(studyId, DUMMY_PAYLOAD)).thenReturn(analysis);
+    val analysisServiceSender = createTestAnalysisServiceSender(CREATE);
+    val actualAnalysis = analysisServiceSender.create(studyId, DUMMY_PAYLOAD);
+    assertEquals(analysisId, actualAnalysis.getAnalysisId());
   }
 
   @Test
   public void testAnalysisPublish() {
-    when(internalAnalysisService.publish(studyId, analysisId, false)).thenReturn(DUMMY_RESPONSE);
-    val analysisServiceSender = createTestAnalysisServiceSender(PUBLISHED);
+    when(internalAnalysisService.publish(studyId, analysisId, false)).thenReturn(analysis);
+    val analysisServiceSender = createTestAnalysisServiceSender(PUBLISH);
     val response = analysisServiceSender.publish(studyId, analysisId, false);
-    assertEquals(DUMMY_RESPONSE, response);
+    assertEquals(analysis, response);
   }
 
   @Test
   public void testAnalysisUnpublish() {
-    when(internalAnalysisService.unpublish(studyId, analysisId)).thenReturn(DUMMY_RESPONSE);
-    val analysisServiceSender = createTestAnalysisServiceSender(UNPUBLISHED);
+    when(internalAnalysisService.unpublish(studyId, analysisId)).thenReturn(analysis);
+    val analysisServiceSender = createTestAnalysisServiceSender(UNPUBLISH);
     val response = analysisServiceSender.unpublish(studyId, analysisId);
-    assertEquals(DUMMY_RESPONSE, response);
+    assertEquals(analysis, response);
   }
 
   @Test
   public void testAnalysisSuppressed() {
-    when(internalAnalysisService.suppress(studyId, analysisId)).thenReturn(DUMMY_RESPONSE);
-    val analysisServiceSender = createTestAnalysisServiceSender(SUPPRESSED);
+    when(internalAnalysisService.suppress(studyId, analysisId)).thenReturn(analysis);
+    val analysisServiceSender = createTestAnalysisServiceSender(SUPPRESS);
     val response = analysisServiceSender.suppress(studyId, analysisId);
-    assertEquals(DUMMY_RESPONSE, response);
+    assertEquals(analysis, response);
   }
 
-  private AnalysisServiceSender createTestAnalysisServiceSender(AnalysisStates state) {
-    val sender = createTestSender(state);
+  private AnalysisServiceSender createTestAnalysisServiceSender(AnalysisActions action) {
+    val sender = createTestSender(action);
     return new AnalysisServiceSender(SONG_ID, sender, internalAnalysisService);
   }
 
-  private TestSender createTestSender(AnalysisStates state) {
-    return new TestSender(createExpectedAnalysisMessage(state));
+  private TestSender createTestSender(AnalysisActions action) {
+    val analysisMessage = createExpectedAnalysisMessage(action);
+    return new TestSender(toJson((analysisMessage)));
   }
 
-  private AnalysisMessage createExpectedAnalysisMessage(AnalysisStates state) {
-    return createAnalysisMessage(analysisId, studyId, state, SONG_ID);
+  private AnalysisMessage createExpectedAnalysisMessage(AnalysisActions action) {
+    return createAnalysisMessage(action, this.analysis, SONG_ID);
   }
 
   @RequiredArgsConstructor
   public static class TestSender implements Sender {
-    @NonNull private final AnalysisMessage expectedAnalysisMessage;
+    @NonNull private final String expectedAnalysisMessage;
 
     @Override
     @SneakyThrows
-    public void send(String payload) {
-      val actualAnalysisMessage = JsonUtils.mapper().readValue(payload, AnalysisMessage.class);
+    public void send(String actualAnalysisMessage) {
       assertEquals(expectedAnalysisMessage, actualAnalysisMessage);
     }
   }

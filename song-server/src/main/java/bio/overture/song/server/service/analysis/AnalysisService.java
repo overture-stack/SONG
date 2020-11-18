@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface AnalysisService {
 
-  String create(String studyId, Payload payload);
+  Analysis create(String studyId, Payload payload);
 
   void updateAnalysis(String studyId, String analysisId, JsonNode updateAnalysisRequest);
 
@@ -35,11 +35,11 @@ public interface AnalysisService {
 
   List<FileEntity> unsecuredReadFiles(String id);
 
-  ResponseEntity<String> publish(String studyId, String id, boolean ignoreUndefinedMd5);
+  Analysis publish(String studyId, String id, boolean ignoreUndefinedMd5);
 
-  ResponseEntity<String> unpublish(String studyId, String id);
+  Analysis unpublish(String studyId, String id);
 
-  ResponseEntity<String> suppress(String studyId, String id);
+  Analysis suppress(String studyId, String id);
 
   List<CompositeEntity> readSamples(String id);
 

@@ -90,7 +90,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -120,7 +119,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   @Override
   @Transactional
-  public String create(@NonNull String studyId, @NonNull Payload payload) {
+  public Analysis create(@NonNull String studyId, @NonNull Payload payload) {
     studyService.checkStudyExist(studyId);
 
     val analysisId = idService.generateAnalysisId();
@@ -144,7 +143,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     saveCompositeEntities(studyId, analysisId, a.getSamples());
     saveFiles(analysisId, studyId, a.getFiles());
 
-    return analysisId;
+    return a;
   }
 
   @Override
@@ -265,7 +264,7 @@ public class AnalysisServiceImpl implements AnalysisService {
    */
   @Override
   public Analysis unsecuredDeepRead(@NonNull String id) {
-    val analysis = get(id, false, false, true);
+    val analysis = get(id, true, true, true);
     analysis.setFiles(unsecuredReadFiles(id));
     analysis.setSamples(readSamples(id));
     return analysis;
@@ -293,7 +292,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   @Override
   @Transactional
-  public ResponseEntity<String> publish(
+  public Analysis publish(
       @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
 
@@ -306,12 +305,13 @@ public class AnalysisServiceImpl implements AnalysisService {
     checkMismatchingFileSizes(id, file2storageObjectMap);
     checkMismatchingFileMd5sums(id, file2storageObjectMap, ignoreUndefinedMd5);
     checkedUpdateState(id, PUBLISHED);
-    return ok("AnalysisId %s successfully published", id);
+
+    return a;
   }
 
   @Override
   @Transactional
-  public ResponseEntity<String> unpublish(@NonNull String studyId, @NonNull String id) {
+  public Analysis unpublish(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
     checkNotSuppressed(
         id,
@@ -319,16 +319,14 @@ public class AnalysisServiceImpl implements AnalysisService {
         id,
         SUPPRESSED,
         UNPUBLISHED);
-    checkedUpdateState(id, UNPUBLISHED);
-    return ok("AnalysisId %s successfully unpublished", id);
+    return checkedUpdateState(id, UNPUBLISHED);
   }
 
   @Override
   @Transactional
-  public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String id) {
+  public Analysis suppress(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
-    checkedUpdateState(id, SUPPRESSED);
-    return ok("AnalysisId %s was suppressed", id);
+    return checkedUpdateState(id, SUPPRESSED);
   }
 
   @Override
@@ -422,7 +420,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     return files.stream().map(f -> fileService.save(id, studyId, f)).collect(toImmutableList());
   }
 
-  private void checkedUpdateState(String id, AnalysisStates analysisState) {
+  private Analysis checkedUpdateState(String id, AnalysisStates analysisState) {
     // Fetch Analysis
     val analysis = shallowRead(id);
 
@@ -441,6 +439,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     // Update analysis state
     analysis.setAnalysisState(updatedState);
     repository.save(analysis);
+
+    return analysis;
   }
 
   private boolean confirmUploaded(String fileId) {
@@ -501,7 +501,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     validateAnalysisExistence(analysisResult.isPresent(), id);
     val analysis = analysisResult.get();
-    if(fetchStateHistory) {
+    if (fetchStateHistory) {
       analysis.populatePublishTimes();
     }
     return analysis;
