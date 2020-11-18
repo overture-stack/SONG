@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   ego-api:
-    image: "overture/ego:33d702e" # TODO - Replace with latest rc 3.4.0
+    image: "overture/ego:3.4.0"
     environment:
       SERVER_PORT: 8080
       SPRING_DATASOURCE_URL: jdbc:postgresql://ego-postgres:5432/ego?stringtype=unspecified
