@@ -42,7 +42,6 @@ public class AnalysisStateChange implements Comparable<AnalysisStateChange> {
   @Override
   public int compareTo(@NotNull AnalysisStateChange o) {
     // Define a natural sort order based on updatedAt time.
-
     return this.getUpdatedAt().compareTo(o.getUpdatedAt());
   }
 }
