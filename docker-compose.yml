@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   ego-api:
-    image: "overture/ego:3.1.0"
+    image: "overture/ego:3.4.0"
     environment:
       SERVER_PORT: 8080
       SPRING_DATASOURCE_URL: jdbc:postgresql://ego-postgres:5432/ego?stringtype=unspecified
@@ -10,11 +10,11 @@ services:
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_LOCATIONS: "classpath:flyway/sql,classpath:db/migration"
       SPRING_PROFILES: demo, auth
+      JWT_DURATIONMS: 300000 # expire tokens in 5 min for local testing
     expose:
       - "8080"
     ports:
       - "9082:8080"
-    command: java -jar /srv/ego/install/ego.jar
     depends_on:
       - ego-postgres
   ego-postgres:
@@ -43,10 +43,10 @@ services:
     ports:
       - "8085:9000"
   score-server:
-    image: overture/score-server:5.0.0
+    image: overture/score-server:5.1.0
     user: "$MY_UID:$MY_GID"
     environment:
-      SPRING_PROFILES_ACTIVE: amazon,collaboratory,prod,secure
+      SPRING_PROFILES_ACTIVE: amazon,collaboratory,prod,secure,jwt
       SERVER_PORT: 8080
       OBJECT_SENTINEL: heliograph
       BUCKET_NAME_OBJECT: oicr.icgc.test
@@ -57,6 +57,7 @@ services:
       S3_ACCESSKEY: minio
       S3_SECRETKEY: minio123
       S3_SIGV4ENABLED: "true"
+      AUTH_JWT_PUBLICKEYURL: http://ego-api:8080/oauth/token/public_key
       AUTH_SERVER_URL: http://ego-api:8080/o/check_api_key/
       AUTH_SERVER_CLIENTID: score
       AUTH_SERVER_CLIENTSECRET: scoresecret
@@ -144,7 +145,8 @@ services:
       target: server
     environment:
       SERVER_PORT: 8080
-      SPRING_PROFILES_ACTIVE: "prod,secure,default"
+      SPRING_PROFILES_ACTIVE: "prod,secure,default,jwt,score-client-cred"
+      AUTH_JWT_PUBLICKEYURL: http://ego-api:8080/oauth/token/public_key
       AUTH_SERVER_URL: http://ego-api:8080/o/check_api_key/
       AUTH_SERVER_CLIENTID: song
       AUTH_SERVER_TOKENNAME: apiKey
@@ -153,7 +155,10 @@ services:
       AUTH_SERVER_SCOPE_STUDY_SUFFIX: .WRITE
       AUTH_SERVER_SCOPE_SYSTEM: song.WRITE
       SCORE_URL: http://score-server:8080
-      SCORE_ACCESSTOKEN: f69b726d-d40f-4261-b105-1ec7e6bf04d5
+      SCORE_CLIENTCREDENTIALS_ID: songToScore
+      SCORE_CLIENTCREDENTIALS_SECRET: songToScoreSecret
+      SCORE_CLIENTCREDENTIALS_TOKENURL: http://ego-api:8080/oauth/token
+      SCORE_CLIENTCREDENTIALS_SYSTEMSCOPE: "score.WRITE"
       MANAGEMENT_SERVER_PORT: 8081
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
