@@ -10,9 +10,9 @@ import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessa
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 
 import bio.overture.song.core.model.enums.AnalysisActions;
-import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.kafka.AnalysisMessage;
 import bio.overture.song.server.kafka.Sender;
@@ -82,38 +82,34 @@ public class AnalysisServiceSenderTest {
 
   @Test
   public void testAnalysisCreate() {
-    when(internalAnalysisService.create(studyId, DUMMY_PAYLOAD)).thenReturn(analysisId);
-    when(internalAnalysisService.unsecuredDeepRead(analysisId)).thenReturn(this.analysis);
+    when(internalAnalysisService.create(studyId, DUMMY_PAYLOAD)).thenReturn(analysis);
     val analysisServiceSender = createTestAnalysisServiceSender(CREATE);
-    val actualAnalysisId = analysisServiceSender.create(studyId, DUMMY_PAYLOAD);
-    assertEquals(analysisId, actualAnalysisId);
+    val actualAnalysis = analysisServiceSender.create(studyId, DUMMY_PAYLOAD);
+    assertEquals(analysisId, actualAnalysis.getAnalysisId());
   }
 
   @Test
   public void testAnalysisPublish() {
-    when(internalAnalysisService.publish(studyId, analysisId, false)).thenReturn(DUMMY_RESPONSE);
-    when(internalAnalysisService.unsecuredDeepRead(analysisId)).thenReturn(this.analysis);
+    when(internalAnalysisService.publish(studyId, analysisId, false)).thenReturn(analysis);
     val analysisServiceSender = createTestAnalysisServiceSender(PUBLISH);
     val response = analysisServiceSender.publish(studyId, analysisId, false);
-    assertEquals(DUMMY_RESPONSE, response);
+    assertEquals(analysis, response);
   }
 
   @Test
   public void testAnalysisUnpublish() {
-    when(internalAnalysisService.unpublish(studyId, analysisId)).thenReturn(DUMMY_RESPONSE);
-    when(internalAnalysisService.unsecuredDeepRead(analysisId)).thenReturn(this.analysis);
+    when(internalAnalysisService.unpublish(studyId, analysisId)).thenReturn(analysis);
     val analysisServiceSender = createTestAnalysisServiceSender(UNPUBLISH);
     val response = analysisServiceSender.unpublish(studyId, analysisId);
-    assertEquals(DUMMY_RESPONSE, response);
+    assertEquals(analysis, response);
   }
 
   @Test
   public void testAnalysisSuppressed() {
-    when(internalAnalysisService.suppress(studyId, analysisId)).thenReturn(DUMMY_RESPONSE);
-    when(internalAnalysisService.unsecuredDeepRead(analysisId)).thenReturn(this.analysis);
+    when(internalAnalysisService.suppress(studyId, analysisId)).thenReturn(analysis);
     val analysisServiceSender = createTestAnalysisServiceSender(SUPPRESS);
     val response = analysisServiceSender.suppress(studyId, analysisId);
-    assertEquals(DUMMY_RESPONSE, response);
+    assertEquals(analysis, response);
   }
 
   private AnalysisServiceSender createTestAnalysisServiceSender(AnalysisActions action) {
@@ -123,7 +119,7 @@ public class AnalysisServiceSenderTest {
 
   private TestSender createTestSender(AnalysisActions action) {
     val analysisMessage = createExpectedAnalysisMessage(action);
-    return new TestSender(JsonUtils.toJson((analysisMessage)));
+    return new TestSender(toJson((analysisMessage)));
   }
 
   private AnalysisMessage createExpectedAnalysisMessage(AnalysisActions action) {
@@ -137,8 +133,6 @@ public class AnalysisServiceSenderTest {
     @Override
     @SneakyThrows
     public void send(String actualAnalysisMessage) {
-      //      val actualAnalysisMessage = JsonUtils.mapper().readValue(payload,
-      // AnalysisMessage.class);
       assertEquals(expectedAnalysisMessage, actualAnalysisMessage);
     }
   }

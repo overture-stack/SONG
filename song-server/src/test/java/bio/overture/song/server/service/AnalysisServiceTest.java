@@ -210,7 +210,8 @@ public class AnalysisServiceTest {
   public void testReadVariantCall() {
     val json = getJsonStringFromClasspath("documents/variantcall-read-test.json");
     val payload = fromJson(json, Payload.class);
-    val analysisId = service.create(DEFAULT_STUDY_ID, payload);
+    val analysis = service.create(DEFAULT_STUDY_ID, payload);
+    val analysisId = analysis.getAnalysisId();
     val a = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
     val aUnsecured = service.unsecuredDeepRead(analysisId);
     assertEquals(a, aUnsecured);
@@ -340,7 +341,8 @@ public class AnalysisServiceTest {
   public void testReadSequencingRead() {
     val json = getJsonStringFromClasspath("documents/sequencingread-read-test.json");
     val payload = fromJson(json, Payload.class);
-    val analysisId = service.create(DEFAULT_STUDY_ID, payload);
+    val analysis = service.create(DEFAULT_STUDY_ID, payload);
+    val analysisId = analysis.getAnalysisId();
     val a = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
     val aUnsecured = service.unsecuredDeepRead(analysisId);
     assertEquals(a, aUnsecured);
@@ -530,8 +532,8 @@ public class AnalysisServiceTest {
   public void testNoDuplicateAnalysisAttemptError() {
     val an1 = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
     val equivalentPayload = exportService.convertToPayloadDTO(an1);
-    val differentAnalysisId = service.create(an1.getStudyId(), equivalentPayload);
-    assertNotEquals(an1, differentAnalysisId);
+    val differentAnalysis = service.create(an1.getStudyId(), equivalentPayload);
+    assertNotEquals(an1, differentAnalysis.getAnalysisId());
   }
 
   @Test

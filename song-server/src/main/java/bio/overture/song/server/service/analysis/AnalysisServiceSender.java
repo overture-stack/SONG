@@ -50,31 +50,31 @@ public class AnalysisServiceSender implements AnalysisService {
 
   /** Decorated methods */
   @Override
-  public String create(String studyId, Payload payload) {
-    val id = internalAnalysisService.create(studyId, payload);
-    sendAnalysisMessage(studyId, id, UNPUBLISHED, CREATE);
-    return id;
+  public Analysis create(String studyId, Payload payload) {
+    val analysis = internalAnalysisService.create(studyId, payload);
+    sendAnalysisMessage(analysis, UNPUBLISHED, CREATE);
+    return analysis;
   }
 
   @Override
-  public ResponseEntity<String> publish(String studyId, String id, boolean ignoreUndefinedMd5) {
-    val resp = internalAnalysisService.publish(studyId, id, ignoreUndefinedMd5);
-    sendAnalysisMessage(studyId, id, PUBLISHED, PUBLISH);
-    return resp;
+  public Analysis publish(String studyId, String id, boolean ignoreUndefinedMd5) {
+    val analysis = internalAnalysisService.publish(studyId, id, ignoreUndefinedMd5);
+    sendAnalysisMessage(analysis, PUBLISHED, PUBLISH);
+    return analysis;
   }
 
   @Override
-  public ResponseEntity<String> unpublish(String studyId, String id) {
-    val resp = internalAnalysisService.unpublish(studyId, id);
-    sendAnalysisMessage(studyId, id, UNPUBLISHED, UNPUBLISH);
-    return resp;
+  public Analysis unpublish(String studyId, String id) {
+    val analysis = internalAnalysisService.unpublish(studyId, id);
+    sendAnalysisMessage(analysis, UNPUBLISHED, UNPUBLISH);
+    return analysis;
   }
 
   @Override
-  public ResponseEntity<String> suppress(String studyId, String id) {
-    val resp = internalAnalysisService.suppress(studyId, id);
-    sendAnalysisMessage(studyId, id, SUPPRESSED, SUPPRESS);
-    return resp;
+  public Analysis suppress(String studyId, String id) {
+    val analysis = internalAnalysisService.suppress(studyId, id);
+    sendAnalysisMessage(analysis, SUPPRESSED, SUPPRESS);
+    return analysis;
   }
 
   /** Delegated methods */
@@ -144,8 +144,7 @@ public class AnalysisServiceSender implements AnalysisService {
   }
 
   private void sendAnalysisMessage(
-      String studyId, String analysisId, AnalysisStates analysisState, AnalysisActions action) {
-    val analysis = internalAnalysisService.unsecuredDeepRead(analysisId);
+      Analysis analysis, AnalysisStates analysisState, AnalysisActions action) {
     val message = createAnalysisMessage(action, analysis, songServerId);
     sender.send(toJson(message));
   }

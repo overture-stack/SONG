@@ -21,6 +21,7 @@ import static bio.overture.song.server.repository.search.IdSearchRequest.createI
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.ok;
 
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
@@ -118,7 +119,8 @@ public class AnalysisController {
       @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
           @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false)
           boolean ignoreUndefinedMd5) {
-    return analysisService.publish(studyId, id, ignoreUndefinedMd5);
+    val analysis = analysisService.publish(studyId, id, ignoreUndefinedMd5);
+    return ok(analysis.getAnalysisId());
   }
 
   @ApiOperation(
@@ -131,7 +133,8 @@ public class AnalysisController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
-    return analysisService.unpublish(studyId, id);
+    val analysis =  analysisService.unpublish(studyId, id);
+    return ok(analysis.getAnalysisId());
   }
 
   @ApiOperation(
@@ -146,7 +149,8 @@ public class AnalysisController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
-    return analysisService.suppress(studyId, id);
+    val analysis = analysisService.suppress(studyId, id);
+    return ok(analysis.getAnalysisId());
   }
 
   /**
