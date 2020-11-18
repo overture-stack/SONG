@@ -59,8 +59,6 @@ import org.springframework.web.client.RestTemplate;
 @ActiveProfiles("test")
 public class StorageServiceTest {
 
-  private static final String DEFAULT_ACCESS_TOKEN = "anyToken";
-
   @Autowired private RetryTemplate retryTemplate;
 
   @Autowired private ValidationService validationService;
@@ -80,7 +78,6 @@ public class StorageServiceTest {
             .retryTemplate(retryTemplate)
             .storageUrl(testStorageUrl)
             .validationService(validationService)
-            .scoreAuthorizationHeader(DEFAULT_ACCESS_TOKEN)
             .build();
   }
 

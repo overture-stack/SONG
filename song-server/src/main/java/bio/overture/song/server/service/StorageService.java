@@ -25,8 +25,6 @@ import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.Booleans.convertToBoolean;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.Separators.SLASH;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpMethod.GET;
 
 import bio.overture.song.core.exceptions.BooleanConversionException;
 import bio.overture.song.server.model.StorageObject;
@@ -39,8 +37,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
@@ -61,11 +57,10 @@ public class StorageService {
   @NonNull private final RetryTemplate retryTemplate;
   @NonNull private final String storageUrl;
   @NonNull private final ValidationService validationService;
-  @NonNull private final String scoreAuthorizationHeader;
 
   @SneakyThrows
   public boolean isObjectExist(@NonNull String objectId) {
-    return doGetBoolean(scoreAuthorizationHeader, getObjectExistsUrl(objectId));
+    return doGetBoolean(getObjectExistsUrl(objectId));
   }
 
   @SneakyThrows
@@ -81,7 +76,7 @@ public class StorageService {
   }
 
   private JsonNode getStorageDownloadResponse(String objectId) {
-    val objectSpecification = doGetJson(scoreAuthorizationHeader, getDownloadObjectUrl(objectId));
+    val objectSpecification = doGetJson(getDownloadObjectUrl(objectId));
     val validationError = validationService.validateStorageDownloadResponse(objectSpecification);
     if (validationError.isPresent()) {
       throw buildServerException(
@@ -104,26 +99,20 @@ public class StorageService {
   }
 
   @SneakyThrows
-  private String doGetString(String accessToken, String urlString) {
+  private String doGetString(String urlString) {
     val url = new URL(urlString);
     ResponseEntity<String> response =
-        retryTemplate.execute(
-            retryContext -> {
-              val httpHeaders = new HttpHeaders();
-              httpHeaders.set(AUTHORIZATION, accessToken);
-              val req = new HttpEntity<>(httpHeaders);
-              return restTemplate.exchange(url.toURI(), GET, req, String.class);
-            });
+        retryTemplate.execute(retryContext -> restTemplate.getForEntity(url.toURI(), String.class));
     return response.getBody();
   }
 
-  private Boolean doGetBoolean(String accessToken, String url) {
-    return extractBooleanResponse(doGetString(accessToken, url));
+  private Boolean doGetBoolean(String url) {
+    return extractBooleanResponse(doGetString(url));
   }
 
   @SneakyThrows
-  private JsonNode doGetJson(String accessToken, String url) {
-    return readTree(doGetString(accessToken, url));
+  private JsonNode doGetJson(String url) {
+    return readTree(doGetString(url));
   }
 
   private static String parseObjectMd5(JsonNode objectSpecification) {
