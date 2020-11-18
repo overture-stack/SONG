@@ -319,16 +319,14 @@ public class AnalysisServiceImpl implements AnalysisService {
         id,
         SUPPRESSED,
         UNPUBLISHED);
-    val analysis = checkedUpdateState(id, UNPUBLISHED);
-    return analysis;
+    return checkedUpdateState(id, UNPUBLISHED);
   }
 
   @Override
   @Transactional
   public Analysis suppress(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
-    val analysis =checkedUpdateState(id, SUPPRESSED);
-    return analysis;
+    return checkedUpdateState(id, SUPPRESSED);
   }
 
   @Override
