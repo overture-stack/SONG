@@ -150,7 +150,7 @@ public class AnalysisController {
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     val analysis = analysisService.suppress(studyId, id);
-    return return ok("AnalysisId " + id  + " was suppressed");
+    return ok("AnalysisId " + id  + " was suppressed");
   }
 
   /**
