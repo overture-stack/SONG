@@ -55,6 +55,7 @@ import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.analysis.AnalysisStateChange;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.Sample;
@@ -964,7 +965,7 @@ public class AnalysisServiceTest {
     val stateChangeRecord = reloadedAnalysis.getAnalysisStateHistory().iterator().next();
     assertEquals(stateChangeRecord.getInitialState(), UNPUBLISHED.name());
     assertEquals(stateChangeRecord.getUpdatedState(), PUBLISHED.name());
-    assertTrue(createdAnalysis.getCreatedAt().isBefore(stateChangeRecord.getUpdatedAt()));
+    assertTrue(createdAnalysis.getUpdatedAt().isBefore(stateChangeRecord.getUpdatedAt()));
   }
 
   @Test
@@ -1008,7 +1009,7 @@ public class AnalysisServiceTest {
     val studyId = createdAnalysis.getStudyId();
     val analysisId = createdAnalysis.getAnalysisId();
 
-    service.securedUpdateState(studyId, analysisId, SUPPRESSED);
+    service.suppress(studyId, analysisId);
 
     val reloadedAnalysis = service.unsecuredDeepRead(analysisId);
     assertNotNull(reloadedAnalysis.getAnalysisStateHistory());
@@ -1017,7 +1018,29 @@ public class AnalysisServiceTest {
     val stateChangeRecord = reloadedAnalysis.getAnalysisStateHistory().iterator().next();
     assertEquals(stateChangeRecord.getInitialState(), UNPUBLISHED.name());
     assertEquals(stateChangeRecord.getUpdatedState(), SUPPRESSED.name());
-    assertTrue(createdAnalysis.getCreatedAt().isBefore(stateChangeRecord.getUpdatedAt()));
+    assertTrue(createdAnalysis.getUpdatedAt().isBefore(stateChangeRecord.getUpdatedAt()));
+  }
+
+  @Test
+  public void testMultipleStateChangeHasSortedHistory() {
+    val createdAnalysis = analysisGenerator.createDefaultRandomSequencingReadAnalysis();
+
+    val studyId = createdAnalysis.getStudyId();
+    val analysisId = createdAnalysis.getAnalysisId();
+
+    service.securedUpdateState(studyId, analysisId, PUBLISHED);
+    service.securedUpdateState(studyId, analysisId, UNPUBLISHED);
+    service.securedUpdateState(studyId, analysisId, PUBLISHED);
+    service.securedUpdateState(studyId, analysisId, SUPPRESSED);
+
+    val reloadedAnalysis = service.unsecuredDeepRead(analysisId);
+    AnalysisStateChange[] historyArray = new AnalysisStateChange[4];
+    val stateHistory = reloadedAnalysis.getAnalysisStateHistory().toArray(historyArray);
+
+    assertTrue(stateHistory[0].getUpdatedAt().isBefore(stateHistory[1].getUpdatedAt()));
+    assertTrue(stateHistory[1].getUpdatedAt().isBefore(stateHistory[2].getUpdatedAt()));
+    assertTrue(stateHistory[2].getUpdatedAt().isBefore(stateHistory[3].getUpdatedAt()));
+
   }
 
   private void runUnpublishStateTest(LegacyAnalysisTypeName legacyAnalysisTypeName) {
