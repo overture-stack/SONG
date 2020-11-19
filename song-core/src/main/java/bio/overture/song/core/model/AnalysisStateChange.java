@@ -1,8 +1,7 @@
 package bio.overture.song.core.model;
 
-import lombok.*;
-
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Data
 @Builder
@@ -10,8 +9,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class AnalysisStateChange extends DynamicData {
-    private String initialState;
-    private String updatedState;
-    private LocalDateTime updatedAt;
+public class AnalysisStateChange extends DynamicData implements Comparable<AnalysisStateChange> {
+  private String initialState;
+  private String updatedState;
+  private LocalDateTime updatedAt;
+
+  @Override
+  public int compareTo(AnalysisStateChange o) {
+    return this.getUpdatedAt().compareTo(o.getUpdatedAt());
+  }
 }
