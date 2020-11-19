@@ -1034,13 +1034,12 @@ public class AnalysisServiceTest {
     service.securedUpdateState(studyId, analysisId, SUPPRESSED);
 
     val reloadedAnalysis = service.unsecuredDeepRead(analysisId);
-    AnalysisStateChange[] historyArray = new AnalysisStateChange[4];
-    val stateHistory = reloadedAnalysis.getAnalysisStateHistory().toArray(historyArray);
+    val stateHistory = new AnalysisStateChange[4];
+    reloadedAnalysis.getAnalysisStateHistory().toArray(stateHistory);
 
     assertTrue(stateHistory[0].getUpdatedAt().isBefore(stateHistory[1].getUpdatedAt()));
     assertTrue(stateHistory[1].getUpdatedAt().isBefore(stateHistory[2].getUpdatedAt()));
     assertTrue(stateHistory[2].getUpdatedAt().isBefore(stateHistory[3].getUpdatedAt()));
-
   }
 
   private void runUnpublishStateTest(LegacyAnalysisTypeName legacyAnalysisTypeName) {

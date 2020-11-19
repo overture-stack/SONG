@@ -61,6 +61,7 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,6 +98,9 @@ public class PublishAnalysisTest {
   private String testAnalysisId;
   private String testStudyId;
 
+  /** Mocked Variable Storage */
+  private StorageService actualStorageService;
+
   /**
    * Before each test, create a new analysis, with a fresh set of randomly generated files, that
    * will be used in the test
@@ -122,6 +126,17 @@ public class PublishAnalysisTest {
     this.testFiles = generateFiles(MAX_FILES, testAnalysis);
     assertEquals(testFiles.size(), MAX_FILES);
     assertTrue(MIN_SIZE < MAX_FILES);
+  }
+
+  @After
+  public void removeMocks() {
+    /* Replacing the mocked variables with the original objects is required to guarantee expected behaviour
+     * in other test classes. Instances exist where the mocked variables are still in place for other tests
+     * in other classes if you don't remove them.
+     */
+    if (actualStorageService != null) {
+      ReflectionTestUtils.setField(service, STORAGE_SERVICE, actualStorageService);
+    }
   }
 
   /**
@@ -326,6 +341,7 @@ public class PublishAnalysisTest {
     for (val objectId : nonExistingObjectIds) {
       when(mockStorageService.isObjectExist(objectId)).thenReturn(false);
     }
+    actualStorageService = (StorageService) ReflectionTestUtils.getField(service, STORAGE_SERVICE);
     ReflectionTestUtils.setField(service, STORAGE_SERVICE, mockStorageService);
   }
 

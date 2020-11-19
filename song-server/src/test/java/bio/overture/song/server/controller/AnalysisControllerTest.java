@@ -33,17 +33,22 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 import bio.overture.song.core.exceptions.ServerError;
+import bio.overture.song.core.model.AnalysisStateChange;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
+import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
+import bio.overture.song.server.service.StorageService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.analysis.AnalysisService;
+import bio.overture.song.server.service.analysis.AnalysisServiceImpl;
 import bio.overture.song.server.service.analysis.AnalysisServiceSender;
 import bio.overture.song.server.utils.EndpointTester;
 import bio.overture.song.server.utils.generator.AnalysisGenerator;
@@ -54,14 +59,17 @@ import java.util.stream.Stream;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -88,6 +96,7 @@ public class AnalysisControllerTest {
   @Autowired private StudyService studyService;
 
   @Autowired private AnalysisService analysisService;
+  @Autowired private AnalysisServiceImpl internalAnalysisService;
 
   /** State */
   private RandomGenerator randomGenerator;
@@ -98,6 +107,10 @@ public class AnalysisControllerTest {
   private String studyId;
   private AnalysisGenerator analysisGenerator;
   private Analysis variantAnalysis;
+
+  // Storage for mocked variables
+  private StorageService actualStorageService;
+  private AnalysisServiceImpl actualAnalysisService;
 
   @Before
   public void beforeEachTest() {
@@ -133,6 +146,39 @@ public class AnalysisControllerTest {
                 .name("variantCall")
                 .build())
         .assertOk();
+
+    val mockStorageService = mock(StorageService.class);
+    val files = this.variantAnalysis.getFiles();
+    for (val file : files) {
+      val storageObject =
+          StorageObject.builder()
+              .fileMd5sum(file.getFileMd5sum())
+              .fileSize(file.getFileSize())
+              .objectId(file.getObjectId())
+              .build();
+      Mockito.when(mockStorageService.downloadObject(file.getObjectId())).thenReturn(storageObject);
+      Mockito.when(mockStorageService.isObjectExist(file.getObjectId())).thenReturn(true);
+    }
+
+    actualAnalysisService =
+        (AnalysisServiceImpl)
+            ReflectionTestUtils.getField(analysisService, "internalAnalysisService");
+    actualStorageService =
+        (StorageService) ReflectionTestUtils.getField(internalAnalysisService, "storageService");
+
+    ReflectionTestUtils.setField(internalAnalysisService, "storageService", mockStorageService);
+    ReflectionTestUtils.setField(
+        analysisService, "internalAnalysisService", internalAnalysisService);
+  }
+
+  @After
+  public void removeMocks() {
+    /* Replacing the mocked variables with the original objects is required to guarantee expected behaviour
+     * in other test classes. Instances exist where the mocked variables are still in place for other tests
+     * in other classes if you don't remove them.
+     */
+    ReflectionTestUtils.setField(internalAnalysisService, "storageService", actualStorageService);
+    ReflectionTestUtils.setField(analysisService, "internalAnalysisService", actualAnalysisService);
   }
 
   @Test
@@ -365,13 +411,13 @@ public class AnalysisControllerTest {
     val initialUpdatedAt = this.variantAnalysis.getUpdatedAt();
 
     updateAnalysisWithFixture(
-            studyId, variantAnalysis.getAnalysisId(), "variantcall1-valid-update-request.json");
+        studyId, variantAnalysis.getAnalysisId(), "variantcall1-valid-update-request.json");
 
     val actualAnalysis =
-            endpointTester
-                    .getAnalysisByIdAnd(
-                            this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId())
-                    .extractOneEntity(ANALYSIS_DTO_CLASS);
+        endpointTester
+            .getAnalysisByIdAnd(
+                this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId())
+            .extractOneEntity(ANALYSIS_DTO_CLASS);
 
     assertEquals(this.variantAnalysis.getCreatedAt(), actualAnalysis.getCreatedAt());
     assertTrue(initialUpdatedAt.isBefore(actualAnalysis.getUpdatedAt()));
@@ -392,6 +438,95 @@ public class AnalysisControllerTest {
     assertEquals(this.variantAnalysis.getCreatedAt(), actualAnalysis.getCreatedAt());
     assertTrue(initialUpdatedAt.isBefore(actualAnalysis.getUpdatedAt()));
     assertEquals(AnalysisStates.SUPPRESSED, actualAnalysis.getAnalysisState());
+  }
+
+  @Test
+  public void publishAnalysis_updatesDateInfo() {
+    val initialUpdatedAt = this.variantAnalysis.getUpdatedAt();
+
+    endpointTester
+        .publishAnalysisByIdAnd(
+            this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId(), false)
+        .assertOk();
+
+    val actualAnalysis =
+        endpointTester
+            .getAnalysisByIdAnd(
+                this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId())
+            .extractOneEntity(ANALYSIS_DTO_CLASS);
+    assertEquals(this.variantAnalysis.getCreatedAt(), actualAnalysis.getCreatedAt());
+    assertTrue(initialUpdatedAt.isBefore(actualAnalysis.getUpdatedAt()));
+    assertEquals(AnalysisStates.PUBLISHED, actualAnalysis.getAnalysisState());
+    assertNotNull(actualAnalysis.getFirstPublishedAt());
+    assertNotNull(actualAnalysis.getPublishedAt());
+    assertEquals(actualAnalysis.getFirstPublishedAt(), actualAnalysis.getPublishedAt());
+  }
+
+  @Test
+  public void getAnalysisByStudy_hasDateInfo() {
+    val initialUpdatedAt = this.variantAnalysis.getUpdatedAt();
+
+    endpointTester
+        .publishAnalysisByIdAnd(
+            this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId(), false)
+        .assertOk();
+    val response =
+        endpointTester
+            .getAnalysesForStudyAnd(this.variantAnalysis.getStudyId(), "PUBLISHED")
+            .extractManyEntities(ANALYSIS_DTO_CLASS);
+
+    assertEquals(response.size(), 1);
+    response.forEach(
+        analysis -> {
+          assertEquals(this.variantAnalysis.getCreatedAt(), analysis.getCreatedAt());
+          assertTrue(initialUpdatedAt.isBefore(analysis.getUpdatedAt()));
+          assertEquals(AnalysisStates.PUBLISHED, analysis.getAnalysisState());
+          assertNotNull(analysis.getFirstPublishedAt());
+          assertNotNull(analysis.getPublishedAt());
+          assertEquals(analysis.getFirstPublishedAt(), analysis.getPublishedAt());
+        });
+  }
+
+  @Test
+  public void repeatedStateChanges_hasSortedStateHistory() {
+    val initialUpdatedAt = this.variantAnalysis.getUpdatedAt();
+
+    endpointTester
+        .publishAnalysisByIdAnd(
+            this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId(), false)
+        .assertOk();
+    endpointTester
+        .unpublishAnalysisByIdAnd(
+            this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId())
+        .assertOk();
+    endpointTester
+        .publishAnalysisByIdAnd(
+            this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId(), false)
+        .assertOk();
+    endpointTester
+        .suppressAnalysisByIdAnd(
+            this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId())
+        .assertOk();
+
+    val actualAnalysis =
+        endpointTester
+            .getAnalysisByIdAnd(
+                this.variantAnalysis.getStudyId(), this.variantAnalysis.getAnalysisId())
+            .extractOneEntity(ANALYSIS_DTO_CLASS);
+    assertEquals(this.variantAnalysis.getCreatedAt(), actualAnalysis.getCreatedAt());
+    assertTrue(initialUpdatedAt.isBefore(actualAnalysis.getUpdatedAt()));
+    assertEquals(AnalysisStates.SUPPRESSED, actualAnalysis.getAnalysisState());
+    assertNotNull(actualAnalysis.getFirstPublishedAt());
+    assertNotNull(actualAnalysis.getPublishedAt());
+    assertTrue(actualAnalysis.getFirstPublishedAt().isBefore(actualAnalysis.getPublishedAt()));
+
+    // State History Assertions
+    assertEquals(actualAnalysis.getAnalysisStateHistory().size(), 4);
+    val stateHistory = new AnalysisStateChange[4];
+    actualAnalysis.getAnalysisStateHistory().toArray(stateHistory);
+    assertTrue(stateHistory[0].getUpdatedAt().isBefore(stateHistory[1].getUpdatedAt()));
+    assertTrue(stateHistory[1].getUpdatedAt().isBefore(stateHistory[2].getUpdatedAt()));
+    assertTrue(stateHistory[2].getUpdatedAt().isBefore(stateHistory[3].getUpdatedAt()));
   }
 
   private void assertAnalysisIdHasSameData(String analysisId, String analysisDataFixtureFilename) {
