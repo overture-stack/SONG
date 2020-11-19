@@ -122,6 +122,14 @@ public class EndpointTester {
     return initWebRequest().endpoint(SCHEMAS).body(request).postAnd();
   }
 
+  public ResponseOption getAnalysesForStudyAnd(
+      @NonNull String studyId, @NonNull String analysisStates) {
+    return initWebRequest()
+        .endpoint("studies/%s/analysis", studyId)
+        .querySingleParam("analysisStates", analysisStates)
+        .getAnd();
+  }
+
   public ResponseOption getAnalysisByIdAnd(@NonNull String studyId, @NonNull String analysisId) {
     return initWebRequest().endpoint("studies/%s/analysis/%s", studyId, analysisId).getAnd();
   }

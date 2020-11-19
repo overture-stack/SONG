@@ -180,6 +180,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     // Update the analysisData for the requested analysis
     val newData = buildUpdateRequestData(updateAnalysisRequest);
     oldAnalysis.getAnalysisData().setData(newData);
+    oldAnalysis.setUpdatedAt(LocalDateTime.now());
   }
 
   /**
@@ -203,6 +204,7 @@ public class AnalysisServiceImpl implements AnalysisService {
           val id = a.getAnalysisId();
           a.setFiles(unsecuredReadFiles(id));
           a.setSamples(readSamples(id));
+          a.populatePublishTimes();
         });
     return analyses;
   }
@@ -267,6 +269,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     val analysis = get(id, true, true, true);
     analysis.setFiles(unsecuredReadFiles(id));
     analysis.setSamples(readSamples(id));
+    analysis.populatePublishTimes();
     return analysis;
   }
 
@@ -434,10 +437,10 @@ public class AnalysisServiceImpl implements AnalysisService {
             .updatedState(updatedState)
             .updatedAt(LocalDateTime.now())
             .build();
-    analysisStateChangeRepository.save(stateChange);
 
     // Update analysis state
     analysis.setAnalysisState(updatedState);
+    analysis.getAnalysisStateHistory().add(stateChange);
     repository.save(analysis);
 
     return analysis;

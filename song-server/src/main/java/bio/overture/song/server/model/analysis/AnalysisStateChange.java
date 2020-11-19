@@ -5,6 +5,7 @@ import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = TableNames.ANALYSIS_STATE_CHANGE)
-public class AnalysisStateChange {
+public class AnalysisStateChange implements Comparable<AnalysisStateChange> {
 
   @Id
   @Column(name = TableAttributeNames.ID)
@@ -37,4 +38,10 @@ public class AnalysisStateChange {
 
   @Column(name = TableAttributeNames.UPDATED_AT, updatable = false, nullable = false)
   private LocalDateTime updatedAt;
+
+  @Override
+  public int compareTo(@NotNull AnalysisStateChange o) {
+    // Define a natural sort order based on updatedAt time.
+    return this.getUpdatedAt().compareTo(o.getUpdatedAt());
+  }
 }

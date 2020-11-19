@@ -9,8 +9,13 @@ import lombok.*;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class AnalysisStateChange extends DynamicData {
+public class AnalysisStateChange extends DynamicData implements Comparable<AnalysisStateChange> {
   private String initialState;
   private String updatedState;
   private LocalDateTime updatedAt;
+
+  @Override
+  public int compareTo(AnalysisStateChange o) {
+    return this.getUpdatedAt().compareTo(o.getUpdatedAt());
+  }
 }

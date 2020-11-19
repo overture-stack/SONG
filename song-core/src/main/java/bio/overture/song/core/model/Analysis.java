@@ -3,7 +3,11 @@ package bio.overture.song.core.model;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import java.time.LocalDateTime;
 import java.util.List;
+<<<<<<< HEAD
+import java.util.SortedSet;
+=======
 import java.util.Set;
+>>>>>>> develop
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,5 +36,5 @@ public class Analysis extends DynamicData {
   private LocalDateTime firstPublishedAt;
   private LocalDateTime publishedAt;
 
-  private Set<AnalysisStateChange> analysisStateHistory;
+  private SortedSet<AnalysisStateChange> analysisStateHistory;
 }
