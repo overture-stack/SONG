@@ -75,8 +75,8 @@ public class SubmitService {
     checkStudyInPayload(studyId, payload);
 
     // Create the analysis
-    val analysisId = analysisService.create(studyId, payload);
-    return SubmitResponse.builder().analysisId(analysisId).status(OK).build();
+    val analysis = analysisService.create(studyId, payload);
+    return SubmitResponse.builder().analysisId(analysis.getAnalysisId()).status(OK).build();
   }
 
   private JsonNode parsePayload(String payloadString) {

@@ -16,12 +16,11 @@
  */
 package bio.overture.song.server;
 
+import java.util.TimeZone;
+import javax.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-
-import javax.annotation.PostConstruct;
-import java.util.TimeZone;
 
 /** Application entry point. */
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})

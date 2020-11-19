@@ -3,7 +3,11 @@ package bio.overture.song.core.model;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import java.time.LocalDateTime;
 import java.util.List;
+<<<<<<< HEAD
 import java.util.SortedSet;
+=======
+import java.util.Set;
+>>>>>>> develop
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
