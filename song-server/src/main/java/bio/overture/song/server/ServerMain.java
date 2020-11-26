@@ -16,6 +16,8 @@
  */
 package bio.overture.song.server;
 
+import java.util.TimeZone;
+import javax.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -23,6 +25,11 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 /** Application entry point. */
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class ServerMain {
+
+  @PostConstruct
+  public void init() {
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+  }
 
   public static void main(String... args) {
     SpringApplication.run(ServerMain.class, args);

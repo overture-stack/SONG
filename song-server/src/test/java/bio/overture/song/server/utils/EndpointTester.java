@@ -122,6 +122,40 @@ public class EndpointTester {
     return initWebRequest().endpoint(SCHEMAS).body(request).postAnd();
   }
 
+  public ResponseOption getAnalysesForStudyAnd(
+      @NonNull String studyId, @NonNull String analysisStates) {
+    return initWebRequest()
+        .endpoint("studies/%s/analysis", studyId)
+        .querySingleParam("analysisStates", analysisStates)
+        .getAnd();
+  }
+
+  public ResponseOption getAnalysisByIdAnd(@NonNull String studyId, @NonNull String analysisId) {
+    return initWebRequest().endpoint("studies/%s/analysis/%s", studyId, analysisId).getAnd();
+  }
+
+  public ResponseOption suppressAnalysisByIdAnd(
+      @NonNull String studyId, @NonNull String analysisId) {
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/suppress/%s", studyId, analysisId)
+        .putAnd();
+  }
+
+  public ResponseOption unpublishAnalysisByIdAnd(
+      @NonNull String studyId, @NonNull String analysisId) {
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/unpublish/%s", studyId, analysisId)
+        .putAnd();
+  }
+
+  public ResponseOption publishAnalysisByIdAnd(
+      @NonNull String studyId, @NonNull String analysisId, @NonNull boolean ignoreUndefinedMd5) {
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/publish/%s", studyId, analysisId)
+        .optionalQuerySingleParam("ignoreUndefinedMd5", ignoreUndefinedMd5)
+        .putAnd();
+  }
+
   public ResponseOption updateAnalysisPutRequestAnd(
       @NonNull String studyId,
       @NonNull String analysisId,

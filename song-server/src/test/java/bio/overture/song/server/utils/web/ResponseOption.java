@@ -31,6 +31,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import bio.overture.song.core.exceptions.ServerError;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -44,7 +45,8 @@ import org.springframework.http.ResponseEntity;
 @Value
 public class ResponseOption {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final ObjectMapper MAPPER =
+      new ObjectMapper().registerModule(new JavaTimeModule());
 
   @NonNull private final ResponseEntity<String> response;
 

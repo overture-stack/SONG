@@ -39,6 +39,7 @@ import static java.util.Objects.isNull;
 import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
+import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.PageDTO;
@@ -105,6 +106,7 @@ public class AnalysisTypeService {
     return AnalysisType.builder()
         .name(name)
         .version(resolvedVersion)
+        .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
         .build();
   }
@@ -152,6 +154,7 @@ public class AnalysisTypeService {
     return AnalysisType.builder()
         .name(analysisTypeId.getName())
         .version(analysisTypeId.getVersion())
+        .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
         .build();
   }
@@ -253,9 +256,24 @@ public class AnalysisTypeService {
     analysisSchema.setVersion(version);
     log.debug("Registered analysisType '{}' with version '{}'", analysisTypeName, version);
     val resolvedSchemaJson = resolveSchemaJsonView(analysisSchema.getSchema(), false, false);
+
+    val createdAt =
+        analysisSchemaRepository
+            .findByNameAndVersion(analysisTypeName, version)
+            .map(AnalysisSchema::getCreatedAt)
+            .orElseThrow(
+                () ->
+                    buildServerException(
+                        getClass(),
+                        ServerErrors.UNKNOWN_ERROR,
+                        "Cannot find analysisType with name=%s and version=%s",
+                        analysisTypeName,
+                        version));
+
     return AnalysisType.builder()
         .name(analysisTypeName)
         .version(version)
+        .createdAt(createdAt)
         .schema(resolvedSchemaJson)
         .build();
   }
@@ -278,6 +296,7 @@ public class AnalysisTypeService {
     return AnalysisType.builder()
         .name(analysisSchema.getName())
         .version(analysisSchema.getVersion())
+        .createdAt(analysisSchema.getCreatedAt())
         .schema(resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema))
         .build();
   }

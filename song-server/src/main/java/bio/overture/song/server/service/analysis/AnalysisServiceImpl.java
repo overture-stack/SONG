@@ -56,14 +56,12 @@ import bio.overture.song.server.model.SampleSetPK;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
+import bio.overture.song.server.model.analysis.AnalysisStateChange;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.repository.AnalysisDataRepository;
-import bio.overture.song.server.repository.AnalysisRepository;
-import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
+import bio.overture.song.server.repository.*;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.repository.search.SearchRepository;
 import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
@@ -80,11 +78,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -93,7 +90,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -118,11 +114,12 @@ public class AnalysisServiceImpl implements AnalysisService {
   @Autowired private final FileRepository fileRepository;
   @Autowired private final AnalysisDataRepository analysisDataRepository;
   @Autowired private final AnalysisTypeService analysisTypeService;
+  @Autowired private final AnalysisStateChangeRepository analysisStateChangeRepository;
   @Autowired private final ValidationService validationService;
 
   @Override
   @Transactional
-  public String create(@NonNull String studyId, @NonNull Payload payload) {
+  public Analysis create(@NonNull String studyId, @NonNull Payload payload) {
     studyService.checkStudyExist(studyId);
 
     val analysisId = idService.generateAnalysisId();
@@ -146,7 +143,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     saveCompositeEntities(studyId, analysisId, a.getSamples());
     saveFiles(analysisId, studyId, a.getFiles());
 
-    return analysisId;
+    return a;
   }
 
   @Override
@@ -172,7 +169,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
 
     // Now that the request is validated, fetch the old analysis
-    val oldAnalysis = get(analysisId, true, true);
+    val oldAnalysis = get(analysisId, true, true, false);
 
     // Update the association between the old schema and new schema entities for the requested
     // analysis
@@ -183,6 +180,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     // Update the analysisData for the requested analysis
     val newData = buildUpdateRequestData(updateAnalysisRequest);
     oldAnalysis.getAnalysisData().setData(newData);
+    oldAnalysis.setUpdatedAt(LocalDateTime.now());
   }
 
   /**
@@ -199,13 +197,14 @@ public class AnalysisServiceImpl implements AnalysisService {
     val finalStates = resolveSelectedAnalysisStates(analysisStates);
     val analyses =
         repository.findAll(
-            new AnalysisSpecificationBuilder(true, true)
+            new AnalysisSpecificationBuilder(true, true, true)
                 .buildByStudyAndAnalysisStates(studyId, finalStates));
     analyses.forEach(
         a -> {
           val id = a.getAnalysisId();
           a.setFiles(unsecuredReadFiles(id));
           a.setSamples(readSamples(id));
+          a.populatePublishTimes();
         });
     return analyses;
   }
@@ -258,14 +257,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   @Override
   public List<Analysis> unsecuredDeepReads(@NonNull Collection<String> ids) {
-    val analyses = repository.findAll(new AnalysisSpecificationBuilder(true, true).buildByIds(ids));
-    analyses.forEach(
-        a -> {
-          val id = a.getAnalysisId();
-          a.setFiles(unsecuredReadFiles(id));
-          a.setSamples(readSamples(id));
-        });
-    return analyses;
+    return ids.stream().map(this::unsecuredDeepRead).collect(Collectors.toList());
   }
 
   /**
@@ -274,9 +266,10 @@ public class AnalysisServiceImpl implements AnalysisService {
    */
   @Override
   public Analysis unsecuredDeepRead(@NonNull String id) {
-    val analysis = shallowRead(id);
+    val analysis = get(id, true, true, true);
     analysis.setFiles(unsecuredReadFiles(id));
     analysis.setSamples(readSamples(id));
+    analysis.populatePublishTimes();
     return analysis;
   }
 
@@ -302,7 +295,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   @Override
   @Transactional
-  public ResponseEntity<String> publish(
+  public Analysis publish(
       @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
 
@@ -315,12 +308,13 @@ public class AnalysisServiceImpl implements AnalysisService {
     checkMismatchingFileSizes(id, file2storageObjectMap);
     checkMismatchingFileMd5sums(id, file2storageObjectMap, ignoreUndefinedMd5);
     checkedUpdateState(id, PUBLISHED);
-    return ok("AnalysisId %s successfully published", id);
+
+    return a;
   }
 
   @Override
   @Transactional
-  public ResponseEntity<String> unpublish(@NonNull String studyId, @NonNull String id) {
+  public Analysis unpublish(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
     checkNotSuppressed(
         id,
@@ -328,16 +322,14 @@ public class AnalysisServiceImpl implements AnalysisService {
         id,
         SUPPRESSED,
         UNPUBLISHED);
-    checkedUpdateState(id, UNPUBLISHED);
-    return ok("AnalysisId %s successfully unpublished", id);
+    return checkedUpdateState(id, UNPUBLISHED);
   }
 
   @Override
   @Transactional
-  public ResponseEntity<String> suppress(@NonNull String studyId, @NonNull String id) {
+  public Analysis suppress(@NonNull String studyId, @NonNull String id) {
     checkAnalysisAndStudyRelated(studyId, id);
-    checkedUpdateState(id, SUPPRESSED);
-    return ok("AnalysisId %s was suppressed", id);
+    return checkedUpdateState(id, SUPPRESSED);
   }
 
   @Override
@@ -431,11 +423,27 @@ public class AnalysisServiceImpl implements AnalysisService {
     return files.stream().map(f -> fileService.save(id, studyId, f)).collect(toImmutableList());
   }
 
-  private void checkedUpdateState(String id, AnalysisStates analysisState) {
-    val state = analysisState.name();
+  private Analysis checkedUpdateState(String id, AnalysisStates analysisState) {
+    // Fetch Analysis
     val analysis = shallowRead(id);
-    analysis.setAnalysisState(state);
+
+    // Create state history
+    val initialState = shallowRead(id).getAnalysisState();
+    val updatedState = analysisState.name();
+    val stateChange =
+        AnalysisStateChange.builder()
+            .analysis(analysis)
+            .initialState(initialState)
+            .updatedState(updatedState)
+            .updatedAt(LocalDateTime.now())
+            .build();
+
+    // Update analysis state
+    analysis.setAnalysisState(updatedState);
+    analysis.getAnalysisStateHistory().add(stateChange);
     repository.save(analysis);
+
+    return analysis;
   }
 
   private boolean confirmUploaded(String fileId) {
@@ -453,7 +461,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   /** Reads an analysis WITHOUT any files, samples or info */
   private Analysis shallowRead(String id) {
-    return get(id, false, false);
+    return get(id, false, false, false);
   }
 
   private void validateUpdateRequest(JsonNode request, AnalysisSchema analysisSchema) {
@@ -483,13 +491,23 @@ public class AnalysisServiceImpl implements AnalysisService {
     return jsonSchema;
   }
 
-  private Analysis get(@NonNull String id, boolean fetchAnalysisSchema, boolean fetchAnalysisData) {
+  private Analysis get(
+      @NonNull String id,
+      boolean fetchAnalysisSchema,
+      boolean fetchAnalysisData,
+      boolean fetchStateHistory) {
     val analysisResult =
         repository.findOne(
-            new AnalysisSpecificationBuilder(fetchAnalysisSchema, fetchAnalysisData).buildById(id));
+            new AnalysisSpecificationBuilder(
+                    fetchAnalysisSchema, fetchAnalysisData, fetchStateHistory)
+                .buildById(id));
 
     validateAnalysisExistence(analysisResult.isPresent(), id);
-    return analysisResult.get();
+    val analysis = analysisResult.get();
+    if (fetchStateHistory) {
+      analysis.populatePublishTimes();
+    }
+    return analysis;
   }
 
   private static void checkMismatchingFileSizes(

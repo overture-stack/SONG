@@ -247,3 +247,13 @@ spring:
 auth:
   jwt:
     public-key-url: http://localhost:8084/oauth/token/public_key
+
+---
+spring.profiles: score-client-cred
+score:
+  url: "http://localhost:8087"
+  clientCredentials:
+    id: oauth
+    secret: oauthsecret
+    tokenUrl: http://ego-api:8080/oauth/token
+    systemScope: "score.WRITE" # Storage scope needs to include both READ and WRITE

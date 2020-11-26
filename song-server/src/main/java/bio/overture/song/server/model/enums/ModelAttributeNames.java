@@ -55,6 +55,7 @@ public class ModelAttributeNames {
   public static final String ANALYSIS_SCHEMA = "analysisSchema";
   public static final String ANALYSIS_DATA = "analysisData";
   public static final String ANALYSIS_STATE = "analysisState";
+  public static final String ANALYSIS_STATE_HISTORY = "analysisStateHistory";
   public static final String SORT = "sort";
   public static final String SORTORDER = "sortOrder";
   public static final String OFFSET = "offset";
@@ -63,4 +64,5 @@ public class ModelAttributeNames {
   public static final String SPECIMEN = "specimen";
   public static final String SAMPLES = "samples";
   public static final String FILES = "files";
+  public static final String ANALYSIS = "analysis";
 }

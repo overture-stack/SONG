@@ -52,8 +52,8 @@ public class AnalysisGenerator {
     val payload = payloadSupplier.get();
     // Set analysisId to empty to ensure a randomly generated analysisId, and therefore
     // randomly generated objectId (fileIds)
-    val analysisId = service.create(studyId, payload);
-    return service.securedDeepRead(studyId, analysisId);
+    val analysis = service.create(studyId, payload);
+    return service.securedDeepRead(studyId, analysis.getAnalysisId());
   }
 
   public String generateNonExistingAnalysisId() {

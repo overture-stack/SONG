@@ -181,6 +181,20 @@ public class AnalysisTypeControllerTest {
   }
 
   /**
+   * Use this when testing a newly registered schema since the expected value will not have a
+   * createdAt value, causing the expected and actual values to not be equal
+   *
+   * @param expected
+   * @param actual
+   */
+  private void assertRegisteredSchemaCorrectDetails(AnalysisType expected, AnalysisType actual) {
+    assertEquals(expected.getName(), actual.getName());
+    assertEquals(expected.getVersion(), actual.getVersion());
+    assertEquals(expected.getSchema(), actual.getSchema());
+    assertNotNull(actual.getCreatedAt());
+  }
+
+  /**
    * Happy Path: Test successful initial registration of an analysisType as well as an update,
    * resulting in 2 versions
    */
@@ -219,13 +233,18 @@ public class AnalysisTypeControllerTest {
             .build();
 
     // Assert the schema and name were properly registered
-    endpointTester
-        .registerAnalysisTypePostRequestAnd(createRequest1)
-        .assertOneEntityEquals(expectedAnalysisType1);
+    val actualAnalysisType1 =
+        endpointTester
+            .registerAnalysisTypePostRequestAnd(createRequest1)
+            .extractOneEntity(AnalysisType.class);
 
-    endpointTester
-        .registerAnalysisTypePostRequestAnd(createRequest2)
-        .assertOneEntityEquals(expectedAnalysisType2);
+    val actualAnalysisType2 =
+        endpointTester
+            .registerAnalysisTypePostRequestAnd(createRequest2)
+            .extractOneEntity(AnalysisType.class);
+
+    assertRegisteredSchemaCorrectDetails(expectedAnalysisType1, actualAnalysisType1);
+    assertRegisteredSchemaCorrectDetails(expectedAnalysisType2, actualAnalysisType2);
 
     // Update the schema for the same analysisTypeName
     val updateSchema1 = generateRandomRegistrationPayload(randomGenerator);
@@ -241,9 +260,12 @@ public class AnalysisTypeControllerTest {
             .build();
 
     // Assert the schema and name were properly registered
-    endpointTester
-        .registerAnalysisTypePostRequestAnd(updateRequest1)
-        .assertOneEntityEquals(expectedAnalysisTypeUpdate1);
+    val actualAnalysisTypeUpdate1 =
+        endpointTester
+            .registerAnalysisTypePostRequestAnd(updateRequest1)
+            .extractOneEntity(AnalysisType.class);
+
+    assertRegisteredSchemaCorrectDetails(expectedAnalysisTypeUpdate1, actualAnalysisTypeUpdate1);
 
     val updateSchema2 = generateRandomRegistrationPayload(randomGenerator);
     val updateRequest2 =
@@ -258,9 +280,12 @@ public class AnalysisTypeControllerTest {
             .build();
 
     // Assert the schema and name were properly registered
-    endpointTester
-        .registerAnalysisTypePostRequestAnd(updateRequest2)
-        .assertOneEntityEquals(expectedAnalysisTypeUpdate2);
+    val actualAnalysisTypeUpdate2 =
+        endpointTester
+            .registerAnalysisTypePostRequestAnd(updateRequest2)
+            .extractOneEntity(AnalysisType.class);
+
+    assertRegisteredSchemaCorrectDetails(expectedAnalysisTypeUpdate2, actualAnalysisTypeUpdate2);
 
     // Assert there are only 2 entries for the analysisType name
     val results =
@@ -824,7 +849,8 @@ public class AnalysisTypeControllerTest {
             i -> {
               val name = names.get(i % repeats);
               val schema = generateRandomRegistrationPayload(randomGenerator);
-              return analysisTypeService.register(name, schema);
+              val out = analysisTypeService.register(name, schema);
+              return out;
             })
         .collect(toImmutableList());
   }

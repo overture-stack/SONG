@@ -36,6 +36,7 @@ import static org.mockito.Mockito.*;
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.core.utils.JsonUtils;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.Specimen;
@@ -189,7 +190,7 @@ public class MockedSubmitTest {
     when(validationService.validate(isA(JsonNode.class))).thenReturn(Optional.empty());
 
     val payloadString = toJson(payload);
-    when(analysisService.create(study, payload)).thenReturn(analysisId);
+    when(analysisService.create(study, payload)).thenReturn(Analysis.builder().analysisId(analysisId).build());
     val expectedSubmitResponse = SubmitResponse.builder().analysisId(analysisId).status(OK).build();
 
     // Verify

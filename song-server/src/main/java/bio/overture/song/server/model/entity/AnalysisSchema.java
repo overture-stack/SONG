@@ -9,9 +9,11 @@ import static com.google.common.collect.Sets.newHashSet;
 
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
+import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.time.LocalDateTime;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -29,6 +31,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 
 @Data
@@ -50,6 +53,10 @@ public class AnalysisSchema {
   @NotNull
   @Column(name = NAME)
   private String name;
+
+  @Column(name = TableAttributeNames.CREATED_AT)
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
   @NotNull
   @Column(name = SCHEMA)
