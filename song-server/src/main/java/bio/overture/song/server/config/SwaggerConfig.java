@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.paths.RelativePathProvider;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -42,15 +43,30 @@ public class SwaggerConfig {
   @Getter
   private String alternateSwaggerUrl;
 
+  // default is empty
+  @Value("${swagger.host:}")
+  private String swaggerHost;
+
+  // default is empty
+  @Value("${swagger.basePath:}")
+  private String basePath;
+
   @Bean
   public Docket api() {
     return new Docket(DocumentationType.SWAGGER_2)
         .apiInfo(apiInfo())
         .select()
         .apis(basePackage("bio.overture.song.server.controller"))
-        .paths(any())
         .build()
-        .pathMapping("/");
+        .host(swaggerHost)
+        .pathProvider(
+            new RelativePathProvider(null) {
+                @Override
+                public String getApplicationBasePath() {
+                  return basePath;
+                }
+            }
+        );
   }
 
   @Bean
