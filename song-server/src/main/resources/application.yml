@@ -80,6 +80,11 @@ management:
 
 swagger:
   alternateUrl: "/api-docs"
+  # host and base url are needed if you run song behind a reverse proxy
+  # and rewrite the url eg: http://mydomain.com/song/swagger-ui.html
+  # in this case host = mydomain.com, baseUrl = /song
+  host: ""
+  basePath: ""
 
 security.basic.enabled: false
 
