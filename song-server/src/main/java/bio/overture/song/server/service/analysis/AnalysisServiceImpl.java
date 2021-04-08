@@ -300,6 +300,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     checkAnalysisAndStudyRelated(studyId, id);
 
     val a = unsecuredDeepRead(id);
+
+    // Validations before publishing
     val analysisSchema = a.getAnalysisSchema();
     checkAnalysisTypeVersion(analysisSchema);
     val files = a.getFiles();
@@ -307,8 +309,13 @@ public class AnalysisServiceImpl implements AnalysisService {
     val file2storageObjectMap = getStorageObjectsForFiles(files);
     checkMismatchingFileSizes(id, file2storageObjectMap);
     checkMismatchingFileMd5sums(id, file2storageObjectMap, ignoreUndefinedMd5);
+
+    // Publish
     checkedUpdateState(id, PUBLISHED);
 
+    // Recalculate publish times now that it has a new PUBLISHED state in history
+    a.populatePublishTimes();
+    
     return a;
   }
 
