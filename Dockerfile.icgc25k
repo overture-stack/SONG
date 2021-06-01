@@ -1,7 +1,7 @@
 ###############################
 # Song Server for ICGC25k
 ###############################
-FROM adoptopenjdk/openjdk11:jre-11.0.6_10-alpine
+FROM adoptopenjdk/openjdk8:jre8u292-b10-alpine
 
 # Paths
 ENV SONG_HOME /song-server
