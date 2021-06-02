@@ -85,6 +85,28 @@ spec:
             }
         }
 
+// BEGINNING OF TESTING BLOCK
+// DELETE BEFORE PR
+        stage('Test ghcr publish') {
+            when {
+                branch "Docker-image-ghcr-migration"
+            }
+            steps {
+                container('docker') {
+                    withCredentials([usernamePassword(credentialsId:'OvertureBioGithub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "docker login ${gitHubRegistry} -u $USERNAME -p $PASSWORD"
+                    }
+                    sh "docker build --target=server --network=host -f Dockerfile . -t ${gitHubRegistry}/${gitHubRepo}-server:edge -t ${gitHubRegistry}/${gitHubRepo}-server:${commit}"
+                    sh "docker build --target=client --network=host -f Dockerfile . -t ${gitHubRegistry}/${gitHubRepo}-client:edge -t ${gitHubRegistry}/${gitHubRepo}-client:${commit}"
+                    sh "docker push ${gitHubRegistry}/${gitHubRepo}-server:${commit}"
+                    sh "docker push ${gitHubRegistry}/${gitHubRepo}-server:edge"
+                    sh "docker push ${gitHubRegistry}/${gitHubRepo}-client:${commit}"
+                    sh "docker push ${gitHubRegistry}/${gitHubRepo}-client:edge"
+                }
+            }
+        }
+// END OF TESTING BLOCK
+
         stage('Build & Publish Develop') {
             when {
                 branch "develop"
@@ -107,11 +129,11 @@ spec:
                         sh "docker login ${gitHubRegistry} -u $USERNAME -p $PASSWORD"
                     }
                     sh "docker build --target=server --network=host -f Dockerfile . -t ${gitHubRegistry}/${gitHubRepo}-server:edge -t ${gitHubRegistry}/${gitHubRepo}-server:${commit}"
-                    sh "docker build --target=client --network=host -f Dockerfile . -t ${gitHubRegistry}/${gitHubRepo}:edge -t ${gitHubRegistry}/${gitHubRepo}:${commit}"
+                    sh "docker build --target=client --network=host -f Dockerfile . -t ${gitHubRegistry}/${gitHubRepo}-client:edge -t ${gitHubRegistry}/${gitHubRepo}-client:${commit}"
                     sh "docker push ${gitHubRegistry}/${gitHubRepo}-server:${commit}"
                     sh "docker push ${gitHubRegistry}/${gitHubRepo}-server:edge"
-                    sh "docker push ${gitHubRegistry}/${gitHubRepo}:${commit}"
-                    sh "docker push ${gitHubRegistry}/${gitHubRepo}:edge"
+                    sh "docker push ${gitHubRegistry}/${gitHubRepo}-client:${commit}"
+                    sh "docker push ${gitHubRegistry}/${gitHubRepo}-client:edge"
                 }
             }
         }
@@ -141,11 +163,11 @@ spec:
                         sh "docker login ${gitHubRegistry} -u $USERNAME -p $PASSWORD"
                     }
                     sh "docker build --target=server --network=host -f Dockerfile . -t ${gitHubRegistry}/${gitHubRepo}-server:latest -t ${gitHubRegistry}/${gitHubRepo}-server:${version}"
-                    sh "docker build --target=client --network=host -f Dockerfile . -t ${gitHubRegistry}/${gitHubRepo}:latest -t ${gitHubRegistry}/${gitHubRepo}:${version}"
+                    sh "docker build --target=client --network=host -f Dockerfile . -t ${gitHubRegistry}/${gitHubRepo}-client:latest -t ${gitHubRegistry}/${gitHubRepo}-client:${version}"
                     sh "docker push ${gitHubRegistry}/${gitHubRepo}-server:${version}"
                     sh "docker push ${gitHubRegistry}/${gitHubRepo}-server:latest"
-                    sh "docker push ${gitHubRegistry}/${gitHubRepo}:${version}"
-                    sh "docker push ${gitHubRegistry}/${gitHubRepo}:latest"
+                    sh "docker push ${gitHubRegistry}/${gitHubRepo}-client:${version}"
+                    sh "docker push ${gitHubRegistry}/${gitHubRepo}-client:latest"
                 }
             }
         }
