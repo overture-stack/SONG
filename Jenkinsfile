@@ -87,7 +87,7 @@ spec:
 
 // BEGINNING OF TESTING BLOCK
 // DELETE BEFORE PR
-        stage('Build & Publish Develop') {
+        stage('Test ghcr publish') {
             when {
                 branch "Docker-image-ghcr-migration"
             }
