@@ -1,0 +1,29 @@
+###############################
+# Song Server for ICGC25k
+###############################
+FROM adoptopenjdk/openjdk8:jre8u292-b10-alpine
+
+# Paths
+ENV SONG_HOME /song-server
+ENV SONG_LOGS $SONG_HOME/logs
+ENV JAR_FILE $SONG_HOME/song-server.jar
+ENV SONG_USER song
+ENV SONG_UID 9999
+ENV SONG_GID 9999
+
+RUN addgroup -S -g $SONG_GID $SONG_USER  \
+    && adduser -S -u $SONG_UID -G $SONG_USER $SONG_USER  \
+    && mkdir -p $SONG_HOME $SONG_LOGS \
+    && chown -R $SONG_UID:$SONG_GID $SONG_HOME
+
+ADD https://artifacts.oicr.on.ca/artifactory/dcc-release/bio/overture/song-server/1.5.0.1/song-server-1.5.0.1-exec.jar $JAR_FILE
+
+RUN chown -R $SONG_UID:$SONG_GID $SONG_HOME
+
+USER $SONG_UID
+
+WORKDIR $SONG_HOME
+
+CMD java -Dlog.path=$SONG_LOGS \
+        -jar $JAR_FILE \
+        --spring.config.location=classpath:/bootstrap.properties,classpath:/application.yml
