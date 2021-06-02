@@ -91,6 +91,7 @@ spec:
             when {
                 branch "Docker-image-ghcr-migration"
             }
+            steps {
                 container('docker') {
                     withCredentials([usernamePassword(credentialsId:'OvertureBioGithub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh "docker login ${gitHubRegistry} -u $USERNAME -p $PASSWORD"
