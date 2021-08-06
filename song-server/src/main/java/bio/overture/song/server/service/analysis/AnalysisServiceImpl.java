@@ -37,7 +37,6 @@ import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisS
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
-import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
@@ -295,8 +294,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   @Override
   @Transactional
-  public Analysis publish(
-      @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
+  public Analysis publish(@NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
 
     val a = unsecuredDeepRead(id);
@@ -315,7 +313,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     // Recalculate publish times now that it has a new PUBLISHED state in history
     a.populatePublishTimes();
-    
+
     return a;
   }
 
