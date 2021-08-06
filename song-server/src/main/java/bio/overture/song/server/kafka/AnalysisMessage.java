@@ -41,7 +41,7 @@ public class AnalysisMessage {
   @NonNull private final Analysis analysis;
 
   public static AnalysisMessage createAnalysisMessage(
-          AnalysisActions action, Analysis analysis, String songServerId) {
+      AnalysisActions action, Analysis analysis, String songServerId) {
 
     return new AnalysisMessage(
         analysis.getAnalysisId(),
