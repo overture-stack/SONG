@@ -31,8 +31,9 @@ To see current database's migration info:
 
 Migrate database to the latest version:
 
+Note: Due to a postgres jdbc driver issue, make sure to include parameter `stringtype=unspecified` in the jdbc connection url. 
 ```bash
-./mvnw -pl song-server flyway:migrate -Dflyway.url='jdbc:postgresql://localhost:5432/test_db?user=postgres'
+./mvnw -pl song-server flyway:migrate -Dflyway.url='jdbc:postgresql://localhost:5432/song?stringtype=unspecified' -Dflyway.locations=classpath:db.migration
 ```
 
 If you have existing database that does not align with the flyway migrations, please [baseline](https://flywaydb.org/documentation/command/baseline) the database by:

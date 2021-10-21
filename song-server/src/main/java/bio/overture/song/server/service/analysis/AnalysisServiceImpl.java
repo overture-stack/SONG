@@ -431,6 +431,8 @@ public class AnalysisServiceImpl implements AnalysisService {
   private Analysis checkedUpdateState(String id, AnalysisStates analysisState) {
     // Fetch Analysis
     val analysis = shallowRead(id);
+    analysis.setFiles(unsecuredReadFiles(analysis.getAnalysisId()));
+    analysis.setSamples(readSamples(analysis.getAnalysisId()));
 
     // Create state history
     val initialState = shallowRead(id).getAnalysisState();
