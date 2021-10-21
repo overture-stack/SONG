@@ -1,6 +1,6 @@
 # SONG
 
-SONG Server - Metadata and Validation system
+## SONG Server - Metadata and Validation system
 
 This module of SONG implements the following functions:
 
@@ -49,3 +49,7 @@ Once you have the data structure set up, you may want to load test data.
 ```bash
 psql -f song-server/src/main/resources/data.sql DATABASE_NAME
 ```
+
+### Local Development
+- Run song-server in these spring profiles for local development: `dev,noSecurityDev,kafka`.
+- Comment out line 73 - 76 in `SecurityConfig.java`: https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/java/bio/overture/song/server/config/SecurityConfig.java#L73
