@@ -50,6 +50,60 @@ Once you have the data structure set up, you may want to load test data.
 psql -f song-server/src/main/resources/data.sql DATABASE_NAME
 ```
 
-### Local Development
+### Setting Up Local Development
 - Run song-server in these spring profiles for local development: `dev,noSecurityDev,kafka`.
 - Comment out line 73 - 76 in `SecurityConfig.java`: https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/java/bio/overture/song/server/config/SecurityConfig.java#L73
+
+#### Quick Start 
+- Here is an example on how to quickly set up a testing schema and create analyses for local development.
+    - Create a simple schema using `POST /schema` endpoint, the schema can be as simple as: 
+    ```json
+    {
+      "name": "Simple",
+      "schema": {
+        "type": "object",
+        "properties": { "experiment": { "type": "string" } }
+      }
+    }
+    ```
+    - Create an analysis using `POST /submit/{studyId}` endpoint, the `json_payload` must contain the basic analysis information:
+```json
+       {
+          "name": "Simple",
+          "schema": {
+            "studyId": "TEST-CA",
+            "analysisType": { "name": "Simple", "version": 1 },
+            "samples": [
+              {
+                "submitterSampleId": "subSA123",
+                "matchedNormalSubmitterSampleId": null,
+                "sampleType": "Total DNA",
+                "donor": {
+                  "studyId": "TEST-CA",
+                  "submitterDonorId": "subDO123",
+                  "gender": "Male"
+                },
+                "specimen": {
+                  "donorId": "50cae385-92a7-58b0-ab24-59dd1da8c5d6",
+                  "submitterSpecimenId": "subSP123",
+                  "tumourNormalDesignation": "Normal",
+                  "specimenTissueSource": "Bone",
+                  "specimenType": "Normal"
+                }
+              }
+            ],
+            "files": [
+              {
+                "objectId": "c30b3e9e-c6f3-4524-bba5-04dc5ade1ea5",
+                "studyId": "TEST-CA",
+                "fileName": "test1.tsv",
+                "fileSize": 123,
+                "fileType": "BAM",
+                "fileMd5sum": "12345678901234567890123456789012",
+                "fileAccess": "open",
+                "dataType": "tsv"
+              }
+            ]
+          }
+        }
+```
