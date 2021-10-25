@@ -297,12 +297,12 @@ public class AnalysisServiceImpl implements AnalysisService {
   public Analysis publish(@NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
 
-    val a = unsecuredDeepRead(id);
+    val a = shallowRead(id);
 
     // Validations before publishing
     val analysisSchema = a.getAnalysisSchema();
     checkAnalysisTypeVersion(analysisSchema);
-    val files = a.getFiles();
+    val files = unsecuredReadFiles(id);
     checkMissingFiles(id, files);
     val file2storageObjectMap = getStorageObjectsForFiles(files);
     checkMismatchingFileSizes(id, file2storageObjectMap);
@@ -327,7 +327,8 @@ public class AnalysisServiceImpl implements AnalysisService {
         id,
         SUPPRESSED,
         UNPUBLISHED);
-    return checkedUpdateState(id, UNPUBLISHED);
+    val analysis = checkedUpdateState(id, UNPUBLISHED);
+    return analysis;
   }
 
   @Override
@@ -430,10 +431,10 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   private Analysis checkedUpdateState(String id, AnalysisStates analysisState) {
     // Fetch Analysis
-    val analysis = shallowRead(id);
+    val analysis = unsecuredDeepRead(id);
 
     // Create state history
-    val initialState = shallowRead(id).getAnalysisState();
+    val initialState = analysis.getAnalysisState();
     val updatedState = analysisState.name();
     val stateChange =
         AnalysisStateChange.builder()
@@ -443,7 +444,7 @@ public class AnalysisServiceImpl implements AnalysisService {
             .updatedAt(LocalDateTime.now())
             .build();
 
-    // Update analysis state
+    // Update analysis state and state history
     analysis.setAnalysisState(updatedState);
     analysis.getAnalysisStateHistory().add(stateChange);
     repository.save(analysis);
