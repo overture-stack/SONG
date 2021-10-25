@@ -327,7 +327,12 @@ public class AnalysisServiceImpl implements AnalysisService {
         id,
         SUPPRESSED,
         UNPUBLISHED);
-    return checkedUpdateState(id, UNPUBLISHED);
+    // this analysis is the result from a shallow read, therefor has no files and samples
+    // setting files and samples because they are needed in kafka message.
+    val analysis = checkedUpdateState(id, UNPUBLISHED);
+    analysis.setFiles(unsecuredReadFiles(analysis.getAnalysisId()));
+    analysis.setSamples(readSamples(analysis.getAnalysisId()));
+    return analysis;
   }
 
   @Override
@@ -431,11 +436,9 @@ public class AnalysisServiceImpl implements AnalysisService {
   private Analysis checkedUpdateState(String id, AnalysisStates analysisState) {
     // Fetch Analysis
     val analysis = shallowRead(id);
-    analysis.setFiles(unsecuredReadFiles(analysis.getAnalysisId()));
-    analysis.setSamples(readSamples(analysis.getAnalysisId()));
 
     // Create state history
-    val initialState = shallowRead(id).getAnalysisState();
+    val initialState = analysis.getAnalysisState();
     val updatedState = analysisState.name();
     val stateChange =
         AnalysisStateChange.builder()

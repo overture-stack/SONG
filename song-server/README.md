@@ -51,7 +51,8 @@ psql -f song-server/src/main/resources/data.sql DATABASE_NAME
 ```
 
 ### Setting Up Local Development
-- Run song-server in these spring profiles for local development: `dev,noSecurityDev,kafka`.
+- Run song-server in these spring profiles for local development: `dev,noSecurityDev`.
+- If you need to work with kafka, add `kafka` to spring profiles.
 - Comment out line 73 - 76 in `SecurityConfig.java`: https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/java/bio/overture/song/server/config/SecurityConfig.java#L73
 
 #### Quick Start 
@@ -107,3 +108,6 @@ psql -f song-server/src/main/resources/data.sql DATABASE_NAME
           }
         }
 ```
+
+## Swagger API
+To access swagger api: http://localhost:8080/swagger-ui.html
