@@ -297,12 +297,12 @@ public class AnalysisServiceImpl implements AnalysisService {
   public Analysis publish(@NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
 
-    val a = unsecuredDeepRead(id);
+    val a = shallowRead(id);
 
     // Validations before publishing
     val analysisSchema = a.getAnalysisSchema();
     checkAnalysisTypeVersion(analysisSchema);
-    val files = a.getFiles();
+    val files = unsecuredReadFiles(id);
     checkMissingFiles(id, files);
     val file2storageObjectMap = getStorageObjectsForFiles(files);
     checkMismatchingFileSizes(id, file2storageObjectMap);
@@ -327,11 +327,7 @@ public class AnalysisServiceImpl implements AnalysisService {
         id,
         SUPPRESSED,
         UNPUBLISHED);
-    // this analysis is the result from a shallow read, therefor has no files and samples
-    // setting files and samples because they are needed in kafka message.
     val analysis = checkedUpdateState(id, UNPUBLISHED);
-    analysis.setFiles(unsecuredReadFiles(analysis.getAnalysisId()));
-    analysis.setSamples(readSamples(analysis.getAnalysisId()));
     return analysis;
   }
 
@@ -435,7 +431,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   private Analysis checkedUpdateState(String id, AnalysisStates analysisState) {
     // Fetch Analysis
-    val analysis = shallowRead(id);
+    val analysis = unsecuredDeepRead(id);
 
     // Create state history
     val initialState = analysis.getAnalysisState();
@@ -448,7 +444,7 @@ public class AnalysisServiceImpl implements AnalysisService {
             .updatedAt(LocalDateTime.now())
             .build();
 
-    // Update analysis state
+    // Update analysis state and state history
     analysis.setAnalysisState(updatedState);
     analysis.getAnalysisStateHistory().add(stateChange);
     repository.save(analysis);
