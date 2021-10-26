@@ -120,7 +120,7 @@ public class AnalysisController {
           @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false)
           boolean ignoreUndefinedMd5) {
     val analysis = analysisService.publish(studyId, id, ignoreUndefinedMd5);
-    return ok("AnalysisId " + id  + " successfully published");
+    return ok("AnalysisId " + id + " successfully published");
   }
 
   @ApiOperation(
@@ -133,8 +133,8 @@ public class AnalysisController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
-    val analysis =  analysisService.unpublish(studyId, id);
-    return ok("AnalysisId " + id  + " successfully unpublished");
+    val analysis = analysisService.unpublish(studyId, id);
+    return ok("AnalysisId " + id + " successfully unpublished");
   }
 
   @ApiOperation(
@@ -150,7 +150,7 @@ public class AnalysisController {
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     val analysis = analysisService.suppress(studyId, id);
-    return ok("AnalysisId " + id  + " was suppressed");
+    return ok("AnalysisId " + id + " was suppressed");
   }
 
   /**

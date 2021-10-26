@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import lombok.NonNull;
-import org.springframework.http.ResponseEntity;
 
 public interface AnalysisService {
 

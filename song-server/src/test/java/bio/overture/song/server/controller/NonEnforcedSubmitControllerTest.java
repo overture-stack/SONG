@@ -136,7 +136,7 @@ public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
 
     // Assert the error ResourceAccessException was thrown, indicating that the check for the
     // analysisType version
-    // was successfull
+    // was successful
     boolean completedAnalysisTypeCheck = false;
     try {
       getEndpointTester().publishAnalysisPutRequestAnd(getStudyId(), analysisId).getResponse();
@@ -157,7 +157,7 @@ public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
 
     // Assert the error ResourceAccessException was thrown, indicating that the check for the
     // analysisType version
-    // was successfull
+    // was successful
     boolean completedAnalysisTypeCheck = false;
     try {
       getEndpointTester().publishAnalysisPutRequestAnd(getStudyId(), analysisId).getResponse();

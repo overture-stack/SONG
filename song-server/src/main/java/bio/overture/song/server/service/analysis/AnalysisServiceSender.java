@@ -1,12 +1,12 @@
 package bio.overture.song.server.service.analysis;
 
+import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
+import static bio.overture.song.core.model.enums.AnalysisActions.PUBLISH;
+import static bio.overture.song.core.model.enums.AnalysisActions.SUPPRESS;
+import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
-import static bio.overture.song.core.model.enums.AnalysisActions.PUBLISH;
-import static bio.overture.song.core.model.enums.AnalysisActions.SUPPRESS;
-import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 
@@ -27,7 +27,6 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
