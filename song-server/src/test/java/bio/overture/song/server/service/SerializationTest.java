@@ -121,6 +121,7 @@ public class SerializationTest {
             .fileMd5sum("d3cec975acc69a42b8cc3b76ec01ec21")
             .build();
     f1.setInfo("compression", "gzip");
+    f1.setInfo("dummyField", "value");
 
     val f2 =
         FileEntity.builder()
@@ -169,12 +170,8 @@ public class SerializationTest {
     assertJsonEquals(expectedJson, actualJson, when(IGNORING_ARRAY_ORDER));
 
     // Assert proper deserialization
-    val actualPayload = JsonUtils.fromJson(payloadString, Payload.class);
+    val actualPayload = Payload.parse(payloadString);
     assertEquals(expectedPayload, actualPayload);
-  }
-
-  private static <T, R> void assertEqualField(Function<T, R> fieldFunction, T expected, T actual) {
-    assertEquals(fieldFunction.apply(expected), fieldFunction.apply(actual));
   }
 
   @Test
@@ -273,7 +270,7 @@ public class SerializationTest {
   @Test
   public void testSequencingReadPayloadFromJson() throws IOException {
     val json = readFile(FILEPATH + "sequencingRead.json");
-    val payload = JsonUtils.fromJson(json, Payload.class);
+    val payload = Payload.parse(json);
 
     System.out.printf("*** Payload object='%s'\n", payload);
     assertEquals(payload.getAnalysisType().getName(), "sequencingRead");
@@ -293,7 +290,7 @@ public class SerializationTest {
   @Test
   public void testVariantCallPayloadFromJson() throws IOException {
     val json = readFile(FILEPATH + "variantCall.json");
-    val payload = JsonUtils.fromJson(json, Payload.class);
+    val payload = Payload.parse(json);
     System.out.printf("*** Analysis object='%s'\n", payload);
     assertEquals(payload.getAnalysisType().getName(), "variantCall");
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);

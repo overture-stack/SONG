@@ -35,7 +35,8 @@
   "files": [
     {
       "info": {
-        "compression": "gzip"
+        "compression": "gzip",
+        "dummyField": "value"
       },
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e01.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",
       "dataType": "SOME_DATA_TYPE",

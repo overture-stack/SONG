@@ -126,9 +126,8 @@ public class AnalysisControllerTest {
     this.variantAnalysis =
         analysisGenerator.createRandomAnalysis(
             () ->
-                fromJson(
-                    RESOURCE_FETCHER.readJsonNode("variantcall1-valid-payload.json"),
-                    Payload.class));
+                Payload.parse(
+                    RESOURCE_FETCHER.readJsonNode("variantcall1-valid-payload.json")));
 
     // register a new version of variant call
     endpointTester

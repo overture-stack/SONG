@@ -167,10 +167,9 @@ public class DeserializationTest {
   @Test
   public void testVariantCallDeserialization() {
     val payload1 =
-        fromJson(
+        Payload.parse(
             TestFiles.getJsonNodeFromClasspath(
-                "documents/deserialization/variantcall-deserialize1.json"),
-            Payload.class);
+                "documents/deserialization/variantcall-deserialize1.json"));
     val rootNode1 = toJsonNode(payload1.getData());
     val experimentNode1 = rootNode1.path("experiment");
     assertFalse(experimentNode1.hasNonNull("matchedNormalSampleSubmitterId"));
@@ -178,10 +177,9 @@ public class DeserializationTest {
     assertFalse(experimentNode1.hasNonNull("random"));
 
     val payload2 =
-        fromJson(
+        Payload.parse(
             TestFiles.getJsonNodeFromClasspath(
-                "documents/deserialization/variantcall-deserialize2.json"),
-            Payload.class);
+                "documents/deserialization/variantcall-deserialize2.json"));
 
     val rootNode2 = toJsonNode(payload2.getData());
     val experimentNode2 = rootNode2.path("experiment");
@@ -193,10 +191,9 @@ public class DeserializationTest {
   @Test
   public void testSequencingReadDeserialization() {
     val payload1 =
-        fromJson(
+        Payload.parse(
             TestFiles.getJsonNodeFromClasspath(
-                "documents/deserialization/sequencingread-deserialize1.json"),
-            Payload.class);
+                "documents/deserialization/sequencingread-deserialize1.json"));
 
     val rootNode1 = toJsonNode(payload1.getData());
     val experimentNode1 = rootNode1.path("experiment");
@@ -209,10 +206,9 @@ public class DeserializationTest {
     assertFalse(experimentNode1.path("info").hasNonNull("random"));
 
     val payload2 =
-        fromJson(
+        Payload.parse(
             TestFiles.getJsonNodeFromClasspath(
-                "documents/deserialization/sequencingread-deserialize2.json"),
-            Payload.class);
+                "documents/deserialization/sequencingread-deserialize2.json"));
 
     val rootNode2 = toJsonNode(payload2.getData());
     val experimentNode2 = rootNode2.path("experiment");

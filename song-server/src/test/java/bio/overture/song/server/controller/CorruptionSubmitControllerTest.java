@@ -178,7 +178,7 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
 
   private Payload modifyPayload(
       Payload payload, boolean mutatedSample, boolean mutatedSpecimen, boolean mutatedDonor) {
-    val payload2 = fromJson(toJson(payload), Payload.class);
+    val payload2 = Payload.parse(toJson(payload));
     modifySample(payload2, mutatedSample);
     modifySpecimen(payload2, mutatedSpecimen);
     modifyDonor(payload2, mutatedDonor);

@@ -28,10 +28,16 @@ public class Payload extends DynamicData {
   private List<FileEntity> files;
 
   @SneakyThrows
-  public static Payload parse(JsonNode jsonStr) {
+  public static Payload parse(JsonNode jsonNode) {
+    return parse(jsonNode.toString());
+  }
+
+  @SneakyThrows
+  public static Payload parse(String jsonStr) {
     // convert to hashMap
-    val jsonNode = MAPPER.readValue(jsonStr.toString(), HashMap.class);
-    // writeValueAsString will remove null/empty values from map, including nested
+    val jsonNode = MAPPER.readValue(jsonStr, HashMap.class);
+    // writeValueAsString will remove null values from map, including nested
+    // because MAPPER is configured to include NON_NULL
     val sanitized = MAPPER.writeValueAsString(jsonNode);
     // return Payload
     return MAPPER.readValue(sanitized, Payload.class);
@@ -44,7 +50,6 @@ public class Payload extends DynamicData {
     // to inconsistencies if they are being used in memory vs the data saved to db.
     // So when parsing payloads with MAPPER ensure only non_null fields are kept.
     mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     return mapper;
   }
 }

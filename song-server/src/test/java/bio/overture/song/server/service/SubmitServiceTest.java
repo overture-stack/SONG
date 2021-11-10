@@ -286,7 +286,7 @@ public class SubmitServiceTest {
 
   private Payload getModifiedPayload(
       Payload payload, boolean sameSample, boolean sameSpecimen, boolean sameDonor) {
-    val payload2 = fromJson(toJson(payload), Payload.class);
+    val payload2 = Payload.parse(toJson(payload));
     val samplePayload = modifySample(payload2, sameSample);
     val specimenPayload = modifySpecimen(samplePayload, sameSpecimen);
     val donorPayload = modifyDonor(specimenPayload, sameDonor);
