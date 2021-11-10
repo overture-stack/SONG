@@ -17,7 +17,6 @@
 
 package bio.overture.song.server.utils.generator;
 
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;

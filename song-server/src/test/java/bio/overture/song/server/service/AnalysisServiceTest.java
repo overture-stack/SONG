@@ -28,7 +28,6 @@ import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;

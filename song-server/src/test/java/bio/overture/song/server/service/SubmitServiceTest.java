@@ -19,7 +19,6 @@ package bio.overture.song.server.service;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;

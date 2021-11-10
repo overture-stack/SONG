@@ -20,7 +20,6 @@ package bio.overture.song.server.controller;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_DONOR_DATA;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_SAMPLE_DATA;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_SPECIMEN_DATA;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
