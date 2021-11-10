@@ -2,16 +2,15 @@ package bio.overture.song.server.model.dto;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.DynamicData;
+import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Data
 @Builder
@@ -21,9 +20,31 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class Payload extends DynamicData {
+  private static final ObjectMapper MAPPER = payloadObjectMapper();
 
   private String studyId;
   private AnalysisTypeId analysisType;
   private List<CompositeEntity> samples;
   private List<FileEntity> files;
+
+  @SneakyThrows
+  public static Payload parse(JsonNode jsonStr) {
+    // convert to hashMap
+    val jsonNode = MAPPER.readValue(jsonStr.toString(), HashMap.class);
+    // writeValueAsString will remove null/empty values from map, including nested
+    val sanitized = MAPPER.writeValueAsString(jsonNode);
+    // return Payload
+    return MAPPER.readValue(sanitized, Payload.class);
+  }
+
+  private static ObjectMapper payloadObjectMapper() {
+    val mapper = JsonUtils.mapper();
+    // Hibernate does not persist values that are null inside an entity to the db.
+    // Submitted payloads however can have values that are null, which can lead
+    // to inconsistencies if they are being used in memory vs the data saved to db.
+    // So when parsing payloads with MAPPER ensure only non_null fields are kept.
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    return mapper;
+  }
 }
