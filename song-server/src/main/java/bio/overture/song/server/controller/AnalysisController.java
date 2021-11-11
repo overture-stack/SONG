@@ -27,6 +27,7 @@ import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.service.analysis.AnalysisService;
+import bio.overture.song.server.service.analysis.GetAnalysisResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
@@ -85,9 +86,25 @@ public class AnalysisController {
   public List<Analysis> getAnalysis(
       @PathVariable("studyId") String studyId,
       @ApiParam(value = "Non-empty comma separated list of analysis states to filter by")
-          @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
+      @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
           String analysisStates) {
     return analysisService.getAnalysis(studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)));
+  }
+
+  @ApiOperation(
+      value = "GetAnalysesForStudy",
+      notes = "Retrieve paginated analysis objects for a studyId, default first page is page 0," +
+          "default page size is 20. Results are sorted by analysis id ASC order.")
+  @GetMapping(value = "/paginated")
+  public GetAnalysisResponse getAnalysis(
+      @PathVariable("studyId") String studyId,
+      @ApiParam(value = "Non-empty comma separated list of analysis states to filter by")
+      @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
+        String analysisStates,
+      @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(value = "size", defaultValue = "20", required = false) int size) {
+    return analysisService.getAnalysis(
+        studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)), page, size);
   }
 
   /** [DCC-5726] - non-dynamic updates disabled until hibernate is properly integrated */

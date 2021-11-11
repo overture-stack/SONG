@@ -85,12 +85,12 @@ public class AnalysisSpecificationBuilder {
     return builder.equal(root.get(ModelAttributeNames.ANALYSIS_ID), analysisId);
   }
 
-  private static Predicate whereStatesInPredicate(
+  public static Predicate whereStatesInPredicate(
       Root<Analysis> root, Collection<String> analysisStates) {
     return root.get(ModelAttributeNames.ANALYSIS_STATE).in(analysisStates);
   }
 
-  private static Predicate equalsStudyPredicate(
+  public static Predicate equalsStudyPredicate(
       Root<Analysis> root, CriteriaBuilder builder, String study) {
     return builder.equal(root.get(STUDY_ID), study);
   }

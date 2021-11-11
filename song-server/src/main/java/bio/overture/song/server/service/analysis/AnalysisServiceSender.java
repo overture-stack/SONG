@@ -88,6 +88,12 @@ public class AnalysisServiceSender implements AnalysisService {
   }
 
   @Override
+  public GetAnalysisResponse getAnalysis(
+      String studyId, Set<String> analysisStates, int page, int size) {
+    return internalAnalysisService.getAnalysis(studyId, analysisStates, page, size);
+  }
+
+  @Override
   public List<Analysis> idSearch(String studyId, IdSearchRequest request) {
     return internalAnalysisService.idSearch(studyId, request);
   }

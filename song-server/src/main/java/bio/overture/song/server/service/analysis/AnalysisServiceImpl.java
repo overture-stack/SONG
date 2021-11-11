@@ -38,7 +38,9 @@ import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
+import static bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder.equalsStudyPredicate;
+import static bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder.whereStatesInPredicate;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
@@ -47,6 +49,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static javax.persistence.criteria.JoinType.LEFT;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.enums.AnalysisStates;
@@ -81,6 +84,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +96,9 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -206,6 +216,63 @@ public class AnalysisServiceImpl implements AnalysisService {
           a.populatePublishTimes();
         });
     return analyses;
+  }
+
+  @Override
+  public GetAnalysisResponse getAnalysis(
+      @NonNull String studyId,
+      @NonNull Set<String> analysisStates,
+      @NonNull int page,
+      @NonNull int size) {
+    studyService.checkStudyExist(studyId);
+    resolveSelectedAnalysisStates(analysisStates);
+
+    val sort = new Sort(Sort.Direction.ASC, ANALYSIS_ID);
+    val pageRequest = PageRequest.of(page, size, sort);
+
+    val spec =
+        new Specification<Analysis>() {
+          @Override
+          public Predicate toPredicate(
+              Root<Analysis> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+            // The reason for having this check is because of the issue: https://github.com/spring-projects/spring-data-jpa/issues/532
+            // in order to avoid the hibernate error and perform a fetch join, do not apply fetch join criteria
+            // on count query. If the result type is long, that means a count query is fired.
+            if (!query.getResultType().equals(Long.class)) {
+              root.fetch(ANALYSIS_SCHEMA, LEFT);
+              root.fetch(ANALYSIS_DATA, LEFT);
+            }
+            query.distinct(true);
+            return criteriaBuilder.and(
+                equalsStudyPredicate(root, criteriaBuilder, studyId),
+                whereStatesInPredicate(root, analysisStates));
+          }
+        };
+
+    val analyses = repository.findAll(spec, pageRequest);
+
+    analyses.forEach(
+        a -> {
+          val id = a.getAnalysisId();
+          a.setFiles(unsecuredReadFiles(id));
+          a.setSamples(readSamples(id));
+          a.populatePublishTimes();
+        });
+    val totalAnalyses = analyses.getTotalElements();
+    val totalPages = analyses.getTotalPages();
+    val hasNext = analyses.hasNext();
+    val content = analyses.getContent();
+    val currentTotalAnalyses = content.size();
+
+    val resp = GetAnalysisResponse.builder()
+        .analyses(content)
+        .currentTotalAnalyses(currentTotalAnalyses)
+        .totalAnalyses(totalAnalyses)
+        .totalPages(totalPages)
+        .hasNext(hasNext)
+        .build();
+
+    return resp;
   }
 
   /**
