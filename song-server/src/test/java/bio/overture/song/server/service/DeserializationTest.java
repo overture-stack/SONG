@@ -175,17 +175,26 @@ public class DeserializationTest {
     assertFalse(experimentNode1.hasNonNull("matchedNormalSampleSubmitterId"));
     assertFalse(experimentNode1.hasNonNull("variantCallingTool"));
     assertFalse(experimentNode1.hasNonNull("random"));
+    assertFalse(experimentNode1.toString().contains("null"));
+
+    val payload1file0InfoNode = payload1.getFiles().get(0).getInfo();
+    assertTrue(payload1file0InfoNode.hasNonNull("compression"));
+    assertFalse(payload1file0InfoNode.toString().contains("null"));
 
     val payload2 =
         Payload.parse(
             TestFiles.getJsonNodeFromClasspath(
                 "documents/deserialization/variantcall-deserialize2.json"));
-
     val rootNode2 = toJsonNode(payload2.getData());
     val experimentNode2 = rootNode2.path("experiment");
     assertTrue(rootNode2.has("experiment"));
     assertFalse(experimentNode2.has("matchedNormalSampleSubmitterId"));
     assertFalse(experimentNode2.has("variantCallingTool"));
+    assertFalse(experimentNode2.toString().contains("null"));
+    
+    val payload2File0InfoNode = payload2.getFiles().get(0).getInfo();
+    assertTrue(payload2File0InfoNode.path("nestedInfo").hasNonNull("compression"));
+    assertFalse(payload1file0InfoNode.toString().contains("null"));
   }
 
   @Test

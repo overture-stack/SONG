@@ -43,12 +43,7 @@
       "fileSize": 132394,
       "fileMd5sum": "d3cec975acc69a42b8cc3b76ec01ec21",
       "fileAccess": "controlled",
-      "compression": "gzip",
-      "emptyField1": null,
-      "info": {
-        "emptyField2": null,
-        "dummyField": "value"
-      }
+      "compression": "gzip"
     },
     {
       "fileType": "IDX",

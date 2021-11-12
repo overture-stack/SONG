@@ -120,7 +120,6 @@ public class SerializationTest {
             .fileMd5sum("d3cec975acc69a42b8cc3b76ec01ec21")
             .build();
     f1.setInfo("compression", "gzip");
-    f1.setInfo("dummyField", "value");
 
     val f2 =
         FileEntity.builder()
