@@ -60,17 +60,21 @@ public class AnalysisServiceSender implements AnalysisService {
     // `create` as transactional. This means the analysis returned is from memory not
     // the one committed to db which can be different (for example, model.entity.Info
     // has CustomJsonType on its `info` field which removes keys with null values
-    // when writing to db). So, fetch the analysis after it is committed to make sure
-    // we have the right one before sending a message with it.
-    TransactionSynchronizationManager.registerSynchronization(
-        new TransactionSynchronization() {
-          public void afterCommit() {
-            val committedAnalysis =
-                internalAnalysisService.securedDeepRead(
-                    analysis.getStudyId(), analysis.getAnalysisId());
-            sendAnalysisMessage(committedAnalysis, UNPUBLISHED, CREATE);
-          }
-        });
+    // when writing to db). So if we are transactional, fetch the analysis after it is
+    // committed to make sure we have the right one before sending a message with it.
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(
+          new TransactionSynchronization() {
+            public void afterCommit() {
+              val committedAnalysis =
+                  internalAnalysisService.securedDeepRead(
+                      analysis.getStudyId(), analysis.getAnalysisId());
+              sendAnalysisMessage(committedAnalysis, UNPUBLISHED, CREATE);
+            }
+          });
+    } else {
+      sendAnalysisMessage(analysis, UNPUBLISHED, CREATE);
+    }
     return analysis;
   }
 
