@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -168,8 +169,12 @@ public class SerializationTest {
     assertJsonEquals(expectedJson, actualJson, when(IGNORING_ARRAY_ORDER));
 
     // Assert proper deserialization
-    val actualPayload = Payload.parse(payloadString);
+    val actualPayload = JsonUtils.fromJson(payloadString, Payload.class);
     assertEquals(expectedPayload, actualPayload);
+  }
+
+  private static <T, R> void assertEqualField(Function<T, R> fieldFunction, T expected, T actual) {
+    assertEquals(fieldFunction.apply(expected), fieldFunction.apply(actual));
   }
 
   @Test
@@ -268,7 +273,7 @@ public class SerializationTest {
   @Test
   public void testSequencingReadPayloadFromJson() throws IOException {
     val json = readFile(FILEPATH + "sequencingRead.json");
-    val payload = Payload.parse(json);
+    val payload = JsonUtils.fromJson(json, Payload.class);
 
     System.out.printf("*** Payload object='%s'\n", payload);
     assertEquals(payload.getAnalysisType().getName(), "sequencingRead");
@@ -288,7 +293,7 @@ public class SerializationTest {
   @Test
   public void testVariantCallPayloadFromJson() throws IOException {
     val json = readFile(FILEPATH + "variantCall.json");
-    val payload = Payload.parse(json);
+    val payload = JsonUtils.fromJson(json, Payload.class);
     System.out.printf("*** Analysis object='%s'\n", payload);
     assertEquals(payload.getAnalysisType().getName(), "variantCall");
     assertEquals(payload.getAnalysisType().getVersion().intValue(), 1);

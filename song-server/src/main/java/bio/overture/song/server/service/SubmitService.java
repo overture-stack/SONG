@@ -69,7 +69,7 @@ public class SubmitService {
     validatePayload(payloadJson);
 
     // Deserialize JSON payload to Payload DTO
-    val payload = Payload.parse(payloadJson);
+    val payload = fromJson(payloadJson, Payload.class);
 
     // Check that the Payload's studyId matches the request studyId
     checkStudyInPayload(studyId, payload);

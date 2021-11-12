@@ -19,6 +19,7 @@ package bio.overture.song.server.service;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_ID;
@@ -285,7 +286,7 @@ public class SubmitServiceTest {
 
   private Payload getModifiedPayload(
       Payload payload, boolean sameSample, boolean sameSpecimen, boolean sameDonor) {
-    val payload2 = Payload.parse(toJson(payload));
+    val payload2 = fromJson(toJson(payload), Payload.class);
     val samplePayload = modifySample(payload2, sameSample);
     val specimenPayload = modifySpecimen(samplePayload, sameSpecimen);
     val donorPayload = modifyDonor(specimenPayload, sameDonor);

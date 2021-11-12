@@ -55,7 +55,6 @@
       "randomField10" : "we can define any FILE field. For example, randomField10",
       "randomField11" : "as a second example, we can define another random FILE field called randomField11",
       "info" : {
-          "emptyField": null,
           "randomField12" : "alternatively, put some extra FILE fields here"
       }
     },

@@ -20,6 +20,7 @@ package bio.overture.song.server.controller;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_DONOR_DATA;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_SAMPLE_DATA;
 import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_SPECIMEN_DATA;
+import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -177,7 +178,7 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
 
   private Payload modifyPayload(
       Payload payload, boolean mutatedSample, boolean mutatedSpecimen, boolean mutatedDonor) {
-    val payload2 = Payload.parse(toJson(payload));
+    val payload2 = fromJson(toJson(payload), Payload.class);
     modifySample(payload2, mutatedSample);
     modifySpecimen(payload2, mutatedSpecimen);
     modifyDonor(payload2, mutatedDonor);
