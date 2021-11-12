@@ -28,7 +28,6 @@ import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
@@ -210,7 +209,7 @@ public class AnalysisServiceTest {
   @Transactional
   public void testReadVariantCall() {
     val json = getJsonStringFromClasspath("documents/variantcall-read-test.json");
-    val payload = fromJson(json, Payload.class);
+    val payload = Payload.parse(json);
     val analysis = service.create(DEFAULT_STUDY_ID, payload);
     val analysisId = analysis.getAnalysisId();
     val a = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);
@@ -341,7 +340,7 @@ public class AnalysisServiceTest {
   @Transactional
   public void testReadSequencingRead() {
     val json = getJsonStringFromClasspath("documents/sequencingread-read-test.json");
-    val payload = fromJson(json, Payload.class);
+    val payload = Payload.parse(json);
     val analysis = service.create(DEFAULT_STUDY_ID, payload);
     val analysisId = analysis.getAnalysisId();
     val a = service.securedDeepRead(DEFAULT_STUDY_ID, analysisId);

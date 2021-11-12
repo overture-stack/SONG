@@ -30,7 +30,13 @@
       "fileSize": 376953,
       "fileMd5sum": "61a91c4bf04ac2bd3795254104f75ad3",
       "fileAccess": "open",
-      "fileType": "VCF"
+      "fileType": "VCF",
+      "info": {
+        "nestedInfo": {
+          "compression": "gzip",
+          "emptyField1": null
+        }
+      }
     },
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz.idx",
@@ -42,6 +48,7 @@
     }
   ],
   "info": {
-    "description": "This is extra info in a JSON format"
+    "description": "This is extra info in a JSON format",
+    "emptyField2": null
   }
 }

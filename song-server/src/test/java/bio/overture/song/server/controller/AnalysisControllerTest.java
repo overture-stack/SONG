@@ -23,7 +23,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
@@ -125,10 +124,7 @@ public class AnalysisControllerTest {
     // create a variantcall analysis
     this.variantAnalysis =
         analysisGenerator.createRandomAnalysis(
-            () ->
-                fromJson(
-                    RESOURCE_FETCHER.readJsonNode("variantcall1-valid-payload.json"),
-                    Payload.class));
+            () -> Payload.parse(RESOURCE_FETCHER.readJsonNode("variantcall1-valid-payload.json")));
 
     // register a new version of variant call
     endpointTester
