@@ -225,31 +225,12 @@ public class AnalysisServiceImpl implements AnalysisService {
       @NonNull int page,
       @NonNull int size) {
     studyService.checkStudyExist(studyId);
-    resolveSelectedAnalysisStates(analysisStates);
-
+    val finalStates = resolveSelectedAnalysisStates(analysisStates);
     val sort = new Sort(Sort.Direction.ASC, ANALYSIS_ID);
     val pageRequest = PageRequest.of(page, size, sort);
 
-    val spec =
-        new Specification<Analysis>() {
-          @Override
-          public Predicate toPredicate(
-              Root<Analysis> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-            // The reason for having this check is because of the issue: https://github.com/spring-projects/spring-data-jpa/issues/532
-            // in order to avoid the hibernate error and perform a fetch join, do not apply fetch join criteria
-            // on count query. If the result type is long, that means a count query is fired.
-            if (!query.getResultType().equals(Long.class)) {
-              root.fetch(ANALYSIS_SCHEMA, LEFT);
-              root.fetch(ANALYSIS_DATA, LEFT);
-            }
-            query.distinct(true);
-            return criteriaBuilder.and(
-                equalsStudyPredicate(root, criteriaBuilder, studyId),
-                whereStatesInPredicate(root, analysisStates));
-          }
-        };
-
-    val analyses = repository.findAll(spec, pageRequest);
+    val analyses = repository.findAll(new AnalysisSpecificationBuilder(true, true, false)
+        .buildSpec(studyId, finalStates), pageRequest);
 
     analyses.forEach(
         a -> {
@@ -258,6 +239,7 @@ public class AnalysisServiceImpl implements AnalysisService {
           a.setSamples(readSamples(id));
           a.populatePublishTimes();
         });
+
     val totalAnalyses = analyses.getTotalElements();
     val totalPages = analyses.getTotalPages();
     val hasNext = analyses.hasNext();
