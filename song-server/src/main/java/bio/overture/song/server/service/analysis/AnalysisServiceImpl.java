@@ -39,8 +39,6 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
-import static bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder.equalsStudyPredicate;
-import static bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder.whereStatesInPredicate;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
@@ -49,7 +47,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static javax.persistence.criteria.JoinType.LEFT;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.enums.AnalysisStates;
@@ -84,10 +81,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -98,7 +91,6 @@ import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Slf4j

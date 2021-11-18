@@ -1,18 +1,17 @@
 package bio.overture.song.server.service.analysis;
 
 import bio.overture.song.server.model.analysis.Analysis;
+import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-
-import java.util.List;
 
 @Builder
 @Value
 public class GetAnalysisResponse {
   @NonNull private List<Analysis> analyses;
-  @NonNull private long totalAnalyses;
-  @NonNull private int totalPages;
-  @NonNull private int currentTotalAnalyses;
-  @NonNull private boolean hasNext;
+  private long totalAnalyses;
+  private int totalPages;
+  private int currentTotalAnalyses;
+  private boolean hasNext;
 }
