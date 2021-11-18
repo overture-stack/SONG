@@ -20,6 +20,8 @@ public interface AnalysisService {
 
   List<Analysis> getAnalysis(String studyId, Set<String> analysisStates);
 
+  GetAnalysisResponse getAnalysis(String studyId, Set<String> analysisStates, int page, int size);
+
   List<Analysis> idSearch(String studyId, IdSearchRequest request);
 
   boolean isAnalysisExist(String id);

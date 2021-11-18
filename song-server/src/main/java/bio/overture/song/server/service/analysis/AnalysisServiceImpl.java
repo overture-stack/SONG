@@ -38,7 +38,7 @@ import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
@@ -89,6 +89,8 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -206,6 +208,45 @@ public class AnalysisServiceImpl implements AnalysisService {
           a.populatePublishTimes();
         });
     return analyses;
+  }
+
+  @Override
+  public GetAnalysisResponse getAnalysis(
+      @NonNull String studyId,
+      @NonNull Set<String> analysisStates,
+      @NonNull int page,
+      @NonNull int size) {
+    studyService.checkStudyExist(studyId);
+    val finalStates = resolveSelectedAnalysisStates(analysisStates);
+    val sort = new Sort(Sort.Direction.ASC, ANALYSIS_ID);
+    val pageRequest = PageRequest.of(page, size, sort);
+
+    val analyses = repository.findAll(new AnalysisSpecificationBuilder(true, true, false)
+        .buildSpec(studyId, finalStates), pageRequest);
+
+    analyses.forEach(
+        a -> {
+          val id = a.getAnalysisId();
+          a.setFiles(unsecuredReadFiles(id));
+          a.setSamples(readSamples(id));
+          a.populatePublishTimes();
+        });
+
+    val totalAnalyses = analyses.getTotalElements();
+    val totalPages = analyses.getTotalPages();
+    val hasNext = analyses.hasNext();
+    val content = analyses.getContent();
+    val currentTotalAnalyses = content.size();
+
+    val resp = GetAnalysisResponse.builder()
+        .analyses(content)
+        .currentTotalAnalyses(currentTotalAnalyses)
+        .totalAnalyses(totalAnalyses)
+        .totalPages(totalPages)
+        .hasNext(hasNext)
+        .build();
+
+    return resp;
   }
 
   /**
