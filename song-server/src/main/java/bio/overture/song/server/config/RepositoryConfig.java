@@ -17,6 +17,7 @@
 
 package bio.overture.song.server.config;
 
+import bio.overture.song.server.repository.UpgradedAnalysisRepository;
 import bio.overture.song.server.repository.search.SearchRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -31,5 +32,10 @@ public class RepositoryConfig {
   @Bean
   public SearchRepository searchRepository() {
     return new SearchRepository(entityManager);
+  }
+
+  @Bean
+  public UpgradedAnalysisRepository upgradedAnalysisRepository() {
+    return new UpgradedAnalysisRepository(entityManager);
   }
 }
