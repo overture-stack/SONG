@@ -20,7 +20,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AnalysisStageChangeJoin implements Serializable, Comparable<AnalysisStageChangeJoin> {
+public class AnalysisStateChangeJoin implements Serializable, Comparable<AnalysisStateChangeJoin> {
 
   /** Columns from ANALYSIS table */
   @Id
@@ -56,7 +56,7 @@ public class AnalysisStageChangeJoin implements Serializable, Comparable<Analysi
   private LocalDateTime stateUpdatedAt;
 
   @Override
-  public int compareTo(@NotNull AnalysisStageChangeJoin o) {
+  public int compareTo(@NotNull AnalysisStateChangeJoin o) {
     // Define a natural sort order based on updatedAt time.
     return this.getUpdatedAt().compareTo(o.getUpdatedAt());
   }

@@ -2,7 +2,7 @@ package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.analysis.AnalysisDataJoin;
 import bio.overture.song.server.model.analysis.AnalysisSchemaJoin;
-import bio.overture.song.server.model.analysis.AnalysisStageChangeJoin;
+import bio.overture.song.server.model.analysis.AnalysisStateChangeJoin;
 import bio.overture.song.server.model.analysis.DataEntity;
 import java.math.BigInteger;
 import java.util.List;
@@ -41,7 +41,7 @@ public class UpgradedAnalysisRepository {
   }
 
   /** Calls GB function get_analysis_state_change to get analysis and state change join results. */
-  public List<AnalysisStageChangeJoin> getAnalysisStateChange(
+  public List<AnalysisStateChangeJoin> getAnalysisStateChange(
       String studyId, Set<String> analysisStates, int limit, int offset) {
     val session = em.unwrap(Session.class);
     val joined = StringUtils.join(analysisStates, "\", \"");
@@ -50,7 +50,7 @@ public class UpgradedAnalysisRepository {
         session
             .createSQLQuery(
                 "select * from get_analysis_state_change(:studyId, :analysisState, :limit, :offset);")
-            .addEntity(AnalysisStageChangeJoin.class)
+            .addEntity(AnalysisStateChangeJoin.class)
             .setParameter("studyId", studyId)
             .setParameter("analysisState", "{" + states + "}")
             .setParameter("limit", limit)

@@ -528,7 +528,7 @@ public class AnalysisServiceImpl implements AnalysisService {
   }
 
   private LinkedHashMap<String, Set<AnalysisStateChange>> groupStateChangeByAnalysisId(
-      List<AnalysisStageChangeJoin> stateChange) {
+      List<AnalysisStateChangeJoin> stateChange) {
     // using LinkedHashMap to preserve the original analysisId order in stateChange
     val stateChangeMap = new LinkedHashMap<String, Set<AnalysisStateChange>>();
     stateChange.forEach(
