@@ -3,16 +3,16 @@
   "id": "analysisPayload",
   "type": "object",
   "definitions": {
-    "common" : {
-      "md5" : {
+    "common": {
+      "md5": {
         "type": "string",
-        "pattern" : "^[a-fA-F0-9]{32}$"
+        "pattern": "^[a-fA-F0-9]{32}$"
       },
-      "submitterId" : {
+      "submitterId": {
         "type": "string",
         "pattern": "^[A-Za-z0-9\\-\\._]{1,64}$"
       },
-      "info" : {
+      "info": {
         "type": "object"
       }
     },
@@ -30,14 +30,15 @@
           "IDX",
           "XML",
           "TGZ",
-		  "CRAM",
-		  "CRAI"
+          "CRAM",
+          "CRAI",
+          "TXT"
         ]
       },
-      "fileData" :{
+      "fileData": {
         "type": "object",
         "required": [
-		  "dataType",
+          "dataType",
           "fileName",
           "fileSize",
           "fileType",
@@ -45,7 +46,7 @@
           "fileMd5sum"
         ],
         "properties": {
-          "dataType" : {
+          "dataType": {
             "type": "string"
           },
           "fileName": {
@@ -54,47 +55,37 @@
           },
           "fileSize": {
             "type": "integer",
-            "min" : 0
+            "min": 0
           },
-          "fileAccess" : {
-            "type" : "string",
-            "enum" : [
-              "open",
-              "controlled"
-            ]
+          "fileAccess": {
+            "type": "string",
+            "enum": ["open", "controlled"]
           },
-          "fileType": { "$ref" : "#/definitions/file/fileType" },
-          "fileMd5sum": { "$ref" : "#/definitions/common/md5" },
-          "info" :  { "$ref" : "#/definitions/common/info" }
+          "fileType": { "$ref": "#/definitions/file/fileType" },
+          "fileMd5sum": { "$ref": "#/definitions/common/md5" },
+          "info": { "$ref": "#/definitions/common/info" }
         }
       }
     },
-    "donor" : {
+    "donor": {
       "gender": {
         "type": "string",
-        "enum": [
-          "Male",
-          "Female",
-          "Other"
-        ]
+        "enum": ["Male", "Female", "Other"]
       },
       "donorData": {
         "type": "object",
-        "required" : [
-          "submitterDonorId",
-          "gender"
-        ],
+        "required": ["submitterDonorId", "gender"],
         "properties": {
-          "submitterDonorId": { "$ref" : "#/definitions/common/submitterId" },
-          "gender": { "$ref" : "#/definitions/donor/gender"},
-          "info": { "$ref" : "#/definitions/common/info"}
+          "submitterDonorId": { "$ref": "#/definitions/common/submitterId" },
+          "gender": { "$ref": "#/definitions/donor/gender" },
+          "info": { "$ref": "#/definitions/common/info" }
         }
       }
     },
     "specimen": {
-      "specimenTissueSource" : {
-        "type" : "string",
-        "enum" : [
+      "specimenTissueSource": {
+        "type": "string",
+        "enum": [
           "Blood derived",
           "Blood derived - bone marrow",
           "Blood derived - peripheral blood",
@@ -143,47 +134,48 @@
           "Cell line - derived from normal"
         ]
       },
-      "tumourNormalDesignation" : {
+      "tumourNormalDesignation": {
         "type": "string",
-        "enum": [
-          "Normal",
-          "Tumour"
-        ]
-	},
+        "enum": ["Normal", "Tumour"]
+      },
       "specimenData": {
         "type": "object",
-        "required" : [
+        "required": [
           "submitterSpecimenId",
           "specimenTissueSource",
           "tumourNormalDesignation",
-		  "specimenType"
+          "specimenType"
         ],
         "properties": {
-          "submitterSpecimenId": { "$ref" : "#/definitions/common/submitterId" },
-          "specimenTissueSource" : { "$ref" : "#/definitions/specimen/specimenTissueSource" },
-          "tumourNormalDesignation" : { "$ref" : "#/definitions/specimen/tumourNormalDesignation" },
-		  "specimenType" : { "$ref" : "#/definitions/specimen/specimenType" },
-          "specimenClass": {
-            "not" : {}
+          "submitterSpecimenId": { "$ref": "#/definitions/common/submitterId" },
+          "specimenTissueSource": {
+            "$ref": "#/definitions/specimen/specimenTissueSource"
           },
-          "info": { "$ref" : "#/definitions/common/info"}
+          "tumourNormalDesignation": {
+            "$ref": "#/definitions/specimen/tumourNormalDesignation"
+          },
+          "specimenType": { "$ref": "#/definitions/specimen/specimenType" },
+          "specimenClass": {
+            "not": {}
+          },
+          "info": { "$ref": "#/definitions/common/info" }
         }
       }
     },
-    "analysisType" : {
+    "analysisType": {
       "type": "object",
       "required": ["name"],
       "properties": {
-        "name" : {
-          "type" : "string"
+        "name": {
+          "type": "string"
         },
         "version": {
-          "type" : ["integer", "null"]
+          "type": ["integer", "null"]
         }
       }
     },
     "sample": {
-      "sampleTypes" :{
+      "sampleTypes": {
         "type": "string",
         "enum": [
           "Total DNA",
@@ -198,65 +190,66 @@
       },
       "sampleData": {
         "type": "object",
-        "required": [
-          "submitterSampleId",
-          "sampleType"
-        ],
+        "required": ["submitterSampleId", "sampleType"],
         "properties": {
-          "submitterSampleId": { "$ref" : "#/definitions/common/submitterId" },
-          "sampleType": { "$ref" : "#/definitions/sample/sampleTypes" },
-          "info": { "$ref" : "#/definitions/common/info"}
+          "submitterSampleId": { "$ref": "#/definitions/common/submitterId" },
+          "sampleType": { "$ref": "#/definitions/sample/sampleTypes" },
+          "info": { "$ref": "#/definitions/common/info" }
         }
       }
     }
   },
-  "required": [ "studyId", "analysisType","experiment","samples","files", "firstName"],
+  "required": [
+    "studyId",
+    "analysisType",
+    "experiment",
+    "samples",
+    "files",
+    "firstName"
+  ],
   "properties": {
-    "analysisId" : {
-      "not" : {}
+    "analysisId": {
+      "not": {}
     },
-    "studyId" : {
+    "studyId": {
       "type": "string",
       "minLength": 1
     },
     "analysisType": {
-      "allOf": [{"$ref" :  "#/definitions/analysisType"}]
+      "allOf": [{ "$ref": "#/definitions/analysisType" }]
     },
     "samples": {
       "type": "array",
-      "minItems" : 1,
+      "minItems": 1,
       "items": {
         "type": "object",
-        "allOf" : [ {"$ref" : "#/definitions/sample/sampleData" } ],
-        "required": [
-          "specimen",
-          "donor"
-        ],
+        "allOf": [{ "$ref": "#/definitions/sample/sampleData" }],
+        "required": ["specimen", "donor"],
         "properties": {
-          "specimen": { "$ref" : "#/definitions/specimen/specimenData" },
-          "donor": { "$ref" : "#/definitions/donor/donorData" }
+          "specimen": { "$ref": "#/definitions/specimen/specimenData" },
+          "donor": { "$ref": "#/definitions/donor/donorData" }
         },
-        "if" : {
-          "properties" : {
+        "if": {
+          "properties": {
             "specimen": {
               "properties": {
-                "tumourNormalDesignation" : {
-                  "const" : "Tumour"
+                "tumourNormalDesignation": {
+                  "const": "Tumour"
                 }
               }
             }
           }
         },
-        "then" : {
-          "properties" : {
-            "matchedNormalSubmitterSampleId" : {
-              "$ref" : "#/definitions/common/submitterId"
+        "then": {
+          "properties": {
+            "matchedNormalSubmitterSampleId": {
+              "$ref": "#/definitions/common/submitterId"
             }
           },
           "required": ["matchedNormalSubmitterSampleId"]
         },
-        "else" : {
-          "properties" : {
+        "else": {
+          "properties": {
             "matchedNormalSubmitterSampleId": {
               "const": null
             }
@@ -267,21 +260,19 @@
     },
     "files": {
       "type": "array",
-      "minItems" : 1,
-      "items": { "$ref" : "#/definitions/file/fileData" }
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/file/fileData" }
     },
-    "experiment" : {
-      "type" : "object",
-      "properties" : {
-        "exp_name" : {
-          "type" : "string"
+    "experiment": {
+      "type": "object",
+      "properties": {
+        "exp_name": {
+          "type": "string"
         }
       }
     },
-    "firstName" : {
-      "type" : "string"
+    "firstName": {
+      "type": "string"
     }
   }
 }
-
-
