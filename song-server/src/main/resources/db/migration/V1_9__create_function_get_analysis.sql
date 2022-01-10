@@ -24,7 +24,7 @@ returns table (
 ) as
 $$
 	begin
-		 -- step a: analysis_file_join is the result of joining Analysis table with File table, and getting file info from Info table
+		 -- step A: analysis_file_join is the result of joining Analysis table with File table, and getting file info from Info table
 		 create temporary table if not exists analysis_file_join AS
 		 SELECT * FROM (
 			 SELECT * FROM analysis WHERE analysis.study_id = studyId AND analysis.state = ANY(analysisState)
@@ -47,7 +47,7 @@ $$
 					  AS file_info
 	    ON filtered_analysis.id = file_info.file_analysis_id;
 
-		 -- step b: take the result of step A and join Sampleset, Sample, Specimen, and Donor table as well as the info coliumns.
+		 -- step B: take the result of step A and join Sampleset, Sample, Specimen, and Donor table as well as the info columns.
 		 RETURN QUERY
 	     SELECT 			   analysis_file_sampleset_join.*,
 		 					   sample.id           				AS sample_id,
