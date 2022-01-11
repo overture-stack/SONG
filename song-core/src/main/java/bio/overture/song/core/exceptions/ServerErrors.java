@@ -122,7 +122,9 @@ public enum ServerErrors implements ServerError {
   STORAGE_OBJECT_NOT_FOUND(
       NOT_FOUND), // Used STORAGE instead of SCORE to not tie it to a specific implementation
   UNKNOWN_ERROR(INTERNAL_SERVER_ERROR),
-  ILLEGAL_ANALYSIS_TYPE_NAME(BAD_REQUEST);
+  ILLEGAL_ANALYSIS_TYPE_NAME(BAD_REQUEST),
+  DUPLICATE_ANALYSIS_SCHEMA(INTERNAL_SERVER_ERROR),
+  DUPLICATE_ANALYSIS_DATA(INTERNAL_SERVER_ERROR);
 
   private static final String ERROR_ID_SEPARATOR = ".";
   private static final String ENUM_NAME_SEPARATOR = "_";

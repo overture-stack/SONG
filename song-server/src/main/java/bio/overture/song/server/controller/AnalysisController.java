@@ -86,25 +86,27 @@ public class AnalysisController {
   public List<Analysis> getAnalysis(
       @PathVariable("studyId") String studyId,
       @ApiParam(value = "Non-empty comma separated list of analysis states to filter by")
-      @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
+          @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
           String analysisStates) {
     return analysisService.getAnalysis(studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)));
   }
 
   @ApiOperation(
       value = "GetAnalysesForStudy",
-      notes = "Retrieve paginated analysis objects for a studyId, default first page is page 0," +
-          "default page size is 20. Results are sorted by analysis id ASC order.")
+      notes =
+          "Retrieve paginated analysis objects for a studyId. analysisState is optional, default to PUBLISHED, "
+              + "offset is required, default to 0, "
+              + "limit is required, default to 100. Results are sorted by analysis id in ASC order.")
   @GetMapping(value = "/paginated")
   public GetAnalysisResponse getAnalysis(
       @PathVariable("studyId") String studyId,
       @ApiParam(value = "Non-empty comma separated list of analysis states to filter by")
-      @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
-        String analysisStates,
-      @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-      @RequestParam(value = "size", defaultValue = "20", required = false) int size) {
+          @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
+          String analysisStates,
+      @RequestParam(value = "limit", defaultValue = "100", required = true) int limit,
+      @RequestParam(value = "offset", defaultValue = "0", required = true) int offset) {
     return analysisService.getAnalysis(
-        studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)), page, size);
+        studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)), limit, offset);
   }
 
   /** [DCC-5726] - non-dynamic updates disabled until hibernate is properly integrated */

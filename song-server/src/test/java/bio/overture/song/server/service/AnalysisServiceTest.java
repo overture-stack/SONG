@@ -47,6 +47,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.range;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.*;
 
 import bio.overture.song.core.exceptions.ServerException;
@@ -83,6 +84,7 @@ import java.util.stream.Stream;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -332,7 +334,7 @@ public class AnalysisServiceTest {
         assertEquals(file.getFileType(), "IDX");
         assertInfoKVPair(file, "extraFileInfo", "some more data for variantCall file_fn3");
       } else {
-        fail(String.format("the fileName %s is not recognized", file.getFileName()));
+        Assert.fail(String.format("the fileName %s is not recognized", file.getFileName()));
       }
     }
   }
@@ -470,7 +472,7 @@ public class AnalysisServiceTest {
         assertEquals(file.getFileType(), "BAI");
         assertInfoKVPair(file, "extraFileInfo", "some more data for sequencingRead file_fn3");
       } else {
-        fail(String.format("the fileName %s is not recognized", file.getFileName()));
+        Assert.fail(String.format("the fileName %s is not recognized", file.getFileName()));
       }
     }
 
@@ -578,6 +580,7 @@ public class AnalysisServiceTest {
     assertEquals(expectedSRAs.size(), sraMap.keySet().size());
     assertEquals(expectedVCAs.size(), vcaMap.keySet().size());
 
+    //  test legacy getAnalysis
     val actualAnalyses = service.getAnalysis(studyId, ALL_STATES);
     val actualSRAs =
         actualAnalyses.stream()
@@ -588,11 +591,69 @@ public class AnalysisServiceTest {
         actualAnalyses.stream()
             .filter(x -> x.getAnalysisSchema().getName().equals(VARIANT_CALL.getAnalysisTypeName()))
             .collect(toSet());
-
     assertEquals(actualSRAs.size(), sraMap.keySet().size());
     assertEquals(actualVCAs.size(), vcaMap.keySet().size());
+
     assertTrue(actualSRAs.containsAll(expectedSRAs));
     assertTrue(actualVCAs.containsAll(expectedVCAs));
+
+    // testing paginated getAnalysis
+    val actualAnalysesPaginated = service.getAnalysis(studyId, ALL_STATES, numAnalysis, 0);
+    val actualSRAsPaginated =
+        actualAnalysesPaginated.getAnalyses().stream()
+            .filter(
+                x -> x.getAnalysisSchema().getName().equals(SEQUENCING_READ.getAnalysisTypeName()))
+            .collect(toSet());
+    val actualVCAsPaginated =
+        actualAnalysesPaginated.getAnalyses().stream()
+            .filter(x -> x.getAnalysisSchema().getName().equals(VARIANT_CALL.getAnalysisTypeName()))
+            .collect(toSet());
+
+    assertEquals(actualSRAsPaginated.size(), sraMap.keySet().size());
+    assertEquals(actualVCAsPaginated.size(), vcaMap.keySet().size());
+
+    for (val actual : actualSRAsPaginated) {
+      val expected =
+          expectedSRAs.stream()
+              .filter(a -> a.getAnalysisId().equals(actual.getAnalysisId()))
+              .findFirst()
+              .orElseThrow();
+
+      assertThat(actual)
+          .usingRecursiveComparison()
+          // the new getAnalysis() method does not load 'analysisData.analysis' because this field
+          // is not needed for the getAnalysis endpoint response.
+          // expected results have 'analysisData.analysis' because it's a Hibernate default
+          // behaviour
+          // same reason for 'analysisSchema.analyses'.
+          .ignoringFields("analysisData.analysis")
+          .ignoringFields("analysisSchema.analyses")
+          .ignoringFields("analysisStateHistory.analysis")
+          .ignoringCollectionOrderInFields(
+              "files", "analysisData.data", "samples", "analysisStateHistory")
+          .isEqualTo(expected);
+    }
+
+    for (val actual : actualVCAsPaginated) {
+      val expected =
+          expectedVCAs.stream()
+              .filter(a -> a.getAnalysisId().equals(actual.getAnalysisId()))
+              .findFirst()
+              .orElseThrow();
+
+      assertThat(actual)
+          .usingRecursiveComparison()
+          // the new getAnalysis() method does not load 'analysisData.analysis' because this field
+          // is not needed for the getAnalysis endpoint response.
+          // expected results have 'analysisData.analysis' because it's a Hibernate default
+          // behaviour
+          // same reason for 'analysisSchema.analyses'.
+          .ignoringFields("analysisData.analysis")
+          .ignoringFields("analysisSchema.analyses")
+          .ignoringCollectionOrderInFields(
+              "files", "analysisData.data", "samples", "analysisStateHistory")
+          .isEqualTo(expected);
+    }
 
     // Do a study-wide idSearch and verify the response effectively has the same
     // number of results as the getAnalysis method
@@ -623,6 +684,7 @@ public class AnalysisServiceTest {
             .collect(groupingBy(Analysis::getAnalysisState));
 
     val actualMap =
+        // test legacy getAnalysis
         service.getAnalysis(studyId, PUBLISHED_ONLY).stream()
             .collect(groupingBy(Analysis::getAnalysisState));
 
@@ -635,6 +697,34 @@ public class AnalysisServiceTest {
     val expectedResult = expectedMap.get(PUBLISHED.toString());
     assertTrue(actualResult.containsAll(expectedResult));
     assertTrue(expectedResult.containsAll(actualResult));
+
+    val actualMapPaginated =
+        // test paginated getAnalysis
+        service.getAnalysis(studyId, PUBLISHED_ONLY, numAnalysis, 0).getAnalyses().stream()
+            .collect(groupingBy(Analysis::getAnalysisState));
+    assertEquals(actualMapPaginated.keySet().size(), 1);
+    assertTrue(actualMapPaginated.containsKey(PUBLISHED.toString()));
+    assertEquals(
+        actualMapPaginated.get(PUBLISHED.toString()).size(),
+        expectedMap.get(PUBLISHED.toString()).size());
+    val actualResultPaginated = actualMapPaginated.get(PUBLISHED.toString());
+    val expectedResultPaginated = expectedMap.get(PUBLISHED.toString());
+
+    for (val actual : actualResultPaginated) {
+      val expected =
+          expectedResultPaginated.stream()
+              .filter(a -> a.getAnalysisId().equals(actual.getAnalysisId()))
+              .findFirst()
+              .orElseThrow();
+      assertThat(actual)
+          .usingRecursiveComparison()
+          .ignoringFields("analysisData.analysis")
+          .ignoringFields("analysisSchema.analyses")
+          .ignoringFields("analysisStateHistory.analysis")
+          .ignoringCollectionOrderInFields(
+              "files", "analysisData.data", "samples", "analysisStateHistory")
+          .isEqualTo(expected);
+    }
   }
 
   @Test
@@ -642,6 +732,7 @@ public class AnalysisServiceTest {
   public void testGetAnalysisEmptyStudy() {
     val studyId = studyGenerator.createRandomStudy();
     assertTrue(service.getAnalysis(studyId, PUBLISHED_ONLY).isEmpty());
+    assertTrue(service.getAnalysis(studyId, PUBLISHED_ONLY, 100, 0).getAnalyses().isEmpty());
   }
 
   @Test
@@ -658,6 +749,9 @@ public class AnalysisServiceTest {
     val nonExistentStudyId = studyGenerator.generateNonExistingStudyId();
     assertSongError(
         () -> service.getAnalysis(nonExistentStudyId, PUBLISHED_ONLY), STUDY_ID_DOES_NOT_EXIST);
+    assertSongError(
+        () -> service.getAnalysis(nonExistentStudyId, PUBLISHED_ONLY, 100, 0),
+        STUDY_ID_DOES_NOT_EXIST);
   }
 
   @Test
@@ -817,12 +911,24 @@ public class AnalysisServiceTest {
     // 7 - PUBLISHED,UNPUBLISHED,SUPPRESSED
     assertGetAnalysesForStudy(expectedAnalyses, studyId, UNPUBLISHED, SUPPRESSED, PUBLISHED);
 
+    // test legacy getAnalysis
     assertSongError(
         () -> service.getAnalysis(studyId, newHashSet(PUBLISHED.toString(), "SomethingElse")),
         MALFORMED_PARAMETER);
 
     assertSongError(
         () -> service.getAnalysis(studyId, newHashSet("SomethingElse")), MALFORMED_PARAMETER);
+
+    // test paginated getAnalysis
+    assertSongError(
+        () ->
+            service.getAnalysis(
+                studyId, newHashSet(PUBLISHED.toString(), "SomethingElse"), numCopies, 0),
+        MALFORMED_PARAMETER);
+
+    assertSongError(
+        () -> service.getAnalysis(studyId, newHashSet("SomethingElse"), numCopies, 0),
+        MALFORMED_PARAMETER);
   }
 
   private static LegacyAnalysisTypeName selectAnalysisType(int select) {
@@ -860,14 +966,23 @@ public class AnalysisServiceTest {
 
     val analysisStates = ImmutableSet.of(UNPUBLISHED.toString());
 
+    // test legacy getAnalysis
     val actualAnalyses1 = service.getAnalysis(studyId, analysisStates);
-
     val actualAnalysisIds1 =
         actualAnalyses1.stream().map(Analysis::getAnalysisId).collect(toImmutableSet());
 
     assertCollectionsMatchExactly(actualAnalysisIds1, expectedAnalysisIds);
-
     actualAnalyses1.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())));
+
+    // test paginated getAnalysis
+    val actualAnalyses1_paginated =
+        service.getAnalysis(studyId, analysisStates, numAnalysesPerStudy, 0).getAnalyses();
+
+    val actualAnalysisIds1_paginated =
+        actualAnalyses1_paginated.stream().map(Analysis::getAnalysisId).collect(toImmutableSet());
+
+    assertCollectionsMatchExactly(actualAnalysisIds1_paginated, expectedAnalysisIds);
+    actualAnalyses1_paginated.forEach(x -> diff(x, expectedAnalysisMap.get(x.getAnalysisId())));
   }
 
   @Test

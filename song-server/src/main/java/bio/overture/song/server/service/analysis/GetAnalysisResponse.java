@@ -10,8 +10,6 @@ import lombok.Value;
 @Value
 public class GetAnalysisResponse {
   @NonNull private List<Analysis> analyses;
-  private long totalAnalyses;
-  private int totalPages;
+  private int totalAnalyses;
   private int currentTotalAnalyses;
-  private boolean hasNext;
 }
