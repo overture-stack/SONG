@@ -157,7 +157,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
 
     // Now that the request is validated, fetch the old analysis
-    val oldAnalysis = get(analysisId, true, true, false);
+    val oldAnalysis = get(analysisId, true, true, true);
 
     // Update the association between the old schema and new schema entities for the requested
     // analysis
