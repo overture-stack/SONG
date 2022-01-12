@@ -16,17 +16,7 @@
  */
 package bio.overture.song.server.service.analysis;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
-import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_CHECKSUMS;
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE_OBJECT_SIZES;
-import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
+import static bio.overture.song.core.exceptions.ServerErrors.*;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
@@ -38,7 +28,7 @@ import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
 import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
 import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
@@ -53,12 +43,9 @@ import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.model.SampleSet;
 import bio.overture.song.server.model.SampleSetPK;
 import bio.overture.song.server.model.StorageObject;
-import bio.overture.song.server.model.analysis.Analysis;
-import bio.overture.song.server.model.analysis.AnalysisData;
-import bio.overture.song.server.model.analysis.AnalysisStateChange;
+import bio.overture.song.server.model.analysis.*;
 import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.AnalysisSchema;
-import bio.overture.song.server.model.entity.FileEntity;
+import bio.overture.song.server.model.entity.*;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.*;
 import bio.overture.song.server.repository.search.IdSearchRequest;
@@ -77,6 +64,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import io.vavr.Tuple3;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
@@ -102,6 +90,7 @@ public class AnalysisServiceImpl implements AnalysisService {
   @Autowired private final String analysisUpdateBaseJson;
 
   @Autowired private final AnalysisRepository repository;
+  @Autowired private final UpgradedAnalysisRepository upgradedAnalysisRepository;
   @Autowired private final FileInfoService fileInfoService;
   @Autowired private final IdService idService;
   @Autowired private final CompositeEntityService compositeEntityService;
@@ -168,7 +157,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
 
     // Now that the request is validated, fetch the old analysis
-    val oldAnalysis = get(analysisId, true, true, false);
+    val oldAnalysis = get(analysisId, true, true, true);
 
     // Update the association between the old schema and new schema entities for the requested
     // analysis
@@ -206,6 +195,77 @@ public class AnalysisServiceImpl implements AnalysisService {
           a.populatePublishTimes();
         });
     return analyses;
+  }
+
+  @Override
+  public GetAnalysisResponse getAnalysis(
+      @NonNull String studyId,
+      @NonNull Set<String> analysisStates,
+      @NonNull int limit,
+      @NonNull int offset) {
+    studyService.checkStudyExist(studyId);
+    val finalStates = resolveSelectedAnalysisStates(analysisStates);
+
+    val totalCount = upgradedAnalysisRepository.getTotalAnalysisCount(studyId, finalStates);
+
+    val result = upgradedAnalysisRepository.getAnalysisFromDB(studyId, finalStates, limit, offset);
+
+    val stateChange =
+        upgradedAnalysisRepository.getAnalysisStateChange(studyId, finalStates, limit, offset);
+
+    val schemaList =
+        upgradedAnalysisRepository.getAnalysisSchema(studyId, finalStates, limit, offset);
+
+    val dataList = upgradedAnalysisRepository.getAnalysisData(studyId, finalStates, limit, offset);
+
+    val dataMap = groupDataListByAnalysisId(dataList);
+
+    val schemaMap = groupSchemaByAnalysisId(schemaList);
+
+    val stateChangeMap = groupStateChangeByAnalysisId(stateChange);
+
+    // build map from result
+    val map = buildAnalysis(result);
+
+    val analysisList = new ArrayList<Analysis>();
+    for (Map.Entry<
+            String, Tuple3<Analysis, HashMap<String, FileEntity>, HashMap<String, CompositeEntity>>>
+        entry : map.entrySet()) {
+      val tuple = entry.getValue();
+      val fileList = new ArrayList<FileEntity>(tuple._2().values());
+      val sampleList = new ArrayList<CompositeEntity>(tuple._3().values());
+      tuple._1.setFiles(fileList);
+      tuple._1.setSamples(sampleList);
+      analysisList.add(tuple._1);
+    }
+
+    // attach analysis state changes
+    analysisList.forEach(
+        a -> {
+          if (stateChangeMap.containsKey(a.getAnalysisId())) {
+            a.setAnalysisStateHistory(stateChangeMap.get(a.getAnalysisId()));
+            a.populatePublishTimes();
+          }
+
+          // attach analysisSchema
+          if (schemaMap.containsKey(a.getAnalysisId())) {
+            a.setAnalysisSchema(schemaMap.get(a.getAnalysisId()));
+          }
+
+          // attach analysisData
+          if (dataMap.containsKey(a.getAnalysisId())) {
+            a.setAnalysisData(dataMap.get(a.getAnalysisId()));
+          }
+        });
+
+    val resp =
+        GetAnalysisResponse.builder()
+            .analyses(analysisList)
+            .currentTotalAnalyses(analysisList.size())
+            .totalAnalyses(totalCount.intValue())
+            .build();
+
+    return resp;
   }
 
   /**
@@ -377,6 +437,177 @@ public class AnalysisServiceImpl implements AnalysisService {
         .map(Analysis::getAnalysisState)
         .map(AnalysisStates::resolveAnalysisState)
         .get();
+  }
+
+  // iterates list,
+  // builds Analysis, File, Sample, Specimen, and Donor out of the list of DB analysis,
+  // puts the entities into Tuple3,
+  // maps the entities to its analysisId.
+  private LinkedHashMap<
+          String, Tuple3<Analysis, HashMap<String, FileEntity>, HashMap<String, CompositeEntity>>>
+      buildAnalysis(List<DataEntity> list) {
+    val map =
+        new LinkedHashMap<
+            String,
+            Tuple3<Analysis, HashMap<String, FileEntity>, HashMap<String, CompositeEntity>>>();
+
+    list.forEach(
+        entity -> {
+          val analysis =
+              Analysis.builder()
+                  .analysisId(entity.getId())
+                  .studyId(entity.getStudyId())
+                  .analysisState(entity.getAnalysisState())
+                  .createdAt(entity.getCreatedAt())
+                  .updatedAt(entity.getUpdatedAt())
+                  .analysisState(entity.getAnalysisState())
+                  .build();
+
+          val file =
+              FileEntity.builder()
+                  .objectId(entity.getFileId())
+                  .studyId(entity.getFileStudyId())
+                  .analysisId(entity.getAnalysisId())
+                  .fileName(entity.getFileName())
+                  .fileSize(entity.getFileSize())
+                  .fileType(entity.getFileType())
+                  .fileMd5sum(entity.getFileMd5sum())
+                  .fileAccess(entity.getFileAccess())
+                  .dataType(entity.getDataType())
+                  .build();
+          file.setInfo(entity.getFileInfo());
+
+          val donor =
+              Donor.builder()
+                  .donorId(entity.getDonorId())
+                  .studyId(entity.getDonorStudyId())
+                  .submitterDonorId(entity.getSubmitterDonorId())
+                  .gender(entity.getGender())
+                  .build();
+          donor.setInfo(entity.getDonorInfo());
+
+          val specimen =
+              Specimen.builder()
+                  .specimenId(entity.getSpecimenId())
+                  .donorId(entity.getSpecimenDonorId())
+                  .submitterSpecimenId(entity.getSubmitterSpecimenId())
+                  .specimenType(entity.getSpecimenType())
+                  .specimenTissueSource(entity.getSpecimenTissueSource())
+                  .tumourNormalDesignation(entity.getTumourNormalDesignation())
+                  .build();
+          specimen.setInfo(entity.getSpecimenInfo());
+
+          val sample =
+              CompositeEntity.compositeEntityBuilder().specimen(specimen).donor(donor).build();
+
+          sample.setSampleId(entity.getSampleId());
+          sample.setSubmitterSampleId(entity.getSampleSubmitterId());
+          sample.setSampleType(entity.getSampleType());
+          sample.setMatchedNormalSubmitterSampleId(entity.getMatchedNormalSubmitterSampleId());
+          sample.setSpecimenId(entity.getSampleSpecimenId());
+          sample.setInfo(entity.getSampleInfo());
+
+          // maps Files and Samples to analysisId
+          if (!map.containsKey(entity.getId())) {
+            val fileMap = new HashMap<String, FileEntity>();
+            fileMap.put(file.getObjectId(), file);
+            val sampleMap = new HashMap<String, CompositeEntity>();
+            sampleMap.put(sample.getSampleId(), sample);
+            map.put(entity.getId(), new Tuple3(analysis, fileMap, sampleMap));
+          } else {
+            if (!map.get(entity.getId())._2().containsKey(file.getObjectId())) {
+              map.get(entity.getId())._2().put(file.getObjectId(), file);
+            }
+
+            if (!map.get(entity.getId())._3().containsKey(sample.getSampleId())) {
+              map.get(entity.getId())._3().put(sample.getSampleId(), sample);
+            }
+          }
+        });
+    return map;
+  }
+
+  private LinkedHashMap<String, Set<AnalysisStateChange>> groupStateChangeByAnalysisId(
+      List<AnalysisStateChangeJoin> stateChange) {
+    // using LinkedHashMap to preserve the original analysisId order in stateChange
+    val stateChangeMap = new LinkedHashMap<String, Set<AnalysisStateChange>>();
+    stateChange.forEach(
+        change -> {
+          // This condition is for avoiding nullpointer when analysis state change doesn't have the
+          // following properties in DB
+          if (change.getStateUpdatedAt() != null
+              && change.getInitialState() != null
+              && change.getAnalysisStateChangeId() != null
+              && change.getUpdatedState() != null) {
+            val analysisStateChange =
+                AnalysisStateChange.builder()
+                    .id(change.getAnalysisStateChangeId())
+                    .initialState(change.getInitialState())
+                    .updatedState(change.getUpdatedState())
+                    .updatedAt(change.getStateUpdatedAt())
+                    .build();
+            if (!stateChangeMap.containsKey(change.getId())) {
+              val set = new HashSet<AnalysisStateChange>();
+              set.add(analysisStateChange);
+              stateChangeMap.put(change.getId(), set);
+            } else {
+              val existingSet = stateChangeMap.get(change.getId());
+              existingSet.add(analysisStateChange);
+            }
+          }
+        });
+    return stateChangeMap;
+  }
+
+  private LinkedHashMap<String, AnalysisSchema> groupSchemaByAnalysisId(
+      List<AnalysisSchemaJoin> schemaList) {
+    // using LinkedHashMap to preserve the original analysisId order in schemaList
+    val schemaMap = new LinkedHashMap<String, AnalysisSchema>();
+    schemaList.forEach(
+        schema -> {
+          val analysisSchema =
+              AnalysisSchema.builder()
+                  .id(schema.getAnalysisSchemaId())
+                  .version(schema.getVersion())
+                  .name(schema.getName())
+                  .createdAt(schema.getCreatedAt())
+                  .schema(schema.getSchema())
+                  .build();
+
+          if (!schemaMap.containsKey(schema.getAnalysisId())) {
+            schemaMap.put(schema.getAnalysisId(), analysisSchema);
+          } else {
+            checkServer(
+                false,
+                getClass(),
+                DUPLICATE_ANALYSIS_SCHEMA,
+                "Data error: trying to associate duplicate analysis schemas to analysis id '%s': ",
+                schema.getAnalysisId());
+          }
+        });
+    return schemaMap;
+  }
+
+  private LinkedHashMap<String, AnalysisData> groupDataListByAnalysisId(
+      List<AnalysisDataJoin> dataList) {
+    // using LinkedHashMap to preserve the original analysisId order in dataList
+    val dataMap = new LinkedHashMap<String, AnalysisData>();
+    dataList.forEach(
+        data -> {
+          val analysisData =
+              AnalysisData.builder().id(data.getAnalysisDataId()).data(data.getData()).build();
+          if (!dataMap.containsKey(data.getAnalysisId())) {
+            dataMap.put(data.getAnalysisId(), analysisData);
+          } else {
+            checkServer(
+                false,
+                getClass(),
+                DUPLICATE_ANALYSIS_SCHEMA,
+                "Data error: trying to associate duplicate analysis data to analysis id '%s': ",
+                data.getAnalysisId());
+          }
+        });
+    return dataMap;
   }
 
   private void checkAnalysisTypeVersion(AnalysisSchema a) {

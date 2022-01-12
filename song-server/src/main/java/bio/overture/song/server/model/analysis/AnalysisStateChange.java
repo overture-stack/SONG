@@ -6,16 +6,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = TableNames.ANALYSIS_STATE_CHANGE)
 public class AnalysisStateChange implements Comparable<AnalysisStateChange> {
 
@@ -23,6 +21,7 @@ public class AnalysisStateChange implements Comparable<AnalysisStateChange> {
   @Column(name = TableAttributeNames.ID)
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @JsonIgnore
+  @EqualsAndHashCode.Include
   private Integer id;
 
   @ManyToOne
