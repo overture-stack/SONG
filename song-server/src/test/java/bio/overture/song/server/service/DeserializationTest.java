@@ -82,7 +82,7 @@ public class DeserializationTest {
             .name("somethingVar")
             .version(4)
             .build();
-    aSchema.associateAnalysis(a);
+    a.setAnalysisSchema(aSchema);
 
     val d =
         Donor.builder()

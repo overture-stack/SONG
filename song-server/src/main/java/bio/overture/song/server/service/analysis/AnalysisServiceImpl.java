@@ -37,7 +37,6 @@ import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisS
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
-import static bio.overture.song.core.utils.Responses.ok;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
@@ -136,9 +135,10 @@ public class AnalysisServiceImpl implements AnalysisService {
     a.setAnalysisId(analysisId);
     a.setAnalysisState(UNPUBLISHED.name());
     a.setStudyId(studyId);
+    a.setAnalysisSchema(analysisSchema);
 
     analysisData.setAnalysis(a);
-    analysisSchema.associateAnalysis(a);
+
 
     saveCompositeEntities(studyId, analysisId, a.getSamples());
     saveFiles(analysisId, studyId, a.getFiles());
@@ -169,18 +169,17 @@ public class AnalysisServiceImpl implements AnalysisService {
     validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
 
     // Now that the request is validated, fetch the old analysis
-    val oldAnalysis = get(analysisId, true, true, true);
+    val analysis = get(analysisId, true, true, true);
 
     // Update the association between the old schema and new schema entities for the requested
-    // analysis
-    val oldAnalysisSchema = oldAnalysis.getAnalysisSchema();
-    oldAnalysisSchema.disassociateAnalysis(oldAnalysis);
-    newAnalysisSchema.associateAnalysis(oldAnalysis);
+
+    val oldAnalysisSchema = analysis.getAnalysisSchema();
+    analysis.setAnalysisSchema(newAnalysisSchema);
 
     // Update the analysisData for the requested analysis
     val newData = buildUpdateRequestData(updateAnalysisRequest);
-    oldAnalysis.getAnalysisData().setData(newData);
-    oldAnalysis.setUpdatedAt(LocalDateTime.now());
+    analysis.getAnalysisData().setData(newData);
+    analysis.setUpdatedAt(LocalDateTime.now());
   }
 
   /**
@@ -295,8 +294,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   @Override
   @Transactional
-  public Analysis publish(
-      @NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
+  public Analysis publish(@NonNull String studyId, @NonNull String id, boolean ignoreUndefinedMd5) {
     checkAnalysisAndStudyRelated(studyId, id);
 
     val a = unsecuredDeepRead(id);
@@ -315,7 +313,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     // Recalculate publish times now that it has a new PUBLISHED state in history
     a.populatePublishTimes();
-    
+
     return a;
   }
 
