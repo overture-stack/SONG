@@ -1,16 +1,16 @@
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
+import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
 import static bio.overture.song.core.model.enums.AnalysisActions.PUBLISH;
 import static bio.overture.song.core.model.enums.AnalysisActions.SUPPRESS;
-import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
+import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
 
 import bio.overture.song.core.model.enums.AnalysisActions;
 import bio.overture.song.core.utils.RandomGenerator;

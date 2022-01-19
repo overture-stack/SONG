@@ -27,6 +27,7 @@ import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.service.analysis.AnalysisService;
+import bio.overture.song.server.service.analysis.GetAnalysisResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableSet;
 import io.swagger.annotations.Api;
@@ -90,6 +91,24 @@ public class AnalysisController {
     return analysisService.getAnalysis(studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)));
   }
 
+  @ApiOperation(
+      value = "GetAnalysesForStudy",
+      notes =
+          "Retrieve paginated analysis objects for a studyId. analysisState is optional, default to PUBLISHED, "
+              + "offset is required, default to 0, "
+              + "limit is required, default to 100. Results are sorted by analysis id in ASC order.")
+  @GetMapping(value = "/paginated")
+  public GetAnalysisResponse getAnalysis(
+      @PathVariable("studyId") String studyId,
+      @ApiParam(value = "Non-empty comma separated list of analysis states to filter by")
+          @RequestParam(value = "analysisStates", defaultValue = "PUBLISHED", required = false)
+          String analysisStates,
+      @RequestParam(value = "limit", defaultValue = "100", required = true) int limit,
+      @RequestParam(value = "offset", defaultValue = "0", required = true) int offset) {
+    return analysisService.getAnalysis(
+        studyId, ImmutableSet.copyOf(COMMA.split(analysisStates)), limit, offset);
+  }
+
   /** [DCC-5726] - non-dynamic updates disabled until hibernate is properly integrated */
   @ApiOperation(value = "UpdateAnalysis", notes = "Update dynamic-data for for an analysis")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
@@ -120,7 +139,7 @@ public class AnalysisController {
           @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false)
           boolean ignoreUndefinedMd5) {
     val analysis = analysisService.publish(studyId, id, ignoreUndefinedMd5);
-    return ok("AnalysisId " + id  + " successfully published");
+    return ok("AnalysisId " + id + " successfully published");
   }
 
   @ApiOperation(
@@ -133,8 +152,8 @@ public class AnalysisController {
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
-    val analysis =  analysisService.unpublish(studyId, id);
-    return ok("AnalysisId " + id  + " successfully unpublished");
+    val analysis = analysisService.unpublish(studyId, id);
+    return ok("AnalysisId " + id + " successfully unpublished");
   }
 
   @ApiOperation(
@@ -150,7 +169,7 @@ public class AnalysisController {
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     val analysis = analysisService.suppress(studyId, id);
-    return ok("AnalysisId " + id  + " was suppressed");
+    return ok("AnalysisId " + id + " was suppressed");
   }
 
   /**

@@ -10,7 +10,6 @@ import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.legacy.LegacyDto;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import bio.overture.song.server.service.LegacyEntityService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -40,12 +39,12 @@ public class LegacyEntityControllerTest {
 
   @MockBean private LegacyEntityService service;
 
-  private static final List<LegacyEntity> entities = List.of(
-      new LegacyEntity("id1", "gnosId1", "file1", "project1", "controlled"),
-      new LegacyEntity("id2", "gnosId1", "file2", "project1", "controlled"),
-      new LegacyEntity("id3", "gnosId1", "file3", "project1", "controlled"),
-      new LegacyEntity("id4", "gnosId1", "file4", "project1", "controlled")
-  );
+  private static final List<LegacyEntity> entities =
+      List.of(
+          new LegacyEntity("id1", "gnosId1", "file1", "project1", "controlled"),
+          new LegacyEntity("id2", "gnosId1", "file2", "project1", "controlled"),
+          new LegacyEntity("id3", "gnosId1", "file3", "project1", "controlled"),
+          new LegacyEntity("id4", "gnosId1", "file4", "project1", "controlled"));
 
   @Before
   public void setup() {
@@ -62,11 +61,11 @@ public class LegacyEntityControllerTest {
     val mapper = JsonUtils.mapper();
 
     given(service.find(any(), eq(gnosId1LegacyDto), eq(page0Size2Request)))
-            .willReturn(mapper.valueToTree(page0Size2));
+        .willReturn(mapper.valueToTree(page0Size2));
     given(service.find(any(), eq(gnosId1LegacyDto), eq(page1Size2Request)))
-            .willReturn(mapper.valueToTree(page1Size2));
+        .willReturn(mapper.valueToTree(page1Size2));
     given(service.find(any(), eq(gnosId1LegacyDto), eq(page0Size1Request)))
-            .willReturn(mapper.valueToTree(page0Size1));
+        .willReturn(mapper.valueToTree(page0Size1));
   }
 
   @Test

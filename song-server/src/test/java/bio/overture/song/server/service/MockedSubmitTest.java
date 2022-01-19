@@ -190,7 +190,8 @@ public class MockedSubmitTest {
     when(validationService.validate(isA(JsonNode.class))).thenReturn(Optional.empty());
 
     val payloadString = toJson(payload);
-    when(analysisService.create(study, payload)).thenReturn(Analysis.builder().analysisId(analysisId).build());
+    when(analysisService.create(study, payload))
+        .thenReturn(Analysis.builder().analysisId(analysisId).build());
     val expectedSubmitResponse = SubmitResponse.builder().analysisId(analysisId).status(OK).build();
 
     // Verify

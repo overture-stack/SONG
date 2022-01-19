@@ -31,10 +31,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.val;
+import lombok.*;
 
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -56,6 +53,12 @@ public class Metadata {
 
   public void setInfo(String info) {
     addInfo(info);
+  }
+
+  public void setInfo(Map<String, Object> map) {
+    for (Map.Entry<String, Object> entry : map.entrySet()) {
+      info.put(entry.getKey(), entry.getValue());
+    }
   }
 
   @JsonGetter

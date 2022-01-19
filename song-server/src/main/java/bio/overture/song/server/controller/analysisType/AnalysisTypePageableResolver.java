@@ -70,7 +70,7 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
   @Override
   public boolean supportsParameter(MethodParameter methodParameter) {
     return methodParameter.getParameterType().equals(Pageable.class)
-            && methodParameter.getContainingClass().equals(AnalysisTypeController.class);
+        && methodParameter.getContainingClass().equals(AnalysisTypeController.class);
   }
 
   @Override

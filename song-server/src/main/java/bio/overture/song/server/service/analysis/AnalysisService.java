@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import lombok.NonNull;
-import org.springframework.http.ResponseEntity;
 
 public interface AnalysisService {
 
@@ -20,6 +19,9 @@ public interface AnalysisService {
   void updateAnalysis(String studyId, String analysisId, JsonNode updateAnalysisRequest);
 
   List<Analysis> getAnalysis(String studyId, Set<String> analysisStates);
+
+  GetAnalysisResponse getAnalysis(
+      String studyId, Set<String> analysisStates, int limit, int offset);
 
   List<Analysis> idSearch(String studyId, IdSearchRequest request);
 

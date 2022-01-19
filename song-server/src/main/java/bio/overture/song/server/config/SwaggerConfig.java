@@ -17,7 +17,6 @@
 
 package bio.overture.song.server.config;
 
-import static springfox.documentation.builders.PathSelectors.any;
 import static springfox.documentation.builders.RequestHandlerSelectors.basePackage;
 
 import lombok.Getter;
@@ -61,12 +60,11 @@ public class SwaggerConfig {
         .host(swaggerHost)
         .pathProvider(
             new RelativePathProvider(null) {
-                @Override
-                public String getApplicationBasePath() {
-                  return basePath;
-                }
-            }
-        );
+              @Override
+              public String getApplicationBasePath() {
+                return basePath;
+              }
+            });
   }
 
   @Bean

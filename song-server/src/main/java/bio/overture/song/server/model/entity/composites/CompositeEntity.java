@@ -20,17 +20,21 @@ package bio.overture.song.server.model.entity.composites;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.Sample;
 import bio.overture.song.server.model.entity.Specimen;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.val;
+import lombok.*;
 
 @Data
 @ToString(callSuper = true)
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class CompositeEntity extends Sample {
   private Specimen specimen;
   private Donor donor;
+
+  @Builder(builderMethodName = "compositeEntityBuilder")
+  public CompositeEntity(Specimen specimen, Donor donor) {
+    this.specimen = specimen;
+    this.donor = donor;
+  }
 
   // TODO: Check out Lombok @Builder annotations
   public static CompositeEntity create(Sample sample) {

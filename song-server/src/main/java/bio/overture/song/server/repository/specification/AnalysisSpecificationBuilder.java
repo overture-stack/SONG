@@ -48,6 +48,25 @@ public class AnalysisSpecificationBuilder {
     };
   }
 
+  public Specification<Analysis> buildSpec(
+      @NonNull String study, @NonNull Collection<String> analysisStates) {
+    return (fromUser, query, builder) -> {
+      // The reason for having this check is because of the issue:
+      // https://github.com/spring-projects/spring-data-jpa/issues/532
+      // in order to avoid the hibernate error and perform a fetch join, do not apply fetch join
+      // criteria
+      // on count query. If the result type is long, that means a count query is fired.
+      if (!query.getResultType().equals(Long.class)) {
+        fromUser.fetch(ANALYSIS_SCHEMA, LEFT);
+        fromUser.fetch(ANALYSIS_DATA, LEFT);
+      }
+      query.distinct(true);
+      return builder.and(
+          equalsStudyPredicate(fromUser, builder, study),
+          whereStatesInPredicate(fromUser, analysisStates));
+    };
+  }
+
   public Specification<Analysis> buildById(@NonNull String analysisId) {
     return (fromUser, query, builder) -> {
       val root = setupFetchStrategy(fromUser);

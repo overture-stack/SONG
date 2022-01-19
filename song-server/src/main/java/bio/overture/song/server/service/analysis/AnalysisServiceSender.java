@@ -1,12 +1,12 @@
 package bio.overture.song.server.service.analysis;
 
+import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
+import static bio.overture.song.core.model.enums.AnalysisActions.PUBLISH;
+import static bio.overture.song.core.model.enums.AnalysisActions.SUPPRESS;
+import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
-import static bio.overture.song.core.model.enums.AnalysisActions.PUBLISH;
-import static bio.overture.song.core.model.enums.AnalysisActions.SUPPRESS;
-import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 
@@ -27,8 +27,10 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Component
 @Primary
@@ -50,9 +52,29 @@ public class AnalysisServiceSender implements AnalysisService {
 
   /** Decorated methods */
   @Override
+  @Transactional
   public Analysis create(String studyId, Payload payload) {
     val analysis = internalAnalysisService.create(studyId, payload);
-    sendAnalysisMessage(analysis, UNPUBLISHED, CREATE);
+
+    // Current internalAnalysisService is instance of AnalysisServiceImpl which has
+    // `create` as transactional. This means the analysis returned is from memory not
+    // the one committed to db which can be different (for example, model.entity.Info
+    // has CustomJsonType on its `info` field which removes keys with null values
+    // when writing to db). So if we are transactional, fetch the analysis after it is
+    // committed to make sure we have the right one before sending a message with it.
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(
+          new TransactionSynchronization() {
+            public void afterCommit() {
+              val committedAnalysis =
+                  internalAnalysisService.securedDeepRead(
+                      analysis.getStudyId(), analysis.getAnalysisId());
+              sendAnalysisMessage(committedAnalysis, UNPUBLISHED, CREATE);
+            }
+          });
+    } else {
+      sendAnalysisMessage(analysis, UNPUBLISHED, CREATE);
+    }
     return analysis;
   }
 
@@ -86,6 +108,12 @@ public class AnalysisServiceSender implements AnalysisService {
   @Override
   public List<Analysis> getAnalysis(String studyId, Set<String> analysisStates) {
     return internalAnalysisService.getAnalysis(studyId, analysisStates);
+  }
+
+  @Override
+  public GetAnalysisResponse getAnalysis(
+      String studyId, Set<String> analysisStates, int page, int size) {
+    return internalAnalysisService.getAnalysis(studyId, analysisStates, page, size);
   }
 
   @Override
