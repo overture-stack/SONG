@@ -118,7 +118,7 @@ spec:
         }
         stage('Release & tag') {
           when {
-            branch "release/4.6.1"
+            branch "master"
           }
           steps {
                 container('docker') {
@@ -182,7 +182,6 @@ spec:
         stage('Upload Artifacts') {
             when {
                 anyOf {
-                    branch 'release/4.6.1'
                     branch 'master'
                     branch 'test-master'
                     branch 'develop'
@@ -222,7 +221,7 @@ spec:
 
 		stage('Deploy to Overture QA') {
 			when {
-				branch "release/4.6.1"
+				branch "develop"
 			}
 			steps {
 				build(job: "/Overture.bio/provision/helm", parameters: [
