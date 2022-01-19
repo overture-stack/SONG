@@ -124,9 +124,10 @@ public class AnalysisServiceImpl implements AnalysisService {
     a.setAnalysisId(analysisId);
     a.setAnalysisState(UNPUBLISHED.name());
     a.setStudyId(studyId);
+    a.setAnalysisSchema(analysisSchema);
 
     analysisData.setAnalysis(a);
-    analysisSchema.associateAnalysis(a);
+
 
     saveCompositeEntities(studyId, analysisId, a.getSamples());
     saveFiles(analysisId, studyId, a.getFiles());
@@ -157,18 +158,17 @@ public class AnalysisServiceImpl implements AnalysisService {
     validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
 
     // Now that the request is validated, fetch the old analysis
-    val oldAnalysis = get(analysisId, true, true, true);
+    val analysis = get(analysisId, true, true, true);
 
     // Update the association between the old schema and new schema entities for the requested
-    // analysis
-    val oldAnalysisSchema = oldAnalysis.getAnalysisSchema();
-    oldAnalysisSchema.disassociateAnalysis(oldAnalysis);
-    newAnalysisSchema.associateAnalysis(oldAnalysis);
+
+    val oldAnalysisSchema = analysis.getAnalysisSchema();
+    analysis.setAnalysisSchema(newAnalysisSchema);
 
     // Update the analysisData for the requested analysis
     val newData = buildUpdateRequestData(updateAnalysisRequest);
-    oldAnalysis.getAnalysisData().setData(newData);
-    oldAnalysis.setUpdatedAt(LocalDateTime.now());
+    analysis.getAnalysisData().setData(newData);
+    analysis.setUpdatedAt(LocalDateTime.now());
   }
 
   /**
