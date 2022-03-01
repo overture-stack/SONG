@@ -24,30 +24,8 @@ returns table (
 ) as
 $$
 	begin
-		 -- step A: analysis_file_join is the result of joining Analysis table with File table, and getting file info from Info table
-		 create temporary table if not exists analysis_file_join AS
-		 SELECT * FROM (
-			 SELECT * FROM analysis WHERE analysis.study_id = studyId AND analysis.state = ANY(analysisState)
-				ORDER BY analysis.id ASC
-				LIMIT pageLimit
-				OFFSET pageOffset
-		 ) AS filtered_analysis
-         JOIN (SELECT         filtered_file.id          AS file_id,
-							  filtered_file.analysis_id AS file_analysis_id,
-							  filtered_file.study_id    AS file_study_id,
-							  filtered_file.name,
-							  filtered_file.size,
-							  filtered_file.md5,
-							  filtered_file.access,
-							  filtered_file.type       AS file_type,
-							  filtered_file.data_type,
-							  info.info
-					  FROM (SELECT * FROM file WHERE file.study_id = studyId ) AS filtered_file
-					  JOIN info ON filtered_file.id = info.id AND info.id_type = 'File')
-					  AS file_info
-	    ON filtered_analysis.id = file_info.file_analysis_id;
-
-		 -- step B: take the result of step A and join Sampleset, Sample, Specimen, and Donor table as well as the info columns.
+         -- How this script works: analysis_file_join is the result of joining Analysis table with File table, and getting file info from Info table.
+		 -- take the result of analysis_file_join and join Sampleset, Sample, Specimen, and Donor table as well as the info columns.
 		 RETURN QUERY
 	     SELECT 			   analysis_file_sampleset_join.*,
 		 					   sample.id           				AS sample_id,
@@ -77,7 +55,29 @@ $$
                             sampleset.analysis_id,
                             sampleset.sample_id      			AS sampleset_sample_id
                     FROM sampleset
-                    INNER JOIN analysis_file_join ON analysis_file_join.id = sampleset.analysis_id )
+                    INNER JOIN (
+                        SELECT * FROM (
+                            SELECT * FROM analysis WHERE analysis.study_id = studyId AND analysis.state = ANY(analysisState)
+                            ORDER BY analysis.id ASC
+                            LIMIT pageLimit
+                            OFFSET pageOffset
+                        ) AS filtered_analysis
+                        JOIN (   SELECT       filtered_file.id          AS file_id,
+                                              filtered_file.analysis_id AS file_analysis_id,
+                                              filtered_file.study_id    AS file_study_id,
+                                              filtered_file.name,
+                                              filtered_file.size,
+                                              filtered_file.md5,
+                                              filtered_file.access,
+                                              filtered_file.type       AS file_type,
+                                              filtered_file.data_type,
+                                              info.info
+                                      FROM (SELECT * FROM file WHERE file.study_id = studyId ) AS filtered_file
+                                      JOIN info ON filtered_file.id = info.id AND info.id_type = 'File')
+                                      AS file_info
+                        ON filtered_analysis.id = file_info.file_analysis_id;
+                    ) AS analysis_file_join
+                    ON analysis_file_join.id = sampleset.analysis_id )
                     AS analysis_file_sampleset_join
                     ON analysis_file_sampleset_join.sampleset_sample_id = sample.id
         LEFT JOIN info sample_info ON analysis_file_sampleset_join.sampleset_sample_id = sample_info.id AND sample_info.id_type = 'Sample'
@@ -86,9 +86,6 @@ $$
         INNER JOIN donor ON donor.id = specimen.donor_id
         LEFT JOIN info AS donor_info ON  donor_info.id = donor.id AND donor_info.id_type = 'Donor'
         ORDER BY analysis_file_sampleset_join.analysis_id ASC ;
-
-		-- Clean up
-		DROP TABLE analysis_file_join;
 
 end;
 $$
