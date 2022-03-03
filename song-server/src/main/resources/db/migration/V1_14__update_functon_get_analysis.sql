@@ -75,7 +75,7 @@ $$
                                       FROM (SELECT * FROM file WHERE file.study_id = studyId ) AS filtered_file
                                       JOIN info ON filtered_file.id = info.id AND info.id_type = 'File')
                                       AS file_info
-                        ON filtered_analysis.id = file_info.file_analysis_id;
+                        ON filtered_analysis.id = file_info.file_analysis_id
                     ) AS analysis_file_join
                     ON analysis_file_join.id = sampleset.analysis_id )
                     AS analysis_file_sampleset_join
