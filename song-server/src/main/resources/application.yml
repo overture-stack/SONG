@@ -52,7 +52,7 @@ spring:
     min-idle: 1
     initialization-mode: always
     hikari:
-      connection-timeout: 500
+      connection-timeout: 1000
 
 logging:
   level:
@@ -152,7 +152,7 @@ spring:
     max-idle: 1
     min-idle: 1
     hikari:
-      connection-timeout: 500
+      connection-timeout: 1000
       validation-timeout: 250
 
 id.persistInMemory: true
@@ -182,7 +182,7 @@ spring:
   datasource:
     initialization-mode: always
     hikari:
-      connection-timeout: 500
+      connection-timeout: 1000
 
 management:
   server:
