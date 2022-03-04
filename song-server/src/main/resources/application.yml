@@ -56,6 +56,9 @@ spring:
 
 logging:
   level:
+    com:
+      zaxxer:
+        hikari: TRACE
     io:
       swagger:
         models:
