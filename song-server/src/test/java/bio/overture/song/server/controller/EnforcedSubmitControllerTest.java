@@ -162,6 +162,18 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     runMatchedNormalTest("variantcall-normal-valid.json");
   }
 
+  // Test for RNA payload:
+  @Test
+  public void matchedNormalFieldInclusionValidation_RNATumourNull_Success() {
+    runMatchedNormalTest("seq-exp-RNA-tumour-null-valid.json");
+  }
+
+  @Test
+  public void matchedNormalFieldInclusionValidation_RNATumour_NonNull_Success() {
+    runMatchedNormalTest("seq-exp-RNA-tumour-empty-id.json",
+        "#/samples/0/matchedNormalSubmitterSampleId: ,#/samples/0/matchedNormalSubmitterSampleId: string [] does not match pattern");
+  }
+
   @Test
   @SneakyThrows
   public void testInvalidSample() {
