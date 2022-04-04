@@ -100,7 +100,8 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
     val limitValue = resolveInteger(ModelAttributeNames.LIMIT, DEFAULT_LIMIT, limit);
     val sortOrderValue = resolveSortOrder(DEFAULT_SORT_ORDER, sortOrder);
     val sortVariablesValue = resolveSortVariables(DEFAULT_SORT_VARIABLE, sortVariables);
-    val sort = new Sort(sortOrderValue, sortVariablesValue);
+    val sort =
+        Sort.by(sortOrderValue, sortVariablesValue.toArray(new String[sortVariablesValue.size()]));
     return new AnalysisTypePageable(offsetValue, limitValue, sort);
   }
 
@@ -252,6 +253,11 @@ public class AnalysisTypePageableResolver implements HandlerMethodArgumentResolv
 
     @Override
     public Pageable first() {
+      return null;
+    }
+
+    @Override
+    public Pageable withPage(int pageNumber) {
       return null;
     }
 

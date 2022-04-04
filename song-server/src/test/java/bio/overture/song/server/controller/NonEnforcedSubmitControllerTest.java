@@ -39,7 +39,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
-@AutoConfigureMockMvc(secure = false)
+@AutoConfigureMockMvc
 @ActiveProfiles({"test"})
 @SpringBootTest(properties = "schemas.enforceLatest=false")
 public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {

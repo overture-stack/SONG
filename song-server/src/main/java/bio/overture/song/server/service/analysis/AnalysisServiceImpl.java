@@ -128,7 +128,6 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     analysisData.setAnalysis(a);
 
-
     saveCompositeEntities(studyId, analysisId, a.getSamples());
     saveFiles(analysisId, studyId, a.getFiles());
 
