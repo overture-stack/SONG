@@ -479,7 +479,7 @@
         <logback.version>1.2.3</logback.version>
         <lombok.version>1.18.4</lombok.version>
 
-        <jackson.version>2.9.4</jackson.version>
+        <jackson.version>2.13.2</jackson.version>
         <networknt.version>0.1.5</networknt.version>
         <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
         <wiremock.version>2.14.0</wiremock.version>
