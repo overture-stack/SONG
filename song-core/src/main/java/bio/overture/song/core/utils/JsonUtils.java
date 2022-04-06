@@ -121,13 +121,20 @@ public class JsonUtils {
 
   public static class SongPrettyPrinter extends DefaultPrettyPrinter {
     public static final SongPrettyPrinter instance = new SongPrettyPrinter(4);
+    private final int indentSize;
 
     public SongPrettyPrinter(int indentSize) {
+      this.indentSize = indentSize;
       val sb = new StringBuilder();
       for (int i = 0; i < indentSize; i++) {
         sb.append(' ');
       }
       indentArraysWith(new DefaultIndenter(sb.toString(), DefaultIndenter.SYS_LF));
+    }
+
+    @Override
+    public DefaultPrettyPrinter createInstance() {
+      return new SongPrettyPrinter(this.indentSize);
     }
   }
 
