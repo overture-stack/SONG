@@ -192,7 +192,7 @@ public class PageableResolverTest {
     @NonNull private final String sortVariables;
 
     public Sort getSort() {
-      return new Sort(sortOrder, sortVariables);
+      return Sort.by(sortOrder, sortVariables);
     }
   }
 }

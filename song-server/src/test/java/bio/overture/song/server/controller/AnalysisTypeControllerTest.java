@@ -86,7 +86,7 @@ import org.springframework.web.context.WebApplicationContext;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureMockMvc(secure = false)
+@AutoConfigureMockMvc
 @ActiveProfiles({"test"})
 public class AnalysisTypeControllerTest {
   private static final boolean ENABLE_HTTP_LOGGING = false;

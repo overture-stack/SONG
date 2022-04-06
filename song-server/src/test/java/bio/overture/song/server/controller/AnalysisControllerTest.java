@@ -77,7 +77,7 @@ import org.springframework.web.context.WebApplicationContext;
 @Transactional
 @ActiveProfiles({"test"})
 @RunWith(SpringRunner.class)
-@AutoConfigureMockMvc(secure = false)
+@AutoConfigureMockMvc
 @SpringBootTest(properties = "schemas.enforceLatest=false")
 public class AnalysisControllerTest {
 
