@@ -16,7 +16,6 @@
  */
 package bio.overture.song.server.security;
 
-import static bio.overture.song.server.security.TokenChecker.isExpired;
 import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
 
 import java.util.Set;
@@ -37,9 +36,6 @@ public class StudySecurity {
   @NonNull private final String systemScope;
 
   public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
-    if (isExpired(authentication)) {
-      return false;
-    }
     log.info("Checking study-level authorization for studyId {}", studyId);
     val grantedScopes = extractGrantedScopes(authentication);
     return verifyOneOfStudyScope(grantedScopes, studyId);
