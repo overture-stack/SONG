@@ -48,7 +48,7 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   @SneakyThrows
   public void configure(HttpSecurity http) {
-    http.authorizeRequests().anyRequest().authenticated().and().oauth2ResourceServer().jwt();
+    http.oauth2ResourceServer().jwt();
   }
 
   private final ScopeConfig scope = new ScopeConfig();
