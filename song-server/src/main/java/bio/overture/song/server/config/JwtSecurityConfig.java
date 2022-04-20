@@ -48,7 +48,6 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   @SneakyThrows
   public void configure(HttpSecurity http) {
-    log.info("JWT SECURE CONFIGURATION");
     http.authorizeRequests().anyRequest().authenticated().and().oauth2ResourceServer().jwt();
   }
 

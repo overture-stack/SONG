@@ -44,7 +44,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Override
   @SneakyThrows
   public void configure(HttpSecurity http) {
-    log.info("SECURE CONFIGURATION");
     http.authorizeRequests()
         .antMatchers("/health")
         .permitAll()
