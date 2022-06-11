@@ -199,7 +199,7 @@ spring:
       on-profile: secure
 auth:
   server:
-    introspectionUri: https://ego.qa.argo.cancercollaboratory.org/api/o/check_api_key
+    introspectionUri: http://localhost:8084/api/o/check_api_key
     clientID: id
     clientSecret: secret
 
