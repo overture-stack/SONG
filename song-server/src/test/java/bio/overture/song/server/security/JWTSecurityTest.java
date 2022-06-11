@@ -25,7 +25,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.config.JwtSecurityConfig;
+import bio.overture.song.server.config.SecurityConfig;
 import bio.overture.song.server.model.entity.Study;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.EndpointTester;
@@ -80,7 +80,7 @@ public class JWTSecurityTest {
 
   @Autowired private WebApplicationContext webApplicationContext;
   @Autowired private StudyService studyService;
-  @Autowired private JwtSecurityConfig securityConfig;
+  @Autowired private SecurityConfig securityConfig;
 
   /** State */
   @Getter private EndpointTester endpointTester;

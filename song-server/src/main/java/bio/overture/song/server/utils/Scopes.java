@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 
 @Slf4j
 @NoArgsConstructor(access = PRIVATE)
@@ -21,10 +23,12 @@ public class Scopes {
   private static final String EXP = "exp";
 
   public static Set<String> extractGrantedScopes(Authentication authentication) {
-    // if not OAuth2, then no scopes available at all
+    // Check if the Authentication provided was from JWT or ApiKey, then extract the scopes
     Set<String> grantedScopes = Collections.emptySet();
     if (authentication instanceof JwtAuthenticationToken) {
-      grantedScopes = getScopes((JwtAuthenticationToken) authentication);
+      grantedScopes = getJwtScopes((JwtAuthenticationToken) authentication);
+    } else if (authentication instanceof BearerTokenAuthentication) {
+      grantedScopes = getApiKeyScopes((BearerTokenAuthentication) authentication);
     }
     return grantedScopes;
   }
@@ -39,7 +43,7 @@ public class Scopes {
     return 0L;
   }
 
-  private static Set<String> getScopes(JwtAuthenticationToken jwt) {
+  private static Set<String> getJwtScopes(JwtAuthenticationToken jwt) {
     Set<String> output = new HashSet();
     try {
       val context = jwt.getToken().getClaim("context");
@@ -52,13 +56,16 @@ public class Scopes {
               .forEach(value -> output.add((String) value));
         }
       }
-    }
-    //    catch () {
-    //      log.debug("Received JWT not structured as expected. No scopes found.");
-    //    }
-    catch (ClassCastException e) {
+    } catch (ClassCastException e) {
       log.debug("Received JWT not structured as expected. No scopes found.");
     }
     return output;
+  }
+
+  private static Set<String> getApiKeyScopes(BearerTokenAuthentication tokenAuthentication) {
+    val scopes =
+        ((OAuth2IntrospectionAuthenticatedPrincipal) tokenAuthentication.getPrincipal())
+            .getScopes();
+    return Set.copyOf(scopes);
   }
 }
