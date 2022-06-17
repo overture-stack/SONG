@@ -103,9 +103,9 @@ id:
           clientId:
           clientSecret:
     uriTemplate:
-      donor:    https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
+      donor: https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
       specimen: https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
-      sample:   https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
+      sample: https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
 
 validation:
   delayMs: 30
@@ -197,12 +197,16 @@ spring:
   config:
     activate:
       on-profile: secure
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: http://localhost:8081/oauth/token/public_key
 auth:
   server:
-    introspectionUri: https://ego.qa.argo.cancercollaboratory.org/api/o/check_api_key
+    introspectionUri: http://localhost:8081/o/check_api_key
     clientID: id
     clientSecret: secret
-
     scope:
       study:
         prefix: "PROGRAMDATA-"
@@ -253,17 +257,6 @@ spring:
     bootstrap-servers: localhost:9092
     template:
       default-topic: song-analysis
-
----
-spring:
-  config:
-    activate:
-      on-profile: jwt
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          public-key-location: http://localhost:8084/oauth/token/public_key
 
 ---
 
