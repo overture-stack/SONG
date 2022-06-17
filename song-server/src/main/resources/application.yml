@@ -103,9 +103,9 @@ id:
           clientId:
           clientSecret:
     uriTemplate:
-      donor:    https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
+      donor: https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
       specimen: https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
-      sample:   https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
+      sample: https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
 
 validation:
   delayMs: 30
@@ -172,7 +172,7 @@ auth:
     enableHttpLogging: false
     scope:
       study:
-        prefix: "song."
+        prefix: "song-"
         suffix: ".WRITE"
       system: "song.WRITE"
 
@@ -197,18 +197,19 @@ spring:
   config:
     activate:
       on-profile: secure
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: http://localhost:8081/oauth/token/public_key
 auth:
   server:
-    url: "http://localhost:8084/check_token/"
-    clientId: "3kJhz9pNtC0pFHAxr2SPkUkGjXrkWWqGcnPC0vBP"
-    clientSecret: "v9mjRtuEVwpt7cgqnsq6mxtCa5FbUOpKLGh7WX8a1dWbBKfrM3iV3VYMtE60jr3W7GLWtNeYIaJ8EUxPkaInclWVXf64qKdR3IKwyfpDU7JhvWEwIYQYdwV1YAUZjB2e"
-    tokenName: "token"
-    enableStrictSSL: false
-    enableHttpLogging: false
+    introspectionUri: http://localhost:8081/o/check_api_key
+    clientID: id
+    clientSecret: secret
     scope:
       study:
-        prefix: "song."
+        prefix: "PROGRAMDATA-"
         suffix: ".WRITE"
       system: "song.WRITE"
 ---
@@ -241,8 +242,8 @@ spring:
 spring.datasource:
   driver-class-name: org.postgresql.Driver
   url: jdbc:postgresql://localhost/song?stringtype=unspecified
-  username: 
-  password: 
+  username:
+  password:
   max-active: 10
   max-idle: 1
   min-idle: 1
@@ -256,15 +257,6 @@ spring:
     bootstrap-servers: localhost:9092
     template:
       default-topic: song-analysis
-
----
-spring:
-  config:
-    activate:
-      on-profile: jwt
-auth:
-  jwt:
-    public-key-url: http://localhost:8084/oauth/token/public_key
 
 ---
 
