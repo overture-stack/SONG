@@ -52,7 +52,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
-@AutoConfigureMockMvc(secure = false)
+@AutoConfigureMockMvc
 @ActiveProfiles({"test"})
 @SpringBootTest(properties = "schemas.enforceLatest=false")
 public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
