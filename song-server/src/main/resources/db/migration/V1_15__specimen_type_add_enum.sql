@@ -15,7 +15,7 @@ CREATE TYPE specimen_type as ENUM(
           'Cell line - derived from xenograft tumour',
           'Cell line - derived from tumour',
           'Cell line - derived from normal',
-          'Tumour - unknown if derived from primary or metastatic');
+          'Malignant neoplasm without specification of site');
 ALTER TABLE specimen RENAME COLUMN type TO _type;
 ALTER TABLE specimen ADD COLUMN type specimen_type;
 
