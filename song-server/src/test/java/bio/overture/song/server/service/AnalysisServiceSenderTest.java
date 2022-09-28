@@ -1,9 +1,6 @@
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
-import static bio.overture.song.core.model.enums.AnalysisActions.PUBLISH;
-import static bio.overture.song.core.model.enums.AnalysisActions.SUPPRESS;
-import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
+import static bio.overture.song.core.model.enums.AnalysisActions.*;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
@@ -132,7 +129,7 @@ public class AnalysisServiceSenderTest {
 
     @Override
     @SneakyThrows
-    public void send(String actualAnalysisMessage) {
+    public void send(String actualAnalysisMessage, String _key) {
       assertEquals(expectedAnalysisMessage, actualAnalysisMessage);
     }
   }
