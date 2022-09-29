@@ -1,12 +1,7 @@
 package bio.overture.song.server.service.analysis;
 
-import static bio.overture.song.core.model.enums.AnalysisActions.CREATE;
-import static bio.overture.song.core.model.enums.AnalysisActions.PUBLISH;
-import static bio.overture.song.core.model.enums.AnalysisActions.SUPPRESS;
-import static bio.overture.song.core.model.enums.AnalysisActions.UNPUBLISH;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AnalysisActions.*;
+import static bio.overture.song.core.model.enums.AnalysisStates.*;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
 
@@ -174,6 +169,6 @@ public class AnalysisServiceSender implements AnalysisService {
   private void sendAnalysisMessage(
       Analysis analysis, AnalysisStates analysisState, AnalysisActions action) {
     val message = createAnalysisMessage(action, analysis, songServerId);
-    sender.send(toJson(message));
+    sender.send(toJson(message), message.getAnalysisId());
   }
 }
