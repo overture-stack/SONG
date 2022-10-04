@@ -18,6 +18,8 @@ public interface AnalysisService {
 
   void updateAnalysis(String studyId, String analysisId, JsonNode updateAnalysisRequest);
 
+  void patchUpdateAnalysis(String studyId, String analysisId, JsonNode patchUpdateAnalysisRequest);
+
   List<Analysis> getAnalysis(String studyId, Set<String> analysisStates);
 
   GetAnalysisResponse getAnalysis(

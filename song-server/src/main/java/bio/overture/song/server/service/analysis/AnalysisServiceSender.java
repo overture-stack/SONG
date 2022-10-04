@@ -101,6 +101,11 @@ public class AnalysisServiceSender implements AnalysisService {
   }
 
   @Override
+  public void patchUpdateAnalysis(String studyId, String analysisId, JsonNode patchUpdateAnalysisRequest) {
+    internalAnalysisService.patchUpdateAnalysis(studyId, analysisId, patchUpdateAnalysisRequest);
+  }
+
+  @Override
   public List<Analysis> getAnalysis(String studyId, Set<String> analysisStates) {
     return internalAnalysisService.getAnalysis(studyId, analysisStates);
   }
