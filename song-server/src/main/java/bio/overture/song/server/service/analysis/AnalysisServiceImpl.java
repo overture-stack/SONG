@@ -24,9 +24,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
 import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
+import static bio.overture.song.core.utils.JsonUtils.*;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
 import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
@@ -62,6 +60,8 @@ import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import io.vavr.Tuple3;
@@ -136,7 +136,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   @Override
   @Transactional
-  public void updateAnalysis(
+  public Analysis updateAnalysis(
       @NonNull String studyId,
       @NonNull String analysisId,
       @NonNull JsonNode updateAnalysisRequest) {
@@ -168,6 +168,43 @@ public class AnalysisServiceImpl implements AnalysisService {
     val newData = buildUpdateRequestData(updateAnalysisRequest);
     analysis.getAnalysisData().setData(newData);
     analysis.setUpdatedAt(LocalDateTime.now());
+
+    return analysis;
+  }
+
+  @Override
+  @Transactional
+  public Analysis patchUpdateAnalysis(
+          @NonNull String studyId,
+          @NonNull String analysisId,
+          @NonNull JsonNode patchUpdateAnalysisRequest) {
+    // Validate prerequisites
+    checkAnalysisAndStudyRelated(studyId, analysisId);
+
+    // Now that the request is validated, fetch the old analysis
+    val analysis = get(analysisId, true, true, false);
+    log.debug("analysis found:" + analysis);
+
+    val originalData = analysis.getData();
+    originalData.put("analysisType", analysis.getAnalysisType()); // we need this to validate against schema.
+
+    val updatedAnalysis = mergePatchRequest(toJsonNode(originalData), patchUpdateAnalysisRequest);
+
+    // get existing Analysis Schema
+    val analysisSchema = analysis.getAnalysisSchema();
+
+    // Validate the updatedAnalysis against the scheme
+    validateUpdateRequest(updatedAnalysis, analysisSchema);
+
+    // Update the association between the old schema and new schema entities for the requested
+    analysis.setAnalysisSchema(analysisSchema);
+
+    // Update the analysisData for the requested analysis
+    val newData = buildUpdateRequestData(updatedAnalysis);
+    analysis.getAnalysisData().setData(newData);
+    analysis.setUpdatedAt(LocalDateTime.now());
+
+    return analysis;
   }
 
   /**
@@ -855,5 +892,20 @@ public class AnalysisServiceImpl implements AnalysisService {
     val root = ((ObjectNode) updateAnalysisRequest);
     root.remove(ANALYSIS_TYPE);
     return root;
+  }
+
+  private JsonNode mergePatchRequest(JsonNode original, JsonNode patch){
+    try {
+      JsonMergePatch jsonMergePatch = JsonMergePatch.fromJson(patch);
+      JsonNode updatedAnalysis = jsonMergePatch.apply(original);
+      log.debug("updated analysis:" + updatedAnalysis);
+      return updatedAnalysis;
+    } catch (JsonPatchException e) {
+      log.error(e.getMessage());
+      throw buildServerException(
+              getClass(),
+              PAYLOAD_PARSING,
+              "Unable to read the input payload");
+    }
   }
 }
