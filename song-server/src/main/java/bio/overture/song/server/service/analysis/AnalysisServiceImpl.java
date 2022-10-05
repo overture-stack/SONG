@@ -136,7 +136,7 @@ public class AnalysisServiceImpl implements AnalysisService {
 
   @Override
   @Transactional
-  public void updateAnalysis(
+  public Analysis updateAnalysis(
       @NonNull String studyId,
       @NonNull String analysisId,
       @NonNull JsonNode updateAnalysisRequest) {
@@ -168,11 +168,13 @@ public class AnalysisServiceImpl implements AnalysisService {
     val newData = buildUpdateRequestData(updateAnalysisRequest);
     analysis.getAnalysisData().setData(newData);
     analysis.setUpdatedAt(LocalDateTime.now());
+
+    return analysis;
   }
 
   @Override
   @Transactional
-  public void patchUpdateAnalysis(
+  public Analysis patchUpdateAnalysis(
           @NonNull String studyId,
           @NonNull String analysisId,
           @NonNull JsonNode patchUpdateAnalysisRequest) {
@@ -201,6 +203,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     val newData = buildUpdateRequestData(updatedAnalysis);
     analysis.getAnalysisData().setData(newData);
     analysis.setUpdatedAt(LocalDateTime.now());
+
+    return analysis;
   }
 
   /**

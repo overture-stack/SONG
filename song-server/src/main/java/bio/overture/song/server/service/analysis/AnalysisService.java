@@ -16,9 +16,9 @@ public interface AnalysisService {
 
   Analysis create(String studyId, Payload payload);
 
-  void updateAnalysis(String studyId, String analysisId, JsonNode updateAnalysisRequest);
+  Analysis updateAnalysis(String studyId, String analysisId, JsonNode updateAnalysisRequest);
 
-  void patchUpdateAnalysis(String studyId, String analysisId, JsonNode patchUpdateAnalysisRequest);
+  Analysis patchUpdateAnalysis(String studyId, String analysisId, JsonNode patchUpdateAnalysisRequest);
 
   List<Analysis> getAnalysis(String studyId, Set<String> analysisStates);
 
