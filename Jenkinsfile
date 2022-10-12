@@ -331,4 +331,69 @@ pipeline {
             }
         }
     }
+
+    post {
+        fixed {
+            withCredentials([string(
+                credentialsId: 'OvertureSlackJenkinsWebhookURL',
+                variable: 'fixed_slackChannelURL'
+            )]) {
+                container('node') {
+                    script {
+                        if (env.BRANCH_NAME ==~ /(develop|main|master)/) {
+                            sh "curl \
+                                -X POST \
+                                -H 'Content-type: application/json' \
+                                --data '{ \
+                                    \"text\":\"Build Fixed: ${env.JOB_NAME} [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) \" \
+                                }' \
+                                ${fixed_slackChannelURL}"
+                        }
+                    }
+                }
+            }
+        }
+
+        success {
+            withCredentials([string(
+                credentialsId: 'OvertureSlackJenkinsWebhookURL',
+                variable: 'success_slackChannelURL'
+            )]) {
+                container('node') {
+                    script {
+                        if (env.BRANCH_NAME ==~ /(main|master)/) {
+                            sh "curl \
+                                -X POST \
+                                -H 'Content-type: application/json' \
+                                --data '{ \
+                                    \"text\":\"New Song published succesfully: v.${version} [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) \" \
+                                }' \
+                                ${success_slackChannelURL}"
+                        }
+                    }
+                }
+            }
+        }
+
+        unsuccessful {
+            withCredentials([string(
+                credentialsId: 'OvertureSlackJenkinsWebhookURL',
+                variable: 'failed_slackChannelURL'
+            )]) {
+                container('node') {
+                    script {
+                        if (env.BRANCH_NAME ==~ /(develop|main|master)/) {
+                            sh "curl \
+                                -X POST \
+                                -H 'Content-type: application/json' \
+                                --data '{ \
+                                    \"text\":\"Build Failed: ${env.JOB_NAME} [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) \" \
+                                }' \
+                                ${failed_slackChannelURL}"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
