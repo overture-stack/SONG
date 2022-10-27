@@ -212,8 +212,11 @@ public class AnalysisController {
       @RequestParam(value = "donorId", required = false) String donorIds,
       @RequestParam(value = "sampleId", required = false) String sampleIds,
       @RequestParam(value = "specimenId", required = false) String specimenIds,
-      @RequestParam(value = "fileId", required = false) String fileIds) {
-    val request = createIdSearchRequest(donorIds, sampleIds, specimenIds, fileIds);
+      @RequestParam(value = "fileId", required = false) String fileIds,
+      @RequestParam(value= "submitterSampleId", required = false) String submitterSampleIds,
+      @RequestParam(value= "submitterDonorId", required = false) String submitterDonorIds,
+      @RequestParam(value= "submitterSpecimenId", required = false) String submitterSpecimenIds){
+    val request = createIdSearchRequest(donorIds, sampleIds, specimenIds, fileIds, submitterSampleIds, submitterDonorIds, submitterSpecimenIds);
     return analysisService.idSearch(studyId, request);
   }
 

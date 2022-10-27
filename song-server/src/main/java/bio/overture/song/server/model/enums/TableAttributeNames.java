@@ -79,4 +79,8 @@ public class TableAttributeNames {
 
   public static final String INITIAL_STATE = "initial_state";
   public static final String UPDATED_STATE = "updated_state";
+
+  public static final String SUBMITTER_SAMPLE_ID = "submitter_sample_id";
+  public static final String SUBMITTER_DONOR_ID = "submitter_donor_id";
+  public static final String SUBMITTER_SPECIMEN_ID = "submitter_specimen_id";
 }
