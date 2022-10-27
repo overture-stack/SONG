@@ -44,6 +44,9 @@ public class SearchRepository {
     q.setParameter(ModelAttributeNames.SPECIMEN_ID, request.getSpecimenId());
     q.setParameter(ModelAttributeNames.SAMPLE_ID, request.getSampleId());
     q.setParameter(ModelAttributeNames.OBJECT_ID, request.getObjectId());
+    q.setParameter(ModelAttributeNames.SAMPLE_SUBMITTER_ID, request.getSubmitterSampleId());
+    q.setParameter(ModelAttributeNames.DONOR_SUBMITTER_ID, request.getSubmitterDonorIds());
+    q.setParameter(ModelAttributeNames.SPECIMEN_SUBMITTER_ID, request.getSubmitterSpecimenIds());
 
     val analyses = ImmutableList.<Analysis>builder();
     for (val result : q.getResultList()) {

@@ -26,6 +26,9 @@ public class ModelAttributeNames {
 
   public static final String DONOR_ID = "donorId";
   public static final String DONOR_SUBMITTER_ID = "donorSubmitterId";
+  public static final String SAMPLE_SUBMITTER_ID = "sampleSubmitterId";
+  public static final String SPECIMEN_SUBMITTER_ID = "specimenSubmitterId";
+
   public static final String STUDY_ID = "studyId";
   public static final String SPECIMEN_ID = "specimenId";
   public static final String SAMPLE_ID = "sampleId";
