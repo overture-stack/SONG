@@ -40,16 +40,7 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/studies/{studyId}/analysis")
@@ -121,6 +112,19 @@ public class AnalysisController {
       @PathVariable("analysisId") String analysisId,
       @RequestBody JsonNode updateAnalysisRequest) {
     analysisService.updateAnalysis(studyId, analysisId, updateAnalysisRequest);
+  }
+
+  @ApiOperation(value = "PatchUpdateAnalysis", notes = "Partial Update dynamic-data for for an analysis")
+  @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
+  @PatchMapping(
+          value = "/{analysisId}",
+          consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+  public void patchUpdateAnalysis(
+          @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+          @PathVariable("studyId") String studyId,
+          @PathVariable("analysisId") String analysisId,
+          @RequestBody JsonNode patchUpdateAnalysisRequest) {
+    analysisService.patchUpdateAnalysis(studyId, analysisId, patchUpdateAnalysisRequest);
   }
 
   @ApiOperation(
@@ -208,8 +212,11 @@ public class AnalysisController {
       @RequestParam(value = "donorId", required = false) String donorIds,
       @RequestParam(value = "sampleId", required = false) String sampleIds,
       @RequestParam(value = "specimenId", required = false) String specimenIds,
-      @RequestParam(value = "fileId", required = false) String fileIds) {
-    val request = createIdSearchRequest(donorIds, sampleIds, specimenIds, fileIds);
+      @RequestParam(value = "fileId", required = false) String fileIds,
+      @RequestParam(value= "submitterSampleId", required = false) String submitterSampleIds,
+      @RequestParam(value= "submitterDonorId", required = false) String submitterDonorIds,
+      @RequestParam(value= "submitterSpecimenId", required = false) String submitterSpecimenIds){
+    val request = createIdSearchRequest(donorIds, sampleIds, specimenIds, fileIds, submitterSampleIds, submitterDonorIds, submitterSpecimenIds);
     return analysisService.idSearch(studyId, request);
   }
 

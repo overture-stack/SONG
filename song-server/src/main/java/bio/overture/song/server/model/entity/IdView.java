@@ -17,14 +17,6 @@
 
 package bio.overture.song.server.model.entity;
 
-import static bio.overture.song.server.model.enums.TableAttributeNames.ANALYSIS_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.ANALYSIS_STATE;
-import static bio.overture.song.server.model.enums.TableAttributeNames.DONOR_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.OBJECT_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.SAMPLE_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.SPECIMEN_ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.STUDY_ID;
-
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
@@ -43,38 +35,52 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
+import static bio.overture.song.server.model.enums.TableAttributeNames.*;
+
 // NOTE: Since the '~*' regex evaluator does not exist in HQL, need to create a native postgres call
 @NamedNativeQueries({
-  @NamedNativeQuery(
-      name = IdView.ID_SEARCH_QUERY_NAME,
-      query =
-          "SELECT DISTINCT "
-              + STUDY_ID
-              + ", "
-              + ANALYSIS_ID
-              + ", "
-              + ANALYSIS_STATE
-              + " FROM IdView WHERE "
-              + STUDY_ID
-              + " = :"
-              + ModelAttributeNames.STUDY_ID
-              + " AND "
-              + DONOR_ID
-              + " ~* :"
-              + ModelAttributeNames.DONOR_ID
-              + " AND "
-              + SPECIMEN_ID
-              + " ~* :"
-              + ModelAttributeNames.SPECIMEN_ID
-              + " AND "
-              + SAMPLE_ID
-              + " ~* :"
-              + ModelAttributeNames.SAMPLE_ID
-              + " AND "
-              + OBJECT_ID
-              + " ~* :"
-              + ModelAttributeNames.OBJECT_ID,
-      resultSetMapping = IdView.ID_VIEW_DTO)
+    @NamedNativeQuery(
+        name = IdView.ID_SEARCH_QUERY_NAME,
+        query =
+            "SELECT DISTINCT "
+                + STUDY_ID
+                + ", "
+                + ANALYSIS_ID
+                + ", "
+                + ANALYSIS_STATE
+                + " FROM IdView WHERE "
+                + STUDY_ID
+                + " = :"
+                + ModelAttributeNames.STUDY_ID
+                + " AND "
+                + DONOR_ID
+                + " ~* :"
+                + ModelAttributeNames.DONOR_ID
+                + " AND "
+                + SPECIMEN_ID
+                + " ~* :"
+                + ModelAttributeNames.SPECIMEN_ID
+                + " AND "
+                + SAMPLE_ID
+                + " ~* :"
+                + ModelAttributeNames.SAMPLE_ID
+                + " AND "
+                + OBJECT_ID
+                + " ~* :"
+                + ModelAttributeNames.OBJECT_ID
+                + " AND "
+                + SUBMITTER_SAMPLE_ID
+                + " ~* :"
+                + ModelAttributeNames.SAMPLE_SUBMITTER_ID
+                + " AND "
+                + SUBMITTER_DONOR_ID
+                + " ~* :"
+                + ModelAttributeNames.DONOR_SUBMITTER_ID
+                + " AND "
+                + SUBMITTER_SPECIMEN_ID
+                + " ~* :"
+                + ModelAttributeNames.SPECIMEN_SUBMITTER_ID,
+        resultSetMapping = IdView.ID_VIEW_DTO)
 })
 @SqlResultSetMappings({
   @SqlResultSetMapping(

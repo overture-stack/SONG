@@ -657,7 +657,7 @@ public class AnalysisServiceTest {
 
     // Do a study-wide idSearch and verify the response effectively has the same
     // number of results as the getAnalysis method
-    val searchedAnalyses = service.idSearch(studyId, createIdSearchRequest(null, null, null, null));
+    val searchedAnalyses = service.idSearch(studyId, createIdSearchRequest(null, null, null, null, null, null, null ));
     assertEquals(searchedAnalyses.size(), expectedAnalyses.size());
     assertTrue(searchedAnalyses.containsAll(expectedAnalyses));
     assertTrue(expectedAnalyses.containsAll(searchedAnalyses));
@@ -739,7 +739,7 @@ public class AnalysisServiceTest {
   @Transactional
   public void testIdSearchEmptyStudy() {
     val studyId = studyGenerator.createRandomStudy();
-    val idSearchRequest = createIdSearchRequest(null, null, null, null);
+    val idSearchRequest = createIdSearchRequest(null, null, null, null, null, null, null);
     assertTrue(service.idSearch(studyId, idSearchRequest).isEmpty());
   }
 
@@ -758,7 +758,7 @@ public class AnalysisServiceTest {
   @Transactional
   public void testIdSearchDNEStudy() {
     val nonExistentStudyId = studyGenerator.generateNonExistingStudyId();
-    val idSearchRequest = createIdSearchRequest(null, null, null, null);
+    val idSearchRequest = createIdSearchRequest(null, null, null, null, null, null, null);
     assertSongError(
         () -> service.idSearch(nonExistentStudyId, idSearchRequest), STUDY_ID_DOES_NOT_EXIST);
   }

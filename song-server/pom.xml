@@ -20,7 +20,7 @@
     <parent>
         <artifactId>song</artifactId>
         <groupId>bio.overture</groupId>
-        <version>5.0.2</version>
+        <version>5.0.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>bio.overture</groupId>
             <artifactId>song-core</artifactId>
-            <version>5.0.2</version>
+            <version>5.0.3</version>
         </dependency>
 
         <!-- Spring -->
@@ -152,6 +152,12 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.java-json-tools</groupId>
+            <artifactId>json-patch</artifactId>
+            <version>1.13</version>
+        </dependency>
+
 
         <!-- Squiggly - Dynamic JSON Views -->
         <dependency>

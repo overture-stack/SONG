@@ -37,13 +37,25 @@ public class IdSearchRequest {
   @ApiModelProperty(notes = "regex pattern. Default is wildcard")
   private final String objectId;
 
+  @ApiModelProperty(notes = "regex pattern. Default is wildcard")
+  private final String submitterSampleId;
+
+  @ApiModelProperty(notes = "regex pattern. Default is wildcard")
+  private final String submitterDonorIds;
+
+  @ApiModelProperty(notes = "regex pattern. Default is wildcard")
+  private final String submitterSpecimenIds;
+
   public static IdSearchRequest createIdSearchRequest(
-      String donorId, String sampleId, String specimenId, String objectId) {
+      String donorId, String sampleId, String specimenId, String objectId, String submitterSampleId, String submitterDonorIds, String submitterSpecimenIds) {
     return new IdSearchRequest(
         getGlobPattern(donorId),
         getGlobPattern(sampleId),
         getGlobPattern(specimenId),
-        getGlobPattern(objectId));
+        getGlobPattern(objectId),
+        getGlobPattern(submitterSampleId),
+        getGlobPattern(submitterDonorIds),
+        getGlobPattern(submitterSpecimenIds));
   }
 
   public String getDonorId() {
