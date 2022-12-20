@@ -40,9 +40,6 @@ Although developed for cancer genomics, Song can support any data type. Features
 - Schema-less JSON info fields for user specific metadata
 - ACL security using [OAuth 2.0](https://oauth.net/2/) and scopes based on study codes
 - REST API with [Swagger UI](https://swagger.io/tools/swagger-ui/) built in
-- Capable of exporting payloads for mirroring
-- Metadata search functionality 
-- Error handling
 
 ## Documentation
 
@@ -63,7 +60,7 @@ Although developed for cancer genomics, Song can support any data type. Features
   <img align="right" alt="Overture overview" src="https://www.overture.bio/static/124ca0fede460933c64fe4e50465b235/a6d66/system-diagram.png" width="45%" hspace="5">
 </div>
 
-Overture is an ecosystem of research software tools, each with narrow responsibilities, designed to address the adapting needs of genomics research. 
+Overture is an ecosystem of research software tools, each with narrow responsibilities, designed to address the changing needs of genomics research. 
 
 Song commonly works in tandem with our file transfer and object storage service, [Score](https://github.com/overture-stack/score). As Song manages the verification and tracking of files and file metadata, Score runs in parallel to facilitate file transfers and object storage.
 
