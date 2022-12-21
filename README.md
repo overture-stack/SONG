@@ -8,7 +8,7 @@
 <img align="right" width="100vw" src="icon-song.png" alt="song-logo"/>
 </div>
 
-With the volume and velocity of modern genomic data and the variety of related biomedical data, using basic tools like spreadsheets and text files to manage metadata manually is no longer possible. As research moves to the cloud,  specialized software tools are required to standardize and automate these tasks. Song addresses this by providing researchers with an automated system for tracking and validating genomic files, metadata, and associated biomedical data across multiple cloud storage systems. 
+Given the volume, velocity and variety of modern genomic data, managing files and metadata manually using simple tools like spreadsheets and text files is no longer possible. As research moves to the cloud, specialized software tools are required to standardize and automate these tasks. Song addresses this by providing researchers with an automated system for tracking and validating genomic files and metadata across multiple cloud storage systems.
 
 Although developed for cancer genomics, Song can support any data type. Features and benefits of Song include:
 
