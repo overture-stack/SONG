@@ -8,9 +8,7 @@
 <img align="right" width="100vw" src="icon-song.png" alt="song-logo"/>
 </div>
 
-Given the volume, velocity and variety of modern genomic data, managing files and metadata manually using simple tools like spreadsheets and text files is no longer possible. As research moves to the cloud, specialized software tools are required to standardize and automate these tasks. Song addresses this by providing researchers with an automated system for tracking and validating genomic files and metadata across multiple cloud storage systems.
-
-Although developed for cancer genomics, Song can support any data type. Features and benefits of Song include:
+Inconsistencies in metadata formatting diminish the accessibility, interoperability, and reuse of genomics data. Song addresses this by providing an automated system for tracking and validating genomic metadata across multiple cloud storage systems. Although developed for cancer genomics, Song can support any data type. Features and benefits of Song include:
 
 - Association of metadata with object data stored in [Score](https://github.com/overture-stack/score) 
 - Validation of uploaded file metadata against a user-defined JSON Schema
