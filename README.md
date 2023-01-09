@@ -1,4 +1,4 @@
-# Song - Genomic & Biomedical Data Management Microservice
+# Song - Metadata Management Microservice
 
 [<img hspace="5" src="https://img.shields.io/badge/chat-on--slack-blue?style=for-the-badge">](http://slack.overture.bio)
 [<img hspace="5" src="https://img.shields.io/badge/License-gpl--v3.0-blue?style=for-the-badge">](https://github.com/overture-stack/song/blob/develop/LICENSE)
