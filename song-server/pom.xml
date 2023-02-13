@@ -37,7 +37,7 @@
 
         <dependency>
             <groupId>bio.overture</groupId>
-            <artifactId>song-core</artifactId
+            <artifactId>song-core</artifactId>
             <version>5.0.4-SNAPSHOT</version>
         </dependency>
 
