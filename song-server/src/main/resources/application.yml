@@ -44,7 +44,7 @@ spring:
         temp.use_jdbc_metadata_defaults: false
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:8432/song?stringtype=unspecified
+    url: jdbc:postgresql://localhost:5432/song?stringtype=unspecified
     username: postgres
     password: password
     max-active: 10
