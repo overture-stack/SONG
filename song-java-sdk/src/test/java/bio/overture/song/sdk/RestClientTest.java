@@ -32,9 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 
@@ -126,6 +124,11 @@ public class RestClientTest {
   public void testPut() {
     runSingleTest(PUT, () -> restClient.put(EXAMPLE_ENDPOINT, EXAMPLE_BODY, Sample.class));
     runSingleTest(PUT, () -> restClient.put(EXAMPLE_ENDPOINT, Sample.class));
+  }
+
+  @Test
+  public void testPatch() {
+    runSingleTest(PATCH, () -> restClient.patch(EXAMPLE_ENDPOINT, EXAMPLE_BODY, Sample.class));
   }
 
   @Test

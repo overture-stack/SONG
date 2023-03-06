@@ -31,7 +31,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
@@ -63,10 +63,15 @@ public class Factory {
   }
 
   public static RestTemplate buildRestTemplate(@NonNull RestClientConfig restClientConfig) {
+    HttpComponentsClientHttpRequestFactory requestFactory =
+        new HttpComponentsClientHttpRequestFactory();
+    requestFactory.setReadTimeout(600000);
+    requestFactory.setConnectTimeout(600000);
+
     val r = new RestTemplate();
     r.setErrorHandler(new ServerResponseErrorHandler());
     r.setUriTemplateHandler(new DefaultUriBuilderFactory(restClientConfig.getServerUrl()));
-    r.setRequestFactory(new SimpleClientHttpRequestFactory());
+    r.setRequestFactory(requestFactory);
     r.getInterceptors()
         .add(new DefaultClientHttpRequestInterceptor(restClientConfig.getAccessToken()));
     return r;

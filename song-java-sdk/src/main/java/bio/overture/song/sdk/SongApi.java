@@ -121,6 +121,12 @@ public class SongApi {
     restClient.put(url, updateAnalysisRequest, Object.class);
   }
 
+  public void patchAnalysis(
+      @NonNull String studyId, @NonNull String analysisId, @NonNull String patchAnalysisRequest) {
+    val url = endpoint.patchAnalysis(studyId, analysisId);
+    restClient.patch(url, patchAnalysisRequest, Object.class);
+  }
+
   public FileUpdateResponse updateFile(
       @NonNull String studyId,
       @NonNull String objectId,

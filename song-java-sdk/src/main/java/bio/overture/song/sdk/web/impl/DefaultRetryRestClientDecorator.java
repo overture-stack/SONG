@@ -48,4 +48,10 @@ public class DefaultRetryRestClientDecorator implements RestClient {
       throws ServerException {
     return retryTemplate.execute(r -> restClient.put(endpoint, body, responseType));
   }
+
+  @Override
+  public <R> ResponseEntity<R> patch(String endpoint, Object body, Class<R> responseType)
+      throws ServerException {
+    return retryTemplate.execute(r -> restClient.patch(endpoint, body, responseType));
+  }
 }
