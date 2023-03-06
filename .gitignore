@@ -87,3 +87,6 @@ song-client/.factorypath
 song-core/.factorypath
 
 song-server/.factorypath
+
+#Docker logs
+docker/scratch/
