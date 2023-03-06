@@ -46,6 +46,8 @@ here=$(dirname $0)
 if [ "$here" = "." ]; then
 	# This is the case, when the user runs this script from the ./bin directory
 	sing_home=..
+else
+  sing_home=${here%/bin}
 fi
 
 sing_logs=$sing_home/logs
