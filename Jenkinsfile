@@ -50,6 +50,11 @@ spec:
       value: tcp://localhost:2375
     - name: HOME
       value: /home/jenkins/agent
+  - name: curl
+    image: curlimages/curl
+    command:
+    - cat
+    tty: true
   securityContext:
     runAsUser: 1000
   volumes:
@@ -338,7 +343,7 @@ pipeline {
                 credentialsId: 'OvertureSlackJenkinsWebhookURL',
                 variable: 'fixed_slackChannelURL'
             )]) {
-                container('node') {
+                container('curl') {
                     script {
                         if (env.BRANCH_NAME ==~ /(develop|main|master)/) {
                             sh "curl \
@@ -359,7 +364,7 @@ pipeline {
                 credentialsId: 'OvertureSlackJenkinsWebhookURL',
                 variable: 'success_slackChannelURL'
             )]) {
-                container('node') {
+                container('curl') {
                     script {
                         if (env.BRANCH_NAME ==~ /(main|master)/) {
                             sh "curl \
@@ -380,7 +385,7 @@ pipeline {
                 credentialsId: 'OvertureSlackJenkinsWebhookURL',
                 variable: 'failed_slackChannelURL'
             )]) {
-                container('node') {
+                container('curl') {
                     script {
                         if (env.BRANCH_NAME ==~ /(develop|main|master)/) {
                             sh "curl \
