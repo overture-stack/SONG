@@ -142,8 +142,8 @@ Next, create an example :class:`Donor <overture_song.entities.Donor>` entity:
 
     donor = Donor()
     donor.studyId = api_config.study_id
-    donor.donorGender = "male"
-    donor.donorSubmitterId = "dsId1"
+    donor.gender = "Male"
+    donor.submitterDonorId = "dsId1"
     donor.set_info("randomDonorField", "someDonorValue")
 
 Create an example :class:`Specimen <overture_song.entities.Specimen>` entity:
@@ -151,9 +151,12 @@ Create an example :class:`Specimen <overture_song.entities.Specimen>` entity:
 .. code-block:: python
 
     specimen = Specimen()
-    specimen.specimenClass = "Tumour"
-    specimen.specimenSubmitterId = "sp_sub_1"
-    specimen.specimenType = "Normal - EBV immortalized"
+    specimen.specimenId = "sp1"
+    specimen.donorId = "DO1"
+    specimen.tumourNormalDesignation = "Tumour"
+    specimen.submitterSpecimenId = "sp_sub_1"
+    specimen.specimenType = "Normal"
+    specimen.specimenTissueSource = "Solid tissue"
     specimen.set_info("randomSpecimenField", "someSpecimenValue")
 
 
@@ -162,8 +165,10 @@ Create an example :class:`Sample <overture_song.entities.Sample>` entity:
 .. code-block:: python
 
     sample = Sample()
-    sample.sampleSubmitterId = "ssId1"
-    sample.sampleType = "RNA"
+    sample.submitterSampleId = "ssId1"
+    sample.sampleType = "Total RNA"
+    sample.specimenId = "sp1"
+    sample.matchedNormalSubmitterSampleId = "sample-x24-11a"
     sample.set_info("randomSample1Field", "someSample1Value")
 
 
@@ -179,6 +184,7 @@ Create 1 or more example :class:`File <overture_song.entities.File>` entities:
     file1.fileMd5sum = "myMd51"
     file1.fileSize = 1234561
     file1.fileType = "VCF"
+    file1.dataType = "a dataType here"
     file1.set_info("randomFile1Field", "someFile1Value")
 
     # File 2
@@ -189,6 +195,7 @@ Create 1 or more example :class:`File <overture_song.entities.File>` entities:
     file2.fileMd5sum = "myMd52"
     file2.fileSize = 1234562
     file2.fileType = "VCF"
+    file2.dataType = "a dataType here"
     file2.set_info("randomFile2Field", "someFile2Value")
 
 Create an example :class:`SequencingRead <overture_song.entities.SequencingRead>` experiment entity:
@@ -226,160 +233,22 @@ as follows:
     payload['analysisId'] = 'my_custom_analysis_id'
 
 
-Upload the Payload
+Submit the Payload
 -------------------
-With the payload built, the data can now be uploaded to the SONG server for validation. There are 2 modes for validation:
+With the payload built, the data can now be submitted to the SONG server for validation.
 
-a. **Synchronous** - uploads are validated SYNCHRONOUSLY. Although this is the default mode, it can be selected by setting the kwarg ``is_async_validation`` to ``False`` from the :func:`upload <overture_song.client.Api.upload>` method.
-b. **Asynchronously** - uploads are validated ASYNCHRONOUSLY. This allows the user to upload a batch of payloads. This mode can be selected by setting ``is_async_validation`` to ``True``.
-
-After calling the :func:`upload <overture_song.client.Api.upload>` method, the payload will be sent to the SONG server for validation, and a response will be returned:
+After calling the :func:`submit <overture_song.client.Api.submit>` method, the payload will be sent to the SONG server for validation, and a response will be returned:
 
 .. code-block:: python
 
-    >>> api.upload(json_payload=payload, is_async_validation=False)
+    >>> api.submit(json_payload=payload)
     {
         "status": "ok",
-        "uploadId": "UP-c49742d0-1fc8-4b45-9a1c-ea58d282ac58"
+        "analysisId": "c49742d0-1fc8-4b45-9a1c-ea58d282ac58"
     }
 
-If the ``status`` field from the response is ``ok``, this means the payload was successfully submitted to the SONG server for validation, and returned a randomly generated ``uploadId``, which is a receipt for the upload request.
+If the ``status`` field from the response is ``ok``, this means the payload was successfully submitted to the SONG server for validation, and returned a randomly generated ``analysisId``.
 
-Check the Status of the Upload
--------------------------------
-
-Before continuing, the previous upload's status must be checked using the
-:func:`status <overture_song.client.Api.status>`
-method, in order to ensure the payload was successfully validated.
-Using the previous ``uploadId``, the status of the upload can be requested and will return the following response:
-
-.. code-block:: python
-
-    >>> api.status('UP-c49742d0-1fc8-4b45-9a1c-ea58d282ac58')
-    {
-        "analysisId": "",
-        "uploadId": "UP-c49742d0-1fc8-4b45-9a1c-ea58d282ac58",
-        "studyId": "ABC123",
-        "state": "VALIDATED",
-        "createdAt": [
-            2018,
-            2,
-            16,
-            0,
-            54,
-            31,
-            73774000
-        ],
-        "updatedAt": [
-            2018,
-            2,
-            16,
-            0,
-            54,
-            31,
-            75476000
-        ],
-        "errors": [
-            ""
-        ],
-        "payload": {
-            "analysisState": "UNPUBLISHED",
-            "sample": [
-                {
-                    "info": {
-                        "randomSample1Field": "someSample1Value"
-                    },
-                    "sampleSubmitterId": "ssId1",
-                    "sampleType": "RNA",
-                    "specimen": {
-                        "info": {
-                            "randomSpecimenField": "someSpecimenValue"
-                        },
-                        "specimenSubmitterId": "sp_sub_1",
-                        "specimenClass": "Tumour",
-                        "specimenType": "Normal - EBV immortalized"
-                    },
-                    "donor": {
-                        "info": {
-                            "randomDonorField": "someDonorValue"
-                        },
-                        "donorSubmitterId": "dsId1",
-                        "studyId": "Study1",
-                        "donorGender": "male"
-                    }
-                }
-            ],
-            "file": [
-                {
-                    "info": {
-                        "randomFile1Field": "someFile1Value"
-                    },
-                    "fileName": "myFilename1.bam",
-                    "studyId": "Study1",
-                    "fileSize": 1234561,
-                    "fileType": "VCF",
-                    "fileMd5sum": "myMd51",
-                    "fileAccess": "controlled"
-                },
-                {
-                    "info": {
-                        "randomFile2Field": "someFile2Value"
-                    },
-                    "fileName": "myFilename2.bam",
-                    "studyId": "Study1",
-                    "fileSize": 1234562,
-                    "fileType": "VCF",
-                    "fileMd5sum": "myMd52",
-                    "fileAccess": "controlled"
-                }
-            ],
-            "analysisType": "sequencingRead",
-            "experiment": {
-                "info": {
-                    "randomSRField": "someSRValue"
-                },
-                "aligned": true,
-                "alignmentTool": "myAlignmentTool",
-                "insertSize": 0,
-                "libraryStrategy": "WXS",
-                "pairedEnd": true,
-                "referenceGenome": "GR37"
-            }
-        }
-    }
-
-
-In order to continue with the next section, the ``state`` field **MUST** have the value ``VALIDATED``, which indicates
-the upload was validated and there were no errors. If there were errors, the ``state`` field would have the value
-``VALIDATION_ERROR``, and the field ``errors`` would contains details of the validation issues. If there is an error,
-the user can simply correct the payload, re-upload and check the status again.
-
-
-.. _save-the-analysis-ref:
-
-Save the Analysis
-------------------
-Once the upload is successfully validated, the upload must be saved using the
-:func:`save <overture_song.client.Api.save>`
-method.  This generates the following response:
-
-
-.. code-block:: python
-
-    >>> api.save(status_response.uploadId, ignore_analysis_id_collisions=False)
-    {
-        "analysisId": "23c61f55-12b4-11e8-b46b-23a48c7b1324",
-        "status": "ok"
-    }
-
-
-
-The value of ``ok`` in the ``status`` field of the response indicates that an analysis was successfully created. The analysis
-will contain the same data as the payload, with the addition of server-side generated ids, which are generated by an
-centralized id server. By default, the request **DOES NOT IGNORE** analysisId
-collisions, however by setting the save method parameter ``ignore_analysis_id_collisions`` to ``True``, collisions will
-be ignored. This mechanism is considered an override and is heavily discouraged, however it is necessary considering the
-complexities associated with managing genomic data.
 
 Observe the UNPUBLISHED Analysis
 ---------------------------------
@@ -391,11 +260,18 @@ the SONG server generated an unique sampleId, specimenId, analysisId and objectI
 
     >>> api.get_analysis('23c61f55-12b4-11e8-b46b-23a48c7b1324')
     {
-        "analysisType": "sequencingRead",
+        "analysisType": {
+            "name": "sequencingRead"
+        },
         "info": {},
         "analysisId": "23c61f55-12b4-11e8-b46b-23a48c7b1324",
-        "study": "ABC123",
+        "studyId": "ABC123",
         "analysisState": "UNPUBLISHED",
+        "createdAt": "2023-03-09T17:18:15.673782",
+        "updatedAt": "2023-03-09T17:18:15.67814",
+        "firstPublishedAt": null,
+        "publishedAt": null,
+        "analysisStateHistory": [],
         "sample": [
             {
                 "info": {
@@ -403,23 +279,24 @@ the SONG server generated an unique sampleId, specimenId, analysisId and objectI
                 },
                 "sampleId": "SA599347",
                 "specimenId": "SP196154",
-                "sampleSubmitterId": "ssId1",
-                "sampleType": "RNA",
+                "submitterSampleId": "ssId1",
+                "sampleType": "Total RNA",
                 "specimen": {
                     "info": {
                         "randomSpecimenField": "someSpecimenValue"
                     },
-                    "specimenId": "SP196154",
-                    "donorId": "DO229595",
-                    "specimenSubmitterId": "sp_sub_1",
-                    "specimenClass": "Tumour",
-                    "specimenType": "Normal - EBV immortalized"
+                    "specimenId": "sp1",
+                    "donorId": "DO1",
+                    "submitterSpecimenId": "sp_sub_1",
+                    "tumourNormalDesignation": "Tumour",
+                    "specimenTissueSource": "Solid tissue",
+                    "specimenType": "Normal"
                 },
                 "donor": {
                     "donorId": "DO229595",
-                    "donorSubmitterId": "dsId1",
+                    "submitterDonorId": "dsId1",
                     "studyId": "ABC123",
-                    "donorGender": "male",
+                    "gender": "Male",
                     "info": {}
                 }
             }
@@ -435,8 +312,9 @@ the SONG server generated an unique sampleId, specimenId, analysisId and objectI
                 "studyId": "ABC123",
                 "fileSize": 1234561,
                 "fileType": "VCF",
-                "fileMd5sum": "myMd51                          ",
-                "fileAccess": "controlled"
+                "fileMd5sum": "myMd51",
+                "fileAccess": "controlled",
+                "dataType": "a dataType here"
             },
             {
                 "info": {
@@ -448,8 +326,9 @@ the SONG server generated an unique sampleId, specimenId, analysisId and objectI
                 "studyId": "ABC123",
                 "fileSize": 1234562,
                 "fileType": "VCF",
-                "fileMd5sum": "myMd52                          ",
-                "fileAccess": "controlled"
+                "fileMd5sum": "myMd52",
+                "fileAccess": "controlled",
+                "dataType": "a dataType here"
             }
         ],
         "experiment": {
@@ -534,11 +413,24 @@ Finally, verify the analysis is published by observing the value of the ``analys
 
     >>> api.get_analysis('23c61f55-12b4-11e8-b46b-23a48c7b1324')
     {
-        "analysisType": "sequencingRead",
+        "analysisType": {
+            "name": "sequencingRead"
+        },
         "info": {},
         "analysisId": "23c61f55-12b4-11e8-b46b-23a48c7b1324",
         "study": "ABC123",
         "analysisState": "PUBLISHED",
+        "createdAt": "2023-03-09T17:18:15.673782",
+        "updatedAt": "2023-03-09T17:18:15.67814",
+        "firstPublishedAt": "2023-03-09T18:36:32.25588",
+        "publishedAt": "2023-03-09T18:36:32.25588",
+        "analysisStateHistory": [
+        {
+            "initialState": "UNPUBLISHED",
+            "updatedState": "PUBLISHED",
+            "updatedAt": "2023-03-09T18:36:32.25588"
+        }
+        ],
         "sample": [
             {
                 "info": {
@@ -546,23 +438,24 @@ Finally, verify the analysis is published by observing the value of the ``analys
                 },
                 "sampleId": "SA599347",
                 "specimenId": "SP196154",
-                "sampleSubmitterId": "ssId1",
-                "sampleType": "RNA",
+                "submitterSampleId": "ssId1",
+                "sampleType": "Total RNA",
                 "specimen": {
                     "info": {
                         "randomSpecimenField": "someSpecimenValue"
                     },
-                    "specimenId": "SP196154",
-                    "donorId": "DO229595",
-                    "specimenSubmitterId": "sp_sub_1",
-                    "specimenClass": "Tumour",
-                    "specimenType": "Normal - EBV immortalized"
+                    "specimenId": "sp1",
+                    "donorId": "DO1",
+                    "submitterSpecimenId": "sp_sub_1",
+                    "tumourNormalDesignation": "Tumour",
+                    "specimenTissueSource": "Solid tissue",
+                    "specimenType": "Normal"
                 },
                 "donor": {
                     "donorId": "DO229595",
-                    "donorSubmitterId": "dsId1",
+                    "submitterDonorId": "dsId1",
                     "studyId": "ABC123",
-                    "donorGender": "male",
+                    "gender": "Male",
                     "info": {}
                 }
             }
@@ -578,8 +471,9 @@ Finally, verify the analysis is published by observing the value of the ``analys
                 "studyId": "ABC123",
                 "fileSize": 1234561,
                 "fileType": "VCF",
-                "fileMd5sum": "myMd51                          ",
-                "fileAccess": "controlled"
+                "fileMd5sum": "myMd51",
+                "fileAccess": "controlled",
+                "dataType": "a dataType here"
             },
             {
                 "info": {
@@ -591,8 +485,9 @@ Finally, verify the analysis is published by observing the value of the ``analys
                 "studyId": "ABC123",
                 "fileSize": 1234562,
                 "fileType": "VCF",
-                "fileMd5sum": "myMd52                          ",
-                "fileAccess": "controlled"
+                "fileMd5sum": "myMd52",
+                "fileAccess": "controlled",
+                "dataType": "a dataType here"
             }
         ],
         "experiment": {

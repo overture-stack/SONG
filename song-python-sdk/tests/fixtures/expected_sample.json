@@ -1,7 +1,8 @@
 {
-  "sampleId":  "sa1",
-  "sampleSubmitterId":  "ssId1",
-  "sampleType":  "RNA",
-  "specimenId":  "sp1",
-  "info" : { "randomField" : "someValue" }
+  "sampleId": "sa1",
+  "submitterSampleId": "ssId1",
+  "sampleType": "Total RNA",
+  "specimenId": "sp1",
+  "matchedNormalSubmitterSampleId": "sample-x24-11a",
+  "info": { "randomField": "someValue" }
 }
