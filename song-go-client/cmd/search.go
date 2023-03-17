@@ -21,9 +21,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 var searchTerms []string
@@ -77,7 +78,9 @@ func search() {
 	// -t search-terms ([]), -i info(false)
 	var responseBody string
 
-	if len(searchTerms) > 0 {
+	if len(analysisId) > 0 {
+		responseBody = client.GetAnalysis(studyID, analysisId)
+	} else if len(searchTerms) > 0 {
 		responseBody = client.InfoSearch(studyID, includeInfo, getTerms())
 	} else {
 		responseBody = client.IdSearch(studyID, getIds())

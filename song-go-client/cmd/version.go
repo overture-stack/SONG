@@ -32,6 +32,6 @@ var versionCmd = &cobra.Command{
 	Short: "Version number",
 	Long:  `Prints the version of this SONG CLI Application`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("v0.0.1 Alpha")
+		fmt.Println("v1.0.0")
 	},
 }
