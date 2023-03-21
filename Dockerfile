@@ -1,8 +1,8 @@
 ###############################
 # Maven builder
 ###############################
-# -alpine-slim image does not support --release flag
-FROM adoptopenjdk/openjdk11:jdk-11.0.6_10-alpine as builder
+# -alpine and -alpine-slim image does not support --release flag nor arm arch
+FROM adoptopenjdk/openjdk11:jdk-11.0.6_10-slim as builder
 
 # Build song-server jar
 COPY . /srv

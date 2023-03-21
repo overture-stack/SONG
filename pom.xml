@@ -381,7 +381,6 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <inherited>true</inherited>
                     <configuration>
-                        <release>11</release>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <showWarnings>true</showWarnings>

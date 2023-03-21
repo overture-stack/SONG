@@ -1,8 +1,9 @@
 {
-  "specimenId":  "sp1",
-  "donorId":  "DO1",
-  "specimenClass":  "Tumour",
-  "specimenSubmitterId":  "sp_sub_1",
-  "specimenType":  "Normal - EBV immortalized",
-  "info" : { "randomField" : "someValue" }
+  "specimenId": "sp1",
+  "donorId": "DO1",
+  "tumourNormalDesignation": "Tumour",
+  "submitterSpecimenId": "sp_sub_1",
+  "specimenType": "Normal",
+  "specimenTissueSource": "Solid tissue",
+  "info": { "randomField": "someValue" }
 }

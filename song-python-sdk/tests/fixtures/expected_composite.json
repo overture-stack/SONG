@@ -1,26 +1,27 @@
 {
-  "sampleId":  "sa1",
-  "sampleSubmitterId":  "ssId1",
-  "sampleType":  "RNA",
-  "specimenId":  "sp1",
+  "sampleId": "sa1",
+  "submitterSampleId": "ssId1",
+  "sampleType": "Total RNA",
+  "specimenId": "sp1",
+  "matchedNormalSubmitterSampleId": "sample-x24-11a",
   "specimen": {
-    "specimenId":  "sp1",
-    "donorId":  "DO1",
-    "specimenClass":  "Tumour",
-    "specimenSubmitterId":  "sp_sub_1",
-    "specimenType":  "Normal - EBV immortalized",
-    "info" : { "randomSpecimenField" : "someSpecimenValue" }
-
+    "specimenId": "sp1",
+    "donorId": "DO1",
+    "tumourNormalDesignation": "Tumour",
+    "submitterSpecimenId": "sp_sub_1",
+    "specimenType": "Normal",
+    "specimenTissueSource": "Solid tissue",
+    "info": { "randomSpecimenField": "someSpecimenValue" }
   },
-  "donor" : {
-    "donorId":  "DO1",
-    "studyId":  "Study1",
-    "donorGender":  "male",
-    "donorSubmitterId":  "dsId1",
-    "info" : { "randomDonorField" : "someDonorValue" }
+  "donor": {
+    "donorId": "DO1",
+    "studyId": "Study1",
+    "gender": "Male",
+    "submitterDonorId": "dsId1",
+    "info": { "randomDonorField": "someDonorValue" }
   },
-  "info" : {
-    "randomSampleField" : "someSampleValue" ,
-    "randomCEField" : "someCEValue"
+  "info": {
+    "randomSampleField": "someSampleValue",
+    "randomCEField": "someCEValue"
   }
 }

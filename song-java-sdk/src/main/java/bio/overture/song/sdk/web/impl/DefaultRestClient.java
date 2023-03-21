@@ -17,6 +17,7 @@
 package bio.overture.song.sdk.web.impl;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 
@@ -56,5 +57,13 @@ public class DefaultRestClient implements RestClient {
       throws ServerException {
     val entity = new HttpEntity<Object>(body, null);
     return restTemplate.exchange(endpoint, PUT, entity, responseType);
+  }
+
+  @Override
+  public <R> ResponseEntity<R> patch(
+      @NonNull String endpoint, Object body, @NonNull Class<R> responseType)
+      throws ServerException {
+    val entity = new HttpEntity<Object>(body, null);
+    return restTemplate.exchange(endpoint, PATCH, entity, responseType);
   }
 }

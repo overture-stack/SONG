@@ -80,13 +80,14 @@ class File(Metadata, Validatable):
     fileType: str = None
     fileMd5sum: str = None
     fileAccess: str = None
+    dataType: str = None
 
     def validate(self):
         raise NotImplemented("not implemented")
 
     @classmethod
     def create(cls, fileName, fileSize, fileType, fileMd5sum,
-               fileAccess, studyId=None, analysisId=None, objectId=None, info=None):
+               fileAccess, studyId=None, analysisId=None, objectId=None, info=None, dataType=None):
         f = File()
         f.objectId = objectId
         f.analysisId = analysisId
@@ -97,6 +98,7 @@ class File(Metadata, Validatable):
         f.fileMd5sum = fileMd5sum
         f.fileAccess = fileAccess
         f.fileName = fileName
+        f.dataType = dataType
         return f
 
 
@@ -104,21 +106,23 @@ class File(Metadata, Validatable):
 class Sample(Metadata, Validatable):
     sampleId: str = None
     specimenId: str = None
-    sampleSubmitterId: str = None
+    submitterSampleId: str = None
     sampleType: str = None
+    matchedNormalSubmitterSampleId: str = None
 
     def validate(self):
         raise NotImplemented("not implemented")
 
     @classmethod
-    def create(cls, specimenId, sampleSubmitterId,
-               sampleType, sampleId=None, info=None):
+    def create(cls, specimenId, submitterSampleId,
+               sampleType, sampleId=None, info=None, matchedNormalSubmitterSampleId=None):
         s = Sample()
         s.info = default_value(info, {})
         s.specimenId = specimenId
+        s.submitterSampleId = submitterSampleId
         s.sampleType = sampleType
-        s.sampleSubmitterId = sampleSubmitterId
         s.sampleId = sampleId
+        s.matchedNormalSubmitterSampleId = matchedNormalSubmitterSampleId
         return s
 
 
@@ -126,46 +130,62 @@ class Sample(Metadata, Validatable):
 class Specimen(Metadata, Validatable):
     specimenId: str = None
     donorId: str = None
-    specimenSubmitterId: str = None
-    specimenClass: str = None
+    submitterSpecimenId: str = None
+    tumourNormalDesignation: str = None
     specimenType: str = None
+    specimenTissueSource: str = None
 
     def validate(self):
         raise NotImplemented("not implemented")
 
     @classmethod
-    def create(cls, donorId, specimenSubmitterId, specimenClass, specimenType,
-               specimenId=None, info=None):
+    def create(cls, donorId, submitterSpecimenId, tumourNormalDesignation, specimenType,
+               specimenId=None, info=None, specimenTissueSource=None):
         s = Specimen()
         s.info = default_value(info, {})
         s.specimenId = specimenId
         s.donorId = donorId
         s.specimenType = specimenType
-        s.specimenClass = specimenClass
-        s.specimenSubmitterId = specimenSubmitterId
+        s.tumourNormalDesignation = tumourNormalDesignation
+        s.submitterSpecimenId = submitterSpecimenId
+        s.specimenTissueSource = specimenTissueSource
         return s
 
 
 @dataclass(frozen=False)
 class Donor(Metadata, Validatable):
     donorId: str = None
-    donorSubmitterId: str = None
+    submitterDonorId: str = None
     studyId: str = None
-    donorGender: str = None
+    gender: str = None
 
     def validate(self):
         raise NotImplemented("not implemented")
 
     @classmethod
-    def create(cls, donorSubmitterId, studyId, donorGender, donorId=None, info=None):
+    def create(cls, submitterDonorId, studyId, gender, donorId=None, info=None):
         d = Donor()
         d.donorId = donorId
         d.info = default_value(info, {})
         d.studyId = studyId
-        d.donorSubmitterId = donorSubmitterId
-        d.donorGender = donorGender
+        d.submitterDonorId = submitterDonorId
+        d.gender = gender
         return d
 
+@dataclass(frozen=False)
+class AnalysisType(Validatable):
+    name: str = None
+    version: int = 1
+
+    def validate(self):
+        raise NotImplemented("not implemented")
+
+    @classmethod
+    def create(cls, name, version = 1):
+        t = AnalysisType()
+        t.name = name
+        t.version = version
+        return t
 
 @dataclass(frozen=False)
 class CompositeEntity(Sample):
@@ -179,10 +199,12 @@ class CompositeEntity(Sample):
     def base_on_sample(cls, sample):
         s = CompositeEntity()
         s.sampleId = sample.sampleId
-        s.sampleSubmitterId = sample.sampleSubmitterId
         s.sampleType = sample.sampleType
         s.info = sample.info
         s.specimenId = sample.specimenId
+        s.submitterSampleId = sample.submitterSampleId
+        s.matchedNormalSubmitterSampleId = sample.matchedNormalSubmitterSampleId
+
         return s
 
     @classmethod
@@ -204,17 +226,17 @@ class Experiment(Metadata):
 class VariantCall(Experiment, Validatable):
     analysisId: str = None
     variantCallingTool: str = None
-    matchedNormalSampleSubmitterId: str = None
+    matchedNormalSubmitterSampleId: str = None
 
     def validate(self):
         raise NotImplemented("not implemented")
 
     @classmethod
-    def create(cls, variantCallingTool, matchedNormalSampleSubmitterId, analysisId=None):
+    def create(cls, variantCallingTool, matchedNormalSubmitterSampleId, analysisId=None):
         s = VariantCall()
         s.analysisId = analysisId
         s.variantCallingTool = variantCallingTool
-        s.matchedNormalSampleSubmitterId = matchedNormalSampleSubmitterId
+        s.matchedNormalSubmitterSampleId = matchedNormalSubmitterSampleId
         return s
 
 
@@ -252,18 +274,18 @@ class SequencingRead(Experiment, Validatable):
 @dataclass(frozen=False)
 class Analysis(Entity):
     analysisId: str = None
-    study: str = None
+    studyId: str = None
     analysisState: str = "UNPUBLISHED"
 
     # TODO: add typing to this. should be a list of type Sample
-    sample: List[CompositeEntity] = None
+    samples: List[CompositeEntity] = None
 
     # TODO: add typing to this. should be a list of type File
-    file: List[File] = None
+    files: List[File] = None
 
     def __post_init__(self):
-        self.sample = []
-        self.file = []
+        self.samples = []
+        self.files = []
 
     @classmethod
     def builder(cls):
@@ -276,30 +298,30 @@ class Analysis(Entity):
 
 @dataclass(frozen=False)
 class SequencingReadAnalysis(Analysis, Validatable):
-    analysisType: str = "sequencingRead"
+    analysisType: Type[AnalysisType] = AnalysisType.create("sequencingRead")
 
     # TODO: add typing to this. should be a list of type File
     experiment: Type[SequencingRead] = None
 
     @classmethod
-    def create(cls, experiment, sample, file, analysisId=None, study=None, analysisState="UNPUBLISHED", info=None):
+    def create(cls, experiment, samples, files, analysisId=None, studyId=None, analysisState="UNPUBLISHED", info=None):
         check_type(experiment, SequencingRead)
-        check_state(sample is not None and isinstance(sample, list) and len(sample) > 0,
+        check_state(samples is not None and isinstance(samples, list) and len(samples) > 0,
                     "Atleast one sample must be defined")
-        check_state(file is not None and isinstance(file, list) and len(file) > 0,
+        check_state(files is not None and isinstance(files, list) and len(files) > 0,
                     "Atleast one file must be defined")
-        for s in sample:
-            check_type(s, CompositeEntity)
-        for f in file:
+        for s in samples:
+            check_type(s, Sample)
+        for f in files:
             check_type(f, File)
 
         s = SequencingReadAnalysis()
-        s.sample = sample
-        s.file = file
+        s.samples = samples
+        s.files = files
         s.info = default_value(info, {})
         s.experiment = experiment
         s.analysisId = analysisId
-        s.study = study
+        s.studyId = studyId
         s.analysisState = analysisState
         return s
 
@@ -309,30 +331,30 @@ class SequencingReadAnalysis(Analysis, Validatable):
 
 @dataclass(frozen=False)
 class VariantCallAnalysis(Analysis, Validatable):
-    analysisType: str = 'variantCall'
+    analysisType: Type[AnalysisType] = AnalysisType.create("variantCall")
 
     # TODO: add typing to this. should be a list of type File
     experiment: Type[VariantCall] = None
 
     @classmethod
-    def create(cls, experiment, sample, file, analysisId=None, study=None, analysisState="UNPUBLISHED", info=None):
+    def create(cls, experiment, samples, files, analysisId=None, studyId=None, analysisState="UNPUBLISHED", info=None):
         check_type(experiment, VariantCall)
-        check_state(sample is not None and isinstance(sample, list) and len(sample) > 0,
+        check_state(samples is not None and isinstance(samples, list) and len(samples) > 0,
                     "Atleast one sample must be defined")
-        check_state(file is not None and isinstance(file, list) and len(file) > 0,
+        check_state(files is not None and isinstance(files, list) and len(files) > 0,
                     "Atleast one file must be defined")
-        for s in sample:
+        for s in samples:
             check_type(s, CompositeEntity)
-        for f in file:
+        for f in files:
             check_type(f, File)
 
         s = VariantCallAnalysis()
         s.experiment = experiment
         s.analysisId = analysisId
-        s.study = study
+        s.studyId = studyId
         s.analysisState = analysisState
-        s.sample = sample
-        s.file = file
+        s.samples = samples
+        s.files = files
         s.info = default_value(info, {})
         return s
 

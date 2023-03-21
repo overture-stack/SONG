@@ -39,6 +39,9 @@ public interface RestClient {
   <R> ResponseEntity<R> put(String endpoint, Object body, Class<R> responseType)
       throws ServerException;
 
+  <R> ResponseEntity<R> patch(String endpoint, Object body, Class<R> responseType)
+      throws ServerException;
+
   default <R> ResponseEntity<List<R>> putList(String endpoint, Object body, Class<R> contentType)
       throws ServerException {
     return convertToList(put(endpoint, body, String.class), contentType);

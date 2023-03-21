@@ -47,23 +47,11 @@ class Api(object):
     def config(self):
         return self.__config
 
-    def upload(self, json_payload, is_async_validation=False):
+    def submit(self, json_payload):
         self.check_is_alive()
         return self.__rest.post(
-            self.__endpoints.upload(
-                self.config.study_id,
-                is_async_validation=is_async_validation), dict_data=json_payload)
-
-    def status(self, upload_id):
-        self.check_is_alive()
-        endpoint = self.__endpoints.status(self.config.study_id, upload_id)
-        return self.__rest.get(endpoint)
-
-    def save(self, upload_id, ignore_analysis_id_collisions=False):
-        self.check_is_alive()
-        endpoint = self.__endpoints.save_by_id(
-            self.config.study_id, upload_id, ignore_analysis_id_collisions=ignore_analysis_id_collisions)
-        return self.__rest.post(endpoint)
+            self.__endpoints.submit(
+                self.config.study_id), dict_data=json_payload)
 
     def get_analysis_files(self, analysis_id):
         self.check_is_alive()
@@ -238,18 +226,8 @@ class Endpoints(object):
     def __init__(self, server_url):
         self.__server_url = server_url
 
-    def upload(self, study_id, is_async_validation=False):
-        if is_async_validation:
-            return "{}/upload/{}/async".format(self.__server_url, study_id)
-        else:
-            return "{}/upload/{}".format(self.__server_url, study_id)
-
-    def save_by_id(self, study_id, upload_id, ignore_analysis_id_collisions):
-        return "{}/upload/{}/save/{}?ignoreAnalysisIdCollisions={}".format(
-            self.__server_url, study_id, upload_id, ignore_analysis_id_collisions)
-
-    def status(self, study_id, upload_id):
-        return "{}/upload/{}/status/{}".format(self.__server_url, study_id, upload_id)
+    def submit(self, study_id):
+        return "{}/submit/{}".format(self.__server_url, study_id)
 
     def get_analysis_files(self, study_id, analysis_id):
         return "{}/studies/{}/analysis/{}/files".format(self.__server_url, study_id, analysis_id)
