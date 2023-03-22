@@ -28,7 +28,7 @@ RUN addgroup --system --gid $SONG_GID $SONG_USER  \
     && adduser --system --uid $SONG_UID --ingroup $SONG_USER $SONG_USER  \
     && mkdir -p $SONG_HOME $SONG_LOGS \
     && chown -R $SONG_UID:$SONG_GID $SONG_HOME \
-	&& apt-get install -y bash jq
+	&& apt-get update && apt-get install -y bash jq
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
 
