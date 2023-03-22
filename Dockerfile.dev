@@ -1,7 +1,7 @@
 ###############################
 # Song Client
 ###############################
-FROM adoptopenjdk/openjdk11:jre-11.0.6_10-alpine as client
+FROM adoptopenjdk/openjdk11:jre-11.0.6_10 as client
 
 ENV SONG_CLIENT_HOME   /song-client
 ENV CLIENT_DIST_DIR    /song-client-dist
@@ -10,10 +10,10 @@ ENV PATH $PATH:$SONG_CLIENT_HOME/bin
 ENV SONG_HOME /home/song
 ENV SONG_USER song
 
-RUN adduser $SONG_USER >& /dev/null || true \
+RUN adduser $SONG_USER > /dev/null 2>&1 || true \
 	&& mkdir -p $SONG_CLIENT_HOME \
 	&& chown -R $SONG_USER:$SONG_USER $SONG_CLIENT_HOME  \
-	&& apk add bash==5.0.11-r1
+	&& apt-get install -y bash
 
 COPY song-client/target/song-client-*-dist.tar.gz  /song-client.tar.gz
 
@@ -34,7 +34,7 @@ WORKDIR $SONG_CLIENT_HOME
 ###############################
 # Song Server
 ###############################
-FROM adoptopenjdk/openjdk11:jre-11.0.6_10-alpine as server
+FROM adoptopenjdk/openjdk11:jre-11.0.6_10 as server
 
 # Paths
 ENV SONG_HOME /song-server
@@ -44,8 +44,8 @@ ENV SONG_USER song
 ENV SONG_UID 9999
 ENV SONG_GID 9999
 
-RUN addgroup -S -g $SONG_GID $SONG_USER  \
-    && adduser -S -u $SONG_UID -G $SONG_USER $SONG_USER  \
+RUN addgroup --system --gid $SONG_GID $SONG_USER  \
+    && adduser --system --uid $SONG_UID --ingroup $SONG_USER $SONG_USER  \
     && mkdir -p $SONG_HOME $SONG_LOGS \
     && chown -R $SONG_UID:$SONG_GID $SONG_HOME
 
