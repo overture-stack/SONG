@@ -13,7 +13,7 @@ ENV SONG_USER song
 RUN adduser $SONG_USER > /dev/null 2>&1 || true \
 	&& mkdir -p $SONG_CLIENT_HOME \
 	&& chown -R $SONG_USER:$SONG_USER $SONG_CLIENT_HOME  \
-	&& apt-get install -y bash
+	&& apt-get update && apt-get install -y bash
 
 COPY song-client/target/song-client-*-dist.tar.gz  /song-client.tar.gz
 
