@@ -120,7 +120,7 @@ help:
 	@echo "To dry-execute a target run: make -n <target> "
 	@echo
 	@echo "Available Targets: "
-	@grep '^[A-Za-z][A-Za-z0-9_-]\+:.*' $(ROOT_DIR)/Makefile | sed 's/:.*//' | sed 's/^/\t/'
+	@grep '^[A-Za-z0-9_-]\+:.*' $(ROOT_DIR)/Makefile | sed 's/:.*//' | sed 's/^/\t/'
 	@echo
 
 # Outputs the Docker run profile in IntelliJ to debug song-client
