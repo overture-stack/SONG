@@ -19,40 +19,28 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var pFlag bool
 
 func init() {
 	RootCmd.AddCommand(statusCmd)
-	statusCmd.Flags().BoolVarP(&pFlag, "ping", "p", false, "Just check if server is alive")
 }
 
-func getStatus(uploadID string) {
+func getServerStatus() {
 	var responseBody string
-	studyID := viper.GetString("study")
 	client := createClient()
-	if pFlag {
-		responseBody = client.GetServerStatus()
-	} else {
-		responseBody = client.GetStatus(studyID, uploadID)
-	}
+	responseBody = client.GetServerStatus()
 	fmt.Println(responseBody)
 }
 
 var statusCmd = &cobra.Command{
-	Use:   "status -p OR status <uploadID>",
-	Short: "Get status of uploaded analysis",
-	Long:  `Get status of uploaded analysis`,
+	Use:   "status",
+	Short: "Get Song Server Status",
+	Long:  `Get Song Server Status`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var uploadID string
-		if len(args) > 0 {
-			uploadID = args[0]
-		} else {
-			uploadID = ""
-		}
-		getStatus(uploadID)
+		getServerStatus()
 	},
 }
