@@ -22,6 +22,9 @@
 import hashlib
 import unittest
 
+import sys
+sys.path.insert(0,'/Users/lrivera/dev/SONG/song-python-sdk')
+
 from overture_song.entities import *
 from overture_song.model import *
 from overture_song.tools import FileUploadState
@@ -85,6 +88,8 @@ class TempFileStorage(object):
     def __generate_file(self):
         filename = self.test_dir+os.sep+self.file_prefix+str(self.count)
         self.count += 1
+        
+        print('filename:' + str(filename))
         return TestFile(filename)
 
     def get_test_file(self):
@@ -110,8 +115,9 @@ class SongTests(unittest.TestCase):
 
     def __init__(self, methodName='runTest'):
         super(SongTests, self).__init__(methodName)
-        self.fixture_dir = "./fixtures"
-        self.file_storage = TempFileStorage("./tempTestFiles")
+        self.script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.fixture_dir = self.script_dir + "/fixtures"
+        self.file_storage = TempFileStorage(self.script_dir + "/tempTestFiles")
         self.maxDiff = None
 
     def _get_fixture_filename(self, filename):
@@ -119,6 +125,7 @@ class SongTests(unittest.TestCase):
 
     def test_manifest_generation(self):
         expected_test_file = TestFile(self._get_fixture_filename("expected_test_manifest_generation.txt"))
+        print("file exists?" + str(os.path.exists(expected_test_file.is_exists())))
         actual_test_file = self.file_storage.get_test_file()
         analysis_id = "AN1"
         manifest_entry_1 = ManifestEntry("fileId_1", "myFileName1.txt", "12345qwert_1")
@@ -190,7 +197,7 @@ class SongTests(unittest.TestCase):
 
         variant_call = VariantCall()
         variant_call.analysisId = "an1"
-        variant_call.matchedNormalSampleSubmitterId = "matched1"
+        variant_call.matchedNormalSubmitterSampleId = "matched1"
         variant_call.variantCallingTool = "smuffin"
         variant_call.set_info("randomField", "someValue")
 
@@ -208,6 +215,7 @@ class SongTests(unittest.TestCase):
         file.fileMd5sum = "myMd5"
         file.fileSize = 123456
         file.fileType = "VCF"
+        file.dataType = "a dataType here"
         file.objectId = "myObjectId"
         file.set_info("randomField", "someValue")
         file.sdfsdfsdf = 234243
@@ -220,9 +228,10 @@ class SongTests(unittest.TestCase):
 
         sample = Sample()
         sample.sampleId = "sa1"
-        sample.sampleSubmitterId = "ssId1"
-        sample.sampleType = "RNA"
+        sample.submitterSampleId = "ssId1"
+        sample.sampleType = "Total RNA"
         sample.specimenId = "sp1"
+        sample.matchedNormalSubmitterSampleId = "sample-x24-11a"
         sample.set_info("randomField", "someValue")
 
         actual_dict = json.loads(sample.to_json())
@@ -234,9 +243,10 @@ class SongTests(unittest.TestCase):
         sp = Specimen()
         sp.specimenId = "sp1"
         sp.donorId = "DO1"
-        sp.specimenClass = "Tumour"
-        sp.specimenSubmitterId = "sp_sub_1"
-        sp.specimenType = "Normal - EBV immortalized"
+        sp.tumourNormalDesignation = "Tumour"
+        sp.submitterSpecimenId = "sp_sub_1"
+        sp.specimenType = "Normal"
+        sp.specimenTissueSource = "Solid tissue"
         sp.set_info("randomField", "someValue")
 
         actual_dict = json.loads(sp.to_json())
@@ -248,8 +258,8 @@ class SongTests(unittest.TestCase):
         d = Donor()
         d.donorId = "DO1"
         d.studyId = "S1"
-        d.donorGender = "male"
-        d.donorSubmitterId = "sub1"
+        d.gender = "Male"
+        d.submitterDonorId = "sub1"
         d.set_info("randomField", "someValue")
 
         actual_dict = json.loads(d.to_json())
@@ -261,23 +271,25 @@ class SongTests(unittest.TestCase):
         d = Donor()
         d.donorId = "DO1"
         d.studyId = "Study1"
-        d.donorGender = "male"
-        d.donorSubmitterId = "dsId1"
+        d.gender = "Male"
+        d.submitterDonorId = "dsId1"
         d.set_info("randomDonorField", "someDonorValue")
 
         sp = Specimen()
         sp.specimenId = "sp1"
         sp.donorId = "DO1"
-        sp.specimenClass = "Tumour"
-        sp.specimenSubmitterId = "sp_sub_1"
-        sp.specimenType = "Normal - EBV immortalized"
+        sp.tumourNormalDesignation = "Tumour"
+        sp.submitterSpecimenId = "sp_sub_1"
+        sp.specimenType = "Normal"
+        sp.specimenTissueSource = "Solid tissue"
         sp.set_info("randomSpecimenField", "someSpecimenValue")
 
         sample = Sample()
         sample.sampleId = "sa1"
-        sample.sampleSubmitterId = "ssId1"
-        sample.sampleType = "RNA"
+        sample.submitterSampleId = "ssId1"
+        sample.sampleType = "Total RNA"
         sample.specimenId = "sp1"
+        sample.matchedNormalSubmitterSampleId = "sample-x24-11a"
         sample.set_info("randomSampleField", "someSampleValue")
 
         c = CompositeEntity.base_on_sample(sample)
@@ -294,17 +306,19 @@ class SongTests(unittest.TestCase):
         # Sample 1
         sample1 = Sample()
         sample1.sampleId = "sa1"
-        sample1.sampleSubmitterId = "ssId1"
-        sample1.sampleType = "RNA"
+        sample1.submitterSampleId = "ssId1"
+        sample1.sampleType = "Total RNA"
         sample1.specimenId = "sp1"
+        sample1.matchedNormalSubmitterSampleId = "sample-x24-11a"
         sample1.set_info("randomSample1Field", "someSample1Value")
 
         # Sample 2
         sample2 = Sample()
         sample2.sampleId = "sa2"
-        sample2.sampleSubmitterId = "ssId2"
-        sample2.sampleType = "RNA"
+        sample2.submitterSampleId = "ssId2"
+        sample2.sampleType = "Total RNA"
         sample2.specimenId = "sp1"
+        sample2.matchedNormalSubmitterSampleId = "sample-x24-11b"
         sample2.set_info("randomSample2Field", "someSample2Value")
 
         # File 1
@@ -317,6 +331,7 @@ class SongTests(unittest.TestCase):
         file1.fileSize = 1234561
         file1.fileType = "VCF"
         file1.objectId = "myObjectId1"
+        file1.dataType = "a dataType here"
         file1.set_info("randomFile1Field", "someFile1Value")
 
         # File 2
@@ -329,14 +344,15 @@ class SongTests(unittest.TestCase):
         file2.fileSize = 1234562
         file2.fileType = "VCF"
         file2.objectId = "myObjectId2"
+        file2.dataType = "a dataType here"
         file2.set_info("randomFile2Field", "someFile2Value")
 
         a = Analysis()
         a.analysisId = "an1"
-        a.study = "Study1"
+        a.studyId = "Study1"
         a.analysisState = 'UNPUBLISHED'
-        a.sample += [sample1, sample2]
-        a.file += [file1, file2]
+        a.samples += [sample1, sample2]
+        a.files += [file1, file2]
 
         actual_dict = json.loads(a.to_json())
         self.assertDictEqual(actual_dict, expected_dict)
@@ -347,17 +363,19 @@ class SongTests(unittest.TestCase):
         # Sample 1
         sample1 = Sample()
         sample1.sampleId = "sa1"
-        sample1.sampleSubmitterId = "ssId1"
-        sample1.sampleType = "RNA"
+        sample1.submitterSampleId = "ssId1"
+        sample1.sampleType = "Total RNA"
         sample1.specimenId = "sp1"
+        sample1.matchedNormalSubmitterSampleId = "sample-x24-11a"
         sample1.set_info("randomSample1Field", "someSample1Value")
 
         # Sample 2
         sample2 = Sample()
         sample2.sampleId = "sa2"
-        sample2.sampleSubmitterId = "ssId2"
-        sample2.sampleType = "RNA"
+        sample2.submitterSampleId = "ssId2"
+        sample2.sampleType = "Total RNA"
         sample2.specimenId = "sp1"
+        sample2.matchedNormalSubmitterSampleId = "sample-x24-11b"
         sample2.set_info("randomSample2Field", "someSample2Value")
 
         # File 1
@@ -370,6 +388,7 @@ class SongTests(unittest.TestCase):
         file1.fileSize = 1234561
         file1.fileType = "VCF"
         file1.objectId = "myObjectId1"
+        file1.dataType = "a dataType here"
         file1.set_info("randomFile1Field", "someFile1Value")
 
         # File 2
@@ -382,6 +401,7 @@ class SongTests(unittest.TestCase):
         file2.fileSize = 1234562
         file2.fileType = "VCF"
         file2.objectId = "myObjectId2"
+        file2.dataType = "a dataType here"
         file2.set_info("randomFile2Field", "someFile2Value")
 
         # SequencingRead
@@ -398,10 +418,10 @@ class SongTests(unittest.TestCase):
         # SequencingReadAnalysis
         a = SequencingReadAnalysis()
         a.analysisId = "an1"
-        a.study = "Study1"
+        a.studyId = "Study1"
         a.analysisState = 'UNPUBLISHED'
-        a.sample += [sample1, sample2]
-        a.file += [file1, file2]
+        a.samples += [sample1, sample2]
+        a.files += [file1, file2]
         a.experiment = sr
 
         actual_dict = json.loads(a.to_json())
@@ -413,17 +433,19 @@ class SongTests(unittest.TestCase):
         # Sample 1
         sample1 = Sample()
         sample1.sampleId = "sa1"
-        sample1.sampleSubmitterId = "ssId1"
-        sample1.sampleType = "RNA"
+        sample1.submitterSampleId = "ssId1"
+        sample1.sampleType = "Total RNA"
         sample1.specimenId = "sp1"
+        sample1.matchedNormalSubmitterSampleId = "sample-x24-11a"
         sample1.set_info("randomSample1Field", "someSample1Value")
 
         # Sample 2
         sample2 = Sample()
         sample2.sampleId = "sa2"
-        sample2.sampleSubmitterId = "ssId2"
-        sample2.sampleType = "RNA"
+        sample2.submitterSampleId = "ssId2"
+        sample2.sampleType = "Total RNA"
         sample2.specimenId = "sp1"
+        sample2.matchedNormalSubmitterSampleId = "sample-x24-11b"
         sample2.set_info("randomSample2Field", "someSample2Value")
 
         # File 1
@@ -436,6 +458,7 @@ class SongTests(unittest.TestCase):
         file1.fileSize = 1234561
         file1.fileType = "VCF"
         file1.objectId = "myObjectId1"
+        file1.dataType = "a dataType here"
         file1.set_info("randomFile1Field", "someFile1Value")
 
         # File 2
@@ -448,22 +471,23 @@ class SongTests(unittest.TestCase):
         file2.fileSize = 1234562
         file2.fileType = "VCF"
         file2.objectId = "myObjectId2"
+        file2.dataType = "a dataType here"
         file2.set_info("randomFile2Field", "someFile2Value")
 
         # VariantCall
         variant_call = VariantCall()
         variant_call.analysisId = "an1"
-        variant_call.matchedNormalSampleSubmitterId = "matched1"
+        variant_call.matchedNormalSubmitterSampleId = "matched1"
         variant_call.variantCallingTool = "smuffin"
         variant_call.set_info("randomVCField", "someVCValue")
 
         # VariantCallAnalysis
         a = VariantCallAnalysis()
         a.analysisId = "an1"
-        a.study = "Study1"
+        a.studyId = "Study1"
         a.analysisState = 'UNPUBLISHED'
-        a.sample += [sample1, sample2]
-        a.file += [file1, file2]
+        a.samples += [sample1, sample2]
+        a.files += [file1, file2]
         a.experiment = variant_call
 
         actual_dict = json.loads(a.to_json())
@@ -558,12 +582,12 @@ class SongTests(unittest.TestCase):
         sp.donorId = "DO1"
         sp.specimenClass = "Tumour"
         sp.specimenSubmitterId = "sp_sub_1"
-        sp.specimenType = "Normal - EBV immortalized"
+        sp.specimenType = "Normal"
         sp.set_info("randomSpecimenField", "someSpecimenValue")
 
         sample = Sample()
         sample.sampleId = "sa1"
-        sample.sampleSubmitterId = "ssId1"
+        sample.submitterSampleId = "ssId1"
         sample.sampleType = "RNA"
         sample.specimenId = "sp1"
         sample.set_info("randomSampleField", "someSampleValue")

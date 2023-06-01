@@ -145,9 +145,9 @@ services:
       target: server
     environment:
       SERVER_PORT: 8080
-      SPRING_PROFILES_ACTIVE: "prod,secure,default,jwt,score-client-cred"
-      AUTH_JWT_PUBLICKEYURL: http://ego-api:8080/oauth/token/public_key
-      AUTH_SERVER_URL: http://ego-api:8080/o/check_api_key/
+      SPRING_PROFILES_ACTIVE: "prod,secure,default,score-client-cred"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_PUBLIC_KEY_LOCATION: http://ego-api:8080/oauth/token/public_key
+      AUTH_SERVER_INTROSPECTIONURI: http://ego-api:8080/o/check_api_key/
       AUTH_SERVER_CLIENTID: song
       AUTH_SERVER_TOKENNAME: apiKey
       AUTH_SERVER_CLIENTSECRET: songsecret
@@ -180,7 +180,7 @@ services:
       - "5006:5006"
       - "8080:8080"
     depends_on:
-      - song-db 
+      - song-db
       - ego-api
       - score-server
       - dcc-id-server

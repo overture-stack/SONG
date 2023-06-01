@@ -91,6 +91,10 @@ public class Endpoint {
     return format("%s/studies/%s/analysis/%s", serverUrl, studyId, analysisId);
   }
 
+  public String patchAnalysis(@NonNull String studyId, @NonNull String analysisId) {
+    return format("%s/studies/%s/analysis/%s", serverUrl, studyId, analysisId);
+  }
+
   public String updateFile(@NonNull String studyId, @NonNull String objectId) {
     return format("%s/studies/%s/files/%s", serverUrl, studyId, objectId);
   }

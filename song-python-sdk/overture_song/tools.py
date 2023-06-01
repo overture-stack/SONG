@@ -361,34 +361,37 @@ class FileUploadClient(object):
 class SimplePayloadBuilder(object):
     donor: Type[Donor]
     specimen: Type[Specimen]
-    sample: Type[Sample]
+    samples: List[Sample]
     files: List[File]
     experiment: object
     analysisId: str = None
+    studyId: str = None
 
     def __post_init__(self):
         self._analysisType = None
+        check_state(self.studyId is not None, "studyId must be defined")
         check_state(self.donor is not None, "donor must be defined")
         check_state(self.specimen is not None, "specimen must be defined")
-        check_state(self.sample is not None, "sample must be defined")
         check_state(self.experiment is not None, "experiment must be defined")
         check_type(self.donor, Donor)
         check_type(self.specimen, Specimen)
-        check_type(self.sample, Sample)
+        check_type(self.samples, list)
+        check_state(len(self.samples) > 0, "Must have at least one sample for the upload payload")
+        for s in self.samples:
+            check_type(s, Sample)
         check_type(self.files, list)
-        check_state(len(self.files) > 0, "Must have atleast one file for the upload payload")
+        check_state(len(self.files) > 0, "Must have at least one file for the upload payload")
         for f in self.files:
             check_type(f, File)
 
         if isinstance(self.experiment, SequencingRead):
             self._is_seq_read = True
-            self._analysisType = "sequencingRead"
+            self._analysisType = AnalysisType.create("sequencingRead")
         elif isinstance(self.experiment, VariantCall):
             self._is_seq_read = False
-            self._analysisType = "variantCall"
+            self._analysisType = AnalysisType.create("variantCall")
 
     def to_dict(self):
-        composite_entity = CompositeEntity.create(self.donor, self.specimen, self.sample)
         if self._is_seq_read:
             analysis = SequencingReadAnalysis()
             check_type(self.experiment, SequencingRead)
@@ -396,15 +399,17 @@ class SimplePayloadBuilder(object):
             analysis = VariantCallAnalysis()
             check_type(self.experiment, VariantCall)
 
+        analysis.studyId = self.studyId
         analysis.experiment = self.experiment
-        analysis.sample.append(composite_entity)
+        for s in self.samples:
+            composite_entity = CompositeEntity.create(self.donor, self.specimen, s)
+            analysis.samples.append(composite_entity)
         analysis.analysisType = self._analysisType
-        analysis.file.extend(self.files)
+        analysis.files.extend(self.files)
         if self.analysisId is not None and self.analysisId:
             analysis.analysisId = self.analysisId
 
         out_dict = analysis.to_dict()
-        out_dict.pop('study')
         if self.analysisId is None:
             out_dict.pop('analysisId')
 

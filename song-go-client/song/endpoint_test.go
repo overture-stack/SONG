@@ -32,43 +32,18 @@ func createEndpoint(address string) Endpoint {
 	return Endpoint{a}
 }
 
-func TestUpload(t *testing.T) {
+func TestSubmit(t *testing.T) {
 	e := createEndpoint("http://test.com")
 	studyId := "ABC123"
 
-	x := e.Upload(studyId, false)
-	assert.Equal(t, x.String(), "http://test.com/upload/ABC123", "Upload(async=false)")
-
-	x = e.Upload(studyId, true)
-	assert.Equal(t, x.String(), "http://test.com/upload/ABC123/async", "Upload(async=true)")
-}
-
-func TestGetStatus(t *testing.T) {
-	e := createEndpoint("http://www.mrap.org")
-	studyId := "XYZ234"
-	uploadId := "UP-AB2345"
-
-	x := e.GetStatus(studyId, uploadId)
-	assert.Equal(t, x.String(), "http://www.mrap.org/upload/XYZ234/status/UP-AB2345", "GetStatus()")
+	x := e.Submit(studyId)
+	assert.Equal(t, x.String(), "http://test.com/submit/ABC123", "Upload()")
 }
 
 func TestIsAlive(t *testing.T) {
 	e := createEndpoint("https://www.catfur.org")
 	x := e.IsAlive()
 	assert.Equal(t, x.String(), "https://www.catfur.org/isAlive", "IsAlive()")
-}
-
-func TestSave(t *testing.T) {
-	e := createEndpoint("https://dcc.icgc.org:8080")
-	studyId := "XYZ234"
-	uploadId := "UP-AB2345"
-	expected := "https://dcc.icgc.org:8080/upload/XYZ234/save/UP-AB2345?ignoreAnalysisIdCollisions="
-
-	x := e.Save(studyId, uploadId, true)
-	assert.Equal(t, x.String(), expected+"true", "Save(true)")
-
-	x = e.Save(studyId, uploadId, false)
-	assert.Equal(t, x.String(), expected+"false", "Save(false)")
 }
 
 func TestPublish(t *testing.T) {

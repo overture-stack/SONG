@@ -1,8 +1,8 @@
 ###############################
 # Maven builder
 ###############################
-# -alpine-slim image does not support --release flag
-FROM adoptopenjdk/openjdk11:jdk-11.0.6_10-alpine as builder
+# -alpine and -alpine-slim image does not support --release flag nor arm arch
+FROM adoptopenjdk/openjdk11:jdk-11.0.6_10-slim as builder
 
 # Build song-server jar
 COPY . /srv
@@ -12,7 +12,8 @@ RUN ./mvnw clean package -DskipTests
 ###############################
 # Song Client
 ###############################
-FROM adoptopenjdk/openjdk11:jre-11.0.6_10-alpine as client
+# -alpine image only works on amd64 arch
+FROM adoptopenjdk/openjdk11:jre-11.0.6_10 as client
 
 ENV CLIENT_DIST_DIR   /song-client-dist
 ENV JAVA_HOME /opt/java/openjdk
@@ -23,11 +24,11 @@ ENV SONG_USER song
 ENV SONG_LOGS $SONG_HOME/logs
 ENV PATH $PATH:$SONG_HOME/bin
 
-RUN addgroup -S -g $SONG_GID $SONG_USER  \
-    && adduser -S -u $SONG_UID -G $SONG_USER $SONG_USER  \
+RUN addgroup --system --gid $SONG_GID $SONG_USER  \
+    && adduser --system --uid $SONG_UID --ingroup $SONG_USER $SONG_USER  \
     && mkdir -p $SONG_HOME $SONG_LOGS \
     && chown -R $SONG_UID:$SONG_GID $SONG_HOME \
-	&& apk add bash==5.0.11-r1 jq
+	&& apt-get update && apt-get install -y bash jq
 
 COPY --from=builder /srv/song-client/target/song-client-*-dist.tar.gz /song-client.tar.gz
 
@@ -49,7 +50,7 @@ WORKDIR $SONG_HOME
 ###############################
 # Song Server
 ###############################
-FROM adoptopenjdk/openjdk11:jre-11.0.6_10-alpine as server
+FROM adoptopenjdk/openjdk11:jre-11.0.6_10 as server
 
 # Paths
 ENV SONG_HOME /song-server
@@ -59,8 +60,8 @@ ENV SONG_USER song
 ENV SONG_UID 9999
 ENV SONG_GID 9999
 
-RUN addgroup -S -g $SONG_GID $SONG_USER  \
-    && adduser -S -u $SONG_UID -G $SONG_USER $SONG_USER  \
+RUN addgroup --system --gid $SONG_GID $SONG_USER  \
+    && adduser --system --uid $SONG_UID --ingroup $SONG_USER $SONG_USER  \
     && mkdir -p $SONG_HOME $SONG_LOGS \
     && chown -R $SONG_UID:$SONG_GID $SONG_HOME
 

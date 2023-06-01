@@ -49,24 +49,14 @@ func CreateClient(accessToken string, base *url.URL) *Client {
 	return client
 }
 
-// Upload uploads the file contents and returns the response
-func (c *Client) Upload(studyID string, byteContent []byte, async bool) string {
-	return c.post(c.endpoint.Upload(studyID, async), byteContent)
-}
-
-// GetStatus return the status JSON of an uploadID
-func (c *Client) GetStatus(studyID string, uploadID string) string {
-	return c.get(c.endpoint.GetStatus(studyID, uploadID))
+// Submit the file contents and returns the response
+func (c *Client) Submit(studyID string, byteContent []byte) string {
+	return c.post(c.endpoint.Submit(studyID), byteContent)
 }
 
 // GetServerStatus return whether server is alive
 func (c *Client) GetServerStatus() string {
 	return c.get(c.endpoint.IsAlive())
-}
-
-// Save saves the specified uploadID as an analysis assuming it had passed validation
-func (c *Client) Save(studyID string, uploadID string, ignoreCollisions bool) string {
-	return c.post(c.endpoint.Save(studyID, uploadID, ignoreCollisions), nil)
 }
 
 // Publish publishes a specified saved analysisID
@@ -84,7 +74,8 @@ func (c *Client) Suppress(studyID string, analysisID string) string {
 	return c.put(c.endpoint.Suppress(studyID, analysisID), nil)
 }
 
-func (c *Client) getAnalysis(studyID string, analysisID string) string {
+// Get an analysis bu analysisId
+func (c *Client) GetAnalysis(studyID string, analysisID string) string {
 	return c.get(c.endpoint.GetAnalysis(studyID, analysisID))
 }
 
