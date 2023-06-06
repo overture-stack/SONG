@@ -8,13 +8,13 @@
 <img align="right" width="100vw" src="icon-song.png" alt="song-logo"/>
 </div>
 
-Inconsistencies in metadata diminish the accessibility, interoperability, and reuse of genomics data. Song addresses this by providing an automated system for tracking and validating genomic metadata across multiple cloud storage systems. Although developed for cancer genomics, Song can support any data type. Features and benefits of Song include:
+Song is a robust metadata validation and tracking system designed to streamline the management of genomics data (and Metadata) across multiple cloud storage systems. Song facilitates the process of data submission, automates metadata validation, and tracks metadata associated with file data in cloud storage. With Song, users can create high-quality and reliable metadata repositories with minimal human intervention.
 
-- Association of metadata with object data stored in [Score](https://github.com/overture-stack/score) 
-- Validation of uploaded file metadata against a user-defined JSON Schema
-- Automated assignment of global identifiers
-- Flexible data models that use [Dynamic Schemas](https://www.overture.bio/documentation/song/user-guide/schema/) to meet any requirement
-- Manages data access control of stored metadata and files between UNPUBLISHED, PUBLISHED, and SUPPRESSED states <!--Add link to wiki content when updated-->
+**Features and benefits of Song include:**
+
+- Validation of uploaded metadata against a flexible [user-defined JSON Schema](https://www.overture.bio/documentation/song/user-guide/schema/)
+- Control over data accessibility across three states: UNPUBLISHED, PUBLISHED, and SUPPRESSED
+- Tracking of submitted metadata to associated object data stored in [Score](https://github.com/overture-stack/score) using the automated assignment of global identifiers.
 
 <!--Blockqoute-->
 
@@ -25,7 +25,7 @@ Inconsistencies in metadata diminish the accessibility, interoperability, and re
 > <img align="left" src="ov-logo.png" height="90"/>
 > </div>
 > 
-> *Song is a vital service within the [Overture](https://www.overture.bio/) research software ecosystem. With our genomics data management solutions, scientists can significantly improve the lifecycle of their data and the quality of their research. See our [related products](#related-products) for more information on what Overture can offer.*
+> *Song is a core component within the [Overture](https://www.overture.bio/) research software ecosystem. Overture is a toolkit of modular software components made to build into scalable data management systems. See our [related products](#related-products) for more information on what Overture can offer.*
 > 
 > 
 
@@ -34,16 +34,16 @@ Inconsistencies in metadata diminish the accessibility, interoperability, and re
 ## Technical Specifications
 
 - Primarily written in JAVA 
-- [JSON Schema](https://json-schema.org/) for synchronous and asynchronous metadata validation
+- Leverages [JSON Schema](https://json-schema.org/) for synchronous and asynchronous metadata validation
 - Schema-less JSON info fields for user specific metadata
 - ACL security using [OAuth 2.0](https://oauth.net/2/) and scopes based on study codes
 - REST API with [Swagger UI](https://swagger.io/tools/swagger-ui/) built in
 
 ## Documentation
 
-- See our Developer [wiki](https://github.com/overture-stack/song/wiki)
-- For our user installation guide see our website [here](https://www.overture.bio/documentation/song/installation/installation/)
-- For user guidance see our website [here](https://www.overture.bio/documentation/song/user-guide/schema/)
+- For developer documentation, including instructions for running Song from source read our [GitHub Wiki](https://github.com/overture-stack/song/wiki)
+- For user documentation, including installation, configuration and usage guides, see our websites [Song documentation](https://www.overture.bio/documentation/song/)
+
 
 ## Support & Contributions
 
@@ -62,17 +62,18 @@ Overture is an ecosystem of research software tools, each with narrow responsibi
 
 Song commonly works in tandem with our file transfer and object storage service, [Score](https://github.com/overture-stack/score). As Song manages the verification and tracking of files and file metadata, Score runs in parallel to facilitate file transfers and object storage.
 
-These tools are part of the Overture **Data Management System** (DMS), a fully functional and customizable data portal built from a packaged collection of Overtures microservices. For more information on DMS, read our [DMS documentation](https://www.overture.bio/documentation/dms/).
+All our core microservices are included in the Overture **Data Management System** (DMS). Built from our core collection of microservices, the DMS offers turnkey installation, configuration, and deployment of Overture software. For more information on the DMS, read our [DMS documentation](https://www.overture.bio/documentation/dms/).
 
-See the links below for additional information on our other research software tools:
+See the links below for information on our other research software tools:
 
 </br>
 
-|Product|Description|
+|Software|Description|
 |---|---|
 |[Ego](https://www.overture.bio/products/ego/)|An authorization and user management service|
-|[Ego UI](https://www.overture.bio/products/ego-ui/)|A UI for managing EGO authentication and authorization services|
-|[Score](https://www.overture.bio/products/score/)| Transfer data quickly and easily to and from any cloud-based storage system|
-|[Song](https://www.overture.bio/products/song/)|Catalog and manage metadata of genomics data spread across cloud storage systems|
+|[Ego UI](https://www.overture.bio/products/ego-ui/)|A UI for managing Ego authentication and authorization services|
+|[Score](https://www.overture.bio/products/score/)| Transfer data to and from any cloud-based storage system|
+|[Song](https://www.overture.bio/products/song/)|Catalog and manage metadata associated to file data spread across cloud storage systems|
 |[Maestro](https://www.overture.bio/products/maestro/)|Organizing your distributed data into a centralized Elasticsearch index|
-|[Arranger](https://www.overture.bio/products/arranger/)|Organize an intuitive data search interface, complete with customizable components, tables, and search terms|
+|[Arranger](https://www.overture.bio/products/arranger/)|A search API with reusable UI components that build into configurable and functional data portals|
+|[DMS-UI](https://github.com/overture-stack/dms-ui)|A simple web browser UI that integrates Ego and Arranger|
