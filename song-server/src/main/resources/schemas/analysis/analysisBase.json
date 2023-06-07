@@ -132,7 +132,9 @@
           "Cell line - derived from xenograft tumour",
           "Cell line - derived from tumour",
           "Cell line - derived from normal",
-          "Tumour - unknown if derived from primary or metastatic"
+          "Tumour - unknown if derived from primary or metastatic",
+          "Cell line – derived from metastatic tumour",
+          "Xenograft – derived from metastatic tumour"
         ]
       },
       "tumourNormalDesignation": {
