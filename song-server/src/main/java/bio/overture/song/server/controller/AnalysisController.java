@@ -37,6 +37,8 @@ import java.util.List;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
+import net.minidev.json.parser.JSONParser;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -135,15 +137,16 @@ public class AnalysisController {
   @PutMapping(value = "/publish/{id}")
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> publishAnalysis(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+  public ResponseEntity<Object> publishAnalysis(
+      // @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
       @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
           @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false)
           boolean ignoreUndefinedMd5) {
     val analysis = analysisService.publish(studyId, id, ignoreUndefinedMd5);
-    return ok("AnalysisId " + id + " successfully published");
+    JSONParser parser = new JSONParser();
+    return ok((JSONObject) parser.parse("AnalysisId " + id + " successfully published"));
   }
 
   @ApiOperation(
@@ -152,12 +155,13 @@ public class AnalysisController {
   @PutMapping(value = "/unpublish/{id}")
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> unpublishAnalysis(
+  public ResponseEntity<Object> unpublishAnalysis(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     val analysis = analysisService.unpublish(studyId, id);
-    return ok("AnalysisId " + id + " successfully unpublished");
+    JSONParser parser = new JSONParser();
+    return ok((JSONObject) parser.parse("AnalysisId " + id + " successfully unpublished"));
   }
 
   @ApiOperation(
@@ -168,12 +172,13 @@ public class AnalysisController {
   @PutMapping(value = "/suppress/{id}")
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> suppressAnalysis(
+  public ResponseEntity<Object> suppressAnalysis(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     val analysis = analysisService.suppress(studyId, id);
-    return ok("AnalysisId " + id + " was suppressed");
+    JSONParser parser = new JSONParser();
+    return ok((JSONObject) parser.parse("AnalysisId " + id + " was suppressed"));
   }
 
   /**
