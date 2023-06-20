@@ -237,14 +237,7 @@
           }
         },
         "then": {
-          "if": {
-            "properties": {
-              "sampleType": {
-                "pattern": "\\b(RNA)\\b"
-              }
-            }
-          },
-          "then": {
+          
             "properties": {
               "matchedNormalSubmitterSampleId": {
                 "oneOf": [
@@ -258,15 +251,6 @@
               }
             },
             "required": ["matchedNormalSubmitterSampleId"]
-          },
-          "else": {
-            "properties": {
-              "matchedNormalSubmitterSampleId": {
-                 "$ref": "#/definitions/common/submitterId"
-              }
-            },
-            "required": ["matchedNormalSubmitterSampleId"]
-          }
         },
         "else": {
           "properties": {
