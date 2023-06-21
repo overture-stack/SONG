@@ -144,9 +144,7 @@ public class AnalysisController {
       @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
           @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false)
           boolean ignoreUndefinedMd5) {
-    val analysis = analysisService.publish(studyId, id, ignoreUndefinedMd5);
-    JSONParser parser = new JSONParser();
-    return analysis;
+    return analysisService.publish(studyId, id, ignoreUndefinedMd5);
   }
 
   @ApiOperation(
