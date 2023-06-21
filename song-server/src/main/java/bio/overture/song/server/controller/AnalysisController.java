@@ -137,8 +137,8 @@ public class AnalysisController {
   @PutMapping(value = "/publish/{id}")
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<Object> publishAnalysis(
-      // @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+  public Object publishAnalysis(
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
       @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
@@ -146,7 +146,7 @@ public class AnalysisController {
           boolean ignoreUndefinedMd5) {
     val analysis = analysisService.publish(studyId, id, ignoreUndefinedMd5);
     JSONParser parser = new JSONParser();
-    return ok((JSONObject) parser.parse("AnalysisId " + id + " successfully published"));
+    return analysis;
   }
 
   @ApiOperation(
