@@ -22,7 +22,6 @@ import static java.lang.String.format;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.ok;
 
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.GenericMessage;
@@ -39,9 +38,7 @@ import java.util.List;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
-import net.minidev.json.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
