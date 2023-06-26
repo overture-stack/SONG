@@ -132,7 +132,9 @@
           "Cell line - derived from xenograft tumour",
           "Cell line - derived from tumour",
           "Cell line - derived from normal",
-          "Tumour - unknown if derived from primary or metastatic"
+          "Tumour - unknown if derived from primary or metastatic",
+          "Cell line – derived from metastatic tumour",
+          "Xenograft – derived from metastatic tumour"
         ]
       },
       "tumourNormalDesignation": {
@@ -235,36 +237,19 @@
           }
         },
         "then": {
-          "if": {
-            "properties": {
-              "sampleType": {
-                "pattern": "\\b(RNA)\\b"
-              }
+          "properties": {
+            "matchedNormalSubmitterSampleId": {
+              "oneOf": [
+                {
+                  "const": null
+                },
+                {
+                  "$ref": "#/definitions/common/submitterId"
+                }
+              ]
             }
           },
-          "then": {
-            "properties": {
-              "matchedNormalSubmitterSampleId": {
-                "oneOf": [
-                  {
-                    "const": null
-                  },
-                  {
-                    "$ref":  "#/definitions/common/submitterId"
-                  }
-                ]
-              }
-            },
-            "required": ["matchedNormalSubmitterSampleId"]
-          },
-          "else": {
-            "properties": {
-              "matchedNormalSubmitterSampleId": {
-                 "$ref": "#/definitions/common/submitterId"
-              }
-            },
-            "required": ["matchedNormalSubmitterSampleId"]
-          }
+          "required": ["matchedNormalSubmitterSampleId"]
         },
         "else": {
           "properties": {
