@@ -237,36 +237,19 @@
           }
         },
         "then": {
-          "if": {
-            "properties": {
-              "sampleType": {
-                "pattern": "\\b(RNA)\\b"
-              }
+          "properties": {
+            "matchedNormalSubmitterSampleId": {
+              "oneOf": [
+                {
+                  "const": null
+                },
+                {
+                  "$ref": "#/definitions/common/submitterId"
+                }
+              ]
             }
           },
-          "then": {
-            "properties": {
-              "matchedNormalSubmitterSampleId": {
-                "oneOf": [
-                  {
-                    "const": null
-                  },
-                  {
-                    "$ref":  "#/definitions/common/submitterId"
-                  }
-                ]
-              }
-            },
-            "required": ["matchedNormalSubmitterSampleId"]
-          },
-          "else": {
-            "properties": {
-              "matchedNormalSubmitterSampleId": {
-                 "$ref": "#/definitions/common/submitterId"
-              }
-            },
-            "required": ["matchedNormalSubmitterSampleId"]
-          }
+          "required": ["matchedNormalSubmitterSampleId"]
         },
         "else": {
           "properties": {
