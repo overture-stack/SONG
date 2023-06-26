@@ -237,20 +237,19 @@
           }
         },
         "then": {
-          
-            "properties": {
-              "matchedNormalSubmitterSampleId": {
-                "oneOf": [
-                  {
-                    "const": null
-                  },
-                  {
-                    "$ref":  "#/definitions/common/submitterId"
-                  }
-                ]
-              }
-            },
-            "required": ["matchedNormalSubmitterSampleId"]
+          "properties": {
+            "matchedNormalSubmitterSampleId": {
+              "oneOf": [
+                {
+                  "const": null
+                },
+                {
+                  "$ref": "#/definitions/common/submitterId"
+                }
+              ]
+            }
+          },
+          "required": ["matchedNormalSubmitterSampleId"]
         },
         "else": {
           "properties": {
