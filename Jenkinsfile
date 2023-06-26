@@ -142,10 +142,10 @@ pipeline {
                                         sh "docker tag server:${commit} ${dockerHub}-server:latest"
                                         sh "docker push ${dockerHub}-server:latest"
 
-                                        sh "docker tag client:${commit} ${dockerHub}-client:edge"
+                                        sh "docker tag client:${commit} ${dockerHub}-client:${version}"
                                         sh "docker push ${dockerHub}-client:${version}"
 
-                                        sh "docker tag client:${commit} ${dockerHub}-client:edge"
+                                        sh "docker tag client:${commit} ${dockerHub}-client:latest"
                                         sh "docker push ${dockerHub}-client:latest"
                                     } else { // push commit tags
                                         sh "docker tag server:${commit} ${dockerHub}-server:${commit}"
@@ -186,10 +186,10 @@ pipeline {
                                         sh "docker tag server:${commit} ${githubPackages}-server:latest"
                                         sh "docker push ${githubPackages}-server:latest"
 
-                                        sh "docker tag client:${commit} ${githubPackages}-client:edge"
+                                        sh "docker tag client:${commit} ${githubPackages}-client:${version}"
                                         sh "docker push ${githubPackages}-client:${version}"
 
-                                        sh "docker tag client:${commit} ${githubPackages}-client:edge"
+                                        sh "docker tag client:${commit} ${githubPackages}-client:latest"
                                         sh "docker push ${githubPackages}-client:latest"
                                     } else { // push commit tags
                                         sh "docker tag server:${commit} ${githubPackages}-server:${commit}"
