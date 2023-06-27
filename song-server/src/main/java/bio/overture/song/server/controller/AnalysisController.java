@@ -18,12 +18,13 @@ package bio.overture.song.server.controller;
 
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
+import static java.lang.String.format;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.ok;
 
 import bio.overture.song.server.model.analysis.Analysis;
+import bio.overture.song.server.model.dto.GenericMessage;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.service.analysis.AnalysisService;
@@ -38,7 +39,6 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -135,7 +135,7 @@ public class AnalysisController {
   @PutMapping(value = "/publish/{id}")
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> publishAnalysis(
+  public GenericMessage publishAnalysis(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
@@ -143,7 +143,7 @@ public class AnalysisController {
           @RequestParam(value = "ignoreUndefinedMd5", defaultValue = "false", required = false)
           boolean ignoreUndefinedMd5) {
     val analysis = analysisService.publish(studyId, id, ignoreUndefinedMd5);
-    return ok("AnalysisId " + id + " successfully published");
+    return new GenericMessage(format("AnalysisId " + id + " successfully published"));
   }
 
   @ApiOperation(
@@ -152,12 +152,12 @@ public class AnalysisController {
   @PutMapping(value = "/unpublish/{id}")
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> unpublishAnalysis(
+  public GenericMessage unpublishAnalysis(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     val analysis = analysisService.unpublish(studyId, id);
-    return ok("AnalysisId " + id + " successfully unpublished");
+    return new GenericMessage(format("AnalysisId " + id + " successfully unpublished"));
   }
 
   @ApiOperation(
@@ -168,12 +168,12 @@ public class AnalysisController {
   @PutMapping(value = "/suppress/{id}")
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
-  public ResponseEntity<String> suppressAnalysis(
+  public GenericMessage suppressAnalysis(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id) {
     val analysis = analysisService.suppress(studyId, id);
-    return ok("AnalysisId " + id + " was suppressed");
+    return new GenericMessage(format("AnalysisId " + id + " was suppressed"));
   }
 
   /**
