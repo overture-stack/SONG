@@ -349,6 +349,18 @@ public class AnalysisServiceImpl implements AnalysisService {
   }
 
   @Override
+  public void checkDuplicateAnalysis(@NonNull Payload payload) {
+    payload
+        .getFiles()
+        .forEach(
+            file -> {
+              if (fileService.checkMd5FileExists(file.getFileMd5sum())) {
+                throw buildServerException(getClass(), INFO_ALREADY_EXISTS, "File already exist");
+              }
+            });
+  }
+
+  @Override
   public List<Analysis> unsecuredDeepReads(@NonNull Collection<String> ids) {
     return ids.stream().map(this::unsecuredDeepRead).collect(Collectors.toList());
   }
@@ -892,7 +904,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     return root;
   }
 
-  private JsonNode mergePatchRequest(JsonNode original, JsonNode patch){
+  private JsonNode mergePatchRequest(JsonNode original, JsonNode patch) {
     try {
       JsonMergePatch jsonMergePatch = JsonMergePatch.fromJson(patch);
       JsonNode updatedAnalysis = jsonMergePatch.apply(original);

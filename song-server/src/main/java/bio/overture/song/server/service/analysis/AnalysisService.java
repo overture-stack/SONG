@@ -33,6 +33,8 @@ public interface AnalysisService {
 
   void checkAnalysisAndStudyRelated(String studyId, String id);
 
+  void checkDuplicateAnalysis(Payload payload);
+
   List<Analysis> unsecuredDeepReads(Collection<String> ids);
 
   Analysis unsecuredDeepRead(String id);

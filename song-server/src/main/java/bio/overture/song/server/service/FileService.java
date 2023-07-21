@@ -99,6 +99,11 @@ public class FileService {
     checkFileExists(file.getObjectId());
   }
 
+  public boolean checkMd5FileExists(@NonNull String md5) {
+    val file = repository.findAllByFileMd5sum(md5);
+    return (file != null && !file.isEmpty());
+  }
+
   public FileEntity securedRead(@NonNull String studyId, String id) {
     checkFileAndStudyRelated(studyId, id);
     return unsecuredRead(id);
