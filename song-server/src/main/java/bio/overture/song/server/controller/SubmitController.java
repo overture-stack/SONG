@@ -50,8 +50,8 @@ public class SubmitController {
   public SubmitResponse submit(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
-      @RequestParam(value = "ignoreDuplicates", defaultValue = "false") boolean ignoreDuplicates,
+      @RequestParam(value = "allowDuplicates", defaultValue = "false") boolean allowDuplicates,
       @RequestBody @Valid String json_payload) {
-    return submitService.submit(studyId, json_payload, ignoreDuplicates);
+    return submitService.submit(studyId, json_payload, allowDuplicates);
   }
 }
