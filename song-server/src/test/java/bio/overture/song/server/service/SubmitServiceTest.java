@@ -93,7 +93,7 @@ public class SubmitServiceTest {
   public void testNullSyncSequencingRead() {
     val filename1 = "documents/deserialization/sequencingread-deserialize1.json";
     val jsonPayload = getJsonStringFromClasspath(filename1);
-    val submitResponse = submitService.submit(DEFAULT_STUDY, jsonPayload);
+    val submitResponse = submitService.submit(DEFAULT_STUDY, jsonPayload, false);
     assertEquals(Responses.OK, submitResponse.getStatus());
     val analysisId1 = submitResponse.getAnalysisId();
     val a1 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId1);
@@ -108,7 +108,7 @@ public class SubmitServiceTest {
 
     val filename2 = "documents/deserialization/sequencingread-deserialize2.json";
     val jsonPayload2 = getJsonStringFromClasspath(filename2);
-    val submitResponse2 = submitService.submit(DEFAULT_STUDY, jsonPayload2);
+    val submitResponse2 = submitService.submit(DEFAULT_STUDY, jsonPayload2, false);
     assertEquals(Responses.OK, submitResponse2.getStatus());
     val analysisId2 = submitResponse2.getAnalysisId();
     val a2 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId2);
@@ -126,7 +126,8 @@ public class SubmitServiceTest {
   public void submit_CorruptedPayload_PayloadParsingError() {
     val payload = createPayloadWithDifferentAnalysisId();
     val corruptedPayload = payload.getJsonPayload().replace('{', '}');
-    assertSongError(() -> submitService.submit(DEFAULT_STUDY, corruptedPayload), PAYLOAD_PARSING);
+    assertSongError(
+        () -> submitService.submit(DEFAULT_STUDY, corruptedPayload, false), PAYLOAD_PARSING);
   }
 
   @Test
@@ -136,7 +137,8 @@ public class SubmitServiceTest {
     val invalidPayload = (ObjectNode) new ObjectMapper().readTree(p.getJsonPayload());
     invalidPayload.put(ANALYSIS_ID, p.getAnalysisId());
     assertSongError(
-        () -> submitService.submit(DEFAULT_STUDY, invalidPayload.toString()), SCHEMA_VIOLATION);
+        () -> submitService.submit(DEFAULT_STUDY, invalidPayload.toString(), false),
+        SCHEMA_VIOLATION);
   }
 
   @Test
@@ -297,7 +299,7 @@ public class SubmitServiceTest {
     String actual;
     payload.setStudyId(studyId);
     try {
-      actual = submitService.submit(studyId, toJson(payload)).getAnalysisId();
+      actual = submitService.submit(studyId, toJson(payload), false).getAnalysisId();
     } catch (Throwable throwable) {
       actual = "ERR: " + throwable.getMessage();
     }

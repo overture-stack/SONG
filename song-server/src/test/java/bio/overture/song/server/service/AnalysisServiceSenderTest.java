@@ -45,6 +45,8 @@ public class AnalysisServiceSenderTest {
 
   @Mock private AnalysisService internalAnalysisService;
 
+  @Mock private FileService fileService;
+
   /** State */
   private String studyId;
 
@@ -111,7 +113,7 @@ public class AnalysisServiceSenderTest {
 
   private AnalysisServiceSender createTestAnalysisServiceSender(AnalysisActions action) {
     val sender = createTestSender(action);
-    return new AnalysisServiceSender(SONG_ID, sender, internalAnalysisService);
+    return new AnalysisServiceSender(SONG_ID, sender, internalAnalysisService, fileService);
   }
 
   private TestSender createTestSender(AnalysisActions action) {

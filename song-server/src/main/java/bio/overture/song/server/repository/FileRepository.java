@@ -26,6 +26,8 @@ public interface FileRepository extends JpaRepository<FileEntity, String> {
 
   List<FileEntity> findAllByAnalysisId(String analysisId);
 
+  List<FileEntity> findAllByFileMd5sum(String md5);
+
   void deleteAllByAnalysisId(String analysisId);
 
   long countAllByStudyIdAndObjectId(String studyId, String objectId);
