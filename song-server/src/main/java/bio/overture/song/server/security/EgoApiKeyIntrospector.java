@@ -8,6 +8,7 @@ import lombok.val;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,11 +17,15 @@ import org.springframework.security.oauth2.server.resource.introspection.BadOpaq
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.*;
+
+import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
+import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
 
 @Slf4j
 @AllArgsConstructor
@@ -32,7 +37,6 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
 
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
-        try {
             // Add token to introspectionUri
             val uriWithToken =
                     UriComponentsBuilder.fromHttpUrl(introspectionUri)
@@ -42,10 +46,11 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
 
             // Get response from Ego
             val template = new RestTemplate();
+            template.setErrorHandler(new RestTemplateResponseErrorHandler());
             val response =
                     template.postForEntity(
                             uriWithToken, new HttpEntity<Void>(null, getBasicAuthHeader()), JsonNode.class);
-            
+
             // Ensure response was OK
             if ((response.getStatusCode() != HttpStatus.OK
                     && response.getStatusCode() != HttpStatus.MULTI_STATUS
@@ -63,15 +68,6 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
 
             // Ego ApiKey check is successful. Build authenticated principal and return.
             return convertResponseToPrincipal(responseBody);
-        } catch (Exception e) {
-          if(e instanceof HttpClientErrorException.Unauthorized){
-            // throw 401 HTTP error code
-            throw new BadCredentialsException(e.getMessage(), e);
-          } else {
-            // throw 500 HTTP error code
-            throw new OAuth2IntrospectionException(e.getMessage());
-          }
-        }
     }
 
     private HttpHeaders getBasicAuthHeader() {
@@ -116,4 +112,30 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
 
         return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
     }
+
+  public class RestTemplateResponseErrorHandler
+      implements ResponseErrorHandler {
+
+    @Override
+    public boolean hasError(ClientHttpResponse httpResponse)
+        throws IOException {
+
+      return (
+          httpResponse.getStatusCode().series() == CLIENT_ERROR
+              || httpResponse.getStatusCode().series() == SERVER_ERROR);
+    }
+
+    @Override
+    public void handleError(ClientHttpResponse httpResponse)
+        throws IOException {
+
+      if (httpResponse.getStatusCode().series() == CLIENT_ERROR) {
+        // throw 401 HTTP error code
+        throw new BadCredentialsException(httpResponse.getStatusText());
+      } else if (httpResponse.getStatusCode().series() == SERVER_ERROR) {
+        // throw 500 HTTP error code
+        throw new OAuth2IntrospectionException(httpResponse.getStatusText());
+      }
+    }
+  }
 }
