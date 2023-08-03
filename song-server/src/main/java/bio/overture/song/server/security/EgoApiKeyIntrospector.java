@@ -8,6 +8,7 @@ import lombok.val;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.server.resource.introspection.BadOpaq
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -62,7 +64,13 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
             // Ego ApiKey check is successful. Build authenticated principal and return.
             return convertResponseToPrincipal(responseBody);
         } catch (Exception e) {
-            throw new OAuth2IntrospectionException(e.getMessage(), e);
+          if(e instanceof HttpClientErrorException.Unauthorized){
+            // throw 401 HTTP error code
+            throw new BadCredentialsException(e.getMessage(), e);
+          } else {
+            // throw 500 HTTP error code
+            throw new OAuth2IntrospectionException(e.getMessage());
+          }
         }
     }
 
