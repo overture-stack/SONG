@@ -132,7 +132,7 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
       if (httpResponse.getStatusCode().series() == CLIENT_ERROR) {
         // throw 401 HTTP error code
         throw new BadCredentialsException(httpResponse.getStatusText());
-      } else if (httpResponse.getStatusCode().series() == SERVER_ERROR) {
+      } else {
         // throw 500 HTTP error code
         throw new OAuth2IntrospectionException(httpResponse.getStatusText());
       }
