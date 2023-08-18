@@ -16,7 +16,7 @@
  */
 package bio.overture.song.server.security;
 
-import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
+import static bio.overture.song.server.utils.Scopes.extractGrantedScopesFromRpt;
 
 import java.util.Set;
 import lombok.Builder;
@@ -24,7 +24,9 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @Slf4j
 @Value
@@ -34,10 +36,22 @@ public class StudySecurity {
   @NonNull private final String studyPrefix;
   @NonNull private final String studySuffix;
   @NonNull private final String systemScope;
+  @NonNull private final String introspectionUri;
+
+  @Autowired
+  public KeycloakAuthorizationService keycloakAuthorizationService() {
+    return KeycloakAuthorizationService.builder()
+        .introspectionUri(introspectionUri)
+        .build();
+  }
 
   public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
     log.info("Checking study-level authorization for studyId {}", studyId);
-    val grantedScopes = extractGrantedScopes(authentication);
+
+    val authGrants = keycloakAuthorizationService()
+        .fetchAuthorizationGrants(((JwtAuthenticationToken) authentication).getToken().getTokenValue());
+
+    val grantedScopes = extractGrantedScopesFromRpt(authGrants);
     return verifyOneOfStudyScope(grantedScopes, studyId);
   }
 

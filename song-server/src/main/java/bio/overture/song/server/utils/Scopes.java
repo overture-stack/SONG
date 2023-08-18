@@ -2,12 +2,12 @@ package bio.overture.song.server.utils;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import bio.overture.song.server.security.KeycloakPermission;
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.jose.shaded.json.JSONObject;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -30,6 +30,22 @@ public class Scopes {
     } else if (authentication instanceof BearerTokenAuthentication) {
       grantedScopes = getApiKeyScopes((BearerTokenAuthentication) authentication);
     }
+    return grantedScopes;
+  }
+
+  public static Set<String> extractGrantedScopesFromRpt(List<KeycloakPermission> permissionList) {
+    Set<String> grantedScopes = new HashSet();
+
+    permissionList
+        .stream()
+        .filter(perm -> perm.getScopes() != null)
+        .forEach(permission -> {
+          permission.getScopes().stream().forEach(scope -> {
+            val fullScope = permission.getRsname() + "." + scope;
+            grantedScopes.add(fullScope);
+          });
+        });
+
     return grantedScopes;
   }
 

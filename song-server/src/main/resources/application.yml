@@ -201,10 +201,13 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          public-key-location: http://localhost:8081/oauth/token/public_key
+          # EGO public key
+#          public-key-location: http://localhost:8081/oauth/token/public_key
+          # Keycloak JWT
+          jwk-set-uri: http://localhost/realms/myrealm/protocol/openid-connect/certs
 auth:
   server:
-    introspectionUri: http://localhost:8081/o/check_api_key
+    introspectionUri: http://localhost/realms/myrealm/protocol/openid-connect/token
     clientID: id
     clientSecret: secret
     scope:

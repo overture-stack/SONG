@@ -58,7 +58,8 @@ public class TestStudySecurity {
         val prefix = "PROGRAMDATA-";
         val suffix = ".READ";
         val scope = "DCC.READ";
-        val studySecurity = new StudySecurity(prefix, suffix, scope);
+        val introspectorUri = "http://localhost/realms/myrealm/protocol/openid-connect/token";
+        val studySecurity = new StudySecurity(prefix, suffix, scope, introspectorUri);
         val authentication = new AccessTokenConverterWithExpiry().extractAuthentication(map);
 
         assertEquals(expected, studySecurity.authorize(authentication, TEST_STUDY));
