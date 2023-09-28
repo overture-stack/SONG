@@ -72,7 +72,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public SystemSecurity systemSecurity() {
-        return new SystemSecurity(scope.getSystem(), introspectionUri);
+      return SystemSecurity.builder()
+          .systemScope(scope.getSystem())
+          .build();
     }
 
     @Bean
@@ -88,12 +90,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public StudySecurity studySecurity(@Autowired SystemSecurity systemSecurity) {
+    public StudySecurity studySecurity() {
         return StudySecurity.builder()
                 .studyPrefix(scope.getStudy().getPrefix())
                 .studySuffix(scope.getStudy().getSuffix())
                 .systemScope(scope.getSystem())
-                .introspectionUri(introspectionUri)
                 .build();
     }
 

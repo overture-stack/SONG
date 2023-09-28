@@ -202,12 +202,18 @@ spring:
       resourceserver:
         jwt:
           # EGO public key
-#          public-key-location: http://localhost:8081/oauth/token/public_key
-          # Keycloak JWT
-          jwk-set-uri: http://localhost/realms/myrealm/protocol/openid-connect/certs
+          public-key-location: http://localhost:8081/oauth/token/public_key
+          # Keycloak JWK
+          #jwk-set-uri: http://localhost/realms/virusseq/protocol/openid-connect/certs
 auth:
   server:
-    introspectionUri: http://localhost/realms/myrealm/protocol/openid-connect/token
+    introspectionUri: http://localhost:8081/o/check_api_key
+    # Keycloak
+    keycloak:
+      enabled: false
+      host: http://localhost
+      realm: "myrealm"
+
     clientID: id
     clientSecret: secret
     scope:

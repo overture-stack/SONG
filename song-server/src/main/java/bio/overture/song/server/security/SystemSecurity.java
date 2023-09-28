@@ -20,35 +20,48 @@ import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
 import static bio.overture.song.server.utils.Scopes.extractGrantedScopesFromRpt;
 
 import java.util.Set;
-import lombok.NonNull;
-import lombok.Value;
+
+import bio.overture.song.server.service.auth.KeycloakAuthorizationService;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @Slf4j
 @Value
+@Builder
 public class SystemSecurity {
 
   @NonNull private final String systemScope;
-  @NonNull private final String introspectionUri;
 
   @Autowired
-  public KeycloakAuthorizationService keycloakAuthorizationService() {
-    return KeycloakAuthorizationService.builder()
-        .introspectionUri(introspectionUri)
-        .build();
-  }
+  private KeycloakAuthorizationService keycloakAuthorizationService;
 
   public boolean authorize(@NonNull Authentication authentication) {
     log.debug("Checking system-level authorization");
 
-    val authGrants = keycloakAuthorizationService()
-        .fetchAuthorizationGrants(((JwtAuthenticationToken) authentication).getToken().getTokenValue());
+    Set<String> grantedScopes;
 
-    val grantedScopes = extractGrantedScopesFromRpt(authGrants);
+    if(keycloakAuthorizationService.isEnabled()) {
+      String token = "";
+      if(authentication instanceof JwtAuthenticationToken){
+        token = ((JwtAuthenticationToken) authentication).getToken().getTokenValue();
+      } else if(authentication instanceof BearerTokenAuthentication){
+        token = ((BearerTokenAuthentication) authentication).getToken().getTokenValue();
+      }
+
+      // retrieve permission from Keycloak server
+      val authGrants = keycloakAuthorizationService
+          .fetchAuthorizationGrants(token);
+
+      grantedScopes = extractGrantedScopesFromRpt(authGrants);
+    } else {
+      // extract scopes from authentication token
+      grantedScopes = extractGrantedScopes(authentication);
+    }
+
     return verifyOneOfSystemScope(grantedScopes);
   }
 

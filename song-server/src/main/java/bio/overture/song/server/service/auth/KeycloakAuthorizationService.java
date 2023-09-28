@@ -1,9 +1,10 @@
-package bio.overture.song.server.security;
+package bio.overture.song.server.service.auth;
 
-import lombok.Builder;
-import lombok.NonNull;
+import bio.overture.song.server.config.KeycloakConfig;
+import bio.overture.song.server.security.KeycloakPermission;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,11 +13,10 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
-import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,24 +25,21 @@ import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
 import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
 
 @Slf4j
-@Builder
+@Service
 public class KeycloakAuthorizationService {
 
-  private static final String UMA_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:uma-ticket";
-  private static final String UMA_AUDIENCE = "song";
-  private static final String UMA_RESPONSE_MODE = "permissions";
+  private final KeycloakConfig keycloakConfig;
 
-  @NonNull private String introspectionUri;
+  public KeycloakAuthorizationService(@Autowired KeycloakConfig keycloakConfig) {
+    this.keycloakConfig = keycloakConfig;
+  }
 
   public List<KeycloakPermission> fetchAuthorizationGrants(String accessToken){
     // Add token to introspectionUri
-    val uriWithToken =
-        UriComponentsBuilder.fromHttpUrl(introspectionUri)
-            .build()
-            .toUri();
+    val uriWithToken = keycloakConfig.permissionUrl();
 
     HttpEntity<MultiValueMap<String, String>> request =
-        new HttpEntity<>(getUmaParams(), getBearerAuthHeader(accessToken));
+        new HttpEntity<>(keycloakConfig.getUmaParams(), getBearerAuthHeader(accessToken));
 
     // Get response from Keycloak
     val template = new RestTemplate();
@@ -67,12 +64,9 @@ public class KeycloakAuthorizationService {
     return List.of(response.getBody());
   }
 
-  private MultiValueMap<String, String> getUmaParams(){
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("grant_type", UMA_GRANT_TYPE);
-    map.add("audience", UMA_AUDIENCE);
-    map.add("response_mode", UMA_RESPONSE_MODE);
-    return map;
+  public boolean isEnabled(){
+    log.info("checking if Keycloak is enabled: "+ keycloakConfig.isEnabled());
+    return keycloakConfig.isEnabled();
   }
 
   private HttpHeaders getBearerAuthHeader(String token) {

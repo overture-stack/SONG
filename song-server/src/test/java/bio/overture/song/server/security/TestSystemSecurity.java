@@ -1,17 +1,21 @@
 package bio.overture.song.server.security;
 
 import bio.overture.song.server.oauth.AccessTokenConverterWithExpiry;
+import bio.overture.song.server.service.auth.KeycloakAuthorizationService;
 import lombok.val;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
+@SpringBootTest
 public class TestSystemSecurity {
+
+  @Autowired
+  private KeycloakAuthorizationService keycloakAuthorizationService;
 
     @Test
     public void testValidStudyScopeFails() {
@@ -55,7 +59,7 @@ public class TestSystemSecurity {
 
     public void test_authorize(Map<String, ?> map, boolean expected) {
         val scope = "DCC.READ";
-        val systemSecurity = new SystemSecurity(scope);
+        val systemSecurity = new SystemSecurity(scope, keycloakAuthorizationService);
         val authentication = new AccessTokenConverterWithExpiry().extractAuthentication(map);
 
         assertEquals(expected, systemSecurity.authorize(authentication));
