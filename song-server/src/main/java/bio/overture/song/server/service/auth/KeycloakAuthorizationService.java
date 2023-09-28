@@ -5,16 +5,14 @@ import bio.overture.song.server.security.KeycloakPermission;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
@@ -41,12 +39,23 @@ public class KeycloakAuthorizationService {
     HttpEntity<MultiValueMap<String, String>> request =
         new HttpEntity<>(keycloakConfig.getUmaParams(), getBearerAuthHeader(accessToken));
 
-    // Get response from Keycloak
-    val template = new RestTemplate();
-    template.setErrorHandler(new RestTemplateResponseErrorHandler());
-    val response =
-        template.postForEntity(
-            uriWithToken, request, KeycloakPermission[].class);
+    ResponseEntity<KeycloakPermission[]> response;
+
+    try {
+      // Get response from Keycloak
+      val template = new RestTemplate();
+      template.setErrorHandler(new RestTemplateResponseErrorHandler());
+      response =
+          template.postForEntity(
+              uriWithToken, request, KeycloakPermission[].class);
+    } catch (ResourceAccessException e) {
+      log.error(
+          "KeycloakAuthorizationService - error cause:"
+              + e.getCause()
+              + " message:"
+              + e.getMessage());
+      throw new OAuth2IntrospectionException("Bad Response from Keycloak Server");
+    }
 
     // Ensure response was OK
     if ((response.getStatusCode() != HttpStatus.OK

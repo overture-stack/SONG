@@ -30,9 +30,7 @@ public class KeycloakConfig {
 
   public URI permissionUrl(){
     return UriComponentsBuilder.fromHttpUrl(host)
-        .path("realms")
-        .path(realm)
-        .path("protocol/openid-connect/token")
+        .pathSegment("realms", realm, "protocol/openid-connect/token")
         .build()
         .toUri();
   }
