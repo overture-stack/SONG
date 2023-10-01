@@ -24,6 +24,8 @@ song:
 server:
   version: 1.0
   port: 8080
+  # fix issue IllegalArgumentException: Request header is too large. default 8KB
+  max-http-header-size: 10KB
 
 score:
   # Require both upload and download scopes
@@ -204,13 +206,15 @@ spring:
           # EGO public key
           public-key-location: http://localhost:8081/oauth/token/public_key
           # Keycloak JWK
-          #jwk-set-uri: http://localhost/realms/virusseq/protocol/openid-connect/certs
+          #jwk-set-uri: http://localhost/realms/myrealm/protocol/openid-connect/certs
 auth:
   server:
+    # check API Key endpoint
     introspectionUri: http://localhost:8081/o/check_api_key
-    # Keycloak
+    # Define a valid auth provider: ego or keycloak
+    provider: ego
+    # Keycloak config
     keycloak:
-      enabled: false
       host: http://localhost
       realm: "myrealm"
 

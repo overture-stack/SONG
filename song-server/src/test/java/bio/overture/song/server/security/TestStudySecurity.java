@@ -62,7 +62,11 @@ public class TestStudySecurity {
         val prefix = "PROGRAMDATA-";
         val suffix = ".READ";
         val scope = "DCC.READ";
-        val studySecurity = new StudySecurity(prefix, suffix, scope, keycloakAuthorizationService);
+        val studySecurity = StudySecurity.builder()
+            .studyPrefix(prefix)
+            .studySuffix(suffix)
+            .systemScope(scope)
+            .build();
         val authentication = new AccessTokenConverterWithExpiry().extractAuthentication(map);
 
         assertEquals(expected, studySecurity.authorize(authentication, TEST_STUDY));

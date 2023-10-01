@@ -59,7 +59,10 @@ public class TestSystemSecurity {
 
     public void test_authorize(Map<String, ?> map, boolean expected) {
         val scope = "DCC.READ";
-        val systemSecurity = new SystemSecurity(scope, keycloakAuthorizationService);
+        val provider = "ego";
+        val systemSecurity = SystemSecurity.builder()
+            .systemScope(scope)
+            .build();
         val authentication = new AccessTokenConverterWithExpiry().extractAuthentication(map);
 
         assertEquals(expected, systemSecurity.authorize(authentication));

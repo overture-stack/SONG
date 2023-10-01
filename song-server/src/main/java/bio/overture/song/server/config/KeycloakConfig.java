@@ -22,9 +22,6 @@ public class KeycloakConfig {
   @Value("${auth.server.keycloak.realm}")
   private String realm;
 
-  @Value("${auth.server.keycloak.enabled:false}")
-  private boolean enabled;
-
   private static final String UMA_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:uma-ticket";
   private static final String UMA_RESPONSE_MODE = "permissions";
 

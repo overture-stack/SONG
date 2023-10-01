@@ -33,8 +33,8 @@ public class KeycloakAuthorizationService {
   }
 
   public List<KeycloakPermission> fetchAuthorizationGrants(String accessToken){
-    // Add token to introspectionUri
-    val uriWithToken = keycloakConfig.permissionUrl();
+
+    val serviceUrl = keycloakConfig.permissionUrl();
 
     HttpEntity<MultiValueMap<String, String>> request =
         new HttpEntity<>(keycloakConfig.getUmaParams(), getBearerAuthHeader(accessToken));
@@ -47,7 +47,7 @@ public class KeycloakAuthorizationService {
       template.setErrorHandler(new RestTemplateResponseErrorHandler());
       response =
           template.postForEntity(
-              uriWithToken, request, KeycloakPermission[].class);
+              serviceUrl, request, KeycloakPermission[].class);
     } catch (ResourceAccessException e) {
       log.error(
           "KeycloakAuthorizationService - error cause:"
@@ -71,11 +71,6 @@ public class KeycloakAuthorizationService {
     }
 
     return List.of(response.getBody());
-  }
-
-  public boolean isEnabled(){
-    log.info("checking if Keycloak is enabled: "+ keycloakConfig.isEnabled());
-    return keycloakConfig.isEnabled();
   }
 
   private HttpHeaders getBearerAuthHeader(String token) {

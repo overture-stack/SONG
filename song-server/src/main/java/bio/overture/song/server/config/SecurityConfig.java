@@ -67,6 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private String introspectionUri;
     private String clientId;
     private String clientSecret;
+    private String provider;
 
     private final ScopeConfig scope = new ScopeConfig();
 
@@ -74,6 +75,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public SystemSecurity systemSecurity() {
       return SystemSecurity.builder()
           .systemScope(scope.getSystem())
+          .provider(provider)
           .build();
     }
 
@@ -95,6 +97,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .studyPrefix(scope.getStudy().getPrefix())
                 .studySuffix(scope.getStudy().getSuffix())
                 .systemScope(scope.getSystem())
+                .provider(provider)
                 .build();
     }
 

@@ -26,15 +26,14 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @Slf4j
-@Value
 @Builder
 public class SystemSecurity {
 
   @NonNull private final String systemScope;
+  private final String provider;
 
   @Autowired
   private KeycloakAuthorizationService keycloakAuthorizationService;
@@ -44,21 +43,14 @@ public class SystemSecurity {
 
     Set<String> grantedScopes;
 
-    if(keycloakAuthorizationService.isEnabled()) {
-      String token = "";
-      if(authentication instanceof JwtAuthenticationToken){
-        token = ((JwtAuthenticationToken) authentication).getToken().getTokenValue();
-      } else if(authentication instanceof BearerTokenAuthentication){
-        token = ((BearerTokenAuthentication) authentication).getToken().getTokenValue();
-      }
+    if("keycloak".equalsIgnoreCase(provider) && authentication instanceof JwtAuthenticationToken) {
 
-      // retrieve permission from Keycloak server
       val authGrants = keycloakAuthorizationService
-          .fetchAuthorizationGrants(token);
+          .fetchAuthorizationGrants(((JwtAuthenticationToken) authentication).getToken().getTokenValue());
 
       grantedScopes = extractGrantedScopesFromRpt(authGrants);
     } else {
-      // extract scopes from authentication token
+      // extract scopes from authentication object
       grantedScopes = extractGrantedScopes(authentication);
     }
 
@@ -73,7 +65,7 @@ public class SystemSecurity {
     log.debug(
         "Checking if input scope '{}' is granted for system scope '{}'",
         tokenScope,
-        getSystemScope());
-    return getSystemScope().equals(tokenScope);
+        systemScope);
+    return systemScope.equals(tokenScope);
   }
 }
