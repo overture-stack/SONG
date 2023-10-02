@@ -29,7 +29,7 @@ import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
 
 @Slf4j
 @AllArgsConstructor
-public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
+public class ApiKeyIntrospector implements OpaqueTokenIntrospector {
 
     private String introspectionUri;
     private String clientId;
@@ -94,7 +94,7 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
     }
 
     private OAuth2AuthenticatedPrincipal convertResponseToPrincipal(JsonNode responseJson) {
-        val response = JsonUtils.convertValue(responseJson, EgoApiKeyIntrospectResponse.class);
+        val response = JsonUtils.convertValue(responseJson, ApiKeyIntrospectResponse.class);
 
         Collection<GrantedAuthority> authorities = new ArrayList();
         Map<String, Object> claims = new HashMap<>();

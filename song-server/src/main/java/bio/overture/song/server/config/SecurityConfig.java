@@ -16,7 +16,7 @@
  */
 package bio.overture.song.server.config;
 
-import bio.overture.song.server.security.EgoApiKeyIntrospector;
+import bio.overture.song.server.security.ApiKeyIntrospector;
 import bio.overture.song.server.security.StudySecurity;
 import bio.overture.song.server.security.SystemSecurity;
 import lombok.Getter;
@@ -83,10 +83,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerResolver() {
 
         // Auth Managers for JWT and for ApiKeys. JWT uses the default auth provider,
-        // but OpaqueTokens are handled by the custom EgoApiKeyIntrospector
+        // but OpaqueTokens are handled by the custom ApiKeyIntrospector
         AuthenticationManager jwt = new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
         AuthenticationManager opaqueToken =
-                new ProviderManager(new OpaqueTokenAuthenticationProvider(new EgoApiKeyIntrospector(introspectionUri, clientId, clientSecret)));
+                new ProviderManager(new OpaqueTokenAuthenticationProvider(new ApiKeyIntrospector(introspectionUri, clientId, clientSecret)));
 
         return (request) -> useJwt(request) ? jwt : opaqueToken;
     }
@@ -103,7 +103,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public OpaqueTokenIntrospector introspector() {
-        return new EgoApiKeyIntrospector(introspectionUri, clientId, clientSecret);
+        return new ApiKeyIntrospector(introspectionUri, clientId, clientSecret);
     }
 
     @Override
