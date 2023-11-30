@@ -68,6 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private String clientId;
     private String clientSecret;
     private String provider;
+    private String tokenName;
 
     private final ScopeConfig scope = new ScopeConfig();
 
@@ -86,7 +87,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // but OpaqueTokens are handled by the custom ApiKeyIntrospector
         AuthenticationManager jwt = new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
         AuthenticationManager opaqueToken =
-                new ProviderManager(new OpaqueTokenAuthenticationProvider(new ApiKeyIntrospector(introspectionUri, clientId, clientSecret)));
+                new ProviderManager(new OpaqueTokenAuthenticationProvider(new ApiKeyIntrospector(introspectionUri, clientId, clientSecret, tokenName)));
 
         return (request) -> useJwt(request) ? jwt : opaqueToken;
     }
@@ -103,7 +104,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public OpaqueTokenIntrospector introspector() {
-        return new ApiKeyIntrospector(introspectionUri, clientId, clientSecret);
+        return new ApiKeyIntrospector(introspectionUri, clientId, clientSecret, tokenName);
     }
 
     @Override
@@ -163,7 +164,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             String token = authorizationHeaderValue.substring(7);
             try {
                 UUID.fromString(token);
-                // able to parse as UUID, so this token matches our EgoApiKey format
+                // able to parse as UUID, so this token matches our ApiKey format
                 return false;
             } catch (IllegalArgumentException e) {
                 // unable to parse as UUID, use our JWT resolvers

@@ -211,6 +211,7 @@ auth:
   server:
     # check API Key endpoint
     introspectionUri: http://localhost:8081/o/check_api_key
+    tokenName: apiKey
     # Define a valid auth provider: ego or keycloak
     provider: ego
     # Keycloak config
