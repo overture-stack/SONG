@@ -228,7 +228,7 @@ package:
 # Start ego, score, and object-storage.
 start-deps: _setup package
 	@echo $(YELLOW)$(INFO_HEADER) "Starting dependencies: ego, score and object-storage" $(END)
-	@$(DC_UP_CMD) ego-api score-server object-storage dcc-id-server
+	@$(DC_UP_CMD) ego-api score-server object-storage
 
 # Start song-server and all dependencies. Affected by DEMO_MODE
 start-song-server: _setup package start-deps _setup-object-storage
