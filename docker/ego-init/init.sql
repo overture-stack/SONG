@@ -295,7 +295,8 @@ ALTER TABLE public.userpermission OWNER TO postgres;
 --
 
 COPY public.egoapplication (name, clientid, clientsecret, redirecturi, description, status, id, type) FROM stdin;
-song-to-score	songToScore	songToScoreSecret	http://example.com	song-to-score	APPROVED	77f1ef78-7495-4b4a-982a-6b9532dc69fb	CLIENT
+song	song	songsecret	http://example.com	song-to-score	APPROVED	77f1ef78-7495-4b4a-982a-6b9532dc69fb	CLIENT
+score	score	scoresecret	http://example.com	score	APPROVED	8b573f1b-fbf8-413b-af5d-c17fd75aa00e	CLIENT
 \.
 
 
@@ -346,6 +347,7 @@ COPY public.flyway_schema_history (installed_rank, version, description, type, s
 
 COPY public.groupapplication (group_id, application_id) FROM stdin;
 f2885e96-f74e-4f7a-b935-fb48b18e761d	77f1ef78-7495-4b4a-982a-6b9532dc69fb
+f2885e96-f74e-4f7a-b935-fb48b18e761d	8b573f1b-fbf8-413b-af5d-c17fd75aa00e
 \.
 
 
