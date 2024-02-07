@@ -5,6 +5,7 @@ import bio.overture.song.server.security.KeycloakPermission;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,6 +25,7 @@ import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
 
 @Slf4j
 @Service
+@Profile("secure")
 public class KeycloakAuthorizationService {
 
   private final KeycloakConfig keycloakConfig;
