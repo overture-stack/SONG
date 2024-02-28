@@ -16,7 +16,7 @@ Song is a metadata validation and tracking tool designed to streamline the manag
 
 **Analysis Files:** An analysis is a description of a set of one or more files plus the metadata describing that collection of files.
 
-**Metadata Validation:** Analyses get validated against the administrator's Dynamic Schema. That defines the vocabulary and structure of the analysis document. 
+**Metadata Validation:** Analyses get validated against a metadata schema that defines the vocabulary and structure of the analysis document. Song allows administrators to define custom schemas that describe the Analyses they intend to manage.
 
 **Tracking of Metadata to File Data:** Once validated, the analysis document is stored in the Song repository and given an automated analysis ID. The analysis ID is then used when uploading all associated file data through Score. Analysis IDs associate the metadata stored in Song with the file data being transferred by score and stored in the cloud.
 
