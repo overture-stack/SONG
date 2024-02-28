@@ -8,7 +8,7 @@
 
 # Operational Docs
 
-Welcome to the Operational Documentation for setting up and managing the Score Server in a development environment. This document provides detailed steps and configurations needed to get your development environment up and running with either a standalone setup or using Docker. This page also includes instructions for integrating Keycloak for authentication and authorization.
+This page provides detailed steps and configurations required to set up your development environment with Song, either through a standalone setup or using Docker. Additionally, it includes instructions for integrating Keycloak for authentication and authorization.
 
 ## On this page
 
