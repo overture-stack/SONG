@@ -1,18 +1,22 @@
 package bio.overture.song.server.security;
 
 import bio.overture.song.server.oauth.AccessTokenConverterWithExpiry;
+import bio.overture.song.server.service.auth.KeycloakAuthorizationService;
 import lombok.val;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
+@SpringBootTest
 public class TestStudySecurity {
     String TEST_STUDY = "TEST-CA";
+
+  @Autowired
+  private KeycloakAuthorizationService keycloakAuthorizationService;
 
     @Test
     public void testValidStudyScopeOK() {
@@ -58,7 +62,11 @@ public class TestStudySecurity {
         val prefix = "PROGRAMDATA-";
         val suffix = ".READ";
         val scope = "DCC.READ";
-        val studySecurity = new StudySecurity(prefix, suffix, scope);
+        val studySecurity = StudySecurity.builder()
+            .studyPrefix(prefix)
+            .studySuffix(suffix)
+            .systemScope(scope)
+            .build();
         val authentication = new AccessTokenConverterWithExpiry().extractAuthentication(map);
 
         assertEquals(expected, studySecurity.authorize(authentication, TEST_STUDY));

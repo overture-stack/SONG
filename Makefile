@@ -15,7 +15,7 @@ ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 MY_UID := $$(id -u)
 MY_GID := $$(id -g)
 THIS_USER := $(MY_UID):$(MY_GID)
-ACCESS_TOKEN := f69b726d-d40f-4261-b105-1ec7e6bf04d5
+ACCESS_TOKEN := 07a5a12e-a85f-4248-a9a1-851a8062b6ac
 PROJECT_NAME := $(shell echo $(ROOT_DIR) | sed 's/.*\///g')
 PROJECT_VERSION := $(shell $(MVN_EXE) -f $(ROOT_DIR) help:evaluate -Dexpression=project.version -q -DforceStdout 2>&1  | tail -1)
 
@@ -79,7 +79,7 @@ _ping_song_server:
 		--retry 5 \
 		--retry-delay 0 \
 		--retry-max-time 40 \
-		--retry-connrefuse \
+		--retry-connrefused \
 		'http://localhost:8080/isAlive'
 	@echo ""
 
@@ -225,10 +225,10 @@ package:
 #  Docker targets
 #############################################################
 
-# Start ego, score, and object-storage.
+# Start keycloak, score, and object-storage.
 start-deps: _setup package
-	@echo $(YELLOW)$(INFO_HEADER) "Starting dependencies: ego, score and object-storage" $(END)
-	@$(DC_UP_CMD) ego-api score-server object-storage dcc-id-server
+	@echo $(YELLOW)$(INFO_HEADER) "Starting dependencies: keycloak, score and object-storage" $(END)
+	@$(DC_UP_CMD) keycloak-server score-server object-storage
 
 # Start song-server and all dependencies. Affected by DEMO_MODE
 start-song-server: _setup package start-deps _setup-object-storage

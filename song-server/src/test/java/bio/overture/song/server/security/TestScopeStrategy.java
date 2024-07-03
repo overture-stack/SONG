@@ -20,12 +20,19 @@ package bio.overture.song.server.security;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import bio.overture.song.server.service.auth.KeycloakAuthorizationService;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.testcontainers.shaded.com.google.common.collect.Sets;
 
+@SpringBootTest
 public class TestScopeStrategy {
 
-  private static final SystemSecurity SYSTEM_SECURITY = new SystemSecurity("song.READ");
+  @Autowired
+  private KeycloakAuthorizationService keycloakAuthorizationService;
+
+  private final SystemSecurity SYSTEM_SECURITY = SystemSecurity.builder().systemScope("song.READ").build();
   private static final StudySecurity STUDY_SECURITY1 =
       StudySecurity.builder()
           .studyPrefix("song.")
@@ -91,7 +98,7 @@ public class TestScopeStrategy {
     assertFalse(testSystemVerify("SONG.READ"));
   }
 
-  private static boolean testSystemVerify(String... grantedScopes) {
+  private boolean testSystemVerify(String... grantedScopes) {
     return SYSTEM_SECURITY.verifyOneOfSystemScope(Sets.newHashSet(grantedScopes));
   }
 

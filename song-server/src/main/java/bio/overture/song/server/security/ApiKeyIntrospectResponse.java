@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EgoApiKeyIntrospectResponse {
+public class ApiKeyIntrospectResponse {
   private long exp;
   private String user_id;
   public List<String> scope;

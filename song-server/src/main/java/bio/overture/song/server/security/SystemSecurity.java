@@ -17,23 +17,43 @@
 package bio.overture.song.server.security;
 
 import static bio.overture.song.server.utils.Scopes.extractGrantedScopes;
+import static bio.overture.song.server.utils.Scopes.extractGrantedScopesFromRpt;
 
 import java.util.Set;
-import lombok.NonNull;
-import lombok.Value;
+
+import bio.overture.song.server.service.auth.KeycloakAuthorizationService;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @Slf4j
-@Value
+@Builder
 public class SystemSecurity {
 
   @NonNull private final String systemScope;
+  private final String provider;
+
+  @Autowired
+  private KeycloakAuthorizationService keycloakAuthorizationService;
 
   public boolean authorize(@NonNull Authentication authentication) {
     log.debug("Checking system-level authorization");
-    val grantedScopes = extractGrantedScopes(authentication);
+
+    Set<String> grantedScopes;
+
+    if("keycloak".equalsIgnoreCase(provider) && authentication instanceof JwtAuthenticationToken) {
+
+      val authGrants = keycloakAuthorizationService
+          .fetchAuthorizationGrants(((JwtAuthenticationToken) authentication).getToken().getTokenValue());
+
+      grantedScopes = extractGrantedScopesFromRpt(authGrants);
+    } else {
+      // extract scopes from authentication object
+      grantedScopes = extractGrantedScopes(authentication);
+    }
+
     return verifyOneOfSystemScope(grantedScopes);
   }
 
@@ -45,7 +65,7 @@ public class SystemSecurity {
     log.debug(
         "Checking if input scope '{}' is granted for system scope '{}'",
         tokenScope,
-        getSystemScope());
-    return getSystemScope().equals(tokenScope);
+        systemScope);
+    return systemScope.equals(tokenScope);
   }
 }
