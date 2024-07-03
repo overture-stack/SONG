@@ -94,7 +94,7 @@ services:
       - "./docker/scratch/score-server-logs:/score-server/logs"
 
   score-client:
-    image: overture/score:5.10.0
+    image: overture/score:latest
     environment:
       ACCESSTOKEN: 07a5a12e-a85f-4248-a9a1-851a8062b6ac
       METADATA_URL: http://song-server:8080
