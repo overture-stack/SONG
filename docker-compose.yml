@@ -1,31 +1,36 @@
 version: '3.7'
 services:
-  ego-api:
-    image: "overture/ego:3.4.0"
+  keycloak-server:
+    image: docker.io/bitnami/keycloak:22
     environment:
-      SERVER_PORT: 8080
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ego-postgres:5432/ego?stringtype=unspecified
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_FLYWAY_ENABLED: "true"
-      SPRING_FLYWAY_LOCATIONS: "classpath:flyway/sql,classpath:db/migration"
-      SPRING_PROFILES: demo, auth
-      JWT_DURATIONMS: 300000 # expire tokens in 5 min for local testing
-    expose:
-      - "8080"
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://keycloak-postgresql/bitnami_keycloak
+      - KC_DB_USERNAME=bn_keycloak
+      # default expiration days of apiKeys is 365
+      # - APIKEY_DURATION_DAYS=365
     ports:
       - "9082:8080"
     depends_on:
-      - ego-postgres
-  ego-postgres:
-    image: postgres:11.1
+      - keycloak-postgresql
+    volumes:
+      - type: bind
+        source: ./docker/keycloak-init/data_import
+        target: /opt/bitnami/keycloak/data/import
+    command:
+      - /bin/bash
+      - -c
+      - |
+        curl -sL https://github.com/oicr-softeng/keycloak-apikeys/releases/download/1.0.1/keycloak-apikeys-1.0.1.jar -o /opt/bitnami/keycloak/providers/keycloak-apikeys-1.0.1.jar
+        kc.sh start-dev --import-realm
+  keycloak-postgresql:
+    image: docker.io/bitnami/postgresql:11
     environment:
-      - POSTGRES_DB=ego
-      - POSTGRES_PASSWORD=password
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRESQL_USERNAME=bn_keycloak
+      - POSTGRESQL_DATABASE=bitnami_keycloak
     expose:
       - "5432"
-    volumes:
-      - "./docker/ego-init:/docker-entrypoint-initdb.d"
     ports:
       - "9444:5432"
   object-storage:
@@ -43,10 +48,10 @@ services:
     ports:
       - "8085:9000"
   score-server:
-    image: overture/score-server:5.1.0
+    image: overture/score-server:47f006ce
     user: "$MY_UID:$MY_GID"
     environment:
-      SPRING_PROFILES_ACTIVE: amazon,collaboratory,prod,secure,jwt
+      SPRING_PROFILES_ACTIVE: amazon,collaboratory,prod,secure
       SERVER_PORT: 8080
       OBJECT_SENTINEL: heliograph
       BUCKET_NAME_OBJECT: oicr.icgc.test
@@ -57,11 +62,15 @@ services:
       S3_ACCESSKEY: minio
       S3_SECRETKEY: minio123
       S3_SIGV4ENABLED: "true"
-      AUTH_JWT_PUBLICKEYURL: http://ego-api:8080/oauth/token/public_key
-      AUTH_SERVER_URL: http://ego-api:8080/o/check_api_key/
-      AUTH_SERVER_CLIENTID: score
-      AUTH_SERVER_CLIENTSECRET: scoresecret
+      # Keycloak Variables
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak-server:8080/realms/myrealm/protocol/openid-connect/certs
+      AUTH_SERVER_PROVIDER: keycloak
+      AUTH_SERVER_CLIENTID: system
+      AUTH_SERVER_CLIENTSECRET: systemsecret
       AUTH_SERVER_TOKENNAME: apiKey
+      AUTH_SERVER_KEYCLOAK_HOST: http://keycloak-server:8080
+      AUTH_SERVER_KEYCLOAK_REALM: myrealm
+      AUTH_SERVER_URL: http://keycloak-server:8080/realms/myrealm/apikey/check_api_key/
       AUTH_SERVER_SCOPE_DOWNLOAD_SYSTEM: score.READ
       AUTH_SERVER_SCOPE_DOWNLOAD_STUDY_PREFIX: score.
       AUTH_SERVER_SCOPE_DOWNLOAD_STUDY_SUFFIX: .READ
@@ -81,14 +90,13 @@ services:
       - "8087:8080"
     depends_on:
       - object-storage
-      - ego-api
     volumes:
       - "./docker/scratch/score-server-logs:/score-server/logs"
 
   score-client:
-    image: overture/score:5.0.0
+    image: overture/score:latest
     environment:
-      ACCESSTOKEN: f69b726d-d40f-4261-b105-1ec7e6bf04d5
+      ACCESSTOKEN: 07a5a12e-a85f-4248-a9a1-851a8062b6ac
       METADATA_URL: http://song-server:8080
       STORAGE_URL: http://score-server:8080
     volumes:
@@ -108,6 +116,11 @@ services:
       - "8432:5432"
     volumes:
       - "./docker/song-db-init:/docker-entrypoint-initdb.d"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 15s
+      timeout: 15s
+      retries: 5
 
   aws-cli:
     image: "mesosphere/aws-cli:latest"
@@ -124,7 +137,7 @@ services:
       dockerfile: "$DOCKERFILE_NAME"
       target: client
     environment:
-      CLIENT_ACCESS_TOKEN: f69b726d-d40f-4261-b105-1ec7e6bf04d5
+      CLIENT_ACCESS_TOKEN: 07a5a12e-a85f-4248-a9a1-851a8062b6ac
       CLIENT_STUDY_ID: ABC123
       CLIENT_DEBUG: "true"
       CLIENT_SERVER_URL: http://song-server:8080
@@ -145,77 +158,37 @@ services:
       target: server
     environment:
       SERVER_PORT: 8080
-      SPRING_PROFILES_ACTIVE: "prod,secure,default,score-client-cred"
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_PUBLIC_KEY_LOCATION: http://ego-api:8080/oauth/token/public_key
-      AUTH_SERVER_INTROSPECTIONURI: http://ego-api:8080/o/check_api_key/
-      AUTH_SERVER_CLIENTID: song
+      SPRING_PROFILES_ACTIVE: "prod,secure,default"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak-server:8080/realms/myrealm/protocol/openid-connect/certs
+      AUTH_SERVER_INTROSPECTIONURI: http://keycloak-server:8080/realms/myrealm/apikey/check_api_key/
       AUTH_SERVER_TOKENNAME: apiKey
-      AUTH_SERVER_CLIENTSECRET: songsecret
-      AUTH_SERVER_SCOPE_STUDY_PREFIX: song.
+      AUTH_SERVER_CLIENTID: system
+      AUTH_SERVER_CLIENTSECRET: systemsecret
+      AUTH_SERVER_PROVIDER: keycloak
+      AUTH_SERVER_KEYCLOAK_HOST: http://keycloak-server:8080
+      AUTH_SERVER_KEYCLOAK_REALM: myrealm
+      AUTH_SERVER_SCOPE_STUDY_PREFIX: PROGRAMDATA.
       AUTH_SERVER_SCOPE_STUDY_SUFFIX: .WRITE
       AUTH_SERVER_SCOPE_SYSTEM: song.WRITE
       SCORE_URL: http://score-server:8080
-      SCORE_CLIENTCREDENTIALS_ID: songToScore
-      SCORE_CLIENTCREDENTIALS_SECRET: songToScoreSecret
-      SCORE_CLIENTCREDENTIALS_TOKENURL: http://ego-api:8080/oauth/token
-      SCORE_CLIENTCREDENTIALS_SYSTEMSCOPE: "score.WRITE"
+      SCORE_ACCESSTOKEN: 07a5a12e-a85f-4248-a9a1-851a8062b6ac
       MANAGEMENT_SERVER_PORT: 8081
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_DATASOURCE_URL: jdbc:postgresql://song-db/song?stringtype=unspecified
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_LOCATIONS: "classpath:db/migration"
-      ID_USELOCAL: "false"
-      ID_FEDERATED_AUTH_BEARER_TOKEN:              f69b726d-d40f-4261-b105-1ec7e6bf04d5
-      ID_FEDERATED_URITEMPLATE_DONOR:              http://dcc-id-server:8080/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
-      ID_FEDERATED_URITEMPLATE_SPECIMEN:           http://dcc-id-server:8080/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
-      ID_FEDERATED_URITEMPLATE_SAMPLE:             http://dcc-id-server:8080/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
-      ID_FEDERATED_URITEMPLATE_FILE:               http://dcc-id-server:8080/object/id?analysisId={analysisId}&fileName={fileName}
-      ID_FEDERATED_URITEMPLATE_ANALYSIS_EXISTENCE: http://dcc-id-server:8080/analysis/id?submittedAnalysisId={analysisId}&create=false
-      ID_FEDERATED_URITEMPLATE_ANALYSIS_GENERATE:  http://dcc-id-server:8080/analysis/unique
-      ID_FEDERATED_URITEMPLATE_ANALYSIS_SAVE:      http://dcc-id-server:8080/analysis/id?submittedAnalysisId={analysisId}&create=true
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,address=*:5006,server=y,suspend=n
     restart: always
     ports:
       - "5006:5006"
       - "8080:8080"
     depends_on:
-      - song-db
-      - ego-api
-      - score-server
-      - dcc-id-server
+      song-db:
+        condition: service_healthy
     volumes:
       - "./docker/scratch/song-server-logs:/song-server/logs"
     user: song
-  dcc-id-db:
-    image: icgcdcc/dcc-id-db:3908f82
-    environment:
-      POSTGRES_DB: dcc_identifier
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-  dcc-id-server:
-    image: icgcdcc/dcc-id-server:3908f82
-    environment:
-      AUTH_SERVER_URL: http://ego-api:8080/o/check_token/
-      AUTH_SERVER_CLIENTID: dcc-id
-      AUTH_SERVER_CLIENTSECRET: dccidsecret
-      AUTH_SERVER_PREFIX: id
-      AUTH_SERVER_SUFFIX: WRITE
-      AUTH_CONNECTION_MAXRETRIES: 5
-      AUTH_CONNECTION_INITIALBACKOFF: 15000
-      AUTH_CONNECTION_MULTIPLIER: 2.0
-      SPRING_DATASOURCE_URL: jdbc:postgresql://dcc-id-db/dcc_identifier
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_PROFILES_ACTIVE: secure
-    restart: always
-    depends_on:
-      - dcc-id-db
-      - ego-api
-    expose:
-      - "8080"
-    ports:
-      - "8086:8080"
 
 volumes:
     object-storage-data: {}

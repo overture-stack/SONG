@@ -13,6 +13,7 @@ import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
+import bio.overture.song.server.service.FileService;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Collection;
 import java.util.List;
@@ -34,15 +35,18 @@ public class AnalysisServiceSender implements AnalysisService {
   private final String songServerId;
   private final Sender sender;
   private final AnalysisService internalAnalysisService;
+  private final FileService fileService;
 
   @Autowired
   public AnalysisServiceSender(
       @Value("${song.id}") @NonNull String songServerId,
       @NonNull Sender sender,
-      @NonNull AnalysisService analysisServiceImpl) {
+      @NonNull AnalysisService analysisServiceImpl,
+      @NonNull FileService fileService) {
     this.songServerId = songServerId;
     this.sender = sender;
     this.internalAnalysisService = analysisServiceImpl;
+    this.fileService = fileService;
   }
 
   /** Decorated methods */
@@ -138,6 +142,11 @@ public class AnalysisServiceSender implements AnalysisService {
   @Override
   public void checkAnalysisAndStudyRelated(String studyId, String id) {
     internalAnalysisService.checkAnalysisAndStudyRelated(studyId, id);
+  }
+
+  @Override
+  public void checkDuplicateAnalysis(@NonNull Payload payload) {
+    internalAnalysisService.checkDuplicateAnalysis(payload);
   }
 
   @Override

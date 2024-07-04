@@ -58,7 +58,7 @@ public class SubmitService {
     this.studyService = studyService;
   }
 
-  public SubmitResponse submit(@NonNull String studyId, String payloadString) {
+  public SubmitResponse submit(@NonNull String studyId, String payloadString, boolean allowDuplicates) {
     // Check study exists
     studyService.checkStudyExist(studyId);
 
@@ -73,6 +73,11 @@ public class SubmitService {
 
     // Check that the Payload's studyId matches the request studyId
     checkStudyInPayload(studyId, payload);
+
+    // check duplicate analysis
+    if(!allowDuplicates){
+      analysisService.checkDuplicateAnalysis(payload);
+    }
 
     // Create the analysis
     val analysis = analysisService.create(studyId, payload);

@@ -16,7 +16,7 @@
  */
 package bio.overture.song.server.config;
 
-import bio.overture.song.server.security.EgoApiKeyIntrospector;
+import bio.overture.song.server.security.ApiKeyIntrospector;
 import bio.overture.song.server.security.StudySecurity;
 import bio.overture.song.server.security.SystemSecurity;
 import lombok.Getter;
@@ -67,38 +67,44 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private String introspectionUri;
     private String clientId;
     private String clientSecret;
+    private String provider;
+    private String tokenName;
 
     private final ScopeConfig scope = new ScopeConfig();
 
     @Bean
     public SystemSecurity systemSecurity() {
-        return new SystemSecurity(scope.getSystem());
+      return SystemSecurity.builder()
+          .systemScope(scope.getSystem())
+          .provider(provider)
+          .build();
     }
 
     @Bean
     public AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerResolver() {
 
         // Auth Managers for JWT and for ApiKeys. JWT uses the default auth provider,
-        // but OpaqueTokens are handled by the custom EgoApiKeyIntrospector
+        // but OpaqueTokens are handled by the custom ApiKeyIntrospector
         AuthenticationManager jwt = new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
         AuthenticationManager opaqueToken =
-                new ProviderManager(new OpaqueTokenAuthenticationProvider(new EgoApiKeyIntrospector(introspectionUri, clientId, clientSecret)));
+                new ProviderManager(new OpaqueTokenAuthenticationProvider(new ApiKeyIntrospector(introspectionUri, clientId, clientSecret, tokenName)));
 
         return (request) -> useJwt(request) ? jwt : opaqueToken;
     }
 
     @Bean
-    public StudySecurity studySecurity(@Autowired SystemSecurity systemSecurity) {
+    public StudySecurity studySecurity() {
         return StudySecurity.builder()
                 .studyPrefix(scope.getStudy().getPrefix())
                 .studySuffix(scope.getStudy().getSuffix())
                 .systemScope(scope.getSystem())
+                .provider(provider)
                 .build();
     }
 
     @Bean
     public OpaqueTokenIntrospector introspector() {
-        return new EgoApiKeyIntrospector(introspectionUri, clientId, clientSecret);
+        return new ApiKeyIntrospector(introspectionUri, clientId, clientSecret, tokenName);
     }
 
     @Override
@@ -158,7 +164,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             String token = authorizationHeaderValue.substring(7);
             try {
                 UUID.fromString(token);
-                // able to parse as UUID, so this token matches our EgoApiKey format
+                // able to parse as UUID, so this token matches our ApiKey format
                 return false;
             } catch (IllegalArgumentException e) {
                 // unable to parse as UUID, use our JWT resolvers

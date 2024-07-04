@@ -30,12 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -55,7 +50,8 @@ public class SubmitController {
   public SubmitResponse submit(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
+      @RequestParam(value = "allowDuplicates", defaultValue = "false") boolean allowDuplicates,
       @RequestBody @Valid String json_payload) {
-    return submitService.submit(studyId, json_payload);
+    return submitService.submit(studyId, json_payload, allowDuplicates);
   }
 }

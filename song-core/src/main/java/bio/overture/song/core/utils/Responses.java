@@ -29,7 +29,9 @@ public class Responses {
   }
 
   public static String contextMessage(String context, String formattedMessage, Object... args) {
-    return format(format("[%s] - %s", context, formattedMessage), args);
+    // To escape the percent sign (%) we need to write it twice, like %%
+    String escapedMessage = formattedMessage.replaceAll("%", "%%");
+    return format(format("[%s] - %s", context, escapedMessage), args);
   }
 
   public static String contextMessage(Class<?> clazz, String formattedMessage, Object... args) {

@@ -8,6 +8,9 @@ import lombok.val;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
@@ -15,41 +18,53 @@ import org.springframework.security.oauth2.server.resource.introspection.BadOpaq
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.*;
+
+import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
+import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
 
 @Slf4j
 @AllArgsConstructor
-public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
+public class ApiKeyIntrospector implements OpaqueTokenIntrospector {
 
     private String introspectionUri;
     private String clientId;
     private String clientSecret;
+    private String tokenName;
 
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
-        try {
+
+            // Add token to body
+            MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+            formData.add(tokenName, token);
+
             // Add token to introspectionUri
             val uriWithToken =
-                    UriComponentsBuilder.fromHttpUrl(introspectionUri)
-                            .queryParam("apiKey", token)
-                            .build()
-                            .toUri();
+                UriComponentsBuilder.fromHttpUrl(introspectionUri)
+                    .build()
+                    .toUri();
 
             // Get response from Ego
             val template = new RestTemplate();
+            template.setErrorHandler(new RestTemplateResponseErrorHandler());
             val response =
                     template.postForEntity(
-                            uriWithToken, new HttpEntity<Void>(null, getBasicAuthHeader()), JsonNode.class);
-            
+                            uriWithToken, new HttpEntity<>(formData, getBasicAuthHeader()), JsonNode.class);
+
             // Ensure response was OK
             if ((response.getStatusCode() != HttpStatus.OK
                     && response.getStatusCode() != HttpStatus.MULTI_STATUS
                     && response.getStatusCode() != HttpStatus.UNAUTHORIZED)
                     || !response.hasBody()) {
-                throw new OAuth2IntrospectionException("Bad Response from Ego Server");
+                throw new OAuth2IntrospectionException("Bad Response from Auth Server");
             }
 
             val responseBody = response.getBody();
@@ -61,14 +76,12 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
 
             // Ego ApiKey check is successful. Build authenticated principal and return.
             return convertResponseToPrincipal(responseBody);
-        } catch (Exception e) {
-            throw new OAuth2IntrospectionException(e.getMessage(), e);
-        }
     }
 
     private HttpHeaders getBasicAuthHeader() {
         val headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
+        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA_VALUE);
         return headers;
     }
 
@@ -82,15 +95,26 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
                     "Check Token response is unauthorized but does not list the error. Rejecting token.");
             return false;
         }
-    /* TODO: joneubank 2022-06-10 this should be checking for expiry and active=true instead of just the presence of
-       an error field, but at the moment the Ego check_api_token endpoint either returns 401+error, or it is active
-       (Ego version 5.3.0)
-    */
+        if(response.has("exp") && response.get("exp").asLong() == 0){
+          log.debug("Token is expired. Rejecting token.");
+          return false;
+        }
+
+        if(response.has("revoked") && response.get("revoked").asBoolean() == true){
+          log.debug("Token is revoked. Rejecting token.");
+          return false;
+        }
+
+        if(response.has("valid") && response.get("valid").asBoolean() == false){
+          log.debug("Check Token response 'valid' field is false. Rejecting token.");
+          return false;
+        }
+
         return true;
     }
 
     private OAuth2AuthenticatedPrincipal convertResponseToPrincipal(JsonNode responseJson) {
-        val response = JsonUtils.convertValue(responseJson, EgoApiKeyIntrospectResponse.class);
+        val response = JsonUtils.convertValue(responseJson, ApiKeyIntrospectResponse.class);
 
         Collection<GrantedAuthority> authorities = new ArrayList();
         Map<String, Object> claims = new HashMap<>();
@@ -108,4 +132,30 @@ public class EgoApiKeyIntrospector implements OpaqueTokenIntrospector {
 
         return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
     }
+
+  public class RestTemplateResponseErrorHandler
+      implements ResponseErrorHandler {
+
+    @Override
+    public boolean hasError(ClientHttpResponse httpResponse)
+        throws IOException {
+
+      return (
+          httpResponse.getStatusCode().series() == CLIENT_ERROR
+              || httpResponse.getStatusCode().series() == SERVER_ERROR);
+    }
+
+    @Override
+    public void handleError(ClientHttpResponse httpResponse)
+        throws IOException {
+
+      if (httpResponse.getStatusCode().series() == CLIENT_ERROR) {
+        // throw 401 HTTP error code
+        throw new BadCredentialsException(httpResponse.getStatusText());
+      } else {
+        // throw 500 HTTP error code
+        throw new OAuth2IntrospectionException(httpResponse.getStatusText());
+      }
+    }
+  }
 }
