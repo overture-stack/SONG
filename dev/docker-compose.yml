@@ -35,8 +35,8 @@ services:
       AUTH_SERVER_UPLOADSCOPE: song.upload
       SERVER_URL: http://localhost:8087
       SERVER_PORT: 8087
-      BUCKET_NAME_OBJECT: oicr.icgc.test
-      BUCKET_NAME_STATE: oicr.icgc.test
+      BUCKET_NAME_OBJECT: score.data
+      BUCKET_NAME_STATE: score.test
       COLLABORATORY_DATA_DIRECTORY: data
       OBJECT_SENTINEL: heliograph
       METADATA_URL: "http://localhost:8080"
