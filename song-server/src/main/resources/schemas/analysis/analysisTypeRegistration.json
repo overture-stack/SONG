@@ -10,7 +10,19 @@
             "const": "object"
         },
         "definitions" : {
-          "type" : "object"
+          "type" : "object",
+            "properties" : {
+                "file" : {
+                    "type": "object",
+                    "properties": {
+                        "fileType" : {
+                            "type" : "string",
+                            "enum": ["USER_DEFINED_TYPE1","USER_DEFINED_TYPE2"]
+                        }
+                    }
+                }
+
+            }
         },
         "properties" : {
             "type": "object",
