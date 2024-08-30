@@ -15,15 +15,18 @@
                 "file" : {
                     "type": "object",
                     "properties": {
-                        "fileType" : {
-                            "type" : "string",
-                            "enum": ["USER_DEFINED_TYPE1","USER_DEFINED_TYPE2"]
+                        "fileType": {
+                            "oneOf": [
+                                { "$ref": "analysisBase.json#/definitions/file/fileType" },
+                                {
+                                    "type": "string",
+                                    "enum": ["VCF", "BAM", "OTHER_CUSTOM_TYPE"]
+                                }
+                            ]
                         }
                     }
-                }
+                },
 
-            }
-        },
         "properties" : {
             "type": "object",
             "required": ["experiment"],
