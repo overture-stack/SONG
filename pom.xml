@@ -59,11 +59,12 @@
         <repository>
             <id>spring-releases</id>
             <name>Spring Releases</name>
-            <url>https://repo.spring.io/libs-release</url>
+            <url>https://repo.spring.io/release</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <!-- Added Spring Snapshots Repository -->
         <repository>
             <id>spring-snapshots</id>
             <name>Spring Snapshots</name>
@@ -75,7 +76,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        </repositories>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
