@@ -18,22 +18,7 @@
     },
     "file": {
       "fileType": {
-        "type": "string",
-        "enum": [
-          "FASTA",
-          "FAI",
-          "FASTQ",
-          "BAM",
-          "BAI",
-          "VCF",
-          "TBI",
-          "IDX",
-          "XML",
-          "TGZ",
-          "CRAM",
-          "CRAI",
-          "TXT"
-        ]
+        "type": "string"
       },
       "fileData": {
         "type": "object",
