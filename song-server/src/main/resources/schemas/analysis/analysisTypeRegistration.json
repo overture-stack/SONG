@@ -14,15 +14,16 @@
             "properties": {
                 "file": {
                     "type": "object",
-                    "properties": {
-                        "fileType": {
-                            "oneOf": [
-                                { "$ref": "classpath:/schemas/analysis/analysisBase.json#/definitions/file/fileType"},
-                                {
-                                    "type": "string",
-                                    "enum": ["VCF", "BAM", "OTHER_CUSTOM_TYPE"]
-                                }
-                            ]
+                    "properties":
+                                 {
+                            "fileType": {
+                                "oneOf": [
+                                    { "$ref": "classpath:/schemas/analysis/analysisBase.json#/definitions/file/fileType" },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            }
                         }
                     }
                 }
