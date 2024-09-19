@@ -1,7 +1,5 @@
 
-# Overview
-
-## Introduction
+# Song
 
 Song functions as a file catalog system, tracking files and managing their metadata. To manage file transfers to and from object storage Song interacts with its required companion application, [Score](https://github.com/overture-stack/score).
 
