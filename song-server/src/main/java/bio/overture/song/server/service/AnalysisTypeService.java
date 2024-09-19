@@ -42,15 +42,17 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.Options;
 import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.transaction.Transactional;
@@ -58,6 +60,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.collections.CollectionUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.SchemaException;
 import org.everit.json.schema.ValidationException;
@@ -149,21 +152,29 @@ public class AnalysisTypeService {
   public AnalysisType getAnalysisType(
       @NonNull AnalysisTypeId analysisTypeId, boolean unrenderedOnly) {
     val analysisSchema = getAnalysisSchema(analysisTypeId);
+
     val resolvedSchemaJson =
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
+
+    List<String> fileTypes =
+        (analysisSchema.getFileTypes() != null && analysisSchema.getFileTypes().length() != 0)
+            ? Arrays.asList(analysisSchema.getFileTypes().split(","))
+            : new ArrayList<>();
     return AnalysisType.builder()
         .name(analysisTypeId.getName())
         .version(analysisTypeId.getVersion())
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
+        .options(Options.builder().fileTypes(fileTypes).build())
         .build();
   }
 
   @Transactional
-  public AnalysisType register(@NonNull String analysisTypeName, JsonNode analysisTypeSchema) {
+  public AnalysisType register(
+      @NonNull String analysisTypeName, Options options, JsonNode analysisTypeSchema) {
     validateAnalysisTypeName(analysisTypeName);
     validateAnalysisTypeSchema(analysisTypeSchema);
-    return commitAnalysisType(analysisTypeName, analysisTypeSchema);
+    return commitAnalysisType(analysisTypeName, analysisTypeSchema, options);
   }
 
   public PageDTO<AnalysisType> listAnalysisTypes(
@@ -244,11 +255,84 @@ public class AnalysisTypeService {
     }
   }
 
+  private JsonNode mergeSchema(JsonNode oldSchema, JsonNode newSchema) {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode mergedNode = mapper.createObjectNode();
+
+    // Iterate over all the fields in node1
+    oldSchema
+        .fieldNames()
+        .forEachRemaining(
+            fieldName -> {
+              JsonNode value1 = oldSchema.get(fieldName);
+              if (newSchema.has(fieldName)) {
+                JsonNode value2 = newSchema.get(fieldName);
+
+                // If both fields are objects, recursively merge them
+                if (value1.isObject() && value2.isObject()) {
+                  mergedNode.set(fieldName, mergeSchema(value1, value2));
+                } else {
+                  // If not both are objects, take the value from node2 (overwrite)
+                  mergedNode.set(fieldName, value2);
+                }
+              } else {
+                // If the field only exists in node1, add it as is
+                mergedNode.set(fieldName, value1);
+              }
+            });
+
+    // Add any fields from node2 that don't exist in node1
+    newSchema
+        .fieldNames()
+        .forEachRemaining(
+            fieldName -> {
+              if (!oldSchema.has(fieldName)) {
+                mergedNode.set(fieldName, newSchema.get(fieldName));
+              }
+            });
+
+    return mergedNode;
+  }
+
   @SneakyThrows
   private AnalysisType commitAnalysisType(
-      @NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
-    val analysisSchema =
-        AnalysisSchema.builder().name(analysisTypeName).schema(analysisTypeSchema).build();
+      @NonNull String analysisTypeName,
+      @NonNull JsonNode newAnalysisTypeSchema,
+      @NonNull Options options) {
+
+    List<AnalysisSchema> schemaList = analysisSchemaRepository.findByName(analysisTypeName);
+    Optional<AnalysisSchema> oldSchemaOptional = Optional.empty();
+
+    if (CollectionUtils.isNotEmpty(schemaList)) {
+      oldSchemaOptional =
+          schemaList.stream()
+              .sorted(Comparator.comparing(AnalysisSchema::getCreatedAt).reversed())
+              .findFirst();
+    }
+    String fileTypes = "";
+
+    if (options != null && CollectionUtils.isNotEmpty(options.getFileTypes()))
+      fileTypes = String.join(",", options.getFileTypes());
+    AnalysisSchema analysisSchema;
+    if (oldSchemaOptional.isPresent()) {
+
+      val oldAnalysisSchema = oldSchemaOptional.get();
+      val mergedSchemaJsonNode = mergeSchema(oldAnalysisSchema.getSchema(), newAnalysisTypeSchema);
+      analysisSchema =
+          AnalysisSchema.builder()
+              .name(analysisTypeName)
+              .schema(mergedSchemaJsonNode)
+              .fileTypes(fileTypes)
+              .build();
+
+    } else {
+      analysisSchema =
+          AnalysisSchema.builder()
+              .name(analysisTypeName)
+              .schema(newAnalysisTypeSchema)
+              .fileTypes(fileTypes)
+              .build();
+    }
     analysisSchemaRepository.save(analysisSchema);
     val version =
         analysisSchemaRepository.countAllByNameAndIdLessThanEqual(

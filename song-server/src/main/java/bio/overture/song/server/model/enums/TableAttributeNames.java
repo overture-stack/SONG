@@ -38,6 +38,7 @@ public class TableAttributeNames {
   public static final String SIZE = "size";
   public static final String NAME = "name";
   public static final String OBJECT_ID = "object_id";
+  public static final String FILE_TYPES = "file_types";
 
   public static final String SPECIMEN_ID = "specimen_id";
 

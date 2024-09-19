@@ -82,26 +82,6 @@ CREATE TYPE public.analysis_type AS ENUM (
 ALTER TYPE public.analysis_type OWNER TO postgres;
 
 --
--- Name: file_type; Type: TYPE; Schema: public; Owner: postgres
---
-
-CREATE TYPE public.file_type AS ENUM (
-    'FASTA',
-    'FAI',
-    'FASTQ',
-    'BAM',
-    'BAI',
-    'VCF',
-    'TBI',
-    'IDX',
-    'XML',
-    'TGZ'
-);
-
-
-ALTER TYPE public.file_type OWNER TO postgres;
-
---
 -- Name: gender; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -393,7 +373,7 @@ CREATE TABLE public.file (
     name text,
     size bigint,
     md5 character(32),
-    type public.file_type,
+    type text,
     access public.access_type
 );
 
