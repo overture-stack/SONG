@@ -296,9 +296,7 @@ public class AnalysisTypeService {
 
   @SneakyThrows
   private AnalysisType commitAnalysisType(
-      @NonNull String analysisTypeName,
-      @NonNull JsonNode newAnalysisTypeSchema,
-      @NonNull Options options) {
+      @NonNull String analysisTypeName, @NonNull JsonNode newAnalysisTypeSchema, Options options) {
 
     List<AnalysisSchema> schemaList = analysisSchemaRepository.findByName(analysisTypeName);
     Optional<AnalysisSchema> oldSchemaOptional = Optional.empty();
