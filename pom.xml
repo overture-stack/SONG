@@ -57,9 +57,12 @@
             <url>https://jcenter.bintray.com/</url>
         </repository>
         <repository>
-            <id>spring-releases</id>
+            <id>lib-releases</id>
             <name>Spring Releases</name>
             <url>https://repo.spring.io/libs-release</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

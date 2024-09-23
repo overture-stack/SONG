@@ -1,9 +1,8 @@
 version: '3.4'
 services:
   song-db:
-    image: "postgres:16.4"
-    ports:
-      - 5432:9432
+    image: "postgres:9.6"
+    network_mode: host
     environment:
       PGPORT: 9432
       POSTGRES_DB: song
