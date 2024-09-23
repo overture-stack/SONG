@@ -56,14 +56,14 @@
             <name>jcenter</name>
             <url>https://jcenter.bintray.com/</url>
         </repository>
-        <repository>
-            <id>lib-releases</id>
-            <name>Spring Releases</name>
-            <url>https://repo.spring.io/libs-release</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
+       <repository>
+          <id>lib-releases</id>
+          <name>Spring Lib Releases</name>
+          <url>https://repo.spring.io/libs-release</url>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+      </repository>
     </repositories>
 
     <dependencyManagement>
