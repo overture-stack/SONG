@@ -101,8 +101,12 @@ public class ValidationService {
         if (files.isArray()) {
           for (JsonNode file : files) {
             String fileType = file.get("fileType").asText();
+            String fileName = file.get("fileName").asText();
             if (!fileTypes.contains(fileType)) {
-              throw new ValidationException("File type not supported");
+              throw new ValidationException(
+                      String.format("%s name is not supported, supported formats are %s"
+                              , fileName
+                              , String.join(", ", fileTypes)));
             }
           }
         }
