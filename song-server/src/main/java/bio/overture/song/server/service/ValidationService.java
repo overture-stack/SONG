@@ -35,11 +35,15 @@ import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
 import bio.overture.song.server.validation.ValidationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.collections.CollectionUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +77,7 @@ public class ValidationService {
     this.analysisTypeIdSchema = analysisTypeIdSchemaSupplier.get();
   }
 
+  @SneakyThrows
   public Optional<String> validate(@NonNull JsonNode payload) {
     String errors = null;
     try {
@@ -85,6 +90,14 @@ public class ValidationService {
               "Found Analysis type: name=%s  version=%s",
               analysisType.getName(), analysisType.getVersion()));
 
+      List<String> fileTypes = new ArrayList<>();
+
+      if (analysisType.getOptions() != null && analysisType.getOptions().getFileTypes() != null) {
+        fileTypes = analysisType.getOptions().getFileTypes();
+      }
+
+      validateFileType(fileTypes, payload);
+
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);
     } catch (ValidationException e) {
@@ -92,6 +105,26 @@ public class ValidationService {
       log.error(errors);
     }
     return Optional.ofNullable(errors);
+  }
+
+  private void validateFileType(List<String> fileTypes, @NonNull JsonNode payload) {
+
+    if (CollectionUtils.isNotEmpty(fileTypes)) {
+      JsonNode files = payload.get("files");
+      if (files.isArray()) {
+        for (JsonNode file : files) {
+          log.info("file is " + file);
+          String fileType = file.get("fileType").asText();
+          String fileName = file.get("fileName").asText();
+          if (!fileTypes.contains(fileType)) {
+            throw new ValidationException(
+                String.format(
+                    "%s name is not supported, supported formats are %s",
+                    fileName, String.join(", ", fileTypes)));
+          }
+        }
+      }
+    }
   }
 
   public void update(@NonNull String uploadId, String errorMessages) {

@@ -18,6 +18,7 @@ public class AnalysisType {
   @NotNull private String name;
   @NotNull private Integer version;
   private LocalDateTime createdAt;
+  private AnalysisTypeOptions options;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private JsonNode schema;

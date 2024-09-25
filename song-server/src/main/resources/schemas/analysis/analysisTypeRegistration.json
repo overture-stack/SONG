@@ -10,24 +10,7 @@
             "const": "object"
         },
         "definitions" : {
-          "type" : "object",
-            "properties": {
-                "file": {
-                    "type": "object",
-                    "properties":
-                                 {
-                            "fileType": {
-                                "oneOf": [
-                                    { "$ref": "classpath:/schemas/analysis/analysisBase.json#/definitions/file/fileType" },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
+          "type" : "object"
         },
         "properties" : {
             "type": "object",

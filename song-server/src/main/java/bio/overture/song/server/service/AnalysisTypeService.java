@@ -42,6 +42,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.AnalysisTypeOptions;
 import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
 import bio.overture.song.server.model.entity.AnalysisSchema;
@@ -50,7 +51,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.transaction.Transactional;
@@ -58,6 +59,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.collections.CollectionUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.SchemaException;
 import org.everit.json.schema.ValidationException;
@@ -149,21 +151,29 @@ public class AnalysisTypeService {
   public AnalysisType getAnalysisType(
       @NonNull AnalysisTypeId analysisTypeId, boolean unrenderedOnly) {
     val analysisSchema = getAnalysisSchema(analysisTypeId);
+
     val resolvedSchemaJson =
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
+
+    List<String> fileTypes =
+        (analysisSchema.getFileTypes() != null && !analysisSchema.getFileTypes().isEmpty())
+            ? analysisSchema.getFileTypes()
+            : new ArrayList<>();
     return AnalysisType.builder()
         .name(analysisTypeId.getName())
         .version(analysisTypeId.getVersion())
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
+        .options(AnalysisTypeOptions.builder().fileTypes(fileTypes).build())
         .build();
   }
 
   @Transactional
-  public AnalysisType register(@NonNull String analysisTypeName, JsonNode analysisTypeSchema) {
+  public AnalysisType register(
+      @NonNull String analysisTypeName, AnalysisTypeOptions options, JsonNode analysisTypeSchema) {
     validateAnalysisTypeName(analysisTypeName);
     validateAnalysisTypeSchema(analysisTypeSchema);
-    return commitAnalysisType(analysisTypeName, analysisTypeSchema);
+    return commitAnalysisType(analysisTypeName, analysisTypeSchema, options);
   }
 
   public PageDTO<AnalysisType> listAnalysisTypes(
@@ -246,9 +256,23 @@ public class AnalysisTypeService {
 
   @SneakyThrows
   private AnalysisType commitAnalysisType(
-      @NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
+      @NonNull String analysisTypeName,
+      @NonNull JsonNode analysisTypeSchema,
+      AnalysisTypeOptions options) {
+
+    List<String> fileTypes = new ArrayList<>();
+
+    if (options != null && CollectionUtils.isNotEmpty(options.getFileTypes())) {
+      fileTypes = options.getFileTypes();
+    }
     val analysisSchema =
-        AnalysisSchema.builder().name(analysisTypeName).schema(analysisTypeSchema).build();
+        AnalysisSchema.builder()
+            .name(analysisTypeName)
+            .schema(analysisTypeSchema)
+            .fileTypes(fileTypes)
+            .build();
+
+    log.info("file types " + fileTypes);
     analysisSchemaRepository.save(analysisSchema);
     val version =
         analysisSchemaRepository.countAllByNameAndIdLessThanEqual(
@@ -275,6 +299,7 @@ public class AnalysisTypeService {
         .version(version)
         .createdAt(createdAt)
         .schema(resolvedSchemaJson)
+        .options(options)
         .build();
   }
 
