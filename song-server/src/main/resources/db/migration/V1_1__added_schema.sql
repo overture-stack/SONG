@@ -4,8 +4,7 @@ CREATE TABLE analysis_schema (
     id              BIGSERIAL PRIMARY KEY,
     version         INTEGER,
     name            VARCHAR(225) NOT NULL,
-    schema          jsonb NOT NULL,
-    file_types      VARCHAR(225)
+    schema          jsonb NOT NULL
 );
 CREATE INDEX analysis_schema_name_index ON public.analysis_schema (name);
 CREATE INDEX analysis_schema_version_index ON public.analysis_schema (version);

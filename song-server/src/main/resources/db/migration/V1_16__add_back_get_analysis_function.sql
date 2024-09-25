@@ -13,7 +13,7 @@ returns table (
 	analysis_schema_id integer, analysis_data_id integer, created_at timestamp,updated_at timestamp,
 	-- File table
 	file_id character varying, file_analysis_id character varying, file_study_id character varying, name text,
-	size bigint, md5 character, access access_type, file_type text,
+	size bigint, md5 character, access access_type, file_type file_type,
 	data_type character varying, info json,
 	-- Sampleset table
 	analysis_id character varying, sampleset_sample_id character varying,

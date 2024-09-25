@@ -51,7 +51,7 @@ import static org.junit.Assert.assertTrue;
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.Options;
+import bio.overture.song.core.model.AnalysisTypeOptions;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
@@ -850,7 +850,7 @@ public class AnalysisTypeControllerTest {
             i -> {
               val name = names.get(i % repeats);
               val schema = generateRandomRegistrationPayload(randomGenerator);
-              val out = analysisTypeService.register(name,new Options(), schema);
+              val out = analysisTypeService.register(name,new AnalysisTypeOptions(), schema);
               return out;
             })
         .collect(toImmutableList());

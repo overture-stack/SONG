@@ -47,7 +47,13 @@ public class IdSearchRequest {
   private final String submitterSpecimenIds;
 
   public static IdSearchRequest createIdSearchRequest(
-      String donorId, String sampleId, String specimenId, String objectId, String submitterSampleId, String submitterDonorIds, String submitterSpecimenIds) {
+      String donorId,
+      String sampleId,
+      String specimenId,
+      String objectId,
+      String submitterSampleId,
+      String submitterDonorIds,
+      String submitterSpecimenIds) {
     return new IdSearchRequest(
         getGlobPattern(donorId),
         getGlobPattern(sampleId),
