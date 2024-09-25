@@ -7,6 +7,6 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Options {
+public class AnalysisTypeOptions {
   private List<String> fileTypes;
 }

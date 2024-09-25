@@ -96,21 +96,8 @@ public class ValidationService {
         fileTypes = analysisType.getOptions().getFileTypes();
       }
 
-      if (CollectionUtils.isNotEmpty(fileTypes)) {
-        JsonNode files = payload.get("files");
-        if (files.isArray()) {
-          for (JsonNode file : files) {
-            String fileType = file.get("fileType").asText();
-            String fileName = file.get("fileName").asText();
-            if (!fileTypes.contains(fileType)) {
-              throw new ValidationException(
-                      String.format("%s name is not supported, supported formats are %s"
-                              , fileName
-                              , String.join(", ", fileTypes)));
-            }
-          }
-        }
-      }
+      validateFileType(fileTypes, payload);
+
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);
     } catch (ValidationException e) {
@@ -118,6 +105,26 @@ public class ValidationService {
       log.error(errors);
     }
     return Optional.ofNullable(errors);
+  }
+
+  private void validateFileType(List<String> fileTypes, @NonNull JsonNode payload) {
+
+    if (CollectionUtils.isNotEmpty(fileTypes)) {
+      JsonNode files = payload.get("files");
+      if (files.isArray()) {
+        for (JsonNode file : files) {
+          log.info("file is " + file);
+          String fileType = file.get("fileType").asText();
+          String fileName = file.get("fileName").asText();
+          if (!fileTypes.contains(fileType)) {
+            throw new ValidationException(
+                String.format(
+                    "%s name is not supported, supported formats are %s",
+                    fileName, String.join(", ", fileTypes)));
+          }
+        }
+      }
+    }
   }
 
   public void update(@NonNull String uploadId, String errorMessages) {

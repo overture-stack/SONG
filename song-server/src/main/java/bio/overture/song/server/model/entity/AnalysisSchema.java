@@ -8,9 +8,11 @@ import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
+import bio.overture.song.server.utils.StringListConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -52,8 +54,9 @@ public class AnalysisSchema {
   @Type(type = CUSTOM_JSON_TYPE_PKG_PATH)
   private JsonNode schema;
 
-  @Column(name = FILE_TYPES)
-  private String fileTypes;
+  @Column(name = FILE_TYPES, columnDefinition = "text[]")
+  @Convert(converter = StringListConverter.class)
+  private List<String> fileTypes;
 
   @JsonIgnore
   @Builder.Default
