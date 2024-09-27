@@ -272,7 +272,7 @@ public class AnalysisTypeService {
             .fileTypes(fileTypes)
             .build();
 
-    log.info("file types " + fileTypes);
+    log.debug("Creating analysisSchema with file types: {}  " + fileTypes);
     analysisSchemaRepository.save(analysisSchema);
     val version =
         analysisSchemaRepository.countAllByNameAndIdLessThanEqual(

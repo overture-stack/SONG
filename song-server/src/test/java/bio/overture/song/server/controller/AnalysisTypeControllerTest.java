@@ -850,7 +850,7 @@ public class AnalysisTypeControllerTest {
             i -> {
               val name = names.get(i % repeats);
               val schema = generateRandomRegistrationPayload(randomGenerator);
-              val out = analysisTypeService.register(name,new AnalysisTypeOptions(), schema);
+              val out = analysisTypeService.register(name, new AnalysisTypeOptions(), schema);
               return out;
             })
         .collect(toImmutableList());
