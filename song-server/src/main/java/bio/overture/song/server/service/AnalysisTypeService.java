@@ -272,7 +272,7 @@ public class AnalysisTypeService {
             .fileTypes(fileTypes)
             .build();
 
-    log.debug("Creating analysisSchema with file types: {}  " + fileTypes);
+    log.info("file types " + fileTypes);
     analysisSchemaRepository.save(analysisSchema);
     val version =
         analysisSchemaRepository.countAllByNameAndIdLessThanEqual(
@@ -318,11 +318,14 @@ public class AnalysisTypeService {
 
   private AnalysisType convertToAnalysisType(
       AnalysisSchema analysisSchema, boolean hideSchema, boolean unrenderedOnly) {
+    AnalysisTypeOptions options = new AnalysisTypeOptions();
+    options.setFileTypes(analysisSchema.getFileTypes());
     return AnalysisType.builder()
         .name(analysisSchema.getName())
         .version(analysisSchema.getVersion())
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema))
+        .options(options)
         .build();
   }
 
