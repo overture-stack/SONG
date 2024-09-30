@@ -18,6 +18,7 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.entity.AnalysisSchema;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -30,4 +31,6 @@ public interface AnalysisSchemaRepository
   Integer countAllByNameAndIdLessThanEqual(String name, Integer id);
 
   Optional<AnalysisSchema> findByNameAndVersion(String name, Integer version);
+
+  List<AnalysisSchema> findByName(String name);
 }

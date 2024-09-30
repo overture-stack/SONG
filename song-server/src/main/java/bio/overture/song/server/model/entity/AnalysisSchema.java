@@ -1,9 +1,6 @@
 package bio.overture.song.server.model.entity;
 
-import static bio.overture.song.server.model.enums.TableAttributeNames.ID;
-import static bio.overture.song.server.model.enums.TableAttributeNames.NAME;
-import static bio.overture.song.server.model.enums.TableAttributeNames.SCHEMA;
-import static bio.overture.song.server.model.enums.TableAttributeNames.VERSION;
+import static bio.overture.song.server.model.enums.TableAttributeNames.*;
 import static bio.overture.song.server.repository.CustomJsonType.CUSTOM_JSON_TYPE_PKG_PATH;
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -11,19 +8,13 @@ import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
+import bio.overture.song.server.utils.StringListConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,6 +53,10 @@ public class AnalysisSchema {
   @Column(name = SCHEMA)
   @Type(type = CUSTOM_JSON_TYPE_PKG_PATH)
   private JsonNode schema;
+
+  @Column(name = FILE_TYPES, columnDefinition = "text[]")
+  @Convert(converter = StringListConverter.class)
+  private List<String> fileTypes;
 
   @JsonIgnore
   @Builder.Default
