@@ -99,6 +99,10 @@ public class AnalysisTypeService {
     return analysisTypeRegistrationSchema;
   }
 
+  public List<AnalysisSchema> getAllAnalysisSchemas(String name) {
+    return analysisSchemaRepository.findAllByName(name);
+  }
+
   public AnalysisType getAnalysisType(
       @NonNull String name, @Nullable Integer version, boolean unrenderedOnly) {
     val resolvedVersion = isNull(version) ? getLatestVersionNumber(name) : version;

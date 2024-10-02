@@ -30,6 +30,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.FileData;
+import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
@@ -37,8 +38,10 @@ import bio.overture.song.server.validation.ValidationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +99,57 @@ public class ValidationService {
         fileTypes = analysisType.getOptions().getFileTypes();
       }
 
-      validateFileType(fileTypes, payload);
+      if(Objects.isNull(analysisType.getVersion())){
+        // newest version is fetched
+
+        if (fileTypes.isEmpty()) {
+          // get file types from previous versions
+          List<AnalysisSchema> analysisSchemas =
+                  analysisTypeService.getAllAnalysisSchemas(analysisType.getName());
+
+          List<String> fileTypesFromPreviousVersions =
+                  analysisSchemas.stream()
+                          .filter(schema -> schema.getFileTypes() != null)
+                          .flatMap(schema -> schema.getFileTypes().stream())
+                          .distinct()
+                          .collect(Collectors.toList());
+
+          if (!fileTypesFromPreviousVersions.isEmpty()) {
+            validateFileType(fileTypes, payload);
+          }
+        } else {
+          validateFileType(fileTypes, payload);
+        }
+
+      }else {
+        // old version is fetched
+        if(!fileTypes.isEmpty()){
+          validateFileType(fileTypes, payload);
+        }
+      }
+
+      if (analysisType.getOptions() != null && analysisType.getOptions().getFileTypes() != null) {
+        fileTypes = analysisType.getOptions().getFileTypes();
+      }
+
+      if (fileTypes.isEmpty()) {
+        // get file types from previous versions
+        List<AnalysisSchema> analysisSchemas =
+            analysisTypeService.getAllAnalysisSchemas(analysisType.getName());
+
+        List<String> fileTypesFromPreviousVersions =
+            analysisSchemas.stream()
+                .filter(schema -> schema.getFileTypes() != null)
+                .flatMap(schema -> schema.getFileTypes().stream())
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (!fileTypesFromPreviousVersions.isEmpty()) {
+          validateFileType(fileTypes, payload);
+        }
+      } else {
+        validateFileType(fileTypes, payload);
+      }
 
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);

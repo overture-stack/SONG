@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 public interface AnalysisSchemaRepository
     extends JpaRepository<AnalysisSchema, Integer>, JpaSpecificationExecutor<AnalysisSchema> {
@@ -32,5 +33,5 @@ public interface AnalysisSchemaRepository
 
   Optional<AnalysisSchema> findByNameAndVersion(String name, Integer version);
 
-  List<AnalysisSchema> findByName(String name);
+  List<AnalysisSchema> findAllByName(String name);
 }
