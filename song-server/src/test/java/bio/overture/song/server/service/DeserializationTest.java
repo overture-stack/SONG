@@ -18,7 +18,6 @@
 package bio.overture.song.server.service;
 
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.FileTypes.BAM;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.JsonUtils.readTree;
@@ -123,7 +122,7 @@ public class DeserializationTest {
             .objectId("sfdsdfsdf")
             .studyId("ABC123")
             .fileName("something.bam")
-            .fileType(BAM.toString())
+            .fileType("BAM")
             .build();
     val fileList = List.of(f1);
     val fff = new ObjectMapper().valueToTree(f1);

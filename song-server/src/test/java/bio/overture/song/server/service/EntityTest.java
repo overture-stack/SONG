@@ -29,8 +29,6 @@ import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
 import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -38,7 +36,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.model.Metadata;
-import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.server.model.Upload;
 import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
@@ -53,6 +50,7 @@ import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import lombok.val;
 import org.junit.Test;
@@ -60,8 +58,7 @@ import org.junit.Test;
 public class EntityTest {
   private static final String DEFAULT_STUDY_ID = "ABC123";
   private static final List<String> SAMPLE_TYPES = newArrayList(SAMPLE_TYPE);
-  private static final List<String> FILE_TYPES =
-      stream(FileTypes.values()).map(FileTypes::toString).collect(toList());
+  private static final List<String> FILE_TYPES = Arrays.asList("mp3", "mp4", "BAM");
 
   @Test
   public void testNullMetadata() {
@@ -634,7 +631,7 @@ public class EntityTest {
     file1.setFileMd5sum("b1");
     file1.setFileName("c1");
     file1.setFileSize(13L);
-    file1.setFileType(FILE_TYPES.get(0));
+    file1.setFileType("mp4");
     file1.setObjectId("d1");
     file1.setStudyId("e1");
 
