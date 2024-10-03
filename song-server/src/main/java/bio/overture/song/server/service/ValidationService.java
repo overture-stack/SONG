@@ -98,59 +98,31 @@ public class ValidationService {
       if (analysisType.getOptions() != null && analysisType.getOptions().getFileTypes() != null) {
         fileTypes = analysisType.getOptions().getFileTypes();
       }
-
-      if(Objects.isNull(analysisType.getVersion())){
-        // newest version is fetched
-
+      // Only use the file type rules from the corresponding schema version
+      Integer schemaVersion = analysisType.getVersion();
+      if (Objects.isNull(schemaVersion)) {
+        // No version specified, use the latest schema version
         if (fileTypes.isEmpty()) {
-          // get file types from previous versions
-          List<AnalysisSchema> analysisSchemas =
-                  analysisTypeService.getAllAnalysisSchemas(analysisType.getName());
-
-          List<String> fileTypesFromPreviousVersions =
-                  analysisSchemas.stream()
-                          .filter(schema -> schema.getFileTypes() != null)
-                          .flatMap(schema -> schema.getFileTypes().stream())
-                          .distinct()
-                          .collect(Collectors.toList());
-
-          if (!fileTypesFromPreviousVersions.isEmpty()) {
-            validateFileType(fileTypes, payload);
+          // Reuse file types from the latest schema version
+          List<AnalysisSchema> previousSchemas = analysisTypeService.getAllAnalysisSchemas(analysisType.getName());
+          List<String> previousFileTypes = previousSchemas.stream()
+              .filter(schema -> schema.getFileTypes() != null)
+              .flatMap(schema -> schema.getFileTypes().stream())
+              .distinct()
+              .collect(Collectors.toList());
+          if (!previousFileTypes.isEmpty()) {
+            validateFileType(previousFileTypes, payload);
           }
         } else {
-          validateFileType(fileTypes, payload);
-        }
-
-      }else {
-        // old version is fetched
-        if(!fileTypes.isEmpty()){
-          validateFileType(fileTypes, payload);
-        }
-      }
-
-      if (analysisType.getOptions() != null && analysisType.getOptions().getFileTypes() != null) {
-        fileTypes = analysisType.getOptions().getFileTypes();
-      }
-
-      if (fileTypes.isEmpty()) {
-        // get file types from previous versions
-        List<AnalysisSchema> analysisSchemas =
-            analysisTypeService.getAllAnalysisSchemas(analysisType.getName());
-
-        List<String> fileTypesFromPreviousVersions =
-            analysisSchemas.stream()
-                .filter(schema -> schema.getFileTypes() != null)
-                .flatMap(schema -> schema.getFileTypes().stream())
-                .distinct()
-                .collect(Collectors.toList());
-
-        if (!fileTypesFromPreviousVersions.isEmpty()) {
+          // File types are defined in the current schema
           validateFileType(fileTypes, payload);
         }
       } else {
-        validateFileType(fileTypes, payload);
+        // Specific schema version is defined, use its file types
+        if (!fileTypes.isEmpty()) {
+          validateFileType(fileTypes, payload);
+        }
       }
-
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);
     } catch (ValidationException e) {
@@ -253,3 +225,12 @@ public class ValidationService {
     }
   }
 }
+
+
+
+
+
+
+
+
+
