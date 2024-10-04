@@ -3,17 +3,16 @@
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your system:
-s
 - [JDK11](https://www.oracle.com/ca-en/java/technologies/downloads/)
 - [Maven3](https://maven.apache.org/download.cgi)
 
-## Installation
+## Developer Setup
 
 This guide will walk you through setting up a complete development environment, including Song and its complementary services.
 
-### 1. Set up complementary services
+### 1. Set up supporting services
 
-We'll use our Conductor service, a flexible Docker Compose setup, to spin up Songs complementary services.
+We'll use our Conductor service, a flexible Docker Compose setup, to spin up Song's complementary services.
 
 ```bash
 git clone https://github.com/overture-stack/conductor.git
@@ -24,67 +23,97 @@ Next, run the appropriate start command for your operating system:
 
 | Operating System | Command |
 |------------------|---------|
-| Unix/macOS       | `make songDev` |
-| Windows          | `make.bat songDev` |
+| Unix/macOS       | `make SongDev` |
+| Windows          | `make.bat SongDev` |
 
-This command will set up all complementary services for Song development.
+<details>
+<summary>**Click here for a detailed breakdown**</summary>
 
-### 2. Clone and set up Song
+This command will set up all complementary services for Song development as follows:
 
-Now, let's set up Song itself as a standalone server:
+![SongDev](./assets/songDev.svg 'Song Dev Environment')
+
+| Service | Port | Description |
+|------------------|---------|------------------|
+| Conductor | `9204` | Orchestrates deployments and environment setups |
+| Keycloak-db | - | Database for Keycloak (no exposed port) |
+| Keycloak | `8180` | Authorization and authentication service |
+| Song-db | - | Database for Song (no exposed port) |
+| Score | `8087` | File Transfer service |
+| Minio | `9000` | Object storage provider |
+
+For more information, see our [Conductor documentation linked here](/docs/other-software/Conductor)
+
+</details>
+
+In the next steps, we will run a Song development server against these supporting services.
+
+### 2. Run the Song Development Server 
+
+Begin by cloning Song and moving into its directory:
 
 ```bash
 git clone https://github.com/overture-stack/song.git
 cd song
 ```
 
-### 3. Configure Song for Keycloak integration
-
-If you’re building song using the the source code, the following configuration is required in the `song-server/src/main/resources/application.yml`
-
-```yaml
-auth:
-	server:
-		# check API Key endpoint
-		url: http://localhost/realms/myrealm/apikey/check_api_key/
-		tokenName: apiKey
-		clientID: song
-		clientSecret: songsecret
-		provider: keycloak
-		# Keycloak config
-		keycloak:
-			host: http://localhost
-			realm: "myrealm"
-
-spring:
-    security:
-        oauth2:
-            resourceserver:
-                jwt:
-                    # EGO public key
-                    #public-key-location: "http://localhost:9082/oauth/token/public_key"
-                    # Keycloak JWK
-                    jwk-set-uri: http://localhost/realms/myrealm/protocol/openid-connect/certs
-```
-
-### 4. Build the Server
-
-​To build the song-server run the following command from the Song directory:
+Build the application locally by running:
 
 ```bash
 ./mvnw clean install -DskipTests
 ```
 
-### 5. Start the Server
+<details>
+<summary>**Click here for an explaination of command above**</summary>
 
-Run the following command to start the song-server:
+- `./mvnw`: This is the Maven wrapper script, which ensures you're using the correct version of Maven.
+- `clean`: This removes any previously compiled files.
+- `install`: This compiles the project, runs tests, and installs the package into your local Maven repository.
+- `-DskipTests`: This flag skips running tests during the build process to speed things up.
+
+</details>
+
+
+
+:::tip
+Ensure you are running JDK11 and Maven3. To check, you can run `mvn --version`. You should see something similar to the following:
+```bash
+Apache Maven 3.8.6 (84538c9988a25aec085021c365c560670ad80f63)
+Maven home: /opt/maven
+Java version: 11.0.18, vendor: Amazon.com Inc., runtime: /Users/{username}/.sdkman/candidates/java/11.0.18-amzn
+Default locale: en_CA, platform encoding: UTF-8
+OS name: "mac os x", version: "14.6.1", arch: "aarch64", family: "mac"
+```
+:::
+
+To start the Song Server, change directories to the `Song-server` and run the following command:
 
 ```bash
 cd song-server/
 mvn spring-boot:run -Dspring-boot.run.profiles=noSecurityDev,default,score-client-cred
 ```
 
-**Warning:** Docker for Song is meant to demonstrate the configuration and usage of Song, and is **_not intended for production_**. If you ignore this warning and use this in any public or production environment, please remember to change the passwords, accessKeys, and secretKeys.
+<details>
+<summary>**Click here for an explaination of command above**</summary>
+
+- `mvn spring-boot:run` starts the Spring Boot application while `-Dspring-boot.run.profiles=default,s3,secure,dev` specifies which Spring profiles to activate. 
+- Song Servers configuration file can be found in the Song repository [located here](https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/resources/application.yml).
+- A summary of the available profiles is provided below:
+
+**Profiles**
+| Profile | Description |
+| - | - |
+| `` | Required to load common configurations |
+| `` | Required to load security configuration |
+| `` | Required to |
+| `` | (Optional) to facilitate dev default configuration |
+---
+
+</details>
+
+:::warning
+This guide is meant to demonstrate the configuration and usage of Song for development purposes and is not intended for production. If you ignore this warning and use this in any public or production environment, please remember to use Spring profiles accordingly. For production do not use **dev** profile.
+:::
 
 ## Troubleshooting
 
