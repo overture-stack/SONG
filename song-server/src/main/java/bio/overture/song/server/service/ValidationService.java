@@ -98,31 +98,11 @@ public class ValidationService {
       if (analysisType.getOptions() != null && analysisType.getOptions().getFileTypes() != null) {
         fileTypes = analysisType.getOptions().getFileTypes();
       }
-      // Only use the file type rules from the corresponding schema version
-      Integer schemaVersion = analysisType.getVersion();
-      if (Objects.isNull(schemaVersion)) {
-        // No version specified, use the latest schema version
-        if (fileTypes.isEmpty()) {
-          // Reuse file types from the latest schema version
-          List<AnalysisSchema> previousSchemas = analysisTypeService.getAllAnalysisSchemas(analysisType.getName());
-          List<String> previousFileTypes = previousSchemas.stream()
-              .filter(schema -> schema.getFileTypes() != null)
-              .flatMap(schema -> schema.getFileTypes().stream())
-              .distinct()
-              .collect(Collectors.toList());
-          if (!previousFileTypes.isEmpty()) {
-            validateFileType(previousFileTypes, payload);
-          }
-        } else {
-          // File types are defined in the current schema
-          validateFileType(fileTypes, payload);
-        }
-      } else {
-        // Specific schema version is defined, use its file types
-        if (!fileTypes.isEmpty()) {
-          validateFileType(fileTypes, payload);
-        }
+
+      if (!fileTypes.isEmpty()) {
+        validateFileType(fileTypes, payload);
       }
+
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);
     } catch (ValidationException e) {
