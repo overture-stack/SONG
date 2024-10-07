@@ -116,7 +116,6 @@ logging:
 
 ---
 
-
 ###############################################################################
 # Profile - "dev"
 # Configuration for development environment
@@ -174,7 +173,6 @@ auth:
 
 ---
 
-
 ###############################################################################
 # Profile - "prod"
 # Configuration for production environment
@@ -231,6 +229,7 @@ score:
     systemScope: "score.WRITE"  # Storage scope needs to include both READ and WRITE
 
 ---
+
 ###############################################################################
 # Testing Profiles
 # The rest of the profiles are used for various testing purposes
@@ -250,7 +249,6 @@ auth:
     multiplier: 1.2
 
 ---
-
 
 # Profile - "async-test"
 
