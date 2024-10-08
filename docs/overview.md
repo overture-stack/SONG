@@ -5,14 +5,13 @@ Song functions as a file catalog system, tracking files and managing their metad
 
 ## System Architecture
 
-Metadata saved as a JSON file us uploaded via the Song Client for validation against Songs admin defined Song Schema. Successful submissions receive an auto-generated analysis ID. File data is then uploaded using Song and Score clients, generating a file manifest linked to the metadata. \
+Metadata saved as a JSON file us uploaded via the Song Client for validation against Songs admin defined Song Schema. Successful submissions receive an auto-generated analysis ID. File data is then uploaded using Song and Score clients, generating a file manifest linked to the metadata.
 
 ![Song Arch](./assets/songArch.svg 'Song Architecture Diagram')
 
 As part of the larger Overture.bio software suite, Song is typically used with additional integrations, including:
 
 - **Event Streaming:** Built-in support for [Apache Kafka](https://kafka.apache.org/) event streaming allows other services to respond when analyses are registered and published.
-
 - **Maestro Indexing:** Song is built to natively integrate with [Maestro](https://github.com/overture-stack/maestro), which will easily index published data into a configurable Elasticsearch index. Once indexed the data can be linked to a front-end portal search interface using the Arranger and Stage services.
 
 ## Key Features
@@ -35,6 +34,9 @@ As part of the larger Overture.bio software suite, Song is typically used with a
 ├── /song-go-client
 └── /song-servers
 ```
+
+[Click here to view the Song respository on GitHub ](https://github.com/overture-stack/song)
+
 
 #### song-clients
 
