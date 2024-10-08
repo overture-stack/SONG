@@ -29,28 +29,28 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
    | Windows          | `make.bat SongDev` |
 
 
-<details>
-<summary>**Click here for a detailed breakdown**</summary>
+    <details>
+    <summary>**Click here for a detailed breakdown**</summary>
 
-This command will set up all complementary services for Song development as follows:
+    This command will set up all complementary services for Song development as follows:
 
-![SongDev](./assets/songDev.svg 'Song Dev Environment')
+    ![SongDev](./assets/songDev.svg 'Song Dev Environment')
 
-| Service | Port | Description | Purpose in Score Development |
-|---------|------|-------------|------------------------------|
-| Conductor | `9204` | Orchestrates deployments and environment setups | Manages the overall development environment |
-| Keycloak-db | - | Database for Keycloak (no exposed port) | Stores Keycloak data for authentication |
-| Keycloak | `8180` | Authorization and authentication service | Provides OAuth2 authentication for Score |
-| Song-db | `5433` | Database for Song | Stores metadata managed by Song |
-| Score | `8087` | File Transfer service | Handles file uploads, downloads, and storage operation |
-| Minio | `9000` | Object storage provider | Simulates S3-compatible storage for Score |
+    | Service | Port | Description | Purpose in Song Development |
+    |---------|------|-------------|------------------------------|
+    | Conductor | `9204` | Orchestrates deployments and environment setups | Manages the overall development environment |
+    | Keycloak-db | - | Database for Keycloak (no exposed port) | Stores Keycloak data for authentication |
+    | Keycloak | `8180` | Authorization and authentication service | Provides OAuth2 authentication for Score |
+    | Song-db | `5433` | Database for Song | Stores metadata managed by Song |
+    | Score | `8087` | File Transfer service | Handles file uploads, downloads, and storage operation |
+    | Minio | `9000` | Object storage provider | Simulates S3-compatible storage for Score |
 
-- Ensure all ports are free on your system before starting the environment.
-- You may need to adjust the ports in the `docker-compose.yml` file if you have conflicts with existing services.
+    - Ensure all ports are free on your system before starting the environment.
+    - You may need to adjust the ports in the `docker-compose.yml` file if you have conflicts with existing services.
 
-For more information, see our [Conductor documentation linked here](/docs/other-software/Conductor)
+    For more information, see our [Conductor documentation linked here](/docs/other-software/Conductor)
 
-</details>
+    </details>
 
 ### Running the Development Server 
 
@@ -67,55 +67,53 @@ For more information, see our [Conductor documentation linked here](/docs/other-
    ./mvnw clean install -DskipTests
    ```
 
-<details>
-<summary>**Click here for an explaination of command above**</summary>
+    <details>
+    <summary>**Click here for an explaination of command above**</summary>
 
-- `./mvnw`: This is the Maven wrapper script, which ensures you're using the correct version of Maven.
-- `clean`: This removes any previously compiled files.
-- `install`: This compiles the project, runs tests, and installs the package into your local Maven repository.
-- `-DskipTests`: This flag skips running tests during the build process to speed things up.
+    - `./mvnw`: This is the Maven wrapper script, which ensures you're using the correct version of Maven.
+    - `clean`: This removes any previously compiled files.
+    - `install`: This compiles the project, runs tests, and installs the package into your local Maven repository.
+    - `-DskipTests`: This flag skips running tests during the build process to speed things up.
 
-</details>
+    </details>
 
-:::tip
-Ensure you are running JDK11. To check, you can run `java --version`. You should see something similar to the following:
-```bash
-openjdk version "11.0.18" 2023-01-17 LTS
-OpenJDK Runtime Environment Corretto-11.0.18.10.1 (build 11.0.18+10-LTS)
-OpenJDK 64-Bit Server VM Corretto-11.0.18.10.1 (build 11.0.18+10-LTS, mixed mode)
-```
-:::
+    :::tip
+    Ensure you are running JDK11. To check, you can run `java --version`. You should see something similar to the following:
+    ```bash
+    openjdk version "11.0.18" 2023-01-17 LTS
+    OpenJDK Runtime Environment Corretto-11.0.18.10.1 (build 11.0.18+10-LTS)
+    OpenJDK 64-Bit Server VM Corretto-11.0.18.10.1 (build 11.0.18+10-LTS, mixed mode)
+    ```
+    :::
 
 3. Start the Song Server:
 
    ```bash
    ./mvnw spring-boot:run -Dspring-boot.run.profiles=default,dev,secure -pl song-server
    ```
+       :::info
 
-<details>
-<summary>**Click here for an explanation of the command above**</summary>
+            If you are looking to configure Song for your specific environment, [**the Song-server configuration file can be found here**](https://github.com/overture-stack/score/blob/develop/score-server/src/main/resources/application.yml). A summary of the available Spring profiles is provided below:
 
-- `./mvnw spring-boot:run` starts the Spring Boot application using the Maven wrapper.
-- `-Dspring-boot.run.profiles=default,dev,secure` specifies which Spring profiles to activate.
-- `-pl song-server` tells Maven to run the `song-server` module specifically.
+            <details>
+            <summary>**Click here for a summary of the Song-server spring profiles**</summary>
 
-Song Server's configuration file can be found in the Song repository [located here](https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/resources/application.yml). A summary of the available profiles is provided below:
+            **Song Profiles**
+            | Profile | Description |
+            |---------|-------------|
+            | `default` | Required to load common configurations |
+            | `secure` | Required to load security configuration |
+            | `dev` | (Optional) Facilitates development default configuration |
+            | `prod` | (Optional) Loads production-specific configurations |
+            | `kafka` | (Optional) Enables Kafka integration |
+            | `score-client-cred` | (Optional) Configures SCORE client credentials |
+            | `test` | Used for testing purposes |
+            | `async-test` | Used for asynchronous testing |
+            | `fastTest` | Used for fast testing with reduced timeouts |
 
-**Song Profiles**
-| Profile | Description |
-|---------|-------------|
-| `default` | Required to load common configurations |
-| `secure` | Required to load security configuration |
-| `dev` | (Optional) Facilitates development default configuration |
-| `prod` | (Optional) Loads production-specific configurations |
-| `kafka` | (Optional) Enables Kafka integration |
-| `score-client-cred` | (Optional) Configures SCORE client credentials |
-| `test` | Used for testing purposes |
-| `async-test` | Used for asynchronous testing |
-| `fastTest` | Used for fast testing with reduced timeouts |
+            </details>
 
-
-</details>
+        :::
 
 ### Verification
 

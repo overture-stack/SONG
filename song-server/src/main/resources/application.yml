@@ -20,7 +20,7 @@
 # Application Configurations for the Song Server
 #
 # This file contains various configuration profiles for the Song Server application.
-# Many of the values provided are placeholders. Please update them according to your specific deployment.
+# Please update the values according to your specific environment.
 ###############################################################################
 
 ###############################################################################
@@ -41,8 +41,8 @@ score:
   url: "http://localhost:8087"
 
 id:
-  useLocal: true
-  federated:
+  useLocal: true  # UseLocal enables Song to handle ID management internally, storing identifiers within its own system.
+  federated:      # In federated mode, Song relies on an external service for ID management. 
     auth:
       bearer:
         token:
@@ -50,24 +50,24 @@ id:
           url:
           clientId:
           clientSecret:
-    uriTemplate:
+    uriTemplate: # URI templates for federated ID services
       donor: https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
       specimen: https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
       sample: https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
 
 validation:
-  delayMs: 30
+  delayMs: 30  # Delay in milliseconds between validation attempts
   threads:
-    core: 5
-    max: 10
+    core: 5    # Core number of threads for validation
+    max: 10    # Maximum number of threads for validation
   queue:
-    capacity: 100
+    capacity: 100  # Capacity of the validation queue
 
 schemas:
-  enforceLatest: true
+  enforceLatest: true  # Enforce the use of the latest schema version
 
 swagger:
-  alternateUrl: "/api-docs"
+  alternateUrl: "/api-docs"  # Alternate URL for Swagger documentation
   host: ""
   basePath: ""
 
@@ -77,9 +77,10 @@ security:
 
 auth:
   connection:
-    maxRetries: 5
-    initialBackoff: 15000
-    multiplier: 2.0
+    maxRetries: 5       
+    initialBackoff: 15000 # Initial backoff time in milliseconds
+    multiplier: 2.0     
+
 
 management:
   server:
@@ -88,7 +89,7 @@ management:
 spring:
   flyway:
     enabled: true
-    locations: "classpath:db/migration"
+    locations: "classpath:db/migration"  # Location of database migration scripts
   jpa:
     properties:
       hibernate:
@@ -152,14 +153,15 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # public-key-location: http://localhost:8081/oauth/token/public_key  # Uncomment for Ego
+          # Uncomment the public-key-location below for Ego configurations
+          # public-key-location: http://localhost:8081/oauth/token/public_key  
           jwk-set-uri: http://localhost/realms/myrealm/protocol/openid-connect/certs  
 
 auth:
   server:
     introspectionUri: http://keycloak:8180/realms/myrealm/apikey/check_api_key/
     tokenName: apiKey
-    provider: keycloak  # Valid options: ego or keycloak
+    provider: keycloak  # Valid options include ego or keycloak
     keycloak:
       host: http://localhost
       realm: "myrealm"
