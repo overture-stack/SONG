@@ -6,7 +6,7 @@ Before you begin, ensure you have the following installed on your system:
 - [JDK11](https://www.oracle.com/ca-en/java/technologies/downloads/)
 - [Docker](https://www.docker.com/products/docker-desktop/) (v4.32.0 or higher)
 
-## Developer Setup
+## Song-Server Development Setup
 
 This guide will walk you through setting up a complete development environment, including Song and its complementary services.
 
@@ -152,6 +152,31 @@ After installing and configuring Song, verify that the system is functioning cor
    - Expected result: JSON response containing analysis data for the demo study
 
 For further assistance, [open an issue on GitHub](https://github.com/overture-stack/song/issues/new?assignees=&labels=&projects=&template=Feature_Requests.md).
+
+## Song-Client Setup
+
+The `song-client` is a CLI tool used for communicating with a `song-server`. For ease of deployment it can be run using Docker. The client can be configured through environment variables, which take precedence over the `application.yml` config.
+
+   ```bash
+   docker run -d --name song-client \
+      -e CLIENT_ACCESS_TOKEN=68fb42b4-f1ed-4e8c-beab-3724b99fe528 \
+      -e CLIENT_STUDY_ID=demo \
+      -e CLIENT_SERVER_URL=http://localhost:8080 \
+      --network="host" \
+      --platform="linux/amd64" \
+      --mount type=bind,source=${pwd},target=/output \
+   ghcr.io/overture-stack/song-client:5.1.1 \
+   ```
+
+    <details>
+    <summary>**Click here for an explaination of command above**</summary>
+      - `-e CLIENT_ACCESS_TOKEN=68fb42b4-f1ed-4e8c-beab-3724b99fe528` sets up the song-client with a pre-configured system-wide access token that works with the conductor service setup.
+      - `-e CLIENT_STUDY_ID=demo` the quickstart is pre-configured with a Study ID named demo, we supply the Study ID value to the song-client on start-up.
+      - `-e CLIENT_SERVER_URL=http://localhost:8080` is the url for the Song server which the Song-Client will interact with.
+      - `--network="host"` Uses the host network stack inside the container, bypassing the usual network isolation. This means the container shares the network namespace with the host machine.
+      - `--platform="linux/amd64"` Specifies the platform the container should emulate. In this case, it's set to linux/amd64, indicating the container is intended to run on a Linux system with an AMD64 architecture.
+      - `--mount type=bind,source={pwd},target=/output` mounts the directory and its contents (volume) from the host machine to the container. In this case, it binds the present working directory from the host to /output inside the container. Any changes made to the files in this directory will be reflected in both locations.
+    </details>
 
 :::warning
 This guide is meant to demonstrate the configuration and usage of Song for development purposes and is not intended for production. If you ignore this warning and use this in any public or production environment, please remember to use Spring profiles accordingly. For production do not use **dev** profile.
