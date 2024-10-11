@@ -99,10 +99,6 @@ public class AnalysisTypeService {
     return analysisTypeRegistrationSchema;
   }
 
-  public List<AnalysisSchema> getAllAnalysisSchemas(String name) {
-    return analysisSchemaRepository.findAllByName(name);
-  }
-
   public AnalysisType getAnalysisType(
       @NonNull String name, @Nullable Integer version, boolean unrenderedOnly) {
     val resolvedVersion = isNull(version) ? getLatestVersionNumber(name) : version;
@@ -271,17 +267,20 @@ public class AnalysisTypeService {
     }
 
     // checking if file types is empty
-    // if the version is new version of the schema , we are checking the previous version allowed file types
+    // if the version is new version of the schema , we are checking the previous version allowed
+    // file types
     // if it is new then it is empty
-    if(fileTypes.isEmpty()){
-      List<AnalysisSchema> analysisSchemaList = analysisSchemaRepository.findAllByName(analysisTypeName);
+    if (fileTypes.isEmpty()) {
+      List<AnalysisSchema> analysisSchemaList =
+          analysisSchemaRepository.findAllByName(analysisTypeName);
 
-      if(!analysisSchemaList.isEmpty()){
-        Optional<AnalysisSchema> latestSchemaOptional =  analysisSchemaList.stream()
+      if (!analysisSchemaList.isEmpty()) {
+        Optional<AnalysisSchema> latestSchemaOptional =
+            analysisSchemaList.stream()
                 .filter(schema -> schema.getVersion() != null)
                 .max(Comparator.comparingInt(AnalysisSchema::getVersion));
 
-        if(latestSchemaOptional.isPresent()){
+        if (latestSchemaOptional.isPresent()) {
           fileTypes = latestSchemaOptional.get().getFileTypes();
         }
       }

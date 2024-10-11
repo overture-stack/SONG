@@ -20,7 +20,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
 import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
-import static bio.overture.song.core.model.enums.FileTypes.FAI;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.TestConstants.DEFAULT_ANALYSIS_ID;
@@ -109,7 +108,7 @@ public class FileServiceTest {
 
     f.setFileSize(0L);
     f.setDataType(randomGenerator.generateRandomAsciiString(10));
-    f.setFileType(FAI);
+    f.setFileType("FAI");
     f.setFileMd5sum("6bb8ee7218e96a59e0ad898b4f5360f1");
     f.setInfo(metadata);
     f.setFileAccess(OPEN);

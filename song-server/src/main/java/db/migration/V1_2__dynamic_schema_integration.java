@@ -4,7 +4,6 @@ import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.config.SchemaConfig.SCHEMA_ANALYSIS_PATH;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
@@ -133,9 +132,6 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
       val experiment =
           createNonNullObjectNode()
               .putString(VARIANT_CALLING_TOOL, vc.get(TableAttributeNames.VARIANT_CALLING_TOOL))
-              .putString(
-                  MATCHED_NORMAL_SAMPLE_SUBMITTER_ID,
-                  vc.get(TableAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID))
               .build();
       val analysisData = OBJECT_MAPPER.createObjectNode().set("experiment", experiment);
       try {

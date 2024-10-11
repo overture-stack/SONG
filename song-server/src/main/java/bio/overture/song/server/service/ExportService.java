@@ -30,10 +30,7 @@ import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.converter.PayloadConverter;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -89,7 +86,6 @@ public class ExportService {
         Payload.builder()
             .analysisType(resolveAnalysisTypeId(a.getAnalysisSchema()))
             .studyId(a.getStudyId())
-            .samples(payloadConverter.convertToSamplePayloads(a.getSamples()))
             .files(payloadConverter.convertToFilePayloads(a.getFiles()))
             .build();
     payload.addData(a.getAnalysisData().getData());
@@ -111,11 +107,7 @@ public class ExportService {
   @SneakyThrows
   private static JsonNode convertToExportedPayload(@NonNull Payload p) {
     return mapper()
-        .addMixIn(Donor.class, PayloadNonEmptyMixin.class)
         .addMixIn(Payload.class, PayloadNonEmptyMixin.class)
-        .addMixIn(CompositeEntityService.class, PayloadNonEmptyMixin.class)
-        .addMixIn(Sample.class, PayloadNonEmptyMixin.class)
-        .addMixIn(Specimen.class, PayloadNonEmptyMixin.class)
         .addMixIn(FileEntity.class, PayloadNonEmptyMixin.class)
         .valueToTree(p);
   }

@@ -144,12 +144,11 @@ public class SubmitServiceTest {
   @Test
   @Transactional
   public void testSaveIdMismatchAllSame() {
-    // existing sample (same sample id, specimen id, donor id)
     // should give us a new analysis for our existing data
     val studyId = randomStudy();
     val payload = randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val payload2 = getModifiedPayload(payload, true, true, true);
+    val payload2 = getModifiedPayload(payload);
 
     val result = submitAnalysis(studyId, payload2);
     assertFalse("No error results expected", result.startsWith("ERR:"));
@@ -158,119 +157,12 @@ public class SubmitServiceTest {
 
   @Test
   @Transactional
-  public void testSaveIdMismatchDifferentDonor() {
-    // same sample, same specimen, different donor Id
-    // specimen to donor id mis-match
-    val studyId = randomStudy();
-    val payload = randomPayload();
-    submitAnalysis(studyId, payload);
-    val payload2 = getModifiedPayload(payload, true, true, false);
-    val result = submitAnalysis(studyId, payload2);
-    assertTrue(
-        "Donor Id mismatch expected",
-        result.startsWith("ERR: [CompositeEntityService::specimen.to.donor.id.mismatch]"));
-  }
-
-  @Test
-  @Transactional
-  public void testSaveIdMismatchDifferentSpecimen() {
-    // same sample has a different specimen id
-    // sample id to specimen id mis-match
-    val studyId = randomStudy();
-    val payload = randomPayload();
-    val analysisId = submitAnalysis(studyId, payload);
-    val payload2 = getModifiedPayload(payload, true, false, true);
-    val result = submitAnalysis(studyId, payload2);
-    assertTrue(
-        "Specimen Id mismatch expected",
-        result.startsWith("ERR: [CompositeEntityService::sample.to.specimen.id.mismatch]"));
-  }
-
-  @Test
-  @Transactional
-  public void testSaveIdMismatchDifferentSpecimenAndDonor() {
-    // same sample has a different specimen id and donor id
-    // sapleId to specimenId *and* specimenId to donorId mis-match
-    val studyId = randomStudy();
-    val payload = randomPayload();
-    val analysisId = submitAnalysis(studyId, payload);
-    val payload2 = getModifiedPayload(payload, true, false, false);
-    val result = submitAnalysis(studyId, payload2);
-    assertTrue(
-        "Specimen Id mismatch expected",
-        result.startsWith("ERR: [CompositeEntityService::sample.to.specimen.id.mismatch]"));
-  }
-
-  @Test
-  @Transactional
-  public void testSaveIdMismatchDifferentSample() {
-    // new sample, existing specimen and donor
-    // new analysisId
-    val studyId = randomStudy();
-    val payload = randomPayload();
-    val analysisId = submitAnalysis(studyId, payload);
-    val payload2 = getModifiedPayload(payload, false, true, true);
-    val result = submitAnalysis(studyId, payload);
-    assertFalse("No error results expected", result.startsWith("ERR"));
-    assertNotEquals("New analysisId expected", analysisId, result);
-  }
-
-  @Test
-  @Transactional
-  public void testSaveIdMismatchDifferentSampleDifferentDonor() {
-    // new sample, existing specimen, different donor
-    // specimen to donor Id mis-match
-    val studyId = randomStudy();
-    val payload = randomPayload();
-    val analysisId = submitAnalysis(studyId, payload);
-    assertFalse("Initial submit analysis should not have errors", analysisId.startsWith("ERR:"));
-    val payload2 = getModifiedPayload(payload, false, true, false);
-
-    val sample1 = payload.getSamples().get(0);
-    val sample2 = payload2.getSamples().get(0);
-
-    assertNotEquals(
-        "Payloads should have different submitter sample ids",
-        sample1.getSubmitterSampleId(),
-        sample2.getSubmitterSampleId());
-    assertEquals(
-        "Payloads should have same specimenIds",
-        sample1.getSpecimen().getSubmitterSpecimenId(),
-        sample2.getSpecimen().getSubmitterSpecimenId());
-    assertNotEquals(
-        "Payloads should have different donors",
-        sample1.getDonor().getSubmitterDonorId(),
-        sample2.getDonor().getSubmitterDonorId());
-
-    val result = submitAnalysis(studyId, payload2);
-    assertTrue(
-        "Donor Id mismatch expected",
-        result.startsWith("ERR: [CompositeEntityService::specimen.to.donor.id.mismatch]"));
-  }
-
-  @Test
-  @Transactional
-  public void testSaveIdMismatchDifferentSampleDifferentSpecimen() {
-    // new sample, new specimen, same donor
-    // new analysisId
-    val studyId = randomStudy();
-    val payload = randomPayload();
-    val analysisId = submitAnalysis(studyId, payload);
-    val payload2 = getModifiedPayload(payload, false, false, true);
-    val result = submitAnalysis(studyId, payload2);
-    assertFalse("No error results expected", result.startsWith("ERR"));
-    assertNotEquals("New AnalysisId expected", analysisId, result);
-  }
-
-  @Test
-  @Transactional
   public void testSaveIdMismatchAllDifferent() {
-    // new sample, new specimen, new donor
     // new analysisId
     val studyId = randomStudy();
     val payload = randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
-    val payload2 = getModifiedPayload(payload, false, false, false);
+    val payload2 = getModifiedPayload(payload);
     val result = submitAnalysis(studyId, payload2);
     assertFalse("No error results expected", result.startsWith("ERR"));
     assertNotEquals("New analysisId expected", analysisId, result);
@@ -286,13 +178,9 @@ public class SubmitServiceTest {
     return payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
   }
 
-  private Payload getModifiedPayload(
-      Payload payload, boolean sameSample, boolean sameSpecimen, boolean sameDonor) {
+  private Payload getModifiedPayload(Payload payload) {
     val payload2 = fromJson(toJson(payload), Payload.class);
-    val samplePayload = modifySample(payload2, sameSample);
-    val specimenPayload = modifySpecimen(samplePayload, sameSpecimen);
-    val donorPayload = modifyDonor(specimenPayload, sameDonor);
-    return donorPayload;
+    return payload2;
   }
 
   private String submitAnalysis(String studyId, Payload payload) {
@@ -304,41 +192,6 @@ public class SubmitServiceTest {
       actual = "ERR: " + throwable.getMessage();
     }
     return actual;
-  }
-
-  private Payload modifySample(Payload payload, Boolean sameSample) {
-    if (!sameSample) {
-      payload
-          .getSamples()
-          .forEach(x -> x.setSubmitterSampleId(randomGenerator.generateRandomUUIDAsString()));
-    }
-    return payload;
-  }
-
-  private Payload modifySpecimen(Payload payload, Boolean sameSpecimen) {
-    if (!sameSpecimen) {
-      payload
-          .getSamples()
-          .forEach(
-              sample ->
-                  sample
-                      .getSpecimen()
-                      .setSubmitterSpecimenId(randomGenerator.generateRandomUUIDAsString()));
-    }
-    return payload;
-  }
-
-  private Payload modifyDonor(Payload payload, Boolean sameDonor) {
-    if (!sameDonor) {
-      payload
-          .getSamples()
-          .forEach(
-              sample ->
-                  sample
-                      .getDonor()
-                      .setSubmitterDonorId(randomGenerator.generateRandomUUIDAsString()));
-    }
-    return payload;
   }
 
   private String createUniqueAnalysisId() {

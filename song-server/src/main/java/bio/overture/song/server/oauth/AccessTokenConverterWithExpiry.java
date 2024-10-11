@@ -1,12 +1,11 @@
 package bio.overture.song.server.oauth;
 
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
-
-import java.util.Map;
-
 import static bio.overture.song.server.oauth.ExpiringOauth2Authentication.from;
 import static bio.overture.song.server.utils.Scopes.extractExpiry;
+
+import java.util.Map;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 
 /**
  * * RemoteTokenServices uses a postForMap call to convert the Oauth2 JSON response that we get from
@@ -17,9 +16,9 @@ import static bio.overture.song.server.utils.Scopes.extractExpiry;
  */
 public class AccessTokenConverterWithExpiry extends DefaultAccessTokenConverter {
 
-    @Override
-    public OAuth2Authentication extractAuthentication(Map<String, ?> map) {
-        long expiryInSeconds = extractExpiry(map);
-        return from(super.extractAuthentication(map), expiryInSeconds);
-    }
+  @Override
+  public OAuth2Authentication extractAuthentication(Map<String, ?> map) {
+    long expiryInSeconds = extractExpiry(map);
+    return from(super.extractAuthentication(map), expiryInSeconds);
+  }
 }

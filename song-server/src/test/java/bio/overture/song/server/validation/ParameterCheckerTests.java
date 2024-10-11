@@ -19,19 +19,13 @@ package bio.overture.song.server.validation;
 
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_FILTER_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_QUERY_PARAMETER;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
-import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.ParameterChecker.createParameterChecker;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
-import bio.overture.song.core.exceptions.ServerErrors;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.legacy.LegacyDto;
 import bio.overture.song.server.utils.ParameterChecker;
 import com.google.common.collect.Sets;
@@ -43,39 +37,11 @@ import org.junit.Test;
 public class ParameterCheckerTests {
 
   private static final Class<?> REGISTERED_TYPE = LegacyDto.class;
-  private static final Class<?> UNREGISTERED_TYPE = Donor.class;
   private ParameterChecker parameterChecker = createParameterChecker(REGISTERED_TYPE);
   private static Set<String> expectedFieldNames =
       newHashSet("id", "fileName", "access", "projectCode", "gnosId");
   private final RandomGenerator randomGenerator =
       createRandomGenerator(ParameterCheckerTests.class.getSimpleName());
-
-  @Test
-  public void testFieldNameExtraction() {
-    val actualFieldNames = parameterChecker.getFieldNamesFor(REGISTERED_TYPE);
-    assertCollectionsMatchExactly(actualFieldNames, expectedFieldNames);
-    assertSongError(
-        () -> parameterChecker.getFieldNamesFor(UNREGISTERED_TYPE), ServerErrors.UNREGISTERED_TYPE);
-  }
-
-  @Test
-  public void testFieldNameValidator() {
-    val fieldNames = randomGenerator.randomSublist(newArrayList(expectedFieldNames));
-    val result = parameterChecker.isLegal(REGISTERED_TYPE, newHashSet(fieldNames));
-    assertTrue(result);
-
-    val corruptedFieldNameSet = buildCorruptedFieldNameSet(fieldNames);
-
-    val result2 = parameterChecker.isLegal(REGISTERED_TYPE, corruptedFieldNameSet);
-    assertFalse(result2);
-
-    assertSongError(
-        () -> parameterChecker.isLegal(UNREGISTERED_TYPE, newHashSet(fieldNames)),
-        ServerErrors.UNREGISTERED_TYPE);
-
-    val result3 = parameterChecker.isLegal(REGISTERED_TYPE, newHashSet());
-    assertTrue(result3);
-  }
 
   @Test
   public void testQueryChecker() {
@@ -84,10 +50,6 @@ public class ParameterCheckerTests {
 
     // Test empty
     parameterChecker.checkQueryParameters(REGISTERED_TYPE, newHashSet());
-
-    SongErrorAssertions.assertSongErrorRunnable(
-        () -> parameterChecker.checkQueryParameters(UNREGISTERED_TYPE, newHashSet(fieldNames)),
-        ServerErrors.UNREGISTERED_TYPE);
 
     val corruptedFieldNameSet = buildCorruptedFieldNameSet(fieldNames);
 
@@ -105,10 +67,6 @@ public class ParameterCheckerTests {
 
     // Test empty
     parameterChecker.checkFilterParameters(REGISTERED_TYPE, newHashSet());
-
-    SongErrorAssertions.assertSongErrorRunnable(
-        () -> parameterChecker.checkFilterParameters(UNREGISTERED_TYPE, newHashSet(fieldNames)),
-        ServerErrors.UNREGISTERED_TYPE);
 
     val corruptedFieldNameSet = buildCorruptedFieldNameSet(fieldNames);
 

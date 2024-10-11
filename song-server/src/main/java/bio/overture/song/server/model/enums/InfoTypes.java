@@ -26,9 +26,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum InfoTypes {
   STUDY("Study"),
-  DONOR("Donor"),
-  SPECIMEN("Specimen"),
-  SAMPLE("Sample"),
   FILE("File"),
   SEQUENCING_READ("SequencingRead"),
   VARIANT_CALL("VariantCall");

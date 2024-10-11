@@ -44,21 +44,6 @@ public class LocalIdServiceTest {
   }
 
   @Test
-  public void testDonorId() {
-    twoParamTest(localIdService::getDonorId);
-  }
-
-  @Test
-  public void testSpecimenId() {
-    twoParamTest(localIdService::getSpecimenId);
-  }
-
-  @Test
-  public void testSampleId() {
-    twoParamTest(localIdService::getSampleId);
-  }
-
-  @Test
   public void testFileId() {
     twoParamTest(localIdService::getFileId);
   }
