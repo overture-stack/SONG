@@ -20,9 +20,6 @@ package bio.overture.song.server.utils.securestudy.impl;
 import static bio.overture.song.core.exceptions.ServerErrors.DONOR_DOES_NOT_EXIST;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Donor;
-import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
-import bio.overture.song.server.service.DonorService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.TestConstants;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;

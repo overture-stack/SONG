@@ -23,9 +23,6 @@ import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
 import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.service.DonorService;
-import bio.overture.song.server.service.SpecimenService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;
 import lombok.NonNull;

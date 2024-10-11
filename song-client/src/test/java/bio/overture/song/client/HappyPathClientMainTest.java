@@ -39,13 +39,11 @@ import bio.overture.song.client.config.CustomRestClientConfig;
 import bio.overture.song.core.model.Analysis;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.Donor;
 import bio.overture.song.core.model.FileDTO;
 import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.core.model.PageDTO;
 import bio.overture.song.core.model.Sample;
-import bio.overture.song.core.model.Specimen;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.sdk.ManifestClient;
@@ -281,8 +279,6 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   public void testIdSearch() {
     val expectedFile = new FileDTO().setObjectId("FI1");
     val expectedSample = Sample.builder().sampleId("SA1").build();
-    val expectedSpecimen = Specimen.builder().specimenId("SP1").build();
-    val expectedDonor = Donor.builder().donorId("DO1").build();
     val expectedAnalyses =
         List.of(
             Analysis.builder()

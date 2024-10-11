@@ -20,9 +20,6 @@ package bio.overture.song.server.utils.securestudy.impl;
 import static bio.overture.song.core.exceptions.ServerErrors.SAMPLE_DOES_NOT_EXIST;
 
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.service.SampleService;
-import bio.overture.song.server.service.SpecimenService;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.TestConstants;
 import bio.overture.song.server.utils.securestudy.AbstractSecureTester;

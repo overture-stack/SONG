@@ -36,7 +36,6 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.generator.PayloadGenerator;
 import bio.overture.song.server.utils.generator.StudyGenerator;

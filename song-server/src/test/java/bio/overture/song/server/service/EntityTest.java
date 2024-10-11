@@ -38,17 +38,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import bio.overture.song.core.model.Metadata;
-import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.server.model.Upload;
-import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.model.entity.Study;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
-import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
-import bio.overture.song.server.model.entity.composites.StudyWithDonors;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import com.fasterxml.jackson.databind.JsonNode;

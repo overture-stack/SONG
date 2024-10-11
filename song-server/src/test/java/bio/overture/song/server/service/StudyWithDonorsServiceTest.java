@@ -25,12 +25,6 @@ import static org.junit.Assert.assertEquals;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.Analysis;
-import bio.overture.song.server.model.entity.Donor;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
-import bio.overture.song.server.model.entity.composites.SpecimenWithSamples;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import bio.overture.song.server.utils.generator.StudyGenerator;
 import com.google.common.collect.Maps;

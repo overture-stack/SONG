@@ -24,9 +24,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import bio.overture.song.server.model.dto.GenericMessage;
 import bio.overture.song.server.model.entity.Study;
-import bio.overture.song.server.model.entity.composites.StudyWithDonors;
 import bio.overture.song.server.service.StudyService;
-import bio.overture.song.server.service.StudyWithDonorsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;

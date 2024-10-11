@@ -21,7 +21,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static java.lang.String.format;
 
 import bio.overture.song.core.model.enums.AccessTypes;
-import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.service.FileService;

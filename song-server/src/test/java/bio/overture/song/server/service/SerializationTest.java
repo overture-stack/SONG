@@ -35,11 +35,8 @@ import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
-import bio.overture.song.server.model.entity.composites.DonorWithSpecimens;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;

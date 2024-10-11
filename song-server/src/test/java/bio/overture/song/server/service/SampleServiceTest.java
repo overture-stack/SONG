@@ -39,8 +39,6 @@ import static org.junit.Assert.assertTrue;
 import bio.overture.song.core.testing.SongErrorAssertions;
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
 import bio.overture.song.server.utils.TestConstants;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

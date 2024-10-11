@@ -4,7 +4,6 @@ import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Collection;
