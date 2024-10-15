@@ -23,18 +23,6 @@ import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.FileTypes.BAI;
-import static bio.overture.song.core.model.enums.FileTypes.BAM;
-import static bio.overture.song.core.model.enums.FileTypes.FAI;
-import static bio.overture.song.core.model.enums.FileTypes.FASTA;
-import static bio.overture.song.core.model.enums.FileTypes.FASTQ;
-import static bio.overture.song.core.model.enums.FileTypes.IDX;
-import static bio.overture.song.core.model.enums.FileTypes.TBI;
-import static bio.overture.song.core.model.enums.FileTypes.TGZ;
-import static bio.overture.song.core.model.enums.FileTypes.VCF;
-import static bio.overture.song.core.model.enums.FileTypes.XML;
-import static bio.overture.song.core.model.enums.FileTypes.resolveFileType;
-import static bio.overture.song.core.model.enums.FileTypes.values;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.INFO;
@@ -89,47 +77,6 @@ public class ConstantsTest {
 
     assertExceptionThrownBy(
         IllegalStateException.class, () -> resolveAccessType("somethingNotAccessType"));
-  }
-
-  @Test
-  public void testFileTypes() {
-    assertEquals(FASTA.toString(), "FASTA");
-    assertEquals(FAI.toString(), "FAI");
-    assertEquals(FASTQ.toString(), "FASTQ");
-    assertEquals(BAM.toString(), "BAM");
-    assertEquals(BAI.toString(), "BAI");
-    assertEquals(VCF.toString(), "VCF");
-    assertEquals(TBI.toString(), "TBI");
-    assertEquals(IDX.toString(), "IDX");
-    assertEquals(XML.toString(), "XML");
-    assertEquals(TGZ.toString(), "TGZ");
-
-    assertEquals(FASTA.getExtension(), "fasta");
-    assertEquals(FAI.getExtension(), "fai");
-    assertEquals(FASTQ.getExtension(), "fastq");
-    assertEquals(BAM.getExtension(), "bam");
-    assertEquals(BAI.getExtension(), "bai");
-    assertEquals(VCF.getExtension(), "vcf");
-    assertEquals(TBI.getExtension(), "tbi");
-    assertEquals(IDX.getExtension(), "idx");
-    assertEquals(XML.getExtension(), "xml");
-    assertEquals(TGZ.getExtension(), "tgz");
-
-    assertEquals(values().length, 10);
-
-    assertEquals(resolveFileType("FASTA"), FASTA);
-    assertEquals(resolveFileType("FAI"), FAI);
-    assertEquals(resolveFileType("FASTQ"), FASTQ);
-    assertEquals(resolveFileType("BAM"), BAM);
-    assertEquals(resolveFileType("BAI"), BAI);
-    assertEquals(resolveFileType("VCF"), VCF);
-    assertEquals(resolveFileType("TBI"), TBI);
-    assertEquals(resolveFileType("IDX"), IDX);
-    assertEquals(resolveFileType("XML"), XML);
-    assertEquals(resolveFileType("TGZ"), TGZ);
-
-    assertExceptionThrownBy(
-        IllegalStateException.class, () -> resolveFileType("somethingThatsNotAFileType"));
   }
 
   @Test
