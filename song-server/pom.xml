@@ -168,14 +168,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-<!--            <version>1.18.4</version>-->
-<!--            <scope>provided</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-<!--            <version>1.18.4</version>-->
-<!--            <scope>test</scope>-->
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

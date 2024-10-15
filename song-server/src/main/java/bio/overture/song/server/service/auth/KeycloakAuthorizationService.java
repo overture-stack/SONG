@@ -1,12 +1,7 @@
 package bio.overture.song.server.service.auth;
 
-import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
-import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
-
 import bio.overture.song.server.config.KeycloakConfig;
 import bio.overture.song.server.security.KeycloakPermission;
-import java.io.IOException;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +17,12 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.util.List;
+
+import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
+import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
+
 @Slf4j
 @Service
 @Profile("secure")
@@ -33,7 +34,7 @@ public class KeycloakAuthorizationService {
     this.keycloakConfig = keycloakConfig;
   }
 
-  public List<KeycloakPermission> fetchAuthorizationGrants(String accessToken) {
+  public List<KeycloakPermission> fetchAuthorizationGrants(String accessToken){
 
     val serviceUrl = keycloakConfig.permissionUrl();
 
@@ -46,7 +47,9 @@ public class KeycloakAuthorizationService {
       // Get response from Keycloak
       val template = new RestTemplate();
       template.setErrorHandler(new RestTemplateResponseErrorHandler());
-      response = template.postForEntity(serviceUrl, request, KeycloakPermission[].class);
+      response =
+          template.postForEntity(
+              serviceUrl, request, KeycloakPermission[].class);
     } catch (ResourceAccessException e) {
       log.error(
           "KeycloakAuthorizationService - error cause:"
@@ -58,8 +61,8 @@ public class KeycloakAuthorizationService {
 
     // Ensure response was OK
     if ((response.getStatusCode() != HttpStatus.OK
-            && response.getStatusCode() != HttpStatus.MULTI_STATUS
-            && response.getStatusCode() != HttpStatus.UNAUTHORIZED)
+        && response.getStatusCode() != HttpStatus.MULTI_STATUS
+        && response.getStatusCode() != HttpStatus.UNAUTHORIZED)
         || !response.hasBody()) {
       throw new OAuth2IntrospectionException("Bad Response from Keycloak Server");
     }
@@ -88,17 +91,21 @@ public class KeycloakAuthorizationService {
     return true;
   }
 
-  private static class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
+  private static class RestTemplateResponseErrorHandler
+      implements ResponseErrorHandler {
 
     @Override
-    public boolean hasError(ClientHttpResponse httpResponse) throws IOException {
+    public boolean hasError(ClientHttpResponse httpResponse)
+        throws IOException {
 
-      return (httpResponse.getStatusCode().series() == CLIENT_ERROR
-          || httpResponse.getStatusCode().series() == SERVER_ERROR);
+      return (
+          httpResponse.getStatusCode().series() == CLIENT_ERROR
+              || httpResponse.getStatusCode().series() == SERVER_ERROR);
     }
 
     @Override
-    public void handleError(ClientHttpResponse httpResponse) throws IOException {
+    public void handleError(ClientHttpResponse httpResponse)
+        throws IOException {
 
       if (httpResponse.getStatusCode().series() == CLIENT_ERROR) {
         // throw 401 HTTP error code
@@ -109,4 +116,5 @@ public class KeycloakAuthorizationService {
       }
     }
   }
+
 }

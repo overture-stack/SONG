@@ -99,20 +99,15 @@ public class AnalysisServiceSender implements AnalysisService {
 
   /** Delegated methods */
   @Override
-  public Analysis updateAnalysis(
-      String studyId, String analysisId, JsonNode updateAnalysisRequest) {
-    Analysis analysis =
-        internalAnalysisService.updateAnalysis(studyId, analysisId, updateAnalysisRequest);
+  public Analysis updateAnalysis(String studyId, String analysisId, JsonNode updateAnalysisRequest) {
+    Analysis analysis = internalAnalysisService.updateAnalysis(studyId, analysisId, updateAnalysisRequest);
     sendAnalysisMessage(analysis, PUBLISHED, PUBLISH);
     return analysis;
   }
 
   @Override
-  public Analysis patchUpdateAnalysis(
-      String studyId, String analysisId, JsonNode patchUpdateAnalysisRequest) {
-    Analysis analysis =
-        internalAnalysisService.patchUpdateAnalysis(
-            studyId, analysisId, patchUpdateAnalysisRequest);
+  public Analysis patchUpdateAnalysis(String studyId, String analysisId, JsonNode patchUpdateAnalysisRequest) {
+    Analysis analysis = internalAnalysisService.patchUpdateAnalysis(studyId, analysisId, patchUpdateAnalysisRequest);
     sendAnalysisMessage(analysis, PUBLISHED, PUBLISH);
     return analysis;
   }

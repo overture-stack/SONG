@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class NoopSender implements Sender {
 
-  public void send(String payload, String _key) {
-    log.info("sending payload='{}' to no topic as kafka support is disabled", payload);
-  }
+    public void send(String payload, String _key) {
+        log.info("sending payload='{}' to no topic as kafka support is disabled", payload);
+    }
 }

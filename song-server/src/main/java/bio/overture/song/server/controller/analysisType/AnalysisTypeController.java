@@ -108,8 +108,7 @@ public class AnalysisTypeController {
   public @ResponseBody AnalysisType register(
       @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @RequestBody RegisterAnalysisTypeRequest request) {
-    return analysisTypeService.register(
-        request.getName(), request.getOptions(), request.getSchema());
+    return analysisTypeService.register(request.getName(),request.getOptions(), request.getSchema());
   }
 
   @ApiImplicitParams({

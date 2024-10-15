@@ -137,8 +137,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     // Validate the updateAnalysisRequest against the scheme
     validateUpdateRequest(updateAnalysisRequest, newAnalysisSchema);
 
-    // Now that the request is validated, is safe to fetch the old analysis with all files, samples
-    // and info
+    // Now that the request is validated, is safe to fetch the old analysis with all files, samples and info
     val analysis = unsecuredDeepRead(analysisId);
 
     // Update the association between the old schema and new schema entities for the requested
@@ -157,17 +156,16 @@ public class AnalysisServiceImpl implements AnalysisService {
   @Override
   @Transactional
   public Analysis patchUpdateAnalysis(
-      @NonNull String studyId,
-      @NonNull String analysisId,
-      @NonNull JsonNode patchUpdateAnalysisRequest) {
+          @NonNull String studyId,
+          @NonNull String analysisId,
+          @NonNull JsonNode patchUpdateAnalysisRequest) {
 
     // Securely read analysis with all files, samples and info
     val analysis = securedDeepRead(studyId, analysisId);
     log.debug("analysis found:" + analysis);
 
     val originalData = analysis.getData();
-    originalData.put(
-        "analysisType", analysis.getAnalysisType()); // we need this to validate against schema.
+    originalData.put("analysisType", analysis.getAnalysisType()); // we need this to validate against schema.
 
     val updatedAnalysis = mergePatchRequest(toJsonNode(originalData), patchUpdateAnalysisRequest);
 

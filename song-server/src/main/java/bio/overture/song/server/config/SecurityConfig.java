@@ -19,10 +19,6 @@ package bio.overture.song.server.config;
 import bio.overture.song.server.security.ApiKeyIntrospector;
 import bio.overture.song.server.security.StudySecurity;
 import bio.overture.song.server.security.SystemSecurity;
-import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -47,6 +43,11 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.util.UUID;
+
 @Slf4j
 @Getter
 @Setter
@@ -58,114 +59,118 @@ import org.springframework.validation.annotation.Validated;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Autowired private SwaggerConfig swaggerConfig;
-  @Autowired private JwtDecoder jwtDecoder;
+    @Autowired
+    private SwaggerConfig swaggerConfig;
+    @Autowired
+    private JwtDecoder jwtDecoder;
 
-  private String introspectionUri;
-  private String clientId;
-  private String clientSecret;
-  private String provider;
-  private String tokenName;
+    private String introspectionUri;
+    private String clientId;
+    private String clientSecret;
+    private String provider;
+    private String tokenName;
 
-  private final ScopeConfig scope = new ScopeConfig();
+    private final ScopeConfig scope = new ScopeConfig();
 
-  @Bean
-  public SystemSecurity systemSecurity() {
-    return SystemSecurity.builder().systemScope(scope.getSystem()).provider(provider).build();
-  }
+    @Bean
+    public SystemSecurity systemSecurity() {
+      return SystemSecurity.builder()
+          .systemScope(scope.getSystem())
+          .provider(provider)
+          .build();
+    }
 
-  @Bean
-  public AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerResolver() {
+    @Bean
+    public AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerResolver() {
 
-    // Auth Managers for JWT and for ApiKeys. JWT uses the default auth provider,
-    // but OpaqueTokens are handled by the custom ApiKeyIntrospector
-    AuthenticationManager jwt = new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
-    AuthenticationManager opaqueToken =
-        new ProviderManager(
-            new OpaqueTokenAuthenticationProvider(
-                new ApiKeyIntrospector(introspectionUri, clientId, clientSecret, tokenName)));
+        // Auth Managers for JWT and for ApiKeys. JWT uses the default auth provider,
+        // but OpaqueTokens are handled by the custom ApiKeyIntrospector
+        AuthenticationManager jwt = new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
+        AuthenticationManager opaqueToken =
+                new ProviderManager(new OpaqueTokenAuthenticationProvider(new ApiKeyIntrospector(introspectionUri, clientId, clientSecret, tokenName)));
 
-    return (request) -> useJwt(request) ? jwt : opaqueToken;
-  }
+        return (request) -> useJwt(request) ? jwt : opaqueToken;
+    }
 
-  @Bean
-  public StudySecurity studySecurity() {
-    return StudySecurity.builder()
-        .studyPrefix(scope.getStudy().getPrefix())
-        .studySuffix(scope.getStudy().getSuffix())
-        .systemScope(scope.getSystem())
-        .provider(provider)
-        .build();
-  }
+    @Bean
+    public StudySecurity studySecurity() {
+        return StudySecurity.builder()
+                .studyPrefix(scope.getStudy().getPrefix())
+                .studySuffix(scope.getStudy().getSuffix())
+                .systemScope(scope.getSystem())
+                .provider(provider)
+                .build();
+    }
 
-  @Bean
-  public OpaqueTokenIntrospector introspector() {
-    return new ApiKeyIntrospector(introspectionUri, clientId, clientSecret, tokenName);
-  }
+    @Bean
+    public OpaqueTokenIntrospector introspector() {
+        return new ApiKeyIntrospector(introspectionUri, clientId, clientSecret, tokenName);
+    }
 
-  @Override
-  @SneakyThrows
-  public void configure(HttpSecurity http) {
-    http.authorizeRequests()
-        .antMatchers("/isAlive")
-        .permitAll()
-        .antMatchers("/studies/**")
-        .permitAll()
-        .antMatchers("/upload/**")
-        .permitAll()
-        .antMatchers("/entities/**")
-        .permitAll()
-        .antMatchers("/export/**")
-        .permitAll()
-        .antMatchers("/schemas/**")
-        .permitAll()
-        .antMatchers(swaggerConfig.getAlternateSwaggerUrl())
-        .permitAll()
-        .antMatchers("/swagger**", "/swagger-resources/**", "/v2/api**", "/webjars/**")
-        .permitAll()
-        .and()
-        .authorizeRequests()
-        .anyRequest()
-        .authenticated();
+    @Override
+    @SneakyThrows
+    public void configure(HttpSecurity http) {
+        http.authorizeRequests()
+                .antMatchers("/isAlive")
+                .permitAll()
+                .antMatchers("/studies/**")
+                .permitAll()
+                .antMatchers("/upload/**")
+                .permitAll()
+                .antMatchers("/entities/**")
+                .permitAll()
+                .antMatchers("/export/**")
+                .permitAll()
+                .antMatchers("/schemas/**")
+                .permitAll()
+                .antMatchers(swaggerConfig.getAlternateSwaggerUrl())
+                .permitAll()
+                .antMatchers("/swagger**", "/swagger-resources/**", "/v2/api**", "/webjars/**")
+                .permitAll()
+                .and()
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated();
 
-    http.oauth2ResourceServer(
-        oauth2 -> oauth2.authenticationManagerResolver(this.tokenAuthenticationManagerResolver()));
-  }
-
-  @Getter
-  @Setter
-  public static class ScopeConfig {
-
-    @NotNull private String system;
-    private final StudyScopeConfig study = new StudyScopeConfig();
+        http.oauth2ResourceServer(
+                oauth2 -> oauth2.authenticationManagerResolver(this.tokenAuthenticationManagerResolver()));
+    }
 
     @Getter
     @Setter
-    public static class StudyScopeConfig {
+    public static class ScopeConfig {
 
-      @NotNull
-      @Pattern(regexp = "^\\w+\\W$")
-      private String prefix;
+        @NotNull
+        private String system;
+        private final StudyScopeConfig study = new StudyScopeConfig();
 
-      @NotNull
-      @Pattern(regexp = "^\\W\\w+$")
-      private String suffix;
+        @Getter
+        @Setter
+        public static class StudyScopeConfig {
+
+            @NotNull
+            @Pattern(regexp = "^\\w+\\W$")
+            private String prefix;
+
+            @NotNull
+            @Pattern(regexp = "^\\W\\w+$")
+            private String suffix;
+        }
     }
-  }
 
-  private boolean useJwt(HttpServletRequest request) {
-    val authorizationHeaderValue = request.getHeader(HttpHeaders.AUTHORIZATION);
-    if (authorizationHeaderValue != null && authorizationHeaderValue.startsWith("Bearer")) {
-      String token = authorizationHeaderValue.substring(7);
-      try {
-        UUID.fromString(token);
-        // able to parse as UUID, so this token matches our ApiKey format
-        return false;
-      } catch (IllegalArgumentException e) {
-        // unable to parse as UUID, use our JWT resolvers
+    private boolean useJwt(HttpServletRequest request) {
+        val authorizationHeaderValue = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeaderValue != null && authorizationHeaderValue.startsWith("Bearer")) {
+            String token = authorizationHeaderValue.substring(7);
+            try {
+                UUID.fromString(token);
+                // able to parse as UUID, so this token matches our ApiKey format
+                return false;
+            } catch (IllegalArgumentException e) {
+                // unable to parse as UUID, use our JWT resolvers
+                return true;
+            }
+        }
         return true;
-      }
     }
-    return true;
-  }
 }
