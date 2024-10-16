@@ -1,6 +1,6 @@
-# Client Command Reference
+# Client Reference
 
-This document serves as a comprehensive reference for all commands and command options currently supported by the Song client.
+Commands and options supported by the Song client.
 
 ## General Commands
 
@@ -161,3 +161,7 @@ This document serves as a comprehensive reference for all commands and command o
     | `-m`, `--md5` | File MD5 hash |
     | `--object-id` | Unique object ID of the file |
     | `-s`, `--size` | File size in bytes |
+
+## Need Help?
+
+If you encounter any issues or have questions about our API, please don't hesitate to reach out through our relevant[community support channels](/community/support)
