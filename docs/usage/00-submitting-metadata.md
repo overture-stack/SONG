@@ -3,44 +3,78 @@
 Submitting new metadata entries ([Analyses](/docs/core-software/Song/usage/#song-terminology)) to Song.
 
 :::info CLI Submission Guide
-This page documents the basic submission flow, for a more detailed guide see our [**platform guide on CLI submissions**](/guides/user-guides/cli-submissions)
+This page documents the basic submission flow, for a more detailed guide see our [**platform guide on CLI submissions**](/guides/user-guides/cli-submissions).
 :::
 
-## Prerequisites
+### Client Installation
 
-1. Install the Song-Client:
+1. **Install the Song-Client:**
 
-   ```bash
-   docker run -d -it --name song-client \
-   -e CLIENT_ACCESS_TOKEN=${token} \
-   -e CLIENT_STUDY_ID=ABC123 \
-   -e CLIENT_SERVER_URL=https://<INSERT-URL> \
-   --network="host" \
-   --mount type=bind,source="$(pwd)",target=/output \
-   ghcr.io/overture-stack/song-client:latest
-   ```
+    To run the song-client using Docker, provide the following environment variables:
+    - `CLIENT_ACCESS_TOKEN`: Valid access token
+    - `CLIENT_STUDY_ID`: Your study ID
+    - `CLIENT_SERVER_URL`: Song server URL
 
-   Make sure to replace the placeholder values with your specific information:
-    - Replace `${token}` with your actual access token.
-    - Replace `ABC123` with your specific study ID.
-    - Replace `<INSERT-URL>` with the appropriate Song server URL.
+    Use this command to run a Song Client docker container:
 
-2. Install the Score-Client:
+    ```bash
+    docker run -d -it --name song-client \
+        -e CLIENT_ACCESS_TOKEN=${token} \
+        -e CLIENT_STUDY_ID=${studyId} \
+        -e CLIENT_SERVER_URL=${songServerUrl} \
+        --network="host" \
+        --mount type=bind,source="$(pwd)",target=/output \
+        ghcr.io/overture-stack/song-client:latest
+    ```
 
-   ```bash
-   docker run -d -it \
-   --name score-client \
-   -e CLIENT_ACCESS_TOKEN=${token} \
-   -e STORAGE_URL=http://<INSERT-URL> \
-   -e METADATA_URL=http://<INSERT-URL> \
-   --network="host" \
-   --mount type=bind,source="$(pwd)",target=/output \
-   ghcr.io/overture-stack/score:latest
-   ```
+    Replace all `${}` placeholders with your environment's values.
 
-    Make sure to replace the placeholder values with your specific information:
-    - Replace `${token}` with your actual access token.
-    - Replace both instances of `<INSERT-URL>` with the appropriate storage and metadata URLs, respectively.
+    <details>
+      <summary><b>Detailed command breakdown</b></summary>
+
+      - `-d -it`: Runs container in detached and interactive mode
+      - `-e CLIENT_ACCESS_TOKEN=${token}`: Access token from the platform's auth service
+      - `-e CLIENT_STUDY_ID=${studyId}`: Your specific study ID
+      - `-e CLIENT_SERVER_URL=${songServerUrl}`: Song server URL
+      - `--network="host"`: Uses host network stack
+      - `--mount type=bind,source="$(pwd)",target=/output`: Mounts current directory to container's `/output`
+
+    </details>
+
+2. **Install the Score-Client:**
+
+    To run the score-client using Docker, provide the following environment variables:
+    - `STORAGE_URL`: Score server URL
+    - `METADATA_URL`: Song server URL
+    - `ACCESSTOKEN`: Valid access token
+
+    Use this command to run a Score Client docker container:
+
+    ```bash
+    docker run -d --name score-client \
+        -e ACCESSTOKEN=${token} \
+        -e STORAGE_URL=${scoreServerUrl} \
+        -e METADATA_URL=${songServerUrl} \
+        --network="host" \
+        --platform="linux/amd64" \
+        --mount type=bind,source="$(pwd)",target=/output \
+        ghcr.io/overture-stack/score:latest
+    ```
+
+    Replace all `${}` placeholders with your environment's values.
+
+    <details>
+      <summary><b>Detailed command breakdown</b></summary>
+
+      - `-d`: Runs container in detached mode (background)
+      - `-e ACCESSTOKEN=${token}`: Access token from the platform's auth service
+      - `-e STORAGE_URL=${scoreServerUrl}`: Score server URL
+      - `-e METADATA_URL=${songServerUrl}`: Song server URL
+      - `--network="host"`: Uses host network stack
+      - `--platform="linux/amd64"`: Specifies container platform
+      - `--mount type=bind,source="$(pwd)",target=/output`: Mounts current directory to container's `/output`
+
+    </details>
 
 ### Step 1: Prepare a Payload
 

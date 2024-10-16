@@ -64,7 +64,7 @@ Commands and options supported by the Song client.
 - **Usage:** `song-client submit [OPTIONS]`
 
     :::info
-    For detailed information, see the [documentation on submitting data with Song](/).
+    For detailed information, see our [documentation on submitting data with Song](/docs/core-software/Song/usage/submitting-metadata).
     :::
 
 ### Search
@@ -94,7 +94,7 @@ Commands and options supported by the Song client.
     | `-d`, `--input-dir` | Directory containing upload files |
 
     :::info
-    For more information, see the [documentation on submitting data with Song](/).
+    For more information, see our [documentation on submitting data with Song](/docs/core-software/Song/usage/submitting-metadata).
     :::
 
 ### Publish
@@ -130,7 +130,7 @@ Commands and options supported by the Song client.
 
 
     :::info
-    For more information on analysis management, see the [documentation on analysis management with Song](/).
+    For more information on analysis management, see our [documentation on Song publication controls](/docs/core-software/Song/usage/publication-controls).
     :::
 
 ### Export
@@ -164,4 +164,4 @@ Commands and options supported by the Song client.
 
 ## Need Help?
 
-If you encounter any issues or have questions about our API, please don't hesitate to reach out through our relevant[community support channels](/community/support)
+If you encounter any issues or have questions, please don't hesitate to reach out through our relevant [community support channels](/community/support)
