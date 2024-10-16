@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 The Ontario Institute for Cancer Research. All rights reserved.
+# Copyright (c) 2024 The Ontario Institute for Cancer Research. All rights reserved.
 #
 # This program and the accompanying materials are made available under the terms of the GNU Public License v3.0.
 # You should have received a copy of the GNU General Public License along with
@@ -15,44 +15,95 @@
 # IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
+###############################################################################
+# Application Configurations for the Song Server
 #
-song:
-  # the unique id of this song, this becomes important in multi songs setup where
-  # we need to identify which song is the source of an analysis
-  id: song.overture
+# This file contains various configuration profiles for the Song Server application.
+# Please update the values according to your specific environment.
+###############################################################################
+
+###############################################################################
+# Profile - common (default)
+# This is the default profile with common settings for all environments.
+###############################################################################
 
 server:
   version: 1.0
   port: 8080
-  # fix issue IllegalArgumentException: Request header is too large. default 8KB
-  max-http-header-size: 10KB
+  max-http-header-size: 10KB  # Fix issue with IllegalArgumentException: Request header is too large
+
+song:
+  id: song.overture  # The unique id of this song instance, important for multi Song setups
 
 score:
-  # Require both upload and download scopes
-  accessToken: "ad83ebde-a55c-11e7-abc4-cec278b6b50a"
+  accessToken: "68fb42b4-f1ed-4e8c-beab-3724b99fe528"   # Requires both READ (downlaod) and WRITE (upload) scopes
   url: "http://localhost:8087"
 
-# Hibernate
+id:
+  useLocal: true  # UseLocal enables Song to handle ID management internally, storing identifiers within its own system.
+  federated:      # In federated mode, Song relies on an external service for ID management. 
+    auth:
+      bearer:
+        token:
+        credentials:
+          url:
+          clientId:
+          clientSecret:
+    uriTemplate: # URI templates for federated ID services
+      donor: https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
+      specimen: https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
+      sample: https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
+
+validation:
+  delayMs: 30  # Delay in milliseconds between validation attempts
+  threads:
+    core: 5    # Core number of threads for validation
+    max: 10    # Maximum number of threads for validation
+  queue:
+    capacity: 100  # Capacity of the validation queue
+
+schemas:
+  enforceLatest: true  # Enforce the use of the latest schema version
+
+swagger:
+  alternateUrl: "/api-docs"  # Alternate URL for Swagger documentation
+  host: ""
+  basePath: ""
+
+security:
+  basic:
+    enabled: false
+
+auth:
+  connection:
+    maxRetries: 5       
+    initialBackoff: 15000 # Initial backoff time in milliseconds
+    multiplier: 2.0     
+
+
+management:
+  server:
+    port: 8081
+
 spring:
   flyway:
     enabled: true
-    locations: "classpath:db/migration"
+    locations: "classpath:db/migration"  # Location of database migration scripts
   jpa:
     properties:
       hibernate:
         dialect: com.marvinformatics.hibernate.json.PostgreSQLJsonDialect
-        # disable driver's feature detection. This is required for the following bug in SpringBoot 2.0.0+
-        # https://hibernate.atlassian.net/browse/HHH-12368
-        temp.use_jdbc_metadata_defaults: false
+        temp.use_jdbc_metadata_defaults: false  # Disable driver's feature detection
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/song?stringtype=unspecified
-    username: postgres
-    password: password
+    url: jdbc:postgresql://localhost:5433/songDb?stringtype=unspecified
+    username: admin 
+    password: admin123
     max-active: 10
     max-idle: 1
     min-idle: 1
-    init.mode: always
+    init.mode: never
     hikari:
       connection-timeout: 500
   mvc:
@@ -61,95 +112,169 @@ spring:
 
 logging:
   level:
-    io:
-      swagger:
-        models:
-          parameters:
-            AbstractSerializableParameter: ERROR
+    root: INFO
+    io.swagger.models.parameters.AbstractSerializableParameter: ERROR
 
-# Hibernate SQL Debugging
-#spring.jpa.properties.hibernate.format_sql: true
-#logging.level.org.hibernate.SQL: DEBUG
-#logging.level.org.hibernate.type.descriptor.sql: TRACE
+---
 
-# Spring JPA Transaction logging
-#logging.level.org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+###############################################################################
+# Profile - "dev"
+# Configuration for development environment
+###############################################################################
 
-# When you are desperate, use this...
-#logging.level.org.hibernate: TRACE
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    init.mode: never
+    hikari:
+      connection-timeout: 500
 
-# Management
 management:
   server:
-    port: 8081
-
-swagger:
-  alternateUrl: "/api-docs"
-  # host and base url are needed if you run song behind a reverse proxy
-  # and rewrite the url eg: http://mydomain.com/song/swagger-ui.html
-  # in this case host = mydomain.com, baseUrl = /song
-  host: ""
-  basePath: ""
-
-security.basic.enabled: false
+    port: -1
 
 id:
-  useLocal: true
-  federated:
-    auth:
-      bearer:
-        token:
-        # Placeholder for issue SONG-491
-        credentials:
-          url:
-          clientId:
-          clientSecret:
-    uriTemplate:
-      donor: https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true
-      specimen: https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true
-      sample: https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true
+  persistInMemory: true
 
-validation:
-  delayMs: 30
-  threads:
-    core: 5
-    max: 10
-  queue:
-    capacity: 100
+---
+
+###############################################################################
+# Profile - "secure"
+# Configuration for secure environment with OAuth2
+###############################################################################
+
+spring:
+  config:
+    activate:
+      on-profile: secure
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Uncomment the public-key-location below for Ego configurations
+          # public-key-location: http://localhost:8081/oauth/token/public_key  
+          jwk-set-uri: http://localhost/realms/myrealm/protocol/openid-connect/certs  
 
 auth:
+  server:
+    introspectionUri: http://keycloak:8180/realms/myrealm/apikey/check_api_key/
+    tokenName: apiKey
+    provider: keycloak  # Valid options include ego or keycloak
+    keycloak:
+      host: http://localhost
+      realm: "myrealm"
+    clientID: dms
+    clientSecret: t016kqXfI648ORoIP5gepqCzqtsRjlcc
+    scope:
+      study:
+        prefix: "STUDY."
+        suffix: ".WRITE"
+      system: "song.WRITE"
 
-  # Connection retries in case of connection failure
-  connection:
-
-    # Max number of retries
-    maxRetries: 5
-
-    # Initial timeoutMs before the first retry. In milliseconds.
-    initialBackoff: 15000
-
-    # Multiplier that defines value of consequent timeouts before the next retry.
-    # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
-    multiplier: 2.0
-
-schemas:
-  enforceLatest: true
 ---
+
+###############################################################################
+# Profile - "prod"
+# Configuration for production environment
+###############################################################################
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    init.mode: never
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/songDb?stringtype=unspecified
+    username: admin 
+    password: admin123
+    max-active: 10
+    max-idle: 1
+    min-idle: 1
+
+---
+
+###############################################################################
+# Profile - "kafka"
+# Configuration for Kafka integration
+###############################################################################
+
+spring:
+  config:
+    activate:
+      on-profile: kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    template:
+      default-topic: song-analysis
+
+---
+
+###############################################################################
+# Profile - "score-client-cred"
+# Configuration for SCORE client credentials
+###############################################################################
+
+spring:
+  config:
+    activate:
+      on-profile: score-client-cred
+
+score:
+  url: "http://localhost:8087"
+  clientCredentials:
+    id: oauth
+    secret: oauthsecret
+    tokenUrl: http://ego-api:8080/oauth/token
+    systemScope: "score.WRITE"  # Storage scope needs to include both READ and WRITE
+
+---
+
+###############################################################################
+# Testing Profiles
+# The rest of the profiles are used for various testing purposes
+###############################################################################
+
+# Profile - "fastTest"
+
+spring:
+  config:
+    activate:
+      on-profile: fastTest
+
+auth:
+  connection:
+    maxRetries: 5
+    initialBackoff: 50
+    multiplier: 1.2
+
+---
+
+# Profile - "async-test"
+
 spring:
   config:
     activate:
       on-profile: async-test
-validation.delayMs: 1000
+
+validation:
+  delayMs: 1000
 
 ---
+
+# Profile - "test"
+
 spring:
   config:
     activate:
       on-profile: test
-  autoconfigure.exclude: SecurityConfig.class
+  autoconfigure:
+    exclude: SecurityConfig.class
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:postgresql:9.6.12://blabla:5432/test_db?stringtype=unspecified
+    url: jdbc:tc:postgresql:9.6.12://blabla:5433/test_db?stringtype=unspecified
     username:
     password:
     max-active: 10
@@ -159,10 +284,11 @@ spring:
       connection-timeout: 500
       validation-timeout: 250
 
-id.persistInMemory: true
+id:
+  persistInMemory: true
 
-# This url should not exist
-score.url: http://localhost:0
+score:
+  url: http://localhost:0  # This url should not exist
 
 auth:
   server:
@@ -179,109 +305,3 @@ auth:
       system: "song.WRITE"
 
 ---
-spring:
-  config:
-    activate:
-      on-profile: dev
-  datasource:
-    init.mode: always
-    hikari:
-      connection-timeout: 500
-
-management:
-  server:
-    port: -1
-
-id.persistInMemory: true
-
----
-spring:
-  config:
-    activate:
-      on-profile: secure
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # EGO public key
-          public-key-location: http://localhost:8081/oauth/token/public_key
-          # Keycloak JWK
-          #jwk-set-uri: http://localhost/realms/myrealm/protocol/openid-connect/certs
-auth:
-  server:
-    # check API Key endpoint
-    introspectionUri: http://localhost:8081/o/check_api_key
-    tokenName: apiKey
-    # Define a valid auth provider: ego or keycloak
-    provider: ego
-    # Keycloak config
-    keycloak:
-      host: http://localhost
-      realm: "myrealm"
-
-    clientID: id
-    clientSecret: secret
-    scope:
-      study:
-        prefix: "PROGRAMDATA-"
-        suffix: ".WRITE"
-      system: "song.WRITE"
----
-spring:
-  config:
-    activate:
-      on-profile: fastTest
-
-auth:
-  connection:
-    # Max number of retries
-    maxRetries: 5
-
-    # Initial timeoutMs before the first retry. In milliseconds.
-    initialBackoff: 50
-
-    # Multiplier that defines value of consequent timeouts before the next retry.
-    # E.g. TIMEOUT(n) = TIMEOUT(n-1) * MULTIPLIER
-    multiplier: 1.2
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-  datasource:
-    init.mode: never
-
-# Datasource
-spring.datasource:
-  driver-class-name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost/song?stringtype=unspecified
-  username:
-  password:
-  max-active: 10
-  max-idle: 1
-  min-idle: 1
-
----
-spring:
-  config:
-    activate:
-      on-profile: kafka
-  kafka:
-    bootstrap-servers: localhost:9092
-    template:
-      default-topic: song-analysis
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: score-client-cred
-score:
-  url: "http://localhost:8087"
-  clientCredentials:
-    id: oauth
-    secret: oauthsecret
-    tokenUrl: http://ego-api:8080/oauth/token
-    systemScope: "score.WRITE" # Storage scope needs to include both READ and WRITE
