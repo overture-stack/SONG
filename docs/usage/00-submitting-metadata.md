@@ -1,6 +1,6 @@
 # Metadata Submission
 
-Submitting new metadata entries ([Analyses](/docs/Core-Software/song/usage/#song-terminology)) to Song.
+Submitting new metadata entries ([Analyses](/docs/core-software/song/usage/#song-terminology)) to Song.
 
 :::info CLI Submission Guide
 This page documents the basic submission flow, for a more detailed guide see our [**platform guide on CLI submissions**](/guides/user-guides/cli-submissions)
@@ -44,7 +44,7 @@ This page documents the basic submission flow, for a more detailed guide see our
 
 ### Step 1: Prepare a Payload
 
-Create a metadata payload conforming to a registered `analysis_type` schema. For more information, see our section covering [Data Model Management](/docs/Core-Software/song/usage/data-model-management).
+Create a metadata payload conforming to a registered `analysis_type` schema. For more information, see our section covering [Data Model Management](/docs/core-software/song/usage/data-model-management).
 
 ### Step 2: Upload the Metadata Payload
 
@@ -89,7 +89,7 @@ For upload issues, try the `--force` option:
 docker exec score-client sh -c "score-client upload --manifest manifest.txt --force"
 ```
 
-For more on Score, see the [Score documentation page](/docs/Core-Software/score/overview).
+For more on Score, see the [Score documentation page](/docs/core-software/score/overview).
 
 ### Step 5: Publish the Analysis
 
