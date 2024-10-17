@@ -52,104 +52,6 @@
         }
       }
     },
-    "donor": {
-      "gender": {
-        "type": "string",
-        "enum": ["Male", "Female", "Other"]
-      },
-      "donorData": {
-        "type": "object",
-        "required": ["submitterDonorId", "gender"],
-        "properties": {
-          "submitterDonorId": { "$ref": "#/definitions/common/submitterId" },
-          "gender": { "$ref": "#/definitions/donor/gender" },
-          "info": { "$ref": "#/definitions/common/info" }
-        }
-      }
-    },
-    "specimen": {
-      "specimenTissueSource": {
-        "type": "string",
-        "enum": [
-          "Blood derived",
-          "Blood derived - bone marrow",
-          "Blood derived - peripheral blood",
-          "Bone marrow",
-          "Buccal cell",
-          "Lymph node",
-          "Solid tissue",
-          "Plasma",
-          "Serum",
-          "Urine",
-          "Cerebrospinal fluid",
-          "Sputum",
-          "Other",
-          "Pleural effusion",
-          "Mononuclear cells from bone marrow",
-          "Saliva",
-          "Skin",
-          "Intestine",
-          "Buffy coat",
-          "Stomach",
-          "Esophagus",
-          "Tonsil",
-          "Spleen",
-          "Bone",
-          "Cerebellum",
-          "Endometrium"
-        ]
-      },
-      "specimenType": {
-        "type": "string",
-        "enum": [
-          "Normal",
-          "Normal - tissue adjacent to primary tumour",
-          "Primary tumour",
-          "Primary tumour - adjacent to normal",
-          "Primary tumour - additional new primary",
-          "Recurrent tumour",
-          "Metastatic tumour",
-          "Metastatic tumour - metastasis local to lymph node",
-          "Metastatic tumour - metastasis to distant location",
-          "Metastatic tumour - additional metastatic",
-          "Xenograft - derived from primary tumour",
-          "Xenograft - derived from tumour cell line",
-          "Cell line - derived from xenograft tumour",
-          "Cell line - derived from tumour",
-          "Cell line - derived from normal",
-          "Tumour - unknown if derived from primary or metastatic",
-          "Cell line – derived from metastatic tumour",
-          "Xenograft – derived from metastatic tumour"
-        ]
-      },
-      "tumourNormalDesignation": {
-        "type": "string",
-        "enum": ["Normal", "Tumour"]
-      },
-      "specimenData": {
-        "type": "object",
-        "required": [
-          "submitterSpecimenId",
-          "specimenTissueSource",
-          "tumourNormalDesignation",
-          "specimenType"
-        ],
-        "properties": {
-          "submitterSpecimenId": { "$ref": "#/definitions/common/submitterId" },
-          "specimenTissueSource": {
-            "$ref": "#/definitions/specimen/specimenTissueSource"
-          },
-          "tumourNormalDesignation": {
-            "$ref": "#/definitions/specimen/tumourNormalDesignation"
-          },
-          "specimenType": { "$ref": "#/definitions/specimen/specimenType" },
-          "specimenClass": {
-            "not": {}
-          },
-          "info": { "$ref": "#/definitions/common/info" }
-        }
-      }
-    },
     "analysisType": {
       "type": "object",
       "required": ["name"],
@@ -161,33 +63,9 @@
           "type": ["integer", "null"]
         }
       }
-    },
-    "sample": {
-      "sampleTypes": {
-        "type": "string",
-        "enum": [
-          "Total DNA",
-          "Amplified DNA",
-          "ctDNA",
-          "Other DNA enrichments",
-          "Total RNA",
-          "Ribo-Zero RNA",
-          "polyA+ RNA",
-          "Other RNA fractions"
-        ]
-      },
-      "sampleData": {
-        "type": "object",
-        "required": ["submitterSampleId", "sampleType"],
-        "properties": {
-          "submitterSampleId": { "$ref": "#/definitions/common/submitterId" },
-          "sampleType": { "$ref": "#/definitions/sample/sampleTypes" },
-          "info": { "$ref": "#/definitions/common/info" }
-        }
-      }
     }
   },
-  "required": ["studyId", "analysisType", "samples", "files"],
+  "required": ["studyId", "analysisType", "files"],
   "properties": {
     "analysisId": {
       "not": {}
@@ -198,53 +76,6 @@
     },
     "analysisType": {
       "allOf": [{ "$ref": "#/definitions/analysisType" }]
-    },
-    "samples": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "allOf": [{ "$ref": "#/definitions/sample/sampleData" }],
-        "required": ["specimen", "donor"],
-        "properties": {
-          "specimen": { "$ref": "#/definitions/specimen/specimenData" },
-          "donor": { "$ref": "#/definitions/donor/donorData" }
-        },
-        "if": {
-          "properties": {
-            "specimen": {
-              "properties": {
-                "tumourNormalDesignation": {
-                  "const": "Tumour"
-                }
-              }
-            }
-          }
-        },
-        "then": {
-          "properties": {
-            "matchedNormalSubmitterSampleId": {
-              "oneOf": [
-                {
-                  "const": null
-                },
-                {
-                  "$ref": "#/definitions/common/submitterId"
-                }
-              ]
-            }
-          },
-          "required": ["matchedNormalSubmitterSampleId"]
-        },
-        "else": {
-          "properties": {
-            "matchedNormalSubmitterSampleId": {
-              "const": null
-            }
-          },
-          "required": ["matchedNormalSubmitterSampleId"]
-        }
-      }
     },
     "files": {
       "type": "array",
