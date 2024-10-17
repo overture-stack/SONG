@@ -128,30 +128,6 @@ public abstract class InfoService {
   }
 
   @Service
-  public static class DonorInfoService extends InfoService {
-    @Autowired
-    DonorInfoService(InfoRepository repo) {
-      super(InfoTypes.DONOR, repo);
-    }
-  }
-
-  @Service
-  public static class SpecimenInfoService extends InfoService {
-    @Autowired
-    SpecimenInfoService(InfoRepository repo) {
-      super(InfoTypes.SPECIMEN, repo);
-    }
-  }
-
-  @Service
-  public static class SampleInfoService extends InfoService {
-    @Autowired
-    SampleInfoService(InfoRepository repo) {
-      super(InfoTypes.SAMPLE, repo);
-    }
-  }
-
-  @Service
   public static class FileInfoService extends InfoService {
     @Autowired
     FileInfoService(InfoRepository repo) {

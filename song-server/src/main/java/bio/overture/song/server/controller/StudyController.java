@@ -24,23 +24,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import bio.overture.song.server.model.dto.GenericMessage;
 import bio.overture.song.server.model.entity.Study;
-import bio.overture.song.server.model.entity.composites.StudyWithDonors;
 import bio.overture.song.server.service.StudyService;
-import bio.overture.song.server.service.StudyWithDonorsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/studies")
@@ -51,20 +42,10 @@ public class StudyController {
   /** Dependencies */
   @Autowired private final StudyService studyService;
 
-  @Autowired private final StudyWithDonorsService studyWithDonorsService;
-
   @ApiOperation(value = "GetStudy", notes = "Retrieves information for a study")
   @GetMapping("/{studyId}")
   public Study getStudy(@PathVariable("studyId") String studyId) {
     return studyService.read(studyId);
-  }
-
-  @ApiOperation(
-      value = "GetEntireStudy",
-      notes = "Retrieves all donor, specimen and sample data for a study")
-  @GetMapping("/{studyId}/all")
-  public StudyWithDonors getEntireStudy(@PathVariable("studyId") String studyId) {
-    return studyWithDonorsService.readWithChildren(studyId);
   }
 
   @ApiOperation(value = "GetAllStudyIds", notes = "Retrieves all studyIds")

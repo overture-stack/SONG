@@ -29,10 +29,10 @@ import org.testcontainers.shaded.com.google.common.collect.Sets;
 @SpringBootTest
 public class TestScopeStrategy {
 
-  @Autowired
-  private KeycloakAuthorizationService keycloakAuthorizationService;
+  @Autowired private KeycloakAuthorizationService keycloakAuthorizationService;
 
-  private final SystemSecurity SYSTEM_SECURITY = SystemSecurity.builder().systemScope("song.READ").build();
+  private final SystemSecurity SYSTEM_SECURITY =
+      SystemSecurity.builder().systemScope("song.READ").build();
   private static final StudySecurity STUDY_SECURITY1 =
       StudySecurity.builder()
           .studyPrefix("song.")

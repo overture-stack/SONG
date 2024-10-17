@@ -17,30 +17,13 @@
 
 package bio.overture.song.server.constants;
 
-import static bio.overture.song.core.model.enums.AccessTypes.CONTROLLED;
-import static bio.overture.song.core.model.enums.AccessTypes.OPEN;
-import static bio.overture.song.core.model.enums.AccessTypes.resolveAccessType;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
+import static bio.overture.song.core.model.enums.AccessTypes.*;
+import static bio.overture.song.core.model.enums.AnalysisStates.*;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.ANALYSIS_ID;
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.INFO;
-import static bio.overture.song.server.model.enums.InfoTypes.DONOR;
-import static bio.overture.song.server.model.enums.InfoTypes.FILE;
-import static bio.overture.song.server.model.enums.InfoTypes.SAMPLE;
-import static bio.overture.song.server.model.enums.InfoTypes.SEQUENCING_READ;
-import static bio.overture.song.server.model.enums.InfoTypes.SPECIMEN;
-import static bio.overture.song.server.model.enums.InfoTypes.STUDY;
-import static bio.overture.song.server.model.enums.InfoTypes.VARIANT_CALL;
-import static bio.overture.song.server.model.enums.InfoTypes.resolveInfoType;
-import static bio.overture.song.server.model.enums.UploadStates.CREATED;
-import static bio.overture.song.server.model.enums.UploadStates.SAVED;
-import static bio.overture.song.server.model.enums.UploadStates.UPDATED;
-import static bio.overture.song.server.model.enums.UploadStates.UPLOADED;
-import static bio.overture.song.server.model.enums.UploadStates.VALIDATED;
-import static bio.overture.song.server.model.enums.UploadStates.VALIDATION_ERROR;
-import static bio.overture.song.server.model.enums.UploadStates.resolveState;
+import static bio.overture.song.server.model.enums.InfoTypes.*;
+import static bio.overture.song.server.model.enums.UploadStates.*;
 import static org.junit.Assert.assertEquals;
 
 import bio.overture.song.core.model.enums.AccessTypes;
@@ -82,18 +65,12 @@ public class ConstantsTest {
   @Test
   public void testInfoTypes() {
     assertEquals(STUDY.toString(), "Study");
-    assertEquals(DONOR.toString(), "Donor");
-    assertEquals(SPECIMEN.toString(), "Specimen");
-    assertEquals(SAMPLE.toString(), "Sample");
     assertEquals(FILE.toString(), "File");
     assertEquals(SEQUENCING_READ.toString(), "SequencingRead");
     assertEquals(VARIANT_CALL.toString(), "VariantCall");
     assertEquals(InfoTypes.values().length, 7);
 
     assertEquals(resolveInfoType("Study"), STUDY);
-    assertEquals(resolveInfoType("Donor"), DONOR);
-    assertEquals(resolveInfoType("Specimen"), SPECIMEN);
-    assertEquals(resolveInfoType("Sample"), SAMPLE);
     assertEquals(resolveInfoType("File"), FILE);
     assertEquals(resolveInfoType("SequencingRead"), SEQUENCING_READ);
     assertEquals(resolveInfoType("VariantCall"), VARIANT_CALL);

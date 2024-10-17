@@ -111,12 +111,8 @@ public class Endpoint {
     return format("%s/studies/%s/analysis/suppress/%s", serverUrl, studyId, analysisId);
   }
 
-  public String idSearch(
-      @NonNull String studyId, String sampleId, String specimenId, String donorId, String fileId) {
+  public String idSearch(@NonNull String studyId, String fileId) {
     return new RequestParamBuilder()
-        .optionalQuerySingleParam("sampleId", sampleId)
-        .optionalQuerySingleParam("specimenId", specimenId)
-        .optionalQuerySingleParam("donorId", donorId)
         .optionalQuerySingleParam("fileId", fileId)
         .build(format("%s/studies/%s/analysis/search/id", serverUrl, studyId));
   }

@@ -27,12 +27,6 @@ public interface IdService {
 
   Optional<String> getFileId(String analysisId, String fileName);
 
-  Optional<String> getDonorId(String studyId, String submitterDonorId);
-
-  Optional<String> getSpecimenId(String studyId, String submitterSpecimenId);
-
-  Optional<String> getSampleId(String studyId, String submitterSampleId);
-
   /** Generates a random UUID */
   String generateAnalysisId();
 }

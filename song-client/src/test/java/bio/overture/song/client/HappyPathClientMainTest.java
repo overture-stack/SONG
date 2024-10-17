@@ -39,13 +39,10 @@ import bio.overture.song.client.config.CustomRestClientConfig;
 import bio.overture.song.core.model.Analysis;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.Donor;
 import bio.overture.song.core.model.FileDTO;
 import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.core.model.PageDTO;
-import bio.overture.song.core.model.Sample;
-import bio.overture.song.core.model.Specimen;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.sdk.ManifestClient;
@@ -280,9 +277,6 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   @Test
   public void testIdSearch() {
     val expectedFile = new FileDTO().setObjectId("FI1");
-    val expectedSample = Sample.builder().sampleId("SA1").build();
-    val expectedSpecimen = Specimen.builder().specimenId("SP1").build();
-    val expectedDonor = Donor.builder().donorId("DO1").build();
     val expectedAnalyses =
         List.of(
             Analysis.builder()
@@ -292,27 +286,7 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
                 .studyId(DUMMY_STUDY_ID)
                 .build());
 
-    when(songApi.idSearch(DUMMY_STUDY_ID, expectedSample.getSampleId(), null, null, null))
-        .thenReturn(expectedAnalyses);
-    when(songApi.idSearch(DUMMY_STUDY_ID, null, expectedSpecimen.getSpecimenId(), null, null))
-        .thenReturn(expectedAnalyses);
-    when(songApi.idSearch(DUMMY_STUDY_ID, null, null, expectedDonor.getDonorId(), null))
-        .thenReturn(expectedAnalyses);
-    when(songApi.idSearch(DUMMY_STUDY_ID, null, null, null, expectedFile.getObjectId()))
-        .thenReturn(expectedAnalyses);
-    assertOutputJson(objectToTree(expectedAnalyses), "search", "-d", expectedDonor.getDonorId());
-    assertOutputJson(
-        objectToTree(expectedAnalyses), "search", "--donor-id", expectedDonor.getDonorId());
-    assertOutputJson(
-        objectToTree(expectedAnalyses), "search", "-sp", expectedSpecimen.getSpecimenId());
-    assertOutputJson(
-        objectToTree(expectedAnalyses),
-        "search",
-        "--specimen-id",
-        expectedSpecimen.getSpecimenId());
-    assertOutputJson(objectToTree(expectedAnalyses), "search", "-sa", expectedSample.getSampleId());
-    assertOutputJson(
-        objectToTree(expectedAnalyses), "search", "--sample-id", expectedSample.getSampleId());
+    when(songApi.idSearch(DUMMY_STUDY_ID, expectedFile.getObjectId())).thenReturn(expectedAnalyses);
     assertOutputJson(objectToTree(expectedAnalyses), "search", "-f", expectedFile.getObjectId());
     assertOutputJson(
         objectToTree(expectedAnalyses), "search", "--file-id", expectedFile.getObjectId());

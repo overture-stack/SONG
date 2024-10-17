@@ -11,7 +11,6 @@ import bio.overture.song.server.kafka.Sender;
 import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.service.FileService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -162,11 +161,6 @@ public class AnalysisServiceSender implements AnalysisService {
   @Override
   public List<FileEntity> unsecuredReadFiles(String id) {
     return internalAnalysisService.unsecuredReadFiles(id);
-  }
-
-  @Override
-  public List<CompositeEntity> readSamples(String id) {
-    return internalAnalysisService.readSamples(id);
   }
 
   @Override

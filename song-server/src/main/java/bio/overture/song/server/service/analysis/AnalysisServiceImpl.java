@@ -19,18 +19,11 @@ package bio.overture.song.server.service.analysis;
 import static bio.overture.song.core.exceptions.ServerErrors.*;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.findIncorrectAnalysisStates;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.model.enums.AnalysisStates.*;
 import static bio.overture.song.core.utils.JsonUtils.*;
 import static bio.overture.song.core.utils.Separators.COMMA;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
-import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
-import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.utils.JsonSchemas.*;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.lang.String.format;
@@ -38,24 +31,17 @@ import static java.util.Objects.isNull;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.enums.AnalysisStates;
-import bio.overture.song.server.model.SampleSet;
-import bio.overture.song.server.model.SampleSetPK;
 import bio.overture.song.server.model.StorageObject;
 import bio.overture.song.server.model.analysis.*;
 import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.*;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
+import bio.overture.song.server.model.entity.AnalysisSchema;
+import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.repository.*;
 import bio.overture.song.server.repository.search.IdSearchRequest;
 import bio.overture.song.server.repository.search.SearchRepository;
 import bio.overture.song.server.repository.specification.AnalysisSpecificationBuilder;
-import bio.overture.song.server.service.AnalysisTypeService;
-import bio.overture.song.server.service.CompositeEntityService;
-import bio.overture.song.server.service.FileService;
+import bio.overture.song.server.service.*;
 import bio.overture.song.server.service.InfoService.FileInfoService;
-import bio.overture.song.server.service.StorageService;
-import bio.overture.song.server.service.StudyService;
-import bio.overture.song.server.service.ValidationService;
 import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -64,7 +50,7 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import io.vavr.Tuple3;
+import io.vavr.Tuple2;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
@@ -93,12 +79,10 @@ public class AnalysisServiceImpl implements AnalysisService {
   @Autowired private final UpgradedAnalysisRepository upgradedAnalysisRepository;
   @Autowired private final FileInfoService fileInfoService;
   @Autowired private final IdService idService;
-  @Autowired private final CompositeEntityService compositeEntityService;
   @Autowired private final FileService fileService;
   @Autowired private final StorageService storageService;
   @Autowired private final SearchRepository searchRepository;
   @Autowired private final StudyService studyService;
-  @Autowired private final SampleSetRepository sampleSetRepository;
   @Autowired private final FileRepository fileRepository;
   @Autowired private final AnalysisDataRepository analysisDataRepository;
   @Autowired private final AnalysisTypeService analysisTypeService;
@@ -120,15 +104,12 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     val a = new Analysis();
     a.setFiles(payload.getFiles());
-    a.setSamples(payload.getSamples());
     a.setAnalysisId(analysisId);
     a.setAnalysisState(UNPUBLISHED.name());
     a.setStudyId(studyId);
     a.setAnalysisSchema(analysisSchema);
 
     analysisData.setAnalysis(a);
-
-    saveCompositeEntities(studyId, analysisId, a.getSamples());
     saveFiles(analysisId, studyId, a.getFiles());
 
     return a;
@@ -225,7 +206,6 @@ public class AnalysisServiceImpl implements AnalysisService {
         a -> {
           val id = a.getAnalysisId();
           a.setFiles(unsecuredReadFiles(id));
-          a.setSamples(readSamples(id));
           a.populatePublishTimes();
         });
     return analyses;
@@ -262,14 +242,10 @@ public class AnalysisServiceImpl implements AnalysisService {
     val map = buildAnalysis(result);
 
     val analysisList = new ArrayList<Analysis>();
-    for (Map.Entry<
-            String, Tuple3<Analysis, HashMap<String, FileEntity>, HashMap<String, CompositeEntity>>>
-        entry : map.entrySet()) {
+    for (Map.Entry<String, Tuple2<Analysis, HashMap<String, FileEntity>>> entry : map.entrySet()) {
       val tuple = entry.getValue();
       val fileList = new ArrayList<FileEntity>(tuple._2().values());
-      val sampleList = new ArrayList<CompositeEntity>(tuple._3().values());
       tuple._1.setFiles(fileList);
-      tuple._1.setSamples(sampleList);
       analysisList.add(tuple._1);
     }
 
@@ -373,7 +349,6 @@ public class AnalysisServiceImpl implements AnalysisService {
   public Analysis unsecuredDeepRead(@NonNull String id) {
     val analysis = get(id, true, true, true);
     analysis.setFiles(unsecuredReadFiles(id));
-    analysis.setSamples(readSamples(id));
     analysis.populatePublishTimes();
     return analysis;
   }
@@ -444,30 +419,6 @@ public class AnalysisServiceImpl implements AnalysisService {
     return checkedUpdateState(id, SUPPRESSED);
   }
 
-  @Override
-  public List<CompositeEntity> readSamples(String id) {
-    val samples =
-        sampleSetRepository.findAllBySampleSetPK_AnalysisId(id).stream()
-            .map(SampleSet::getSampleSetPK)
-            .map(SampleSetPK::getSampleId)
-            .map(compositeEntityService::read)
-            .collect(toImmutableList());
-
-    // If there are no samples, check that the analysis even exists. If it does, then the analysis
-    // is corrupted since
-    // it is missing samples
-    if (samples.isEmpty()) {
-      checkAnalysisExists(id);
-      throw buildServerException(
-          getClass(),
-          ANALYSIS_MISSING_SAMPLES,
-          "The analysis with analysisId '%s' is missing samples and is therefore corrupted. "
-              + "It should map to at least 1 sample",
-          id);
-    }
-    return samples;
-  }
-
   @Transactional
   public void securedUpdateState(
       @NonNull String studyId, @NonNull String id, @NonNull AnalysisStates analysisState) {
@@ -489,13 +440,9 @@ public class AnalysisServiceImpl implements AnalysisService {
   // builds Analysis, File, Sample, Specimen, and Donor out of the list of DB analysis,
   // puts the entities into Tuple3,
   // maps the entities to its analysisId.
-  private LinkedHashMap<
-          String, Tuple3<Analysis, HashMap<String, FileEntity>, HashMap<String, CompositeEntity>>>
-      buildAnalysis(List<DataEntity> list) {
-    val map =
-        new LinkedHashMap<
-            String,
-            Tuple3<Analysis, HashMap<String, FileEntity>, HashMap<String, CompositeEntity>>>();
+  private LinkedHashMap<String, Tuple2<Analysis, HashMap<String, FileEntity>>> buildAnalysis(
+      List<DataEntity> list) {
+    val map = new LinkedHashMap<String, Tuple2<Analysis, HashMap<String, FileEntity>>>();
 
     list.forEach(
         entity -> {
@@ -523,50 +470,14 @@ public class AnalysisServiceImpl implements AnalysisService {
                   .build();
           file.setInfo(entity.getFileInfo());
 
-          val donor =
-              Donor.builder()
-                  .donorId(entity.getDonorId())
-                  .studyId(entity.getDonorStudyId())
-                  .submitterDonorId(entity.getSubmitterDonorId())
-                  .gender(entity.getGender())
-                  .build();
-          donor.setInfo(entity.getDonorInfo());
-
-          val specimen =
-              Specimen.builder()
-                  .specimenId(entity.getSpecimenId())
-                  .donorId(entity.getSpecimenDonorId())
-                  .submitterSpecimenId(entity.getSubmitterSpecimenId())
-                  .specimenType(entity.getSpecimenType())
-                  .specimenTissueSource(entity.getSpecimenTissueSource())
-                  .tumourNormalDesignation(entity.getTumourNormalDesignation())
-                  .build();
-          specimen.setInfo(entity.getSpecimenInfo());
-
-          val sample =
-              CompositeEntity.compositeEntityBuilder().specimen(specimen).donor(donor).build();
-
-          sample.setSampleId(entity.getSampleId());
-          sample.setSubmitterSampleId(entity.getSampleSubmitterId());
-          sample.setSampleType(entity.getSampleType());
-          sample.setMatchedNormalSubmitterSampleId(entity.getMatchedNormalSubmitterSampleId());
-          sample.setSpecimenId(entity.getSampleSpecimenId());
-          sample.setInfo(entity.getSampleInfo());
-
           // maps Files and Samples to analysisId
           if (!map.containsKey(entity.getId())) {
             val fileMap = new HashMap<String, FileEntity>();
             fileMap.put(file.getObjectId(), file);
-            val sampleMap = new HashMap<String, CompositeEntity>();
-            sampleMap.put(sample.getSampleId(), sample);
-            map.put(entity.getId(), new Tuple3(analysis, fileMap, sampleMap));
+            map.put(entity.getId(), new Tuple2(analysis, fileMap));
           } else {
             if (!map.get(entity.getId())._2().containsKey(file.getObjectId())) {
               map.get(entity.getId())._2().put(file.getObjectId(), file);
-            }
-
-            if (!map.get(entity.getId())._3().containsKey(sample.getSampleId())) {
-              map.get(entity.getId())._3().put(sample.getSampleId(), sample);
             }
           }
         });
@@ -686,20 +597,6 @@ public class AnalysisServiceImpl implements AnalysisService {
             + "analysisId %s can be published: %s",
         analysisId,
         COMMA.join(missingFileIds));
-  }
-
-  private List<String> saveCompositeEntities(
-      String studyId, String id, List<CompositeEntity> samples) {
-    return samples.stream()
-        .map(sample -> compositeEntityService.save(studyId, sample))
-        .peek(sampleId -> sampleSetRepository.save(buildSampleSet(id, sampleId)))
-        .collect(toImmutableList());
-  }
-
-  private SampleSet buildSampleSet(String id, String sampleId) {
-    val s = new SampleSet();
-    s.setSampleSetPK(SampleSetPK.createSampleSetPK(id, sampleId));
-    return s;
   }
 
   private List<String> saveFiles(String id, String studyId, List<FileEntity> files) {
@@ -912,10 +809,7 @@ public class AnalysisServiceImpl implements AnalysisService {
       return updatedAnalysis;
     } catch (JsonPatchException e) {
       log.error(e.getMessage());
-      throw buildServerException(
-              getClass(),
-              PAYLOAD_PARSING,
-              "Unable to read the input payload");
+      throw buildServerException(getClass(), PAYLOAD_PARSING, "Unable to read the input payload");
     }
   }
 }

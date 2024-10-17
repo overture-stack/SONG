@@ -54,30 +54,12 @@ public class SearchCommand extends Command {
   /** Long Switch Constants */
   private static final String FILE_ID_SWITCH = "--file-id";
 
-  private static final String SAMPLE_ID_SWITCH = "--sample-id";
-  private static final String SPECIMEN_ID_SWITCH = "--specimen-id";
-  private static final String DONOR_ID_SWITCH = "--donor-id";
   private static final String ANALYSIS_ID_SWITCH = "--analysis-id";
 
   @Parameter(
       names = {F_SWITCH, FILE_ID_SWITCH},
       required = false)
   private String fileId;
-
-  @Parameter(
-      names = {SA_SWITCH, SAMPLE_ID_SWITCH},
-      required = false)
-  private String sampleId;
-
-  @Parameter(
-      names = {SP_SWITCH, SPECIMEN_ID_SWITCH},
-      required = false)
-  private String specimenId;
-
-  @Parameter(
-      names = {D_SWITCH, DONOR_ID_SWITCH},
-      required = false)
-  private String donorId;
 
   @Parameter(
       names = {A_SWITCH, ANALYSIS_ID_SWITCH},
@@ -92,8 +74,7 @@ public class SearchCommand extends Command {
     val status = checkRules();
     if (!status.hasErrors()) {
       if (isIdSearchMode()) {
-        status.outputPrettyJson(
-            songApi.idSearch(config.getStudyId(), sampleId, specimenId, donorId, fileId));
+        status.outputPrettyJson(songApi.idSearch(config.getStudyId(), fileId));
       } else if (isAnalysisSearchMode()) {
         status.outputPrettyJson(songApi.getAnalysis(config.getStudyId(), analysisId));
       } else {
@@ -108,18 +89,15 @@ public class SearchCommand extends Command {
   }
 
   private boolean isIdSearchMode() {
-    return nonNull(fileId) || nonNull(sampleId) || nonNull(specimenId) || nonNull(donorId);
+    return nonNull(fileId);
   }
 
   private Status checkRules() {
     val fileTerm = createParamTerm(F_SWITCH, FILE_ID_SWITCH, fileId, Objects::nonNull);
-    val sampleTerm = createParamTerm(SA_SWITCH, SAMPLE_ID_SWITCH, sampleId, Objects::nonNull);
-    val specimenTerm = createParamTerm(SP_SWITCH, SPECIMEN_ID_SWITCH, specimenId, Objects::nonNull);
-    val donorTerm = createParamTerm(D_SWITCH, DONOR_ID_SWITCH, donorId, Objects::nonNull);
     val analysisIdTerm =
         createParamTerm(A_SWITCH, ANALYSIS_ID_SWITCH, analysisId, Objects::nonNull);
 
-    val idSearchMode = createModeRule(ID_MODE, fileTerm, sampleTerm, specimenTerm, donorTerm);
+    val idSearchMode = createModeRule(ID_MODE, fileTerm);
     val analysisSearchMode = createModeRule(ANALYSIS_MODE, analysisIdTerm);
     val ruleProcessor = createRuleProcessor(idSearchMode, analysisSearchMode);
     return ruleProcessor.check();

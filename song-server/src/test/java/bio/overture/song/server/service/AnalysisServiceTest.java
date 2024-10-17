@@ -16,16 +16,8 @@
  */
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_ID_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_FILES;
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_MISSING_SAMPLES;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
-import static bio.overture.song.core.exceptions.ServerErrors.SUPPRESSED_STATE_TRANSITION;
-import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.SUPPRESSED;
-import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.AnalysisStates.resolveAnalysisState;
+import static bio.overture.song.core.exceptions.ServerErrors.*;
+import static bio.overture.song.core.model.enums.AnalysisStates.*;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertCollectionsMatchExactly;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
@@ -43,11 +35,8 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 import static java.util.stream.IntStream.range;
-import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.*;
 
 import bio.overture.song.core.exceptions.ServerException;
@@ -59,12 +48,8 @@ import bio.overture.song.server.model.analysis.AnalysisData;
 import bio.overture.song.server.model.analysis.AnalysisStateChange;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.repository.AnalysisRepository;
 import bio.overture.song.server.repository.FileRepository;
-import bio.overture.song.server.repository.SampleRepository;
-import bio.overture.song.server.repository.SampleSetRepository;
 import bio.overture.song.server.service.analysis.AnalysisServiceImpl;
 import bio.overture.song.server.service.id.IdService;
 import bio.overture.song.server.utils.TestAnalysis;
@@ -84,6 +69,7 @@ import java.util.stream.Stream;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,10 +96,8 @@ public class AnalysisServiceTest {
   @Autowired AnalysisServiceImpl service;
   @Autowired IdService idService;
   @Autowired private StudyService studyService;
-  @Autowired private SampleRepository sampleRepository;
   @Autowired private AnalysisRepository analysisRepository;
   @Autowired private FileRepository fileRepository;
-  @Autowired private SampleSetRepository sampleSetRepository;
   @Autowired private ExportService exportService;
 
   private final RandomGenerator randomGenerator =
@@ -159,7 +143,6 @@ public class AnalysisServiceTest {
     assertEquals(created.getAnalysisId(), analysisId);
     assertEquals(created.getAnalysisState(), "UNPUBLISHED");
     assertEquals(created.getAnalysisSchema().getName(), "sequencingRead");
-    assertEquals(created.getSamples().size(), 1);
     val data = created.getAnalysisData().getData();
 
     assertTrue(data.has("experiment"));
@@ -177,7 +160,6 @@ public class AnalysisServiceTest {
     assertEquals(created.getAnalysisId(), analysisId);
     assertEquals(created.getAnalysisState(), UNPUBLISHED.toString());
     assertEquals(created.getAnalysisSchema().getName(), "variantCall");
-    assertEquals(created.getSamples().size(), 1);
     assertTrue(created.getAnalysisData().getData().has("experiment"));
     assertEquals(extractVariantCallingTool(created.getAnalysisData()), "silver bullet");
     assertTrue(created.getAnalysisData().getData().path("experiment").has("extraInfo"));
@@ -220,9 +202,6 @@ public class AnalysisServiceTest {
     assertEquals(a, aUnsecured);
 
     // Asserting Analysis
-    assertEquals(a.getAnalysisState(), "UNPUBLISHED");
-    assertEquals(a.getAnalysisSchema().getName(), "variantCall");
-    assertEquals(a.getStudyId(), DEFAULT_STUDY_ID);
     assertEquals(
         TestAnalysis.extractString(a, "info", "description1"),
         "description1 for this variantCall analysis an01");
@@ -232,64 +211,8 @@ public class AnalysisServiceTest {
     assertEquals(
         TestAnalysis.extractString(a, "experiment", "variantCallingTool"), "silver bullet ex01");
     assertEquals(
-        TestAnalysis.extractString(a, "experiment", "matchedNormalSampleSubmitterId"),
-        "sample-x24-11a");
-    assertEquals(
         TestAnalysis.extractString(a, "experiment", "extraExperimentInfo"),
         "some more data for a variantCall experiment ex01");
-
-    // Asserting Sample
-    assertEquals(a.getSamples().size(), 2);
-    val sample0 =
-        a.getSamples().stream()
-            .filter(x -> x.getSubmitterSampleId().equals("internal_sample_98024759826836_fs01"))
-            .findAny()
-            .orElse(null);
-    assertEquals(sample0.getSampleType(), "Total RNA");
-    assertEquals(sample0.getMatchedNormalSubmitterSampleId(), "sample-x24-11a");
-    assertInfoKVPair(sample0, "extraSampleInfo", "some more data for a variantCall sample_fs01");
-
-    val donor00 = sample0.getDonor();
-    assertEquals(donor00.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor00.getGender(), "Male");
-    assertEquals(donor00.getSubmitterDonorId(), "internal_donor_123456789-00_fs01");
-    assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a variantCall donor_fs01");
-
-    val specimen00 = sample0.getSpecimen();
-    assertEquals(specimen00.getDonorId(), donor00.getDonorId());
-    assertEquals(specimen00.getTumourNormalDesignation(), "Tumour");
-    assertEquals(specimen00.getSpecimenType(), "Primary tumour");
-    assertEquals(specimen00.getSpecimenTissueSource(), "Solid tissue");
-    assertEquals(sample0.getSpecimenId(), specimen00.getSpecimenId());
-    assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a variantCall specimen_fs01");
-    assertInfoKVPair(
-        specimen00, "extraSpecimenInfo_1", "second data for a variantCall specimen_fs01");
-
-    val sample1 =
-        a.getSamples().stream()
-            .filter(x -> x.getSubmitterSampleId().equals("internal_sample_98024759826836_fs02"))
-            .findAny()
-            .orElse(null);
-    assertEquals(sample1.getSubmitterSampleId(), "internal_sample_98024759826836_fs02");
-    assertEquals(sample1.getSampleType(), "Total RNA");
-    assertEquals(sample1.getMatchedNormalSubmitterSampleId(), "sample-x24-11a");
-    assertInfoKVPair(sample1, "extraSampleInfo", "some more data for a variantCall sample_fs02");
-
-    val donor01 = sample1.getDonor();
-    assertEquals(donor01.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor01.getGender(), "Female");
-    assertEquals(donor01.getSubmitterDonorId(), "internal_donor_123456789-00_fs02");
-    assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a variantCall donor_fs02");
-    assertInfoKVPair(donor01, "extraDonorInfo_1", "second data for a variantCall donor_fs02");
-
-    val specimen01 = sample1.getSpecimen();
-    assertEquals(specimen01.getDonorId(), donor01.getDonorId());
-    assertEquals(specimen01.getTumourNormalDesignation(), "Tumour");
-    assertEquals(specimen01.getSpecimenType(), "Primary tumour");
-    assertEquals(specimen01.getSpecimenTissueSource(), "Solid tissue");
-    assertEquals(sample1.getSpecimenId(), specimen01.getSpecimenId());
-    assertInfoKVPair(
-        specimen01, "extraSpecimenInfo", "some more data for a variantCall specimen_fs02");
 
     assertEquals(a.getFiles().size(), 3);
     val file0 = a.getFiles().get(0);
@@ -373,63 +296,6 @@ public class AnalysisServiceTest {
         TestAnalysis.extractString(a, "experiment", "extraExperimentInfo"),
         "some more data for a sequencingRead experiment ex02");
 
-    val sampleMap = Maps.<String, CompositeEntity>newHashMap();
-
-    // Asserting Sample
-    assertEquals(a.getSamples().size(), 2);
-    val sample0 =
-        a.getSamples().stream()
-            .filter(x -> x.getSubmitterSampleId().equals("internal_sample_98024759826836_fr01"))
-            .findFirst()
-            .get();
-    sampleMap.put(sample0.getSampleId(), sample0);
-    assertEquals(sample0.getSampleType(), "Total RNA");
-    assertEquals(sample0.getMatchedNormalSubmitterSampleId(), "MNSS01");
-    assertInfoKVPair(sample0, "extraSampleInfo", "some more data for a sequencingRead sample_fr01");
-
-    val donor00 = sample0.getDonor();
-    assertEquals(donor00.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor00.getGender(), "Male");
-    assertEquals(donor00.getSubmitterDonorId(), "internal_donor_123456789-00_fr01");
-
-    assertInfoKVPair(donor00, "extraDonorInfo", "some more data for a sequencingRead donor_fr01");
-
-    val specimen00 = sample0.getSpecimen();
-    assertEquals(specimen00.getDonorId(), donor00.getDonorId());
-    assertEquals(specimen00.getTumourNormalDesignation(), "Tumour");
-    assertEquals(specimen00.getSpecimenType(), "Primary tumour");
-    assertEquals(specimen00.getSpecimenTissueSource(), "Solid tissue");
-    assertEquals(sample0.getSpecimenId(), specimen00.getSpecimenId());
-    assertInfoKVPair(specimen00, "extraSpecimenInfo_0", "first for a sequencingRead specimen_fr01");
-    assertInfoKVPair(
-        specimen00, "extraSpecimenInfo_1", "second data for a sequencingRead specimen_fr01");
-
-    val sample1 =
-        a.getSamples().stream()
-            .filter(x -> x.getSubmitterSampleId().equals("internal_sample_98024759826836_fr02"))
-            .findFirst()
-            .get();
-    sampleMap.put(sample1.getSampleId(), sample1);
-    assertEquals(sample1.getSampleType(), "Total RNA");
-    assertEquals(sample1.getMatchedNormalSubmitterSampleId(), "MNSS01");
-    assertInfoKVPair(sample1, "extraSampleInfo", "some more data for a sequencingRead sample_fr02");
-
-    val donor01 = sample1.getDonor();
-    assertEquals(donor01.getStudyId(), DEFAULT_STUDY_ID);
-    assertEquals(donor01.getGender(), "Female");
-    assertEquals(donor01.getSubmitterDonorId(), "internal_donor_123456789-00_fr02");
-    assertInfoKVPair(donor01, "extraDonorInfo_0", "first data for a sequencingRead donor_fr02");
-    assertInfoKVPair(donor01, "extraDonorInfo_1", "second data for a sequencingRead donor_fr02");
-
-    val specimen01 = sample1.getSpecimen();
-    assertEquals(specimen01.getDonorId(), donor01.getDonorId());
-    assertEquals(specimen01.getSpecimenType(), "Primary tumour");
-    assertEquals(specimen01.getTumourNormalDesignation(), "Tumour");
-    assertEquals(specimen01.getSpecimenTissueSource(), "Solid tissue");
-    assertEquals(sample1.getSpecimenId(), specimen01.getSpecimenId());
-    assertInfoKVPair(
-        specimen01, "extraSpecimenInfo", "some more data for a sequencingRead specimen_fr02");
-
     assertEquals(a.getFiles().size(), 3);
     val file0 = a.getFiles().get(0);
     val file1 = a.getFiles().get(1);
@@ -480,12 +346,6 @@ public class AnalysisServiceTest {
     for (val file : service.unsecuredReadFiles(analysisId)) {
       assertTrue(fileMap.containsKey(file.getFileName()));
       assertEquals(file, fileMap.get(file.getFileName()));
-    }
-
-    // Test readSample method
-    for (val compositeEntity : service.readSamples(analysisId)) {
-      assertTrue(sampleMap.containsKey(compositeEntity.getSampleId()));
-      assertEquals(compositeEntity, sampleMap.get(compositeEntity.getSampleId()));
     }
 
     assertEquals(
@@ -619,7 +479,7 @@ public class AnalysisServiceTest {
               .findFirst()
               .orElseThrow();
 
-      assertThat(actual)
+      Assertions.assertThat(actual)
           .usingRecursiveComparison()
           // the new getAnalysis() method does not load 'analysisData.analysis' because this field
           // is not needed for the getAnalysis endpoint response.
@@ -641,7 +501,7 @@ public class AnalysisServiceTest {
               .findFirst()
               .orElseThrow();
 
-      assertThat(actual)
+      Assertions.assertThat(actual)
           .usingRecursiveComparison()
           // the new getAnalysis() method does not load 'analysisData.analysis' because this field
           // is not needed for the getAnalysis endpoint response.
@@ -657,7 +517,8 @@ public class AnalysisServiceTest {
 
     // Do a study-wide idSearch and verify the response effectively has the same
     // number of results as the getAnalysis method
-    val searchedAnalyses = service.idSearch(studyId, createIdSearchRequest(null, null, null, null, null, null, null ));
+    val searchedAnalyses =
+        service.idSearch(studyId, createIdSearchRequest(null, null, null, null, null, null, null));
     assertEquals(searchedAnalyses.size(), expectedAnalyses.size());
     assertTrue(searchedAnalyses.containsAll(expectedAnalyses));
     assertTrue(expectedAnalyses.containsAll(searchedAnalyses));
@@ -716,7 +577,7 @@ public class AnalysisServiceTest {
               .filter(a -> a.getAnalysisId().equals(actual.getAnalysisId()))
               .findFirst()
               .orElseThrow();
-      assertThat(actual)
+      Assertions.assertThat(actual)
           .usingRecursiveComparison()
           .ignoringFields("analysisData.analysis")
           .ignoringFields("analysisSchema.analyses")
@@ -805,20 +666,6 @@ public class AnalysisServiceTest {
 
   @Test
   @Transactional
-  public void testSequencingReadAnalysisMissingSamplesException() {
-    runAnalysisMissingSamplesTest(SEQUENCING_READ);
-    assert (true);
-  }
-
-  @Test
-  @Transactional
-  public void testVariantCallAnalysisMissingSamplesException() {
-    runAnalysisMissingSamplesTest(VARIANT_CALL);
-    assert (true);
-  }
-
-  @Test
-  @Transactional
   public void testAnalysisIdDneException() {
     val nonExistentAnalysisId = analysisGenerator.generateNonExistingAnalysisId();
     SongErrorAssertions.assertSongErrorRunnable(
@@ -834,7 +681,6 @@ public class AnalysisServiceTest {
     assertSongError(
         () -> service.securedReadFiles(DEFAULT_STUDY_ID, nonExistentAnalysisId),
         ANALYSIS_ID_NOT_FOUND);
-    assertSongError(() -> service.readSamples(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
     assertSongError(() -> service.readState(nonExistentAnalysisId), ANALYSIS_ID_NOT_FOUND);
   }
 
@@ -1218,17 +1064,6 @@ public class AnalysisServiceTest {
     return service.unsecuredDeepRead(a.getAnalysisId());
   }
 
-  private void runAnalysisMissingSamplesTest(LegacyAnalysisTypeName legacyAnalysisTypeName) {
-    // Create random analysis,
-    val analysis = analysisGenerator.createDefaultRandomAnalysis(legacyAnalysisTypeName);
-    val analysisId = analysis.getAnalysisId();
-
-    sampleSetRepository.deleteAllBySampleSetPK_AnalysisId(analysisId);
-    assertEquals(sampleSetRepository.findAllBySampleSetPK_AnalysisId(analysisId).size(), 0);
-    analysis.getSamples().stream().map(Sample::getSampleId).forEach(sampleRepository::deleteById);
-    assertSongError(() -> service.readSamples(analysisId), ANALYSIS_MISSING_SAMPLES);
-  }
-
   private static <T, R> void assertFunctionEqual(T l, T r, Function<T, R> trFunction) {
     assertEquals(trFunction.apply(l), trFunction.apply(r));
   }
@@ -1243,10 +1078,6 @@ public class AnalysisServiceTest {
     val leftFiles = newHashSet(l.getFiles());
     val rightFiles = newHashSet(r.getFiles());
     assertCollectionsMatchExactly(leftFiles, rightFiles);
-
-    val leftSamples = newHashSet(l.getSamples());
-    val rightSamples = newHashSet(r.getSamples());
-    assertCollectionsMatchExactly(leftSamples, rightSamples);
 
     assertEquals(l.getAnalysisData(), r.getAnalysisData());
   }
