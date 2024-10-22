@@ -29,9 +29,6 @@
                 "analysisTypeId" : {
                     "not" : {}
                 },
-                "samples" : {
-                    "not" : {}
-                },
                 "files" : {
                     "not" : {}
                 },
