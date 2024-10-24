@@ -198,9 +198,7 @@ public class AnalysisController {
   public List<Analysis> idSearch(
       @PathVariable("studyId") String studyId,
       @RequestParam(value = "fileId", required = false) String fileIds) {
-    val request =
-        createIdSearchRequest(
-            fileIds);
+    val request = createIdSearchRequest(fileIds);
     return analysisService.idSearch(studyId, request);
   }
 
