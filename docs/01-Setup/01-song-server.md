@@ -1,4 +1,4 @@
-# Setup
+# Song Server
 
 ## Prerequisites
 
@@ -34,7 +34,7 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
 
     This command will set up all complementary services for Song development as follows:
 
-    ![SongDev](./assets/songDev.svg 'Song Dev Environment')
+    ![SongDev](../assets/songDev.svg 'Song Dev Environment')
 
     | Service | Port | Description | Purpose in Song Development |
     |---------|------|-------------|------------------------------|
@@ -151,7 +151,9 @@ After installing and configuring Song, verify that the system is functioning cor
      ```
    - Expected result: JSON response containing analysis data for the demo study
 
-For further assistance, [open an issue on GitHub](https://github.com/overture-stack/song/issues/new?assignees=&labels=&projects=&template=Feature_Requests.md).
+:::info Need Help?
+If you encounter any issues or have questions about our API, please don't hesitate to reach out through our relevant [**community support channels**](/community/support).
+:::
 
 ## Song-Client Setup
 
