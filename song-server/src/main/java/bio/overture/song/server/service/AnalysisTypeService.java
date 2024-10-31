@@ -155,9 +155,11 @@ public class AnalysisTypeService {
     val resolvedSchemaJson =
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
 
+    AnalysisTypeOptions options = analysisSchema.getOptions();
+
     List<String> fileTypes =
-        (analysisSchema.getFileTypes() != null && !analysisSchema.getFileTypes().isEmpty())
-            ? analysisSchema.getFileTypes()
+        (options.getFileTypes() != null && !options.getFileTypes().isEmpty())
+            ? options.getFileTypes()
             : new ArrayList<>();
     return AnalysisType.builder()
         .name(analysisTypeId.getName())
@@ -265,11 +267,33 @@ public class AnalysisTypeService {
     if (options != null && CollectionUtils.isNotEmpty(options.getFileTypes())) {
       fileTypes = options.getFileTypes();
     }
+
+    // checking if file types is empty
+    // if the version is new version of the schema , we are checking the previous version allowed
+    // file types
+    // if it is new then it is empty
+    if (fileTypes.isEmpty()) {
+      List<AnalysisSchema> analysisSchemaList =
+          analysisSchemaRepository.findAllByName(analysisTypeName);
+
+      if (!analysisSchemaList.isEmpty()) {
+        Optional<AnalysisSchema> latestSchemaOptional =
+            analysisSchemaList.stream()
+                .filter(schema -> schema.getVersion() != null)
+                .max(Comparator.comparingInt(AnalysisSchema::getVersion));
+
+        if (latestSchemaOptional.isPresent()) {
+          AnalysisTypeOptions optionsFromDb = latestSchemaOptional.get().getOptions();
+          fileTypes = optionsFromDb.getFileTypes();
+        }
+      }
+    }
+
     val analysisSchema =
         AnalysisSchema.builder()
             .name(analysisTypeName)
             .schema(analysisTypeSchema)
-            .fileTypes(fileTypes)
+            .options(options)
             .build();
 
     log.debug("Creating analysisSchema with file types: {}  " + fileTypes);
@@ -319,7 +343,10 @@ public class AnalysisTypeService {
   private AnalysisType convertToAnalysisType(
       AnalysisSchema analysisSchema, boolean hideSchema, boolean unrenderedOnly) {
     AnalysisTypeOptions options = new AnalysisTypeOptions();
-    options.setFileTypes(analysisSchema.getFileTypes());
+    if (analysisSchema.getOptions() != null) {
+      options.setFileTypes(analysisSchema.getOptions().getFileTypes());
+      options.setExternalValidation(analysisSchema.getOptions().getExternalValidation());
+    }
     return AnalysisType.builder()
         .name(analysisSchema.getName())
         .version(analysisSchema.getVersion())

@@ -29,14 +29,17 @@ import static java.util.Objects.isNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.ExternalValidation;
 import bio.overture.song.core.model.FileData;
 import bio.overture.song.server.model.enums.UploadStates;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.validation.SchemaValidator;
 import bio.overture.song.server.validation.ValidationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.jayway.jsonpath.JsonPath;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.NonNull;
@@ -44,11 +47,14 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
@@ -62,6 +68,7 @@ public class ValidationService {
   private final UploadRepository uploadRepository;
   private final boolean enforceLatest;
   private final Schema analysisTypeIdSchema;
+  private final RestTemplate restTemplate;
 
   @Autowired
   public ValidationService(
@@ -69,16 +76,18 @@ public class ValidationService {
       @NonNull SchemaValidator validator,
       @NonNull AnalysisTypeService analysisTypeService,
       @NonNull Supplier<Schema> analysisTypeIdSchemaSupplier,
-      @NonNull UploadRepository uploadRepository) {
+      @NonNull UploadRepository uploadRepository,
+      @NonNull RestTemplate restTemplate) {
     this.validator = validator;
     this.analysisTypeService = analysisTypeService;
     this.uploadRepository = uploadRepository;
     this.enforceLatest = enforceLatest;
     this.analysisTypeIdSchema = analysisTypeIdSchemaSupplier.get();
+    this.restTemplate = restTemplate;
   }
 
   @SneakyThrows
-  public Optional<String> validate(@NonNull JsonNode payload) {
+  public Optional<String> validate(@NonNull JsonNode payload, @NonNull String studyId) {
     String errors = null;
     try {
       validateWithSchema(analysisTypeIdSchema, payload);
@@ -107,6 +116,43 @@ public class ValidationService {
       log.error(errors);
     }
     return Optional.ofNullable(errors);
+  }
+
+  private void externalValidations(
+      List<ExternalValidation> externalValidations, @NonNull JsonNode payload) {
+
+    for (ExternalValidation externalValidation : externalValidations) {
+      String jsonPath = externalValidation.getJsonPath();
+      String externalUrl = externalValidation.getUrl();
+
+      // Extract the value from the uploaded JSON using the jsonPath
+      String value = JsonPath.read(payload, "$." + jsonPath);
+
+      if(Objects.isNull(value) || value.isEmpty())
+        return;
+
+      // call the external url using restTemplate
+    }
+  }
+
+  public boolean invokeExternalUrl(String studyId, String url, String value) {
+    // will change the logic to make it parameterised
+    try {
+
+      // create URL
+      URIBuilder uriBuilder = new URIBuilder(url);
+      uriBuilder.addParameter("studyId", studyId);
+      uriBuilder.addParameter("value",value);
+      // Make the HTTP GET request
+      ResponseEntity<Void> response = restTemplate.getForEntity(uriBuilder.build().toURL().toString(), Void.class);
+
+      // Return true if the response status is 200 OK
+      return response.getStatusCode().is2xxSuccessful();
+    } catch (Exception e) {
+      // Handle exceptions (e.g., log them)
+      System.err.println("Validation failed " + e.getMessage());
+      return false;
+    }
   }
 
   private void validateFileType(List<String> fileTypes, @NonNull JsonNode payload) {
