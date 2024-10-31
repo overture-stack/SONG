@@ -96,7 +96,9 @@ public class ValidationService {
         fileTypes = analysisType.getOptions().getFileTypes();
       }
 
-      validateFileType(fileTypes, payload);
+      if (!fileTypes.isEmpty()) {
+        validateFileType(fileTypes, payload);
+      }
 
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);

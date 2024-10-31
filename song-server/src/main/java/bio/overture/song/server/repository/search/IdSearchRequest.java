@@ -18,7 +18,9 @@
 package bio.overture.song.server.repository.search;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 public class IdSearchRequest {
@@ -26,54 +28,12 @@ public class IdSearchRequest {
   private static final String WILD_CARD = ".*";
 
   @ApiModelProperty(notes = "regex pattern. Default is wildcard")
-  private final String donorId;
-
-  @ApiModelProperty(notes = "regex pattern. Default is wildcard")
-  private final String sampleId;
-
-  @ApiModelProperty(notes = "regex pattern. Default is wildcard")
-  private final String specimenId;
-
-  @ApiModelProperty(notes = "regex pattern. Default is wildcard")
   private final String objectId;
 
-  @ApiModelProperty(notes = "regex pattern. Default is wildcard")
-  private final String submitterSampleId;
-
-  @ApiModelProperty(notes = "regex pattern. Default is wildcard")
-  private final String submitterDonorIds;
-
-  @ApiModelProperty(notes = "regex pattern. Default is wildcard")
-  private final String submitterSpecimenIds;
-
   public static IdSearchRequest createIdSearchRequest(
-      String donorId,
-      String sampleId,
-      String specimenId,
-      String objectId,
-      String submitterSampleId,
-      String submitterDonorIds,
-      String submitterSpecimenIds) {
+      String objectId) {
     return new IdSearchRequest(
-        getGlobPattern(donorId),
-        getGlobPattern(sampleId),
-        getGlobPattern(specimenId),
-        getGlobPattern(objectId),
-        getGlobPattern(submitterSampleId),
-        getGlobPattern(submitterDonorIds),
-        getGlobPattern(submitterSpecimenIds));
-  }
-
-  public String getDonorId() {
-    return getGlobPattern(this.donorId);
-  }
-
-  public String getSampleId() {
-    return getGlobPattern(this.sampleId);
-  }
-
-  public String getSpecimenId() {
-    return getGlobPattern(this.specimenId);
+        getGlobPattern(objectId));
   }
 
   public String getObjectId() {
