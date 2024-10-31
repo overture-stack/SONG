@@ -1,4 +1,4 @@
-# Song Server
+# Setup
 
 ## Prerequisites
 
@@ -34,7 +34,7 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
 
     This command will set up all complementary services for Song development as follows:
 
-    ![SongDev](../assets/songDev.svg 'Song Dev Environment')
+    ![SongDev](./assets/songDev.svg 'Song Dev Environment')
 
     | Service | Port | Description | Purpose in Song Development |
     |---------|------|-------------|------------------------------|
