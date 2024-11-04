@@ -69,6 +69,7 @@ public class TableAttributeNames {
   public static final String MATCHED_NORMAL_SUBMITTER_SAMPLE_ID =
       "matched_normal_submitter_sample_id";
   public static final String SCHEMA = "schema";
+  public static final String OPTIONS = "options";
   public static final String VERSION = "version";
   public static final String ANALYSIS_SCHEMA_ID = "analysis_schema_id";
   public static final String DATA = "data";
