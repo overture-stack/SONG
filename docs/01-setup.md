@@ -26,7 +26,7 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
    | Operating System | Command         |
    |------------------|-----------------|
    | Unix/macOS       | `make SongDev`  |
-   | Windows          | `make.bat SongDev` |
+   | Windows          | `./make.bat SongDev` |
 
 
     <details>
