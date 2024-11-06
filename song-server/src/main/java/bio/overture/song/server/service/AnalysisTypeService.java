@@ -289,6 +289,9 @@ public class AnalysisTypeService {
       }
     }
 
+    if(options!=null)
+      options.setFileTypes(fileTypes);
+
     val analysisSchema =
         AnalysisSchema.builder()
             .name(analysisTypeName)
@@ -342,17 +345,13 @@ public class AnalysisTypeService {
 
   private AnalysisType convertToAnalysisType(
       AnalysisSchema analysisSchema, boolean hideSchema, boolean unrenderedOnly) {
-    AnalysisTypeOptions options = new AnalysisTypeOptions();
-    if (analysisSchema.getOptions() != null) {
-      options.setFileTypes(analysisSchema.getOptions().getFileTypes());
-      options.setExternalValidation(analysisSchema.getOptions().getExternalValidation());
-    }
+
     return AnalysisType.builder()
         .name(analysisSchema.getName())
         .version(analysisSchema.getVersion())
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema))
-        .options(options)
+        .options(analysisSchema.getOptions())
         .build();
   }
 
