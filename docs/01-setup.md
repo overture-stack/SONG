@@ -23,9 +23,9 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
 
 2. Run the appropriate start command for your operating system:
 
-   | Operating System | Command         |
-   |------------------|-----------------|
-   | Unix/macOS       | `make SongDev`  |
+   | Operating System | Command              |
+   | ---------------- | -------------------- |
+   | Unix/macOS       | `make SongDev`       |
    | Windows          | `./make.bat SongDev` |
 
 
@@ -36,16 +36,16 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
 
     ![SongDev](./assets/songDev.svg 'Song Dev Environment')
 
-    | Service | Port | Description | Purpose in Song Development |
-    |---------|------|-------------|------------------------------|
-    | Conductor | `9204` | Orchestrates deployments and environment setups | Manages the overall development environment |
-    | Keycloak-db | - | Database for Keycloak (no exposed port) | Stores Keycloak data for authentication |
-    | Keycloak | `8180` | Authorization and authentication service | Provides OAuth2 authentication for Score |
-    | Song-db | `5433` | Database for Song | Stores metadata managed by Song |
-    | Score | `8087` | File Transfer service | Handles file uploads, downloads, and storage operation |
-    | Minio | `9000` | Object storage provider | Simulates S3-compatible storage for Score |
+    | Service     | Port   | Description                                     | Purpose in Song Development                            |
+    | ----------- | ------ | ----------------------------------------------- | ------------------------------------------------------ |
+    | Conductor   | `9204` | Orchestrates deployments and environment setups | Manages the overall development environment            |
+    | Keycloak-db | -      | Database for Keycloak (no exposed port)         | Stores Keycloak data for authentication                |
+    | Keycloak    | `8180` | Authorization and authentication service        | Provides OAuth2 authentication for Score               |
+    | Song-db     | `5433` | Database for Song                               | Stores metadata managed by Song                        |
+    | Score       | `8087` | File Transfer service                           | Handles file uploads, downloads, and storage operation |
+    | Minio       | `9000` | Object storage provider                         | Simulates S3-compatible storage for Score              |
 
-    - Ensure all ports are free on your system before starting the environment.
+    - Ensure these ports are free on your system before starting the environment.
     - You may need to adjust the ports in the `docker-compose.yml` file if you have conflicts with existing services.
 
     For more information, see our [Conductor documentation linked here](/docs/other-software/Conductor)
@@ -99,17 +99,17 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
             <summary>**Click here for a summary of the Song-server spring profiles**</summary>
 
             **Song Profiles**
-            | Profile | Description |
-            |---------|-------------|
-            | `default` | Required to load common configurations |
-            | `secure` | Required to load security configuration |
-            | `dev` | (Optional) Facilitates development default configuration |
-            | `prod` | (Optional) Loads production-specific configurations |
-            | `kafka` | (Optional) Enables Kafka integration |
-            | `score-client-cred` | (Optional) Configures SCORE client credentials |
-            | `test` | Used for testing purposes |
-            | `async-test` | Used for asynchronous testing |
-            | `fastTest` | Used for fast testing with reduced timeouts |
+            | Profile             | Description                                              |
+            | ------------------- | -------------------------------------------------------- |
+            | `default`           | Required to load common configurations                   |
+            | `secure`            | Required to load security configuration                  |
+            | `dev`               | (Optional) Facilitates development default configuration |
+            | `prod`              | (Optional) Loads production-specific configurations      |
+            | `kafka`             | (Optional) Enables Kafka integration                     |
+            | `score-client-cred` | (Optional) Configures SCORE client credentials           |
+            | `test`              | Used for testing purposes                                |
+            | `async-test`        | Used for asynchronous testing                            |
+            | `fastTest`          | Used for fast testing with reduced timeouts              |
 
             </details>
 
@@ -139,7 +139,7 @@ After installing and configuring Song, verify that the system is functioning cor
 
 3. **Test GET Analysis Endpoint**
    - Using Swagger UI:
-     1. Locate the `/GetAnalysesForStudy` endpoint
+     1. Locate the `GetAnalysesForStudy` endpoint in the **Analysis** section: `GET /studies/{studyId}/analysis/paginated`
      2. Click to expand and select "Try it out"
      3. Set parameters:
         - analysisStates: PUBLISHED

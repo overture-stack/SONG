@@ -19,7 +19,8 @@
 ###############################################################################
 # Application Configurations for the Song Server
 #
-# This file contains various configuration profiles for the Song Server application.
+# This file contains placeholder configuration values for the various
+# application profiles used by Song.
 # Please update the values according to your specific environment.
 ###############################################################################
 
