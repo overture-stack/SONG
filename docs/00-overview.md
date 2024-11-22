@@ -5,7 +5,7 @@ Song functions as a file catalog system, tracking files and managing their metad
 
 ## System Architecture
 
-Metadata saved as a JSON file us uploaded via the Song Client for validation against Songs admin defined Song Schema. Successful submissions receive an auto-generated analysis ID. File data is then uploaded using Song and Score clients, generating a file manifest linked to the metadata.
+Metadata saved as a JSON file is uploaded via the Song Client for validation with schemas defined by Song's administrators. Successful submissions receive an auto-generated analysis ID. This analysis ID is used when uploading file data using Score, and on successful upload Song will be updated to track the file's storage location.
 
 ![Song Arch](./assets/songArch.svg 'Song Architecture Diagram')
 
@@ -17,7 +17,7 @@ As part of the larger Overture.bio software suite, Song is typically used with a
 ## Key Features
 
 - **Admin Defined Schemas:** Customly define input fields with definable rules, logic and syntax
-- **Metadata Validations:**  on submission with clear and concise error handling.
+- **Metadata Validations:** Validate metadata on submission with clear and concise error handling.
 - **Automated Identifiers:** Song generates automated identifiers (Analysis IDs) linking metadata with object data handled by Score
 - **OAuth2 Security:** ACL security using OAuth2 and scopes based on study codes for enhanced data protection.
 - **Flexible Metadata Fields:** Optional schema-less JSON info fields for user-specific metadata, allowing customization.
@@ -31,27 +31,38 @@ As part of the larger Overture.bio software suite, Song is typically used with a
 .
 ├── /song-client
 ├── /song-core
-├── /song-go-client
 └── /song-servers
 ```
 
 [Click here to view the Song respository on GitHub ](https://github.com/overture-stack/song)
 
+### song-core
 
-#### song-clients
+- Shared code used in the Song client and server
+- Establishes Song's data model and common interfaces
 
-[Explaination]
+### song-client
 
-#### song-core
+- CLI tools to interact with a Song server
+- Published as [docker container](https://github.com/overture-stack/SONG/pkgs/container/song-client)
+- Can be compiled into Java application to run locally outside of docker
+- Used by system administrators to manage stored analysis data and to configure dynamic schemas
+- Used by data submitters to create analysis, upload file metadata, and to publish/unpublish analyses
 
-[Explaination]
+### song-server
 
-#### song-go-client
+- Main Song server application
+- Spring-boot application that runs a web server and connects to Postgres DB for data storage
 
-[Explaination]
+### Unsupported Packages
 
-#### song-server
+Song has several additional packages in its code base which are currently unsupported and may be out of date with the latest version of Song. Feel free to use or explore these but be aware that they are deprecated and may have undocumented issues.
 
-[Explaination]
+These packages are:
+- **song-docker-demo**: Example all-in-one deployment of Song with Score with other external project Auth and ID services.
+- **song-docs**: Deprecated `readthedocs` documentation site
+- **song-go-client**: Alternate cli imlementation, written in GoLang.
+- **song-java-sdk**: Code library for java applications to interact with a Song server programatically.
+- **song-python-sdk**: Code library for java applications to interact with a Song server programatically.
 
 
