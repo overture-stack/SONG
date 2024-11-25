@@ -2,7 +2,7 @@
 
 Managing data release with publication controls.
 
-Administrators control analysis availability to downstream services like such as our indexing service [Maestro](/docs/core-software/Maestro/overview) across three states:
+Administrators control analysis availability to downstream services like such as our indexing service [Maestro](https://docs.overture.bio/docs/core-software/Maestro/overview) across three states:
 
 - **Unpublished:** By default, new data committed to Songs database is in this state as it awaits file upload. Custom configurations can allow Maestro to index this data, making it available to users to see the pending analysis without availble file data to download.
 
@@ -18,7 +18,7 @@ To ensure the safe removal of indexed data, the suggested state transition for s
 
 Updating publication statuses can be done through two main methods: the Song Client command line tool and the Swagger UI. The Swagger UI provides a user-friendly interface for interacting with the Song API, while the Song Client allows you to more easily perform data management operations from the command line.
 
-- **Setting up the Song Client:** For detailed instructions on setting up the Song Client, please refer to the section on [Installing the Song Client](/docs/core-software/Song/setup#song-client-setup).
+- **Setting up the Song Client:** For detailed instructions on setting up the Song Client, please refer to the section on [Installing the Song Client](https://docs.overture.bio/docs/core-software/Song/setup#song-client-setup).
 
 - **Accessing the Swagger UI:** To access the Swagger UI, you need to determine the URL based on your Song setup. 
 
@@ -70,5 +70,5 @@ docker exec song-client sh -c "sing suppress -a <insert-analysis-id>"
 3. **Execute:** Click Execute. The Swagger UI will provide your response and detailed descriptions of all potential response codes.
 
 :::info Support
-For technical support or specific use cases, please don't hesitate to reach out through our relevant [**community support channels**](/community/support).
+For technical support or specific use cases, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
 :::

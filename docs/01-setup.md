@@ -48,7 +48,7 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
     - Ensure these ports are free on your system before starting the environment.
     - You may need to adjust the ports in the `docker-compose.yml` file if you have conflicts with existing services.
 
-    For more information, see our [Conductor documentation linked here](/docs/other-software/Conductor)
+    For more information, see our [Conductor documentation linked here](https://docs.overture.bio/docs/other-software/Conductor)
 
     </details>
 
@@ -152,7 +152,7 @@ After installing and configuring Song, verify that the system is functioning cor
    - Expected result: JSON response containing analysis data for the demo study
 
 :::info Need Help?
-If you encounter any issues or have questions about our API, please don't hesitate to reach out through our relevant [**community support channels**](/community/support).
+If you encounter any issues or have questions about our API, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
 :::
 
 ## Song-Client Setup

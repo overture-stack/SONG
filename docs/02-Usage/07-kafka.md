@@ -52,5 +52,5 @@ SPRING_KAFKA_TEMPLATE_DEFAULT_TOPIC=song-analysis
 ```
 
 :::info Need Help?
-If you encounter any issues or have questions about our API, please don't hesitate to reach out through our relevant [**community support channels**](/community/support).
+If you encounter any issues or have questions about our API, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
 :::

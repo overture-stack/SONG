@@ -39,7 +39,7 @@ print(response.json()[0])
 ```
 
 :::info Support
-For technical support or specific use cases, please don't hesitate to reach out through our relevant [**community support channels**](/community/support).
+For technical support or specific use cases, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
 :::
 
 ### Example 2: Bulk Analysis Query

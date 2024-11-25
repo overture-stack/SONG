@@ -64,7 +64,7 @@ Commands and options supported by the Song client.
 - **Usage:** `song-client submit [OPTIONS]`
 
     :::info
-    For detailed information, see our [documentation on submitting data with Song](/docs/core-software/Song/Usage/submitting-metadata).
+    For detailed information, see our [documentation on submitting data with Song](https://docs.overture.bio/docs/core-software/Song/Usage/submitting-metadata).
     :::
 
 ### Search
@@ -94,7 +94,7 @@ Commands and options supported by the Song client.
     | `-d`, `--input-dir` | Directory containing upload files |
 
     :::info
-    For more information, see our [documentation on submitting data with Song](/docs/core-software/Song/Usage/submitting-metadata).
+    For more information, see our [documentation on submitting data with Song](https://docs.overture.bio/docs/core-software/Song/Usage/submitting-metadata).
     :::
 
 ### Publish
@@ -130,7 +130,7 @@ Commands and options supported by the Song client.
 
 
     :::info
-    For more information on analysis management, see our [documentation on Song publication controls](/docs/core-software/Song/Usage/publication-controls).
+    For more information on analysis management, see our [documentation on Song publication controls](https://docs.overture.bio/docs/core-software/Song/Usage/publication-controls).
     :::
 
 ### Export
@@ -164,4 +164,4 @@ Commands and options supported by the Song client.
 
 ## Need Help?
 
-If you encounter any issues or have questions, please don't hesitate to reach out through our relevant [community support channels](/community/support)
+If you encounter any issues or have questions, please don't hesitate to reach out through our relevant [community support channels](https://docs.overture.bio/community/support)
