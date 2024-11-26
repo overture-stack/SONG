@@ -13,24 +13,6 @@ Song functions as a file catalog system, tracking files and managing their metad
 > 
 > 
 
-## Repository Structure
-
-The repository is organized with the following directory structure:
-
-```
-.
-.
-├── /song-client
-├── /song-core
-├── /song-go-client
-└── /song-servers
-```
-
-- **song-client:** Command line interface for interacting with Song server - handles metadata submission and management
-- **song-core:** Core library containing shared utilities, data models, and common functions
-- **song-go-client:** Go implementation of the Song client for metadata submission and management
-- **song-server:** Main server application that tracks and manages genomic metadata storage
-
 ## Documentation
 
 Technical resources for those working with or contributing to the project are available from our official documentation site, the following content can also be read and updated within the `/docs` folder of this repository.
