@@ -7,7 +7,7 @@ Song functions as a file catalog system, tracking files and managing their metad
 
 Metadata saved as a JSON file is uploaded via the Song Client for validation with schemas defined by Song's administrators. Successful submissions receive an auto-generated analysis ID. This analysis ID is used when uploading file data using Score, and on successful upload Song will be updated to track the file's storage location.
 
-![Song Arch](./assets/songArch.svg 'Song Architecture Diagram')
+![Song Arch](./assets/songDev.svg 'Song Architecture Diagram')
 
 As part of the larger Overture.bio software suite, Song is typically used with additional integrations, including:
 
