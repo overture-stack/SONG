@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +64,7 @@ public class ValidationService {
 
   private static final String FILE_DATA_SCHEMA_ID = "fileData";
   private static final String STORAGE_DOWNLOAD_RESPONSE_SCHEMA_ID = "storageDownloadResponse";
-
+  private static final String LYRIC_URL_REGEX = "^http://[^/]+/validator/([^/]+)/entity/([^/]+)$";
   private final SchemaValidator validator;
   private final AnalysisTypeService analysisTypeService;
   private final UploadRepository uploadRepository;
@@ -93,11 +95,19 @@ public class ValidationService {
       validateWithSchema(analysisTypeIdSchema, payload);
       val analysisTypeResult = extractAnalysisTypeFromPayload(payload);
       val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
-      val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
+      val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, true);
+
       log.info(
           format(
               "Found Analysis type: name=%s  version=%s",
               analysisType.getName(), analysisType.getVersion()));
+
+      if (analysisType.getOptions() != null
+          && analysisType.getOptions().getExternalValidation() != null
+          && !externalValidations(
+              analysisType.getOptions().getExternalValidation(), payload, studyId)) {
+        throw new ValidationException("External Validations failed");
+      }
 
       List<String> fileTypes = new ArrayList<>();
 
@@ -109,6 +119,7 @@ public class ValidationService {
         validateFileType(fileTypes, payload);
       }
 
+      // log.info("SCHEMA :- " + analysisType.getSchema());
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);
     } catch (ValidationException e) {
@@ -118,33 +129,55 @@ public class ValidationService {
     return Optional.ofNullable(errors);
   }
 
-  private void externalValidations(
-      List<ExternalValidation> externalValidations, @NonNull JsonNode payload) {
+  private boolean externalValidations(
+      List<ExternalValidation> externalValidations, @NonNull JsonNode payload, String studyId) {
 
+    boolean validated = true;
     for (ExternalValidation externalValidation : externalValidations) {
       String jsonPath = externalValidation.getJsonPath();
       String externalUrl = externalValidation.getUrl();
 
       // Extract the value from the uploaded JSON using the jsonPath
-      String value = JsonPath.read(payload, "$." + jsonPath);
+      String value = null;
+      try {
+        value = JsonPath.read(payload.toString(), "$." + jsonPath);
+        log.info("value of {} is {}", jsonPath, value);
+      } catch (Exception e) {
+        log.info("path {} not found ", jsonPath);
+      }
 
-      if(Objects.isNull(value) || value.isEmpty())
-        return;
+      if (Objects.isNull(value) || value.isEmpty()) return validated;
 
       // call the external url using restTemplate
+      validated = invokeExternalUrl(studyId, externalUrl, value);
     }
+    return validated;
   }
 
   public boolean invokeExternalUrl(String studyId, String url, String value) {
-    // will change the logic to make it parameterised
     try {
+
+      Pattern pattern = Pattern.compile(LYRIC_URL_REGEX);
+      Matcher matcher = pattern.matcher(url);
+
+      if (!matcher.matches()) {
+        throw new IllegalArgumentException("Invalid URL format or missing parameters.");
+      }
+
+      String categoryId = matcher.group(1);
+      String entityName = matcher.group(2);
 
       // create URL
       URIBuilder uriBuilder = new URIBuilder(url);
       uriBuilder.addParameter("studyId", studyId);
-      uriBuilder.addParameter("value",value);
+      uriBuilder.addParameter("value", value);
+      String newPath =
+          uriBuilder.getPath().replace("categoryId", categoryId).replace("entityName", entityName);
+      uriBuilder.setPath(newPath);
+      log.info("invoking external url {}", uriBuilder.getPath());
       // Make the HTTP GET request
-      ResponseEntity<Void> response = restTemplate.getForEntity(uriBuilder.build().toURL().toString(), Void.class);
+      ResponseEntity<Void> response =
+          restTemplate.getForEntity(uriBuilder.build().toURL().toString(), Void.class);
 
       // Return true if the response status is 200 OK
       return response.getStatusCode().is2xxSuccessful();
