@@ -269,9 +269,8 @@ public class AnalysisTypeService {
     }
 
     // checking if file types is empty
-    // if the version is new version of the schema , we are checking the previous version allowed
-    // file types
-    // if it is new then it is empty
+    // if the analysisSchemaVersion is new version of the schema and fileTypes is empty then,
+    // we are checking the previous version to map the fileTypes allowed to the latestVersion
     if (fileTypes.isEmpty()) {
       List<AnalysisSchema> analysisSchemaList =
           analysisSchemaRepository.findAllByName(analysisTypeName);
@@ -289,8 +288,7 @@ public class AnalysisTypeService {
       }
     }
 
-    if(options!=null)
-      options.setFileTypes(fileTypes);
+    if (options != null) options.setFileTypes(fileTypes);
 
     val analysisSchema =
         AnalysisSchema.builder()

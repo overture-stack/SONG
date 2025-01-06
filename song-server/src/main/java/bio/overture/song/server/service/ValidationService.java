@@ -118,8 +118,7 @@ public class ValidationService {
       if (!fileTypes.isEmpty()) {
         validateFileType(fileTypes, payload);
       }
-
-      // log.info("SCHEMA :- " + analysisType.getSchema());
+      
       val schema = buildSchema(analysisType.getSchema());
       validateWithSchema(schema, payload);
     } catch (ValidationException e) {
@@ -157,15 +156,15 @@ public class ValidationService {
   public boolean invokeExternalUrl(String studyId, String url, String value) {
     try {
 
-      Pattern pattern = Pattern.compile(LYRIC_URL_REGEX);
-      Matcher matcher = pattern.matcher(url);
+      Pattern lyricUrlPattern = Pattern.compile(LYRIC_URL_REGEX);
+      Matcher lyricUrlMatcher = lyricUrlPattern.matcher(url);
 
-      if (!matcher.matches()) {
+      if (!lyricUrlMatcher.matches()) {
         throw new IllegalArgumentException("Invalid URL format or missing parameters.");
       }
 
-      String categoryId = matcher.group(1);
-      String entityName = matcher.group(2);
+      String categoryId = lyricUrlMatcher.group(1);
+      String entityName = lyricUrlMatcher.group(2);
 
       // create URL
       URIBuilder uriBuilder = new URIBuilder(url);
