@@ -17,11 +17,7 @@
 
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_ANALYSIS_TYPE_NAME;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerErrors.*;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
@@ -29,10 +25,7 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypeController.REGISTRATION;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
-import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
-import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static bio.overture.song.server.utils.JsonSchemas.*;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.isNull;
@@ -156,17 +149,12 @@ public class AnalysisTypeService {
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
 
     AnalysisTypeOptions options = analysisSchema.getOptions();
-
-    List<String> fileTypes =
-        (options.getFileTypes() != null && !options.getFileTypes().isEmpty())
-            ? options.getFileTypes()
-            : new ArrayList<>();
     return AnalysisType.builder()
         .name(analysisTypeId.getName())
         .version(analysisTypeId.getVersion())
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
-        .options(AnalysisTypeOptions.builder().fileTypes(fileTypes).build())
+        .options(options)
         .build();
   }
 
