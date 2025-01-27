@@ -463,7 +463,6 @@ public class AnalysisServiceImpl implements AnalysisService {
               FileEntity.builder()
                   .objectId(entity.getFileId())
                   .studyId(entity.getFileStudyId())
-                  .analysisId(entity.getAnalysisId())
                   .fileName(entity.getFileName())
                   .fileSize(entity.getFileSize())
                   .fileType(entity.getFileType())
