@@ -17,11 +17,7 @@
 
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_ANALYSIS_TYPE_NAME;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerErrors.*;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
@@ -29,10 +25,7 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypeController.REGISTRATION;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
-import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
-import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static bio.overture.song.server.utils.JsonSchemas.*;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.isNull;
@@ -155,16 +148,13 @@ public class AnalysisTypeService {
     val resolvedSchemaJson =
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
 
-    List<String> fileTypes =
-        (analysisSchema.getFileTypes() != null && !analysisSchema.getFileTypes().isEmpty())
-            ? analysisSchema.getFileTypes()
-            : new ArrayList<>();
+    AnalysisTypeOptions options = analysisSchema.getOptions();
     return AnalysisType.builder()
         .name(analysisTypeId.getName())
         .version(analysisTypeId.getVersion())
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
-        .options(AnalysisTypeOptions.builder().fileTypes(fileTypes).build())
+        .options(options)
         .build();
   }
 
@@ -265,11 +255,34 @@ public class AnalysisTypeService {
     if (options != null && CollectionUtils.isNotEmpty(options.getFileTypes())) {
       fileTypes = options.getFileTypes();
     }
+
+    // checking if file types is empty
+    // if the analysisSchemaVersion is new version of the schema and fileTypes is empty then,
+    // we are checking the previous version to map the fileTypes allowed to the latestVersion
+    if (fileTypes.isEmpty()) {
+      List<AnalysisSchema> analysisSchemaList =
+          analysisSchemaRepository.findAllByName(analysisTypeName);
+
+      if (!analysisSchemaList.isEmpty()) {
+        Optional<AnalysisSchema> latestSchemaOptional =
+            analysisSchemaList.stream()
+                .filter(schema -> schema.getVersion() != null)
+                .max(Comparator.comparingInt(AnalysisSchema::getVersion));
+
+        if (latestSchemaOptional.isPresent()) {
+          AnalysisTypeOptions optionsFromDb = latestSchemaOptional.get().getOptions();
+          fileTypes = optionsFromDb.getFileTypes();
+        }
+      }
+    }
+
+    if (options != null) options.setFileTypes(fileTypes);
+
     val analysisSchema =
         AnalysisSchema.builder()
             .name(analysisTypeName)
             .schema(analysisTypeSchema)
-            .fileTypes(fileTypes)
+            .options(options)
             .build();
 
     log.debug("Creating analysisSchema with file types: {}  " + fileTypes);
@@ -318,14 +331,13 @@ public class AnalysisTypeService {
 
   private AnalysisType convertToAnalysisType(
       AnalysisSchema analysisSchema, boolean hideSchema, boolean unrenderedOnly) {
-    AnalysisTypeOptions options = new AnalysisTypeOptions();
-    options.setFileTypes(analysisSchema.getFileTypes());
+
     return AnalysisType.builder()
         .name(analysisSchema.getName())
         .version(analysisSchema.getVersion())
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema))
-        .options(options)
+        .options(analysisSchema.getOptions())
         .build();
   }
 

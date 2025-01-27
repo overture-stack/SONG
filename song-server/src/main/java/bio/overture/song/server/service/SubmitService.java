@@ -58,7 +58,8 @@ public class SubmitService {
     this.studyService = studyService;
   }
 
-  public SubmitResponse submit(@NonNull String studyId, String payloadString, boolean allowDuplicates) {
+  public SubmitResponse submit(
+      @NonNull String studyId, String payloadString, boolean allowDuplicates) {
     // Check study exists
     studyService.checkStudyExist(studyId);
 
@@ -66,7 +67,7 @@ public class SubmitService {
     val payloadJson = parsePayload(payloadString);
 
     // Validate JSON Payload
-    validatePayload(payloadJson);
+    validatePayload(payloadJson, studyId);
 
     // Deserialize JSON payload to Payload DTO
     val payload = fromJson(payloadJson, Payload.class);
@@ -75,7 +76,7 @@ public class SubmitService {
     checkStudyInPayload(studyId, payload);
 
     // check duplicate analysis
-    if(!allowDuplicates){
+    if (!allowDuplicates) {
       analysisService.checkDuplicateAnalysis(payload);
     }
 
@@ -119,9 +120,9 @@ public class SubmitService {
     return fromJson(analysisTypePath, AnalysisTypeId.class);
   }
 
-  private void validatePayload(JsonNode payloadJson) {
+  private void validatePayload(JsonNode payloadJson, String studyId) {
     // Validate payload format and content
-    val error = validator.validate(payloadJson);
+    val error = validator.validate(payloadJson, studyId);
     if (error.isPresent()) {
       val message = error.get();
       throw buildServerException(getClass(), SCHEMA_VIOLATION, message);
