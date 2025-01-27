@@ -33,10 +33,7 @@ import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 import bio.overture.song.core.exceptions.ServerErrors;
-import bio.overture.song.core.model.AnalysisType;
-import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.AnalysisTypeOptions;
-import bio.overture.song.core.model.PageDTO;
+import bio.overture.song.core.model.*;
 import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
@@ -52,7 +49,6 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.collections.CollectionUtils;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.SchemaException;
 import org.everit.json.schema.ValidationException;
@@ -103,6 +99,7 @@ public class AnalysisTypeService {
         .version(resolvedVersion)
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
+        .options(analysisSchema.getOptions())
         .build();
   }
 
@@ -160,7 +157,9 @@ public class AnalysisTypeService {
 
   @Transactional
   public AnalysisType register(
-      @NonNull String analysisTypeName, AnalysisTypeOptions options, JsonNode analysisTypeSchema) {
+      @NonNull String analysisTypeName,
+      @NonNull AnalysisTypeOptions options,
+      @NonNull JsonNode analysisTypeSchema) {
     validateAnalysisTypeName(analysisTypeName);
     validateAnalysisTypeSchema(analysisTypeSchema);
     return commitAnalysisType(analysisTypeName, analysisTypeSchema, options);
@@ -244,48 +243,57 @@ public class AnalysisTypeService {
     }
   }
 
+  private Optional<AnalysisSchema> findLatestAnalysisSchemaByName(
+      @NonNull String analysisTypeName) {
+    List<AnalysisSchema> analysisSchemaList =
+        analysisSchemaRepository.findAllByName(analysisTypeName);
+    if (!analysisSchemaList.isEmpty()) {
+      return analysisSchemaList.stream()
+          .filter(schema -> schema.getVersion() != null)
+          .max(Comparator.comparingInt(AnalysisSchema::getVersion));
+    }
+    return Optional.empty();
+  }
+
   @SneakyThrows
   private AnalysisType commitAnalysisType(
       @NonNull String analysisTypeName,
       @NonNull JsonNode analysisTypeSchema,
-      AnalysisTypeOptions options) {
+      @NonNull AnalysisTypeOptions options) {
 
-    List<String> fileTypes = new ArrayList<>();
+    // Find value for options. Use provided value, if no option is provided use the value
+    //  from the previous version of this analysis schema, and use an empty value if the
+    //  option is missing from the previous entry as well.
+    val previousSchema = findLatestAnalysisSchemaByName(analysisTypeName);
+    val previousOptions =
+        previousSchema.map(AnalysisSchema::getOptions).orElse(new AnalysisTypeOptions());
 
-    if (options != null && CollectionUtils.isNotEmpty(options.getFileTypes())) {
-      fileTypes = options.getFileTypes();
-    }
+    List<String> fileTypes =
+        options.getFileTypes() != null
+            ? options.getFileTypes()
+            : previousOptions.getFileTypes() != null
+                ? previousOptions.getFileTypes()
+                : new ArrayList<>();
+    List<ExternalValidation> externalValidations =
+        options.getExternalValidation() != null
+            ? options.getExternalValidation()
+            : previousOptions.getExternalValidation() != null
+                ? previousOptions.getExternalValidation()
+                : new ArrayList<>();
 
-    // checking if file types is empty
-    // if the analysisSchemaVersion is new version of the schema and fileTypes is empty then,
-    // we are checking the previous version to map the fileTypes allowed to the latestVersion
-    if (fileTypes.isEmpty()) {
-      List<AnalysisSchema> analysisSchemaList =
-          analysisSchemaRepository.findAllByName(analysisTypeName);
-
-      if (!analysisSchemaList.isEmpty()) {
-        Optional<AnalysisSchema> latestSchemaOptional =
-            analysisSchemaList.stream()
-                .filter(schema -> schema.getVersion() != null)
-                .max(Comparator.comparingInt(AnalysisSchema::getVersion));
-
-        if (latestSchemaOptional.isPresent()) {
-          AnalysisTypeOptions optionsFromDb = latestSchemaOptional.get().getOptions();
-          fileTypes = optionsFromDb.getFileTypes();
-        }
-      }
-    }
-
-    if (options != null) options.setFileTypes(fileTypes);
+    val newAnalysisOptions =
+        AnalysisTypeOptions.builder()
+            .fileTypes(fileTypes)
+            .externalValidation(externalValidations)
+            .build();
 
     val analysisSchema =
         AnalysisSchema.builder()
             .name(analysisTypeName)
             .schema(analysisTypeSchema)
-            .options(options)
+            .options(newAnalysisOptions)
             .build();
 
-    log.debug("Creating analysisSchema with file types: {}  " + fileTypes);
     analysisSchemaRepository.save(analysisSchema);
     val version =
         analysisSchemaRepository.countAllByNameAndIdLessThanEqual(
