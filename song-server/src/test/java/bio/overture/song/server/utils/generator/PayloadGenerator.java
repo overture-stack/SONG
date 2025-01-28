@@ -46,9 +46,7 @@ public class PayloadGenerator {
    */
   public Payload generateRandomPayload(String payloadFilename) {
     val json = TestFiles.getJsonStringFromClasspath(payloadFilename);
-    val payload = fromJson(json, Payload.class);
-    ;
-    return payload;
+    return fromJson(json, Payload.class);
   }
 
   /** Based on the input analysis class type, the correct payload fixture filename is returned. */
