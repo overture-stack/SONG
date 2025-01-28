@@ -20,7 +20,7 @@
 
 ## Options
 
-The `options` property is not required, if provided extra validations for this analysis can be specified. Similarly, each property in `options` is also optional. If no value is provided for an option, a default configuration will be used for the analysis. If this is an update to an existing analysis type, you can omit any option and its value will be maintained from the previous version.
+The `options` property defines extra validations for this analysis schema, such as restrictions on file types and checks on the data with an external service. The `options` property is not required. Similarly, each property in `options` is also optional. If no value is provided for one of the `options` properties, a default configuration will be used for the analysis. If this is an update to an existing analysis type, you can omit any option and its value will be maintained from the previous version.
 
 ```json
 {
