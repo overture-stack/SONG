@@ -275,16 +275,16 @@ public class AnalysisTypeService {
                 ? previousOptions.getFileTypes()
                 : new ArrayList<>();
     List<ExternalValidation> externalValidations =
-        options.getExternalValidation() != null
-            ? options.getExternalValidation()
-            : previousOptions.getExternalValidation() != null
-                ? previousOptions.getExternalValidation()
+        options.getExternalValidations() != null
+            ? options.getExternalValidations()
+            : previousOptions.getExternalValidations() != null
+                ? previousOptions.getExternalValidations()
                 : new ArrayList<>();
 
     val newAnalysisOptions =
         AnalysisTypeOptions.builder()
             .fileTypes(fileTypes)
-            .externalValidation(externalValidations)
+            .externalValidations(externalValidations)
             .build();
 
     val analysisSchema =

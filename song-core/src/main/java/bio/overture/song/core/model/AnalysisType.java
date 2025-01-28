@@ -39,9 +39,9 @@ public class AnalysisType {
     if (this.options == null) {
       return new ArrayList<ExternalValidation>();
     }
-    if (this.options.getExternalValidation() == null) {
+    if (this.options.getExternalValidations() == null) {
       return new ArrayList<ExternalValidation>();
     }
-    return this.options.getExternalValidation();
+    return this.options.getExternalValidations();
   }
 }

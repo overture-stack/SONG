@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AnalysisTypeOptions {
   private List<String> fileTypes;
-  private List<ExternalValidation> externalValidation;
+  private List<ExternalValidation> externalValidations;
 }
