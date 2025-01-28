@@ -20,18 +20,31 @@
 
 ## Options
 
-All properties in options are optional. If no value is provided, a default configuration will be used for the analysis. If this is an update to an existing analysis type, you can omit any option and the value will be maintained from the previous version.
+The `options` property is not required, if provided extra validations for this analysis can be specified. Similarly, each property in `options` is also optional. If no value is provided for an option, a default configuration will be used for the analysis. If this is an update to an existing analysis type, you can omit any option and its value will be maintained from the previous version.
 
 ```json
 {
 	"fileTypes":["bam", "cram"],
-	"externalValidation":[
+	"externalValidations":[
 		{
 			"url": "http://localhost:8099/",
 			"jsonPath": "experiment.someId"
 		}
 	]
 },
+```
+
+If you want to remove the previous value of an option so that this validation is no longer required, for instance removing the restriction on file types so that any file type could be provided, you should provide an empty list for that option.
+
+In the example below, both `fileTypes` and `externalValidations` properties are set to empty arrays, which means that these validations will not be applied to submitted analysis:
+
+```json
+{
+	"options": {
+		"fileTypes": [],
+		"externalValidations": []
+	}
+}
 ```
 
 ### File Types
@@ -50,7 +63,7 @@ If an empty array is provided, then any file type will be allowed. If an array o
 
 ### External Validation
 
-External validations configure Song to check a value in the analysis against an external service by sending an HTTP GET request to a configurable URL. The URL needs to return 2XX status message to indicate that if the provided value "is valid", typically meaning that the value for this property is known by that service.
+External validations configure Song to check a value in the analysis against an external service by sending an HTTP GET request to a configurable URL. The service should respond with a 2XX status message to indicate the value "is valid".
 
 As an example, if the project clinical data is being managed in a separate service, we can add an external validation to the donor id field of our custom scheme. This will send the donor id to the external service which can confirm that we have previously registered that donor.
 
@@ -89,9 +102,9 @@ Continuing the above example, if the following analysis was submitted:
 }
 ```
 
-Song would attempt to validate the donorId by sending a URL to `http://example.com/ABC123/donor/id01`.
+Song would attempt to validate the donorId by sending a validation request to `http://example.com/ABC123/donor/id01`.
 
-It is allowable to use either the `{study}` or `{value}` multiple times in the URL, each instance will be replaced by the corresponding value.
+The URL parsing allows using either the `{study}` or `{value}` placeholders multiple times (e.g. `http://example.com/{study}-{value}/{value}`), each instance will be interpolated accordingly.
 
 > [!Warning]
-> The URL may cause errors in song if it contains any tokens matching the `{word}` format other than `{study}` and `{value}`
+> The URL may cause errors in Song if it contains any tokens matching the `{word}` format other than `{study}` and `{value}`
