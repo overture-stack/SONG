@@ -3,8 +3,9 @@
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your system:
+
 - [JDK11](https://www.oracle.com/ca-en/java/technologies/downloads/)
-- [Docker](https://www.docker.com/products/docker-desktop/) (v4.32.0 or higher)
+- [Docker](https://www.docker.com/products/docker-desktop/) (v4.39.0 or higher)
 
 ## Song-Server Development Setup
 
@@ -16,10 +17,10 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
 
 1. Clone the Conductor repository and move into its directory:
 
-    ```bash
-    git clone https://github.com/overture-stack/conductor.git
-    cd conductor
-    ```
+   ```bash
+   git clone https://github.com/overture-stack/conductor.git
+   cd conductor
+   ```
 
 2. Run the appropriate start command for your operating system:
 
@@ -28,102 +29,105 @@ We'll use our Conductor service, a flexible Docker Compose setup, to spin up Son
    | Unix/macOS       | `make SongDev`       |
    | Windows          | `./make.bat SongDev` |
 
-
     <details>
     <summary>**Click here for a detailed breakdown**</summary>
 
-    This command will set up all complementary services for Song development as follows:
+   This command will set up all complementary services for Song development as follows:
 
-    ![SongDev](./assets/songDev.svg 'Song Dev Environment')
+   ![SongDev](./assets/songDev.svg "Song Dev Environment")
 
-    | Service     | Port   | Description                                     | Purpose in Song Development                            |
-    | ----------- | ------ | ----------------------------------------------- | ------------------------------------------------------ |
-    | Conductor   | `9204` | Orchestrates deployments and environment setups | Manages the overall development environment            |
-    | Keycloak-db | -      | Database for Keycloak (no exposed port)         | Stores Keycloak data for authentication                |
-    | Keycloak    | `8180` | Authorization and authentication service        | Provides OAuth2 authentication for Score               |
-    | Song-db     | `5433` | Database for Song                               | Stores metadata managed by Song                        |
-    | Score       | `8087` | File Transfer service                           | Handles file uploads, downloads, and storage operation |
-    | Minio       | `9000` | Object storage provider                         | Simulates S3-compatible storage for Score              |
+   | Service     | Port   | Description                                     | Purpose in Song Development                            |
+   | ----------- | ------ | ----------------------------------------------- | ------------------------------------------------------ |
+   | Conductor   | `9204` | Orchestrates deployments and environment setups | Manages the overall development environment            |
+   | Keycloak-db | -      | Database for Keycloak (no exposed port)         | Stores Keycloak data for authentication                |
+   | Keycloak    | `8180` | Authorization and authentication service        | Provides OAuth2 authentication for Score               |
+   | Song-db     | `5433` | Database for Song                               | Stores metadata managed by Song                        |
+   | Score       | `8087` | File Transfer service                           | Handles file uploads, downloads, and storage operation |
+   | Minio       | `9000` | Object storage provider                         | Simulates S3-compatible storage for Score              |
 
-    - Ensure these ports are free on your system before starting the environment.
-    - You may need to adjust the ports in the `docker-compose.yml` file if you have conflicts with existing services.
+   - Ensure these ports are free on your system before starting the environment.
+   - You may need to adjust the ports in the `docker-compose.yml` file if you have conflicts with existing services.
 
-    For more information, see our [Conductor documentation linked here](https://docs.overture.bio/docs/other-software/Conductor)
+   For more information, see our [Conductor documentation linked here](https://docs.overture.bio/docs/other-software/Conductor)
 
     </details>
 
-### Running the Development Server 
+### Running the Development Server
 
-1. Clone Song and move into its directory:
+1.  Clone Song and move into its directory:
 
     ```bash
     git clone https://github.com/overture-stack/song.git
     cd song
     ```
 
-2. Build the application locally:
+2.  Build the application locally:
 
-   ```bash
-   ./mvnw clean install -DskipTests
-   ```
+    ```bash
+    ./mvnw clean install -DskipTests
+    ```
 
-    <details>
-    <summary>**Click here for an explaination of command above**</summary>
+     <details>
+     <summary>**Click here for an explaination of command above**</summary>
 
     - `./mvnw`: This is the Maven wrapper script, which ensures you're using the correct version of Maven.
     - `clean`: This removes any previously compiled files.
     - `install`: This compiles the project, runs tests, and installs the package into your local Maven repository.
     - `-DskipTests`: This flag skips running tests during the build process to speed things up.
 
-    </details>
+     </details>
 
     :::tip
     Ensure you are running JDK11. To check, you can run `java --version`. You should see something similar to the following:
+
     ```bash
     openjdk version "11.0.18" 2023-01-17 LTS
     OpenJDK Runtime Environment Corretto-11.0.18.10.1 (build 11.0.18+10-LTS)
     OpenJDK 64-Bit Server VM Corretto-11.0.18.10.1 (build 11.0.18+10-LTS, mixed mode)
     ```
+
     :::
 
-3. Start the Song Server:
+3.  Start the Song Server:
 
-   ```bash
-   ./mvnw spring-boot:run -Dspring-boot.run.profiles=default,dev,secure -pl song-server
-   ```
-       :::info
+    ```bash
+    ./mvnw spring-boot:run -Dspring-boot.run.profiles=default,dev,secure -pl song-server
+    ```
 
-            If you are looking to configure Song for your specific environment, [**the Song-server configuration file can be found here**](https://github.com/overture-stack/score/blob/develop/score-server/src/main/resources/application.yml). A summary of the available Spring profiles is provided below:
+        :::info
 
-            <details>
-            <summary>**Click here for a summary of the Song-server spring profiles**</summary>
+             If you are looking to configure Song for your specific environment, [**the Song-server configuration file can be found here**](https://github.com/overture-stack/score/blob/develop/score-server/src/main/resources/application.yml). A summary of the available Spring profiles is provided below:
 
-            **Song Profiles**
-            | Profile             | Description                                              |
-            | ------------------- | -------------------------------------------------------- |
-            | `default`           | Required to load common configurations                   |
-            | `secure`            | Required to load security configuration                  |
-            | `dev`               | (Optional) Facilitates development default configuration |
-            | `prod`              | (Optional) Loads production-specific configurations      |
-            | `kafka`             | (Optional) Enables Kafka integration                     |
-            | `score-client-cred` | (Optional) Configures SCORE client credentials           |
-            | `test`              | Used for testing purposes                                |
-            | `async-test`        | Used for asynchronous testing                            |
-            | `fastTest`          | Used for fast testing with reduced timeouts              |
+             <details>
+             <summary>**Click here for a summary of the Song-server spring profiles**</summary>
 
-            </details>
+             **Song Profiles**
+             | Profile             | Description                                              |
+             | ------------------- | -------------------------------------------------------- |
+             | `default`           | Required to load common configurations                   |
+             | `secure`            | Required to load security configuration                  |
+             | `dev`               | (Optional) Facilitates development default configuration |
+             | `prod`              | (Optional) Loads production-specific configurations      |
+             | `kafka`             | (Optional) Enables Kafka integration                     |
+             | `score-client-cred` | (Optional) Configures SCORE client credentials           |
+             | `test`              | Used for testing purposes                                |
+             | `async-test`        | Used for asynchronous testing                            |
+             | `fastTest`          | Used for fast testing with reduced timeouts              |
 
-        :::
+             </details>
+
+         :::
 
 ### Verification
-
 
 After installing and configuring Song, verify that the system is functioning correctly:
 
 1. **Check Server Health**
+
    ```bash
    curl -s -o /dev/null -w "%{http_code}" "http://localhost:8080/isAlive" -H "accept: */*"
    ```
+
    - Expected result: Status code `200`
    - Troubleshooting:
      - Ensure Song server is running
@@ -131,6 +135,7 @@ After installing and configuring Song, verify that the system is functioning cor
      - Verify no firewall issues are blocking the connection
 
 2. **Check the Swagger UI**
+
    - Navigate to `http://localhost:8080/swagger-ui.html` in a web browser
    - Expected result: Swagger UI page with a list of available API endpoints
    - Troubleshooting:
@@ -159,16 +164,16 @@ If you encounter any issues or have questions about our API, please don't hesita
 
 The `song-client` is a CLI tool used for communicating with a `song-server`. For ease of deployment it can be run using Docker. The client can be configured through environment variables, which take precedence over the `application.yml` config.
 
-   ```bash
-   docker run -d --name song-client \
-      -e CLIENT_ACCESS_TOKEN=68fb42b4-f1ed-4e8c-beab-3724b99fe528 \
-      -e CLIENT_STUDY_ID=demo \
-      -e CLIENT_SERVER_URL=http://localhost:8080 \
-      --network="host" \
-      --platform="linux/amd64" \
-      --mount type=bind,source=${pwd},target=/output \
-   ghcr.io/overture-stack/song-client:5.1.1 \
-   ```
+```bash
+docker run -d --name song-client \
+   -e CLIENT_ACCESS_TOKEN=68fb42b4-f1ed-4e8c-beab-3724b99fe528 \
+   -e CLIENT_STUDY_ID=demo \
+   -e CLIENT_SERVER_URL=http://localhost:8080 \
+   --network="host" \
+   --platform="linux/amd64" \
+   --mount type=bind,source=${pwd},target=/output \
+ghcr.io/overture-stack/song-client:5.1.1 \
+```
 
     <details>
     <summary>**Click here for an explaination of command above**</summary>
@@ -183,4 +188,3 @@ The `song-client` is a CLI tool used for communicating with a `song-server`. For
 :::warning
 This guide is meant to demonstrate the configuration and usage of Song for development purposes and is not intended for production. If you ignore this warning and use this in any public or production environment, please remember to use Spring profiles accordingly. For production do not use **dev** profile.
 :::
-
