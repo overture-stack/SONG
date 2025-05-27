@@ -89,7 +89,10 @@ public class SubmitService {
     try{
       analysis = analysisService.create(studyId, payload);
     } catch (Exception e){
-      throw new RuntimeException("unable to create Analysis {}"+ e.getMessage());
+      throw buildServerException(
+              getClass(),
+              UNKNOWN_ERROR,
+              "Unable to create Analysis. "+ e.getMessage());
     }
     return SubmitResponse.builder().analysisId(analysis.getAnalysisId()).status(OK).build();
   }
