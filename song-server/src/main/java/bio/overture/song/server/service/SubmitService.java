@@ -27,8 +27,11 @@ import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static java.util.Objects.isNull;
 
+import bio.overture.song.core.exceptions.ServerException;
+import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.SubmitResponse;
+import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -81,7 +84,16 @@ public class SubmitService {
     }
 
     // Create the analysis
-    val analysis = analysisService.create(studyId, payload);
+    Analysis analysis;
+
+    try{
+      analysis = analysisService.create(studyId, payload);
+    } catch (Exception e){
+      throw buildServerException(
+              getClass(),
+              UNKNOWN_ERROR,
+              "Unable to create Analysis. "+ e.getMessage());
+    }
     return SubmitResponse.builder().analysisId(analysis.getAnalysisId()).status(OK).build();
   }
 

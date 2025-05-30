@@ -154,7 +154,9 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # Uncomment the public-key-location below for Ego configurations
+          # Choose only one of these properties.
+          # Use 'public-key-location' when integrating with EGO
+          # For modern applications using OAuth2 or OpenID Connect providers like Keycloak, 'jwk-set-uri' is recommended
           # public-key-location: http://localhost:8081/oauth/token/public_key  
           jwk-set-uri: http://localhost/realms/myrealm/protocol/openid-connect/certs  
 

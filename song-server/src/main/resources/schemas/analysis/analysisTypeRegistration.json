@@ -14,7 +14,6 @@
         },
         "properties" : {
             "type": "object",
-            "required": ["experiment"],
             "additionalProperties": true,
             "properties": {
                 "studyId" : {
@@ -45,9 +44,6 @@
             "uniqueItems": true,
             "items": {
                 "type": "string"
-            },
-            "contains": {
-                "const": "experiment"
             }
         }
     },
