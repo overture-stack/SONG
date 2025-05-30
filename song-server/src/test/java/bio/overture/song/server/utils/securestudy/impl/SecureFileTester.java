@@ -21,7 +21,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.FILE_NOT_FOUND;
 import static java.lang.String.format;
 
 import bio.overture.song.core.model.enums.AccessTypes;
-import bio.overture.song.core.model.enums.FileTypes;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.service.FileService;
@@ -64,7 +63,7 @@ public class SecureFileTester extends AbstractSecureTester {
     analysisService.checkAnalysisExists(analysisData.getExistingId());
     val existingAnalysisId = analysisData.getExistingId();
 
-    val type = getRandomGenerator().randomEnum(FileTypes.class).toString();
+    val type = "mp4";
     val file =
         FileEntity.builder()
             .fileAccess(getRandomGenerator().randomEnum(AccessTypes.class).toString())

@@ -37,48 +37,6 @@ public class UriResolverTest {
     assertGood(loadResolver(GOOD_FIXTURE_FILENAME));
   }
 
-  @Test
-  public void testUnknownTemplateVariable() {
-    val good = loadFixture("good.json");
-    val bad = loadFixture("good.json");
-
-    // Test donor
-    bad.setDonor(good.getDonor() + "&something={someVar}");
-    assertOnlyUnknownVariables(bad, "someVar");
-    bad.setDonor(good.getDonor());
-
-    // Test specimen
-    bad.setSpecimen(good.getSpecimen() + "&something={someVar}");
-    assertOnlyUnknownVariables(bad, "someVar");
-    bad.setSpecimen(good.getSpecimen());
-
-    // Test sample
-    bad.setSample(good.getSample() + "&something={someVar}");
-    assertOnlyUnknownVariables(bad, "someVar");
-    bad.setSample(good.getSample());
-  }
-
-  @Test
-  public void testMissingTemplateVariable() {
-    val good = loadFixture("good.json");
-    val bad = loadFixture("good.json");
-
-    // Test donor
-    bad.setDonor("https://example.org/proj={studyId}");
-    assertOnlyMissingVariables(bad, "submitterId");
-    bad.setDonor(good.getDonor());
-
-    // Test specimen
-    bad.setSpecimen("https://example.org/proj={studyId}");
-    assertOnlyMissingVariables(bad, "submitterId");
-    bad.setSpecimen(good.getSpecimen());
-
-    // Test sample
-    bad.setSample("https://example.org/proj={studyId}");
-    assertOnlyMissingVariables(bad, "submitterId");
-    bad.setSample(good.getSample());
-  }
-
   private static void assertOnlyMissingVariables(UriTemplateProperties p, String... variables) {
     assertExceptionThrown(
         () -> createUriResolver(p),

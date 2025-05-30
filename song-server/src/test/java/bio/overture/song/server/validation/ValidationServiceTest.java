@@ -64,21 +64,21 @@ public class ValidationServiceTest {
   @Test
   public void testValidateValidSequencingRead() {
     val payload = getJsonFile("sequencingRead.json");
-    val results = service.validate(payload);
+    val results = service.validate(payload, "anyStudy");
     assertFalse(results.isPresent());
   }
 
   @Test
   public void testValidateValidSequencingReadWithArchive() {
     val payload = getJsonFile("sequencingReadWithArchive.json");
-    val results = service.validate(payload);
+    val results = service.validate(payload, "anyStudy");
     assertFalse(results.isPresent());
   }
 
   @Test
   public void testValidateValidVariantCall() {
     val payload = getJsonFile("variantCall.json");
-    val results = service.validate(payload);
+    val results = service.validate(payload, "anyStudy");
     assertFalse(results.isPresent());
   }
 
@@ -86,7 +86,7 @@ public class ValidationServiceTest {
   public void testValidateVariantCallNullAnalysisType() {
     val payload = getJsonFile("variantCall.json");
     ((ObjectNode) payload).put("analysisType", (String) null);
-    val results = service.validate(payload);
+    val results = service.validate(payload, "anyStudy");
     assertTrue(results.isPresent());
     assertTrue(results.get().contains("#/analysisType: expected type: JSONObject, found:"));
   }
@@ -95,7 +95,7 @@ public class ValidationServiceTest {
   public void testValidateVariantCallMissingAnalysisType() {
     val payload = getJsonFile("variantCall.json");
     ((ObjectNode) payload).remove("analysisType");
-    val results = service.validate(payload);
+    val results = service.validate(payload, "anyStudy");
     assertTrue(results.isPresent());
     assertTrue(results.get().contains("#: required key [analysisType] not found"));
   }
@@ -104,7 +104,7 @@ public class ValidationServiceTest {
   public void testValidateSequencingReadNullAnalysisType() {
     val payload = getJsonFile("sequencingRead.json");
     ((ObjectNode) payload).put("analysisType", (String) null);
-    val results = service.validate(payload);
+    val results = service.validate(payload, "anyStudy");
     assertTrue(results.isPresent());
     assertTrue(results.get().contains("#/analysisType: expected type: JSONObject, found:"));
   }
@@ -113,7 +113,7 @@ public class ValidationServiceTest {
   public void testValidateSequencingReadMissingAnalysisType() {
     val payload = getJsonFile("sequencingRead.json");
     ((ObjectNode) payload).remove("analysisType");
-    val results = service.validate(payload);
+    val results = service.validate(payload, "anyStudy");
     assertTrue(results.isPresent());
     assertTrue(results.get().contains("#: required key [analysisType] not found"));
   }
@@ -139,7 +139,7 @@ public class ValidationServiceTest {
                   "fileMd5sum",
                   "q0123456789012345678901234567890123456789"); // more than 32 and non-hex number
 
-      val results = service.validate(payload);
+      val results = service.validate(payload, "anyStudy");
 
       assertTrue(results.isPresent());
 
@@ -176,7 +176,7 @@ public class ValidationServiceTest {
       ((ObjectNode) fileNode).put("fileMd5sum", md5);
     }
 
-    val results = service.validate(payload);
+    val results = service.validate(payload, "anyStudy");
 
     if (shouldBeError) {
       assertTrue(results.isPresent());

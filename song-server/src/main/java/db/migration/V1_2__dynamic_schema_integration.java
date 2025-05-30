@@ -4,7 +4,6 @@ import static bio.overture.song.core.utils.JsonDocUtils.getJsonNodeFromClasspath
 import static bio.overture.song.core.utils.JsonUtils.mapper;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.config.SchemaConfig.SCHEMA_ANALYSIS_PATH;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VARIANT_CALLING_TOOL;
 import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
 import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
@@ -15,11 +14,9 @@ import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.nio.file.Path;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
@@ -32,9 +29,14 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
   private static final String VARIANT_CALL_LEGACY_R_PATH = "legacy/variantCall.json";
   private static final ObjectMapper OBJECT_MAPPER = mapper();
   private static final Schema LEGACY_VARIANT_CALL_SCHEMA =
-      buildSchema(SCHEMA_ANALYSIS_PATH, VARIANT_CALL_LEGACY_R_PATH);
+      sneakyBuildSchema(SCHEMA_ANALYSIS_PATH, VARIANT_CALL_LEGACY_R_PATH);
   private static final Schema LEGACY_SEQUENCING_READ_SCHEMA =
-      buildSchema(SCHEMA_ANALYSIS_PATH, SEQUENCING_READ_LEGACY_R_PATH);
+      sneakyBuildSchema(SCHEMA_ANALYSIS_PATH, SEQUENCING_READ_LEGACY_R_PATH);
+
+  @SneakyThrows
+  private static Schema sneakyBuildSchema(@NonNull Path schemaDir, @NonNull String filePathname) {
+    return buildSchema(schemaDir, filePathname);
+  }
 
   @Override
   public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
@@ -125,6 +127,7 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
 
   private void createTestData(JdbcTemplate jdbcTemplate) {}
 
+  @SneakyThrows
   private void migrateVariantCall(JdbcTemplate jdbcTemplate) {
     log.info("Starting VariantCall migration");
     val variantCalls = jdbcTemplate.queryForList("SELECT * FROM variantcall");
@@ -133,9 +136,6 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
       val experiment =
           createNonNullObjectNode()
               .putString(VARIANT_CALLING_TOOL, vc.get(TableAttributeNames.VARIANT_CALLING_TOOL))
-              .putString(
-                  MATCHED_NORMAL_SAMPLE_SUBMITTER_ID,
-                  vc.get(TableAttributeNames.MATCHED_NORMAL_SAMPLE_SUBMITTER_ID))
               .build();
       val analysisData = OBJECT_MAPPER.createObjectNode().set("experiment", experiment);
       try {
@@ -152,6 +152,7 @@ public class V1_2__dynamic_schema_integration implements SpringJdbcMigration {
     log.info("Finished VariantCall migration");
   }
 
+  @SneakyThrows
   private void migrateSequencingRead(JdbcTemplate jdbcTemplate) {
     log.info("Starting SequencingRead migration");
     val sequencingReads = jdbcTemplate.queryForList("SELECT * FROM sequencingread");

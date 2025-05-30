@@ -135,9 +135,8 @@ public class SongApi {
     return restClient.put(url, fileUpdateRequest, FileUpdateResponse.class).getBody();
   }
 
-  public List<Analysis> idSearch(
-      String studyId, String sampleId, String specimenId, String donorId, String fileId) {
-    val url = endpoint.idSearch(studyId, sampleId, specimenId, donorId, fileId);
+  public List<Analysis> idSearch(String studyId, String fileId) {
+    val url = endpoint.idSearch(studyId, fileId);
     return restClient.getList(url, Analysis.class).getBody();
   }
 

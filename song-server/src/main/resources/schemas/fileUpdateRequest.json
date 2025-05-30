@@ -52,18 +52,7 @@
               "pattern": "^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$"
             },
             "fileType": {
-              "type": "string",
-              "enum": [
-                "FASTA",
-                "FAI",
-                "FASTQ",
-                "BAM",
-                "BAI",
-                "VCF",
-                "TBI",
-                "IDX",
-                "XML"
-              ]
+              "type": "string"
             }
           }
         }

@@ -49,19 +49,6 @@ import org.springframework.web.bind.annotation.*;
     description = "Create, Read, Update, publish, unpublish, suppress and search analyses")
 public class AnalysisController {
 
-  private static final String EXAMPLE_ANALYSIS_INFO_JSON =
-      "{\n"
-          + "  \"info\" : {\n"
-          + "    \"extra_donor_info\" : {\n"
-          + "      \"physical\" : {\n"
-          + "        \"eye_colour\" : \"blue\",\n"
-          + "        \"hair_colour\" : \"brown\"\n"
-          + "      },\n"
-          + "      \"occupation\" : \"engineer\"\n"
-          + "    }\n"
-          + "  }\n"
-          + "}";
-
   /** Dependencies */
   private final AnalysisService analysisService;
 
@@ -114,16 +101,18 @@ public class AnalysisController {
     analysisService.updateAnalysis(studyId, analysisId, updateAnalysisRequest);
   }
 
-  @ApiOperation(value = "PatchUpdateAnalysis", notes = "Partial Update dynamic-data for for an analysis")
+  @ApiOperation(
+      value = "PatchUpdateAnalysis",
+      notes = "Partial Update dynamic-data for for an analysis")
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @PatchMapping(
-          value = "/{analysisId}",
-          consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
+      value = "/{analysisId}",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   public void patchUpdateAnalysis(
-          @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-          @PathVariable("studyId") String studyId,
-          @PathVariable("analysisId") String analysisId,
-          @RequestBody JsonNode patchUpdateAnalysisRequest) {
+      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
+      @PathVariable("studyId") String studyId,
+      @PathVariable("analysisId") String analysisId,
+      @RequestBody JsonNode patchUpdateAnalysisRequest) {
     analysisService.patchUpdateAnalysis(studyId, analysisId, patchUpdateAnalysisRequest);
   }
 
@@ -204,19 +193,14 @@ public class AnalysisController {
   @ApiOperation(
       value = "IdSearch",
       notes =
-          "Search for analysis objects by specifying regex patterns for the "
-              + "donorIds, sampleIds, specimenIds, or fileIds request parameters")
+          "Search for analysis objects by specifying regex patterns for the fileIds request parameters")
   @GetMapping(value = "/search/id")
   public List<Analysis> idSearch(
       @PathVariable("studyId") String studyId,
-      @RequestParam(value = "donorId", required = false) String donorIds,
-      @RequestParam(value = "sampleId", required = false) String sampleIds,
-      @RequestParam(value = "specimenId", required = false) String specimenIds,
-      @RequestParam(value = "fileId", required = false) String fileIds,
-      @RequestParam(value= "submitterSampleId", required = false) String submitterSampleIds,
-      @RequestParam(value= "submitterDonorId", required = false) String submitterDonorIds,
-      @RequestParam(value= "submitterSpecimenId", required = false) String submitterSpecimenIds){
-    val request = createIdSearchRequest(donorIds, sampleIds, specimenIds, fileIds, submitterSampleIds, submitterDonorIds, submitterSpecimenIds);
+      @RequestParam(value = "fileId", required = false) String fileIds) {
+    val request =
+        createIdSearchRequest(
+            fileIds);
     return analysisService.idSearch(studyId, request);
   }
 

@@ -90,20 +90,6 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
   }
 
   @Test
-  public void testInvalidSpecimen() {
-    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("samples").get(0).get("specimen");
-    s.put("specimenType", "invalid");
-
-    getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
-
-    val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s2 = (ObjectNode) j2.get("samples").get(0).get("specimen");
-    s2.put("specimenClass", "invalid");
-    getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
-  }
-
-  @Test
   @SneakyThrows
   public void testInvalidAnalysisType() {
 
@@ -170,7 +156,8 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
 
   @Test
   public void matchedNormalFieldInclusionValidation_RNATumour_NonNull_Success() {
-    runMatchedNormalTest("seq-exp-RNA-tumour-empty-id.json",
+    runMatchedNormalTest(
+        "seq-exp-RNA-tumour-empty-id.json",
         "#/samples/0/matchedNormalSubmitterSampleId: ,#/samples/0/matchedNormalSubmitterSampleId: string [] does not match pattern");
   }
 
@@ -205,15 +192,6 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     val s3 = (ObjectNode) j3.get("files").get(0);
     s3.put("fileMd5sum", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j3).assertServerError(SCHEMA_VIOLATION);
-  }
-
-  @Test
-  public void testInvalidDonor() {
-    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("samples").get(0).get("donor");
-    s.put("gender", "invalid");
-    getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
-    // 1) Invalid Gender
   }
 
   @Test

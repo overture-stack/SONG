@@ -55,22 +55,6 @@ public class LocalIdService implements IdService {
     return generateId(analysisId, fileName);
   }
 
-  @Override
-  public Optional<String> getDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
-    return generateId(studyId, submitterDonorId);
-  }
-
-  @Override
-  public Optional<String> getSpecimenId(
-      @NonNull String studyId, @NonNull String submitterSpecimenId) {
-    return generateId(studyId, submitterSpecimenId);
-  }
-
-  @Override
-  public Optional<String> getSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
-    return generateId(studyId, submitterSampleId);
-  }
-
   private Optional<String> generateId(String... keys) {
     return Optional.of(nameBasedGenerator.generate(COLON.join(keys)).toString());
   }

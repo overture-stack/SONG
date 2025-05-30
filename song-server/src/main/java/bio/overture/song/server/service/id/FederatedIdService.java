@@ -20,25 +20,6 @@ public class FederatedIdService implements IdService {
   @NonNull private final IdService localIdService;
   @NonNull private final UriResolver uriResolver;
 
-  @Override
-  public Optional<String> getDonorId(@NonNull String studyId, @NonNull String submitterDonorId) {
-    return handleIdServiceGetRequest(
-        uriResolver.expandDonorUri(studyId, submitterDonorId), rest::getString);
-  }
-
-  @Override
-  public Optional<String> getSpecimenId(
-      @NonNull String studyId, @NonNull String submitterSpecimenId) {
-    return handleIdServiceGetRequest(
-        uriResolver.expandSpecimenUri(studyId, submitterSpecimenId), rest::getString);
-  }
-
-  @Override
-  public Optional<String> getSampleId(@NonNull String studyId, @NonNull String submitterSampleId) {
-    return handleIdServiceGetRequest(
-        uriResolver.expandSampleUri(studyId, submitterSampleId), rest::getString);
-  }
-
   /** Always generate the analysisId locally */
   @Override
   public String generateAnalysisId() {

@@ -17,11 +17,7 @@
 
 package bio.overture.song.server.service;
 
-import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_NOT_FOUND;
-import static bio.overture.song.core.exceptions.ServerErrors.ILLEGAL_ANALYSIS_TYPE_NAME;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_JSON_SCHEMA;
-import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
-import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.exceptions.ServerErrors.*;
 import static bio.overture.song.core.exceptions.ServerException.buildServerException;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
 import static bio.overture.song.core.utils.CollectionUtils.isCollectionBlank;
@@ -29,10 +25,7 @@ import static bio.overture.song.core.utils.JsonUtils.readTree;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypeController.REGISTRATION;
 import static bio.overture.song.server.repository.specification.AnalysisSchemaSpecification.buildListQuery;
-import static bio.overture.song.server.utils.JsonSchemas.PROPERTIES;
-import static bio.overture.song.server.utils.JsonSchemas.REQUIRED;
-import static bio.overture.song.server.utils.JsonSchemas.buildSchema;
-import static bio.overture.song.server.utils.JsonSchemas.validateWithSchema;
+import static bio.overture.song.server.utils.JsonSchemas.*;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.isNull;
@@ -40,9 +33,7 @@ import static java.util.regex.Pattern.compile;
 import static org.apache.commons.lang.StringUtils.isBlank;
 
 import bio.overture.song.core.exceptions.ServerErrors;
-import bio.overture.song.core.model.AnalysisType;
-import bio.overture.song.core.model.AnalysisTypeId;
-import bio.overture.song.core.model.PageDTO;
+import bio.overture.song.core.model.*;
 import bio.overture.song.server.controller.analysisType.AnalysisTypeController;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.repository.AnalysisSchemaRepository;
@@ -50,7 +41,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.transaction.Transactional;
@@ -108,6 +99,7 @@ public class AnalysisTypeService {
         .version(resolvedVersion)
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
+        .options(analysisSchema.getOptions())
         .build();
   }
 
@@ -149,21 +141,28 @@ public class AnalysisTypeService {
   public AnalysisType getAnalysisType(
       @NonNull AnalysisTypeId analysisTypeId, boolean unrenderedOnly) {
     val analysisSchema = getAnalysisSchema(analysisTypeId);
+
     val resolvedSchemaJson =
         resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, false);
+
+    AnalysisTypeOptions options = analysisSchema.getOptions();
     return AnalysisType.builder()
         .name(analysisTypeId.getName())
         .version(analysisTypeId.getVersion())
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolvedSchemaJson)
+        .options(options)
         .build();
   }
 
   @Transactional
-  public AnalysisType register(@NonNull String analysisTypeName, JsonNode analysisTypeSchema) {
+  public AnalysisType register(
+      @NonNull String analysisTypeName,
+      @NonNull AnalysisTypeOptions options,
+      @NonNull JsonNode analysisTypeSchema) {
     validateAnalysisTypeName(analysisTypeName);
     validateAnalysisTypeSchema(analysisTypeSchema);
-    return commitAnalysisType(analysisTypeName, analysisTypeSchema);
+    return commitAnalysisType(analysisTypeName, analysisTypeSchema, options);
   }
 
   public PageDTO<AnalysisType> listAnalysisTypes(
@@ -244,11 +243,57 @@ public class AnalysisTypeService {
     }
   }
 
+  private Optional<AnalysisSchema> findLatestAnalysisSchemaByName(
+      @NonNull String analysisTypeName) {
+    List<AnalysisSchema> analysisSchemaList =
+        analysisSchemaRepository.findAllByName(analysisTypeName);
+    if (!analysisSchemaList.isEmpty()) {
+      return analysisSchemaList.stream()
+          .filter(schema -> schema.getVersion() != null)
+          .max(Comparator.comparingInt(AnalysisSchema::getVersion));
+    }
+    return Optional.empty();
+  }
+
   @SneakyThrows
   private AnalysisType commitAnalysisType(
-      @NonNull String analysisTypeName, @NonNull JsonNode analysisTypeSchema) {
+      @NonNull String analysisTypeName,
+      @NonNull JsonNode analysisTypeSchema,
+      @NonNull AnalysisTypeOptions options) {
+
+    // Find value for options. Use provided value, if no option is provided use the value
+    //  from the previous version of this analysis schema, and use an empty value if the
+    //  option is missing from the previous entry as well.
+    val previousSchema = findLatestAnalysisSchemaByName(analysisTypeName);
+    val previousOptions =
+        previousSchema.map(AnalysisSchema::getOptions).orElse(new AnalysisTypeOptions());
+
+    List<String> fileTypes =
+        options.getFileTypes() != null
+            ? options.getFileTypes()
+            : previousOptions.getFileTypes() != null
+                ? previousOptions.getFileTypes()
+                : new ArrayList<>();
+    List<ExternalValidation> externalValidations =
+        options.getExternalValidations() != null
+            ? options.getExternalValidations()
+            : previousOptions.getExternalValidations() != null
+                ? previousOptions.getExternalValidations()
+                : new ArrayList<>();
+
+    val newAnalysisOptions =
+        AnalysisTypeOptions.builder()
+            .fileTypes(fileTypes)
+            .externalValidations(externalValidations)
+            .build();
+
     val analysisSchema =
-        AnalysisSchema.builder().name(analysisTypeName).schema(analysisTypeSchema).build();
+        AnalysisSchema.builder()
+            .name(analysisTypeName)
+            .schema(analysisTypeSchema)
+            .options(newAnalysisOptions)
+            .build();
+
     analysisSchemaRepository.save(analysisSchema);
     val version =
         analysisSchemaRepository.countAllByNameAndIdLessThanEqual(
@@ -275,6 +320,7 @@ public class AnalysisTypeService {
         .version(version)
         .createdAt(createdAt)
         .schema(resolvedSchemaJson)
+        .options(options)
         .build();
   }
 
@@ -293,11 +339,13 @@ public class AnalysisTypeService {
 
   private AnalysisType convertToAnalysisType(
       AnalysisSchema analysisSchema, boolean hideSchema, boolean unrenderedOnly) {
+
     return AnalysisType.builder()
         .name(analysisSchema.getName())
         .version(analysisSchema.getVersion())
         .createdAt(analysisSchema.getCreatedAt())
         .schema(resolveSchemaJsonView(analysisSchema.getSchema(), unrenderedOnly, hideSchema))
+        .options(analysisSchema.getOptions())
         .build();
   }
 

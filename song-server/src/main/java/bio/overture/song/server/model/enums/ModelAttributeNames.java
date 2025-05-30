@@ -24,17 +24,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public class ModelAttributeNames {
 
-  public static final String DONOR_ID = "donorId";
-  public static final String DONOR_SUBMITTER_ID = "donorSubmitterId";
-  public static final String SAMPLE_SUBMITTER_ID = "sampleSubmitterId";
-  public static final String SPECIMEN_SUBMITTER_ID = "specimenSubmitterId";
-
   public static final String STUDY_ID = "studyId";
-  public static final String SPECIMEN_ID = "specimenId";
-  public static final String SAMPLE_ID = "sampleId";
   public static final String OBJECT_ID = "objectId";
   public static final String GENDER = "gender";
-  public static final String SPECIMENS = "specimens";
   public static final String INFO = "info";
   public static final String ANALYSIS_ID = "analysisId";
   public static final String ALIGNED = "aligned";
@@ -50,7 +42,6 @@ public class ModelAttributeNames {
   public static final String ERRORS = "errors";
   public static final String PAYLOAD = "payload";
   public static final String VARIANT_CALLING_TOOL = "variantCallingTool";
-  public static final String MATCHED_NORMAL_SAMPLE_SUBMITTER_ID = "matchedNormalSampleSubmitterId";
   public static final String ID = "id";
   public static final String VERSION = "version";
   public static final String NAME = "name";
@@ -63,9 +54,6 @@ public class ModelAttributeNames {
   public static final String SORTORDER = "sortOrder";
   public static final String OFFSET = "offset";
   public static final String LIMIT = "limit";
-  public static final String DONOR = "donor";
-  public static final String SPECIMEN = "specimen";
-  public static final String SAMPLES = "samples";
   public static final String FILES = "files";
   public static final String ANALYSIS = "analysis";
 }

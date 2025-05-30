@@ -18,22 +18,10 @@
 package bio.overture.song.server.service;
 
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.FileTypes.BAM;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.JsonUtils.readTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
-import static bio.overture.song.core.utils.JsonUtils.toJsonNode;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.DONOR;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.INFO;
-import static bio.overture.song.server.model.enums.ModelAttributeNames.SPECIMEN;
-import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
-import static bio.overture.song.server.utils.TestConstants.TUMOUR_NORMAL_DESIGNATION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static bio.overture.song.core.utils.JsonUtils.*;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
+import static bio.overture.song.server.utils.TestConstants.*;
+import static org.junit.Assert.*;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.JsonUtils;
@@ -41,11 +29,7 @@ import bio.overture.song.server.model.analysis.Analysis;
 import bio.overture.song.server.model.analysis.AnalysisData;
 import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.AnalysisSchema;
-import bio.overture.song.server.model.entity.Donor;
 import bio.overture.song.server.model.entity.FileEntity;
-import bio.overture.song.server.model.entity.Sample;
-import bio.overture.song.server.model.entity.Specimen;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.model.enums.ModelAttributeNames;
 import bio.overture.song.server.utils.TestFiles;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -84,36 +68,6 @@ public class DeserializationTest {
             .build();
     a.setAnalysisSchema(aSchema);
 
-    val d =
-        Donor.builder()
-            .gender("Male")
-            .donorId("DO1")
-            .submitterDonorId("SUB_DO1")
-            .studyId("ABC123")
-            .build();
-
-    val sp =
-        Specimen.builder()
-            .donorId("DO1")
-            .specimenTissueSource(SPECIMEN_TISSUE_SOURCE.stream().findAny().get())
-            .tumourNormalDesignation(TUMOUR_NORMAL_DESIGNATION.stream().findAny().get())
-            .specimenType(SPECIMEN_TYPE.stream().findAny().get())
-            .specimenId("SP1")
-            .submitterSpecimenId("SUB_SP1")
-            .build();
-
-    val sa =
-        Sample.builder()
-            .sampleId("SA1")
-            .sampleType(SAMPLE_TYPE.stream().findAny().get())
-            .specimenId("SP1")
-            .submitterSampleId("SUB_SA1")
-            .build();
-
-    val ce = CompositeEntity.create(sa);
-    ce.setDonor(d);
-    ce.setSpecimen(sp);
-
     val f1 =
         FileEntity.builder()
             .analysisId("AN1")
@@ -123,13 +77,11 @@ public class DeserializationTest {
             .objectId("sfdsdfsdf")
             .studyId("ABC123")
             .fileName("something.bam")
-            .fileType(BAM.toString())
+            .fileType("BAM")
             .build();
     val fileList = List.of(f1);
     val fff = new ObjectMapper().valueToTree(f1);
 
-    val lce = List.of(ce);
-    a.setSamples(lce);
     a.setFiles(fileList);
 
     // Assert no info fields when converting from object to tree
@@ -226,10 +178,6 @@ public class DeserializationTest {
 
   private static void assertNoInfoFieldsInAnalysis(JsonNode analysisAsJson) {
     assertNoInfoField(analysisAsJson);
-    val jSample1 = analysisAsJson.path(ModelAttributeNames.SAMPLES).get(0);
-    assertNoInfoField(jSample1);
-    assertNoInfoField(jSample1.path(DONOR));
-    assertNoInfoField(jSample1.path(SPECIMEN));
     assertNoInfoField(analysisAsJson.path(ModelAttributeNames.FILES).get(0));
   }
 

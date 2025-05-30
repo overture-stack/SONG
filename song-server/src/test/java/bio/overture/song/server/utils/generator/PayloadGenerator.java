@@ -46,17 +46,7 @@ public class PayloadGenerator {
    */
   public Payload generateRandomPayload(String payloadFilename) {
     val json = TestFiles.getJsonStringFromClasspath(payloadFilename);
-    val payload = fromJson(json, Payload.class);
-    payload
-        .getSamples()
-        .forEach(
-            x -> {
-              x.setSubmitterSampleId(randomGenerator.generateRandomUUID().toString());
-              x.getSpecimen()
-                  .setSubmitterSpecimenId(randomGenerator.generateRandomUUID().toString());
-              x.getDonor().setSubmitterDonorId(randomGenerator.generateRandomUUID().toString());
-            });
-    return payload;
+    return fromJson(json, Payload.class);
   }
 
   /** Based on the input analysis class type, the correct payload fixture filename is returned. */

@@ -17,18 +17,10 @@
 
 package bio.overture.song.server.controller;
 
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_DONOR_DATA;
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_SAMPLE_DATA;
-import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_SPECIMEN_DATA;
-import static bio.overture.song.core.utils.JsonUtils.fromJson;
-import static bio.overture.song.core.utils.JsonUtils.objectToTree;
-import static bio.overture.song.core.utils.JsonUtils.toJson;
+import static bio.overture.song.core.exceptions.ServerErrors.*;
+import static bio.overture.song.core.utils.JsonUtils.*;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
-import static bio.overture.song.server.utils.TestConstants.GENDER;
-import static bio.overture.song.server.utils.TestConstants.SAMPLE_TYPE;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TISSUE_SOURCE;
-import static bio.overture.song.server.utils.TestConstants.SPECIMEN_TYPE;
-import static bio.overture.song.server.utils.TestConstants.TumourNormalDesignations.NORMAL;
+import static bio.overture.song.server.utils.TestConstants.*;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
@@ -36,11 +28,9 @@ import static bio.overture.song.server.utils.generator.StudyGenerator.createStud
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.dto.Payload;
-import bio.overture.song.server.model.entity.composites.CompositeEntity;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.generator.PayloadGenerator;
 import bio.overture.song.server.utils.generator.StudyGenerator;
-import java.util.Set;
 import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,44 +92,9 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
         .assertOk()
         .assertHasBody();
 
-    modifyPayload(payload, false, false, false);
+    modifyPayload(payload);
 
     getEndpointTester().submitPostRequestAnd(studyId, objectToTree(payload)).assertOk();
-  }
-
-  @Test
-  public void testMutatedSample() {
-    runTest(true, false, false, MISMATCHING_SAMPLE_DATA);
-  }
-
-  @Test
-  public void testMutatedSpecimen() {
-    runTest(false, true, false, MISMATCHING_SPECIMEN_DATA);
-  }
-
-  @Test
-  public void testMutatedSampleSpecimen() {
-    runTest(true, true, false, MISMATCHING_SPECIMEN_DATA);
-  }
-
-  @Test
-  public void testMutatedDonor() {
-    runTest(false, false, true, MISMATCHING_DONOR_DATA);
-  }
-
-  @Test
-  public void testMutatedDonorSample() {
-    runTest(true, false, true, MISMATCHING_DONOR_DATA);
-  }
-
-  @Test
-  public void testMutatedDonorSpecimen() {
-    runTest(false, true, true, MISMATCHING_DONOR_DATA);
-  }
-
-  @Test
-  public void testAllMutated() {
-    runTest(true, true, true, MISMATCHING_DONOR_DATA);
   }
 
   /**
@@ -147,11 +102,7 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
    * data to be inconsistent with the previous, and submits it again. This simulates the case a
    * second request is made where immutable data is mutated.
    */
-  private void runTest(
-      boolean mutatedSample,
-      boolean mutatedSpecimen,
-      boolean mutatedDonor,
-      ServerError expectedError) {
+  private void runTest(ServerError expectedError) {
     val studyGenerator = createStudyGenerator(getStudyService(), randomGenerator);
     val studyId = studyGenerator.createRandomStudy();
     val payload = randomPayload();
@@ -161,7 +112,7 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
         .assertOk()
         .assertHasBody();
 
-    val payload2 = modifyPayload(payload, mutatedSample, mutatedSpecimen, mutatedDonor);
+    val payload2 = modifyPayload(payload);
 
     getEndpointTester()
         .submitPostRequestAnd(studyId, objectToTree(payload2))
@@ -176,68 +127,8 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
     return payloadGenerator.generateDefaultRandomPayload(SEQUENCING_READ);
   }
 
-  private Payload modifyPayload(
-      Payload payload, boolean mutatedSample, boolean mutatedSpecimen, boolean mutatedDonor) {
+  private Payload modifyPayload(Payload payload) {
     val payload2 = fromJson(toJson(payload), Payload.class);
-    modifySample(payload2, mutatedSample);
-    modifySpecimen(payload2, mutatedSpecimen);
-    modifyDonor(payload2, mutatedDonor);
     return payload2;
-  }
-
-  private void modifySample(Payload p, boolean mutated) {
-    if (mutated) {
-      p.getSamples()
-          .forEach(
-              s -> {
-                val differentSampleType =
-                    randomGenerator.randomElementIgnoring(SAMPLE_TYPE, Set.of(s.getSampleType()));
-                s.setSampleType(differentSampleType);
-                s.setInfo(
-                    randomGenerator.generateRandomAsciiString(5),
-                    randomGenerator.generateRandomUUIDAsString());
-              });
-    }
-  }
-
-  private void modifySpecimen(Payload p, boolean mutated) {
-    if (mutated) {
-      p.getSamples().stream()
-          .map(CompositeEntity::getSpecimen)
-          .forEach(
-              s -> {
-                val differentSpecimenType =
-                    randomGenerator.randomElementIgnoring(
-                        SPECIMEN_TYPE, Set.of(s.getSpecimenType()));
-                s.setSpecimenType(differentSpecimenType);
-
-                val differentTissue =
-                    randomGenerator.randomElementIgnoring(
-                        SPECIMEN_TISSUE_SOURCE, Set.of(s.getSpecimenTissueSource()));
-                s.setSpecimenTissueSource(differentTissue);
-
-                s.setTumourNormalDesignation(NORMAL.getText());
-
-                s.setInfo(
-                    randomGenerator.generateRandomAsciiString(5),
-                    randomGenerator.generateRandomUUIDAsString());
-              });
-    }
-  }
-
-  private void modifyDonor(Payload p, boolean mutated) {
-    if (mutated) {
-      p.getSamples().stream()
-          .map(CompositeEntity::getDonor)
-          .forEach(
-              d -> {
-                val differentGender =
-                    randomGenerator.randomElementIgnoring(GENDER, Set.of(d.getGender()));
-                d.setGender(differentGender);
-                d.setInfo(
-                    randomGenerator.generateRandomAsciiString(5),
-                    randomGenerator.generateRandomUUIDAsString());
-              });
-    }
   }
 }

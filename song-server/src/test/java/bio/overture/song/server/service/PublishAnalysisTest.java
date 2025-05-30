@@ -22,8 +22,6 @@ import static bio.overture.song.core.exceptions.ServerErrors.MISMATCHING_STORAGE
 import static bio.overture.song.core.exceptions.ServerErrors.MISSING_STORAGE_OBJECTS;
 import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
-import static bio.overture.song.core.model.enums.FileTypes.BAM;
-import static bio.overture.song.core.model.enums.FileTypes.VCF;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.core.utils.RandomGenerator.randomList;
 import static bio.overture.song.server.service.PublishAnalysisTest.RangeType.ALL;
@@ -356,11 +354,11 @@ public class PublishAnalysisTest {
     String fileName = randomGenerator.generateRandomUUIDAsString() + ".";
 
     if (legacyAnalysisTypeName == LegacyAnalysisTypeName.SEQUENCING_READ) {
-      fileType = BAM.toString();
-      fileName += BAM.getExtension();
+      fileType = "BAM";
+      fileName += "BAM";
     } else if (legacyAnalysisTypeName == LegacyAnalysisTypeName.VARIANT_CALL) {
-      fileType = VCF.toString();
-      fileName += VCF.getExtension() + ".gz";
+      fileType = "VCF";
+      fileName += "VCF" + ".gz";
     }
     val file =
         FileEntity.builder()
