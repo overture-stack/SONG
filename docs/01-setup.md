@@ -48,7 +48,7 @@ We'll use our Quickstart service, a flexible Docker Compose setup, to spin up So
    - Ensure these ports are free on your system before starting the environment.
    - You may need to adjust the ports in the `docker-compose.yml` file if you have conflicts with existing services.
 
-   For more information, see our [Quickstart documentation linked here](https://docs.overture.bio/docs/other-software/Quickstart)
+   For more information, see our [Quickstart documentation linked here](https://docs.overture.bio/docs/platform-tools/Quickstart)
 
     </details>
 
