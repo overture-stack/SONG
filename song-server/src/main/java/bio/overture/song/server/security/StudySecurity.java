@@ -21,6 +21,7 @@ import static bio.overture.song.server.utils.Scopes.extractGrantedScopesFromRpt;
 
 import java.util.Set;
 
+import bio.overture.song.server.auth.AuthorizationService;
 import bio.overture.song.server.service.auth.KeycloakAuthorizationService;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,9 @@ public class StudySecurity {
 
   @Autowired
   private KeycloakAuthorizationService keycloakAuthorizationService;
+
+  @Autowired
+  private AuthorizationService authorizationService;
 
   public boolean authorize(@NonNull Authentication authentication, @NonNull final String studyId) {
     log.info("Checking study-level authorization for studyId {}", studyId);
@@ -79,5 +83,17 @@ public class StudySecurity {
 
   public String getStudyScope(@NonNull String studyId) {
     return studyPrefix + studyId + studySuffix;
+  }
+
+  public boolean authorizeNew(Authentication authentication, String studyId) {
+    if (!(authentication instanceof JwtAuthenticationToken jwtAuth)) {
+      log.warn("Unsupported authentication type");
+      return false;
+    }
+
+    String accessToken = jwtAuth.getToken().getTokenValue();
+    var userDetails = authorizationService.fetchUserDetails(accessToken);
+
+    return authorizationService.hasWriteAccessToStudy(userDetails, studyId);
   }
 }
