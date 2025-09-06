@@ -101,7 +101,7 @@ public class MockedSubmitTest {
     // Verify
     assertSongError(
         () -> submitService.submit("anyStudyId", "anyAnalysisId", false), STUDY_ID_DOES_NOT_EXIST);
-    verify(validationService, never()).validate(isA(JsonNode.class),"anyStudyId");
+    verify(validationService, never()).validate(isA(JsonNode.class), "anyStudyId");
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
@@ -113,7 +113,7 @@ public class MockedSubmitTest {
     // Verify
     assertSongError(
         () -> submitService.submit("anyStudyId", "non json format", false), PAYLOAD_PARSING);
-    verify(validationService, never()).validate(isA(JsonNode.class),"anyStudyId");
+    verify(validationService, never()).validate(isA(JsonNode.class), "anyStudyId");
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
@@ -136,7 +136,7 @@ public class MockedSubmitTest {
 
     // Verify
     assertSongError(() -> submitService.submit(studyId, invalidPayload, false), SCHEMA_VIOLATION);
-    verify(validationService, times(1)).validate(isA(JsonNode.class),"anyStudyId");
+    verify(validationService, times(1)).validate(isA(JsonNode.class), "anyStudyId");
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
@@ -146,7 +146,8 @@ public class MockedSubmitTest {
     val study1 = "study1";
     val study2 = "study2";
     doNothing().when(studyService).checkStudyExist(anyString());
-    when(validationService.validate(isA(JsonNode.class), "anyStudyId")).thenReturn(Optional.empty());
+    when(validationService.validate(isA(JsonNode.class), "anyStudyId"))
+        .thenReturn(Optional.empty());
     val payloadString =
         toJson(
             Payload.builder()
@@ -174,7 +175,8 @@ public class MockedSubmitTest {
             .build();
 
     doNothing().when(studyService).checkStudyExist(anyString());
-    when(validationService.validate(isA(JsonNode.class), "anyStudyId")).thenReturn(Optional.empty());
+    when(validationService.validate(isA(JsonNode.class), "anyStudyId"))
+        .thenReturn(Optional.empty());
 
     val payloadString = toJson(payload);
     when(analysisService.create(study, payload))

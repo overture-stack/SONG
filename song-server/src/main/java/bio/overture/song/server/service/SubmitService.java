@@ -27,8 +27,6 @@ import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static java.util.Objects.isNull;
 
-import bio.overture.song.core.exceptions.ServerException;
-import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.server.model.analysis.Analysis;
@@ -86,13 +84,11 @@ public class SubmitService {
     // Create the analysis
     Analysis analysis;
 
-    try{
+    try {
       analysis = analysisService.create(studyId, payload);
-    } catch (Exception e){
+    } catch (Exception e) {
       throw buildServerException(
-              getClass(),
-              UNKNOWN_ERROR,
-              "Unable to create Analysis. "+ e.getMessage());
+          getClass(), UNKNOWN_ERROR, "Unable to create Analysis. " + e.getMessage());
     }
     return SubmitResponse.builder().analysisId(analysis.getAnalysisId()).status(OK).build();
   }

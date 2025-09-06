@@ -517,8 +517,7 @@ public class AnalysisServiceTest {
 
     // Do a study-wide idSearch and verify the response effectively has the same
     // number of results as the getAnalysis method
-    val searchedAnalyses =
-        service.idSearch(studyId, createIdSearchRequest(null));
+    val searchedAnalyses = service.idSearch(studyId, createIdSearchRequest(null));
     assertEquals(searchedAnalyses.size(), expectedAnalyses.size());
     assertTrue(searchedAnalyses.containsAll(expectedAnalyses));
     assertTrue(expectedAnalyses.containsAll(searchedAnalyses));
