@@ -5,7 +5,6 @@ import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -19,7 +18,6 @@ import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import bio.overture.song.server.service.analysis.AnalysisServiceSender;
-import bio.overture.song.server.utils.generator.AnalysisGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -45,14 +43,11 @@ public class AnalysisServiceSenderTest {
 
   @Mock private AnalysisService internalAnalysisService;
 
-  @Mock private FileService fileService;
-
   /** State */
   private String studyId;
 
   private String analysisId;
 
-  private AnalysisGenerator analysisGenerator;
   private Analysis analysis;
 
   @Before
@@ -60,7 +55,6 @@ public class AnalysisServiceSenderTest {
     this.studyId = RANDOM_GENERATOR.generateRandomAsciiString(10);
     this.analysisId = RANDOM_GENERATOR.generateRandomUUIDAsString();
 
-    analysisGenerator = createAnalysisGenerator(studyId, internalAnalysisService, RANDOM_GENERATOR);
     val analysisSchema =
         AnalysisSchema.builder()
             .name("test-schema")
@@ -113,7 +107,7 @@ public class AnalysisServiceSenderTest {
 
   private AnalysisServiceSender createTestAnalysisServiceSender(AnalysisActions action) {
     val sender = createTestSender(action);
-    return new AnalysisServiceSender(SONG_ID, sender, internalAnalysisService, fileService);
+    return new AnalysisServiceSender(SONG_ID, sender, internalAnalysisService);
   }
 
   private TestSender createTestSender(AnalysisActions action) {
