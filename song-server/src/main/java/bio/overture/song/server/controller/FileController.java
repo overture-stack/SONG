@@ -16,8 +16,6 @@
  */
 package bio.overture.song.server.controller;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 import bio.overture.song.core.model.FileUpdateRequest;
 import bio.overture.song.core.model.FileUpdateResponse;
 import bio.overture.song.server.model.entity.FileEntity;
@@ -31,15 +29,7 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,7 +59,6 @@ public class FileController {
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @Transactional
   public FileUpdateResponse update(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
       @ApiParam(value = "File data to update", required = true) @RequestBody
@@ -83,7 +72,6 @@ public class FileController {
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @Transactional
   public String delete(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("ids") @ApiParam(value = "Comma separated list of fileIds", required = true)
           List<String> ids) {

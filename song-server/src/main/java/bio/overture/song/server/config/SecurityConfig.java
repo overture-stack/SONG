@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.ProviderManager;
@@ -109,19 +110,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     http.authorizeRequests()
         .antMatchers("/isAlive")
         .permitAll()
-        .antMatchers("/studies/**")
-        .permitAll()
-        .antMatchers("/upload/**")
-        .permitAll()
         .antMatchers("/entities/**")
         .permitAll()
         .antMatchers("/export/**")
         .permitAll()
-        .antMatchers("/schemas/**")
+        .antMatchers(HttpMethod.GET, "/schemas/**") // AKA. AnalysisType
         .permitAll()
-        .antMatchers(swaggerConfig.getAlternateSwaggerUrl())
+        .antMatchers(
+            HttpMethod.GET,
+            "/studies/**") // This covers StudyController, FileController, and AnalysisController
         .permitAll()
-        .antMatchers("/swagger**", "/swagger-resources/**", "/v2/api**", "/webjars/**")
+        .antMatchers("/upload/**")
+        .permitAll()
+        .antMatchers(
+            swaggerConfig.getAlternateSwaggerUrl(),
+            "/swagger**",
+            "/swagger-resources/**",
+            "/v2/api**",
+            "/webjars/**")
         .permitAll()
         .and()
         .authorizeRequests()

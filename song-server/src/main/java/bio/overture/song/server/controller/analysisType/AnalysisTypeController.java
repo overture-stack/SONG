@@ -21,7 +21,6 @@ import static bio.overture.song.core.utils.JsonUtils.toPrettyJson;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_LIMIT;
 import static bio.overture.song.server.controller.analysisType.AnalysisTypePageableResolver.DEFAULT_OFFSET;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -92,9 +91,7 @@ public class AnalysisTypeController {
   @PreAuthorize("@systemSecurity.authorize(authentication)")
   @PostMapping(consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @ApiOperation(value = "RegisterAnalysisType", notes = "Registers an analysisType schema")
-  public @ResponseBody AnalysisType register(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @RequestBody RegisterAnalysisTypeRequest request) {
+  public @ResponseBody AnalysisType register(@RequestBody RegisterAnalysisTypeRequest request) {
     val options = request.getOptions() != null ? request.getOptions() : new AnalysisTypeOptions();
     return analysisTypeService.register(request.getName(), options, request.getSchema());
   }

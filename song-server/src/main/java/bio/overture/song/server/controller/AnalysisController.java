@@ -19,7 +19,6 @@ package bio.overture.song.server.controller;
 import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.repository.search.IdSearchRequest.createIdSearchRequest;
 import static java.lang.String.format;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -94,7 +93,6 @@ public class AnalysisController {
       value = "/{analysisId}",
       consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   public void updateAnalysis(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("analysisId") String analysisId,
       @RequestBody JsonNode updateAnalysisRequest) {
@@ -109,7 +107,6 @@ public class AnalysisController {
       value = "/{analysisId}",
       consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   public void patchUpdateAnalysis(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("analysisId") String analysisId,
       @RequestBody JsonNode patchUpdateAnalysisRequest) {
@@ -125,7 +122,6 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public GenericMessage publishAnalysis(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @PathVariable("id") String id,
       @ApiParam(value = "Ignores files that have an undefined MD5 checksum when publishing")
@@ -142,10 +138,8 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public GenericMessage unpublishAnalysis(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId,
-      @PathVariable("id") String id) {
-    val analysis = analysisService.unpublish(studyId, id);
+      @PathVariable("studyId") String studyId, @PathVariable("id") String id) {
+    analysisService.unpublish(studyId, id);
     return new GenericMessage(format("AnalysisId " + id + " successfully unpublished"));
   }
 
@@ -158,10 +152,8 @@ public class AnalysisController {
   @SneakyThrows
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public GenericMessage suppressAnalysis(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @PathVariable("studyId") String studyId,
-      @PathVariable("id") String id) {
-    val analysis = analysisService.suppress(studyId, id);
+      @PathVariable("studyId") String studyId, @PathVariable("id") String id) {
+    analysisService.suppress(studyId, id);
     return new GenericMessage(format("AnalysisId " + id + " was suppressed"));
   }
 
