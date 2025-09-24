@@ -16,9 +16,13 @@
  */
 package bio.overture.song.sdk;
 
+import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static bio.overture.song.core.exceptions.SongError.createSongError;
 import static bio.overture.song.core.utils.Booleans.convertToBoolean;
 
 import bio.overture.song.core.exceptions.BooleanConversionException;
+import bio.overture.song.core.exceptions.ServerException;
+import bio.overture.song.core.exceptions.SongError;
 import bio.overture.song.core.model.Analysis;
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.ExportedPayload;
@@ -35,11 +39,14 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.client.ResourceAccessException;
 
 @RequiredArgsConstructor
 public class SongApi {
 
+  private static final Logger log = LoggerFactory.getLogger(SongApi.class);
   @NonNull private final RestClient restClient;
   @NonNull private final Endpoint endpoint;
 
@@ -51,7 +58,40 @@ public class SongApi {
   public SubmitResponse submit(
       @NonNull String studyId, @NonNull String json, boolean allowDuplicates) {
     val url = endpoint.submit(studyId, allowDuplicates);
-    return restClient.post(url, json, SubmitResponse.class).getBody();
+    val response = restClient.post(url, json, SubmitResponse.class);
+
+    if (response == null || response.getBody() == null) {
+      String rawBody = null;
+      int statusCode = -1;
+
+      try {
+        if (response != null && response.hasBody()) {
+          rawBody = response.getBody().toString();
+        }
+        if (response != null) {
+          statusCode = response.getStatusCode().value();
+        }
+      } catch (Exception e) {
+        log.error("Exception occurred ", e);
+      }
+
+      SongError songError;
+      if (rawBody != null && rawBody.contains("invalid_token")) {
+        songError =
+            createSongError(UNAUTHORIZED_TOKEN, "Authentication failed: invalid or expired token.");
+      } else {
+        songError =
+            createSongError(
+                UNAUTHORIZED_TOKEN,
+                String.format(
+                    "Submit failed with status %s. Raw body: %s",
+                    statusCode == -1 ? "UNKNOWN" : statusCode,
+                    rawBody == null ? "No response body" : rawBody));
+      }
+      throw new ServerException(songError);
+    }
+
+    return response.getBody();
   }
 
   public List<FileDTO> getAnalysisFiles(@NonNull String studyId, @NonNull String analysisId) {

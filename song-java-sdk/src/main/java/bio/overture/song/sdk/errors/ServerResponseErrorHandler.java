@@ -18,6 +18,7 @@
 package bio.overture.song.sdk.errors;
 
 import static bio.overture.song.core.exceptions.ServerErrors.UNAUTHORIZED_TOKEN;
+import static bio.overture.song.core.exceptions.ServerErrors.UNKNOWN_ERROR;
 import static bio.overture.song.core.exceptions.SongError.createSongError;
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.Separators.NEWLINE;
@@ -43,10 +44,14 @@ public class ServerResponseErrorHandler extends DefaultResponseErrorHandler {
 
   @SneakyThrows
   private static boolean isInvalidToken(String error) {
-    val response = JsonUtils.readTree(error);
-    if (response.has(ERROR)) {
-      val errorValue = response.path(ERROR).textValue();
-      return errorValue.equals(INVALID_TOKEN);
+    try {
+      val response = JsonUtils.readTree(error);
+      if (response.has(ERROR)) {
+        val errorValue = response.path(ERROR).textValue();
+        return errorValue.equals(INVALID_TOKEN);
+      }
+    } catch (Exception e) {
+      log.debug("Response body not JSON, cannot parse for token error: {}", error);
     }
     return false;
   }
@@ -57,9 +62,22 @@ public class ServerResponseErrorHandler extends DefaultResponseErrorHandler {
     val httpStatusCode = clientHttpResponse.getStatusCode();
     val br = new BufferedReader(new InputStreamReader(clientHttpResponse.getBody()));
     val body = NEWLINE.join(br.lines().iterator());
+
+    log.error(
+        "Server returned error: status={}({}), body={}",
+        httpStatusCode.value(),
+        httpStatusCode.getReasonPhrase(),
+        body);
+
     SongError songError = parseErrorResponse(httpStatusCode, body);
     if (isNull(songError.getErrorId()) && isInvalidToken(body)) {
       songError = createSongError(UNAUTHORIZED_TOKEN, "Invalid token");
+    } else if (isNull(songError.getMessage()) || songError.getMessage().isEmpty()) {
+      String fallbackMessage =
+          String.format(
+              "Request failed with status %s (%d). Response body: %s",
+              httpStatusCode.getReasonPhrase(), httpStatusCode.value(), body);
+      songError = createSongError(UNKNOWN_ERROR, fallbackMessage);
     }
     throw new ServerException(songError);
   }
