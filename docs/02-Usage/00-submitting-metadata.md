@@ -58,7 +58,7 @@ This page documents the basic submission flow, for a more detailed guide see our
        -e STORAGE_URL=${scoreServerUrl} \
        -e METADATA_URL=${songServerUrl} \
        --network="host" \
-       --platform="linux/amd64"
+       --platform="linux/amd64" \
        --mount type=bind,source="$(pwd)",target=/output \
        ghcr.io/overture-stack/score-client:latest
    ```
