@@ -10,71 +10,73 @@ This page documents the basic submission flow, for a more detailed guide see our
 
 1. **Install the Song-Client:**
 
-    To run the song-client using Docker, provide the following environment variables:
-    - `CLIENT_ACCESS_TOKEN`: Valid access token
-    - `CLIENT_STUDY_ID`: Your study ID
-    - `CLIENT_SERVER_URL`: Song server URL
+   To run the song-client using Docker, provide the following environment variables:
 
-    Use this command to run a Song Client docker container:
+   - `CLIENT_ACCESS_TOKEN`: Valid access token
+   - `CLIENT_STUDY_ID`: Your study ID
+   - `CLIENT_SERVER_URL`: Song server URL
 
-    ```bash
-    docker run -d -it --name song-client \
-        -e CLIENT_ACCESS_TOKEN=${token} \
-        -e CLIENT_STUDY_ID=${studyId} \
-        -e CLIENT_SERVER_URL=${songServerUrl} \
-        --network="host" \
-        --mount type=bind,source="$(pwd)",target=/output \
-        ghcr.io/overture-stack/song-client:latest
-    ```
+   Use this command to run a Song Client docker container:
 
-    Replace all `${}` placeholders with your environment's values.
+   ```bash
+   docker run -d -it --name song-client \
+       -e CLIENT_ACCESS_TOKEN=${token} \
+       -e CLIENT_STUDY_ID=${studyId} \
+       -e CLIENT_SERVER_URL=${songServerUrl} \
+       --network="host" \
+       --mount type=bind,source="$(pwd)",target=/output \
+       ghcr.io/overture-stack/song-client:latest
+   ```
 
-    <details>
-      <summary><b>Detailed command breakdown</b></summary>
+   Replace all `${}` placeholders with your environment's values.
 
-      - `-d -it`: Runs container in detached and interactive mode
-      - `-e CLIENT_ACCESS_TOKEN=${token}`: Access token from the platform's auth service
-      - `-e CLIENT_STUDY_ID=${studyId}`: Your specific study ID
-      - `-e CLIENT_SERVER_URL=${songServerUrl}`: Song server URL
-      - `--network="host"`: Uses host network stack
-      - `--mount type=bind,source="$(pwd)",target=/output`: Mounts current directory to container's `/output`
+   <details>
+     <summary><b>Detailed command breakdown</b></summary>
 
-    </details>
+   - `-d -it`: Runs container in detached and interactive mode
+   - `-e CLIENT_ACCESS_TOKEN=${token}`: Access token from the platform's auth service
+   - `-e CLIENT_STUDY_ID=${studyId}`: Your specific study ID
+   - `-e CLIENT_SERVER_URL=${songServerUrl}`: Song server URL
+   - `--network="host"`: Uses host network stack
+   - `--mount type=bind,source="$(pwd)",target=/output`: Mounts current directory to container's `/output`
+
+   </details>
 
 2. **Install the Score-Client:**
 
-    To run the score-client using Docker, provide the following environment variables:
-    - `STORAGE_URL`: Score server URL
-    - `METADATA_URL`: Song server URL
-    - `ACCESSTOKEN`: Valid access token
+   To run the score-client using Docker, provide the following environment variables:
 
-    Use this command to run a Score Client docker container:
+   - `STORAGE_URL`: Score server URL
+   - `METADATA_URL`: Song server URL
+   - `ACCESSTOKEN`: Valid access token
 
-    ```bash
-    docker run -d --name score-client \
-        -e ACCESSTOKEN=${token} \
-        -e STORAGE_URL=${scoreServerUrl} \
-        -e METADATA_URL=${songServerUrl} \
-        --network="host" \
-        --platform="linux/amd64" \
-        --mount type=bind,source="$(pwd)",target=/output \
-        ghcr.io/overture-stack/score:latest
-    ```
+   Use this command to run a Score Client docker container:
 
-    Replace all `${}` placeholders with your environment's values.
+   ```bash
+   docker run -d --name score-client \
+       -e ACCESSTOKEN=${token} \
+       -e STORAGE_URL=${scoreServerUrl} \
+       -e METADATA_URL=${songServerUrl} \
+       --network="host" \
+       --platform="linux/amd64"score-client:
+       --mount type=bind,source="$(pwd)",target=/output \
+       ghcr.io/overture-stack/score-client:latest
+   ```
 
-    <details>
-      <summary><b>Detailed command breakdown</b></summary>
+   Replace all `${}` placeholders with your environment's values.
 
-      - `-d`: Runs container in detached mode (background)
-      - `-e ACCESSTOKEN=${token}`: Access token from the platform's auth service
-      - `-e STORAGE_URL=${scoreServerUrl}`: Score server URL
-      - `-e METADATA_URL=${songServerUrl}`: Song server URL
-      - `--network="host"`: Uses host network stack
-      - `--platform="linux/amd64"`: Specifies container platform
-      - `--mount type=bind,source="$(pwd)",target=/output`: Mounts current directory to container's `/output`
+   <details>
+     <summary><b>Detailed command breakdown</b></summary>
 
-    </details>
+   - `-d`: Runs container in detached mode (background)
+   - `-e ACCESSTOKEN=${token}`: Access token from the platform's auth service
+   - `-e STORAGE_URL=${scoreServerUrl}`: Score server URL
+   - `-e METADATA_URL=${songServerUrl}`: Song server URL
+   - `--network="host"`: Uses host network stack
+   - `--platform="linux/amd64"`: Specifies container platform
+   - `--mount type=bind,source="$(pwd)",target=/output`: Mounts current directory to container's `/output`
+
+   </details>
 
 ### Step 1: Prepare a Payload
 
@@ -106,7 +108,7 @@ docker exec song-client sh -c "sing manifest -a a4142a01-1274-45b4-942a-01127465
 ```
 
 :::info Manifests
- A manifest is a file generated by Song that establishes a link between an analysis ID and the data files on your local system, used by Score for file uploads.
+A manifest is a file generated by Song that establishes a link between an analysis ID and the data files on your local system, used by Score for file uploads.
 :::
 
 ### Step 4: Upload Data Files
@@ -140,7 +142,7 @@ For optimal data querying, use Song with our search & exploration services Maest
 ## Troubleshooting
 
 - If you encounter connection or internal server errors, have your admin verify that the Song and Score servers are correctly configured.
- 
+
 :::info Support
 For technical support, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
 :::

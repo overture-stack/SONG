@@ -55,7 +55,7 @@ song-save-payload:
 score-upload:
 	docker run -it --rm --network host --env SPRING_PROFILES=docker \
 	--env ACCESSTOKEN=$(ACCESS_TOKEN) --env STORAGE_URL=$(SCORE_HOST) \
-	--env METADATA_URL=$(SONG_HOST) -v `pwd`/example:/data overture/score:1.6.1 bin/score-client upload \
+	--env METADATA_URL=$(SONG_HOST) -v `pwd`/example:/data overture/score-client:1.6.1 bin/score-client upload \
 	--manifest /data/manifest.txt
 	echo
 

@@ -59,7 +59,7 @@ The data submission workflow can be separated into 4 main stages:
 4. Publishing Metadata (SONG)
 
 
-The following diagram summarized the steps involved in successful data submission using SONG and SCORE:
+The following diagram summarized the steps involved in successful data submission using SONG and score-client:
 
 .. image:: song-workflow.svg
    :width: 75%
