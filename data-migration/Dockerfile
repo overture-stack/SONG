@@ -83,4 +83,4 @@ EXPOSE 3000
 ENV COMMIT_SHA=${COMMIT}
 ENV NODE_ENV=production
 
-CMD [ "pnpm", "start" ]
+CMD [ "node", "index.js" ]
