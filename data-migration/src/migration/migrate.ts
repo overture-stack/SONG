@@ -1,6 +1,6 @@
 import { pool } from '../config/db';
 import { env } from '../config/env';
-import type { Analysis, UpdateAnalysesResult } from '../types';
+import type { AnalysisData, UpdateAnalysesResult } from '../types';
 import { getSamplesStructureForAnalyses } from './samplesStructureForAnalyses.js';
 import { updateAnalyses } from './updateAnalyses';
 
@@ -26,9 +26,9 @@ const getAllStudies = async (): Promise<
  * @param offset
  * @returns
  */
-const getAnalysesFromStudy = async (studyId: string, limit: number, offset: number): Promise<Analysis[]> => {
+const getAnalysesFromStudy = async (studyId: string, limit: number, offset: number): Promise<AnalysisData[]> => {
 	const analysisRes = await pool.query(
-		'SELECT * FROM analysis WHERE study_id = $1 ORDER BY created_at ASC LIMIT $2 OFFSET $3',
+		'SELECT id, analysis_data_id FROM analysis WHERE study_id = $1 ORDER BY created_at ASC LIMIT $2 OFFSET $3',
 		[studyId, limit, offset],
 	);
 
@@ -51,10 +51,11 @@ export const migrateData = async (): Promise<void> => {
 			let offset = 0;
 			let studyAnalysisCount = 0;
 			const failedAnalyses: UpdateAnalysesResult[] = [];
-			const successAnalysis: UpdateAnalysesResult[] = [];
 			console.log(`[${study.id}]:`, `Starting fetching analysis`);
 
 			while (true) {
+				const startDate = Date.now();
+
 				// Paginate analysis
 				const analyses = await getAnalysesFromStudy(study.id, limit, offset);
 
@@ -74,15 +75,17 @@ export const migrateData = async (): Promise<void> => {
 					failedAnalyses.push(...failed);
 				}
 
-				const success = updateResult.filter((result) => result.success);
-				if (success.length > 0) {
-					successAnalysis.push(...success);
-				}
+				const endDate = Date.now();
+				console.log(
+					`[${study.id}]:`,
+					`Processed ${analyses.length} analyses to get samples, donors and specimen in ${
+						endDate - startDate
+					} milliseconds`,
+				);
 
 				offset += limit;
 			}
 
-			// console.log(`[${study.id}]:`, `Successfully processed ${studyAnalysisCount} analyses`);
 			if (failedAnalyses.length > 0) {
 				console.error(`[${study.id}]:`, `Failed to update ${failedAnalyses.length} analyses`);
 				failedAnalyses.forEach((result) => {
@@ -92,7 +95,7 @@ export const migrateData = async (): Promise<void> => {
 				console.log(`[${study.id}]:`, `All analyses updated successfully`);
 			}
 
-			console.log(`[${study.id}]:`, `Finished migrating '${studyAnalysisCount}' analysis`);
+			console.log(`[${study.id}]:`, `Finished migrating '${studyAnalysisCount}' analyses`);
 			totalAnalysisCount += studyAnalysisCount;
 		}
 

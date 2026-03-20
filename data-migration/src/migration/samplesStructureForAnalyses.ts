@@ -1,138 +1,96 @@
 import { pool } from '../config/db';
-import type { Analysis, AnalysisSamplesMapping, Donor, Sample, Specimen } from '../types';
+import type { AnalysisData, AnalysisSamplesMapping, Donor, Sample, Specimen } from '../types';
 
 /**
- * Fetches all samples associated with a specific analysis ID.
- * @param analysisId Analysis ID to fetch samples for
- * @returns
+ * Retrieves the samples structure for a list of analyses using a single batch JOIN query.
+ * @param analysisList An array of Analysis objects to be processed
+ * @returns A mapping of analysis_data_id to an array of Sample objects
  */
-const fetchSamplesSpecimenDonorsForAnalysis = async (analysisId: string): Promise<Sample[]> => {
-	const sampleIds = await getSampleIdsForAnalysis(analysisId);
+const getSamplesStructureForAnalyses = async (analysisList: AnalysisData[]): Promise<AnalysisSamplesMapping> => {
+	if (analysisList.length === 0) {
+		return {};
+	}
 
-	const samples: Sample[] = [];
-	for (const sampleId of sampleIds) {
-		const sampleRow = await getSamplesById(sampleId);
-		if (!sampleRow) {
-			continue;
-		}
+	// Build a lookup from analysis.id → analysis_data_id so we can group results below
+	const analysisIdToDataId = new Map(analysisList.map(({ id, analysis_data_id }) => [id, analysis_data_id]));
+	const analysisIds = analysisList.map((a) => a.id);
 
-		const specimenRow = await getSpecimenById(sampleRow.specimen_id);
-		if (!specimenRow) {
+	const result = await pool.query<{
+		analysis_id: string;
+		sample_id: string;
+		sample_submitter_id: string;
+		sample_type: string;
+		matched_normal_submitter_sample_id: string | null;
+		specimen_id: string;
+		specimen_type: string;
+		specimen_submitter_id: string;
+		tumour_normal_designation: string;
+		specimen_tissue_source: string;
+		donor_id: string;
+		donor_submitter_id: string;
+		gender: string;
+	}>(
+		`SELECT
+			ss.analysis_id,
+			sa.id                                AS sample_id,
+			sa.submitter_id                      AS sample_submitter_id,
+			sa.type                              AS sample_type,
+			sa.matched_normal_submitter_sample_id,
+			sp.id                                AS specimen_id,
+			sp.type                              AS specimen_type,
+			sp.submitter_id                      AS specimen_submitter_id,
+			sp.tumour_normal_designation,
+			sp.tissue_source                     AS specimen_tissue_source,
+			d.id                                 AS donor_id,
+			d.submitter_id                       AS donor_submitter_id,
+			d.gender
+		FROM sampleset ss
+		JOIN sample   sa ON ss.sample_id   = sa.id
+		JOIN specimen sp ON sa.specimen_id = sp.id
+		JOIN donor    d  ON sp.donor_id    = d.id
+		WHERE ss.analysis_id = ANY($1)`,
+		[analysisIds],
+	);
+
+	// Pre-initialise mapping with empty arrays so analyses with no samples are still present
+	const mapping: AnalysisSamplesMapping = {};
+	for (const { analysis_data_id } of analysisList) {
+		mapping[analysis_data_id] = [];
+	}
+
+	for (const row of result.rows) {
+		const analysisDataId = analysisIdToDataId.get(row.analysis_id);
+		if (analysisDataId === undefined) {
 			continue;
 		}
 
 		const specimen: Specimen = {
-			specimenId: specimenRow.id,
-			specimenType: specimenRow.type,
-			submitterSpecimenId: specimenRow.submitter_id,
-			tumourNormalDesignation: specimenRow.tumour_normal_designation,
-			specimenTissueSource: specimenRow.tissue_source,
+			specimenId: row.specimen_id,
+			specimenType: row.specimen_type,
+			submitterSpecimenId: row.specimen_submitter_id,
+			tumourNormalDesignation: row.tumour_normal_designation,
+			specimenTissueSource: row.specimen_tissue_source,
 		};
 
-		const donorRow = await getDonorById(specimenRow.donor_id);
-		if (!donorRow) {
-			continue;
-		}
-
 		const donor: Donor = {
-			donorId: donorRow.id,
-			submitterDonorId: donorRow.submitter_id,
-			gender: donorRow.gender,
+			donorId: row.donor_id,
+			submitterDonorId: row.donor_submitter_id,
+			gender: row.gender,
 		};
 
 		const sample: Sample = {
-			sampleId: sampleRow.id,
-			submitterSampleId: sampleRow.submitter_id,
-			sampleType: sampleRow.type,
-			matchedNormalSubmitterSampleId: sampleRow.matched_normal_submitter_sample_id,
+			sampleId: row.sample_id,
+			submitterSampleId: row.sample_submitter_id,
+			sampleType: row.sample_type,
+			matchedNormalSubmitterSampleId: row.matched_normal_submitter_sample_id,
 			specimen,
 			donor,
 		};
 
-		samples.push(sample);
+		mapping[analysisDataId].push(sample);
 	}
-	return samples;
-};
 
-/**
- * Retrieves a Donor object from the databse by its ID
- * @param donorId
- * @param specimen
- * @returns
- */
-const getDonorById = async (
-	donorId: string,
-): Promise<{ id: string; study_id: string; submitter_id: string; gender: string } | null> => {
-	const result = await pool.query('SELECT * FROM donor WHERE id = $1', [donorId]);
-	return result.rows[0];
-};
-
-/**
- * Retrieves the samples structure for a list of analyses.
- * @param analysisList An array of Analysis objects to be processed
- * @returns A mapping of analysis_data_id to an array of Sample objects
- */
-const getSamplesStructureForAnalyses = async (analysisList: Analysis[]): Promise<AnalysisSamplesMapping> => {
-	// entries will be an array of tuples [number, Sample[]]
-	const entries: [number, Sample[]][] = await Promise.all(
-		analysisList.map(async ({ id, analysis_data_id }) => {
-			const samples = await fetchSamplesSpecimenDonorsForAnalysis(id);
-			return [analysis_data_id, samples];
-		}),
-	);
-
-	return Object.fromEntries(entries);
-};
-
-/**
- * Retrieves a sample object from the database by its ID
- * @param sampleId
- * @returns
- */
-const getSamplesById = async (
-	sampleId: string,
-): Promise<{
-	id: string;
-	specimen_id: string;
-	submitter_id: string;
-	legacy_type: string;
-	type: string;
-	matched_normal_submitter_sample_id: string;
-} | null> => {
-	const sampleRes = await pool.query('SELECT * FROM sample WHERE id = $1', [sampleId]);
-	return sampleRes.rows[0];
-};
-
-/**
- * Get all sample IDs for an analysis
- * @param analysisId
- * @returns
- */
-const getSampleIdsForAnalysis = async (analysisId: string): Promise<string[]> => {
-	// 'sampleset' table maps the analysis_id with sample_id
-	const result = await pool.query('SELECT sample_id FROM sampleset WHERE analysis_id = $1', [analysisId]);
-	return result.rows.map((row) => row.sample_id);
-};
-
-/**
- * Retrieves a specimen object from the database by its ID
- * @param specimenId
- * @returns
- */
-const getSpecimenById = async (
-	specimenId: string,
-): Promise<{
-	id: string;
-	donor_id: string;
-	submitter_id: string;
-	class: string;
-	legacy_type: string;
-	tissue_source: string;
-	tumour_normal_designation: string;
-	type: string;
-} | null> => {
-	const specimenRes = await pool.query('SELECT * FROM specimen WHERE id = $1', [specimenId]);
-	return specimenRes.rows[0];
+	return mapping;
 };
 
 export { getSamplesStructureForAnalyses };

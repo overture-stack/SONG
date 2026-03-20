@@ -38,4 +38,6 @@ export type Analysis = {
 	updated_at: string;
 };
 
+export type AnalysisData = Pick<Analysis, 'id' | 'analysis_data_id'>;
+
 export type AnalysisSamplesMapping = Record<number, Sample[]>;
