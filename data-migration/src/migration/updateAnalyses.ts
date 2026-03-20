@@ -18,7 +18,7 @@ export const updateAnalyses = async (samplesMapping: AnalysisSamplesMapping) => 
 			]);
 
 			if (resultUpdate.rowCount === 0) {
-				console.log(`No rows updated for Analysis Data ID: "${analysisDataId}".`);
+				console.error(`No rows updated for Analysis Data ID: "${analysisDataId}".`);
 			}
 
 			return { analysisDataId, success: (resultUpdate.rowCount || 0) > 0 };

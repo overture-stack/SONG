@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Data migration for Song 5.3.x",
   "main": "src/index.ts",
-  "type": "module",
   "scripts": {
+    "build": "tsc",
     "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
