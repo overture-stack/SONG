@@ -28,7 +28,7 @@ const getAllStudies = async (): Promise<
  */
 const getAnalysesFromStudy = async (studyId: string, limit: number, offset: number): Promise<AnalysisData[]> => {
 	const analysisRes = await pool.query(
-		'SELECT id, analysis_data_id FROM analysis WHERE study_id = $1 ORDER BY created_at ASC LIMIT $2 OFFSET $3',
+		'SELECT id, analysis_data_id FROM analysis WHERE study_id = $1 ORDER BY created_at, updated_at ASC LIMIT $2 OFFSET $3',
 		[studyId, limit, offset],
 	);
 
