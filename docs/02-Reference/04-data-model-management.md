@@ -169,6 +169,34 @@ The URL parsing allows using either the `{study}` or `{value}` placeholder multi
 The URL may cause errors in Song if it contains any tokens matching the `{word}` format other than `{study}` and `{value}`.
 :::
 
+#### Accessing values within arrays
+
+The `jsonPath` can address values inside arrays using standard bracket notation.
+
+To access a value at a specific index, include the index in brackets:
+
+```json
+{
+	"url": "http://example.com/{study}/donor/{value}",
+	"jsonPath": "donors[0].donorId"
+}
+```
+
+This extracts `donorId` from the first element of the `donors` array and performs one validation call.
+
+To validate every element in an array, use the `[*]` wildcard:
+
+```json
+{
+	"url": "http://example.com/{study}/donor/{value}",
+	"jsonPath": "donors[*].donorId"
+}
+```
+
+This extracts `donorId` from each element of the `donors` array and performs one validation call per value. If any value fails validation, the entire analysis submission is rejected. If the array is empty, no validation calls are made and the submission proceeds.
+
+Only string values are validated. If the property at the resolved path is not a string, it is silently skipped.
+
 ## Registering Analysis Types
 
 These steps apply both for registering new schemas and updating existing ones.

@@ -37,6 +37,7 @@ import bio.overture.song.server.validation.SchemaValidator;
 import bio.overture.song.server.validation.ValidationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.JsonPath;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -127,14 +128,27 @@ public class ValidationService {
     return Optional.ofNullable(errors);
   }
 
-  private Optional<String> getValueAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath) {
+  List<String> getValuesAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath) {
     try {
-      String value = JsonPath.read(payload.toString(), "$." + jsonPath);
-      return Optional.of(value);
-    } catch (Exception e) {
+      val result = JsonPath.read(payload.toString(), "$." + jsonPath);
+      if (result instanceof List) {
+        List<String> values = new ArrayList<>();
+        for (val element : (List<?>) result) {
+          if (element instanceof String) {
+            values.add((String) element);
+          }
+        }
+        return values;
+      } else if (result instanceof String) {
+        return List.of((String) result);
+      } else {
+        return List.of();
+      }
+    } catch (Exception exception) {
       log.debug(
-          String.format("Error reading value for external validation. Reason: %s", e.getMessage()));
-      return Optional.empty();
+          String.format(
+              "Error reading value for external validation. Reason: %s", exception.getMessage()));
+      return List.of();
     }
   }
 
@@ -151,26 +165,25 @@ public class ValidationService {
 
     for (ExternalValidation externalValidation : externalValidations) {
 
-      val value = getValueAtJsonPath(payload, externalValidation.getJsonPath());
-      if (value.isPresent()) {
-        // Only validate vs external source if the value is present in the analysis payload
+      val values = getValuesAtJsonPath(payload, externalValidation.getJsonPath());
+      for (String value : values) {
         val formattedExternalUrl =
-            buildExternalUrlFromTemplate(externalValidation.getUrl(), studyId, value.get());
+            buildExternalUrlFromTemplate(externalValidation.getUrl(), studyId, value);
         try {
           val response = restTemplate.getForEntity(formattedExternalUrl, Void.class);
           if (response.getStatusCode().isError()) {
             val errorMessage =
                 String.format(
                     "Value '%s' from path '%s' is not permitted as it failed to validate with external validation source.",
-                    value.get(), externalValidation.getJsonPath(), formattedExternalUrl);
+                    value, externalValidation.getJsonPath());
             log.debug(errorMessage);
             throw new ValidationException(errorMessage);
           }
-        } catch (RestClientException e) {
+        } catch (RestClientException exception) {
           val errorMessage =
               String.format(
                   "Value '%s' from path '%s' is not permitted as it failed to validate with external validation source.",
-                  value.get(), externalValidation.getJsonPath());
+                  value, externalValidation.getJsonPath());
           log.info(
               String.format(
                   "Error occurred while executing external validation against url '%s'.",
