@@ -37,6 +37,7 @@ import bio.overture.song.server.validation.SchemaValidator;
 import bio.overture.song.server.validation.ValidationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.JsonPath;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -127,37 +128,22 @@ public class ValidationService {
     return Optional.ofNullable(errors);
   }
 
-  public List<String> getValuesAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath)
-      throws ValidationException {
+  List<String> getValuesAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath) {
     try {
       val result = JsonPath.read(payload.toString(), "$." + jsonPath);
       if (result instanceof List) {
-        val list = (List<?>) result;
-        if (list.isEmpty()) {
-          return List.of();
+        List<String> values = new ArrayList<>();
+        for (val element : (List<?>) result) {
+          if (element instanceof String) {
+            values.add((String) element);
+          }
         }
-        val hasNonString = list.stream().anyMatch(element -> !(element instanceof String));
-        if (hasNonString) {
-          throw new ValidationException(
-              String.format(
-                  "Value at path '%s' must be a string or array of strings, but contains non-string elements.",
-                  jsonPath));
-        }
-        return list.stream()
-            .map(element -> (String) element)
-            .collect(java.util.stream.Collectors.toList());
+        return values;
       } else if (result instanceof String) {
         return List.of((String) result);
-      } else if (result == null) {
-        return List.of();
       } else {
-        throw new ValidationException(
-            String.format(
-                "Value at path '%s' must be a string or array of strings, but was: %s.",
-                jsonPath, result.getClass().getSimpleName()));
+        return List.of();
       }
-    } catch (ValidationException validationException) {
-      throw validationException;
     } catch (Exception exception) {
       log.debug(
           String.format(
