@@ -19,7 +19,7 @@ Required inputs for the **PatchUpdateAnalysis** endpoint:
 The following examples demonstrate how to update analyses using the Song API programmatically. 
 
 :::info Support
-For technical support or specific use cases, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
+For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::
 
 ### Updating a Single Analysis (Example)

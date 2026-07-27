@@ -70,5 +70,5 @@ docker exec song-client sh -c "sing suppress -a <insert-analysis-id>"
 3. **Execute:** Click Execute. The Swagger UI will provide your response and detailed descriptions of all potential response codes.
 
 :::info Support
-For technical support or specific use cases, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
+For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::

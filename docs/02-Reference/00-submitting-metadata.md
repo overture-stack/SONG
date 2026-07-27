@@ -149,5 +149,5 @@ For optimal data querying, use Song with our search & exploration services Maest
 - If you encounter connection or internal server errors, have your admin verify that the Song and Score servers are correctly configured.
 
 :::info Support
-For technical support, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
+For technical support, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::
