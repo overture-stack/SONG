@@ -8,13 +8,13 @@ Commands and options supported by the Song client.
 
 - The `config` command shows the current configuration settings.
 
-- **Usage:** `song-client config`
+- **Usage:** `sing config`
 
 ### Ping
 
 - The `ping` command can test the connection to the Song server.
 
-- **Usage:** `song-client ping`
+- **Usage:** `sing ping`
 
 ## Analysis Management Commands
 
@@ -22,7 +22,7 @@ Commands and options supported by the Song client.
 
 - Retrieves specific analysis type schema information.
 
-- **Usage:** `song-client get-analysis-type [OPTIONS]`
+- **Usage:** `sing get-analysis-type [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|
@@ -34,7 +34,7 @@ Commands and options supported by the Song client.
 
 - Lists all analysis types with filtering and viewing options.
 
-- **Usage:** `song-client list-analysis-types [OPTIONS]`
+- **Usage:** `sing list-analysis-types [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|
@@ -51,7 +51,7 @@ Commands and options supported by the Song client.
 
 - Registers a new analysis-type schema.
 
-- **Usage:** `song-client register-analysis-type [OPTIONS]`
+- **Usage:** `sing register-analysis-type [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|
@@ -61,7 +61,7 @@ Commands and options supported by the Song client.
 
 - Submits a payload to create an analysis.
 
-- **Usage:** `song-client submit [OPTIONS]`
+- **Usage:** `sing submit [OPTIONS]`
 
     | Option                      | Description                                         |
     |-----------------------------|-----------------------------------------------------|
@@ -69,28 +69,25 @@ Commands and options supported by the Song client.
     | `-ad`, `--allow-duplicates` | Allows duplicate files identified by their MD5 hash |
 
     :::info
-    For detailed information, see our [documentation on submitting data with Song](https://docs.overture.bio/docs/core-software/Song/Usage/submitting-metadata).
+    For detailed information, see our [documentation on submitting data with Song](/develop/Song/Reference/submitting-metadata).
     :::
 
 ### Search
 
 - Searches for analysis objects based on various parameters.
 
-- **Usage:** `song-client search [OPTIONS]`
+- **Usage:** `sing search [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|
     | `-a`, `--analysis-id` | Search by analysisId |
-    | `-d`, `--donor-id` | Search by donorId |
     | `-f`, `--file-id` | Search by fileId |
-    | `-sa`, `--sample-id` | Search by sampleId |
-    | `-sp`, `--specimen-id` | Search by specimenId |
 
 ### Manifest
 
 - Generates a manifest file for an analysis.
 
-- **Usage:** `song-client manifest [OPTIONS]`
+- **Usage:** `sing manifest [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|
@@ -99,14 +96,14 @@ Commands and options supported by the Song client.
     | `-d`, `--input-dir` | Directory containing upload files |
 
     :::info
-    For more information, see our [documentation on submitting data with Song](https://docs.overture.bio/docs/core-software/Song/Usage/submitting-metadata).
+    For more information, see our [documentation on submitting data with Song](/develop/Song/Reference/submitting-metadata).
     :::
 
 ### Publish
 
 - Publishes an analysis.
 
-- **Usage:** `song-client publish [OPTIONS]`
+- **Usage:** `sing publish [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|
@@ -117,7 +114,7 @@ Commands and options supported by the Song client.
 
 - Marks data as unavailable to downstream services.
 
-- **Usage:** `song-client unpublish [OPTIONS]`
+- **Usage:** `sing unpublish [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|
@@ -127,7 +124,7 @@ Commands and options supported by the Song client.
 
 - Blocks data from being accessed.
 
-- **Usage:** `song-client suppress [OPTIONS]`
+- **Usage:** `sing suppress [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|
@@ -135,14 +132,14 @@ Commands and options supported by the Song client.
 
 
     :::info
-    For more information on analysis management, see our [documentation on Song publication controls](https://docs.overture.bio/docs/core-software/Song/Usage/publication-controls).
+    For more information on analysis management, see our [documentation on Song publication controls](/develop/Song/Reference/publication-controls).
     :::
 
 ### Export
 
 - Exports payloads based on various parameters.
 
-- **Usage:** `song-client export [OPTIONS]`
+- **Usage:** `sing export [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|
@@ -156,7 +153,7 @@ Commands and options supported by the Song client.
 
 - Updates file metadata.
 
-- **Usage:** `song-client update-file [OPTIONS]`
+- **Usage:** `sing update-file [OPTIONS]`
 
     | Option | Description |
     |--------|-------------|

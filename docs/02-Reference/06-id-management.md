@@ -50,23 +50,15 @@ ID_USELOCAL=false
 ID_FEDERATED_URITEMPLATE_DONOR=https://id.server.org/donor/id?projectCode={studyId}&donorSubmittedId={submitterId}&create=true
 ID_FEDERATED_URITEMPLATE_SPECIMEN=https://id.server.org/specimen/id?projectCode={studyId}&specimenSubmittedId={submitterId}&create=true
 ID_FEDERATED_URITEMPLATE_SAMPLE=https://id.server.org/sample/id?projectCode={studyId}&sampleSubmittedId={submitterId}&create=true
-ID_FEDERATED_URITEMPLATE_FILE=https://id.server.org/file/id?bundleId={analysisId}&fname={fileName}
-
-# Analysis-specific URIs
-ID_FEDERATED_URITEMPLATE_ANALYSIS_EXISTENCE=https://id.server.org/analysis/id?submittedAnalysisId={analysisId}&create=false
-ID_FEDERATED_URITEMPLATE_ANALYSIS_GENERATE=https://id.server.org/analysis/id/generate
-ID_FEDERATED_URITEMPLATE_ANALYSIS_SAVE=https://id.server.org/analysis/id?submittedAnalysisId={submitterId}&create=true
 ```
 
 3. Configure authentication:
 ```env
-# Base auth URL
-ID_FEDERATED_AUTH_URL=https://auth.server.org
-
 # For static authentication (FEDERATED_STATIC_AUTH)
 ID_FEDERATED_AUTH_BEARER_TOKEN=your_static_token
 
 # For dynamic authentication (FEDERATED_DYNAMIC_AUTH)
+ID_FEDERATED_AUTH_BEARER_CREDENTIALS_URL=https://auth.server.org
 ID_FEDERATED_AUTH_BEARER_CREDENTIALS_CLIENTID=authClientID
 ID_FEDERATED_AUTH_BEARER_CREDENTIALS_CLIENTSECRET=authClientSecret
 ```
@@ -102,12 +94,6 @@ id:
       donor: "https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true"
       specimen: "https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true"
       sample: "https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true"
-      file: "https://id.example.org/file/id?bundleId={analysisId}&fname={fileName}"
-      
-      # Analysis-specific endpoints
-      analysisExistence: "https://id.example.org/analysis/id?submittedAnalysisId={analysisId}&create=false"
-      analysisGenerate: "https://id.example.org/analysis/id/generate"
-      analysisSave: "https://id.example.org/analysis/id?submittedAnalysisId={submitterId}&create=true"
 ```
 
 ### Profile-Specific Configuration
@@ -155,10 +141,6 @@ When using federated mode, the external ID service must:
 | Donor | studyId, submitterId | `/donor/id?projectCode={studyId}&donorSubmittedId={submitterId}` | plaintext |
 | Specimen | studyId, submitterId | `/specimen/id?projectCode={studyId}&specimenSubmittedId={submitterId}` | plaintext |
 | Sample | studyId, submitterId | `/sample/id?projectCode={studyId}&sampleSubmittedId={submitterId}` | plaintext |
-| File | analysisId, fileName | `/file/id?bundleId={analysisId}&fname={fileName}` | plaintext |
-| Analysis Existence | analysisId | `/analysis/id?submittedAnalysisId={analysisId}&create=false` | plaintext |
-| Analysis Generate | none | `/analysis/id/generate` | plaintext |
-| Analysis Save | analysisId | `/analysis/id?submittedAnalysisId={submitterId}&create=true` | none |
 
 ### ICGC ARGO Example
 

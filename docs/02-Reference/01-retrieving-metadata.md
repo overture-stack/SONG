@@ -60,7 +60,7 @@ status = "PUBLISHED"
 url = "https://song.virusseq-dataportal.ca"
 
 # Read CSV to identify specimens
-tmp = pd.read_csv("/Users/esu/Desktop/GitHub/virus-seq/2023_05_31/DP_Update_consensus_seq_version.csv", sep=",")
+tmp = pd.read_csv("path/to/consensus_seq_version.csv", sep=",")
 
 # Clean up CSV
 tmp.set_index('Specimen Collector Sample ID', inplace=True)

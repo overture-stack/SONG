@@ -40,7 +40,7 @@ We'll use our Quickstart service, a flexible Docker Compose setup, to spin up So
    | ----------- | ------ | ----------------------------------------------- | ------------------------------------------------------ |
    | Conductor   | `9204` | Orchestrates deployments and environment setups | Manages the overall development environment            |
    | Keycloak-db | -      | Database for Keycloak (no exposed port)         | Stores Keycloak data for authentication                |
-   | Keycloak    | `8180` | Authorization and authentication service        | Provides OAuth2 authentication for Score               |
+   | Keycloak    | `8180` | Authorization and authentication service        | Provides OAuth2 authentication for Song                |
    | Song-db     | `5433` | Database for Song                               | Stores metadata managed by Song                        |
    | Score       | `8087` | File Transfer service                           | Handles file uploads, downloads, and storage operation |
    | Minio       | `9000` | Object storage provider                         | Simulates S3-compatible storage for Score              |
@@ -48,7 +48,7 @@ We'll use our Quickstart service, a flexible Docker Compose setup, to spin up So
    - Ensure these ports are free on your system before starting the environment.
    - You may need to adjust the ports in the `docker-compose.yml` file if you have conflicts with existing services.
 
-   For more information, see our [Quickstart documentation linked here](https://docs.overture.bio/docs/platform-tools/Quickstart)
+   For more information, see our [Quickstart documentation linked here](/deploy/quickstart)
 
     </details>
 
@@ -96,7 +96,7 @@ We'll use our Quickstart service, a flexible Docker Compose setup, to spin up So
 
         :::info
 
-             If you are looking to configure Song for your specific environment, [**the Song-server configuration file can be found here**](https://github.com/overture-stack/score/blob/develop/score-server/src/main/resources/application.yml). A summary of the available Spring profiles is provided below:
+             If you are looking to configure Song for your specific environment, [**the Song-server configuration file can be found here**](https://github.com/overture-stack/song/blob/develop/song-server/src/main/resources/application.yml). A summary of the available Spring profiles is provided below:
 
              <details>
              <summary>**Click here for a summary of the Song-server spring profiles**</summary>

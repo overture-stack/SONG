@@ -31,7 +31,7 @@ As part of the larger Overture.bio software suite, Song is typically used with a
 .
 ├── /song-client
 ├── /song-core
-└── /song-servers
+└── /song-server
 ```
 
 [Click here to view the Song respository on GitHub ](https://github.com/overture-stack/song)
@@ -62,7 +62,6 @@ These packages are:
 - **song-docker-demo**: Example all-in-one deployment of Song with Score with other external project Auth and ID services.
 - **song-docs**: Deprecated `readthedocs` documentation site
 - **song-go-client**: Alternate cli imlementation, written in GoLang.
-- **song-java-sdk**: Code library for java applications to interact with a Song server programatically.
-- **song-python-sdk**: Code library for java applications to interact with a Song server programatically.
+- **song-python-sdk**: Code library for Python applications to interact with a Song server programatically.
 
 

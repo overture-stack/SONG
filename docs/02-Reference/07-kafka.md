@@ -18,7 +18,7 @@ This automated flow ensures Song publications are indexed.
 To enable Kafka integration, you need to activate the `kafka` profile in your Song deployment. This can be done by setting the following environment variable:
 
 ```bash
-SPRING_CONFIG_ACTIVATE_ON_PROFILE=kafka
+SPRING_PROFILES_ACTIVE=kafka
 ```
 
 ### Basic Configuration
@@ -46,7 +46,7 @@ Here's an example of how to set these variables in a Docker environment file:
 
 ```bash
 # Kafka Configuration
-SPRING_CONFIG_ACTIVATE_ON_PROFILE=kafka
+SPRING_PROFILES_ACTIVE=kafka
 SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 SPRING_KAFKA_TEMPLATE_DEFAULT_TOPIC=song-analysis
 ```

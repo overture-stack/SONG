@@ -45,7 +45,7 @@ The **base schema** defines the minimal data set required for a schema. It inclu
 You can view the current base schema in the [Song repository](https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/resources/schemas/analysis/analysisBase.json).
 
 :::info Future Updates to our Submission System
-As part of our work on the [Pan-Canadian Genome Library](https://oicr.on.ca/first-ever-national-library-of-genomic-data-will-help-personalize-cancer-treatment-in-canada-and-around-the-world/), we are improving our [**data submission system**](https://docs.overture.bio/build/core-software/Lyric/overview). This system will better support tabular (clinical) data and reduce the constraints of Song's base schema, ultimately enhancing the flexibility and robustness of our data management and storage system. For more information [**see the Lyric documentation**](https://docs.overture.bio/build/core-software/Lyric/overview).
+As part of our work on the [Pan-Canadian Genome Library](https://oicr.on.ca/first-ever-national-library-of-genomic-data-will-help-personalize-cancer-treatment-in-canada-and-around-the-world/), we are improving our [**data submission system**](/develop/Lyric/overview). This system will better support tabular (clinical) data and reduce the constraints of Song's base schema, ultimately enhancing the flexibility and robustness of our data management and storage system. For more information [**see the Lyric documentation**](/develop/Lyric/overview).
 :::
 
 ### Dynamic schema
@@ -83,7 +83,7 @@ These steps apply both for registering new schemas and updating existing ones.
 1. **Locate the Endpoint**
    - From the schema dropdown, find the `POST` **RegisterAnalysisType** endpoint.
 
-     ![Register new schema](../assets/swagger_register_schema(s).png 'Register new schema')
+     ![Register new schema](../assets/swagger_register_schemas.png 'Register new schema')
 
 2. **Input Your Data**
    - Click *Try it out* & enter your authorization token in the authorization field
