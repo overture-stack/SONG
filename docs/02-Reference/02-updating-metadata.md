@@ -51,7 +51,7 @@ if patch_response.status_code != 200:
 
 ### Updating Multiple Analyses (Example)
 
-This script updates multiple analyses associated with specific samples within a study:
+This script updates every analysis whose submitter sample ID appears in a target list. Song has no server-side search for submitter sample or donor IDs, so it retrieves the study's analyses in bulk (as in the [Metadata Retrieval](./01-retrieving-metadata.md) guide) and filters them client-side before patching each match by its analysis ID:
 
 ```python
 import requests
@@ -60,41 +60,40 @@ import requests
 samples_to_mod = ["SAMPLE_A", "SAMPLE_B", "SAMPLE_C", "SAMPLE_D", "SAMPLE_E", "SAMPLE_F"]
 url = "https://song.virusseq-dataportal.ca"
 study = "ABC123"
+status = "PUBLISHED"
 api_token = "YOUR_API_TOKEN"
+new_value = "Illumina MiSeq"
 
-for sample in samples_to_mod:
-    # Retrieve analyses associated with samples
-    endpoint = f"{url}/studies/{study}/analysis/search/id?submitterDonorId={sample}"
-    headers = {"accept": "*/*"}
+patch_headers = {
+    "accept": "*/*",
+    "Authorization": f"Bearer {api_token}",
+    "Content-Type": "application/json",
+}
 
-    get_response = requests.get(endpoint, headers=headers)
-    
-    if get_response.status_code != 200:
-        print(f"Error: {endpoint}")
+# Retrieve the study's analyses in bulk (paginated).
+analyses = []
+offset = 0
+while True:
+    endpoint = f"{url}/studies/{study}/analysis/paginated?analysisStates={status}&limit=100&offset={offset}"
+    response = requests.get(endpoint)
+    if response.status_code != 200:
+        print(f"Error: {response.status_code}, {endpoint}")
+        break
+    page = response.json()
+    analyses.extend(page["analyses"])
+    offset += 100
+    if offset >= page["totalAnalyses"]:
         break
 
-    published_analyses = [analysis for analysis in get_response.json() if analysis['analysisState'] == 'PUBLISHED']
-    
-    if len(published_analyses) == 0:
-        print(f"No published analysis detected: {endpoint}")
+# Update every analysis whose submitter sample ID is in the target list.
+# `samples[].submitterSampleId` is a custom-schema field; adjust the path to match your schema.
+for analysis in analyses:
+    if analysis["samples"][0]["submitterSampleId"] not in samples_to_mod:
         continue
-    if len(published_analyses) > 1:
-        print(f"Multiple analyses detected: {endpoint}")
-        continue
-    
-    analysis = published_analyses[0]
-    analysis_id = analysis['analysisId']
-    old_value = analysis['experiment']['sequencing_instrument']
-    new_value = "Illumina MiSeq"
-    
-    # PATCH endpoint
+
+    analysis_id = analysis["analysisId"]
     patch_endpoint = f"{url}/studies/{study}/analysis/{analysis_id}"
-    patch_headers = {
-        "accept": "*/*",
-        "Authorization": f"Bearer {api_token}",
-        "Content-Type": "application/json"
-    }
-    payload = {'experiment': {'sequencing_instrument': new_value}}
+    payload = {"experiment": {"sequencing_instrument": new_value}}
 
     patch_response = requests.patch(patch_endpoint, json=payload, headers=patch_headers)
     if patch_response.status_code != 200:
@@ -104,4 +103,4 @@ for sample in samples_to_mod:
 
 ## Important Note on Song-assigned IDs
 
-Song-assigned IDs (donor, sample, specimen, analysis, and object IDs) and those specified in the [base schema](https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/resources/schemas/analysis/analysisBase.json) are immutable and cannot be altered. If you need to change any of these values, it is recommended to UNPUBLISH and SUPPRESS the analysis, then resubmit it with the new information.
+Song-assigned IDs (analysis and object IDs) and those specified in the [base schema](https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/resources/schemas/analysis/analysisBase.json) are immutable and cannot be altered. If you need to change any of these values, it is recommended to UNPUBLISH and SUPPRESS the analysis, then resubmit it with the new information.

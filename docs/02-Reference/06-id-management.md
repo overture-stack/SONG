@@ -1,166 +1,23 @@
 # ID Management
 
-Song provides two distinct approaches for managing primary keys across entities (Donors, Specimens, Samples, and Files):
+Song assigns unique identifiers to the two entities it tracks: **analyses** and **files**. Both are generated internally by Song in UUID format — no external ID service is required.
 
-### Local Mode
-- Internally manages IDs within Song's system
-- Uses UUID format
-- Ensures thread safety and consistency through internal memory
-- All IDs except analysisId are stateless and computed using UUID5 hash
-- AnalysisIDs are stateful to guarantee uniqueness
+## Analysis IDs
 
-### Federated Mode
-- Relies on external service for ID management
-- Supports two authentication methods:
-  - Dynamic JWT tokens
-  - Predefined static keys
-- Requires validation against external ID database
-- Stores validated IDs in Song database
+Each analysis is assigned an **Analysis ID**, a randomly generated UUID, when it is created. Song registers each Analysis ID to guarantee uniqueness across the system. Analysis IDs are used to track, retrieve, and manage an analysis throughout Song and Score.
 
-:::info Important
-You must choose either Local or Federated mode for all IDs. Mixing modes is not supported.
+## File (Object) IDs
+
+Each file within an analysis is assigned a **File ID** (also referred to as an object ID). File IDs are deterministic: Song computes them as a name-based (UUID5, SHA-1) hash of the analysis ID and file name. Because they are derived from these inputs rather than stored to enforce uniqueness, the same analysis ID and file name always resolve to the same File ID.
+
+## Immutability
+
+Song-assigned IDs are immutable and cannot be altered once created. If you need to change a value that contributes to an ID, UNPUBLISH and SUPPRESS the analysis, then resubmit it with the new information. See [**Updating Metadata**](./02-updating-metadata.md) for details.
+
+:::note ID management change in Song 5.3.0
+Earlier versions of Song also managed donor, specimen, and sample IDs and supported a "federated" mode that delegated ID generation to an external ID service. As of 5.3.0, donor, specimen, and sample entities have been removed from the base schema, and Song generates the remaining analysis and file IDs internally. For upgrading existing deployments, see [**Database Migration**](./11-database-migration.md).
 :::
 
-## Configuration
-
-### Local Mode Setup
-
-To use Song's internal ID management system:
-
-```env
-ID_USELOCAL=true
-```
-
-:::info
- The `AnalysisService.create` method handles analysisId registration, so `LocalIdService` doesn't need to save/register analysisIds directly.
+:::info Need Help?
+If you encounter any issues or have questions about our API, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::
-
-### Federated Mode Setup
-
-To use external ID management:
-
-1. Set the base configuration:
-```env
-ID_USELOCAL=false
-```
-
-2. Configure entity-specific URI templates:
-```env
-# Entity URIs
-ID_FEDERATED_URITEMPLATE_DONOR=https://id.server.org/donor/id?projectCode={studyId}&donorSubmittedId={submitterId}&create=true
-ID_FEDERATED_URITEMPLATE_SPECIMEN=https://id.server.org/specimen/id?projectCode={studyId}&specimenSubmittedId={submitterId}&create=true
-ID_FEDERATED_URITEMPLATE_SAMPLE=https://id.server.org/sample/id?projectCode={studyId}&sampleSubmittedId={submitterId}&create=true
-```
-
-3. Configure authentication:
-```env
-# For static authentication (FEDERATED_STATIC_AUTH)
-ID_FEDERATED_AUTH_BEARER_TOKEN=your_static_token
-
-# For dynamic authentication (FEDERATED_DYNAMIC_AUTH)
-ID_FEDERATED_AUTH_BEARER_CREDENTIALS_URL=https://auth.server.org
-ID_FEDERATED_AUTH_BEARER_CREDENTIALS_CLIENTID=authClientID
-ID_FEDERATED_AUTH_BEARER_CREDENTIALS_CLIENTSECRET=authClientSecret
-```
-
-### Application YAML Configuration
-
-You can configure ID Management in your `application.yaml` file. Here are the available options:
-
-```yaml
-id:
-  # Enable local ID management
-  useLocal: true  # Set to false for federated mode
-  
-  # Optional: Enable in-memory persistence for testing
-  persistInMemory: true  # Only recommended for development/testing
-  
-  # Federated mode configuration
-  federated:
-    # Authentication configuration
-    auth:
-      bearer:
-        # Static token authentication
-        token: "your-static-token"
-        # Dynamic authentication credentials
-        credentials:
-          url: "https://auth.server.org"
-          clientId: "your-client-id"
-          clientSecret: "your-client-secret"
-    
-    # URI templates for federated services
-    uriTemplate:
-      # Entity ID endpoints
-      donor: "https://id.example.org/donor/id?submittedProjectId={studyId}&submittedDonorId={submitterId}&create=true"
-      specimen: "https://id.example.org/specimen/id?submittedProjectId={studyId}&submittedSpecimenId={submitterId}&create=true"
-      sample: "https://id.example.org/sample/id?submittedProjectId={studyId}&submittedSampleId={submitterId}&create=true"
-```
-
-### Profile-Specific Configuration
-
-Song supports different configuration profiles. Here's how to configure ID management for specific profiles:
-
-```yaml
----
-spring:
-  config:
-    activate:
-      on-profile: dev
-id:
-  persistInMemory: true  # Enable in-memory persistence for development
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-id:
-  useLocal: false  # Use federated mode in production
-  federated:
-    auth:
-      bearer:
-        credentials:
-          url: "https://prod-auth.example.org"
-          clientId: ${PROD_CLIENT_ID}
-          clientSecret: ${PROD_CLIENT_SECRET}
-```
-
-
-## URI Requirements
-
-When using federated mode, the external ID service must:
-
-- Implement GET controllers for all configured URI templates
-- Support either static or dynamic authentication
-- Return appropriate responses for each entity type
-
-### Required URI Parameters
-
-| Entity Type | Required Variables | Example URI | Response Type |
-|-------------|-------------------|-------------|---------------|
-| Donor | studyId, submitterId | `/donor/id?projectCode={studyId}&donorSubmittedId={submitterId}` | plaintext |
-| Specimen | studyId, submitterId | `/specimen/id?projectCode={studyId}&specimenSubmittedId={submitterId}` | plaintext |
-| Sample | studyId, submitterId | `/sample/id?projectCode={studyId}&sampleSubmittedId={submitterId}` | plaintext |
-
-### ICGC ARGO Example
-
-The <a href="https://platform.icgc-argo.org/" target="_blank" rel="noopener noreferrer">ICGC ARGO Data Platform</a> is an international initiative with several distributed processing centres. This required the use of a central ID Service. An example of a URI donor request used by this system is as follows:
-
-`https://clinical.platform.icgc-argo.org/clinical/donors/id?programId=PACA-CA&submitterId=PCSI_0591`
-
-In the provided URI, a researcher requests the centralized ID service to retrieve the unique identifier for a **donor** associated with the programId **PACA-CA** and the submitterID **PCSI_0591**.
-
-#### 200 Response:
-
-```shell
-DO224719
-```
-
-#### 404 Response:
-
-```json
-{
-  "error": "Error",
-  "message": "Donor not found"
-}
-```
