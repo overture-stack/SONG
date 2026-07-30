@@ -13,55 +13,59 @@ This guide will walk you through setting up a complete development environment, 
 
 ### Setting up supporting services
 
-We'll use our Quickstart service, a flexible Docker Compose setup, to spin up Song's complementary services.
+The Song repository ships its own `docker-compose.yml` and `Makefile`, which together start every service Song depends on. No other repository is required.
 
-1. Clone the Quickstart repository and move into its directory:
+1. Clone Song and move into its directory:
 
    ```bash
-   git clone -b quickstart https://github.com/overture-stack/prelude.git
-   cd prelude
+   git clone https://github.com/overture-stack/song.git
+   cd song
    ```
 
-2. Run the appropriate start command for your operating system:
+2. Start Song's dependencies:
 
-   | Operating System | Command              |
-   | ---------------- | -------------------- |
-   | Unix/macOS       | `make SongDev`       |
-   | Windows          | `./make.bat SongDev` |
+   ```bash
+   make start-deps
+   ```
 
     <details>
     <summary>**Click here for a detailed breakdown**</summary>
 
-   This command will set up all complementary services for Song development as follows:
-
-   ![SongDev](./assets/songDev.svg "Song Dev Environment")
+   `make start-deps` packages the project and then brings up Keycloak, Score, and object storage from the repository's `docker-compose.yml`:
 
    | Service     | Port   | Description                                     | Purpose in Song Development                            |
    | ----------- | ------ | ----------------------------------------------- | ------------------------------------------------------ |
-   | Conductor   | `9204` | Orchestrates deployments and environment setups | Manages the overall development environment            |
-   | Keycloak-db | -      | Database for Keycloak (no exposed port)         | Stores Keycloak data for authentication                |
-   | Keycloak    | `8180` | Authorization and authentication service        | Provides OAuth2 authentication for Song                |
-   | Song-db     | `5433` | Database for Song                               | Stores metadata managed by Song                        |
+   | Keycloak    | `9082` | Authorization and authentication service        | Provides OAuth2 authentication for Song                |
+   | Keycloak-db | `9444` | Database for Keycloak                           | Stores Keycloak data for authentication                |
    | Score       | `8087` | File Transfer service                           | Handles file uploads, downloads, and storage operation |
-   | Minio       | `9000` | Object storage provider                         | Simulates S3-compatible storage for Score              |
+   | Minio       | `8085` | Object storage provider                         | Simulates S3-compatible storage for Score              |
+
+   Keycloak starts with the `myrealm` realm imported from `docker/keycloak-init/data_import`, and downloads the `keycloak-apikeys` provider on start-up so it can issue API keys.
+
+   To bring up Song itself along with its database and all of the above, use `make start-song-server` instead. That adds:
+
+   | Service     | Port           | Description           | Purpose in Song Development      |
+   | ----------- | -------------- | --------------------- | -------------------------------- |
+   | Song-db     | `8432`         | Database for Song     | Stores metadata managed by Song  |
+   | Song-server | `8080`, `5006` | The Song server       | The service under development; `5006` is the JVM debug port |
 
    - Ensure these ports are free on your system before starting the environment.
    - You may need to adjust the ports in the `docker-compose.yml` file if you have conflicts with existing services.
+   - `make clean` tears the stack down and removes the build output; `make log-song-server` tails the server's logs.
 
-   For more information, see our [Quickstart documentation linked here](/deploy/quickstart)
+   :::note
+
+   These targets build the project with the bundled Maven wrapper and drive Docker Compose, so a JDK is required even when you only want the supporting services. See the prerequisites above.
+
+   :::
 
     </details>
 
 ### Running the Development Server
 
-1.  Clone Song and move into its directory:
+Use these steps to run Song on your host, against the supporting services started above. To run Song in a container instead, `make start-song-server` covers both.
 
-    ```bash
-    git clone https://github.com/overture-stack/song.git
-    cd song
-    ```
-
-2.  Build the application locally:
+1.  Build the application locally:
 
     ```bash
     ./mvnw clean install -DskipTests
@@ -88,7 +92,7 @@ We'll use our Quickstart service, a flexible Docker Compose setup, to spin up So
 
     :::
 
-3.  Start the Song Server:
+2.  Start the Song Server:
 
     ```bash
     ./mvnw spring-boot:run -Dspring-boot.run.profiles=default,dev,secure -pl song-server
@@ -143,18 +147,21 @@ After installing and configuring Song, verify that the system is functioning cor
      - Verify you're using the correct URL
 
 3. **Test GET Analysis Endpoint**
+
+   This step needs a study to query. The repository's Compose stack starts with an empty database, so create one first (see [Data model management](/develop/Song/Reference/data-model-management)) and substitute its ID for `<your-study-id>` below.
+
    - Using Swagger UI:
      1. Locate the `GetAnalysesForStudy` endpoint in the **Analysis** section: `GET /studies/{studyId}/analysis/paginated`
      2. Click to expand and select "Try it out"
      3. Set parameters:
         - analysisStates: PUBLISHED
-        - studyId: demo
+        - studyId: `<your-study-id>`
      4. Click "Execute"
    - Alternatively, use curl:
      ```bash
-     curl -X GET "http://localhost:8080/studies/demo/analysis?analysisStates=PUBLISHED" -H "accept: */*"
+     curl -X GET "http://localhost:8080/studies/<your-study-id>/analysis?analysisStates=PUBLISHED" -H "accept: */*"
      ```
-   - Expected result: JSON response containing analysis data for the demo study
+   - Expected result: JSON response containing the analyses registered under that study
 
 :::info Need Help?
 If you encounter any issues or have questions about our API, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
@@ -166,8 +173,8 @@ The `song-client` is a CLI tool used for communicating with a `song-server`. For
 
 ```bash
 docker run -d --name song-client \
-   -e CLIENT_ACCESS_TOKEN=68fb42b4-f1ed-4e8c-beab-3724b99fe528 \
-   -e CLIENT_STUDY_ID=demo \
+   -e CLIENT_ACCESS_TOKEN=<your-api-key> \
+   -e CLIENT_STUDY_ID=<your-study-id> \
    -e CLIENT_SERVER_URL=http://localhost:8080 \
    --network="host" \
    --platform="linux/amd64" \
@@ -175,10 +182,18 @@ docker run -d --name song-client \
 ghcr.io/overture-stack/song-client:5.1.1 \
 ```
 
+:::info Obtaining an API key
+
+`CLIENT_ACCESS_TOKEN` is environment-specific; there is no fixed development token. The Keycloak that `make start-deps` brings up on port `9082` loads the `keycloak-apikeys` provider, which issues keys against the `myrealm` realm. Generate a key there and pass its value here. See [Authentication](/develop/Song/Reference/authentication) for how the provider is installed and how Song validates the keys it issues.
+
+`CLIENT_STUDY_ID` must name a study that already exists on your server. The repository's Compose stack starts with an empty database, so create one first; see [Data model management](/develop/Song/Reference/data-model-management).
+
+:::
+
     <details>
     <summary>**Click here for an explaination of command above**</summary>
-      - `-e CLIENT_ACCESS_TOKEN=68fb42b4-f1ed-4e8c-beab-3724b99fe528` sets up the song-client with a pre-configured system-wide access token that works with the conductor service setup.
-      - `-e CLIENT_STUDY_ID=demo` the quickstart is pre-configured with a Study ID named demo, we supply the Study ID value to the song-client on start-up.
+      - `-e CLIENT_ACCESS_TOKEN=<your-api-key>` supplies the API key the song-client authenticates with, obtained from Keycloak as described above.
+      - `-e CLIENT_STUDY_ID=<your-study-id>` the Study ID the song-client operates against, supplied on start-up.
       - `-e CLIENT_SERVER_URL=http://localhost:8080` is the url for the Song server which the Song-Client will interact with.
       - `--network="host"` Uses the host network stack inside the container, bypassing the usual network isolation. This means the container shares the network namespace with the host machine.
       - `--platform="linux/amd64"` Specifies the platform the container should emulate. In this case, it's set to linux/amd64, indicating the container is intended to run on a Linux system with an AMD64 architecture.
