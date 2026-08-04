@@ -9,7 +9,7 @@ Song functions as a file catalog system, tracking files and managing their metad
 > <img align="left" src="ov-logo.png" height="50"/>
 > </div>
 > 
-> Song is part of [Overture](https://www.overture.bio/), a collection of open-source software microservices used to create platforms for researchers to organize and share genomics data.*
+> *Song is part of [Overture](https://www.overture.bio/), a collection of open-source software microservices used to create platforms for researchers to organize and share genomics data.*
 > 
 > 
 
@@ -18,8 +18,8 @@ Song functions as a file catalog system, tracking files and managing their metad
 Technical resources for those working with or contributing to the project are available from our official documentation site, the following content can also be read and updated within the `/docs` folder of this repository.
 
 - **[Song Overview](https://docs.overture.bio/develop/Song/overview)** 
-- [**Setting up the Development Enviornment**](https://docs.overture.bio/develop/Song/setup)
-- [**Common Usage Docs**](https://docs.overture.bio/develop/Song/setup)
+- [**Setting up the Development Environment**](https://docs.overture.bio/develop/Song/setup)
+- [**Reference Docs**](https://docs.overture.bio/develop/Song/Reference)
 
 ##  Development Environment
 
