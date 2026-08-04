@@ -76,7 +76,7 @@ The basic portion of a dynamic schema requires at a minimum:
     ```
 
     :::info Building JSON Schemas
-    For a detailed guide on building JSON Schemas for Song see our [**administration guide on updating data models**](/guides/administration-guides/updating-the-data-model)
+    For a detailed guide on building JSON Schemas for Song see our [**administration guide on building Song schemas**](https://docs.overture.bio/use/administration/building-song-schemas)
     :::
 
 ## Schema Options
