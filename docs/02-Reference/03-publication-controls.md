@@ -2,7 +2,7 @@
 
 Managing data release with publication controls.
 
-Administrators control analysis availability to downstream services like such as our indexing service [Maestro](/develop/Maestro/overview) across three states:
+Administrators control analysis availability to downstream services like such as our indexing service [Maestro](https://docs.overture.bio/develop/Maestro/overview) across three states:
 
 - **Unpublished:** By default, new data committed to Songs database is in this state as it awaits file upload. Custom configurations can allow Maestro to index this data, making it available to users to see the pending analysis without availble file data to download.
 
@@ -70,5 +70,5 @@ docker exec song-client sh -c "sing suppress -a <insert-analysis-id>"
 3. **Execute:** Click Execute. The Swagger UI will provide your response and detailed descriptions of all potential response codes.
 
 :::info Support
-For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
+For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](https://docs.overture.bio/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::

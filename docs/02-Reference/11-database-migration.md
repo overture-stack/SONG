@@ -63,5 +63,5 @@ pnpm run dev
 This transpiles the TypeScript code and executes the main migration entry point using your configured environment, reading existing analyses and rewriting them into the consolidated table.
 
 :::info Need Help?
-If you encounter any issues or have questions about this migration, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
+If you encounter any issues or have questions about this migration, please don't hesitate to reach out through our [**support page**](https://docs.overture.bio/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::

@@ -41,7 +41,7 @@ print(response.json())
 To locate analyses by a submitter field (such as a sample or donor ID) rather than by analysis ID, see [Example 2](#example-2-bulk-analysis-query): Song has no server-side search for those fields, so you retrieve the study's analyses and filter them client-side.
 
 :::info Support
-For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
+For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](https://docs.overture.bio/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::
 
 ### Example 2: Bulk Analysis Query

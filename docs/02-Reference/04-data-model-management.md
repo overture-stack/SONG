@@ -50,7 +50,7 @@ Prior to Song 5.3.0, the base schema also required donor, specimen, and sample e
 :::
 
 :::info Future Updates to our Submission System
-As part of our work on the [Pan-Canadian Genome Library](https://oicr.on.ca/first-ever-national-library-of-genomic-data-will-help-personalize-cancer-treatment-in-canada-and-around-the-world/), we are improving our [**data submission system**](/develop/Lyric/overview). This system will better support tabular (clinical) data and reduce the constraints of Song's base schema, ultimately enhancing the flexibility and robustness of our data management and storage system. For more information [**see the Lyric documentation**](/develop/Lyric/overview).
+As part of our work on the [Pan-Canadian Genome Library](https://oicr.on.ca/first-ever-national-library-of-genomic-data-will-help-personalize-cancer-treatment-in-canada-and-around-the-world/), we are improving our [**data submission system**](https://docs.overture.bio/develop/Lyric/overview). This system will better support tabular (clinical) data and reduce the constraints of Song's base schema, ultimately enhancing the flexibility and robustness of our data management and storage system. For more information [**see the Lyric documentation**](https://docs.overture.bio/develop/Lyric/overview).
 :::
 
 ### Dynamic schema
@@ -311,5 +311,5 @@ curl --location --request GET 'https://song-url.example.com/schemas/sequencing_e
 ```
 
 :::info Support
-For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
+For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](https://docs.overture.bio/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::

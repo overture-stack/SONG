@@ -3,7 +3,7 @@
 Submitting new metadata entries ([Analyses](/develop/Song/Reference/#song-terminology)) to Song.
 
 :::info CLI Submission Guide
-This page documents the basic submission flow, for a more detailed guide see our [**platform guide on CLI submissions**](/use/cli-submissions).
+This page documents the basic submission flow, for a more detailed guide see our [**platform guide on CLI submissions**](https://docs.overture.bio/use/cli-submissions).
 :::
 
 ### Client Installation
@@ -149,5 +149,5 @@ For optimal data querying, use Song with our search & exploration services Maest
 - If you encounter connection or internal server errors, have your admin verify that the Song and Score servers are correctly configured.
 
 :::info Support
-For technical support, please don't hesitate to reach out through our [**support page**](/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
+For technical support, please don't hesitate to reach out through our [**support page**](https://docs.overture.bio/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::
