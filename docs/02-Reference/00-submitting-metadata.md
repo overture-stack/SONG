@@ -1,6 +1,6 @@
 # Metadata Submission
 
-Submitting new metadata entries ([Analyses](/develop/Song/Reference/#song-terminology)) to Song.
+Submitting new metadata entries ([Analyses](./02-Reference.mdx#song-terminology)) to Song.
 
 :::info CLI Submission Guide
 This page documents the basic submission flow, for a more detailed guide see our [**platform guide on CLI submissions**](https://docs.overture.bio/use/cli-submissions).
@@ -80,7 +80,7 @@ This page documents the basic submission flow, for a more detailed guide see our
 
 ### Step 1: Prepare a Payload
 
-Create a metadata payload conforming to a registered `analysis_type` schema. For more information, see our section covering [Data Model Management](/develop/Song/Reference/data-model-management).
+Create a metadata payload conforming to a registered `analysis_type` schema. For more information, see our section covering [Data Model Management](./04-data-model-management.md).
 
 ### Step 2: Upload the Metadata Payload
 
@@ -138,7 +138,7 @@ Set the analysis state to `PUBLISHED`:
 docker exec song-client sh -c "sing publish -a a4142a01-1274-45b4-942a-01127465b422"
 ```
 
-For more information, see our documentation on [**Song publication controls**](/develop/Song/Reference/publication-controls)
+For more information, see our documentation on [**Song publication controls**](./03-publication-controls.md)
 
 :::info Search & Exploration
 For optimal data querying, use Song with our search & exploration services Maestro, Arranger and Stage. With these components you can index and query and explore Song data through an intuitive search portal.

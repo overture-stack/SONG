@@ -148,7 +148,7 @@ After installing and configuring Song, verify that the system is functioning cor
 
 3. **Test GET Analysis Endpoint**
 
-   This step needs a study to query. The repository's Compose stack starts with an empty database, so create one first (see [Data model management](/develop/Song/Reference/data-model-management)) and substitute its ID for `<your-study-id>` below.
+   This step needs a study to query. The repository's Compose stack starts with an empty database, so create one first (see [Data model management](./02-Reference/04-data-model-management.md)) and substitute its ID for `<your-study-id>` below.
 
    - Using Swagger UI:
      1. Locate the `GetAnalysesForStudy` endpoint in the **Analysis** section: `GET /studies/{studyId}/analysis/paginated`
@@ -184,7 +184,7 @@ ghcr.io/overture-stack/song-client:5.1.1 \
 
 :::info Obtaining an API key
 
-`CLIENT_ACCESS_TOKEN` is environment-specific; there is no fixed development token. The Keycloak that `make start-deps` brings up on port `9082` loads the `keycloak-apikeys` provider, which issues keys against the `myrealm` realm. See [Authentication](/develop/Song/Reference/authentication) for how the provider is installed and how Song validates the keys it issues.
+`CLIENT_ACCESS_TOKEN` is environment-specific; there is no fixed development token. The Keycloak that `make start-deps` brings up on port `9082` loads the `keycloak-apikeys` provider, which issues keys against the `myrealm` realm. See [Authentication](./02-Reference/08-authentication.md) for how the provider is installed and how Song validates the keys it issues.
 
 <details>
 <summary>**Click here for the steps to generate a key against the local stack**</summary>
@@ -226,7 +226,7 @@ Scopes take the form `<resource>.<READ|WRITE>`, and the resources the realm defi
 
 </details>
 
-`CLIENT_STUDY_ID` must name a study that already exists on your server. The repository's Compose stack starts with an empty database, so create one first; see [Data model management](/develop/Song/Reference/data-model-management).
+`CLIENT_STUDY_ID` must name a study that already exists on your server. The repository's Compose stack starts with an empty database, so create one first; see [Data model management](./02-Reference/04-data-model-management.md).
 
 :::
 

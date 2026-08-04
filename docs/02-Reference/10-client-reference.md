@@ -69,7 +69,7 @@ Commands and options supported by the Song client.
     | `-ad`, `--allow-duplicates` | Allows duplicate files identified by their MD5 hash |
 
     :::info
-    For detailed information, see our [documentation on submitting data with Song](/develop/Song/Reference/submitting-metadata).
+    For detailed information, see our [documentation on submitting data with Song](./00-submitting-metadata.md).
     :::
 
 ### Search
@@ -96,7 +96,7 @@ Commands and options supported by the Song client.
     | `-d`, `--input-dir` | Directory containing upload files |
 
     :::info
-    For more information, see our [documentation on submitting data with Song](/develop/Song/Reference/submitting-metadata).
+    For more information, see our [documentation on submitting data with Song](./00-submitting-metadata.md).
     :::
 
 ### Publish
@@ -132,7 +132,7 @@ Commands and options supported by the Song client.
 
 
     :::info
-    For more information on analysis management, see our [documentation on Song publication controls](/develop/Song/Reference/publication-controls).
+    For more information on analysis management, see our [documentation on Song publication controls](./03-publication-controls.md).
     :::
 
 ### Export

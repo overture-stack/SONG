@@ -18,7 +18,7 @@ To ensure the safe removal of indexed data, the suggested state transition for s
 
 Updating publication statuses can be done through two main methods: the Song Client command line tool and the Swagger UI. The Swagger UI provides a user-friendly interface for interacting with the Song API, while the Song Client allows you to more easily perform data management operations from the command line.
 
-- **Setting up the Song Client:** For detailed instructions on setting up the Song Client, please refer to the section on [Installing the Song Client](/develop/Song/setup#song-client-setup).
+- **Setting up the Song Client:** For detailed instructions on setting up the Song Client, please refer to the section on [Installing the Song Client](../01-setup.md#song-client-setup).
 
 - **Accessing the Swagger UI:** To access the Swagger UI, you need to determine the URL based on your Song setup. 
 
