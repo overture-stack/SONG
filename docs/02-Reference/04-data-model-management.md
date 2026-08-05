@@ -24,9 +24,9 @@ When submitting an analysis to Song, you must specify an 'analysis type' in your
 The schema for each analysis type consists of two components:
 
 1. **Base Schema**: A minimal set of essential fields required for all analyses:
-   - `studyId` — the study the analysis belongs to
-   - `analysisType` — the analysis type used to validate the submission
-   - `files` — the file(s) the analysis describes
+   - `studyId`: the study the analysis belongs to
+   - `analysisType`: the analysis type used to validate the submission
+   - `files`: the file(s) the analysis describes
 
 2. **Dynamic schema**: A flexible component that Song administrators can configure and upload to define specific analysis types.
 
@@ -39,14 +39,14 @@ This two-part schema structure ensures:
 
 The **base schema** defines the minimal data set required for every analysis. It requires only three top-level fields:
 
-- `studyId` — identifies the study the analysis belongs to
-- `analysisType` — the name (and optional version) of the analysis type used for validation
-- `files` — an array describing at least one file, including its data type, name, size, access level, type, and MD5 checksum
+- `studyId`: identifies the study the analysis belongs to
+- `analysisType`: the name (and optional version) of the analysis type used for validation
+- `files`: an array describing at least one file, including its data type, name, size, access level, type, and MD5 checksum
 
 You can view the current base schema in the [Song repository](https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/resources/schemas/analysis/analysisBase.json).
 
 :::note Base schema change in Song 5.3.0
-Prior to Song 5.3.0, the base schema also required donor, specimen, and sample entities, which were stored across multiple related tables. As of 5.3.0 these are no longer required, and all analysis data is stored in a single consolidated table. Existing deployments must migrate their data — see [**Database Migration**](./11-database-migration.md).
+Prior to Song 5.3.0, the base schema also required donor, specimen, and sample entities, which were stored across multiple related tables. As of 5.3.0 these are no longer required, and all analysis data is stored in a single consolidated table. Existing deployments must migrate their data; see [**Database Migration**](./11-database-migration.md).
 :::
 
 :::info Future Updates to our Submission System
@@ -97,7 +97,7 @@ The `options` property defines extra validations for an analysis schema, such as
 }
 ```
 
-To remove the previous value of an option so that its validation is no longer required — for instance, removing the restriction on file types so that any file type is allowed — provide an empty list for that option. In the example below, both `fileTypes` and `externalValidations` are set to empty arrays, so these validations are not applied to submitted analyses:
+To remove the previous value of an option so that its validation is no longer required, for instance removing the restriction on file types so that any file type is allowed, provide an empty list for that option. In the example below, both `fileTypes` and `externalValidations` are set to empty arrays, so these validations are not applied to submitted analyses:
 
 ```json
 {
@@ -197,7 +197,7 @@ These steps apply both for registering new schemas and updating existing ones.
 Use the following curl command to make a POST request with the required authorization tokens, headers, and data:
 
 ```bash
-curl -X POST "https://song.virusseq-dataportal.ca/schemas" \
+curl -X POST "https://<YOUR-SONG-URL>/schemas" \
     -H "accept: */*" \
     -H "Authorization: AUTHORIZATION" \
     -H "Content-Type: application/json" \
@@ -230,7 +230,7 @@ This Python script sends a POST request to register a new schema:
 import requests
 
 # Verify your SONG URL either through the swagger portal or hosting terminal
-url = "https://song.virusseq-dataportal.ca"
+url = "https://<YOUR-SONG-URL>"
 
 # Set endpoint
 endpoint = f"{url}/schemas"

@@ -1,6 +1,6 @@
 # ID Management
 
-Song assigns unique identifiers to the two entities it tracks: **analyses** and **files**. Both are generated internally by Song in UUID format — no external ID service is required.
+Song assigns unique identifiers to the two entities it tracks: **analyses** and **files**. Both are generated internally by Song in UUID format, so no external ID service is required.
 
 ## Analysis IDs
 

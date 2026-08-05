@@ -12,11 +12,11 @@ Song functions as a file catalog system, tracking files and managing their metad
 
 ## Documentation
 
-Technical resources for those working with or contributing to the project are available from our official documentation site, the following content can also be read and updated within the `/docs` folder of this repository.
+Technical resources for those working with or contributing to the project live in the `/docs` folder of this repository, and are also published, fully rendered, on our [official documentation site](https://docs.overture.bio/develop/Song/overview).
 
-- **[Song Overview](https://docs.overture.bio/develop/Song/overview)**
-- [**Setting up the Development Environment**](https://docs.overture.bio/develop/Song/setup)
-- [**Reference Docs**](https://docs.overture.bio/develop/Song/Reference)
+- **[Song Overview](./docs/00-overview.md)**
+- [**Setting up the Development Environment**](./docs/01-setup.md)
+- [**Reference Docs**](./docs/02-Reference/02-Reference.mdx)
 
 ## Development Environment
 

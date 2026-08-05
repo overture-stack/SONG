@@ -29,9 +29,9 @@ When you already know an analysis's ID, retrieve it directly with the `GetAnalys
 ```python
 import requests
 
-url = "https://song.virusseq-dataportal.ca"
-study = "LSPQ-QC"
-analysis_id = "4861730f-db75-4dbf-a173-0fdb75cdbfee"
+url = "https://<YOUR-SONG-URL>"
+study = "ABC123"
+analysis_id = "ANALYSIS-ABC123-SAMPLEA"
 
 endpoint = f"{url}/studies/{study}/analysis/{analysis_id}"
 response = requests.get(endpoint)
@@ -46,7 +46,7 @@ For technical support or specific use cases, please don't hesitate to reach out 
 
 ### Example 2: Bulk Analysis Query
 
-This is the pattern for finding analyses by a submitter field (here, a submitter sample ID). Song has no server-side search for donor, specimen, or sample IDs — they are custom-schema fields in the analysis payload, not base-schema entities — so you retrieve the study's published analyses in bulk and filter them client-side:
+This is the pattern for finding analyses by a submitter field (here, a submitter sample ID). Song has no server-side search for donor, specimen, or sample IDs (they are custom-schema fields in the analysis payload, not base-schema entities), so you retrieve the study's published analyses in bulk and filter them client-side:
 
 ```python
 import requests
@@ -57,9 +57,9 @@ aggregated_analyses = []
 filtered_analyses = []
 
 # Variables
-study = "MCPL-MB"
+study = "ABC123"
 status = "PUBLISHED"
-url = "https://song.virusseq-dataportal.ca"
+url = "https://<YOUR-SONG-URL>"
 
 # Read CSV to identify specimens
 tmp = pd.read_csv("path/to/consensus_seq_version.csv", sep=",")

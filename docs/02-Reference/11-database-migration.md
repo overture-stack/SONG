@@ -22,11 +22,11 @@ It is best practice to take a full backup of your database before running the mi
 
 ## Installation
 
-Clone the migration repository and install its dependencies:
+The migration script ships with Song, under `data-migration`. Clone Song and install the script's dependencies:
 
 ```bash
-git clone https://github.com/overture-stack/song_5_3_migration.git
-cd song_5_3_migration
+git clone https://github.com/overture-stack/SONG.git
+cd SONG/data-migration
 pnpm install
 ```
 

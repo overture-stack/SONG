@@ -31,7 +31,7 @@ import requests
 
 # Define variables
 analysis_id = "ANALYSIS-ABC123-SAMPLEA"
-url = "https://song.virusseq-dataportal.ca"
+url = "https://<YOUR-SONG-URL>"
 study = "ABC123"
 api_token = "YOUR_API_TOKEN"
 
@@ -58,7 +58,7 @@ import requests
 
 # Define variables
 samples_to_mod = ["SAMPLE_A", "SAMPLE_B", "SAMPLE_C", "SAMPLE_D", "SAMPLE_E", "SAMPLE_F"]
-url = "https://song.virusseq-dataportal.ca"
+url = "https://<YOUR-SONG-URL>"
 study = "ABC123"
 status = "PUBLISHED"
 api_token = "YOUR_API_TOKEN"
