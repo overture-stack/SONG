@@ -18,7 +18,6 @@ package bio.overture.song.server.validation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -82,11 +81,10 @@ public class GetValuesAtJsonPathTest {
     assertTrue(result.isEmpty());
   }
 
-  @Test
+  @Test(expected = ValidationException.class)
   public void getValuesAtJsonPath_nonStringProperty_throwsValidationException() {
     val payload = parseJson("{\"experiment\": {\"count\": 42}}");
-    assertThrows(
-        ValidationException.class, () -> service.getValuesAtJsonPath(payload, "experiment.count"));
+    service.getValuesAtJsonPath(payload, "experiment.count");
   }
 
   @Test
@@ -112,7 +110,6 @@ public class GetValuesAtJsonPathTest {
   }
 
   @Test
-  @SneakyThrows
   public void getValuesAtJsonPath_wildcardOnArrayWithSparseProperty_returnsOnlyPresentValues() {
     // Some objects in the array have donorId, some do not - only present values are returned.
     val payload =
@@ -126,18 +123,17 @@ public class GetValuesAtJsonPathTest {
     assertEquals(List.of("DONOR_001", "DONOR_003"), result);
   }
 
-  @Test
+  @Test(expected = ValidationException.class)
   public void getValuesAtJsonPath_wildcardOnArrayWithNonStringValue_throwsValidationException() {
     val payload = parseJson("{\"donors\": [" + "{\"count\": 1}," + "{\"count\": 2}" + "]}");
-    assertThrows(
-        ValidationException.class, () -> service.getValuesAtJsonPath(payload, "donors[*].count"));
+    service.getValuesAtJsonPath(payload, "donors[*].count");
   }
 
-  @Test
+  @Test(expected = ValidationException.class)
   public void getValuesAtJsonPath_mixedArrayWithNonStringValue_throwsValidationException() {
     // An array mixing strings and non-strings should fail — ambiguous intent is rejected.
     val payload = parseJson("{\"tags\": [\"alpha\", 42, \"gamma\"]}");
-    assertThrows(ValidationException.class, () -> service.getValuesAtJsonPath(payload, "tags[*]"));
+    service.getValuesAtJsonPath(payload, "tags[*]");
   }
 
   @Test
