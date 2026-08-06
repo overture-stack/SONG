@@ -23,10 +23,10 @@ When submitting an analysis to Song, you must specify an 'analysis type' in your
 
 The schema for each analysis type consists of two components:
 
-1. **Base Schema**: A minimal set of essential fields required for all analyses, including:
-   - Basic patient data
-   - Submitter IDs
-   - File details
+1. **Base Schema**: A minimal set of essential fields required for all analyses:
+   - `studyId`: the study the analysis belongs to
+   - `analysisType`: the analysis type used to validate the submission
+   - `files`: the file(s) the analysis describes
 
 2. **Dynamic schema**: A flexible component that Song administrators can configure and upload to define specific analysis types.
 
@@ -37,15 +37,20 @@ This two-part schema structure ensures:
 
 ### Base Schema
 
-The **base schema** defines the minimal data set required for a schema. It includes non-identifiable primary keys and basic descriptors for patient and cancer sample data:
+The **base schema** defines the minimal data set required for every analysis. It requires only three top-level fields:
 
-- Identifiers: Donor ID, Specimen ID, and Sample ID
-- Essential cancer sample characteristics
+- `studyId`: identifies the study the analysis belongs to
+- `analysisType`: the name (and optional version) of the analysis type used for validation
+- `files`: an array describing at least one file, including its data type, name, size, access level, type, and MD5 checksum
 
 You can view the current base schema in the [Song repository](https://github.com/overture-stack/SONG/blob/develop/song-server/src/main/resources/schemas/analysis/analysisBase.json).
 
+:::note Base schema change in Song 5.3.0
+Prior to Song 5.3.0, the base schema also required donor, specimen, and sample entities, which were stored across multiple related tables. As of 5.3.0 these are no longer required, and all analysis data is stored in a single consolidated table. Existing deployments must migrate their data; see [**Database Migration**](./11-database-migration.md).
+:::
+
 :::info Future Updates to our Submission System
-As part of our work on the [Pan-Canadian Genome Library](https://oicr.on.ca/first-ever-national-library-of-genomic-data-will-help-personalize-cancer-treatment-in-canada-and-around-the-world/), we are improving our [**data submission system**](https://docs.overture.bio/docs/under-development/). This system will better support tabular (clinical) data and reduce the constraints of Song's base schema, ultimately enhancing the flexibility and robustness of our data management and storage system. For more information [**see our under development section**](https://docs.overture.bio/docs/under-development/).
+As part of our work on the [Pan-Canadian Genome Library](https://oicr.on.ca/first-ever-national-library-of-genomic-data-will-help-personalize-cancer-treatment-in-canada-and-around-the-world/), we are improving our [**data submission system**](https://docs.overture.bio/develop/Lyric/overview). This system will better support tabular (clinical) data and reduce the constraints of Song's base schema, ultimately enhancing the flexibility and robustness of our data management and storage system. For more information [**see the Lyric documentation**](https://docs.overture.bio/develop/Lyric/overview).
 :::
 
 ### Dynamic schema
@@ -71,8 +76,98 @@ The basic portion of a dynamic schema requires at a minimum:
     ```
 
     :::info Building JSON Schemas
-    For a detailed guide on building JSON Schemas for Song see our [**administration guide on updating data models**](/guides/administration-guides/updating-the-data-model)
+    For a detailed guide on building JSON Schemas for Song see our [**administration guide on building Song schemas**](https://docs.overture.bio/use/administration/building-song-schemas)
     :::
+
+## Schema Options
+
+The `options` property defines extra validations for an analysis schema, such as restrictions on file types and checks against an external service. The `options` property is not required, and each property within it is also optional. If no value is provided for an `options` property, a default configuration is used for the analysis. When updating an existing analysis type, you can omit any option and its value is maintained from the previous version.
+
+```json
+{
+  "options": {
+    "fileTypes": ["bam", "cram"],
+    "externalValidations": [
+      {
+        "url": "http://localhost:8099/",
+        "jsonPath": "experiment.someId"
+      }
+    ]
+  }
+}
+```
+
+To remove the previous value of an option so that its validation is no longer required, for instance removing the restriction on file types so that any file type is allowed, provide an empty list for that option. In the example below, both `fileTypes` and `externalValidations` are set to empty arrays, so these validations are not applied to submitted analyses:
+
+```json
+{
+  "options": {
+    "fileTypes": [],
+    "externalValidations": []
+  }
+}
+```
+
+### File Types
+
+`options.fileTypes` accepts an array of strings representing the file types (file extensions) allowed for this type of analysis.
+
+If an empty array is provided, any file type is allowed. If an array of file types is provided, an analysis is invalid if it contains files of a type not listed.
+
+```json
+{
+  "options": {
+    "fileTypes": ["bam", "cram"]
+  }
+}
+```
+
+### External Validation
+
+External validations configure Song to check a value in the analysis against an external service by sending an HTTP GET request to a configurable URL. The service should respond with a `2XX` status to indicate the value is valid.
+
+For example, if a project's clinical data is managed in a separate service, you can add an external validation on the donor ID field of your custom schema. This sends the donor ID to the external service, which can confirm that the donor was previously registered:
+
+```json
+{
+  "url": "http://example.com/{study}/donor/{value}",
+  "jsonPath": "experiment.donorId"
+}
+```
+
+The URL is a template with two variables that are replaced during validation. Song replaces the `{value}` token with the value read from the analysis at the property defined by `jsonPath`, and replaces the `{study}` token with the study ID for the analysis.
+
+Continuing the example above, if the following analysis was submitted:
+
+```json
+{
+  "studyId": "ABC123",
+  "analysisType": {
+    "name": "minimalExample"
+  },
+  "files": [
+    {
+      "dataType": "text",
+      "fileName": "file1.txt",
+      "fileSize": 123,
+      "fileType": "txt",
+      "fileAccess": "open",
+      "fileMd5sum": "595f44fec1e92a71d3e9e77456ba80d1"
+    }
+  ],
+  "experiment": {
+    "donorId": "id01"
+  }
+}
+```
+
+Song would validate the `donorId` by sending a request to `http://example.com/ABC123/donor/id01`.
+
+The URL parsing allows using either the `{study}` or `{value}` placeholder multiple times (for example, `http://example.com/{study}-{value}/{value}`); each instance is interpolated accordingly.
+
+:::warning
+The URL may cause errors in Song if it contains any tokens matching the `{word}` format other than `{study}` and `{value}`.
+:::
 
 ## Registering Analysis Types
 
@@ -83,7 +178,7 @@ These steps apply both for registering new schemas and updating existing ones.
 1. **Locate the Endpoint**
    - From the schema dropdown, find the `POST` **RegisterAnalysisType** endpoint.
 
-     ![Register new schema](../assets/swagger_register_schema(s).png 'Register new schema')
+     ![Register new schema](../assets/swagger_register_schemas.png 'Register new schema')
 
 2. **Input Your Data**
    - Click *Try it out* & enter your authorization token in the authorization field
@@ -102,7 +197,7 @@ These steps apply both for registering new schemas and updating existing ones.
 Use the following curl command to make a POST request with the required authorization tokens, headers, and data:
 
 ```bash
-curl -X POST "https://song.virusseq-dataportal.ca/schemas" \
+curl -X POST "https://<YOUR-SONG-URL>/schemas" \
     -H "accept: */*" \
     -H "Authorization: AUTHORIZATION" \
     -H "Content-Type: application/json" \
@@ -135,7 +230,7 @@ This Python script sends a POST request to register a new schema:
 import requests
 
 # Verify your SONG URL either through the swagger portal or hosting terminal
-url = "https://song.virusseq-dataportal.ca"
+url = "https://<YOUR-SONG-URL>"
 
 # Set endpoint
 endpoint = f"{url}/schemas"
@@ -216,5 +311,5 @@ curl --location --request GET 'https://song-url.example.com/schemas/sequencing_e
 ```
 
 :::info Support
-For technical support or specific use cases, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
+For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](https://docs.overture.bio/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::

@@ -32,5 +32,5 @@ SCHEMAS_ENFORCELATEST=true
 By setting `SCHEMAS_ENFORCELATEST` to true, the Song server will enforce that data conforms to the latest schema versions. Conversely, if set to false, data can be submitted under any schema version.
 
 :::info Need Help?
-If you encounter any issues or have questions about our API, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
+If you encounter any issues or have questions about our API, please don't hesitate to reach out through our [**support page**](https://docs.overture.bio/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::

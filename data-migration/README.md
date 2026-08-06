@@ -17,11 +17,11 @@ This script migrates the existing data to the updated database structure. It rea
 
 # Installation
 
-1. Clone this repository:
+1. Clone Song and change into this directory:
 
 ```bash
-git clone https://github.com/overture-stack/song_5_3_migration.git
-cd song_5_3_migration
+git clone https://github.com/overture-stack/SONG.git
+cd SONG/data-migration
 ```
 
 2. Install dependencies using pnpm:

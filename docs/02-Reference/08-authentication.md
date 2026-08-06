@@ -164,7 +164,7 @@ Update your Song configuration by adding these Keycloak variables to your `.env.
 
 ```bash
 # Keycloak Integration
-SPRING_CONFIG_ACTIVATE_ON_PROFILE=secure
+SPRING_PROFILES_ACTIVE=secure
 
 # Server Configuration
 AUTH_SERVER_PROVIDER=keycloak
@@ -192,17 +192,16 @@ Replace any default values with the values specific to your environment. The var
 **Server Authentication Integration**
 - `AUTH_SERVER_PROVIDER`: Required - Specify the authentication server provider. In this case, it's set to `keycloak`
 - `AUTH_SERVER_KEYCLOAK_HOST`: Required - The host address for the Keycloak server. Default is `http://localhost` update this variable accordingly
-- `AUTH_SERVER_KEYCLOAK_REALM`: Required - The realm in Keycloak under which the Score service is registered. Example: `myrealm`
-- `AUTH_SERVER_URL`: Required - URL for the Keycloak API endpoint authenticating a user's API key. Specify the full endpoint URL by inserting your realm name
+- `AUTH_SERVER_KEYCLOAK_REALM`: Required - The realm in Keycloak under which the Song service is registered. Example: `myrealm`
+- `AUTH_SERVER_INTROSPECTIONURI`: Required - URL for the Keycloak API endpoint that validates a user's API key. Specify the full endpoint URL by inserting your realm name
 - `AUTH_SERVER_TOKENNAME`: Required - Name identifying a token. Keep this as the default value `apiKey`
-- `AUTH_SERVER_CLIENTID`: Required - The client ID for the Score application configured in Keycloak
-- `AUTH_SERVER_CLIENTSECRET`: Required - The client secret for the Score application configured in Keycloak. This can be accessed from the **"Client details"** under the **"Credentials tab"**
+- `AUTH_SERVER_CLIENTID`: Required - The client ID for the Song application configured in Keycloak
+- `AUTH_SERVER_CLIENTSECRET`: Required - The client secret for the Song application configured in Keycloak. This can be accessed from the **"Client details"** under the **"Credentials tab"**
 
 **Scope Configuration**
-- `AUTH_SERVER_SCOPE_DOWNLOAD_SYSTEM`: Required - Scope (permission) for system-level downloads from Score using an API key. Default: `score.WRITE`
-- `AUTH_SERVER_SCOPE_DOWNLOAD_SUFFIX`: Required - Suffix after the Song study name when assigning study-level download scopes for Score. Default: `.READ`
-- `AUTH_SERVER_SCOPE_UPLOAD_SYSTEM`: Required - Scope (permission) for system-level uploads to Score using an API key. If following the above instructions for application setup this value will be `score-api.`
-- `AUTH_SERVER_SCOPE_UPLOAD_SUFFIX`: Required - Suffix after the Song study name when assigning study-level upload scopes for Score. Default: `.WRITE`
+- `AUTH_SERVER_SCOPE_STUDY_PREFIX`: Required - Prefix applied before the Song study name when assigning study-level scopes. Default: `STUDY.`
+- `AUTH_SERVER_SCOPE_STUDY_SUFFIX`: Required - Suffix applied after the Song study name when assigning study-level scopes. Default: `.WRITE`
+- `AUTH_SERVER_SCOPE_SYSTEM`: Required - Scope (permission) for system-level access to Song using an API key. Default: `song.WRITE`
 
 **JWT Configuration**
 - `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI`: Required - URI for JWT JSON Web Key Set (JWK Set) for the OAuth2 resource server. Specify the Keycloak server URI by inserting your realm name
@@ -210,5 +209,5 @@ Replace any default values with the values specific to your environment. The var
 </details>
 
 :::info Need Help?
-If you encounter any issues or have questions about our API, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
+If you encounter any issues or have questions about our API, please don't hesitate to reach out through our [**support page**](https://docs.overture.bio/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::

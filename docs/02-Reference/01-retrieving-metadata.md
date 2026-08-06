@@ -22,29 +22,31 @@ Swagger UI is ideal for exploration and simple use cases. It provides detailed d
 
 Here are examples of how to retrieve analyses using the Song API programmatically. 
 
-### Example 1: Sample ID Query
+### Example 1: Retrieve a Single Analysis by ID
 
-This Python script searches for associated analyses based on a specific sample ID:
+When you already know an analysis's ID, retrieve it directly with the `GetAnalysis` endpoint:
 
 ```python
 import requests
 
-url = "https://song.virusseq-dataportal.ca"
-sample = "QC_546060"
-study = "LSPQ-QC"
+url = "https://<YOUR-SONG-URL>"
+study = "ABC123"
+analysis_id = "ANALYSIS-ABC123-SAMPLEA"
 
-endpoint = f"{url}/studies/{study}/analysis/search/id?submitterSampleId={sample}"
+endpoint = f"{url}/studies/{study}/analysis/{analysis_id}"
 response = requests.get(endpoint)
-print(response.json()[0])
+print(response.json())
 ```
 
+To locate analyses by a submitter field (such as a sample or donor ID) rather than by analysis ID, see [Example 2](#example-2-bulk-analysis-query): Song has no server-side search for those fields, so you retrieve the study's analyses and filter them client-side.
+
 :::info Support
-For technical support or specific use cases, please don't hesitate to reach out through our relevant [**community support channels**](https://docs.overture.bio/community/support).
+For technical support or specific use cases, please don't hesitate to reach out through our [**support page**](https://docs.overture.bio/community/support) or our [**discussion forum**](https://github.com/overture-stack/docs/discussions?discussions_q=).
 :::
 
 ### Example 2: Bulk Analysis Query
 
-This script demonstrates how to retrieve an aggregated list of published analyses and create a filtered list of analyses associated with a series of `submitterIDs`:
+This is the pattern for finding analyses by a submitter field (here, a submitter sample ID). Song has no server-side search for donor, specimen, or sample IDs (they are custom-schema fields in the analysis payload, not base-schema entities), so you retrieve the study's published analyses in bulk and filter them client-side:
 
 ```python
 import requests
@@ -55,12 +57,12 @@ aggregated_analyses = []
 filtered_analyses = []
 
 # Variables
-study = "MCPL-MB"
+study = "ABC123"
 status = "PUBLISHED"
-url = "https://song.virusseq-dataportal.ca"
+url = "https://<YOUR-SONG-URL>"
 
 # Read CSV to identify specimens
-tmp = pd.read_csv("/Users/esu/Desktop/GitHub/virus-seq/2023_05_31/DP_Update_consensus_seq_version.csv", sep=",")
+tmp = pd.read_csv("path/to/consensus_seq_version.csv", sep=",")
 
 # Clean up CSV
 tmp.set_index('Specimen Collector Sample ID', inplace=True)
@@ -97,7 +99,8 @@ for offset in range(100, total, 100):
 
     aggregated_analyses.extend(response.json()['analyses'])
 
-# Filter analyses according to sample specimen ID
+# Filter analyses by submitter sample ID.
+# `samples[].submitterSampleId` is a custom-schema field here; adjust the path to match your schema.
 print("Filtering analyses")
 filtered_analyses = [analysis for analysis in aggregated_analyses 
                      if analysis['samples'][0]['submitterSampleId'] in tmp.index.values]
