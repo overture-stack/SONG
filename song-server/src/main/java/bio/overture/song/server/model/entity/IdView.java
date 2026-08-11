@@ -20,7 +20,6 @@ package bio.overture.song.server.model.entity;
 import static bio.overture.song.server.model.enums.TableAttributeNames.*;
 
 import bio.overture.song.server.model.enums.ModelAttributeNames;
-import bio.overture.song.server.model.enums.TableAttributeNames;
 import bio.overture.song.server.model.enums.TableNames;
 import javax.persistence.Column;
 import javax.persistence.ColumnResult;
@@ -55,9 +54,7 @@ import org.hibernate.annotations.Immutable;
               + " AND "
               + OBJECT_ID
               + " ~* :"
-              + ModelAttributeNames.OBJECT_ID
-              + " AND "
-              + SUBMITTER_SAMPLE_ID,
+              + ModelAttributeNames.OBJECT_ID,
       resultSetMapping = IdView.ID_VIEW_DTO)
 })
 @SqlResultSetMappings({
@@ -83,15 +80,6 @@ public class IdView {
   @Id
   @Column(name = OBJECT_ID)
   private String objectId;
-
-  @Column(name = DONOR_ID)
-  private String donorId;
-
-  @Column(name = TableAttributeNames.SPECIMEN_ID)
-  private String specimenId;
-
-  @Column(name = TableAttributeNames.SAMPLE_ID)
-  private String sampleId;
 
   @Column(name = STUDY_ID)
   private String studyId;
