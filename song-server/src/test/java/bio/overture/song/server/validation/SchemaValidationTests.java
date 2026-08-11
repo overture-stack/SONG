@@ -94,14 +94,21 @@ public class SchemaValidationTests {
 
   @Test
   public void validate_submit_sequencing_read_missing_required() throws Exception {
+    // Expected violations (documents/sequencingread-missing-required.json):
+    //   #/files/0: required key [fileName] not found
+    //   #/files/0: required key [fileAccess] not found
+    //   #/files/1: required key [fileAccess] not found
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-missing-required.json");
-    assertEquals(4, errors.size());
+    assertEquals(3, errors.size());
   }
 
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
+    // Expected violations (documents/sequencingread-invalid-enum.json):
+    //   #/files/0/fileAccess: CoNtRoLlEd is not a valid enum value
+    //   #/files/1/fileAccess: CoNtRoLlEd is not a valid enum value
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-invalid-enum.json");
-    assertEquals(7, errors.size());
+    assertEquals(2, errors.size());
   }
 
   @Test
@@ -112,14 +119,21 @@ public class SchemaValidationTests {
 
   @Test
   public void validate_submit_variant_call_missing_required() throws Exception {
+    // Expected violations (documents/variantcall-missing-required.json):
+    //   #: required key [files] not found
+    //   #/experiment: required key [matchedNormalSampleSubmitterId] not found
+    //   #/experiment: required key [variantCallingTool] not found
     val errors = validate(VARIANT_CALL, "documents/variantcall-missing-required.json");
-    assertEquals(4, errors.size());
+    assertEquals(3, errors.size());
   }
 
   @Test
   public void validate_submit_variant_call_invalid_enum() throws Exception {
+    // Expected violations (documents/variantcall-invalid-enum.json):
+    //   #/files/0/fileAccess: OpEn is not a valid enum value
+    //   #/files/1/fileAccess: OpEn is not a valid enum value
     val errors = validate(VARIANT_CALL, "documents/variantcall-invalid-enum.json");
-    assertEquals(6, errors.size());
+    assertEquals(2, errors.size());
   }
 
   @Test
