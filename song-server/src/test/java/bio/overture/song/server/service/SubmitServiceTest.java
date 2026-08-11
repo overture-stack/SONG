@@ -58,14 +58,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles({"test", "async-test"})
 @Transactional
 public class SubmitServiceTest {
@@ -108,7 +105,8 @@ public class SubmitServiceTest {
 
     val filename2 = "documents/deserialization/sequencingread-deserialize2.json";
     val jsonPayload2 = getJsonStringFromClasspath(filename2);
-    val submitResponse2 = submitService.submit(DEFAULT_STUDY, jsonPayload2, false);
+    // Both fixtures reuse the same file checksums, so this resubmission needs to allow duplicates.
+    val submitResponse2 = submitService.submit(DEFAULT_STUDY, jsonPayload2, true);
     assertEquals(Responses.OK, submitResponse2.getStatus());
     val analysisId2 = submitResponse2.getAnalysisId();
     val a2 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId2);
@@ -150,7 +148,7 @@ public class SubmitServiceTest {
     val analysisId = submitAnalysis(studyId, payload);
     val payload2 = getModifiedPayload(payload);
 
-    val result = submitAnalysis(studyId, payload2);
+    val result = submitAnalysis(studyId, payload2, true);
     assertFalse("No error results expected", result.startsWith("ERR:"));
     assertNotEquals("New analysisId expected", analysisId, result);
   }
@@ -163,7 +161,7 @@ public class SubmitServiceTest {
     val payload = randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
     val payload2 = getModifiedPayload(payload);
-    val result = submitAnalysis(studyId, payload2);
+    val result = submitAnalysis(studyId, payload2, true);
     assertFalse("No error results expected", result.startsWith("ERR"));
     assertNotEquals("New analysisId expected", analysisId, result);
   }
@@ -184,10 +182,14 @@ public class SubmitServiceTest {
   }
 
   private String submitAnalysis(String studyId, Payload payload) {
+    return submitAnalysis(studyId, payload, false);
+  }
+
+  private String submitAnalysis(String studyId, Payload payload, boolean allowDuplicates) {
     String actual;
     payload.setStudyId(studyId);
     try {
-      actual = submitService.submit(studyId, toJson(payload), false).getAnalysisId();
+      actual = submitService.submit(studyId, toJson(payload), allowDuplicates).getAnalysisId();
     } catch (Throwable throwable) {
       actual = "ERR: " + throwable.getMessage();
     }
