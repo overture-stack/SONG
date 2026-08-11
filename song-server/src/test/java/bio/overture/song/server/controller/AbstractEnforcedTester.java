@@ -21,6 +21,7 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.FILES;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
@@ -138,6 +139,12 @@ public abstract class AbstractEnforcedTester {
     } else {
       analysisTypeNode.put(VERSION, latestAnalysisType.getVersion() - 1);
     }
+    // Randomize the file checksums so repeated calls to submit() within the same test run don't
+    // trip the (study-agnostic) duplicate file check against the fixture's hardcoded checksums.
+    j.path(FILES)
+        .forEach(
+            fileNode ->
+                ((ObjectNode) fileNode).put("fileMd5sum", randomGenerator.generateRandomMD5()));
     return j;
   }
 
