@@ -128,7 +128,7 @@ public class ValidationService {
     return Optional.ofNullable(errors);
   }
 
-  List<String> getValuesAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath) {
+  public List<String> getValuesAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath) {
     try {
       val result = JsonPath.read(payload.toString(), "$." + jsonPath);
       if (result instanceof List) {
