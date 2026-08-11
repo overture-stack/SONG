@@ -68,7 +68,7 @@ public class ConstantsTest {
     assertEquals(FILE.toString(), "File");
     assertEquals(SEQUENCING_READ.toString(), "SequencingRead");
     assertEquals(VARIANT_CALL.toString(), "VariantCall");
-    assertEquals(InfoTypes.values().length, 7);
+    assertEquals(4, InfoTypes.values().length);
 
     assertEquals(resolveInfoType("Study"), STUDY);
     assertEquals(resolveInfoType("File"), FILE);
