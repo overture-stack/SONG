@@ -94,7 +94,9 @@ public class CorruptionSubmitControllerTest extends AbstractEnforcedTester {
 
     modifyPayload(payload);
 
-    getEndpointTester().submitPostRequestAnd(studyId, objectToTree(payload)).assertOk();
+    // Resubmitting the exact same (non-mutated) payload reuses the same file checksums, so it
+    // must explicitly allow duplicates to avoid tripping the duplicate-file check.
+    getEndpointTester().submitPostRequestAnd(studyId, objectToTree(payload), true).assertOk();
   }
 
   /**
