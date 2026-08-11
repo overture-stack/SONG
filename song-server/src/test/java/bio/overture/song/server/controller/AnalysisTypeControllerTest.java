@@ -666,11 +666,15 @@ public class AnalysisTypeControllerTest {
         SCHEMA_VIOLATION);
   }
 
+  // The meta-schema no longer requires an "experiment" property (removed in
+  // 454c2b0c: "Remove requirement of experiment from analysisTypeRegistration.json"),
+  // so these fixtures now only violate on the $id/boolean-type checks, same as
+  // register_extraFields_schemaViolation above.
   @Test
   public void register_missingExperiment_schemaViolation() {
     runInvalidRegisterTest(
         "invalid.missing_experiment.json",
-        "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#: extraneous key [$id] is not permitted,#/required: expected at least one array item to match 'contains' schema",
+        "[AnalysisTypeService::schema.violation] - #: extraneous key [$id] is not permitted,#: expected type: Boolean, found: JSONObject",
         SCHEMA_VIOLATION);
   }
 
@@ -678,7 +682,7 @@ public class AnalysisTypeControllerTest {
   public void register_misspeltExperiment_schemaViolation() {
     runInvalidRegisterTest(
         "invalid.misspelt_experiment.json",
-        "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#: extraneous key [$id] is not permitted,#/properties: required key [experiment] not found",
+        "[AnalysisTypeService::schema.violation] - #: extraneous key [$id] is not permitted,#: expected type: Boolean, found: JSONObject",
         SCHEMA_VIOLATION);
   }
 
