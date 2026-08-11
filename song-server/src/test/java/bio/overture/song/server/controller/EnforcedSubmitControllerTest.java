@@ -21,17 +21,22 @@ import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCOR
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
+import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.AnalysisTypeOptions;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
+import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.file.Paths;
+import java.util.List;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
@@ -57,6 +62,13 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
   @Autowired private AnalysisService analysisService;
   private static final ResourceFetcher DOCUMENTS_FETCHER =
       ResourceFetcher.builder().resourceType(TEST).dataDir(Paths.get("documents/")).build();
+  private static final ResourceFetcher LEGACY_SCHEMA_FETCHER =
+      ResourceFetcher.builder()
+          .resourceType(MAIN)
+          .dataDir(Paths.get("schemas/analysis/legacy/"))
+          .build();
+  private static final String VARIANT_CALL_LEGACY_NAME = "variantCall";
+  private static final String VARIANT_CALL_LEGACY_SCHEMA_FILENAME = "variantCall.json";
 
   /** Implementations */
   @Override
@@ -109,9 +121,29 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
 
   @Test
   public void testInvalidFile() {
+    // The pre-seeded legacy "variantCall" analysisType (the one this fixture's hardcoded
+    // "analysisType" field targets) has no fileTypes restriction, so the fileType enum check
+    // (ValidationService.validate lines 111-114) never runs. Register a new version that
+    // restricts fileTypes to what this fixture actually uses, so that check is exercised too.
+    // Since schemas.enforceLatest=true here, every submission below must target this new
+    // version once it's registered.
+    val legacyVariantCallSchema =
+        LEGACY_SCHEMA_FETCHER.readJsonNode(VARIANT_CALL_LEGACY_SCHEMA_FILENAME);
+    val restrictedVersion =
+        getEndpointTester()
+            .registerAnalysisTypePostRequestAnd(
+                RegisterAnalysisTypeRequest.builder()
+                    .name(VARIANT_CALL_LEGACY_NAME)
+                    .schema(legacyVariantCallSchema)
+                    .options(AnalysisTypeOptions.builder().fileTypes(List.of("VCF", "IDX")).build())
+                    .build())
+            .extractOneEntity(AnalysisType.class)
+            .getVersion();
+
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
     j.put("studyId", getStudyId());
     randomizeFileChecksums(j);
+    ((ObjectNode) j.path("analysisType")).put("version", restrictedVersion);
     val s = (ObjectNode) j.get("files").get(0);
     s.put("fileType", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
@@ -119,6 +151,7 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
     j2.put("studyId", getStudyId());
     randomizeFileChecksums(j2);
+    ((ObjectNode) j2.path("analysisType")).put("version", restrictedVersion);
     val s2 = (ObjectNode) j2.get("files").get(0);
     s2.put("fileAccess", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
@@ -126,6 +159,7 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     val j3 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
     j3.put("studyId", getStudyId());
     randomizeFileChecksums(j3);
+    ((ObjectNode) j3.path("analysisType")).put("version", restrictedVersion);
     val s3 = (ObjectNode) j3.get("files").get(0);
     s3.put("fileMd5sum", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j3).assertServerError(SCHEMA_VIOLATION);

@@ -99,7 +99,7 @@ public class ValidationService {
         throw new ValidationException("Analysis type not found");
       }
       val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
-      val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, true);
+      val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
       log.debug(
           format(
               "Validation Analysis with schema: name=%s  version=%s",
