@@ -320,7 +320,7 @@ public class AnalysisTypeService {
         .version(version)
         .createdAt(createdAt)
         .schema(resolvedSchemaJson)
-        .options(options)
+        .options(newAnalysisOptions)
         .build();
   }
 
