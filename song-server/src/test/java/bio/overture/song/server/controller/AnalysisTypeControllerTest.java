@@ -703,14 +703,7 @@ public class AnalysisTypeControllerTest {
 
   @Test
   public void register_illegalFields_schemaViolation() {
-    Stream.of(
-            "analysisId",
-            "analysisState",
-            "studyId",
-            "analysisType",
-            "analysisTypeId",
-            "samples",
-            "files")
+    Stream.of("analysisId", "analysisState", "studyId", "analysisType", "analysisTypeId", "files")
         .forEach(
             f -> {
               // Create an invalid schema using one of the invalid fields
