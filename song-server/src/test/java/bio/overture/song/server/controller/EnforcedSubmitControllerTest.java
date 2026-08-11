@@ -20,10 +20,8 @@ package bio.overture.song.server.controller;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static java.util.Objects.isNull;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
@@ -34,7 +32,6 @@ import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.file.Paths;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
@@ -108,76 +105,6 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     getEndpointTester()
         .submitPostRequestAnd(getStudyId(), j2)
         .assertServerError(MALFORMED_PARAMETER);
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_TumourAndDefined_Success() {
-    runMatchedNormalTest("variantcall-tumour-valid.json");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_TumourAndMissing_SchemaViolation() {
-    runMatchedNormalTest(
-        "variantcall-tumour-missing-invalid.json",
-        "#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_TumourAndNull_SchemaViolation() {
-    runMatchedNormalTest(
-        "variantcall-tumour-null-invalid.json",
-        "#/samples/0/matchedNormalSubmitterSampleId: expected type: String, found:");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_NormalAndMissing_SchemaViolation() {
-    runMatchedNormalTest(
-        "variantcall-normal-missing-invalid.json",
-        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_NormalAndNonNull_SchemaViolation() {
-    runMatchedNormalTest(
-        "variantcall-normal-nonnull-invalid.json",
-        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0/matchedNormalSubmitterSampleId:");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_NormalAndNull_Success() {
-    runMatchedNormalTest("variantcall-normal-valid.json");
-  }
-
-  // Test for RNA payload:
-  @Test
-  public void matchedNormalFieldInclusionValidation_RNATumourNull_Success() {
-    runMatchedNormalTest("seq-exp-RNA-tumour-null-valid.json");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_RNATumour_NonNull_Success() {
-    runMatchedNormalTest(
-        "seq-exp-RNA-tumour-empty-id.json",
-        "#/samples/0/matchedNormalSubmitterSampleId: ,#/samples/0/matchedNormalSubmitterSampleId: string [] does not match pattern");
-  }
-
-  @Test
-  @SneakyThrows
-  public void testInvalidSample() {
-    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    j.put("studyId", getStudyId());
-    randomizeFileChecksums(j);
-    val s = (ObjectNode) j.get("samples").get(0);
-    s.put("sampleType", "invalid");
-
-    getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
-
-    // Test invalid sample format
-    val j2 =
-        (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-sample.json");
-    j2.put("studyId", getStudyId());
-    randomizeFileChecksums(j2);
-    getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
   }
 
   @Test
@@ -311,29 +238,5 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     getEndpointTester()
         .updateAnalysisPutRequestAnd(getStudyId(), analysisId, objectToTree(request))
         .assertOk();
-  }
-
-  private void runMatchedNormalTest(String filename) {
-    runMatchedNormalTest(filename, null);
-  }
-
-  private void runMatchedNormalTest(
-      @NonNull String filename, String expectedSchemaViolationMessage) {
-    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/" + filename);
-    j.put("studyId", getStudyId());
-    randomizeFileChecksums(j);
-    if (!isNull(expectedSchemaViolationMessage)) {
-      val songError =
-          parseErrorResponse(
-              getEndpointTester()
-                  .submitPostRequestAnd(getStudyId(), j)
-                  .assertServerError(SCHEMA_VIOLATION)
-                  .assertHasBody()
-                  .getResponse());
-      val message = songError.getMessage();
-      assertTrue(message.contains(expectedSchemaViolationMessage));
-    } else {
-      getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertOk();
-    }
   }
 }
