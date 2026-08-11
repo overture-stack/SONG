@@ -58,7 +58,7 @@ public class EntityTest {
     file1.setFileMd5sum("b1");
     file1.setFileName("c1");
     file1.setFileSize(13L);
-    file1.setFileType("mp4");
+    file1.setFileType(FILE_TYPES.get(0));
     file1.setObjectId("d1");
     file1.setStudyId("e1");
 
