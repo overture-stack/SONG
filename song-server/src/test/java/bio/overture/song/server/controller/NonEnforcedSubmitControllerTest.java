@@ -80,7 +80,7 @@ public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
             .version(getLatestAnalysisType().getVersion() - 1)
             .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert that when an analysisUpdate using an out-dated analysisType is successful
     getEndpointTester()
@@ -102,7 +102,7 @@ public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
             .version(getLatestAnalysisType().getVersion())
             .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester()
@@ -121,7 +121,7 @@ public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
     val nonLatestAnalysisTypeId =
         AnalysisTypeId.builder().name(getLatestAnalysisType().getName()).build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester()

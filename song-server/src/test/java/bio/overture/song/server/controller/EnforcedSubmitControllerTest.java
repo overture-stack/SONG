@@ -165,6 +165,8 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
   @SneakyThrows
   public void testInvalidSample() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    j.put("studyId", getStudyId());
+    randomizeFileChecksums(j);
     val s = (ObjectNode) j.get("samples").get(0);
     s.put("sampleType", "invalid");
 
@@ -173,22 +175,30 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     // Test invalid sample format
     val j2 =
         (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-sample.json");
+    j2.put("studyId", getStudyId());
+    randomizeFileChecksums(j2);
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
   }
 
   @Test
   public void testInvalidFile() {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    j.put("studyId", getStudyId());
+    randomizeFileChecksums(j);
     val s = (ObjectNode) j.get("files").get(0);
     s.put("fileType", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    j2.put("studyId", getStudyId());
+    randomizeFileChecksums(j2);
     val s2 = (ObjectNode) j2.get("files").get(0);
     s2.put("fileAccess", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
 
     val j3 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    j3.put("studyId", getStudyId());
+    randomizeFileChecksums(j3);
     val s3 = (ObjectNode) j3.get("files").get(0);
     s3.put("fileMd5sum", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j3).assertServerError(SCHEMA_VIOLATION);
@@ -226,7 +236,7 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
             .version(getLatestAnalysisType().getVersion() - 1)
             .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert that when an analysisUpdate using an out-dated analysisType is attempted,
     // an ANALYSIS_TYPE_INCORRECT_VERSION server error is thrown
@@ -276,7 +286,7 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
             .version(getLatestAnalysisType().getVersion())
             .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester()
@@ -295,7 +305,7 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     val nonLatestAnalysisTypeId =
         AnalysisTypeId.builder().name(getLatestAnalysisType().getName()).build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester()
@@ -311,6 +321,7 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
       @NonNull String filename, String expectedSchemaViolationMessage) {
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/" + filename);
     j.put("studyId", getStudyId());
+    randomizeFileChecksums(j);
     if (!isNull(expectedSchemaViolationMessage)) {
       val songError =
           parseErrorResponse(

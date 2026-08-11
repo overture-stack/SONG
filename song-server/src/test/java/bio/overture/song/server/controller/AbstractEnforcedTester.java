@@ -42,6 +42,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.file.Paths;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.val;
 import org.junit.Before;
 import org.springframework.lang.Nullable;
@@ -139,13 +140,20 @@ public abstract class AbstractEnforcedTester {
     } else {
       analysisTypeNode.put(VERSION, latestAnalysisType.getVersion() - 1);
     }
-    // Randomize the file checksums so repeated calls to submit() within the same test run don't
-    // trip the (study-agnostic) duplicate file check against the fixture's hardcoded checksums.
-    j.path(FILES)
+    randomizeFileChecksums(j);
+    return j;
+  }
+
+  /**
+   * Randomizes the file checksums so repeated calls to submit() within the same test run don't trip
+   * the (study-agnostic) duplicate file check against a fixture's hardcoded checksums.
+   */
+  protected void randomizeFileChecksums(@NonNull JsonNode payload) {
+    payload
+        .path(FILES)
         .forEach(
             fileNode ->
                 ((ObjectNode) fileNode).put("fileMd5sum", randomGenerator.generateRandomMD5()));
-    return j;
   }
 
   protected SubmitResponse submit(boolean isLatestVersion) {
@@ -154,5 +162,17 @@ public abstract class AbstractEnforcedTester {
     return getEndpointTester()
         .submitPostRequestAnd(getStudyId(), payload)
         .extractOneEntity(SubmitResponse.class);
+  }
+
+  /**
+   * The analysisUpdate schema forbids "samples" and "files" (they aren't updatable), but {@link
+   * bio.overture.song.server.model.analysis.AnalysisData#getData()} returns the full stored payload
+   * data including those keys. Strip them before merging into an update request.
+   */
+  protected static JsonNode toUpdatableData(@NonNull JsonNode analysisData) {
+    val updatableData = (ObjectNode) analysisData.deepCopy();
+    updatableData.remove("samples");
+    updatableData.remove(FILES);
+    return updatableData;
   }
 }
