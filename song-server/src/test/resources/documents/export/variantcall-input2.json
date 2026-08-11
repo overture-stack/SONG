@@ -7,27 +7,6 @@
     "variantCallingTool": "silver bullet2",
     "matchedNormalSampleSubmitterId": "sample-x24-11a2"
   },
-  "samples": [
-    {
-      "submitterSampleId": "internal_sample_98024759826832",
-      "sampleType": "Total RNA",
-      "size": 52,
-      "matchedNormalSubmitterSampleId": null,
-	  "specimen": {
-        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk2",
-        "ratio": "1:2",
-        "tumourNormalDesignation": "Tumour",
-        "specimenTissueSource": "Solid tissue",
-        "specimenType": "Primary tumour"
-      },
-      "donor": {
-        "submitterDonorId": "internal_donor_123456789-02",
-        "gender": "Female",
-        "age": 342
-      },
-      "matchedNormalSubmitterSampleId": "sample-x24-11a2"
-    }
-  ],
   "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711-2.somatic.snv_mnv.vcf.gz",
