@@ -30,8 +30,9 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import bio.overture.song.core.testing.SongErrorAssertions;
@@ -47,15 +48,14 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -64,14 +64,16 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+// setupRepositoryFindById() stubs findById() for every entity up front in @BeforeEach, but
+// individual test methods each only exercise a subset — MockitoExtension's default
+// Strictness.STRICT_STUBS flags the unused ones as UnnecessaryStubbing per-test.
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class LegacyEntityServiceTest {
 
   private static LegacyEntityConverter CONVERTER = LegacyEntityConverter.INSTANCE;
   private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 2000);
   private static List<LegacyEntity> LEGACY_ENTITY_DATA;
-
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock private LegacyEntityRepository repository;
 
@@ -81,14 +83,14 @@ public class LegacyEntityServiceTest {
 
   private List<String> legacyEntityFieldNames;
 
-  @BeforeClass
+  @BeforeAll
   public static void initClass() {
     val jsonData = TestFiles.getJsonNodeFromClasspath("documents/LegacyEntityData.json");
     LEGACY_ENTITY_DATA =
         stream(jsonData).map(x -> convertValue(x, LegacyEntity.class)).collect(toImmutableList());
   }
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     setupRepositoryFindById();
     setupService();
@@ -276,7 +278,7 @@ public class LegacyEntityServiceTest {
 
   private void setupRepositoryFindById() {
     for (val entity : LEGACY_ENTITY_DATA) {
-      when(repository.findById(entity.getId())).thenReturn(Optional.of(entity));
+      doReturn(Optional.of(entity)).when(repository).findById(entity.getId());
     }
   }
 }

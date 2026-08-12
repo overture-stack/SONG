@@ -21,9 +21,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -56,10 +56,10 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -68,7 +68,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -81,7 +81,7 @@ import org.springframework.web.context.WebApplicationContext;
 @Slf4j
 @SpringBootTest
 @ContextConfiguration
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test", "secure", "jwt"})
 // JWTGenerator embeds scopes directly in the JWT's claims (the "ego" model), not via a Keycloak
 // UMA/RPT authorization-grant fetch, so auth.server.provider must not be "keycloak" here.
@@ -113,7 +113,7 @@ public class JWTSecurityTest {
         () -> format("http://localhost:%d%s", JWKS_SERVER.port(), JWK_SET_PATH));
   }
 
-  @AfterClass
+  @AfterAll
   public static void afterAllTests() {
     JWKS_SERVER.stop();
   }
@@ -132,7 +132,7 @@ public class JWTSecurityTest {
   private MockMvc mockMvc;
   private StudyGenerator studyGenerator;
 
-  @Before
+  @BeforeEach
   public void beforeEachTest() {
     if (mockMvc == null) {
       this.mockMvc =
@@ -319,11 +319,11 @@ public class JWTSecurityTest {
         createAuthRequestAnd(jwtString, studyId).assertStatusCode(expectedHttpStatus);
       } catch (ServerException e) {
         assertEquals(
+            expectedHttpStatus.value(),
+            e.getSongError().getHttpStatusCode(),
             format(
                 "expected '%s' httpCode, but actual httpCode was %s",
-                expectedHttpStatus.value(), e.getSongError().getHttpStatusCode()),
-            expectedHttpStatus.value(),
-            e.getSongError().getHttpStatusCode());
+                expectedHttpStatus.value(), e.getSongError().getHttpStatusCode()));
       }
     }
   }

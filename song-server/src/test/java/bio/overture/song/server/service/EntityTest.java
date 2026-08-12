@@ -22,8 +22,9 @@ import static bio.overture.song.core.model.enums.AnalysisStates.*;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertExceptionThrownBy;
 import static bio.overture.song.server.utils.TestFiles.assertInfoKVPair;
 import static com.google.common.collect.Lists.newArrayList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import bio.overture.song.core.model.Metadata;
 import bio.overture.song.server.model.Upload;
@@ -36,7 +37,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import lombok.val;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EntityTest {
   private static final String DEFAULT_STUDY_ID = "ABC123";

@@ -35,8 +35,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -59,19 +59,19 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @Slf4j
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 @Transactional
 public class PublishAnalysisTest {
@@ -103,7 +103,7 @@ public class PublishAnalysisTest {
    * Before each test, create a new analysis, with a fresh set of randomly generated files, that
    * will be used in the test
    */
-  @Before
+  @BeforeEach
   public void beforeTest() {
     this.randomGenerator = createRandomGenerator(PublishAnalysisTest.class.getSimpleName());
     val newStudyId = createStudyGenerator(studyService, randomGenerator).createRandomStudy();
@@ -126,7 +126,7 @@ public class PublishAnalysisTest {
     assertTrue(MIN_SIZE < MAX_FILES);
   }
 
-  @After
+  @AfterEach
   public void removeMocks() {
     /* Replacing the mocked variables with the original objects is required to guarantee expected behaviour
      * in other test classes. Instances exist where the mocked variables are still in place for other tests

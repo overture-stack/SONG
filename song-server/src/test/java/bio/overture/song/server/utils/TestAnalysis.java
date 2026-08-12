@@ -17,7 +17,7 @@
 
 package bio.overture.song.server.utils;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.server.model.analysis.Analysis;

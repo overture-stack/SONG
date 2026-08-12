@@ -17,19 +17,13 @@
 
 package bio.overture.song.server.security;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.overture.song.server.service.auth.KeycloakAuthorizationService;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.com.google.common.collect.Sets;
 
-@SpringBootTest
 public class TestScopeStrategy {
-
-  @Autowired private KeycloakAuthorizationService keycloakAuthorizationService;
 
   private final SystemSecurity SYSTEM_SECURITY =
       SystemSecurity.builder().systemScope("song.READ").build();

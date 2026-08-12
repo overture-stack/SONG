@@ -192,12 +192,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- Not used directly by any song-server test (all migrated to JUnit 5) -
+                 kept because song-core's SongErrorAssertions (main source, used pervasively
+                 by song-server tests via assertSongError/assertExceptionThrownBy/etc.) is
+                 declared "provided" scope in song-core and still uses org.junit.Assert. -->
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -209,6 +213,11 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

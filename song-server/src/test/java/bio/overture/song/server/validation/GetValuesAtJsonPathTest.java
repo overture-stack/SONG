@@ -16,8 +16,9 @@
  */
 package bio.overture.song.server.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,8 +31,8 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
 
 public class GetValuesAtJsonPathTest {
@@ -40,7 +41,7 @@ public class GetValuesAtJsonPathTest {
 
   private ValidationService service;
 
-  @Before
+  @BeforeEach
   @SuppressWarnings("unchecked")
   public void setUp() {
     val schemaSupplier = (Supplier<Schema>) mock(Supplier.class);
@@ -81,10 +82,11 @@ public class GetValuesAtJsonPathTest {
     assertTrue(result.isEmpty());
   }
 
-  @Test(expected = ValidationException.class)
+  @Test
   public void getValuesAtJsonPath_nonStringProperty_throwsValidationException() {
     val payload = parseJson("{\"experiment\": {\"count\": 42}}");
-    service.getValuesAtJsonPath(payload, "experiment.count");
+    assertThrows(
+        ValidationException.class, () -> service.getValuesAtJsonPath(payload, "experiment.count"));
   }
 
   @Test
@@ -123,17 +125,18 @@ public class GetValuesAtJsonPathTest {
     assertEquals(List.of("DONOR_001", "DONOR_003"), result);
   }
 
-  @Test(expected = ValidationException.class)
+  @Test
   public void getValuesAtJsonPath_wildcardOnArrayWithNonStringValue_throwsValidationException() {
     val payload = parseJson("{\"donors\": [" + "{\"count\": 1}," + "{\"count\": 2}" + "]}");
-    service.getValuesAtJsonPath(payload, "donors[*].count");
+    assertThrows(
+        ValidationException.class, () -> service.getValuesAtJsonPath(payload, "donors[*].count"));
   }
 
-  @Test(expected = ValidationException.class)
+  @Test
   public void getValuesAtJsonPath_mixedArrayWithNonStringValue_throwsValidationException() {
     // An array mixing strings and non-strings should fail — ambiguous intent is rejected.
     val payload = parseJson("{\"tags\": [\"alpha\", 42, \"gamma\"]}");
-    service.getValuesAtJsonPath(payload, "tags[*]");
+    assertThrows(ValidationException.class, () -> service.getValuesAtJsonPath(payload, "tags[*]"));
   }
 
   @Test

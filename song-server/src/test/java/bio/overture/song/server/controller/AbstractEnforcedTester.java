@@ -27,8 +27,8 @@ import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 import static java.util.Objects.isNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.SubmitResponse;
@@ -44,7 +44,7 @@ import java.nio.file.Paths;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.lang.Nullable;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -81,7 +81,7 @@ public abstract class AbstractEnforcedTester {
 
   protected abstract boolean isLoggingEnabled();
 
-  @Before
+  @BeforeEach
   public void beforeEachTest() {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(getWebApplicationContext()).build();
     this.randomGenerator = createRandomGenerator(getClass().getSimpleName());

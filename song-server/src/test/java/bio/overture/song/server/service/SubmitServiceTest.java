@@ -32,10 +32,10 @@ import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SE
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.Responses;
@@ -53,16 +53,16 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Slf4j
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test", "async-test"})
 @Transactional
 public class SubmitServiceTest {
@@ -149,8 +149,8 @@ public class SubmitServiceTest {
     val payload2 = getModifiedPayload(payload);
 
     val result = submitAnalysis(studyId, payload2, true);
-    assertFalse("No error results expected", result.startsWith("ERR:"));
-    assertNotEquals("New analysisId expected", analysisId, result);
+    assertFalse(result.startsWith("ERR:"), "No error results expected");
+    assertNotEquals(analysisId, result, "New analysisId expected");
   }
 
   @Test
@@ -162,8 +162,8 @@ public class SubmitServiceTest {
     val analysisId = submitAnalysis(studyId, payload);
     val payload2 = getModifiedPayload(payload);
     val result = submitAnalysis(studyId, payload2, true);
-    assertFalse("No error results expected", result.startsWith("ERR"));
-    assertNotEquals("New analysisId expected", analysisId, result);
+    assertFalse(result.startsWith("ERR"), "No error results expected");
+    assertNotEquals(analysisId, result, "New analysisId expected");
   }
 
   private String randomStudy() {

@@ -32,7 +32,7 @@ import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -59,16 +59,16 @@ import java.util.stream.Stream;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
@@ -76,7 +76,7 @@ import org.springframework.web.context.WebApplicationContext;
 @Slf4j
 @Transactional
 @ActiveProfiles({"test"})
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @SpringBootTest(properties = "schemas.enforceLatest=false")
 public class AnalysisControllerTest {
@@ -112,7 +112,7 @@ public class AnalysisControllerTest {
   private StorageService actualStorageService;
   private AnalysisServiceImpl actualAnalysisService;
 
-  @Before
+  @BeforeEach
   public void beforeEachTest() {
     this.mockMvc = webAppContextSetup(webApplicationContext).build();
     this.endpointTester = createEndpointTester(mockMvc, true);
@@ -171,7 +171,7 @@ public class AnalysisControllerTest {
         analysisService, "internalAnalysisService", internalAnalysisService);
   }
 
-  @After
+  @AfterEach
   public void removeMocks() {
     /* Replacing the mocked variables with the original objects is required to guarantee expected behaviour
      * in other test classes. Instances exist where the mocked variables are still in place for other tests
@@ -185,10 +185,10 @@ public class AnalysisControllerTest {
   public void testCorrectImplementation() {
     val expectedClass = AnalysisServiceSender.class;
     assertTrue(
+        expectedClass.isInstance(analysisService),
         format(
             "Expected class is %s, but actual was %s",
-            expectedClass.getSimpleName(), analysisService.getClass().getSimpleName()),
-        expectedClass.isInstance(analysisService));
+            expectedClass.getSimpleName(), analysisService.getClass().getSimpleName()));
   }
 
   @Test

@@ -37,11 +37,11 @@ import static bio.overture.song.server.utils.securestudy.impl.SecureFileTester.c
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.model.File;
 import bio.overture.song.core.model.FileDTO;
@@ -63,17 +63,17 @@ import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.util.Arrays;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Slf4j
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 public class FileModificationServiceTest {
 
@@ -91,7 +91,7 @@ public class FileModificationServiceTest {
   private final RandomGenerator randomGenerator =
       createRandomGenerator(FileModificationServiceTest.class.getSimpleName());
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
     assertTrue(analysisService.isAnalysisExist(DEFAULT_ANALYSIS_ID));

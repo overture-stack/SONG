@@ -23,7 +23,7 @@ import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SEQUENCING_READ;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
 import static lombok.AccessLevel.PRIVATE;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.dto.Payload;
