@@ -31,9 +31,10 @@ The schema for each analysis type consists of two components:
 2. **Dynamic schema**: A flexible component that Song administrators can configure and upload to define specific analysis types.
 
 This two-part schema structure ensures:
+
 - Consistent core information across all analyses
 - Flexibility to accommodate various data structures
-- Accurate and thorough metadata validation 
+- Accurate and thorough metadata validation
 
 ### Base Schema
 
@@ -60,24 +61,22 @@ The basic portion of a dynamic schema requires at a minimum:
 - a defined `analysis_type`
 - an `experiment` object
 
-    ```json
-    {
-    "name": "variant_calling_example",
-    "schema":{
-        "type": "object",
-        "required":[
-            "experiment"
-        ],
-        "properties":{
-            "experiment":{}
-        }
-    }
-    }
-    ```
+  ```json
+  {
+  	"name": "variant_calling_example",
+  	"schema": {
+  		"type": "object",
+  		"required": ["experiment"],
+  		"properties": {
+  			"experiment": {}
+  		}
+  	}
+  }
+  ```
 
-    :::info Building JSON Schemas
-    For a detailed guide on building JSON Schemas for Song see our [**administration guide on building Song schemas**](https://docs.overture.bio/use/administration/building-song-schemas)
-    :::
+  :::info Building JSON Schemas
+  For a detailed guide on building JSON Schemas for Song see our [**administration guide on building Song schemas**](https://docs.overture.bio/use/administration/building-song-schemas)
+  :::
 
 ## Schema Options
 
@@ -85,15 +84,15 @@ The `options` property defines extra validations for an analysis schema, such as
 
 ```json
 {
-  "options": {
-    "fileTypes": ["bam", "cram"],
-    "externalValidations": [
-      {
-        "url": "http://localhost:8099/",
-        "jsonPath": "experiment.someId"
-      }
-    ]
-  }
+	"options": {
+		"fileTypes": ["bam", "cram"],
+		"externalValidations": [
+			{
+				"url": "http://localhost:8099/",
+				"jsonPath": "experiment.someId"
+			}
+		]
+	}
 }
 ```
 
@@ -101,10 +100,10 @@ To remove the previous value of an option so that its validation is no longer re
 
 ```json
 {
-  "options": {
-    "fileTypes": [],
-    "externalValidations": []
-  }
+	"options": {
+		"fileTypes": [],
+		"externalValidations": []
+	}
 }
 ```
 
@@ -116,9 +115,9 @@ If an empty array is provided, any file type is allowed. If an array of file typ
 
 ```json
 {
-  "options": {
-    "fileTypes": ["bam", "cram"]
-  }
+	"options": {
+		"fileTypes": ["bam", "cram"]
+	}
 }
 ```
 
@@ -130,8 +129,8 @@ For example, if a project's clinical data is managed in a separate service, you 
 
 ```json
 {
-  "url": "http://example.com/{study}/donor/{value}",
-  "jsonPath": "experiment.donorId"
+	"url": "http://example.com/{study}/donor/{value}",
+	"jsonPath": "experiment.donorId"
 }
 ```
 
@@ -141,23 +140,23 @@ Continuing the example above, if the following analysis was submitted:
 
 ```json
 {
-  "studyId": "ABC123",
-  "analysisType": {
-    "name": "minimalExample"
-  },
-  "files": [
-    {
-      "dataType": "text",
-      "fileName": "file1.txt",
-      "fileSize": 123,
-      "fileType": "txt",
-      "fileAccess": "open",
-      "fileMd5sum": "595f44fec1e92a71d3e9e77456ba80d1"
-    }
-  ],
-  "experiment": {
-    "donorId": "id01"
-  }
+	"studyId": "ABC123",
+	"analysisType": {
+		"name": "minimalExample"
+	},
+	"files": [
+		{
+			"dataType": "text",
+			"fileName": "file1.txt",
+			"fileSize": 123,
+			"fileType": "txt",
+			"fileAccess": "open",
+			"fileMd5sum": "595f44fec1e92a71d3e9e77456ba80d1"
+		}
+	],
+	"experiment": {
+		"donorId": "id01"
+	}
 }
 ```
 
@@ -195,7 +194,7 @@ To validate every element in an array, use the `[*]` wildcard:
 
 This extracts `donorId` from each element of the `donors` array and performs one validation call per value. If any value fails validation, the entire analysis submission is rejected. If the array is empty, no validation calls are made and the submission proceeds.
 
-Only string values are validated. If the property at the resolved path is not a string, it is silently skipped.
+Only string values are supported for validated. If the property at the resolved path is not a string, then validation will fail.
 
 ## Registering Analysis Types
 
@@ -206,17 +205,18 @@ These steps apply both for registering new schemas and updating existing ones.
 1. **Locate the Endpoint**
    - From the schema dropdown, find the `POST` **RegisterAnalysisType** endpoint.
 
-     ![Register new schema](../assets/swagger_register_schemas.png 'Register new schema')
+     ![Register new schema](../assets/swagger_register_schemas.png "Register new schema")
 
 2. **Input Your Data**
-   - Click *Try it out* & enter your authorization token in the authorization field
-        - Format: Bearer APIkey (replace APIkey with your actual API key)
+   - Click _Try it out_ & enter your authorization token in the authorization field
+     - Format: Bearer APIkey (replace APIkey with your actual API key)
    - Input your new schema in the request field
 
 3. **Execute the Request**
-   - Click *Execute*, expected responses, response codes, and descriptions are conveniently documented within Swagger-UI
+   - Click _Execute_, expected responses, response codes, and descriptions are conveniently documented within Swagger-UI
 
-**Verifying Schemas:** 
+**Verifying Schemas:**
+
 - To confirm your schema has been added, use the `GET` **ListAnalysisTypes** endpoint in the Schema dropdown
 - If updating a previously existing schemas, use the `GET` **GetAnalysisTypeVersion** endpoint
 
@@ -229,18 +229,18 @@ curl -X POST "https://<YOUR-SONG-URL>/schemas" \
     -H "accept: */*" \
     -H "Authorization: AUTHORIZATION" \
     -H "Content-Type: application/json" \
-    -d '{ 
-        "name": "example_demo", 
-        "schema": { 
-            "type": "object", 
-            "required": ["experiment"], 
+    -d '{
+        "name": "example_demo",
+        "schema": {
+            "type": "object",
+            "required": ["experiment"],
             "properties": {
-                "experiment": { 
-                    "type": "object", 
-                    "required": ["experiment_type"], 
+                "experiment": {
+                    "type": "object",
+                    "required": ["experiment_type"],
                     "properties": {
                         "experiment_type": {
-                            "type": "string", 
+                            "type": "string",
                             "enum": ["WGS", "RNA-Seq"]
                         }
                     }
@@ -298,10 +298,10 @@ else:
 
 To retrieve a list of all schemas registered in Song, use the `ListAnalysisTypes` endpoint. Key parameters:
 
-- **hideSchema**: 
+- **hideSchema**:
   - `true`: Schemas are not returned in the list.
   - `false`: Schemas are included in the list.
-- **unrenderedOnly**: 
+- **unrenderedOnly**:
   - Controls inclusion of the Song base schema.
   - Useful for users updating dynamic schemas.
   - Set to `true` to focus on editing the dynamic (admin inputed) portion for easier future schema registration.
@@ -324,10 +324,10 @@ curl --location --request GET 'https://song-url.example.com/schemas?hideSchema=f
 
 Use the `GetAnalysisTypeVersion` endpoint to request specific schemas. Key parameters:
 
-- **version**: 
+- **version**:
   - If provided, returns a specific schema version.
   - If omitted, returns all versions of an `analysis_type` schema.
-- **unrenderedOnly**: 
+- **unrenderedOnly**:
   - Controls inclusion of the Song base schema.
   - Set to `true` to focus on the dynamic (admin inputed) portion for easier editing and future registration.
 
