@@ -48,8 +48,9 @@ public class SongApi {
   }
 
   /** Submit an payload to the song server. */
-  public SubmitResponse submit(@NonNull String studyId, @NonNull String json) {
-    val url = endpoint.submit(studyId);
+  public SubmitResponse submit(
+      @NonNull String studyId, @NonNull String json, boolean allowDuplicates) {
+    val url = endpoint.submit(studyId, allowDuplicates);
     return restClient.post(url, json, SubmitResponse.class).getBody();
   }
 

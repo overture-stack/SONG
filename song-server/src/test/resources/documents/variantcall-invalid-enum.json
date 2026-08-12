@@ -8,23 +8,6 @@
     "variantCallingTool": "silver bullet",
     "matchedNormalSampleSubmitterId": ""
   },
-  "samples": [
-    {
-      "submitterSampleId": "internal_sample_98024759826836",
-      "sampleType": "Total RNA FTW",
-      "matchedNormalSubmitterSampleId": null,
-	  "specimen": {
-        "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
-        "tumourNormalDesignation": "Normal",
-        "specimenTissueSource": "Solid tissue junkkkk",
-        "specimenType": "Normal---fff"
-      },
-      "donor": {
-        "submitterDonorId": "internal_donor_123456789-00",
-        "gender": "female-ish"
-      }
-    }
-  ],
   "files": [
     {
       "fileName": "a3bc0998a-3521-43fd-fa10-a834f3874e46.MUSE_1-0rc-vcf.20170711.somatic.snv_mnv.vcf.gz",

@@ -55,8 +55,8 @@ public interface AnalysisService {
   }
 
   /**
-   * Securely reads an analysis WITH all of its files and info, and verifies the input
-   * studyId is related to the requested analysisId
+   * Securely reads an analysis WITH all of its files and info, and verifies the input studyId is
+   * related to the requested analysisId
    */
   default Analysis securedDeepRead(@NonNull String studyId, String id) {
     checkAnalysisAndStudyRelated(studyId, id);

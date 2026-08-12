@@ -36,8 +36,8 @@ public class Endpoint {
     this.serverUrl = "";
   }
 
-  public String submit(@NonNull String studyId) {
-    return format("%s/submit/%s", serverUrl, studyId);
+  public String submit(@NonNull String studyId, boolean allowDuplicates) {
+    return format("%s/submit/%s?allowDuplicates=%s", serverUrl, studyId, allowDuplicates);
   }
 
   public String getAnalysisFiles(@NonNull String studyId, @NonNull String analysisId) {

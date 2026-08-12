@@ -38,6 +38,11 @@ public class SubmitCommand extends Command {
       required = true)
   private String fileName;
 
+  @Parameter(
+      names = {"-ad", "--allow-duplicates"},
+      required = false)
+  private Boolean allowDuplicates = false;
+
   @NonNull private CustomRestClientConfig clientConfig;
   @NonNull private SongApi songApi;
 
@@ -52,7 +57,7 @@ public class SubmitCommand extends Command {
     }
 
     val json = readFileContent(filePath);
-    val submitResponse = songApi.submit(clientConfig.getStudyId(), json);
+    val submitResponse = songApi.submit(clientConfig.getStudyId(), json, allowDuplicates);
     prettyOutput(submitResponse);
   }
 }

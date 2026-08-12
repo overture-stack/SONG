@@ -21,7 +21,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.utils.JsonUtils.*;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.*;
 import static bio.overture.song.server.utils.TestConstants.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.core.utils.JsonUtils;
@@ -38,7 +38,7 @@ import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class DeserializationTest {

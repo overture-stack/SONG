@@ -22,29 +22,29 @@ import static bio.overture.song.server.utils.TestFiles.getInfoName;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.CannotCreateTransactionException;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.jdbc.ContainerDatabaseDriver;
 
 @Slf4j
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test"})
 public class InterruptedDatabaseConnectionTest {
 
@@ -97,7 +97,7 @@ public class InterruptedDatabaseConnectionTest {
       exceptionCaught = true;
     }
     assertTrue(
-        "No exception caught while connecting to db while supposed to be down", exceptionCaught);
+        exceptionCaught, "No exception caught while connecting to db while supposed to be down");
   }
 
   private void testThatServiceReallyWorks() {

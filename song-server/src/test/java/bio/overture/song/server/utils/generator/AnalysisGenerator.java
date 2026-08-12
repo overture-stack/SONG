@@ -21,7 +21,7 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.PayloadGenerator.resolveDefaultPayloadFilename;
 import static lombok.AccessLevel.PRIVATE;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.analysis.Analysis;

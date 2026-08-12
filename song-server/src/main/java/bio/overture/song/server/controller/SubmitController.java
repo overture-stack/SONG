@@ -17,7 +17,6 @@
 
 package bio.overture.song.server.controller;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -48,7 +47,6 @@ public class SubmitController {
       consumes = {APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE})
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public SubmitResponse submit(
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
       @PathVariable("studyId") String studyId,
       @RequestParam(value = "allowDuplicates", defaultValue = "false") boolean allowDuplicates,
       @RequestBody @Valid String json_payload) {

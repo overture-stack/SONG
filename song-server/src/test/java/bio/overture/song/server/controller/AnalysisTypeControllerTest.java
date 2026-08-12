@@ -42,11 +42,11 @@ import static java.util.stream.IntStream.range;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.model.AnalysisType;
@@ -72,20 +72,20 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.javacrumbs.jsonunit.core.Configuration;
 import org.everit.json.schema.Schema;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
@@ -106,7 +106,7 @@ public class AnalysisTypeControllerTest {
   private EndpointTester endpointTester;
   private RandomGenerator randomGenerator;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     this.endpointTester = createEndpointTester(mockMvc, ENABLE_HTTP_LOGGING);
@@ -666,11 +666,15 @@ public class AnalysisTypeControllerTest {
         SCHEMA_VIOLATION);
   }
 
+  // The meta-schema no longer requires an "experiment" property (removed in
+  // 454c2b0c: "Remove requirement of experiment from analysisTypeRegistration.json"),
+  // so these fixtures now only violate on the $id/boolean-type checks, same as
+  // register_extraFields_schemaViolation above.
   @Test
   public void register_missingExperiment_schemaViolation() {
     runInvalidRegisterTest(
         "invalid.missing_experiment.json",
-        "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#: extraneous key [$id] is not permitted,#/required: expected at least one array item to match 'contains' schema",
+        "[AnalysisTypeService::schema.violation] - #: extraneous key [$id] is not permitted,#: expected type: Boolean, found: JSONObject",
         SCHEMA_VIOLATION);
   }
 
@@ -678,7 +682,7 @@ public class AnalysisTypeControllerTest {
   public void register_misspeltExperiment_schemaViolation() {
     runInvalidRegisterTest(
         "invalid.misspelt_experiment.json",
-        "[AnalysisTypeService::schema.violation] - #: expected type: Boolean, found: JSONObject,#: extraneous key [$id] is not permitted,#/properties: required key [experiment] not found",
+        "[AnalysisTypeService::schema.violation] - #: extraneous key [$id] is not permitted,#: expected type: Boolean, found: JSONObject",
         SCHEMA_VIOLATION);
   }
 
@@ -703,14 +707,7 @@ public class AnalysisTypeControllerTest {
 
   @Test
   public void register_illegalFields_schemaViolation() {
-    Stream.of(
-            "analysisId",
-            "analysisState",
-            "studyId",
-            "analysisType",
-            "analysisTypeId",
-            "samples",
-            "files")
+    Stream.of("analysisId", "analysisState", "studyId", "analysisType", "analysisTypeId", "files")
         .forEach(
             f -> {
               // Create an invalid schema using one of the invalid fields

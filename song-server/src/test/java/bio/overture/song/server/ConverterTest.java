@@ -20,10 +20,10 @@ package bio.overture.song.server;
 import static bio.overture.song.core.model.FileUpdateRequest.createFileUpdateRequest;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.JsonNodeBuilders.object;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.model.FileData;
 import bio.overture.song.core.model.FileUpdateRequest;
@@ -35,8 +35,8 @@ import bio.overture.song.server.model.entity.FileEntity;
 import bio.overture.song.server.model.legacy.LegacyEntity;
 import java.util.function.Function;
 import lombok.val;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ConverterTest {
 
@@ -49,7 +49,7 @@ public class ConverterTest {
   private static final String UNIQUE_MD5_1 = RANDOM_GENERATOR.generateRandomMD5();
   private static final String UNIQUE_MD5_2 = RANDOM_GENERATOR.generateRandomMD5();
 
-  @BeforeClass
+  @BeforeAll
   public static void beforeClass() {
     assertNotEquals(UNIQUE_MD5_1, UNIQUE_MD5_2);
   }

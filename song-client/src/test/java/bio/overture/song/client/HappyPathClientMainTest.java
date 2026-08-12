@@ -250,10 +250,11 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   public void testSubmit() {
     val file = tmp.newFile();
     Files.write(file.toPath(), DUMMY_PAYLOAD.toString().getBytes());
+    val allowDuplicates = false;
 
     val expectedSubmitResponse =
         SubmitResponse.builder().analysisId(DUMMY_ANALYSIS_ID).status("ok").build();
-    when(songApi.submit(DUMMY_STUDY_ID, DUMMY_PAYLOAD.toString()))
+    when(songApi.submit(DUMMY_STUDY_ID, DUMMY_PAYLOAD.toString(), allowDuplicates))
         .thenReturn(expectedSubmitResponse);
     assertOutputJson(objectToTree(expectedSubmitResponse), "submit", "-f", file.getAbsolutePath());
     assertOutputJson(

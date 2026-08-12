@@ -20,7 +20,7 @@
     <parent>
         <artifactId>song</artifactId>
         <groupId>bio.overture</groupId>
-        <version>5.3.0</version>
+        <version>5.4.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>bio.overture</groupId>
             <artifactId>song-core</artifactId>
-            <version>5.3.0</version>
+            <version>5.4.0</version>
         </dependency>
 
         <!-- Spring -->
@@ -75,10 +75,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -192,8 +188,17 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- Not used directly by any song-server test (all migrated to JUnit 5) -
+                 kept because song-core's SongErrorAssertions (main source, used pervasively
+                 by song-server tests via assertSongError/assertExceptionThrownBy/etc.) is
+                 declared "provided" scope in song-core and still uses org.junit.Assert. -->
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
@@ -204,6 +209,11 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

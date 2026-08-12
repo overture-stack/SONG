@@ -40,6 +40,7 @@ import com.jayway.jsonpath.JsonPath;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -98,7 +99,7 @@ public class ValidationService {
         throw new ValidationException("Analysis type not found");
       }
       val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
-      val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, true);
+      val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
       log.debug(
           format(
               "Validation Analysis with schema: name=%s  version=%s",
@@ -127,14 +128,37 @@ public class ValidationService {
     return Optional.ofNullable(errors);
   }
 
-  private Optional<String> getValueAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath) {
+  public List<String> getValuesAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath)
+      throws ValidationException {
+    Object result;
     try {
-      String value = JsonPath.read(payload.toString(), "$." + jsonPath);
-      return Optional.of(value);
-    } catch (Exception e) {
+      result = JsonPath.read(payload.toString(), "$." + jsonPath);
+    } catch (Exception exception) {
       log.debug(
-          String.format("Error reading value for external validation. Reason: %s", e.getMessage()));
-      return Optional.empty();
+          String.format(
+              "Error reading value for external validation. Reason: %s", exception.getMessage()));
+      return List.of();
+    }
+
+    if (result == null) {
+      return List.of();
+    } else if (result instanceof String) {
+      return List.of((String) result);
+    } else if (result instanceof List) {
+      val list = (List<?>) result;
+      val hasNonString = list.stream().anyMatch(element -> !(element instanceof String));
+      if (hasNonString) {
+        throw new ValidationException(
+            String.format(
+                "Value at path '%s' must be a string or array of strings, but contains non-string elements.",
+                jsonPath));
+      }
+      return list.stream().map(element -> (String) element).collect(Collectors.toList());
+    } else {
+      throw new ValidationException(
+          String.format(
+              "Value at path '%s' must be a string or array of strings, but was: %s.",
+              jsonPath, result.getClass().getSimpleName()));
     }
   }
 
@@ -151,26 +175,25 @@ public class ValidationService {
 
     for (ExternalValidation externalValidation : externalValidations) {
 
-      val value = getValueAtJsonPath(payload, externalValidation.getJsonPath());
-      if (value.isPresent()) {
-        // Only validate vs external source if the value is present in the analysis payload
+      val values = getValuesAtJsonPath(payload, externalValidation.getJsonPath());
+      for (String value : values) {
         val formattedExternalUrl =
-            buildExternalUrlFromTemplate(externalValidation.getUrl(), studyId, value.get());
+            buildExternalUrlFromTemplate(externalValidation.getUrl(), studyId, value);
         try {
           val response = restTemplate.getForEntity(formattedExternalUrl, Void.class);
           if (response.getStatusCode().isError()) {
             val errorMessage =
                 String.format(
                     "Value '%s' from path '%s' is not permitted as it failed to validate with external validation source.",
-                    value.get(), externalValidation.getJsonPath(), formattedExternalUrl);
+                    value, externalValidation.getJsonPath());
             log.debug(errorMessage);
             throw new ValidationException(errorMessage);
           }
-        } catch (RestClientException e) {
+        } catch (RestClientException exception) {
           val errorMessage =
               String.format(
                   "Value '%s' from path '%s' is not permitted as it failed to validate with external validation source.",
-                  value.get(), externalValidation.getJsonPath());
+                  value, externalValidation.getJsonPath());
           log.info(
               String.format(
                   "Error occurred while executing external validation against url '%s'.",

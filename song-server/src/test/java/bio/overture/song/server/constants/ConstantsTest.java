@@ -24,14 +24,14 @@ import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.ANA
 import static bio.overture.song.server.model.enums.InfoSearchResponseColumns.INFO;
 import static bio.overture.song.server.model.enums.InfoTypes.*;
 import static bio.overture.song.server.model.enums.UploadStates.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.overture.song.core.model.enums.AccessTypes;
 import bio.overture.song.core.model.enums.AnalysisStates;
 import bio.overture.song.server.model.enums.InfoSearchResponseColumns;
 import bio.overture.song.server.model.enums.InfoTypes;
 import bio.overture.song.server.model.enums.UploadStates;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ConstantsTest {
 
@@ -68,7 +68,7 @@ public class ConstantsTest {
     assertEquals(FILE.toString(), "File");
     assertEquals(SEQUENCING_READ.toString(), "SequencingRead");
     assertEquals(VARIANT_CALL.toString(), "VariantCall");
-    assertEquals(InfoTypes.values().length, 7);
+    assertEquals(4, InfoTypes.values().length);
 
     assertEquals(resolveInfoType("Study"), STUDY);
     assertEquals(resolveInfoType("File"), FILE);

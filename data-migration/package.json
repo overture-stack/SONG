@@ -1,0 +1,33 @@
+{
+  "name": "song_5_3_migration",
+  "version": "1.0.0",
+  "description": "Data migration for Song 5.3.x",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
+  },
+  "author": "Ontario Institute for Cancer Research",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "pg": "^8.16.0",
+    "zod": "^3.25.49"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@types/dotenv": "^8.2.3",
+    "@types/node": "^22.15.29",
+    "@types/pg": "^8.15.4",
+    "eslint": "^9.28.0",
+    "eslint-plugin-prettier": "^5.4.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "tsx": "^4.20.1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.34.0"
+  }
+}

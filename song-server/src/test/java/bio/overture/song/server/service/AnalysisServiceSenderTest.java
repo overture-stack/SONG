@@ -5,8 +5,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
-import static bio.overture.song.server.utils.generator.AnalysisGenerator.createAnalysisGenerator;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import bio.overture.song.core.model.enums.AnalysisActions;
@@ -19,22 +18,21 @@ import bio.overture.song.server.model.dto.Payload;
 import bio.overture.song.server.model.entity.AnalysisSchema;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import bio.overture.song.server.service.analysis.AnalysisServiceSender;
-import bio.overture.song.server.utils.generator.AnalysisGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AnalysisServiceSenderTest {
 
   private static final RandomGenerator RANDOM_GENERATOR =
@@ -45,22 +43,18 @@ public class AnalysisServiceSenderTest {
 
   @Mock private AnalysisService internalAnalysisService;
 
-  @Mock private FileService fileService;
-
   /** State */
   private String studyId;
 
   private String analysisId;
 
-  private AnalysisGenerator analysisGenerator;
   private Analysis analysis;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     this.studyId = RANDOM_GENERATOR.generateRandomAsciiString(10);
     this.analysisId = RANDOM_GENERATOR.generateRandomUUIDAsString();
 
-    analysisGenerator = createAnalysisGenerator(studyId, internalAnalysisService, RANDOM_GENERATOR);
     val analysisSchema =
         AnalysisSchema.builder()
             .name("test-schema")
@@ -113,7 +107,7 @@ public class AnalysisServiceSenderTest {
 
   private AnalysisServiceSender createTestAnalysisServiceSender(AnalysisActions action) {
     val sender = createTestSender(action);
-    return new AnalysisServiceSender(SONG_ID, sender, internalAnalysisService, fileService);
+    return new AnalysisServiceSender(SONG_ID, sender, internalAnalysisService);
   }
 
   private TestSender createTestSender(AnalysisActions action) {

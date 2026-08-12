@@ -27,8 +27,8 @@ import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.Responses.OK;
 import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.VARIANT_CALL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
@@ -44,13 +44,13 @@ import bio.overture.song.server.service.id.IdService;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import lombok.val;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MockedSubmitTest {
 
   /** Dependencies */
@@ -101,7 +101,7 @@ public class MockedSubmitTest {
     // Verify
     assertSongError(
         () -> submitService.submit("anyStudyId", "anyAnalysisId", false), STUDY_ID_DOES_NOT_EXIST);
-    verify(validationService, never()).validate(isA(JsonNode.class),"anyStudyId");
+    verify(validationService, never()).validate(isA(JsonNode.class), eq("anyStudyId"));
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
@@ -113,7 +113,7 @@ public class MockedSubmitTest {
     // Verify
     assertSongError(
         () -> submitService.submit("anyStudyId", "non json format", false), PAYLOAD_PARSING);
-    verify(validationService, never()).validate(isA(JsonNode.class),"anyStudyId");
+    verify(validationService, never()).validate(isA(JsonNode.class), eq("anyStudyId"));
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
@@ -122,7 +122,7 @@ public class MockedSubmitTest {
     // Setup
     val studyId = "anyStudyId";
     doNothing().when(studyService).checkStudyExist(anyString());
-    when(validationService.validate(isA(JsonNode.class), "anyStudyId"))
+    when(validationService.validate(isA(JsonNode.class), eq("anyStudyId")))
         .thenReturn(Optional.of("there was an error"));
 
     // Create an invalid payload and not a malformed one
@@ -136,7 +136,7 @@ public class MockedSubmitTest {
 
     // Verify
     assertSongError(() -> submitService.submit(studyId, invalidPayload, false), SCHEMA_VIOLATION);
-    verify(validationService, times(1)).validate(isA(JsonNode.class),"anyStudyId");
+    verify(validationService, times(1)).validate(isA(JsonNode.class), eq("anyStudyId"));
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
@@ -146,7 +146,7 @@ public class MockedSubmitTest {
     val study1 = "study1";
     val study2 = "study2";
     doNothing().when(studyService).checkStudyExist(anyString());
-    when(validationService.validate(isA(JsonNode.class), "anyStudyId")).thenReturn(Optional.empty());
+    when(validationService.validate(isA(JsonNode.class), eq(study2))).thenReturn(Optional.empty());
     val payloadString =
         toJson(
             Payload.builder()
@@ -158,7 +158,7 @@ public class MockedSubmitTest {
     // Verify
     assertNotEquals(study1, study2);
     assertSongError(() -> submitService.submit(study2, payloadString, false), STUDY_ID_MISMATCH);
-    verify(validationService, times(1)).validate(isA(JsonNode.class), "anyStudyId");
+    verify(validationService, times(1)).validate(isA(JsonNode.class), eq(study2));
     verify(analysisService, never()).create(anyString(), isA(Payload.class));
   }
 
@@ -174,7 +174,7 @@ public class MockedSubmitTest {
             .build();
 
     doNothing().when(studyService).checkStudyExist(anyString());
-    when(validationService.validate(isA(JsonNode.class), "anyStudyId")).thenReturn(Optional.empty());
+    when(validationService.validate(isA(JsonNode.class), eq(study))).thenReturn(Optional.empty());
 
     val payloadString = toJson(payload);
     when(analysisService.create(study, payload))
@@ -184,7 +184,7 @@ public class MockedSubmitTest {
     // Verify
     val actualSubmitResponse = submitService.submit(study, payloadString, false);
     assertEquals(expectedSubmitResponse, actualSubmitResponse);
-    verify(validationService, times(1)).validate(isA(JsonNode.class), "anyStudyId");
+    verify(validationService, times(1)).validate(isA(JsonNode.class), eq(study));
     verify(analysisService, times(1)).create(anyString(), isA(Payload.class));
   }
 }

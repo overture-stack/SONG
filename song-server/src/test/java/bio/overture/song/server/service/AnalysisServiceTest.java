@@ -37,7 +37,7 @@ import static java.util.Arrays.stream;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 import static java.util.stream.IntStream.range;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import bio.overture.song.core.exceptions.ServerException;
 import bio.overture.song.core.model.enums.AnalysisStates;
@@ -70,18 +70,17 @@ import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.api.Assertions;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Slf4j
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 public class AnalysisServiceTest {
 
@@ -108,7 +107,7 @@ public class AnalysisServiceTest {
   private StudyGenerator studyGenerator;
   private SecureAnalysisTester secureAnalysisTester;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     assertTrue(studyService.isStudyExist(DEFAULT_STUDY_ID));
     assertTrue(service.isAnalysisExist(DEFAULT_ANALYSIS_ID));
@@ -118,7 +117,7 @@ public class AnalysisServiceTest {
    * This is dirty, but since the existenceService is so easy to construct and the storage url port
    * is randomly assigned, it's worth it.
    */
-  @Before
+  @BeforeEach
   public void init() {
     this.payloadGenerator = createPayloadGenerator(randomGenerator);
     this.analysisGenerator = createAnalysisGenerator(DEFAULT_STUDY_ID, service, randomGenerator);
@@ -257,7 +256,7 @@ public class AnalysisServiceTest {
         assertEquals(file.getFileType(), "IDX");
         assertInfoKVPair(file, "extraFileInfo", "some more data for variantCall file_fn3");
       } else {
-        Assert.fail(String.format("the fileName %s is not recognized", file.getFileName()));
+        fail(String.format("the fileName %s is not recognized", file.getFileName()));
       }
     }
   }
@@ -338,7 +337,7 @@ public class AnalysisServiceTest {
         assertEquals(file.getFileType(), "BAI");
         assertInfoKVPair(file, "extraFileInfo", "some more data for sequencingRead file_fn3");
       } else {
-        Assert.fail(String.format("the fileName %s is not recognized", file.getFileName()));
+        fail(String.format("the fileName %s is not recognized", file.getFileName()));
       }
     }
 
@@ -517,8 +516,7 @@ public class AnalysisServiceTest {
 
     // Do a study-wide idSearch and verify the response effectively has the same
     // number of results as the getAnalysis method
-    val searchedAnalyses =
-        service.idSearch(studyId, createIdSearchRequest(null));
+    val searchedAnalyses = service.idSearch(studyId, createIdSearchRequest(null));
     assertEquals(searchedAnalyses.size(), expectedAnalyses.size());
     assertTrue(searchedAnalyses.containsAll(expectedAnalyses));
     assertTrue(expectedAnalyses.containsAll(searchedAnalyses));

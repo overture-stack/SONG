@@ -32,10 +32,10 @@ import static bio.overture.song.server.utils.generator.LegacyAnalysisTypeName.SE
 import static bio.overture.song.server.utils.generator.PayloadGenerator.createPayloadGenerator;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.Responses;
@@ -53,19 +53,16 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Slf4j
 @SpringBootTest
-@RunWith(SpringRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles({"test", "async-test"})
 @Transactional
 public class SubmitServiceTest {
@@ -108,7 +105,8 @@ public class SubmitServiceTest {
 
     val filename2 = "documents/deserialization/sequencingread-deserialize2.json";
     val jsonPayload2 = getJsonStringFromClasspath(filename2);
-    val submitResponse2 = submitService.submit(DEFAULT_STUDY, jsonPayload2, false);
+    // Both fixtures reuse the same file checksums, so this resubmission needs to allow duplicates.
+    val submitResponse2 = submitService.submit(DEFAULT_STUDY, jsonPayload2, true);
     assertEquals(Responses.OK, submitResponse2.getStatus());
     val analysisId2 = submitResponse2.getAnalysisId();
     val a2 = analysisService.securedDeepRead(DEFAULT_STUDY, analysisId2);
@@ -150,9 +148,9 @@ public class SubmitServiceTest {
     val analysisId = submitAnalysis(studyId, payload);
     val payload2 = getModifiedPayload(payload);
 
-    val result = submitAnalysis(studyId, payload2);
-    assertFalse("No error results expected", result.startsWith("ERR:"));
-    assertNotEquals("New analysisId expected", analysisId, result);
+    val result = submitAnalysis(studyId, payload2, true);
+    assertFalse(result.startsWith("ERR:"), "No error results expected");
+    assertNotEquals(analysisId, result, "New analysisId expected");
   }
 
   @Test
@@ -163,9 +161,9 @@ public class SubmitServiceTest {
     val payload = randomPayload();
     val analysisId = submitAnalysis(studyId, payload);
     val payload2 = getModifiedPayload(payload);
-    val result = submitAnalysis(studyId, payload2);
-    assertFalse("No error results expected", result.startsWith("ERR"));
-    assertNotEquals("New analysisId expected", analysisId, result);
+    val result = submitAnalysis(studyId, payload2, true);
+    assertFalse(result.startsWith("ERR"), "No error results expected");
+    assertNotEquals(analysisId, result, "New analysisId expected");
   }
 
   private String randomStudy() {
@@ -184,10 +182,14 @@ public class SubmitServiceTest {
   }
 
   private String submitAnalysis(String studyId, Payload payload) {
+    return submitAnalysis(studyId, payload, false);
+  }
+
+  private String submitAnalysis(String studyId, Payload payload, boolean allowDuplicates) {
     String actual;
     payload.setStudyId(studyId);
     try {
-      actual = submitService.submit(studyId, toJson(payload), false).getAnalysisId();
+      actual = submitService.submit(studyId, toJson(payload), allowDuplicates).getAnalysisId();
     } catch (Throwable throwable) {
       actual = "ERR: " + throwable.getMessage();
     }

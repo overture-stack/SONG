@@ -21,9 +21,9 @@ import static bio.overture.song.core.utils.Separators.COMMA;
 import static bio.overture.song.server.utils.TestFiles.getJsonNodeFromClasspath;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.service.ValidationService;
@@ -32,17 +32,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import lombok.val;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ActiveProfiles("test")
 public class ValidationServiceTest {
@@ -186,8 +186,8 @@ public class ValidationServiceTest {
               assertTrue(e.matches("^#/files/[0|1]/fileMd5sum: string.*does not match pattern.*")));
     } else {
       assertFalse(
-          format("Expecting validation not to have an error: %s", results.orElse(null)),
-          results.isPresent());
+          results.isPresent(),
+          format("Expecting validation not to have an error: %s", results.orElse(null)));
     }
   }
 

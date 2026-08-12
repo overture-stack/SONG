@@ -20,8 +20,8 @@ package bio.overture.song.server.utils.securestudy;
 import static bio.overture.song.core.exceptions.ServerErrors.ENTITY_NOT_RELATED_TO_STUDY;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.exceptions.ServerError;
 import bio.overture.song.core.testing.SongErrorAssertions;

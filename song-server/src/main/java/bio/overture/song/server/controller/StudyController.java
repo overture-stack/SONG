@@ -18,7 +18,6 @@ package bio.overture.song.server.controller;
 
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
 import static bio.overture.song.core.exceptions.ServerException.checkServer;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -61,9 +60,7 @@ public class StudyController {
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   @ResponseBody
   public GenericMessage saveStudy(
-      @PathVariable("studyId") String studyId,
-      @RequestHeader(value = AUTHORIZATION, required = false) final String accessToken,
-      @RequestBody Study study) {
+      @PathVariable("studyId") String studyId, @RequestBody Study study) {
     checkServer(
         studyId.equals(study.getStudyId()),
         getClass(),
