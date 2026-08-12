@@ -128,7 +128,8 @@ public class ValidationService {
     return Optional.ofNullable(errors);
   }
 
-  public List<String> getValuesAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath) {
+  public List<String> getValuesAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath)
+      throws ValidationException {
     Object result;
     try {
       result = JsonPath.read(payload.toString(), "$." + jsonPath);
