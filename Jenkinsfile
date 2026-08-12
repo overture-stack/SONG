@@ -1,2 +1,2 @@
-@Library(value='jenkins-pipeline-library@master', changelog=false) _
+@Library(value='jenkins-pipeline-library@dedicated-docker-host-poc-song', changelog=false) _
 pipelineOVERTURESong()
