@@ -159,7 +159,7 @@ public class AnalysisTypeService {
   public AnalysisType register(
       @NonNull String analysisTypeName,
       @NonNull AnalysisTypeOptions options,
-      @NonNull JsonNode analysisTypeSchema) {
+      JsonNode analysisTypeSchema) {
     validateAnalysisTypeName(analysisTypeName);
     validateAnalysisTypeSchema(analysisTypeSchema);
     return commitAnalysisType(analysisTypeName, analysisTypeSchema, options);
@@ -320,7 +320,7 @@ public class AnalysisTypeService {
         .version(version)
         .createdAt(createdAt)
         .schema(resolvedSchemaJson)
-        .options(options)
+        .options(newAnalysisOptions)
         .build();
   }
 

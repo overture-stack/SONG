@@ -4,6 +4,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.server.model.enums.TableAttributeNames.*;
 import static bio.overture.song.server.repository.CustomJsonType.CUSTOM_JSON_TYPE_PKG_PATH;
 
+import bio.overture.song.core.model.AnalysisTypeOptions;
 import bio.overture.song.server.model.enums.TableAttributeNames;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
@@ -54,4 +55,8 @@ public class AnalysisSchemaJoin {
   @Column(name = SCHEMA)
   @Type(type = CUSTOM_JSON_TYPE_PKG_PATH)
   private JsonNode schema;
+
+  @Column(name = OPTIONS)
+  @Type(type = CUSTOM_JSON_TYPE_PKG_PATH)
+  private AnalysisTypeOptions options;
 }

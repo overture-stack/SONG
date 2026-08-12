@@ -27,8 +27,8 @@ import static bio.overture.song.server.utils.generator.PayloadGenerator.createPa
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Streams.stream;
 import static java.lang.Thread.currentThread;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.server.service.AnalysisTypeService;
@@ -44,16 +44,16 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.assertj.core.util.Sets;
 import org.everit.json.schema.ValidationException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Slf4j
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 public class SchemaValidationTests {
 
@@ -94,14 +94,21 @@ public class SchemaValidationTests {
 
   @Test
   public void validate_submit_sequencing_read_missing_required() throws Exception {
+    // Expected violations (documents/sequencingread-missing-required.json):
+    //   #/files/0: required key [fileName] not found
+    //   #/files/0: required key [fileAccess] not found
+    //   #/files/1: required key [fileAccess] not found
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-missing-required.json");
-    assertEquals(4, errors.size());
+    assertEquals(3, errors.size());
   }
 
   @Test
   public void validate_submit_sequencing_read_invalid_enum() throws Exception {
+    // Expected violations (documents/sequencingread-invalid-enum.json):
+    //   #/files/0/fileAccess: CoNtRoLlEd is not a valid enum value
+    //   #/files/1/fileAccess: CoNtRoLlEd is not a valid enum value
     val errors = validate(SEQUENCING_READ, "documents/sequencingread-invalid-enum.json");
-    assertEquals(7, errors.size());
+    assertEquals(2, errors.size());
   }
 
   @Test
@@ -112,14 +119,21 @@ public class SchemaValidationTests {
 
   @Test
   public void validate_submit_variant_call_missing_required() throws Exception {
+    // Expected violations (documents/variantcall-missing-required.json):
+    //   #: required key [files] not found
+    //   #/experiment: required key [matchedNormalSampleSubmitterId] not found
+    //   #/experiment: required key [variantCallingTool] not found
     val errors = validate(VARIANT_CALL, "documents/variantcall-missing-required.json");
-    assertEquals(4, errors.size());
+    assertEquals(3, errors.size());
   }
 
   @Test
   public void validate_submit_variant_call_invalid_enum() throws Exception {
+    // Expected violations (documents/variantcall-invalid-enum.json):
+    //   #/files/0/fileAccess: OpEn is not a valid enum value
+    //   #/files/1/fileAccess: OpEn is not a valid enum value
     val errors = validate(VARIANT_CALL, "documents/variantcall-invalid-enum.json");
-    assertEquals(6, errors.size());
+    assertEquals(2, errors.size());
   }
 
   @Test

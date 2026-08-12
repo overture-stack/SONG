@@ -21,13 +21,14 @@ import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.ANALYSIS_TYPE;
+import static bio.overture.song.server.model.enums.ModelAttributeNames.FILES;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.NAME;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.STUDY_ID;
 import static bio.overture.song.server.model.enums.ModelAttributeNames.VERSION;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
 import static java.util.Objects.isNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.SubmitResponse;
@@ -41,8 +42,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.file.Paths;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.val;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.lang.Nullable;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -79,7 +81,7 @@ public abstract class AbstractEnforcedTester {
 
   protected abstract boolean isLoggingEnabled();
 
-  @Before
+  @BeforeEach
   public void beforeEachTest() {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(getWebApplicationContext()).build();
     this.randomGenerator = createRandomGenerator(getClass().getSimpleName());
@@ -138,7 +140,20 @@ public abstract class AbstractEnforcedTester {
     } else {
       analysisTypeNode.put(VERSION, latestAnalysisType.getVersion() - 1);
     }
+    randomizeFileChecksums(j);
     return j;
+  }
+
+  /**
+   * Randomizes the file checksums so repeated calls to submit() within the same test run don't trip
+   * the (study-agnostic) duplicate file check against a fixture's hardcoded checksums.
+   */
+  protected void randomizeFileChecksums(@NonNull JsonNode payload) {
+    payload
+        .path(FILES)
+        .forEach(
+            fileNode ->
+                ((ObjectNode) fileNode).put("fileMd5sum", randomGenerator.generateRandomMD5()));
   }
 
   protected SubmitResponse submit(boolean isLatestVersion) {
@@ -147,5 +162,17 @@ public abstract class AbstractEnforcedTester {
     return getEndpointTester()
         .submitPostRequestAnd(getStudyId(), payload)
         .extractOneEntity(SubmitResponse.class);
+  }
+
+  /**
+   * The analysisUpdate schema forbids "samples" and "files" (they aren't updatable), but {@link
+   * bio.overture.song.server.model.analysis.AnalysisData#getData()} returns the full stored payload
+   * data including those keys. Strip them before merging into an update request.
+   */
+  protected static JsonNode toUpdatableData(@NonNull JsonNode analysisData) {
+    val updatableData = (ObjectNode) analysisData.deepCopy();
+    updatableData.remove("samples");
+    updatableData.remove(FILES);
+    return updatableData;
   }
 }

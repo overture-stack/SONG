@@ -4,34 +4,6 @@
     "name": "sequencingRead",
     "version": 1
   },
-  "samples": [
-    {
-      "info": {
-        "tissueCollectionMethod": "IV"
-      },
-      "sampleId": null,
-      "specimenId": null,
-      "submitterSampleId": "internal_sample_123456789_01",
-      "sampleType": "Total RNA",
-      "matchedNormalSubmitterSampleId": null,
-	  "specimen": {
-        "submitterSpecimenId": "internal_specimen_123456789_01",
-        "tumourNormalDesignation": "Normal",
-        "specimenTissueSource": "Solid tissue",
-        "specimenType": "Normal"
-      },
-      "donor": {
-        "donorId": null,
-        "submitterDonorId": "internal_donor_123456789_01",
-        "studyId": null,
-        "gender": "Male",
-        "info": {
-          "ageCategory": "18-25",
-          "riskCategory": "3b"
-        }
-      }
-    }
-  ],
   "files": [
     {
       "info": {

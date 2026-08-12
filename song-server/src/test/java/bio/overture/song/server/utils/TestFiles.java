@@ -23,8 +23,8 @@ import static bio.overture.song.core.utils.Separators.PATH;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.model.Metadata;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -83,13 +83,13 @@ public class TestFiles {
   public static void assertInfoKVPair(
       @NonNull Metadata metadata, @NonNull String key, @NonNull Object expectedValue) {
     assertTrue(
-        format("The input metadata does not have the key '%s'", key), metadata.getInfo().has(key));
+        metadata.getInfo().has(key), format("The input metadata does not have the key '%s'", key));
     val actualValue = metadata.getInfo().path(key).textValue();
     assertEquals(
+        actualValue,
+        expectedValue,
         format(
             "Failed since field '%s' has actual=%s and expected=%s",
-            key, actualValue, expectedValue),
-        actualValue,
-        expectedValue);
+            key, actualValue, expectedValue));
   }
 }

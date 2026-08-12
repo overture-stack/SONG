@@ -5,7 +5,7 @@ import static bio.overture.song.core.model.enums.AnalysisStates.UNPUBLISHED;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.kafka.AnalysisMessage.createAnalysisMessage;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import bio.overture.song.core.model.enums.AnalysisActions;
@@ -24,15 +24,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AnalysisServiceSenderTest {
 
   private static final RandomGenerator RANDOM_GENERATOR =
@@ -50,7 +50,7 @@ public class AnalysisServiceSenderTest {
 
   private Analysis analysis;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     this.studyId = RANDOM_GENERATOR.generateRandomAsciiString(10);
     this.analysisId = RANDOM_GENERATOR.generateRandomUUIDAsString();

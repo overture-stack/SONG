@@ -18,7 +18,7 @@
 package bio.overture.song.server.utils;
 
 import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.overture.song.core.exceptions.ServerError;
 import lombok.NonNull;

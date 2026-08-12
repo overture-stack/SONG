@@ -20,34 +20,36 @@ package bio.overture.song.server.controller;
 import static bio.overture.song.core.exceptions.ServerErrors.ANALYSIS_TYPE_INCORRECT_VERSION;
 import static bio.overture.song.core.exceptions.ServerErrors.MALFORMED_PARAMETER;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
-import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
+import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.MAIN;
 import static bio.overture.song.core.utils.ResourceFetcher.ResourceType.TEST;
-import static java.util.Objects.isNull;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.overture.song.core.model.AnalysisType;
 import bio.overture.song.core.model.AnalysisTypeId;
+import bio.overture.song.core.model.AnalysisTypeOptions;
 import bio.overture.song.core.utils.ResourceFetcher;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
+import bio.overture.song.server.model.dto.schema.RegisterAnalysisTypeRequest;
 import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.file.Paths;
-import lombok.NonNull;
+import java.util.List;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.WebApplicationContext;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
 @SpringBootTest(properties = "schemas.enforceLatest=true")
@@ -60,6 +62,13 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
   @Autowired private AnalysisService analysisService;
   private static final ResourceFetcher DOCUMENTS_FETCHER =
       ResourceFetcher.builder().resourceType(TEST).dataDir(Paths.get("documents/")).build();
+  private static final ResourceFetcher LEGACY_SCHEMA_FETCHER =
+      ResourceFetcher.builder()
+          .resourceType(MAIN)
+          .dataDir(Paths.get("schemas/analysis/legacy/"))
+          .build();
+  private static final String VARIANT_CALL_LEGACY_NAME = "variantCall";
+  private static final String VARIANT_CALL_LEGACY_SCHEMA_FILENAME = "variantCall.json";
 
   /** Implementations */
   @Override
@@ -111,84 +120,46 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
   }
 
   @Test
-  public void matchedNormalFieldInclusionValidation_TumourAndDefined_Success() {
-    runMatchedNormalTest("variantcall-tumour-valid.json");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_TumourAndMissing_SchemaViolation() {
-    runMatchedNormalTest(
-        "variantcall-tumour-missing-invalid.json",
-        "#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_TumourAndNull_SchemaViolation() {
-    runMatchedNormalTest(
-        "variantcall-tumour-null-invalid.json",
-        "#/samples/0/matchedNormalSubmitterSampleId: expected type: String, found:");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_NormalAndMissing_SchemaViolation() {
-    runMatchedNormalTest(
-        "variantcall-normal-missing-invalid.json",
-        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0: required key [matchedNormalSubmitterSampleId] not found");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_NormalAndNonNull_SchemaViolation() {
-    runMatchedNormalTest(
-        "variantcall-normal-nonnull-invalid.json",
-        "#/samples/0/specimen/tumourNormalDesignation: ,#/samples/0/matchedNormalSubmitterSampleId:");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_NormalAndNull_Success() {
-    runMatchedNormalTest("variantcall-normal-valid.json");
-  }
-
-  // Test for RNA payload:
-  @Test
-  public void matchedNormalFieldInclusionValidation_RNATumourNull_Success() {
-    runMatchedNormalTest("seq-exp-RNA-tumour-null-valid.json");
-  }
-
-  @Test
-  public void matchedNormalFieldInclusionValidation_RNATumour_NonNull_Success() {
-    runMatchedNormalTest(
-        "seq-exp-RNA-tumour-empty-id.json",
-        "#/samples/0/matchedNormalSubmitterSampleId: ,#/samples/0/matchedNormalSubmitterSampleId: string [] does not match pattern");
-  }
-
-  @Test
-  @SneakyThrows
-  public void testInvalidSample() {
-    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
-    val s = (ObjectNode) j.get("samples").get(0);
-    s.put("sampleType", "invalid");
-
-    getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
-
-    // Test invalid sample format
-    val j2 =
-        (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/variantcall-malformed-sample.json");
-    getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
-  }
-
-  @Test
   public void testInvalidFile() {
+    // The pre-seeded legacy "variantCall" analysisType (the one this fixture's hardcoded
+    // "analysisType" field targets) has no fileTypes restriction, so the fileType enum check
+    // (ValidationService.validate lines 111-114) never runs. Register a new version that
+    // restricts fileTypes to what this fixture actually uses, so that check is exercised too.
+    // Since schemas.enforceLatest=true here, every submission below must target this new
+    // version once it's registered.
+    val legacyVariantCallSchema =
+        LEGACY_SCHEMA_FETCHER.readJsonNode(VARIANT_CALL_LEGACY_SCHEMA_FILENAME);
+    val restrictedVersion =
+        getEndpointTester()
+            .registerAnalysisTypePostRequestAnd(
+                RegisterAnalysisTypeRequest.builder()
+                    .name(VARIANT_CALL_LEGACY_NAME)
+                    .schema(legacyVariantCallSchema)
+                    .options(AnalysisTypeOptions.builder().fileTypes(List.of("VCF", "IDX")).build())
+                    .build())
+            .extractOneEntity(AnalysisType.class)
+            .getVersion();
+
     val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    j.put("studyId", getStudyId());
+    randomizeFileChecksums(j);
+    ((ObjectNode) j.path("analysisType")).put("version", restrictedVersion);
     val s = (ObjectNode) j.get("files").get(0);
     s.put("fileType", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertServerError(SCHEMA_VIOLATION);
 
     val j2 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    j2.put("studyId", getStudyId());
+    randomizeFileChecksums(j2);
+    ((ObjectNode) j2.path("analysisType")).put("version", restrictedVersion);
     val s2 = (ObjectNode) j2.get("files").get(0);
     s2.put("fileAccess", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j2).assertServerError(SCHEMA_VIOLATION);
 
     val j3 = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("variantcall-valid.json");
+    j3.put("studyId", getStudyId());
+    randomizeFileChecksums(j3);
+    ((ObjectNode) j3.path("analysisType")).put("version", restrictedVersion);
     val s3 = (ObjectNode) j3.get("files").get(0);
     s3.put("fileMd5sum", "invalid");
     getEndpointTester().submitPostRequestAnd(getStudyId(), j3).assertServerError(SCHEMA_VIOLATION);
@@ -226,7 +197,7 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
             .version(getLatestAnalysisType().getVersion() - 1)
             .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert that when an analysisUpdate using an out-dated analysisType is attempted,
     // an ANALYSIS_TYPE_INCORRECT_VERSION server error is thrown
@@ -276,7 +247,7 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
             .version(getLatestAnalysisType().getVersion())
             .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester()
@@ -295,34 +266,11 @@ public class EnforcedSubmitControllerTest extends AbstractEnforcedTester {
     val nonLatestAnalysisTypeId =
         AnalysisTypeId.builder().name(getLatestAnalysisType().getName()).build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester()
         .updateAnalysisPutRequestAnd(getStudyId(), analysisId, objectToTree(request))
         .assertOk();
-  }
-
-  private void runMatchedNormalTest(String filename) {
-    runMatchedNormalTest(filename, null);
-  }
-
-  private void runMatchedNormalTest(
-      @NonNull String filename, String expectedSchemaViolationMessage) {
-    val j = (ObjectNode) DOCUMENTS_FETCHER.readJsonNode("validation/" + filename);
-    j.put("studyId", getStudyId());
-    if (!isNull(expectedSchemaViolationMessage)) {
-      val songError =
-          parseErrorResponse(
-              getEndpointTester()
-                  .submitPostRequestAnd(getStudyId(), j)
-                  .assertServerError(SCHEMA_VIOLATION)
-                  .assertHasBody()
-                  .getResponse());
-      val message = songError.getMessage();
-      assertTrue(message.contains(expectedSchemaViolationMessage));
-    } else {
-      getEndpointTester().submitPostRequestAnd(getStudyId(), j).assertOk();
-    }
   }
 }

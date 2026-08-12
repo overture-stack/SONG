@@ -3,9 +3,9 @@ package bio.overture.song.server.service.id;
 import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.ERROR;
 import static bio.overture.song.server.service.id.FederatedIdServiceTest.MODE.GOOD;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,18 +17,18 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.val;
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FederatedIdServiceTest {
 
   /** Constants */
@@ -54,7 +54,7 @@ public class FederatedIdServiceTest {
   /** State */
   private RandomGenerator randomGenerator;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     randomGenerator = createRandomGenerator(getClass().getSimpleName());
     reset(restClient, uriResolver);

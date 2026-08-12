@@ -27,35 +27,35 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.HttpStatus.OK;
 
 import bio.overture.song.core.utils.JsonUtils;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.server.model.StorageObject;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 public class StorageServiceTest {
 
@@ -67,11 +67,13 @@ public class StorageServiceTest {
   private final RandomGenerator randomGenerator =
       createRandomGenerator(StorageServiceTest.class.getSimpleName());
 
-  @Rule public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort());
+  private WireMockServer wireMockServer;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
-    val testStorageUrl = format("http://localhost:%s", wireMockRule.port());
+    wireMockServer = new WireMockServer(options().dynamicPort());
+    wireMockServer.start();
+    val testStorageUrl = format("http://localhost:%s", wireMockServer.port());
     this.storageService =
         StorageService.builder()
             .restTemplate(new RestTemplate())
@@ -79,6 +81,11 @@ public class StorageServiceTest {
             .storageUrl(testStorageUrl)
             .validationService(validationService)
             .build();
+  }
+
+  @AfterEach
+  public void afterTest() {
+    wireMockServer.stop();
   }
 
   @Test
@@ -197,15 +204,15 @@ public class StorageServiceTest {
   }
 
   private void setupStorageMockService(String objectId, StorageBehaviourConfig config) {
-    wireMockRule.resetAll();
-    wireMockRule.stubFor(
+    wireMockServer.resetAll();
+    wireMockServer.stubFor(
         get(urlMatching(format("/upload/%s", objectId)))
             .willReturn(
                 aResponse()
                     .withStatus(OK.value())
                     .withBody(Boolean.toString(config.isObjectExists()))));
 
-    wireMockRule.stubFor(
+    wireMockServer.stubFor(
         get(urlMatching(format("/download/%s\\?offset=0&length=-1&exclude-urls=true", objectId)))
             .willReturn(
                 aResponse()

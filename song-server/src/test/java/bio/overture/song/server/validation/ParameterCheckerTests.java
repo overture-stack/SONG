@@ -32,7 +32,7 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
 import lombok.val;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ParameterCheckerTests {
 

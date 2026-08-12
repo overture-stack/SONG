@@ -19,8 +19,8 @@ package bio.overture.song.server.controller;
 
 import static bio.overture.song.core.utils.JsonUtils.objectToTree;
 import static bio.overture.song.core.utils.Responses.OK;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.overture.song.core.model.AnalysisTypeId;
 import bio.overture.song.server.model.dto.UpdateAnalysisRequest;
@@ -28,17 +28,17 @@ import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.WebApplicationContext;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
 @SpringBootTest(properties = "schemas.enforceLatest=false")
@@ -80,7 +80,7 @@ public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
             .version(getLatestAnalysisType().getVersion() - 1)
             .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert that when an analysisUpdate using an out-dated analysisType is successful
     getEndpointTester()
@@ -102,7 +102,7 @@ public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
             .version(getLatestAnalysisType().getVersion())
             .build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester()
@@ -121,7 +121,7 @@ public class NonEnforcedSubmitControllerTest extends AbstractEnforcedTester {
     val nonLatestAnalysisTypeId =
         AnalysisTypeId.builder().name(getLatestAnalysisType().getName()).build();
     request.setAnalysisType(nonLatestAnalysisTypeId);
-    request.addData(a.getAnalysisData().getData());
+    request.addData(toUpdatableData(a.getAnalysisData().getData()));
 
     // Assert success that when an analysisUpdate using the latest analysisType is attempted
     getEndpointTester()

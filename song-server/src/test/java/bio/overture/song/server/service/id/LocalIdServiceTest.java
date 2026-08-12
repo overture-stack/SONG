@@ -18,18 +18,18 @@
 package bio.overture.song.server.service.id;
 
 import static bio.overture.song.server.config.IdConfig.createNameBasedGenerator;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Optional;
 import java.util.function.BiFunction;
 import lombok.val;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LocalIdServiceTest {
 
   private static final Optional<String> ID_A = Optional.of("8540ebac-66f2-553a-b865-0d3006edd892");
@@ -38,7 +38,7 @@ public class LocalIdServiceTest {
 
   private LocalIdService localIdService;
 
-  @Before
+  @BeforeEach
   public void beforeTest() {
     this.localIdService = new LocalIdService(createNameBasedGenerator());
   }

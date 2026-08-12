@@ -21,9 +21,9 @@ import static bio.overture.song.core.exceptions.SongError.parseErrorResponse;
 import static bio.overture.song.core.utils.Deserialization.deserializeList;
 import static bio.overture.song.core.utils.Deserialization.deserializePage;
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -75,10 +75,10 @@ public class ResponseOption {
 
   public ResponseOption assertIsError() {
     assertTrue(
+        response.getStatusCode().isError(),
         format(
             "Was expecting an error (4xx or 5xx status code), " + "however status code was [%s]",
-            response.getStatusCode()),
-        response.getStatusCode().isError());
+            response.getStatusCode()));
     return this;
   }
 

@@ -176,6 +176,16 @@ public class EndpointTester {
     return initWebRequest().endpoint("submit/%s", studyId).body(payload).postAnd();
   }
 
+  // POST /submit/{study}?allowDuplicates=<boolean>
+  public ResponseOption submitPostRequestAnd(
+      @NonNull String studyId, JsonNode payload, boolean allowDuplicates) {
+    return initWebRequest()
+        .endpoint("submit/%s", studyId)
+        .querySingleParam("allowDuplicates", allowDuplicates)
+        .body(payload)
+        .postAnd();
+  }
+
   // PUT /studies/{}/analysis/publish/{aid}
   public ResponseOption publishAnalysisPutRequestAnd(
       @NonNull String studyId, @NonNull String analysisId) {

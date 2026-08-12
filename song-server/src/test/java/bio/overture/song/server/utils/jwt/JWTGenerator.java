@@ -4,6 +4,7 @@ import static bio.overture.song.core.utils.JsonUtils.toJson;
 import static bio.overture.song.core.utils.JsonUtils.toMap;
 import static java.util.Objects.isNull;
 import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -59,10 +60,11 @@ public class JWTGenerator {
     long nowMs = System.currentTimeMillis();
 
     long expiry;
-    // if ttlMs <= 0 make it expired
+    // if ttlMs <= 0 make it expired. Expire well beyond the JWT decoder's default 60s clock-skew
+    // tolerance, otherwise a token that expired only moments ago is still accepted as valid.
     if (ttlMs <= 0) {
-      expiry = nowMs - 10000;
-      nowMs -= 100000L;
+      expiry = nowMs - MINUTES.toMillis(5);
+      nowMs -= MINUTES.toMillis(10);
     } else {
       expiry = nowMs + ttlMs;
     }

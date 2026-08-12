@@ -40,6 +40,7 @@ import com.jayway.jsonpath.JsonPath;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -98,7 +99,7 @@ public class ValidationService {
         throw new ValidationException("Analysis type not found");
       }
       val analysisTypeId = fromJson(analysisTypeResult.get(), AnalysisTypeId.class);
-      val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, true);
+      val analysisType = analysisTypeService.getAnalysisType(analysisTypeId, false);
       log.debug(
           format(
               "Validation Analysis with schema: name=%s  version=%s",
@@ -129,40 +130,35 @@ public class ValidationService {
 
   public List<String> getValuesAtJsonPath(@NonNull JsonNode payload, @NonNull String jsonPath)
       throws ValidationException {
+    Object result;
     try {
-      val result = JsonPath.read(payload.toString(), "$." + jsonPath);
-      if (result instanceof List) {
-        val list = (List<?>) result;
-        if (list.isEmpty()) {
-          return List.of();
-        }
-        val hasNonString = list.stream().anyMatch(element -> !(element instanceof String));
-        if (hasNonString) {
-          throw new ValidationException(
-              String.format(
-                  "Value at path '%s' must be a string or array of strings, but contains non-string elements.",
-                  jsonPath));
-        }
-        return list.stream()
-            .map(element -> (String) element)
-            .collect(java.util.stream.Collectors.toList());
-      } else if (result instanceof String) {
-        return List.of((String) result);
-      } else if (result == null) {
-        return List.of();
-      } else {
-        throw new ValidationException(
-            String.format(
-                "Value at path '%s' must be a string or array of strings, but was: %s.",
-                jsonPath, result.getClass().getSimpleName()));
-      }
-    } catch (ValidationException validationException) {
-      throw validationException;
+      result = JsonPath.read(payload.toString(), "$." + jsonPath);
     } catch (Exception exception) {
       log.debug(
           String.format(
               "Error reading value for external validation. Reason: %s", exception.getMessage()));
       return List.of();
+    }
+
+    if (result == null) {
+      return List.of();
+    } else if (result instanceof String) {
+      return List.of((String) result);
+    } else if (result instanceof List) {
+      val list = (List<?>) result;
+      val hasNonString = list.stream().anyMatch(element -> !(element instanceof String));
+      if (hasNonString) {
+        throw new ValidationException(
+            String.format(
+                "Value at path '%s' must be a string or array of strings, but contains non-string elements.",
+                jsonPath));
+      }
+      return list.stream().map(element -> (String) element).collect(Collectors.toList());
+    } else {
+      throw new ValidationException(
+          String.format(
+              "Value at path '%s' must be a string or array of strings, but was: %s.",
+              jsonPath, result.getClass().getSimpleName()));
     }
   }
 
