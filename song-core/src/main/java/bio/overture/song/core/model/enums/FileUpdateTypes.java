@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 import bio.overture.song.core.model.FileContent;
 import bio.overture.song.core.model.FileData;
 import bio.overture.song.core.model.FileMetadata;
+import java.util.Objects;
 import java.util.function.Function;
 import lombok.val;
 
@@ -44,7 +45,7 @@ public enum FileUpdateTypes {
   private static <T> boolean isUnchanged(
       Function<T, ?> getterFunction, T originalFile, T fileUpdateData) {
     val value = getterFunction.apply(fileUpdateData);
-    return isNull(value) || getterFunction.apply(originalFile).equals(value);
+    return isNull(value) || Objects.equals(getterFunction.apply(originalFile), value);
   }
 
   private static boolean isUnchangedMd5(FileContent originalFile, FileContent fileUpdataData) {
