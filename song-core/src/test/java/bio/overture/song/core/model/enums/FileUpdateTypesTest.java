@@ -42,85 +42,7 @@ public class FileUpdateTypesTest {
     private JsonNode info;
   }
 
-  // ---- null original field tests (currently NPE before fix) ----
-
-  @Test
-  public void nullOriginalMd5_nonNullUpdate_isContentUpdate() {
-    val original = TestFileData.builder().fileMd5sum(null).fileSize(100L).build();
-    val update = FileUpdateRequest.builder().fileMd5sum("aabbccddeeff00112233445566778899").build();
-    assertEquals(CONTENT_UPDATE, resolveFileUpdateType(original, update));
-  }
-
-  @Test
-  public void nullOriginalSize_nonNullUpdate_isContentUpdate() {
-    val original =
-        TestFileData.builder()
-            .fileMd5sum("aabbccddeeff00112233445566778899")
-            .fileSize(null)
-            .build();
-    val update = FileUpdateRequest.builder().fileSize(500L).build();
-    assertEquals(CONTENT_UPDATE, resolveFileUpdateType(original, update));
-  }
-
-  @Test
-  public void nullOriginalAccess_nonNullUpdate_isMetadataUpdate() {
-    val original = TestFileData.builder().fileAccess(null).build();
-    val update = FileUpdateRequest.builder().fileAccess("open").build();
-    assertEquals(METADATA_UPDATE, resolveFileUpdateType(original, update));
-  }
-
-  @Test
-  public void nullOriginalDataType_nonNullUpdate_isMetadataUpdate() {
-    val original = TestFileData.builder().dataType(null).build();
-    val update = FileUpdateRequest.builder().dataType("someType").build();
-    assertEquals(METADATA_UPDATE, resolveFileUpdateType(original, update));
-  }
-
-  // ---- both null: no change ----
-
-  @Test
-  public void bothNullMd5_isNoUpdate() {
-    val original = TestFileData.builder().fileMd5sum(null).fileSize(100L).build();
-    val update = FileUpdateRequest.builder().fileMd5sum(null).build();
-    assertEquals(NO_UPDATE, resolveFileUpdateType(original, update));
-  }
-
-  @Test
-  public void bothNullSize_isNoUpdate() {
-    val original =
-        TestFileData.builder()
-            .fileSize(null)
-            .fileMd5sum("aabbccddeeff00112233445566778899")
-            .build();
-    val update = FileUpdateRequest.builder().fileSize(null).build();
-    assertEquals(NO_UPDATE, resolveFileUpdateType(original, update));
-  }
-
-  // ---- non-null original, null update: no change (regression guard) ----
-
-  @Test
-  public void nonNullOriginalMd5_nullUpdate_isNoUpdate() {
-    val original =
-        TestFileData.builder()
-            .fileMd5sum("aabbccddeeff00112233445566778899")
-            .fileSize(100L)
-            .build();
-    val update = FileUpdateRequest.builder().fileMd5sum(null).build();
-    assertEquals(NO_UPDATE, resolveFileUpdateType(original, update));
-  }
-
-  @Test
-  public void nonNullOriginalSize_nullUpdate_isNoUpdate() {
-    val original =
-        TestFileData.builder()
-            .fileSize(100L)
-            .fileMd5sum("aabbccddeeff00112233445566778899")
-            .build();
-    val update = FileUpdateRequest.builder().fileSize(null).build();
-    assertEquals(NO_UPDATE, resolveFileUpdateType(original, update));
-  }
-
-  // ---- non-null original, matching update: no change (regression guard) ----
+  // ---- NO_UPDATE ----
 
   @Test
   public void matchingMd5_isNoUpdate() {
@@ -141,7 +63,7 @@ public class FileUpdateTypesTest {
     assertEquals(NO_UPDATE, resolveFileUpdateType(original, update));
   }
 
-  // ---- non-null original, different update: correct update type (regression guard) ----
+  // ---- Successful updates ----
 
   @Test
   public void differentMd5_isContentUpdate() {
@@ -177,5 +99,59 @@ public class FileUpdateTypesTest {
     val original = TestFileData.builder().dataType("BAM").build();
     val update = FileUpdateRequest.builder().dataType("CRAM").build();
     assertEquals(METADATA_UPDATE, resolveFileUpdateType(original, update));
+  }
+
+	  // ---- UPDATE successful for starting state with null fields ----
+
+  @Test
+  public void nullOriginalMd5_nonNullUpdate_isContentUpdate() {
+    val original = TestFileData.builder().fileMd5sum(null).fileSize(100L).build();
+    val update = FileUpdateRequest.builder().fileMd5sum("aabbccddeeff00112233445566778899").build();
+    assertEquals(CONTENT_UPDATE, resolveFileUpdateType(original, update));
+  }
+
+  @Test
+  public void nullOriginalSize_nonNullUpdate_isContentUpdate() {
+    val original =
+        TestFileData.builder()
+            .fileMd5sum("aabbccddeeff00112233445566778899")
+            .fileSize(null)
+            .build();
+    val update = FileUpdateRequest.builder().fileSize(500L).build();
+    assertEquals(CONTENT_UPDATE, resolveFileUpdateType(original, update));
+  }
+
+  @Test
+  public void nullOriginalAccess_nonNullUpdate_isMetadataUpdate() {
+    val original = TestFileData.builder().fileAccess(null).build();
+    val update = FileUpdateRequest.builder().fileAccess("open").build();
+    assertEquals(METADATA_UPDATE, resolveFileUpdateType(original, update));
+  }
+
+  @Test
+  public void nullOriginalDataType_nonNullUpdate_isMetadataUpdate() {
+    val original = TestFileData.builder().dataType(null).build();
+    val update = FileUpdateRequest.builder().dataType("someType").build();
+    assertEquals(METADATA_UPDATE, resolveFileUpdateType(original, update));
+  }
+
+  // ---- NO_UPDATE for invalid starting state (with null fields) ----
+
+  @Test
+  public void bothNullMd5_isNoUpdate() {
+    val original = TestFileData.builder().fileMd5sum(null).fileSize(100L).build();
+    val update = FileUpdateRequest.builder().fileMd5sum(null).build();
+    assertEquals(NO_UPDATE, resolveFileUpdateType(original, update));
+  }
+
+  @Test
+  public void bothNullSize_isNoUpdate() {
+    val original =
+        TestFileData.builder()
+            .fileSize(null)
+            .fileMd5sum("aabbccddeeff00112233445566778899")
+            .build();
+    val update = FileUpdateRequest.builder().fileSize(null).build();
+    assertEquals(NO_UPDATE, resolveFileUpdateType(original, update));
   }
 }
