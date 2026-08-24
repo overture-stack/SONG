@@ -101,7 +101,7 @@ public class FileUpdateTypesTest {
     assertEquals(METADATA_UPDATE, resolveFileUpdateType(original, update));
   }
 
-	  // ---- UPDATE successful for starting state with null fields ----
+  // ---- UPDATE successful for starting state with null fields ----
 
   @Test
   public void nullOriginalMd5_nonNullUpdate_isContentUpdate() {
