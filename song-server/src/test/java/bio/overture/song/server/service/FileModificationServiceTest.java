@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. Ontario Institute for Cancer Research
+ * Copyright (c) 2026. Ontario Institute for Cancer Research
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -449,6 +449,27 @@ public class FileModificationServiceTest {
     assertEquals(NO_UPDATE, resolveFileUpdateType(f1, u3));
 
     assertEquals(golden, f1);
+  }
+
+  @Test
+  @Transactional
+  public void contentUpdate_addMissingMd5_success() {
+    // Simulate a legacy DB record where fileMd5sum was not required: set it to null directly
+    val fileEntity = fileRepository.findById(DEFAULT_FILE_ID).get();
+    fileEntity.setFileMd5sum(null);
+    fileRepository.save(fileEntity);
+
+    val newMd5 = randomGenerator.generateRandomMD5();
+    val updateRequest = FileUpdateRequest.builder().fileMd5sum(newMd5).build();
+
+    val response =
+        fileModificationService.securedFileWithAnalysisUpdate(
+            DEFAULT_STUDY_ID, DEFAULT_FILE_ID, updateRequest);
+
+    assertEquals(CONTENT_UPDATE, response.getFileUpdateType());
+
+    val updatedFile = fileService.securedRead(DEFAULT_STUDY_ID, DEFAULT_FILE_ID);
+    assertEquals(newMd5, updatedFile.getFileMd5sum());
   }
 
   private FileEntity buildReferenceFile() {
