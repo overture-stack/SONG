@@ -90,7 +90,11 @@ Use the song-client `submit` command:
 docker exec song-client sh -c "sing submit -f /output/example-payload.json"
 ```
 
-To allow duplicate files, use the `-ad` option:
+:::info Duplicate file check
+By default, Song rejects a submission if any of its files has the same MD5 checksum as a file in a **PUBLISHED** analysis. Files in UNPUBLISHED or SUPPRESSED analyses are not counted, so files from a failed or suppressed submission can be resubmitted.
+:::
+
+To skip the duplicate file check entirely, use the `-ad` option:
 ```bash
 docker exec song-client sh -c "sing submit -f /output/example-payload.json -ad"
 ```

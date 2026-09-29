@@ -24,6 +24,7 @@ import bio.overture.song.core.model.SubmitResponse;
 import bio.overture.song.server.service.SubmitService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,13 @@ public class SubmitController {
   @PreAuthorize("@studySecurity.authorize(authentication, #studyId)")
   public SubmitResponse submit(
       @PathVariable("studyId") String studyId,
-      @RequestParam(value = "allowDuplicates", defaultValue = "false") boolean allowDuplicates,
+      @ApiParam(
+              value =
+                  "Skips the check that rejects files whose MD5 checksum matches a file in a "
+                      + "PUBLISHED analysis. Files in UNPUBLISHED or SUPPRESSED analyses are "
+                      + "never treated as duplicates")
+          @RequestParam(value = "allowDuplicates", defaultValue = "false")
+          boolean allowDuplicates,
       @RequestBody @Valid String json_payload) {
     return submitService.submit(studyId, json_payload, allowDuplicates);
   }

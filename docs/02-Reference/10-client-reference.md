@@ -63,10 +63,10 @@ Commands and options supported by the Song client.
 
 - **Usage:** `sing submit [OPTIONS]`
 
-    | Option                      | Description                                         |
-    |-----------------------------|-----------------------------------------------------|
-    | `-f`, `--file`              | File name and directory for the payload             |
-    | `-ad`, `--allow-duplicates` | Allows duplicate files identified by their MD5 hash |
+    | Option                      | Description                                                                         |
+    |-----------------------------|-------------------------------------------------------------------------------------|
+    | `-f`, `--file`              | File name and directory for the payload                                             |
+    | `-ad`, `--allow-duplicates` | Skips the check that rejects files whose MD5 matches a file in a PUBLISHED analysis |
 
     :::info
     For detailed information, see our [documentation on submitting data with Song](./00-submitting-metadata.md).
