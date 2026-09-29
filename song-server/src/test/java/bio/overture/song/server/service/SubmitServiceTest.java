@@ -16,8 +16,10 @@
  */
 package bio.overture.song.server.service;
 
+import static bio.overture.song.core.exceptions.ServerErrors.INFO_ALREADY_EXISTS;
 import static bio.overture.song.core.exceptions.ServerErrors.PAYLOAD_PARSING;
 import static bio.overture.song.core.exceptions.ServerErrors.SCHEMA_VIOLATION;
+import static bio.overture.song.core.model.enums.AnalysisStates.PUBLISHED;
 import static bio.overture.song.core.testing.SongErrorAssertions.assertSongError;
 import static bio.overture.song.core.utils.JsonUtils.fromJson;
 import static bio.overture.song.core.utils.JsonUtils.toJson;
@@ -40,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.overture.song.core.utils.RandomGenerator;
 import bio.overture.song.core.utils.Responses;
 import bio.overture.song.server.model.dto.Payload;
+import bio.overture.song.server.repository.AnalysisRepository;
 import bio.overture.song.server.repository.UploadRepository;
 import bio.overture.song.server.service.analysis.AnalysisService;
 import bio.overture.song.server.service.id.IdService;
@@ -82,6 +85,7 @@ public class SubmitServiceTest {
   @Autowired ValidationService validationService;
   @Autowired UploadRepository uploadRepository;
   @Autowired AnalysisTypeService analysisTypeService;
+  @Autowired AnalysisRepository analysisRepository;
 
   private final RandomGenerator randomGenerator =
       createRandomGenerator(SubmitServiceTest.class.getSimpleName());
@@ -164,6 +168,49 @@ public class SubmitServiceTest {
     val result = submitAnalysis(studyId, payload2, true);
     assertFalse(result.startsWith("ERR"), "No error results expected");
     assertNotEquals(analysisId, result, "New analysisId expected");
+  }
+
+  @Test
+  @Transactional
+  public void submit_DuplicateFileOfUnpublishedAnalysis_Success() {
+    val studyId = randomStudy();
+    val payload = randomPayload();
+    val analysisId = submitAnalysis(studyId, payload);
+    assertFalse(analysisId.startsWith("ERR"), "No error results expected");
+
+    val result = submitAnalysis(studyId, getModifiedPayload(payload));
+    assertFalse(result.startsWith("ERR"), "No error results expected");
+    assertNotEquals(analysisId, result, "New analysisId expected");
+  }
+
+  @Test
+  @Transactional
+  public void submit_DuplicateFileOfSuppressedAnalysis_Success() {
+    val studyId = randomStudy();
+    val payload = randomPayload();
+    val analysisId = submitAnalysis(studyId, payload);
+    analysisService.suppress(studyId, analysisId);
+
+    val result = submitAnalysis(studyId, getModifiedPayload(payload));
+    assertFalse(result.startsWith("ERR"), "No error results expected");
+    assertNotEquals(analysisId, result, "New analysisId expected");
+  }
+
+  @Test
+  @Transactional
+  public void submit_DuplicateFileOfPublishedAnalysis_AlreadyExists() {
+    val studyId = randomStudy();
+    val payload = randomPayload();
+    val analysisId = submitAnalysis(studyId, payload);
+    // Set the state directly: publishing goes through the storage server, which is out of scope.
+    val analysis = analysisRepository.findById(analysisId).get();
+    analysis.setAnalysisState(PUBLISHED.name());
+    analysisRepository.save(analysis);
+
+    val payload2 = getModifiedPayload(payload);
+    payload2.setStudyId(studyId);
+    assertSongError(
+        () -> submitService.submit(studyId, toJson(payload2), false), INFO_ALREADY_EXISTS);
   }
 
   private String randomStudy() {

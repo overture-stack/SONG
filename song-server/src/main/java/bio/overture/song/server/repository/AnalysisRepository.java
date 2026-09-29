@@ -17,6 +17,7 @@
 package bio.overture.song.server.repository;
 
 import bio.overture.song.server.model.analysis.Analysis;
+import java.util.Collection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -24,4 +25,7 @@ public interface AnalysisRepository
     extends JpaRepository<Analysis, String>, JpaSpecificationExecutor<Analysis> {
 
   long countAllByStudyIdAndAnalysisId(String studyId, String analysisId);
+
+  boolean existsByAnalysisIdInAndAnalysisState(
+      Collection<String> analysisIds, String analysisState);
 }

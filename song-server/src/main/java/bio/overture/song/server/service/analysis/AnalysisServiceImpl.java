@@ -327,14 +327,29 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
   }
 
+  /**
+   * Rejects the payload if any of its files has the same md5 as a file belonging to a PUBLISHED
+   * analysis. Files in UNPUBLISHED or SUPPRESSED analyses do not count as duplicates, so a failed
+   * submission can be retried with the same files.
+   */
   @Override
   public void checkDuplicateAnalysis(@NonNull Payload payload) {
     payload
         .getFiles()
         .forEach(
             file -> {
-              if (fileService.checkMd5FileExists(file.getFileMd5sum())) {
-                throw buildServerException(getClass(), INFO_ALREADY_EXISTS, "File already exist");
+              val analysisIds =
+                  fileRepository.findAllByFileMd5sum(file.getFileMd5sum()).stream()
+                      .map(FileEntity::getAnalysisId)
+                      .collect(Collectors.toUnmodifiableSet());
+              if (!analysisIds.isEmpty()
+                  && repository.existsByAnalysisIdInAndAnalysisState(
+                      analysisIds, PUBLISHED.name())) {
+                throw buildServerException(
+                    getClass(),
+                    INFO_ALREADY_EXISTS,
+                    "A file with md5 '%s' already exists in a PUBLISHED analysis",
+                    file.getFileMd5sum());
               }
             });
   }
