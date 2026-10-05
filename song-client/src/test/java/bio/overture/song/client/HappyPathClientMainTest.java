@@ -164,6 +164,25 @@ public class HappyPathClientMainTest extends AbstractClientMainTest {
   }
 
   @Test
+  public void testConfig() {
+    when(customRestClientConfig.getServerUrl()).thenReturn("http://song.example.org:8080");
+    when(customRestClientConfig.getAccessToken()).thenReturn("a-test-token");
+    when(customRestClientConfig.isDebug()).thenReturn(true);
+    val output = executeMain("config");
+    assertEquals(0, getExitCode().intValue());
+    assertEquals(
+        "Current configuration:\n"
+            + "URL: http://song.example.org:8080\n"
+            + "Study ID: "
+            + DUMMY_STUDY_ID
+            + "\n"
+            + "Access Token: a-test-token\n"
+            + "Debug Enabled: true\n\n",
+        output.getOut());
+    assertTrue(output.getErr().isEmpty());
+  }
+
+  @Test
   @SneakyThrows
   public void testListAnalysisTypes() {
     when(songApi.listAnalysisTypes(Mockito.any())).thenReturn(ANALYSIS_TYPE_PAGE);
