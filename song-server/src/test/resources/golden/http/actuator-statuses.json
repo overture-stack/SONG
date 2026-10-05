@@ -1,0 +1,6 @@
+{
+  "GET /actuator" : 200,
+  "GET /actuator/health" : 200,
+  "GET /actuator/info" : 404,
+  "GET /actuator/env" : 404
+}

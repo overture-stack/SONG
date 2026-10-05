@@ -1,0 +1,92 @@
+{
+  "PUT /studies/{studyId}/analysis/{analysisId}" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 200,
+    "systemScope" : 200
+  },
+  "PATCH /studies/{studyId}/analysis/{analysisId}" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 200,
+    "systemScope" : 200
+  },
+  "PUT /studies/{studyId}/analysis/publish/{analysisId}" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 200,
+    "systemScope" : 200
+  },
+  "PUT /studies/{studyId}/analysis/unpublish/{analysisId}" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 200,
+    "systemScope" : 200
+  },
+  "PUT /studies/{studyId}/analysis/suppress/{analysisId}" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 200,
+    "systemScope" : 200
+  },
+  "PUT /studies/{studyId}/files/{objectId}" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 200,
+    "systemScope" : 200
+  },
+  "DELETE /studies/{studyId}/files/{objectIds}" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 200,
+    "systemScope" : 200
+  },
+  "POST /studies/{studyId}/" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 200,
+    "systemScope" : 200
+  },
+  "POST /submit/{studyId}" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 200,
+    "systemScope" : 200
+  },
+  "POST /schemas" : {
+    "noToken" : 401,
+    "malformedToken" : 401,
+    "expiredSystemScope" : 401,
+    "noScopes" : 403,
+    "otherStudyScope" : 403,
+    "studyScope" : 403,
+    "systemScope" : 200
+  }
+}

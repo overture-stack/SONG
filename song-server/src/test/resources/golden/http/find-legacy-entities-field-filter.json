@@ -22,16 +22,16 @@
       "unpaged" : false
     },
     "last" : false,
-    "totalPages" : 2,
     "totalElements" : 4,
+    "totalPages" : 2,
+    "size" : 2,
+    "number" : 0,
     "sort" : {
       "empty" : false,
       "sorted" : true,
       "unsorted" : false
     },
     "first" : true,
-    "number" : 0,
-    "size" : 2,
     "numberOfElements" : 2,
     "empty" : false
   }

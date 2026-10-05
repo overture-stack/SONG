@@ -1,0 +1,6 @@
+{
+  "GET /isAlive malformedToken" : 401,
+  "GET /isAlive expiredToken" : 401,
+  "GET /isAlive validTokenNoScopes" : 200,
+  "GET /isAlive unknownApiKey" : 401
+}

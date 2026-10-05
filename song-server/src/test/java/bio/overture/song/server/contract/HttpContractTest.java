@@ -3,9 +3,12 @@ package bio.overture.song.server.contract;
 import static bio.overture.song.server.utils.contract.GoldenFiles.assertMatchesGolden;
 
 import bio.overture.song.server.utils.contract.JsonNormalizer;
+import bio.overture.song.server.utils.contract.RawHttpClient;
+import java.util.List;
 import lombok.val;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.actuate.autoconfigure.web.server.LocalManagementPort;
 
 /**
  * Locks the JSON returned by each read endpoint with golden files under {@code golden/http}.
@@ -20,6 +23,8 @@ public class HttpContractTest extends AbstractContractTest {
 
   private static final String STUDY_ID = "CONTRACT-READ";
   private static final String SEEDED_STUDY_ID = "ABC123";
+
+  @LocalManagementPort private int managementPort;
 
   private String publishedAnalysisId;
   private String unpublishedAnalysisId;
@@ -201,6 +206,17 @@ public class HttpContractTest extends AbstractContractTest {
   @Test
   public void getLegacyEntity() {
     assertGolden("http/get-legacy-entity", client.get("/entities/FI1"), createNormalizer());
+  }
+
+  /** Actuator runs on the management port; recorded here for the profile without security. */
+  @Test
+  public void actuatorStatuses() {
+    val managementClient = new RawHttpClient("http://localhost:" + managementPort);
+    val statuses = MAPPER.createObjectNode();
+    for (val path : List.of("/actuator", "/actuator/health", "/actuator/info", "/actuator/env")) {
+      statuses.put("GET " + path, managementClient.get(path).getStatus());
+    }
+    assertMatchesGolden("http/actuator-statuses", statuses);
   }
 
   @Test

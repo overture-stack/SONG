@@ -8,8 +8,8 @@
       "type" : "object",
       "properties" : {
         "type" : {
-          "type" : "string",
-          "const" : "object"
+          "const" : "object",
+          "type" : "string"
         },
         "definitions" : {
           "type" : "object"

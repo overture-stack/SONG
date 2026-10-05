@@ -1,0 +1,10 @@
+{
+  "GET /actuator noToken" : 401,
+  "GET /actuator systemScope" : 200,
+  "GET /actuator/health noToken" : 401,
+  "GET /actuator/health systemScope" : 200,
+  "GET /actuator/info noToken" : 401,
+  "GET /actuator/info systemScope" : 404,
+  "GET /actuator/env noToken" : 401,
+  "GET /actuator/env systemScope" : 404
+}

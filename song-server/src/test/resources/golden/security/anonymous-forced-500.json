@@ -1,0 +1,15 @@
+{
+  "status" : 500,
+  "contentType" : null,
+  "body" : {
+    "errorId" : "unknown.error",
+    "httpStatusCode" : 500,
+    "httpStatusName" : "INTERNAL_SERVER_ERROR",
+    "requestUrl" : "<baseUrl>/export/studies/FORCED-500",
+    "datetime" : "<datetime-offset-zone-id>",
+    "timestamp" : "<ignored number>",
+    "message" : "Request processing failed; nested exception is java.lang.RuntimeException: Forced failure",
+    "debugMessage" : "[ROOT_CAUSE] -> java.lang.RuntimeException: Forced failure",
+    "stackTrace" : "<ignored array>"
+  }
+}

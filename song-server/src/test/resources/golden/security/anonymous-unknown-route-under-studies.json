@@ -1,0 +1,10 @@
+{
+  "status" : 404,
+  "contentType" : "application/json",
+  "body" : {
+    "timestamp" : "<datetime-offset>",
+    "status" : 404,
+    "error" : "Not Found",
+    "path" : "/studies/SECURE-STUDY/no-such-route/x"
+  }
+}

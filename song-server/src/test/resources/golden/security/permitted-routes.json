@@ -1,0 +1,21 @@
+{
+  "GET /isAlive" : 200,
+  "GET /entities" : 200,
+  "GET /entities/FI1" : 200,
+  "GET /export/studies/SECURE-STUDY" : 200,
+  "GET /export/analysis/<analysisId>" : 200,
+  "GET /schemas" : 200,
+  "GET /schemas/variantCall" : 200,
+  "GET /schemas/registration" : 200,
+  "GET /studies/all" : 200,
+  "GET /studies/SECURE-STUDY" : 200,
+  "GET /studies/SECURE-STUDY/analysis?analysisStates=UNPUBLISHED" : 200,
+  "GET /studies/SECURE-STUDY/analysis/paginated?analysisStates=UNPUBLISHED" : 200,
+  "GET /studies/SECURE-STUDY/analysis/<analysisId>" : 200,
+  "GET /studies/SECURE-STUDY/analysis/<analysisId>/files" : 200,
+  "GET /studies/SECURE-STUDY/analysis/search/id?fileId=<objectId>" : 200,
+  "GET /studies/SECURE-STUDY/files/<objectId>" : 200,
+  "GET /swagger-ui.html" : 200,
+  "GET /v2/api-docs" : 200,
+  "GET /api-docs" : 302
+}

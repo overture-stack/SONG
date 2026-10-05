@@ -8,8 +8,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 
@@ -18,9 +19,9 @@ import lombok.val;
  * see the status, headers and body exactly as a real client would.
  *
  * <p>Uses the JDK HTTP client rather than a Spring client so the request bytes and the response
- * handling do not change when Spring is upgraded. Error statuses are returned, never thrown.
+ * handling do not change when Spring is upgraded. Error statuses are returned, never thrown, and
+ * redirects are not followed.
  */
-@RequiredArgsConstructor
 public class RawHttpClient {
 
   public static final String APPLICATION_JSON = "application/json";
@@ -31,7 +32,34 @@ public class RawHttpClient {
       HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
 
   /** Server root, such as {@code http://localhost:12345}, with no trailing slash. */
-  @NonNull private final String baseUrl;
+  private final String baseUrl;
+
+  /** Headers added to every request, such as Authorization. */
+  private final Map<String, String> defaultHeaders;
+
+  public RawHttpClient(@NonNull String baseUrl) {
+    this(baseUrl, Map.of());
+  }
+
+  private RawHttpClient(String baseUrl, Map<String, String> defaultHeaders) {
+    this.baseUrl = baseUrl;
+    this.defaultHeaders = defaultHeaders;
+  }
+
+  /** Returns a client that also sends {@code name: value} on every request. */
+  public RawHttpClient withHeader(@NonNull String name, @NonNull String value) {
+    val headers = new LinkedHashMap<>(defaultHeaders);
+    headers.put(name, value);
+    return new RawHttpClient(baseUrl, Map.copyOf(headers));
+  }
+
+  /**
+   * Returns a client that sends {@code Authorization: Bearer <token>}, or this client unchanged
+   * when {@code token} is null.
+   */
+  public RawHttpClient withBearerToken(String token) {
+    return isNull(token) ? this : withHeader("Authorization", "Bearer " + token);
+  }
 
   public RawResponse get(@NonNull String path) {
     return send("GET", path, null, null);
@@ -90,6 +118,7 @@ public class RawHttpClient {
     if (!isNull(contentType)) {
       requestBuilder.header("Content-Type", contentType);
     }
+    defaultHeaders.forEach(requestBuilder::header);
     val response =
         HTTP_CLIENT.send(requestBuilder.build(), BodyHandlers.ofString(StandardCharsets.UTF_8));
     return new RawResponse(

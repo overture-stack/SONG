@@ -1,0 +1,11 @@
+{
+  "noToken" : 401,
+  "studyPermission" : 200,
+  "otherStudyPermission" : 403,
+  "systemPermission" : 200,
+  "noPermissions" : 403,
+  "permissionWithoutScopes" : 403,
+  "keycloak401" : 401,
+  "keycloak403" : 401,
+  "keycloak500" : 500
+}

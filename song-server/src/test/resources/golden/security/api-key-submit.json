@@ -1,0 +1,13 @@
+{
+  "validSystemScope" : 200,
+  "validStudyScope" : 200,
+  "validOtherStudyScope" : 403,
+  "validNoScopes" : 500,
+  "revoked" : 401,
+  "validFalse" : 401,
+  "expZero" : 401,
+  "errorField" : 401,
+  "introspection401" : 401,
+  "introspection500" : 500,
+  "unknownToIntrospection" : 401
+}
