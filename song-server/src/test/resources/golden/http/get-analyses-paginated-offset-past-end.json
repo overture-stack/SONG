@@ -1,0 +1,9 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "analyses" : [ ],
+    "totalAnalyses" : 2,
+    "currentTotalAnalyses" : 0
+  }
+}

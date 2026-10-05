@@ -1,0 +1,11 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "id" : "FI1",
+    "gnosId" : "AN1",
+    "fileName" : "ABC-TC285G7-A5-ae3458712345.bam",
+    "projectCode" : "ABC123",
+    "access" : "open"
+  }
+}

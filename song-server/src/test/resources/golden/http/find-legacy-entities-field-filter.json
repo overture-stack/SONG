@@ -1,0 +1,38 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "content" : [ {
+      "id" : "FI1",
+      "fileName" : "ABC-TC285G7-A5-ae3458712345.bam"
+    }, {
+      "id" : "FI2",
+      "fileName" : "ABC-TC285G7-A5-wleazprt453.bai"
+    } ],
+    "pageable" : {
+      "sort" : {
+        "empty" : false,
+        "sorted" : true,
+        "unsorted" : false
+      },
+      "offset" : 0,
+      "pageNumber" : 0,
+      "pageSize" : 2,
+      "paged" : true,
+      "unpaged" : false
+    },
+    "last" : false,
+    "totalPages" : 2,
+    "totalElements" : 4,
+    "sort" : {
+      "empty" : false,
+      "sorted" : true,
+      "unsorted" : false
+    },
+    "first" : true,
+    "number" : 0,
+    "size" : 2,
+    "numberOfElements" : 2,
+    "empty" : false
+  }
+}

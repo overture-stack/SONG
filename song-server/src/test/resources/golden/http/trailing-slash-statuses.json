@@ -1,0 +1,18 @@
+{
+  "GET /isAlive/" : 200,
+  "GET /studies/CONTRACT-READ/" : 200,
+  "GET /studies/all/" : 200,
+  "GET /studies/CONTRACT-READ/analysis/" : 200,
+  "GET /studies/CONTRACT-READ/analysis/paginated/" : 200,
+  "GET /studies/CONTRACT-READ/analysis/<analysisId:published>/" : 200,
+  "GET /studies/CONTRACT-READ/analysis/<analysisId:published>/files/" : 200,
+  "GET /studies/CONTRACT-READ/analysis/search/id/" : 200,
+  "GET /studies/CONTRACT-READ/files/<objectId:published:contract-sample.vcf.gz>/" : 200,
+  "GET /export/studies/CONTRACT-READ/" : 200,
+  "GET /export/analysis/<analysisId:published>/" : 200,
+  "GET /schemas/" : 200,
+  "GET /schemas/variantCall/" : 200,
+  "GET /schemas/registration/" : 200,
+  "GET /entities/" : 200,
+  "GET /entities/FI1/" : 200
+}

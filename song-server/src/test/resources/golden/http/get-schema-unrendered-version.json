@@ -1,0 +1,33 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "name" : "variantCall",
+    "version" : 1,
+    "createdAt" : "<datetime>",
+    "options" : {
+      "fileTypes" : null,
+      "externalValidations" : null
+    },
+    "schema" : {
+      "type" : "object",
+      "required" : [ "experiment" ],
+      "properties" : {
+        "experiment" : {
+          "type" : "object",
+          "required" : [ "matchedNormalSampleSubmitterId", "variantCallingTool" ],
+          "properties" : {
+            "variantCallingTool" : {
+              "type" : "string"
+            },
+            "matchedNormalSampleSubmitterId" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "externalValidations" : [ ],
+    "fileTypes" : [ ]
+  }
+}

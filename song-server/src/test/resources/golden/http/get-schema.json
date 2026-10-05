@@ -1,0 +1,116 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "name" : "variantCall",
+    "version" : 1,
+    "createdAt" : "<datetime>",
+    "options" : {
+      "fileTypes" : null,
+      "externalValidations" : null
+    },
+    "schema" : {
+      "$schema" : "http://json-schema.org/draft-07/schema#",
+      "id" : "analysisPayload",
+      "type" : "object",
+      "definitions" : {
+        "common" : {
+          "md5" : {
+            "type" : "string",
+            "pattern" : "^[a-fA-F0-9]{32}$"
+          },
+          "submitterId" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9\\-\\._]{1,64}$"
+          },
+          "info" : {
+            "type" : "object"
+          }
+        },
+        "file" : {
+          "fileType" : {
+            "type" : "string"
+          },
+          "fileData" : {
+            "type" : "object",
+            "required" : [ "dataType", "fileName", "fileSize", "fileType", "fileAccess", "fileMd5sum" ],
+            "properties" : {
+              "dataType" : {
+                "type" : "string"
+              },
+              "fileName" : {
+                "type" : "string",
+                "pattern" : "^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$"
+              },
+              "fileSize" : {
+                "type" : "integer",
+                "min" : 0
+              },
+              "fileAccess" : {
+                "type" : "string",
+                "enum" : [ "open", "controlled" ]
+              },
+              "fileType" : {
+                "$ref" : "#/definitions/file/fileType"
+              },
+              "fileMd5sum" : {
+                "$ref" : "#/definitions/common/md5"
+              },
+              "info" : {
+                "$ref" : "#/definitions/common/info"
+              }
+            }
+          }
+        },
+        "analysisType" : {
+          "type" : "object",
+          "required" : [ "name" ],
+          "properties" : {
+            "name" : {
+              "type" : "string"
+            },
+            "version" : {
+              "type" : [ "integer", "null" ]
+            }
+          }
+        }
+      },
+      "required" : [ "studyId", "analysisType", "files", "experiment" ],
+      "properties" : {
+        "analysisId" : {
+          "not" : { }
+        },
+        "studyId" : {
+          "type" : "string",
+          "minLength" : 1
+        },
+        "analysisType" : {
+          "allOf" : [ {
+            "$ref" : "#/definitions/analysisType"
+          } ]
+        },
+        "files" : {
+          "type" : "array",
+          "minItems" : 1,
+          "items" : {
+            "$ref" : "#/definitions/file/fileData"
+          }
+        },
+        "experiment" : {
+          "type" : "object",
+          "required" : [ "matchedNormalSampleSubmitterId", "variantCallingTool" ],
+          "properties" : {
+            "variantCallingTool" : {
+              "type" : "string"
+            },
+            "matchedNormalSampleSubmitterId" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "externalValidations" : [ ],
+    "fileTypes" : [ ]
+  }
+}

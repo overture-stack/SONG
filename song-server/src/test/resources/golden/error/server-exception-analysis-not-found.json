@@ -1,0 +1,15 @@
+{
+  "status" : 404,
+  "contentType" : "application/json",
+  "body" : {
+    "errorId" : "analysis.id.not.found",
+    "httpStatusCode" : 404,
+    "httpStatusName" : "NOT_FOUND",
+    "requestUrl" : "<baseUrl>/studies/ABC123/analysis/NO-SUCH-ANALYSIS",
+    "datetime" : "<datetime-offset-zone-id>",
+    "timestamp" : "<ignored number>",
+    "message" : "[AnalysisService::analysis.id.not.found] - The analysisId 'NO-SUCH-ANALYSIS' was not found",
+    "debugMessage" : "N/A",
+    "stackTrace" : "<ignored array>"
+  }
+}

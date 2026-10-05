@@ -1,0 +1,27 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "fileUpdateType" : "CONTENT_UPDATE",
+    "originalAnalysisState" : "UNPUBLISHED",
+    "unpublishedAnalysis" : false,
+    "message" : "Updated file with objectId '<objectId:updated:contract-sample.vcf.gz>' and analysisId '<analysisId:updated>'",
+    "originalFile" : {
+      "info" : {
+        "nested" : {
+          "list" : [ 1, 2.5, "three", null ]
+        },
+        "unicode" : "données – 数据"
+      },
+      "objectId" : "<objectId:updated:contract-sample.vcf.gz>",
+      "studyId" : "CONTRACT-REQUEST",
+      "analysisId" : "<analysisId:updated>",
+      "fileName" : "contract-sample.vcf.gz",
+      "fileType" : "VCF",
+      "fileMd5sum" : "61a91c4bf04ac2bd3795254104f75ad3",
+      "fileSize" : 376953,
+      "fileAccess" : "open",
+      "dataType" : "SOME_DATA_TYPE"
+    }
+  }
+}

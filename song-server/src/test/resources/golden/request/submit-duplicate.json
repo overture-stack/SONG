@@ -1,0 +1,15 @@
+{
+  "status" : 409,
+  "contentType" : "application/json",
+  "body" : {
+    "errorId" : "info.already.exists",
+    "httpStatusCode" : 409,
+    "httpStatusName" : "CONFLICT",
+    "requestUrl" : "<baseUrl>/submit/CONTRACT-REQUEST",
+    "datetime" : "<datetime-offset-zone-id>",
+    "timestamp" : "<ignored number>",
+    "message" : "[AnalysisServiceImpl::info.already.exists] - File already exist",
+    "debugMessage" : "N/A",
+    "stackTrace" : "<ignored array>"
+  }
+}

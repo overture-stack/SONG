@@ -1,0 +1,7 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "message" : "Successfully created study 'CONTRACT-NEW'"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "info" : {
+      "purpose" : "contract"
+    },
+    "studyId" : "CONTRACT-READ",
+    "name" : "Contract study CONTRACT-READ",
+    "organization" : "Contract Test Institute",
+    "description" : "Study created by the contract tests"
+  }
+}

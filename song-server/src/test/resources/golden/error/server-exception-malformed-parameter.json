@@ -1,0 +1,15 @@
+{
+  "status" : 400,
+  "contentType" : "application/json",
+  "body" : {
+    "errorId" : "malformed.parameter",
+    "httpStatusCode" : 400,
+    "httpStatusName" : "BAD_REQUEST",
+    "requestUrl" : "<baseUrl>/studies/ABC123/analysis?analysisStates=NOT_A_STATE",
+    "datetime" : "<datetime-offset-zone-id>",
+    "timestamp" : "<ignored number>",
+    "message" : "[AnalysisService::malformed.parameter] - The following are not AnalysisStates: 'NOT_A_STATE'",
+    "debugMessage" : "N/A",
+    "stackTrace" : "<ignored array>"
+  }
+}

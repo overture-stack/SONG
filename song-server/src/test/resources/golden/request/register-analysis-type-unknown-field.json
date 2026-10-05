@@ -1,0 +1,107 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "name" : "contractType",
+    "version" : 1,
+    "createdAt" : "<datetime>",
+    "options" : {
+      "fileTypes" : [ ],
+      "externalValidations" : [ ]
+    },
+    "schema" : {
+      "$schema" : "http://json-schema.org/draft-07/schema#",
+      "id" : "analysisPayload",
+      "type" : "object",
+      "definitions" : {
+        "common" : {
+          "md5" : {
+            "type" : "string",
+            "pattern" : "^[a-fA-F0-9]{32}$"
+          },
+          "submitterId" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9\\-\\._]{1,64}$"
+          },
+          "info" : {
+            "type" : "object"
+          }
+        },
+        "file" : {
+          "fileType" : {
+            "type" : "string"
+          },
+          "fileData" : {
+            "type" : "object",
+            "required" : [ "dataType", "fileName", "fileSize", "fileType", "fileAccess", "fileMd5sum" ],
+            "properties" : {
+              "dataType" : {
+                "type" : "string"
+              },
+              "fileName" : {
+                "type" : "string",
+                "pattern" : "^[A-Za-z0-9_\\.\\-\\[\\]\\(\\)]+$"
+              },
+              "fileSize" : {
+                "type" : "integer",
+                "min" : 0
+              },
+              "fileAccess" : {
+                "type" : "string",
+                "enum" : [ "open", "controlled" ]
+              },
+              "fileType" : {
+                "$ref" : "#/definitions/file/fileType"
+              },
+              "fileMd5sum" : {
+                "$ref" : "#/definitions/common/md5"
+              },
+              "info" : {
+                "$ref" : "#/definitions/common/info"
+              }
+            }
+          }
+        },
+        "analysisType" : {
+          "type" : "object",
+          "required" : [ "name" ],
+          "properties" : {
+            "name" : {
+              "type" : "string"
+            },
+            "version" : {
+              "type" : [ "integer", "null" ]
+            }
+          }
+        }
+      },
+      "required" : [ "studyId", "analysisType", "files" ],
+      "properties" : {
+        "analysisId" : {
+          "not" : { }
+        },
+        "studyId" : {
+          "type" : "string",
+          "minLength" : 1
+        },
+        "analysisType" : {
+          "allOf" : [ {
+            "$ref" : "#/definitions/analysisType"
+          } ]
+        },
+        "files" : {
+          "type" : "array",
+          "minItems" : 1,
+          "items" : {
+            "$ref" : "#/definitions/file/fileData"
+          }
+        },
+        "note" : {
+          "type" : "string"
+        }
+      }
+    },
+    "fileTypes" : [ ],
+    "externalValidations" : [ ]
+  }
+}

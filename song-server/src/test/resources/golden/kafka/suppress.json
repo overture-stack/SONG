@@ -1,0 +1,70 @@
+[ {
+  "key" : "<analysisId:kafka>",
+  "payload" : {
+    "analysisId" : "<analysisId:kafka>",
+    "studyId" : "CONTRACT-KAFKA",
+    "state" : "SUPPRESSED",
+    "action" : "SUPPRESS",
+    "songServerId" : "song.overture",
+    "analysis" : {
+      "analysisId" : "<analysisId:kafka>",
+      "studyId" : "CONTRACT-KAFKA",
+      "analysisState" : "SUPPRESSED",
+      "createdAt" : "<datetime>",
+      "updatedAt" : "<datetime>",
+      "firstPublishedAt" : "<datetime>",
+      "publishedAt" : "<datetime>",
+      "analysisStateHistory" : [ {
+        "initialState" : "UNPUBLISHED",
+        "updatedState" : "PUBLISHED",
+        "updatedAt" : "<datetime>"
+      }, {
+        "initialState" : "PUBLISHED",
+        "updatedState" : "UNPUBLISHED",
+        "updatedAt" : "<datetime>"
+      }, {
+        "initialState" : "UNPUBLISHED",
+        "updatedState" : "SUPPRESSED",
+        "updatedAt" : "<datetime>"
+      } ],
+      "files" : [ {
+        "info" : {
+          "nested" : {
+            "list" : [ 1, 2.5, "three", null ]
+          },
+          "unicode" : "données – 数据"
+        },
+        "objectId" : "<objectId:kafka:contract-sample.vcf.gz>",
+        "studyId" : "CONTRACT-KAFKA",
+        "analysisId" : "<analysisId:kafka>",
+        "fileName" : "contract-sample.vcf.gz",
+        "fileSize" : 376953,
+        "fileType" : "VCF",
+        "fileMd5sum" : "61a91c4bf04ac2bd3795254104f75ad3",
+        "fileAccess" : "open",
+        "dataType" : "SOME_DATA_TYPE"
+      }, {
+        "objectId" : "<objectId:kafka:contract-sample.vcf.gz.idx>",
+        "studyId" : "CONTRACT-KAFKA",
+        "analysisId" : "<analysisId:kafka>",
+        "fileName" : "contract-sample.vcf.gz.idx",
+        "fileSize" : 4840,
+        "fileType" : "IDX",
+        "fileMd5sum" : "61a91c4bf04bb54d3795254104f75ad3",
+        "fileAccess" : "controlled",
+        "dataType" : "SOME_DATA_TYPE"
+      } ],
+      "analysisType" : {
+        "name" : "variantCall",
+        "version" : 1
+      },
+      "experiment" : {
+        "matchedNormalSampleSubmitterId" : "sample-x24-11a",
+        "variantCallingTool" : "patched tool"
+      },
+      "info" : {
+        "description" : "updated info"
+      }
+    }
+  }
+} ]

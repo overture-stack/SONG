@@ -1,0 +1,44 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "content" : [ {
+      "id" : "FI3",
+      "gnosId" : "AN2",
+      "fileName" : "ABC-TC285-G7-B9-kthx12345.bai",
+      "projectCode" : "ABC123",
+      "access" : "controlled"
+    }, {
+      "id" : "FI4",
+      "gnosId" : "AN2",
+      "fileName" : "ABC-TC285-G7N-alpha12345.fai",
+      "projectCode" : "ABC123",
+      "access" : "controlled"
+    } ],
+    "pageable" : {
+      "sort" : {
+        "empty" : false,
+        "sorted" : true,
+        "unsorted" : false
+      },
+      "offset" : 2,
+      "pageNumber" : 1,
+      "pageSize" : 2,
+      "paged" : true,
+      "unpaged" : false
+    },
+    "last" : true,
+    "totalPages" : 2,
+    "totalElements" : 4,
+    "sort" : {
+      "empty" : false,
+      "sorted" : true,
+      "unsorted" : false
+    },
+    "first" : false,
+    "number" : 1,
+    "size" : 2,
+    "numberOfElements" : 2,
+    "empty" : false
+  }
+}

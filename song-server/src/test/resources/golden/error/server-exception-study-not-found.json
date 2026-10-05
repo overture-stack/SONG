@@ -1,0 +1,15 @@
+{
+  "status" : 404,
+  "contentType" : "application/json",
+  "body" : {
+    "errorId" : "study.id.does.not.exist",
+    "httpStatusCode" : 404,
+    "httpStatusName" : "NOT_FOUND",
+    "requestUrl" : "<baseUrl>/studies/NO-SUCH-STUDY",
+    "datetime" : "<datetime-offset-zone-id>",
+    "timestamp" : "<ignored number>",
+    "message" : "[StudyService::study.id.does.not.exist] - The studyId 'NO-SUCH-STUDY' does not exist",
+    "debugMessage" : "N/A",
+    "stackTrace" : "<ignored array>"
+  }
+}

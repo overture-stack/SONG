@@ -1,0 +1,15 @@
+{
+  "status" : 400,
+  "contentType" : "application/json",
+  "body" : {
+    "errorId" : "schema.violation",
+    "httpStatusCode" : 400,
+    "httpStatusName" : "BAD_REQUEST",
+    "requestUrl" : "<baseUrl>/submit/ABC123",
+    "datetime" : "<datetime-offset-zone-id>",
+    "timestamp" : "<ignored number>",
+    "message" : "[SubmitService::schema.violation] - #: required key [files] not found",
+    "debugMessage" : "N/A",
+    "stackTrace" : "<ignored array>"
+  }
+}
