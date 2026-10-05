@@ -171,7 +171,7 @@ public class SerializationTest {
 
   @SneakyThrows
   private String readFile(String name) {
-    return new String(Files.readAllBytes(new java.io.File("..", name).toPath()));
+    return new String(Files.readAllBytes(new java.io.File(name).toPath()));
   }
 
   @Test
