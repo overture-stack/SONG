@@ -1,0 +1,45 @@
+****************  Initializing log directories
+****************  Initializing output directories
+****************  Skipping maven package since files exist: <repo>/song-server/target/song-server-5.4.1-SNAPSHOT-exec.jar   <repo>/song-client/target/song-client-5.4.1-SNAPSHOT-dist.tar.gz
+****************  Starting dependencies: keycloak, score and object-storage
+****************  Setting up bucket score.data and heliograph
+An error occurred (NoSuchBucket) when calling the ListObjects operation: The specified bucket does not exist
+make_bucket: score.data
+upload: ../score-data/heliograph to s3://score.data/data/heliograph
+****************  Starting song-server
+****************  Pinging song-server on http://localhost:8080
+curl: (56) Recv failure: Connection reset by peer
+Retrying (1/5): sleeping for 15 ...
+true
+****************  Submitting payload /data/submit/exampleVariantCall.json
+{
+  "analysisId" : "5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c",
+  "status" : "OK"
+}
+****************  Successfully submitted. Cached analysisId: '5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c'
+****************  Creating manifest at /song-client/output
+Wrote manifest file '/song-client/output/manifest.txt' for analysisId '5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c'
+5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c
+046f36e3-a254-59a1-b88d-812ef85ed09b	/data/submit/example.vcf.gz.idx	c03274816eb4907a92b8e5632cd6eb81
+bf0bf1de-30eb-506c-8389-41f00ab18ce4	/data/submit/example.vcf.gz	9a793e90d0d1e11301ea8da996446e59
+****************  Pinging score-server on http://localhost:8087
+****************  Uploading manifest /song-client/output/manifest.txt
+Starting...
+Running...
+Validating repository connection...
+Uploading object: '/data/submit/example.vcf.gz.idx' using the object id 046f36e3-a254-59a1-b88d-812ef85ed09b
+Finalizing...
+Total execution time:         3.182 s
+Total bytes read    :               0
+Total bytes written :              25
+Upload completed
+Uploading object: '/data/submit/example.vcf.gz' using the object id bf0bf1de-30eb-506c-8389-41f00ab18ce4
+Finalizing...
+Total execution time:         3.086 s
+Total bytes read    :               0
+Total bytes written :              52
+Upload completed
+****************  Publishing analysis: 5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c
+{"message":"AnalysisId 5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c successfully published"}
+****************  Unpublishing analysis: 5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c
+{"message":"AnalysisId 5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c successfully unpublished"}

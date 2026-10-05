@@ -1,0 +1,105 @@
+{
+    "analysisId": "5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c",
+    "studyId": "ABC123",
+    "analysisState": "UNPUBLISHED",
+    "createdAt": "2026-10-05T14:30:39.652054",
+    "updatedAt": "2026-10-05T14:31:16.181094",
+    "firstPublishedAt": "2026-10-05T14:31:14.076671",
+    "publishedAt": "2026-10-05T14:31:14.076671",
+    "analysisStateHistory": [
+        {
+            "initialState": "UNPUBLISHED",
+            "updatedState": "PUBLISHED",
+            "updatedAt": "2026-10-05T14:31:14.076671"
+        },
+        {
+            "initialState": "PUBLISHED",
+            "updatedState": "UNPUBLISHED",
+            "updatedAt": "2026-10-05T14:31:16.179244"
+        }
+    ],
+    "files": [
+        {
+            "info": {
+                "randomField10": "we can define any FILE field. For example, randomField10",
+                "randomField12": "alternatively, put some extra FILE fields here",
+                "randomField13": "as a second example, we can define another random FILE field called randomField13"
+            },
+            "objectId": "046f36e3-a254-59a1-b88d-812ef85ed09b",
+            "studyId": "ABC123",
+            "analysisId": "5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c",
+            "fileName": "example.vcf.gz.idx",
+            "fileSize": 25,
+            "fileType": "IDX",
+            "fileMd5sum": "c03274816eb4907a92b8e5632cd6eb81",
+            "fileAccess": "open",
+            "dataType": "Variant Calling Index"
+        },
+        {
+            "info": {
+                "randomField10": "we can define any FILE field. For example, randomField10",
+                "randomField11": "as a second example, we can define another random FILE field called randomField11",
+                "randomField12": "alternatively, put some extra FILE fields here"
+            },
+            "objectId": "bf0bf1de-30eb-506c-8389-41f00ab18ce4",
+            "studyId": "ABC123",
+            "analysisId": "5d1ca9d4-c9ef-4cfd-9ca9-d4c9effcfd1c",
+            "fileName": "example.vcf.gz",
+            "fileSize": 52,
+            "fileType": "VCF",
+            "fileMd5sum": "9a793e90d0d1e11301ea8da996446e59",
+            "fileAccess": "open",
+            "dataType": "Variant Calling Data"
+        }
+    ],
+    "analysisType": {
+        "name": "variantCall",
+        "version": 1
+    },
+    "info": {
+        "randomField19": "alternatively, put some extra ANALYSIS fields here"
+    },
+    "samples": [
+        {
+            "info": {
+                "randomField9": "alternatively, put some extra SAMPLE fields here"
+            },
+            "donor": {
+                "info": {
+                    "randomField6": "alternatively, put some extra DONOR fields here"
+                },
+                "gender": "Female",
+                "randomField4": "we can define any DONOR field. For example, randomField4",
+                "randomField5": "as a second example, we can define another random DONOR field called randomField5",
+                "submitterDonorId": "internal_donor_123456789-00"
+            },
+            "specimen": {
+                "info": {
+                    "randomField3": "alternatively, put some extra SPECIMEN fields here"
+                },
+                "randomField1": "we can define any SPECIMEN field. For example, randomField1",
+                "randomField2": "as a second example, we can define another random SPECIMEN field called randomField2",
+                "specimenType": "Primary tumour",
+                "submitterSpecimenId": "internal_specimen_9b73gk8s02dk",
+                "specimenTissueSource": "Solid tissue",
+                "tumourNormalDesignation": "Tumour"
+            },
+            "sampleType": "Total RNA",
+            "randomField7": "we can define any SAMPLE field. For example, randomField7",
+            "randomField8": "as a second example, we can define another random SAMPLE field called randomField8",
+            "submitterSampleId": "internal_sample_98024759826836",
+            "matchedNormalSubmitterSampleId": "sample-x24-11a"
+        }
+    ],
+    "experiment": {
+        "info": {
+            "randomField16": "alternatively, put some extra EXPERIMENT fields here"
+        },
+        "randomField14": "we can define any EXPERIMENT field. For example, randomField14",
+        "randomField15": "as a second example, we can define another random EXPERIMENT field called randomField15",
+        "variantCallingTool": "silver bullet",
+        "matchedNormalSampleSubmitterId": "sample-x24-11a"
+    },
+    "randomField17": "we can define any ANALYSIS field. For example, randomField17",
+    "randomField18": "as a second example, we can define another random ANALYSIS field called randomField18"
+}
