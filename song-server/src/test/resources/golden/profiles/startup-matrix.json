@@ -1,0 +1,62 @@
+{
+  "default" : {
+    "startup" : "failed",
+    "error" : "org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.config.annotation.web.builders.HttpSecurity' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}"
+  },
+  "prod" : {
+    "startup" : "failed",
+    "error" : "org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.config.annotation.web.builders.HttpSecurity' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}"
+  },
+  "noSecurityDev" : {
+    "startup" : "started",
+    "GET /isAlive" : 200,
+    "GET /studies/ABC123" : 200,
+    "POST /studies/{studyId}/" : 200,
+    "GET /actuator/health" : 200
+  },
+  "score-client-cred" : {
+    "startup" : "failed",
+    "error" : "org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.config.annotation.web.builders.HttpSecurity' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}"
+  },
+  "kafka" : {
+    "startup" : "failed",
+    "error" : "org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.config.annotation.web.builders.HttpSecurity' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}"
+  },
+  "default,dev" : {
+    "startup" : "failed",
+    "error" : "org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.config.annotation.web.builders.HttpSecurity' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}"
+  },
+  "default,noSecurityDev" : {
+    "startup" : "started",
+    "GET /isAlive" : 200,
+    "GET /studies/ABC123" : 200,
+    "POST /studies/{studyId}/" : 200,
+    "GET /actuator/health" : 200
+  },
+  "default,score-client-cred" : {
+    "startup" : "failed",
+    "error" : "org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.config.annotation.web.builders.HttpSecurity' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}"
+  },
+  "default,kafka" : {
+    "startup" : "failed",
+    "error" : "org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.config.annotation.web.builders.HttpSecurity' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}"
+  },
+  "prod,kafka" : {
+    "startup" : "failed",
+    "error" : "org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.config.annotation.web.builders.HttpSecurity' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}"
+  },
+  "default,dev,secure" : {
+    "startup" : "started",
+    "GET /isAlive" : 200,
+    "GET /studies/ABC123" : 200,
+    "POST /studies/{studyId}/" : 401,
+    "GET /actuator/health" : 401
+  },
+  "prod,secure,kafka" : {
+    "startup" : "started",
+    "GET /isAlive" : 200,
+    "GET /studies/ABC123" : 200,
+    "POST /studies/{studyId}/" : 401,
+    "GET /actuator/health" : 401
+  }
+}
