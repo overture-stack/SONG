@@ -166,6 +166,15 @@ public class EndpointTester {
         .putAnd();
   }
 
+  // PATCH /studies/{study}/analysis/{analysisId}
+  public ResponseOption patchUpdateAnalysisRequestAnd(
+      @NonNull String studyId, @NonNull String analysisId, @NonNull JsonNode patchRequest) {
+    return initWebRequest()
+        .endpoint("studies/%s/analysis/%s", studyId, analysisId)
+        .body(patchRequest)
+        .patchAnd();
+  }
+
   // GET /schemas/<name>
   public ResponseOption getLatestAnalysisTypeGetRequestAnd(@NonNull String analysisTypeName) {
     return getAnalysisTypeVersionGetRequestAnd(analysisTypeName, null, false);

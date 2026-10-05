@@ -1,0 +1,18 @@
+{
+  "readBack" : {
+    "zeta" : 1,
+    "alpha" : {
+      "list" : [ 1, 2.5, "three", null, {
+        "deep" : true
+      } ]
+    },
+    "unicode" : "données – 数据 😀",
+    "emptyString" : "",
+    "bigNumber" : 12345678901234567890,
+    "fraction" : -0.001,
+    "flag" : false,
+    "emptyObject" : { },
+    "emptyArray" : [ ]
+  },
+  "storedText" : "{\"zeta\":1,\"alpha\":{\"list\":[1,2.5,\"three\",null,{\"deep\":true}]},\"unicode\":\"données – 数据 😀\",\"emptyString\":\"\",\"bigNumber\":12345678901234567890,\"fraction\":-0.001,\"flag\":false,\"emptyObject\":{},\"emptyArray\":[]}"
+}

@@ -165,6 +165,10 @@ public abstract class AbstractWebResource<W extends AbstractWebResource<W>> {
     return doRequest(this.body, HttpMethod.POST);
   }
 
+  public ResponseEntity<String> patch() {
+    return doRequest(this.body, HttpMethod.PATCH);
+  }
+
   public ResponseEntity<String> delete() {
     return doRequest(null, HttpMethod.DELETE);
   }
@@ -183,6 +187,10 @@ public abstract class AbstractWebResource<W extends AbstractWebResource<W>> {
 
   public ResponseOption postAnd() {
     return createResponseOption(post());
+  }
+
+  public ResponseOption patchAnd() {
+    return createResponseOption(patch());
   }
 
   private Optional<String> getQuery() {

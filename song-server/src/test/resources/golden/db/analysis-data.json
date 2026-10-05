@@ -1,0 +1,21 @@
+{
+  "readBack" : {
+    "tricky" : {
+      "flag" : false,
+      "zeta" : 1,
+      "alpha" : {
+        "list" : [ 1, 2.5, "three", null, {
+          "deep" : true
+        } ]
+      },
+      "unicode" : "données – 数据 😀",
+      "fraction" : -0.001,
+      "bigNumber" : 12345678901234567890,
+      "nullValue" : null,
+      "emptyArray" : [ ],
+      "emptyObject" : { },
+      "emptyString" : null
+    }
+  },
+  "storedText" : "{\"tricky\": {\"flag\": false, \"zeta\": 1, \"alpha\": {\"list\": [1, 2.5, \"three\", null, {\"deep\": true}]}, \"unicode\": \"données – 数据 😀\", \"fraction\": -0.001, \"bigNumber\": 12345678901234567890, \"nullValue\": null, \"emptyArray\": [], \"emptyObject\": {}, \"emptyString\": null}}"
+}

@@ -17,10 +17,23 @@
 
 package bio.overture.song.server.controller;
 
+import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_DOES_NOT_EXIST;
 import static bio.overture.song.core.exceptions.ServerErrors.STUDY_ID_MISMATCH;
+import static bio.overture.song.core.utils.JsonUtils.readTree;
+import static bio.overture.song.core.utils.RandomGenerator.createRandomGenerator;
 import static bio.overture.song.server.utils.EndpointTester.createEndpointTester;
+import static bio.overture.song.server.utils.generator.StudyGenerator.createStudyGenerator;
+import static com.google.common.base.Strings.emptyToNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.overture.song.server.model.entity.Study;
+import bio.overture.song.server.service.StudyService;
 import bio.overture.song.server.utils.EndpointTester;
+import java.util.HashSet;
+import javax.transaction.Transactional;
+import lombok.SneakyThrows;
+import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,11 +46,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+@Transactional
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles({"test"})
 public class StudyControllerTest {
+
+  @Autowired private StudyService studyService;
 
   // This was done because the autowired mockMvc wasn't working properly, it was getting http 403
   // errors
@@ -55,5 +71,59 @@ public class StudyControllerTest {
   @Test
   public void saveStudyShouldValidateStudyId() {
     endpointTester.testPostError("/studies/123/", "{\"studyId\": \"456\"}", STUDY_ID_MISMATCH);
+  }
+
+  @Test
+  public void getStudy_existingStudy_returnsStudy() {
+    val studyId =
+        createStudyGenerator(studyService, createRandomGenerator(getClass().getSimpleName()))
+            .createRandomStudy();
+    val expected = studyService.read(studyId);
+    val actual =
+        endpointTester
+            .initWebRequest()
+            .endpoint("studies/%s", studyId)
+            .getAnd()
+            .extractOneEntity(Study.class);
+    // Study is serialized with NON_EMPTY inclusion, so empty strings are omitted.
+    assertEquals(expected.getStudyId(), actual.getStudyId());
+    assertEquals(emptyToNull(expected.getName()), actual.getName());
+    assertEquals(emptyToNull(expected.getOrganization()), actual.getOrganization());
+    assertEquals(emptyToNull(expected.getDescription()), actual.getDescription());
+  }
+
+  @Test
+  public void getStudy_unknownStudy_notFound() {
+    endpointTester
+        .initWebRequest()
+        .endpoint("studies/%s", "NO-SUCH-STUDY")
+        .getAnd()
+        .assertServerError(STUDY_ID_DOES_NOT_EXIST);
+  }
+
+  @Test
+  @SneakyThrows
+  public void getAllStudies_containsEveryStudyId() {
+    val studyId =
+        createStudyGenerator(studyService, createRandomGenerator(getClass().getSimpleName()))
+            .createRandomStudy();
+    val body =
+        endpointTester.initWebRequest().endpoint("studies/all").getAnd().assertOk().getResponse();
+    val studyIds = new HashSet<String>();
+    readTree(body.getBody()).forEach(node -> studyIds.add(node.textValue()));
+    assertTrue(studyIds.contains(studyId));
+    assertEquals(new HashSet<>(studyService.findAllStudies()), studyIds);
+  }
+
+  @Test
+  public void saveStudy_matchingStudyId_createsStudy() {
+    val study = Study.builder().studyId("CREATED-BY-TEST").name("created").build();
+    endpointTester
+        .initWebRequest()
+        .endpoint("studies/%s/", study.getStudyId())
+        .body(study)
+        .postAnd()
+        .assertOk();
+    assertTrue(studyService.isStudyExist(study.getStudyId()));
   }
 }

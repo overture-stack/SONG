@@ -285,4 +285,30 @@ public class FileServiceTest {
         .fileAccess(CONTROLLED.toString())
         .build();
   }
+
+  @Test
+  public void findByBusinessKey_seededFile_returnsObjectId() {
+    assertEquals(
+        "FI1", fileService.findByBusinessKey("AN1", "ABC-TC285G7-A5-ae3458712345.bam").get());
+  }
+
+  @Test
+  public void findByBusinessKey_fileNameOfAnotherAnalysis_empty() {
+    assertTrue(fileService.findByBusinessKey("AN2", "ABC-TC285G7-A5-ae3458712345.bam").isEmpty());
+  }
+
+  @Test
+  public void findByBusinessKey_unknownAnalysis_empty() {
+    assertTrue(fileService.findByBusinessKey("NO-SUCH-ANALYSIS", "any.bam").isEmpty());
+  }
+
+  @Test
+  public void checkMd5FileExists_seededMd5_true() {
+    assertTrue(fileService.checkMd5FileExists("20de2982390c60e33452bf8736c3a9f1"));
+  }
+
+  @Test
+  public void checkMd5FileExists_unknownMd5_false() {
+    assertFalse(fileService.checkMd5FileExists(randomGenerator.generateRandomMD5()));
+  }
 }

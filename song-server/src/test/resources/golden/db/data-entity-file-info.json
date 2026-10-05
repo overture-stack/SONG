@@ -1,0 +1,14 @@
+{
+  "alpha" : {
+    "list" : [ 1, 2.5, "three", null, {
+      "deep" : true
+    } ]
+  },
+  "bigNumber" : 12345678901234567890,
+  "emptyArray" : [ ],
+  "emptyObject" : { },
+  "flag" : false,
+  "fraction" : -0.001,
+  "unicode" : "données – 数据 😀",
+  "zeta" : 1
+}
