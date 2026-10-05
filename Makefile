@@ -290,3 +290,7 @@ test-unpublish: _ping_song_server
 	@echo $(YELLOW)$(INFO_HEADER) "Unpublishing analysis: $$($(GET_ANALYSIS_ID_CMD))" $(END)
 	@$(SONG_CLIENT_CMD) unpublish -a $$($(GET_ANALYSIS_ID_CMD))
 
+
+# Build the server and client images from the root Dockerfile and check they start and talk to each other
+docker-smoke-test:
+	@$(ROOT_DIR)/dev/docker-smoke-test.sh
