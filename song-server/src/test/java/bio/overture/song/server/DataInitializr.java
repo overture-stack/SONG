@@ -19,13 +19,24 @@ package bio.overture.song.server;
 
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.stereotype.Component;
 
+/**
+ * Replaces all study data with the seed data in {@code data.sql} once the application is ready.
+ *
+ * <p>Enabled unless {@code test.data-initializr.enabled} is {@code false}, which tests that start
+ * against an existing database use to keep its data.
+ */
 @Component
+@ConditionalOnProperty(
+    name = "test.data-initializr.enabled",
+    havingValue = "true",
+    matchIfMissing = true)
 public class DataInitializr {
   @Autowired DataSource dataSource;
 

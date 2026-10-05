@@ -1,0 +1,40 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "limit" : 20,
+    "offset" : 0,
+    "count" : 3,
+    "resultSet" : [ {
+      "name" : "variantCall",
+      "version" : 1,
+      "createdAt" : "<datetime>",
+      "options" : {
+        "fileTypes" : null,
+        "externalValidations" : null
+      },
+      "fileTypes" : [ ],
+      "externalValidations" : [ ]
+    }, {
+      "name" : "sequencingRead",
+      "version" : 1,
+      "createdAt" : "<datetime>",
+      "options" : {
+        "fileTypes" : null,
+        "externalValidations" : null
+      },
+      "fileTypes" : [ ],
+      "externalValidations" : [ ]
+    }, {
+      "name" : "variantCall",
+      "version" : 2,
+      "createdAt" : "<datetime>",
+      "options" : {
+        "fileTypes" : [ ],
+        "externalValidations" : [ ]
+      },
+      "fileTypes" : [ ],
+      "externalValidations" : [ ]
+    } ]
+  }
+}
